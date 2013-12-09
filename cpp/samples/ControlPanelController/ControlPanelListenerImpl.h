@@ -1,0 +1,72 @@
+/******************************************************************************
+ * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ *
+ *    Permission to use, copy, modify, and/or distribute this software for any
+ *    purpose with or without fee is hereby granted, provided that the above
+ *    copyright notice and this permission notice appear in all copies.
+ *
+ *    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ *    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ *    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ *    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ *    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ *    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ ******************************************************************************/
+
+#ifndef CONTROLPANELLISTENERIMPL_H_
+#define CONTROLPANELLISTENERIMPL_H_
+
+#include <alljoyn/controlpanel/ControlPanelListener.h>
+#include <alljoyn/controlpanel/Container.h>
+#include <alljoyn/controlpanel/Property.h>
+#include <alljoyn/controlpanel/Dialog.h>
+#include <alljoyn/controlpanel/Action.h>
+
+/*
+ *
+ */
+class ControlPanelListenerImpl : public ajn::services::ControlPanelListener {
+  public:
+
+    ControlPanelListenerImpl();
+
+    virtual ~ControlPanelListenerImpl();
+
+    virtual void sessionEstablished(ajn::services::ControlPanelDevice* device);
+
+    virtual void sessionLost(ajn::services::ControlPanelDevice* device);
+
+    virtual void errorOccured(ajn::services::ControlPanelDevice* device, qcc::String const& error);
+
+    virtual void signalPropertiesChanged(ajn::services::ControlPanelDevice* device, ajn::services::Widget* widget);
+
+    virtual void signalValueChanged(ajn::services::ControlPanelDevice* device, ajn::services::Widget* widget);
+
+  private:
+
+    void printBasicWidget(ajn::services::Widget* widget, qcc::String const& widgetType, qcc::String const& indent);
+
+    void printContainer(ajn::services::Container* rootContainer, std::vector<ajn::services::Action*>& actionsToExecute,
+                        std::vector<ajn::services::Dialog*>& dialogsToExecute, std::vector<ajn::services::Property*>& propertiesToChange,
+                        qcc::String const& indent = "");
+
+    void printProperty(ajn::services::Property* property, qcc::String const& indent);
+
+    void printDialog(ajn::services::Dialog* dialog, qcc::String const& indent);
+
+    void printPropertyValue(ajn::services::PropertyValue propertyValue, ajn::services::PropertyType propertyType, qcc::String const& indent);
+
+    void printConstraintRange(ajn::services::ConstraintRange* constraintRange, ajn::services::PropertyType propertyType,
+                              qcc::String const& indent);
+
+    void printConstraintList(const std::vector<ajn::services::ConstraintList>& constraintList, ajn::services::PropertyType propertyType,
+                             qcc::String const& indent);
+
+    void executeActions(std::vector<ajn::services::Action*>& actionsToExecute);
+
+    void executeDialogActions(std::vector<ajn::services::Dialog*>& dialogsToExecute);
+
+};
+
+#endif /* CONTROLPANELLISTENERIMPL_H_ */

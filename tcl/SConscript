@@ -1,0 +1,48 @@
+#*****************************************************************************
+# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+#
+#    Permission to use, copy, modify, and/or distribute this software for any
+#    purpose with or without fee is hereby granted, provided that the above
+#    copyright notice and this permission notice appear in all copies.
+#
+#    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+#    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+#    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+#    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+#    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+#    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+#    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+#*****************************************************************************
+
+about_root_default           = '../../about/tcl'
+serversample_root_default    = '../../../applications/sample_apps/tcl/ServerSample'
+
+import os
+Import('cps_env')
+
+vars = Variables()
+vars.Add('ABOUT_ROOT', 'Root directory of About service', about_root_default)
+vars.Add('SERVERSAMPLE_ROOT', 'Root directory of services server sample', serversample_root_default)
+
+vars.Update(cps_env)
+
+Help(vars.GenerateHelpText(cps_env))
+
+if not os.path.isfile(cps_env['SERVERSAMPLE_ROOT'] + '/SConscript'):
+    print "SConscript in 'SERVERSAMPLE_ROOT=" + cps_env['SERVERSAMPLE_ROOT'] + "' not found; aborting.\n"
+    exit(1)
+
+# a flag to tell services server sample not to build its executable, but rather
+# to return to us build parameters and info for us to build here.
+cps_env['INDIV_BUILD'] = 1
+# convert locations to absolute, to be passed on to sample apps in subdirectories
+cps_env['SERVERSAMPLE_ROOT_FROM_COMPONENT'] = str(cps_env.Dir('$SERVERSAMPLE_ROOT'))
+# abs. path to About service is needed by server sample scons
+cps_env['ABOUT_ROOT_FROM_COMPONENT']        = str(cps_env.Dir('$ABOUT_ROOT'))
+
+returnValue = []
+controlpanel_app = cps_env.SConscript('samples/CPSControlleeSample/SConscript')
+cps_env.Install("build", controlpanel_app)
+returnValue += controlpanel_app
+
+Return('returnValue')

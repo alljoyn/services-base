@@ -1,0 +1,55 @@
+#*****************************************************************************
+# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+#
+#    Permission to use, copy, modify, and/or distribute this software for any
+#    purpose with or without fee is hereby granted, provided that the above
+#    copyright notice and this permission notice appear in all copies.
+#
+#    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+#    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+#    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+#    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+#    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+#    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+#    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+#*****************************************************************************
+
+Import('cps_env')
+
+target_name = 'ControlPanelSample'
+
+source_files = [
+                Glob('*.c')
+                ]
+
+cps_env['CONTROLPANEL_DEFINE_STRING'] = 'CONTROLPANEL_SERVICE'
+cps_env['INCLUDE_DIRS'] =  [
+                     Dir('../../inc'),
+                     Dir('inc'),
+                 ]
+
+cps_env.Append(CPPPATH = cps_env['INCLUDE_DIRS'])
+cps_env.Append(CPPDEFINES = '$CONTROLPANEL_DEFINE_STRING')
+
+local_objs = cps_env.Object(source_files)
+
+Export('cps_env')
+objs = cps_env.SConscript('../../src/CPSControllee/SConscript')
+local_objs.append(objs)
+
+# if we are called as part of services server sample, then return now:
+if not cps_env.has_key('INDIV_BUILD'):
+	Return('local_objs')
+
+# we are called as part of ControlPanel build, which needs 
+# server sample and About components
+cps_env['SERSAMP_VARIANT_DIR'] = cps_env['CONTROLPANEL_DEFINE_STRING'].lower()
+serversample_objs = cps_env.SConscript('$SERVERSAMPLE_ROOT_FROM_COMPONENT/SConscript', {'env': cps_env})
+
+prog = cps_env.Program(target = target_name, 
+			source = [
+    			local_objs,
+                serversample_objs,
+                cps_env['aj_obj'],
+			])
+Return('prog')

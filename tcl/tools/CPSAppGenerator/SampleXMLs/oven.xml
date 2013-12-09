@@ -1,0 +1,143 @@
+<?xml version="1.0"?>
+   <!--
+
+        Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+
+           Permission to use, copy, modify, and/or distribute this software for any
+           purpose with or without fee is hereby granted, provided that the above
+           copyright notice and this permission notice appear in all copies.
+
+           THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+           WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+           MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+           ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+           WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+           ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+           OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+  -->
+<controlPanelDevice xmlns="http://www.alljoyn.org/controlpanel/gen">
+    <name>MyOven</name>
+    <headerCode>#include "ControlPanelProvided.h"</headerCode>
+    <url>http://MyControlPanelUrl.com</url>  
+    <languageSet name="myLanguages">
+        <language>en</language>
+    </languageSet>
+    <controlPanels>
+        <controlPanel languageSet="myLanguages">
+            <rootContainer>
+                <name>OvenController</name>
+                <secured>false</secured>    
+                <enabled>true</enabled>
+                <bgcolor>0x200</bgcolor>
+                <label>
+                    <value type="literal" language="en">My kitchen Oven</value>
+                </label>
+                <hints>
+                    <hint>vertical_linear</hint>
+                </hints>
+                <elements>
+                    <scalarProperty dataType="UINT16">
+                        <name>program</name>
+                        <getCode>getProgram</getCode>
+                        <setCode>setProgram(%s)</setCode>
+                        <secured>false</secured>
+                        <enabled>true</enabled>
+                        <writable>true</writable>
+                        <label>
+                            <code>getProgramString</code>
+                        </label>
+                        <bgcolor>0x500</bgcolor>
+                        <hints>
+                            <hint>radiobutton</hint>
+                        </hints>
+                        <constraintDefs>
+                            <constraintVals>
+                                <constraint>
+                                    <display>
+                                        <value type="literal" language="en">Off</value>
+                                    </display>
+                                    <value>0</value>
+                                </constraint>
+                                <constraint>
+                                    <display>
+                                        <value type="literal" language="en">Bake</value>
+                                    </display>
+                                    <value>1</value>
+                                </constraint>
+                                <constraint>
+                                    <display>
+                                        <value type="literal" language="en">Broil</value>
+                                    </display>
+                                    <value>2</value>
+                                </constraint>
+                                <constraint>
+                                    <display>
+                                        <value type="literal" language="en">Keep warm</value>
+                                    </display>
+                                    <value>3</value>
+                                </constraint>
+                            </constraintVals>
+                        </constraintDefs>
+                    </scalarProperty>
+                    <scalarProperty dataType="UINT16">
+                        <name>temperature</name>
+                        <getCode>getTemperature</getCode>
+                        <setCode>setTemperature(%s)</setCode>
+                        <secured>false</secured>
+                        <enabled>true</enabled>
+                        <writable>true</writable>
+                        <label>
+                            <value type="literal" language="en">Temperature</value>
+                        </label>
+                        <bgcolor>0x500</bgcolor>
+                        <hints>
+                            <hint>slider</hint>
+                        </hints>
+                        <constraintDefs>
+                            <constraintRange>
+                                <min>200</min>
+                                <max>500</max>
+                                <increment>20</increment>
+                            </constraintRange>
+                        </constraintDefs>
+                        <unitMeasure>
+                            <value type="literal" language="en">Fahrenheit</value>
+                        </unitMeasure>
+                    </scalarProperty>
+                    <action>
+                        <name>start</name>
+                        <onAction>
+                            <executeCode>startOven();</executeCode>
+                        </onAction>
+                        <secured>false</secured>
+                        <enabled>true</enabled>
+                        <label>
+                            <value type="literal" language="en">Start</value>
+                        </label>
+                        <bgcolor>0x400</bgcolor>
+                        <hints>
+                            <hint>actionButton</hint>
+                        </hints>
+                    </action>
+                    <action>
+                        <name>stop</name>
+                        <onAction>
+                            <executeCode>stopOven();</executeCode>
+                        </onAction>
+                        <secured>false</secured>
+                        <enabled>true</enabled>
+                        <label>
+                            <value type="literal" language="en">Stop</value>
+                        </label>
+                        <bgcolor>0x400</bgcolor>
+                        <hints>
+                            <hint>actionButton</hint>
+                        </hints>
+                    </action>
+                </elements>
+            </rootContainer>
+        </controlPanel>
+    </controlPanels>
+</controlPanelDevice>
+

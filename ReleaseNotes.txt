@@ -1,0 +1,16 @@
+
+
+AllJoyn Control Panel Service Version 1.0.0 Release Notes
+--------------------------------------------------------
+
+Platform Support
+----------------
+
+1) Android Ice Cream Sandwich 4.0 (ARM7)
+2) Android JellyBean 4.1 (ARM7)
+
+
+Change history
+--------------
+
+1.0.0 - Initial Open Source Release

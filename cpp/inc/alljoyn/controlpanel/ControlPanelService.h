@@ -1,0 +1,201 @@
+/******************************************************************************
+ * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ *
+ *    Permission to use, copy, modify, and/or distribute this software for any
+ *    purpose with or without fee is hereby granted, provided that the above
+ *    copyright notice and this permission notice appear in all copies.
+ *
+ *    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ *    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ *    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ *    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ *    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ *    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ ******************************************************************************/
+
+#ifndef CONTROLPANELSERVICE_H_
+#define CONTROLPANELSERVICE_H_
+
+#include <alljoyn/BusAttachment.h>
+#include <alljoyn/services_common/GenericLogger.h>
+#include <alljoyn/controlpanel/ControlPanelControllee.h>
+#include <alljoyn/controlpanel/ControlPanelController.h>
+#include <alljoyn/controlpanel/ControlPanelBusListener.h>
+#include <alljoyn/controlpanel/ControlPanelListener.h>
+#include <alljoyn/services_common/ServicesLoggerImpl.h>
+
+namespace ajn {
+namespace services {
+
+/**
+ * ControlPanel Service class. Used to initialize and shutdown the service
+ */
+class ControlPanelService {
+
+  public:
+
+    /**
+     * Get Instance of ControlPanelServiceImpl - singleton implementation
+     * @return instance
+     */
+    static ControlPanelService* getInstance();
+
+    /**
+     * Destructor for ControlPanelServiceImpl
+     */
+    ~ControlPanelService();
+
+    /**
+     * Initialize the controllee to be used
+     * @param bus - bus used for Controllee
+     * @param controlPanelControllee - controllee to initialize
+     * @return
+     */
+    QStatus initControllee(BusAttachment* bus, ControlPanelControllee* controlPanelControllee);
+
+    /**
+     * Remove locally stored controllee. Allows a new call to initControllee to be made
+     * @return status
+     */
+    QStatus shutdownControllee();
+
+    /**
+     * Initialize the controller to be used
+     * @param bus - bus used for Controller
+     * @param controlPanelController - controller to initialize
+     * @param controlPanelListener
+     * @return
+     */
+    QStatus initController(BusAttachment* bus, ControlPanelController* controlPanelController,
+                           ControlPanelListener* controlPanelListener);
+
+    /**
+     * Remove locally stored controller. Allows a new call to initController to be made
+     * @return status
+     */
+    QStatus shutdownController();
+
+    /**
+     * Receive GenericLogger* to use for logging
+     * @param logger Implementation of GenericLogger
+     * @return previous logger
+     */
+    GenericLogger* setLogger(GenericLogger* logger);
+
+    /**
+     * Get the currently-configured logger implementation
+     * @return logger Implementation of GenericLogger
+     */
+    GenericLogger* getLogger();
+
+    /**
+     * Set log level filter for subsequent logging messages
+     * @param newLogLevel enum value
+     * @return logLevel enum value that was in effect prior to this change
+     */
+    Log::LogLevel setLogLevel(Log::LogLevel newLogLevel);
+
+    /**
+     * Get log level filter value currently in effect
+     * @return logLevel enum value currently in effect
+     */
+    Log::LogLevel getLogLevel();
+
+    /**
+     * Method to get the busAttachment used in the service.
+     * @return BusAttachment
+     */
+    ajn::BusAttachment* getBusAttachment();
+
+    /**
+     * Get the BusListener
+     * @return ControlPanelBusListener
+     */
+    ControlPanelBusListener* getBusListener() const;
+
+    /**
+     * Get the ControlPanelListener
+     * @return ControlPanelListener
+     */
+    ControlPanelListener* getControlPanelListener() const;
+
+    /**
+     * Utility function to split an objectPath based on the / delimeter
+     * @param objectPath
+     * @return vector of objectPath parts
+     */
+    static std::vector<qcc::String> SplitObjectPath(qcc::String const& objectPath);
+
+    /**
+     * Get the Version of the ControlPanelService
+     * @return the ControlPanelService version
+     */
+    static uint16_t getVersion();
+
+    /**
+     * A callback passed to the Generic Logger when the default logger is replaced by a different logger
+     * @param type - message type
+     * @param module - module of the message
+     * @param msg - message
+     * @param context - context passed in by the application
+     */
+    static void GenericLoggerCallBack(DbgMsgType type, const char* module, const char* msg, void* context);
+
+  private:
+
+    /**
+     * Default constructor for ControlPanelServiceImpl
+     * Private to allow for singleton implementation
+     */
+    ControlPanelService();
+
+    /**
+     * Version of the API
+     */
+    static uint16_t const CONTROLPANEL_SERVICE_VERSION;
+
+    /**
+     * Instance variable - ControlPanelServiceImpl is a singleton
+     */
+    static ControlPanelService* s_Instance;
+
+    /**
+     * BusAttachement used in Service
+     */
+    BusAttachment* m_Bus;
+
+    /**
+     * BusListener used in service
+     */
+    ControlPanelBusListener* m_BusListener;
+
+    /**
+     * ControlPanelControllee of service
+     */
+    ControlPanelControllee* m_ControlPanelControllee;
+
+    /**
+     * ControlPanelController of service
+     */
+    ControlPanelController* m_ControlPanelController;
+
+    /**
+     * ControlPanelListener of service
+     */
+    ControlPanelListener* m_ControlPanelListener;
+
+    /**
+     * Logger that is used in library
+     */
+    GenericLogger* logger;
+
+    /**
+     * Default Logger that is used in library
+     */
+    ServicesLoggerImpl cpsLogger;
+};
+} //namespace services
+} //namespace ajn
+
+#endif /* CONTROLPANELSERVICE_H_ */
