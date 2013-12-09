@@ -1,0 +1,23 @@
+
+
+AllJoyn Config Version 1.0.0 Release Notes
+------------------------------------------
+
+Platform/Language Support
+-------------------------
+ 
+1) Compiled with Java 1.6
+
+
+Open issues in Version 1.0.0
+---------------------------------
+
+MBUS-2179 - In any case wehre an attribute is set/get  that requires a language  , with an unsupported language , will result in ;
+W/System.err : org.alljoyn.bus.ErrorReplyBusException:org.alljoyn.Bus.ErStatus
+Instead of 
+org.alljoyn.Error.LanguageNotSupported
+
+Change history
+--------------
+
+1.0.0 - Initial Open Source Release

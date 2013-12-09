@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Class-Path: alljoyn.jar alljoyn_about.jar alljoyn_services_common.jar alljoyn_config.jar
+Main-Class: org.alljoyn.config.sample.ConfigClientSample
+

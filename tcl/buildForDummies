@@ -1,0 +1,9 @@
+#!/bin/bash
+# Name: /tmp/demo.bash : 
+# Purpose: Tell in what directory $0 is stored in
+# Warning: Not tested for portability 
+# ------------------------------------------------
+
+
+ 
+scons TARG=linux WS=off VARIANT=debug
