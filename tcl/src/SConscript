@@ -1,0 +1,39 @@
+#*****************************************************************************
+# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+#
+#    Permission to use, copy, modify, and/or distribute this software for any
+#    purpose with or without fee is hereby granted, provided that the above
+#    copyright notice and this permission notice appear in all copies.
+#
+#    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+#    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+#    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+#    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+#    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+#    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+#    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+#*****************************************************************************
+
+Import('notif_env')
+
+notif_env.Append(CPPPATH = [
+                             Dir('../inc'),
+                             Dir('../samples/inc/'),
+                             Dir('../inc/target/' + notif_env['TARG']),
+                            ])
+Export('notif_env') # needed when we are called directly by serversample
+returnValue = []
+if not notif_env.has_key('notif_app_list'):
+    notif_env['notif_app_list'] = ['NotificationConsumer', 'NotificationProducer']
+
+notif_env['SERVICE_COMMON_OBJS'] = notif_env.SConscript('common/SConscript', variant_dir = "common/obj", duplicate = 0)
+
+for appdir in notif_env['notif_app_list']:
+    appname = notif_env.SConscript(appdir + '/SConscript', variant_dir = appdir + "/obj", duplicate = 0)
+    returnValue += appname
+
+# if we are called as part of services server sample, then add common objs once now:
+if not notif_env.has_key('INDIV_BUILD'):
+    returnValue += notif_env['SERVICE_COMMON_OBJS']
+
+Return('returnValue') 

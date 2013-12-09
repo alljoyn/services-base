@@ -1,0 +1,316 @@
+/******************************************************************************
+ * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ *
+ *    Permission to use, copy, modify, and/or distribute this software for any
+ *    purpose with or without fee is hereby granted, provided that the above
+ *    copyright notice and this permission notice appear in all copies.
+ *
+ *    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ *    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ *    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ *    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ *    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ *    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ ******************************************************************************/
+
+#ifndef NOTIFICATION_H_
+#define NOTIFICATION_H_
+
+#include <vector>
+#include <map>
+#include <alljoyn/notification/NotificationText.h>
+#include <alljoyn/notification/NotificationEnums.h>
+#include <alljoyn/notification/RichAudioUrl.h>
+
+namespace ajn {
+namespace services {
+
+/**
+ * The Notification Class is used to send and receive Notifications
+ */
+class Notification {
+  public:
+
+    /**
+     * Constructor for Notification
+     * @param messageId
+     * @param messageType
+     * @param deviceId
+     * @param deviceName
+     * @param appId
+     * @param appName
+     * @param sender
+     * @param customAttributes
+     * @param notificationText
+     * @param richIconUrl
+     * @param richAudioUrl
+     * @param richIconObjectPath
+     * @param richAudioObjectPath
+     * @param controlPanelServiceObjectPath
+     */
+    Notification(int32_t messageId, NotificationMessageType messageType,
+                 const char* deviceId, const char* deviceName,
+                 const char* appId, const char* appName,
+                 const char* sender, std::map<qcc::String, qcc::String> const& customAttributes,
+                 std::vector<NotificationText> const& notificationText,
+                 const char* richIconUrl, std::vector<RichAudioUrl> const&  richAudioUrl,
+                 const char* richIconObjectPath, const char* richAudioObjectPath,
+                 const char* controlPanelServiceObjectPath);
+
+
+    /**
+     * Construct for Notification
+     * @param messageType
+     * @param notificationText
+     */
+    Notification(NotificationMessageType messageType,
+                 std::vector<NotificationText> const& notificationText);
+
+    /**
+     * Destructor of Notification
+     */
+    ~Notification() { };
+
+    /**
+     * Get the Version
+     * @return version
+     */
+    const uint16_t getVersion() const;
+
+    /**
+     * Get the device Id
+     * @return deviceId
+     */
+    const char* getDeviceId() const;
+
+    /**
+     * Get the Device Name
+     * @return deviceName
+     */
+    const char* getDeviceName() const;
+
+    /**
+     * Get the app Id
+     * @return appId
+     */
+    const char* getAppId() const;
+
+    /**
+     * Get the app Name
+     * @return appName
+     */
+    const char* getAppName() const;
+
+    /**
+     * Get the map of customAttributes
+     * @return customAttributes
+     */
+    const std::map<qcc::String, qcc::String>& getCustomAttributes() const;
+
+    /**
+     * Get the Message Id
+     * @return notificationId
+     */
+    const int32_t getMessageId() const;
+
+    /**
+     * Get the Sender
+     * @return Sender
+     */
+    const char* getSenderBusName() const;
+
+    /**
+     * Get the MessageType
+     * @return MessageType
+     */
+    const NotificationMessageType getMessageType() const;
+
+    /**
+     * Get the Notification Text
+     * @return notificationText
+     */
+    const std::vector<NotificationText>& getText() const;
+
+    /**
+     * Get the Rich Icon Url
+     * @return richIconUrl
+     */
+    const char* getRichIconUrl() const;
+
+    /**
+     * Get the Rich Icon Object Path
+     * @return richIconObjectPath
+     */
+    const char* getRichIconObjectPath() const;
+
+    /**
+     * Get the Rich Audio Object Path
+     * @return richAudioObjectPath
+     */
+    const char* getRichAudioObjectPath() const;
+
+    /**
+     * Get the Rich Audio Urls
+     * @return RichAudioUrl
+     */
+    const std::vector<RichAudioUrl>& getRichAudioUrl() const;
+
+    /**
+     * Get the ControlPanelService object path
+     * @return ControlPanelServiceObjectPath
+     */
+    const char* getControlPanelServiceObjectPath() const;
+
+    /**
+     * Set the App Id of the Notification
+     * @param appId
+     */
+    void setAppId(const char* appId);
+
+    /**
+     * Set the App Name of the Notification
+     * @param appName
+     */
+    void setAppName(const char* appName);
+
+    /**
+     * Set the Control Panel Service Object Path of the Notification
+     * @param controlPanelServiceObjectPath
+     */
+    void setControlPanelServiceObjectPath(
+        const char* controlPanelServiceObjectPath);
+
+    /**
+     * Set the Custom Attributed of the Notification
+     * @param customAttributes
+     */
+    void setCustomAttributes(
+        const std::map<qcc::String, qcc::String>& customAttributes);
+
+    /**
+     * Set the deviceId of the Notification
+     * @param deviceId
+     */
+    void setDeviceId(const char* deviceId);
+
+    /**
+     * Set the deviceName of the Notification
+     * @param deviceName
+     */
+    void setDeviceName(const char* deviceName);
+
+    /**
+     * Set the messageId of the Notification
+     * @param messageId
+     */
+    void setMessageId(int32_t messageId);
+
+    /**
+     * Set the richAudioUrl of the Notification
+     * @param richAudioUrl
+     */
+    void setRichAudioUrl(const std::vector<RichAudioUrl>& richAudioUrl);
+
+    /**
+     * Set the richIconUrl of the Notification
+     * @param richIconUrl
+     */
+    void setRichIconUrl(const char* richIconUrl);
+
+    /**
+     * Set the richIconObjectPath of the Notification
+     * @param richIconObjectPath
+     */
+    void setRichIconObjectPath(const char* richIconObjectPath);
+
+    /**
+     * Set the richAudioObjectPath of the Notification
+     * @param richAudioObjectPath
+     */
+    void setRichAudioObjectPath(const char* richAudioObjectPath);
+
+    /**
+     * Set the sender of the Notification
+     * @param sender
+     */
+    void setSender(const char* sender);
+
+  private:
+
+    /**
+     * The Notification's Message Id
+     */
+    int32_t m_MessageId;
+
+    /**
+     * The Notifications Sender
+     */
+    const char* m_Sender;
+
+    /**
+     * The Notifications MessageType
+     */
+    NotificationMessageType m_MessageType;
+
+    /**
+     * The Notification's Device Id
+     */
+    const char* m_DeviceId;
+
+    /**
+     * The Notification's Device Name
+     */
+    const char* m_DeviceName;
+
+    /**
+     * The Notification's App Id
+     */
+    const char* m_AppId;
+
+    /**
+     * The Notification's App Name
+     */
+    const char* m_AppName;
+
+    /**
+     * The Notification's map of Custom Attributs
+     */
+    std::map<qcc::String, qcc::String> m_CustomAttributes;
+
+    /**
+     * The Notification's vector of Notification Texts
+     */
+    std::vector<NotificationText> m_Text;
+
+    /**
+     * The Notification's rich Icon Url
+     */
+    const char* m_RichIconUrl;
+
+    /**
+     * The Notification's vector of Rich Audio Urls
+     */
+    std::vector<RichAudioUrl> m_RichAudioUrl;
+
+    /**
+     * The Notification's rich Icon Object Path
+     */
+    const char* m_RichIconObjectPath;
+
+    /**
+     * The Notification's rich Audio Object
+     */
+    const char* m_RichAudioObjectPath;
+
+    /**
+     * The Notification's ControlPanelService object path
+     */
+    const char* m_ControlPanelServiceObjectPath;
+
+};
+} //namespace services
+} //namespace ajn
+
+#endif /* NOTIFICATION_H_ */
+

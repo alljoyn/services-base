@@ -1,0 +1,65 @@
+#*****************************************************************************
+# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+#
+#    Permission to use, copy, modify, and/or distribute this software for any
+#    purpose with or without fee is hereby granted, provided that the above
+#    copyright notice and this permission notice appear in all copies.
+#
+#    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+#    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+#    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+#    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+#    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+#    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+#    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+#*****************************************************************************
+
+Import('notif_env')
+
+target_name = 'NotificationConsumer'
+
+common_source_files = [
+                        'NotificationConsumer.c',
+                        'target/' + notif_env['TARG'] + '/sample_util.c',
+                      ]
+
+source_files = [
+                '../../../samples/SimpleConsumerSample/ConsumerSample.c',
+               ]
+
+# Consumer define string, in case others need it (such as
+# Notification test apps?) 
+define_string = 'NOTIFICATION_SERVICE_CONSUMER'
+# if we are called as part of Notification build, 
+# clone this env so as not to taint other Notification apps. but, if
+# called as part of services server sample, then we want to taint: 
+if notif_env.has_key('INDIV_BUILD'):
+    local_env = notif_env.Clone()
+else:
+    local_env = notif_env
+
+local_env.Append(CPPDEFINES = [define_string])
+
+local_objs = local_env.Object(source_files)
+# save the common files in the parent environment for use by test-app builder
+notif_env['CONSUMER_COMMON_OBJS'] = local_env.Object(common_source_files)
+
+local_objs.append(notif_env['CONSUMER_COMMON_OBJS'])
+
+# if we are called as part of services server sample, then return now:
+if not notif_env.has_key('INDIV_BUILD'):
+    Return('local_objs')
+
+# we are called as part of Notification build, which needs 
+# server sample and About components
+local_env['SERSAMP_VARIANT_DIR'] = define_string.lower()
+serversample_objs = local_env.SConscript('$SERVERSAMPLE_ROOT_FROM_COMPONENT/SConscript', {'env': local_env})
+
+prog = local_env.Program(target = target_name, 
+			source = [
+    			local_objs,
+                notif_env['SERVICE_COMMON_OBJS'],
+                serversample_objs,
+                local_env['aj_obj'],
+			])
+Return('prog')
