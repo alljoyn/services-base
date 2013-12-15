@@ -17,38 +17,16 @@
 #include <alljoyn/services_common/PropertyStore.h>
 #include <alljoyn/services_common/Services_Common.h>
 
-#ifndef AJ_MARSHAL_TIMEOUT
-#define AJ_MARSHAL_TIMEOUT   (1000 * 5)
-#endif
-
-int8_t Common_IsLanguageSupported(AJ_Message* msg, AJ_Message* reply, const char* language)
+uint8_t Common_IsLanguageSupported(AJ_Message* msg, AJ_Message* reply, const char* language, enum_lang_indecies_t* langIndex)
 {
-    int8_t langIndex = PropertyStore_GetLanguageIndex(language);
-    if (langIndex == ERROR_LANGUAGE_INDEX) {
+    uint8_t supported = TRUE;
+    enum_lang_indecies_t foundLangIndex = PropertyStore_GetLanguageIndex(language);
+    if ((int8_t)foundLangIndex == (int8_t)ERROR_LANGUAGE_INDEX) {
         AJ_MarshalErrorMsg(msg, reply, LanguageNotSupported);
+        supported = FALSE;
     }
-    return langIndex;
-}
-
-AJ_Status BusSetSignalRule(AJ_BusAttachment* bus, const char* ruleString, uint8_t rule)
-{
-    AJ_Status status;
-    AJ_Message msg;
-    uint32_t msgId = (rule == AJ_BUS_SIGNAL_ALLOW) ? AJ_METHOD_ADD_MATCH : AJ_METHOD_REMOVE_MATCH;
-
-    status = AJ_MarshalMethodCall(bus, &msg, msgId, AJ_DBusDestination, 0, AJ_FLAG_NO_REPLY_EXPECTED, AJ_MARSHAL_TIMEOUT);
-    if (status == AJ_OK) {
-        uint32_t sz = 0;
-        uint8_t nul = 0;
-        sz = (uint32_t)strlen(ruleString);
-        status = AJ_DeliverMsgPartial(&msg, sz + 5);
-        AJ_MarshalRaw(&msg, &sz, 4);
-        AJ_MarshalRaw(&msg, ruleString, strlen(ruleString));
-        AJ_MarshalRaw(&msg, &nul, 1);
+    if (langIndex != NULL) {
+        *langIndex = foundLangIndex;
     }
-    if (status == AJ_OK) {
-        status = AJ_DeliverMsg(&msg);
-    }
-
-    return status;
+    return supported;
 }

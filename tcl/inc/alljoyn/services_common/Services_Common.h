@@ -69,17 +69,9 @@ extern const char LanguageNotSupported[];
  * @param msg
  * @param reply
  * @param language
- * @return langIndex
+ * @param langIndex
+ * @return success
  */
-int8_t Common_IsLanguageSupported(AJ_Message* msg, AJ_Message* reply, const char* language);
-
-/**
- * Utility function to allow sending addMatch request without reply context
- * @param bus
- * @param ruleString
- * @param rule
- * @return aj_status
- */
-AJ_Status BusSetSignalRule(AJ_BusAttachment* bus, const char* ruleString, uint8_t rule);
+uint8_t Common_IsLanguageSupported(AJ_Message* msg, AJ_Message* reply, const char* language, enum_lang_indecies_t* langIndex);
 
 #endif /* _SERVICES_COMMON_H_ */
