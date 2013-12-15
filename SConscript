@@ -22,11 +22,11 @@ env['_ALLJOYN_SERVICES_COMMON_'] = True
 env.Append(LIBPATH = '$DISTDIR/services_common/lib');
 env.Append(CPPPATH = '$DISTDIR/services_common/inc');
 
-if 'cpp' in env['bindings'] and not env.has_key('_ALLJOYNCORE_') and os.path.exists('../../alljoyn_core/SConscript'):
-    env.SConscript('../../alljoyn_core/SConscript')
+if 'cpp' in env['bindings'] and not env.has_key('_ALLJOYNCORE_') and os.path.exists('../../core/alljoyn/alljoyn_core/SConscript'):
+    env.SConscript('../../core/alljoyn/alljoyn_core/SConscript')
 
-if 'java' in env['bindings'] and not env.has_key('_ALLJOYN_JAVA_') and os.path.exists('../../alljoyn_java/SConscript'):
-    env.SConscript('../../alljoyn_java/SConscript')
+if 'java' in env['bindings'] and not env.has_key('_ALLJOYN_JAVA_') and os.path.exists('../../core/alljoyn/alljoyn_java/SConscript'):
+    env.SConscript('../../core/alljoyn/alljoyn_java/SConscript')
 
 services_common_env = env.Clone()
 

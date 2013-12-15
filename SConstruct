@@ -14,7 +14,7 @@
 
 import os
 
-env = SConscript('../../build_core/SConscript')
+env = SConscript('../../core/alljoyn/build_core/SConscript')
 
 vars = Variables()
 vars.Add('BINDINGS', 'Bindings to build (comma separated list): cpp, java', 'cpp,java')
