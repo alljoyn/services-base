@@ -71,7 +71,7 @@
 			<value>3.3.3.3</value>
 		</key>
 		<key name="SupportUrl" writable="n"  announce="y"  public="y">
-			<value  >http://www.alljoyn.org</value>
+			<value  >http://www.allseenalliance.org</value>
 		</key>
 	</keys>
 </config>
