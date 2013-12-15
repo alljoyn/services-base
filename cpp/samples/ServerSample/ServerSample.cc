@@ -14,46 +14,37 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#include <stdio.h>
 #include <signal.h>
-#include <fstream>
-#include <map>
-#include <stdint.h>
-#include <algorithm>
-
 #include <SrpKeyXListener.h>
-#include <CommonBusListener.h>
+#include <CommonSampleUtil.h>
 #include <PropertyStoreImpl.h>
 #include <IniParser.h>
-#include <CommonSampleUtil.h>
 #include <OptParser.h>
-#include "ConfigServiceListenerImpl.h"
 
-#include <alljoyn/version.h>
-#include <qcc/platform.h>
-#include <qcc/Log.h>
-#include <qcc/String.h>
-
-#include <alljoyn/BusObject.h>
-#include <alljoyn/BusAttachment.h>
-#include <alljoyn/Status.h>
-
-#include <alljoyn/config/ConfigService.h>
 #include <alljoyn/about/AboutIconService.h>
-#include <alljoyn/about/PropertyStore.h>
-
-#include <alljoyn/onboarding/Onboarding.h>
-#include <alljoyn/onboarding/OnboardingService.h>
-#include <OnboardingControllerImpl.h>
 #include <alljoyn/about/AboutServiceApi.h>
 
-#include <ControlPanelGenerated.h>
+#ifdef _CONFIG_
+#include <alljoyn/config/ConfigService.h>
+#include "ConfigServiceListenerImpl.h"
+#endif
 
+#ifdef _NOTIFICATION_
 #include <alljoyn/notification/NotificationService.h>
+#endif
+
+#ifdef _CONTROLPANEL_
+#include <ControlPanelGenerated.h>
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include <alljoyn/controlpanel/ControlPanelControllee.h>
 #include <alljoyn/controlpanel/LanguageSets.h>
+#endif
 
+#ifdef _ONBOARDING_
+#include <alljoyn/onboarding/Onboarding.h>
+#include <alljoyn/onboarding/OnboardingService.h>
+#include <OnboardingControllerImpl.h>
+#endif
 
 using namespace ajn;
 using namespace services;
@@ -64,38 +55,33 @@ using namespace services;
 
 /** static variables need for sample */
 static BusAttachment* msgBus = NULL;
-
 static SrpKeyXListener* keyListener = NULL;
-
-static ConfigService* configService = NULL;
-
 static AboutIconService* aboutIconService = NULL;
-
-//static PropertyStoreImpl* propertyStoreImpl = NULL;
-
-static ConfigServiceListenerImpl* configServiceListenerImpl = NULL;
-
-static OnboardingControllerImpl* obController = NULL;
+static PropertyStoreImpl* propertyStoreImpl = NULL;
 
 static SessionPort SERVICE_PORT;
-
 static CommonBusListener busListener;
-
-static qcc::String s_xmlFilePath;
-
+static qcc::String configFile;
 static volatile sig_atomic_t s_interrupt = false;
 
-ControlPanelService* controlPanelService = 0;
+#ifdef _CONFIG_
+static ConfigService* configService = NULL;
+static ConfigServiceListenerImpl* configServiceListenerImpl = NULL;
+#endif
 
-ControlPanelControllee* controlPanelControllee = 0;
+#ifdef _NOTIFICATION_
+NotificationService* prodService = NULL;
+NotificationSender* sender = NULL;
+#endif
 
-NotificationService* prodService = 0;
+#ifdef _CONTROLPANEL_
+ControlPanelService* controlPanelService = NULL;
+ControlPanelControllee* controlPanelControllee = NULL;
+#endif
 
-NotificationSender* sender = 0;
-
-CommonBusListener* controlpanelBusListener = 0;
-
-PropertyStoreImpl* propertyStoreImpl = 0;
+#ifdef _ONBOARDING_
+static OnboardingControllerImpl* obController = NULL;
+#endif
 
 static void SigIntHandler(int sig) {
     s_interrupt = true;
@@ -105,16 +91,6 @@ static void cleanup() {
 
     if (AboutServiceApi::getInstance())
         AboutServiceApi::DestroyInstance();
-
-    if (configService) {
-        delete configService;
-        configService = NULL;
-    }
-
-    if (configServiceListenerImpl) {
-        delete configServiceListenerImpl;
-        configServiceListenerImpl = NULL;
-    }
 
     if (keyListener) {
         delete keyListener;
@@ -131,36 +107,50 @@ static void cleanup() {
         propertyStoreImpl = NULL;
     }
 
+#ifdef _CONFIG_
+    if (configService) {
+        delete configService;
+        configService = NULL;
+    }
+
+    if (configServiceListenerImpl) {
+        delete configServiceListenerImpl;
+        configServiceListenerImpl = NULL;
+    }
+#endif
+
+#ifdef _NOTIFICATION_
+    if (prodService)
+        prodService->shutdown();
+    if (sender)
+        delete sender;
+#endif
+
+#ifdef _CONTROLPANEL_
+    if (controlPanelService)
+        controlPanelService->shutdownControllee();
+    ControlPanelGenerated::Shutdown();
+    if (controlPanelControllee)
+        delete controlPanelControllee;
+    if (controlPanelService)
+        delete controlPanelService;
+#endif
+
+#ifdef _ONBOARDING_
     if (obController) {
         delete obController;
         obController = NULL;
     }
-
-    if (controlPanelService)
-        controlPanelService->shutdownControllee();
-    if (prodService)
-        prodService->shutdown();
-    ControlPanelGenerated::Shutdown();
-
-    if (sender)
-        delete sender;
-    if (controlPanelControllee)
-        delete controlPanelControllee;
-    if (controlpanelBusListener)
-        delete controlpanelBusListener;
-    if (controlPanelService)
-        delete controlPanelService;
-
+#endif
 
     /* Clean up msg bus */
     delete msgBus;
     msgBus = NULL;
-
 }
 
 const char* readPassword() {
     std::map<std::string, std::string> data;
-    if (!IniParser::ParseFile(s_xmlFilePath.c_str(), data))
+    if (!IniParser::ParseFile(configFile.c_str(), data))
         return NULL;
 
     std::map<std::string, std::string>::iterator iter = data.find("passcode");
@@ -192,28 +182,16 @@ bool WaitForSigInt(int32_t sleepTime) {
     return true;
 }
 
-bool getInput(NotificationMessageType& messageType, std::vector<NotificationText>& vecMessages, uint16_t& ttl, int32_t& sleepTime)
+#ifdef _NOTIFICATION_
+void FillNotification(NotificationMessageType& messageType, std::vector<NotificationText>& vecMessages, uint16_t& ttl, int32_t& sleepTime)
 {
-    qcc::String tempText = "";
-    qcc::String tempUrl = "";
-    qcc::String tempKey;
-    qcc::String defaultLang = "en";
-    qcc::String defaultText = "Using the default text.";
-    qcc::String defaultRichIconUrl = "http://myRichContentIconUrl.jpg";
-    uint16_t defaultTTL = 30;
-    qcc::String defaultRichIconObjectPath = "/Icon/ObjectPath";
-    qcc::String defaultControlPanelServiceObjectPath = "/ControlPanel/MyDevice/areYouSure";
-
-
     messageType =  NotificationMessageType(INFO);
-    tempText =  defaultText;
-    NotificationText textToSend("en", tempText.c_str());
+    NotificationText textToSend("en", "Using the default text.");
     vecMessages.push_back(textToSend);
-    ttl =  defaultTTL;
+    ttl =  30;
     sleepTime = 5;
-
-    return true;
 }
+#endif
 
 #define CHECK_RETURN(x) if ((status = x) != ER_OK) return status;
 QStatus fillPropertyStore(AboutPropertyStoreImpl* propertyStore, qcc::String const& appIdHex,
@@ -230,29 +208,40 @@ QStatus fillPropertyStore(AboutPropertyStoreImpl* propertyStore, qcc::String con
     CHECK_RETURN(propertyStore->setAppId(appIdHex))
     CHECK_RETURN(propertyStore->setAppName(appName))
 
-    const std::vector<qcc::String> languages(LanguageSets::get("myLanguages")->getLanguages());
-    std::vector<qcc::String> languagesVec(languages.size());
-    printf("AllJoyn Library version: %s\n", ajn::GetVersion());
-    for (size_t i = 0; i < languagesVec.size(); i++) {
-        for (size_t j = 0; j < languages[i].size(); j++)
-            languagesVec[i].append((languages[i][j] == '_' ? '-' : languages[i][j]));
-        printf("AllJoyn languagesVec[%lu]: %s\n", i, languagesVec[i].c_str());
+#ifdef _CONTROLPANEL_
+    std::vector<qcc::String> languagesVec;
+    LanguageSet* langSet = LanguageSets::get("myDeviceMyLanguages");
+    if (langSet) {
+        const std::vector<qcc::String> languages(langSet->getLanguages());
+        languagesVec.resize(languages.size());
+        printf("AllJoyn Library version: %s\n", ajn::GetVersion());
+        for (size_t i = 0; i < languagesVec.size(); i++) {
+            for (size_t j = 0; j < languages[i].size(); j++)
+                languagesVec[i].append((languages[i][j] == '_' ? '-' : languages[i][j]));
+            printf("AllJoyn languagesVec[%lu]: %s\n", i, languagesVec[i].c_str());
+        }
+    } else {
+        languagesVec.reserve(3);
+        languagesVec.push_back("en");
+        languagesVec.push_back("de-AT");
+        languagesVec.push_back("zh-Hans-CN");
     }
-
+#else
+    std::vector<qcc::String> languagesVec(3);
+    languagesVec[0] = "en";
+    languagesVec[1] = "de-AT";
+    languagesVec[2] = "zh-Hans-CN";
+#endif
 
     CHECK_RETURN(propertyStore->setSupportedLangs(languagesVec))
     CHECK_RETURN(propertyStore->setDefaultLang(defaultLanguage))
-
     CHECK_RETURN(propertyStore->setModelNumber("Wxfy388i"))
     CHECK_RETURN(propertyStore->setDateOfManufacture("10/1/2199"))
     CHECK_RETURN(propertyStore->setSoftwareVersion("12.20.44 build 44454"))
     CHECK_RETURN(propertyStore->setAjSoftwareVersion(ajn::GetVersion()))
     CHECK_RETURN(propertyStore->setHardwareVersion("355.499. b"))
-
     CHECK_RETURN(propertyStore->setDescription("This is an Alljoyn Application"))
-
     CHECK_RETURN(propertyStore->setManufacturer("Company"))
-
     CHECK_RETURN(propertyStore->setSupportUrl("http://www.alljoyn.org"))
 
     return status;
@@ -310,12 +299,14 @@ int main(int argc, char**argv, char**envArg) {
         return 1;
     }
 
+#ifdef _CONTROLPANEL_
     status = ControlPanelGenerated::PrepareWidgets(controlPanelControllee);
     if (status != ER_OK) {
         std::cout << "Could not prepare Widgets." << std::endl;
         cleanup();
         return 1;
     }
+#endif
 
     propertyStoreImpl = new PropertyStoreImpl(opts.GetConfigFile().c_str());
     status = fillPropertyStore(propertyStoreImpl, opts.GetAppId(), opts.GetAppName(), opts.GetDeviceId(),
@@ -389,14 +380,14 @@ int main(int argc, char**argv, char**envArg) {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     //OnboardingService
-
+#ifdef _ONBOARDING_
     obController = new OnboardingControllerImpl(opts.GetScanFile(),
                                                 opts.GetStateFile(),
                                                 opts.GetErrorFile(),
                                                 opts.GetConfigureCmd(),
                                                 opts.GetConnectCmd(),
                                                 opts.GetOffboardCmd(),
-                                                (OBConcurrency)opts.GetConcurrency(),
+                                                (OBConcurrency) opts.GetConcurrency(),
                                                 *msgBus);
     OnboardingService onboardingService(*msgBus, *obController);
 
@@ -417,13 +408,17 @@ int main(int argc, char**argv, char**envArg) {
         cleanup();
         return 1;
     }
-
+#endif
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     //ConfigService
-
-    configServiceListenerImpl = new ConfigServiceListenerImpl(*propertyStoreImpl, *msgBus, *obController);
+#ifdef _CONFIG_
+#ifdef _ONBOARDING_
+    configServiceListenerImpl = new ConfigServiceListenerImpl(*propertyStoreImpl, *msgBus, obController);
+#else
+    configServiceListenerImpl = new ConfigServiceListenerImpl(*propertyStoreImpl, *msgBus, NULL);
+#endif
     configService = new ConfigService(*msgBus, *propertyStoreImpl, *configServiceListenerImpl);
-    s_xmlFilePath = opts.GetConfigFile().c_str();
+    configFile = opts.GetConfigFile().c_str();
     keyListener->setGetPassCode(readPassword);
 
     interfaces.clear();
@@ -443,26 +438,19 @@ int main(int argc, char**argv, char**envArg) {
         cleanup();
         return 1;
     }
+#endif
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     const TransportMask SERVICE_TRANSPORT_TYPE = TRANSPORT_ANY;
-
     if (ER_OK == status) {
         status = AdvertiseName(SERVICE_TRANSPORT_TYPE);
     }
 
-    if (ER_OK == status) {
-        status = aboutService->Announce();
-    }
-
     //////////////////////////////////////////////////////////////////////////////////////////////////// controlpanel
-    controlpanelBusListener = new CommonBusListener();;
+#ifdef _CONTROLPANEL_
+
     controlPanelService = ControlPanelService::getInstance();
     controlPanelService->setLogLevel(Log::LogLevel::LEVEL_DEBUG);
-
-    // Initialize Service object and Sender Object
-    prodService = NotificationService::getInstance();
-    prodService->setLogLevel(Log::LogLevel::LEVEL_DEBUG);
 
     status = controlPanelService->initControllee(msgBus, controlPanelControllee);
     if (status != ER_OK) {
@@ -470,6 +458,12 @@ int main(int argc, char**argv, char**envArg) {
         cleanup();
         return 1;
     }
+#endif
+
+#ifdef _NOTIFICATION_
+    // Initialize Service object and Sender Object
+    prodService = NotificationService::getInstance();
+    prodService->setLogLevel(Log::LogLevel::LEVEL_DEBUG);
 
     sender = prodService->initSend(msgBus, propertyStoreImpl);
     if (!sender) {
@@ -477,6 +471,7 @@ int main(int argc, char**argv, char**envArg) {
         cleanup();
         return 1;
     }
+#endif
 
     status = CommonSampleUtil::aboutServiceAnnounce();
     if (status != ER_OK) {
@@ -485,33 +480,29 @@ int main(int argc, char**argv, char**envArg) {
         return 1;
     }
 
-    std::cout << "Sent announce, waiting for Contollers" << std::endl;
-    std::cout << "Enter in the ControlPanelService object path or press 'enter' to use default:" << std::endl;
-
-    std::string input;
-    qcc::String controlPanelServiceObjectPath;
-    qcc::String defaultControlPanelServiceObjectPath = "/ControlPanel/MyDevice/areYouSure";
-
+    std::cout << "Sent announce, waiting for Remote Devices" << std::endl;
 
     //Run in loop until press enter
     while (1) {
+        int32_t sleepTime = 5;
+
+#ifdef _NOTIFICATION_
+        std::cout << "Press any key to send a notification" << std::endl;
+        getchar();
+
         NotificationMessageType messageType = NotificationMessageType(INFO);
         std::vector<NotificationText> vecMessages;
-
         uint16_t ttl;
-        int32_t sleepTime;
 
-        getInput(messageType, vecMessages, ttl, sleepTime);
-
+        FillNotification(messageType, vecMessages, ttl, sleepTime);
         Notification notification(messageType, vecMessages);
 
         if (sender->send(notification, ttl) != ER_OK) {
-            std::cout << "Could not send the message successfully" << std::endl;
+            std::cout << "Could not send the message successfully. Sleeping 5 seconds" << std::endl;
         } else {
-            std::cout << "Notification sent " << std::endl;
+            std::cout << "Notification sent. Sleeping 5 seconds" << std::endl;
         }
-
-        getchar();
+#endif
 
         if (WaitForSigInt(sleepTime)) {
             break;
@@ -520,10 +511,9 @@ int main(int argc, char**argv, char**envArg) {
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////// controlpanel
 
-
-
     cleanup();
 
     return 0;
 } /* main() */
+
 

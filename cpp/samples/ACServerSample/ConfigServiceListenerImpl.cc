@@ -17,12 +17,16 @@
 #include "ConfigServiceListenerImpl.h"
 #include <IniParser.h>
 
+#ifdef _ONBOARDING_
+#include "OnboardingControllerImpl.h"
+#endif
+
 using namespace ajn;
 using namespace services;
 
 ConfigServiceListenerImpl::ConfigServiceListenerImpl(PropertyStoreImpl& store, BusAttachment& bus,
-                                                     OnboardingControllerImpl& obController) :
-    ConfigService::Listener(), m_PropertyStore(&store), m_Bus(&bus), m_OnboardingController(&obController)
+                                                     OnboardingControllerImpl* obController) :
+    ConfigService::Listener(), m_PropertyStore(&store), m_Bus(&bus), m_OnboardingController(obController)
 {
 }
 
@@ -38,8 +42,13 @@ QStatus ConfigServiceListenerImpl::FactoryReset()
     m_PropertyStore->FactoryReset();
     printf("Clearing Key Store\n");
     m_Bus->ClearKeyStore();
+
+#ifdef _ONBOARDING_
     printf("Calling Offboard\n");
-    m_OnboardingController->Offboard();
+    if (m_OnboardingController)
+        m_OnboardingController->Offboard();
+#endif
+
     return ER_OK;
 }
 

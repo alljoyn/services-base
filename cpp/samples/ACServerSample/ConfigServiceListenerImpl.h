@@ -19,15 +19,14 @@
 
 #include <alljoyn/config/ConfigService.h>
 #include <PropertyStoreImpl.h>
-#include <OnboardingControllerImpl.h>
 
-/*
- *
- */
+//forward declaration
+class OnboardingControllerImpl;
+
 class ConfigServiceListenerImpl : public ajn::services::ConfigService::Listener {
   public:
 
-    ConfigServiceListenerImpl(PropertyStoreImpl& store, ajn::BusAttachment& bus, OnboardingControllerImpl& obController);
+    ConfigServiceListenerImpl(PropertyStoreImpl& store, ajn::BusAttachment& bus, OnboardingControllerImpl* obController);
 
     virtual QStatus Restart();
 

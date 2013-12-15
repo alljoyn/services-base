@@ -23,13 +23,8 @@ if not server_sample_env.has_key('_ALLJOYNCORE_'):
     if server_sample_env['OS'] == 'openwrt':
         server_sample_env.AppendUnique(LIBS = [ 'stdc++', 'pthread' ])
 
-# Make onboarding dist a sub-directory of the alljoyn dist.  This avoids any conflicts with alljoyn dist targets.
+# Make serversample dist a sub-directory of the alljoyn dist.  This avoids any conflicts with alljoyn dist targets.
 server_sample_env['SAMPLE_APPS_DISTDIR'] = server_sample_env['DISTDIR'] + '/sample_apps'
-
-#onb_env.Install('$ONBOARDING_DISTDIR/inc/alljoyn/onboarding', onb_env.Glob('inc/alljoyn/onboarding/*.h'))
-
-# libraries
-#onb_env.Install('$ONBOARDING_DISTDIR/lib', onb_env.SConscript('src/SConscript', exports = ['onb_env']))
 
 # Sample programs
 if server_sample_env['BUILD_SERVICES_SAMPLES'] == 'on':

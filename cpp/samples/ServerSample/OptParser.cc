@@ -100,8 +100,10 @@ qcc::String const& OptParser::GetOffboardCmd() const {
 
 bool OptParser::ParseExternalXML() {
     std::map<std::string, std::string> data;
-    if (!IniParser::ParseFile(configFile.c_str(), data))
+    if (!IniParser::ParseFile(configFile.c_str(), data)) {
+        std::cerr << "Could not parse configFile" << configFile.c_str() << std::endl;
         return false;
+    }
 
     std::map<std::string, std::string>::iterator iter;
 

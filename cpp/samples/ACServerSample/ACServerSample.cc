@@ -14,44 +14,38 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#include <stdio.h>
 #include <signal.h>
-#include <fstream>
-#include <map>
-#include <stdint.h>
-
 #include <SrpKeyXListener.h>
-#include <CommonBusListener.h>
+#include <CommonSampleUtil.h>
 #include <PropertyStoreImpl.h>
 #include <IniParser.h>
-#include <CommonSampleUtil.h>
 #include <OptParser.h>
-#include "ConfigServiceListenerImpl.h"
 
-#include <alljoyn/version.h>
-#include <qcc/platform.h>
-#include <qcc/Log.h>
-#include <qcc/String.h>
-
-#include <alljoyn/BusObject.h>
-#include <alljoyn/BusAttachment.h>
-#include <alljoyn/Status.h>
-
-#include <alljoyn/config/ConfigService.h>
 #include <alljoyn/about/AboutIconService.h>
-#include <alljoyn/about/PropertyStore.h>
+#include <alljoyn/about/AboutServiceApi.h>
 
+#ifdef _CONFIG_
+#include <alljoyn/config/ConfigService.h>
+#include "ConfigServiceListenerImpl.h"
+#endif
+
+#ifdef _NOTIFICATION_
+#include <alljoyn/notification/NotificationService.h>
+#endif
+
+#ifdef _CONTROLPANEL_
+#include <ControlPanelGenerated.h>
+#include <ControlPanelProvided.h>
+#include <alljoyn/controlpanel/ControlPanelService.h>
+#include <alljoyn/controlpanel/ControlPanelControllee.h>
+#include <alljoyn/controlpanel/LanguageSets.h>
+#endif
+
+#ifdef _ONBOARDING_
 #include <alljoyn/onboarding/Onboarding.h>
 #include <alljoyn/onboarding/OnboardingService.h>
 #include <OnboardingControllerImpl.h>
-#include <alljoyn/about/AboutServiceApi.h>
-
-#include <ControlPanelGenerated.h>
-#include <ControlPanelProvided.h>
-
-#include <alljoyn/notification/NotificationService.h>
-#include <alljoyn/controlpanel/ControlPanelService.h>
-#include <alljoyn/controlpanel/ControlPanelControllee.h>
+#endif
 
 
 using namespace ajn;
@@ -63,57 +57,43 @@ using namespace services;
 
 /** static variables need for sample */
 static BusAttachment* msgBus = NULL;
-
 static SrpKeyXListener* keyListener = NULL;
-
-static ConfigService* configService = NULL;
-
 static AboutIconService* aboutIconService = NULL;
-
-//static PropertyStoreImpl* propertyStoreImpl = NULL;
-
-static ConfigServiceListenerImpl* configServiceListenerImpl = NULL;
-
-static OnboardingControllerImpl* obController = NULL;
+static PropertyStoreImpl* propertyStoreImpl = NULL;
 
 static SessionPort SERVICE_PORT;
-
 static CommonBusListener busListener;
-
-static qcc::String s_xmlFilePath;
-
+static qcc::String configFile;
 static volatile sig_atomic_t s_interrupt = false;
 
-ControlPanelService* controlPanelService = 0;
+#ifdef _CONFIG_
+static ConfigService* configService = NULL;
+static ConfigServiceListenerImpl* configServiceListenerImpl = NULL;
+#endif
 
-ControlPanelControllee* controlPanelControllee = 0;
+#ifdef _NOTIFICATION_
+NotificationService* prodService = NULL;
+NotificationSender* sender = NULL;
+#endif
 
-NotificationService* prodService = 0;
+#ifdef _CONTROLPANEL_
+ControlPanelService* controlPanelService = NULL;
+ControlPanelControllee* controlPanelControllee = NULL;
+#endif
 
-NotificationSender* sender = 0;
+#ifdef _ONBOARDING_
+static OnboardingControllerImpl* obController = NULL;
+#endif
 
-CommonBusListener* controlpanelBusListener = 0;
-
-PropertyStoreImpl* propertyStoreImpl = 0;
-
-static void SigIntHandler(int sig) {
+static void SigIntHandler(int sig)
+{
     s_interrupt = true;
 }
 
-static void cleanup() {
-
+static void cleanup()
+{
     if (AboutServiceApi::getInstance())
         AboutServiceApi::DestroyInstance();
-
-    if (configService) {
-        delete configService;
-        configService = NULL;
-    }
-
-    if (configServiceListenerImpl) {
-        delete configServiceListenerImpl;
-        configServiceListenerImpl = NULL;
-    }
 
     if (keyListener) {
         delete keyListener;
@@ -130,25 +110,41 @@ static void cleanup() {
         propertyStoreImpl = NULL;
     }
 
+#ifdef _CONFIG_
+    if (configService) {
+        delete configService;
+        configService = NULL;
+    }
+
+    if (configServiceListenerImpl) {
+        delete configServiceListenerImpl;
+        configServiceListenerImpl = NULL;
+    }
+#endif
+
+#ifdef _NOTIFICATION_
+    if (prodService)
+        prodService->shutdown();
+    if (sender)
+        delete sender;
+#endif
+
+#ifdef _CONTROLPANEL_
+    if (controlPanelService)
+        controlPanelService->shutdownControllee();
+    ControlPanelGenerated::Shutdown();
+    if (controlPanelControllee)
+        delete controlPanelControllee;
+    if (controlPanelService)
+        delete controlPanelService;
+#endif
+
+#ifdef _ONBOARDING_
     if (obController) {
         delete obController;
         obController = NULL;
     }
-
-    if (controlPanelService)
-        controlPanelService->shutdownControllee();
-    if (prodService)
-        prodService->shutdown();
-    ControlPanelGenerated::Shutdown();
-
-    if (sender)
-        delete sender;
-    if (controlPanelControllee)
-        delete controlPanelControllee;
-    if (controlpanelBusListener)
-        delete controlpanelBusListener;
-    if (controlPanelService)
-        delete controlPanelService;
+#endif
 
     /* Clean up msg bus */
     delete msgBus;
@@ -157,7 +153,7 @@ static void cleanup() {
 
 const char* readPassword() {
     std::map<std::string, std::string> data;
-    if (!IniParser::ParseFile(s_xmlFilePath.c_str(), data))
+    if (!IniParser::ParseFile(configFile.c_str(), data))
         return NULL;
 
     std::map<std::string, std::string>::iterator iter = data.find("passcode");
@@ -281,14 +277,14 @@ int main(int argc, char**argv, char**envArg) {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     //OnboardingService
-
+#ifdef _ONBOARDING_
     obController = new OnboardingControllerImpl(opts.GetScanFile(),
                                                 opts.GetStateFile(),
                                                 opts.GetErrorFile(),
                                                 opts.GetConfigureCmd(),
                                                 opts.GetConnectCmd(),
                                                 opts.GetOffboardCmd(),
-                                                (OBConcurrency)opts.GetConcurrency(),
+                                                (OBConcurrency) opts.GetConcurrency(),
                                                 *msgBus);
     OnboardingService onboardingService(*msgBus, *obController);
 
@@ -309,13 +305,17 @@ int main(int argc, char**argv, char**envArg) {
         cleanup();
         return 1;
     }
-
+#endif
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     //ConfigService
-
-    configServiceListenerImpl = new ConfigServiceListenerImpl(*propertyStoreImpl, *msgBus, *obController);
+#ifdef _CONFIG_
+#ifdef _ONBOARDING_
+    configServiceListenerImpl = new ConfigServiceListenerImpl(*propertyStoreImpl, *msgBus, obController);
+#else
+    configServiceListenerImpl = new ConfigServiceListenerImpl(*propertyStoreImpl, *msgBus, NULL);
+#endif
     configService = new ConfigService(*msgBus, *propertyStoreImpl, *configServiceListenerImpl);
-    s_xmlFilePath = opts.GetConfigFile().c_str();
+    configFile = opts.GetConfigFile().c_str();
     keyListener->setGetPassCode(readPassword);
 
     interfaces.clear();
@@ -335,6 +335,7 @@ int main(int argc, char**argv, char**envArg) {
         cleanup();
         return 1;
     }
+#endif
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     const TransportMask SERVICE_TRANSPORT_TYPE = TRANSPORT_ANY;
@@ -348,17 +349,10 @@ int main(int argc, char**argv, char**envArg) {
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////// controlpanel
-    controlpanelBusListener = new CommonBusListener();;
+#ifdef _CONTROLPANEL_
+
     controlPanelService = ControlPanelService::getInstance();
     controlPanelService->setLogLevel(Log::LogLevel::LEVEL_INFO);
-
-    // Initialize Service object and Sender Object
-    prodService = NotificationService::getInstance();
-    prodService->setLogLevel(Log::LogLevel::LEVEL_DEBUG);
-
-
-    qcc::String device_id = "123456", device_name = "testdeviceName";
-    qcc::String app_id = "2826752ae35c416a82bcef272c55eace", app_name = "testappName";
 
     status = ControlPanelGenerated::PrepareWidgets(controlPanelControllee);
     if (status != ER_OK) {
@@ -373,6 +367,12 @@ int main(int argc, char**argv, char**envArg) {
         cleanup();
         return 1;
     }
+#endif
+
+#ifdef _NOTIFICATION_
+    // Initialize Service object and Sender Object
+    prodService = NotificationService::getInstance();
+    prodService->setLogLevel(Log::LogLevel::LEVEL_DEBUG);
 
     sender = prodService->initSend(msgBus, propertyStoreImpl);
     if (!sender) {
@@ -380,6 +380,7 @@ int main(int argc, char**argv, char**envArg) {
         cleanup();
         return 1;
     }
+#endif
 
     status = CommonSampleUtil::aboutServiceAnnounce();
     if (status != ER_OK) {
@@ -388,11 +389,13 @@ int main(int argc, char**argv, char**envArg) {
         return 1;
     }
 
-    std::cout << "Sent announce, waiting for Contollers" << std::endl;
+    std::cout << "Sent announce, waiting for Remote Devices" << std::endl;
 
     //Run in loop until interrupt is true
     while (s_interrupt == false) {
 
+#ifdef _CONTROLPANEL_
+    #ifdef _NOTIFICATION_
         if (isThereANotificationToSend() > 0) {
             NotificationMessageType messageType = NotificationMessageType(INFO);
             std::vector<NotificationText> vecMessages;
@@ -408,7 +411,7 @@ int main(int argc, char**argv, char**envArg) {
                 std::cout << "Notification sent " << std::endl;
             }
         }
-
+    #endif
         uint8_t sendUpdates = checkForUpdatesToSend();
         if (sendUpdates > 0) {
 
@@ -419,21 +422,22 @@ int main(int argc, char**argv, char**envArg) {
 
             if ((sendUpdates & (1 << 0)) != 0) {
                 printf("##### Sending update signal: temperature string field \n");
-                ControlPanelGenerated::currentTempStringProperty->SendValueChangedSignal();
+                ControlPanelGenerated::myDeviceCurrentTempStringProperty->SendValueChangedSignal();
             }
             if ((sendUpdates & (1 << 1)) != 0) {
                 printf("##### Sending update signal: status string field \n");
-                ControlPanelGenerated::statusStringProperty->SendValueChangedSignal();
+                ControlPanelGenerated::myDeviceStatusStringProperty->SendValueChangedSignal();
             }
             if ((sendUpdates & (1 << 2)) != 0) {
                 printf("##### Sending update signal: temperature selector state \n");
-                ControlPanelGenerated::set_temperature->SendPropertyChangedSignal();
+                ControlPanelGenerated::myDeviceSet_temperature->SendPropertyChangedSignal();
             }
             if ((sendUpdates & (1 << 3)) != 0) {
                 printf("##### Sending update signal: fan speed selector state \n");
-                ControlPanelGenerated::fan_speed->SendPropertyChangedSignal();
+                ControlPanelGenerated::myDeviceFan_speed->SendPropertyChangedSignal();
             }
         }
+#endif
         sleep(2);
     }
 

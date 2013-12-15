@@ -44,22 +44,22 @@ static uint8_t modeOrTargetTempChanged = 0;
 
 void disableFan()
 {
-    ControlPanelGenerated::fan_speed->setEnabled(false);
+    ControlPanelGenerated::myDeviceFan_speed->setEnabled(false);
 }
 
 void enableFan()
 {
-    ControlPanelGenerated::fan_speed->setEnabled(true);
+    ControlPanelGenerated::myDeviceFan_speed->setEnabled(true);
 }
 
 void disableTempSelect()
 {
-    ControlPanelGenerated::set_temperature->setEnabled(false);
+    ControlPanelGenerated::myDeviceSet_temperature->setEnabled(false);
 }
 
 void enableTempSelect()
 {
-    ControlPanelGenerated::set_temperature->setEnabled(true);
+    ControlPanelGenerated::myDeviceSet_temperature->setEnabled(true);
 }
 
 const char* getNotificationString()

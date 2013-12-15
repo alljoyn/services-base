@@ -20,33 +20,34 @@
 #include "ControlPanelProvided.h"
 
 
+
 using namespace ajn;
 using namespace services;
 
 bool ControlPanelGenerated::languageSetsDone = false;
-ControlPanel* ControlPanelGenerated::rootContainerControlPanel = 0;
-Container* ControlPanelGenerated::rootContainer = 0;
-Container* ControlPanelGenerated::tempAndHumidityContainer = 0;
-CurrentTempStringProperty* ControlPanelGenerated::currentTempStringProperty = 0;
-CurrentHumidityStringProperty* ControlPanelGenerated::currentHumidityStringProperty = 0;
-Container* ControlPanelGenerated::controlsContainer = 0;
-Ac_mode* ControlPanelGenerated::ac_mode = 0;
-StatusStringProperty* ControlPanelGenerated::statusStringProperty = 0;
-Set_temperature* ControlPanelGenerated::set_temperature = 0;
-Fan_speed* ControlPanelGenerated::fan_speed = 0;
+ControlPanelControlleeUnit* ControlPanelGenerated::myDeviceUnit = 0;
+ControlPanel* ControlPanelGenerated::myDeviceRootContainerControlPanel = 0;
+Container* ControlPanelGenerated::myDeviceRootContainer = 0;
+Container* ControlPanelGenerated::myDeviceTempAndHumidityContainer = 0;
+MyDeviceCurrentTempStringProperty* ControlPanelGenerated::myDeviceCurrentTempStringProperty = 0;
+MyDeviceCurrentHumidityStringProperty* ControlPanelGenerated::myDeviceCurrentHumidityStringProperty = 0;
+Container* ControlPanelGenerated::myDeviceControlsContainer = 0;
+MyDeviceAc_mode* ControlPanelGenerated::myDeviceAc_mode = 0;
+MyDeviceStatusStringProperty* ControlPanelGenerated::myDeviceStatusStringProperty = 0;
+MyDeviceSet_temperature* ControlPanelGenerated::myDeviceSet_temperature = 0;
+MyDeviceFan_speed* ControlPanelGenerated::myDeviceFan_speed = 0;
 
 
 #define CHECK(x) if ((status = x) != ER_OK) return status;
-#define UNIT_NAME "MyDevice"
 
 void ControlPanelGenerated::PrepareLanguageSets()
 {
     if (languageSetsDone)
         return;
 
-    LanguageSet myLanguages("myLanguages");
-    myLanguages.addLanguage("en");
-    LanguageSets::add(myLanguages.getLanguageSetName(), myLanguages);
+    LanguageSet myDeviceMyLanguages("myDeviceMyLanguages");
+    myDeviceMyLanguages.addLanguage("en");
+    LanguageSets::add(myDeviceMyLanguages.getLanguageSetName(), myDeviceMyLanguages);
 
     languageSetsDone = true;
 }
@@ -59,251 +60,258 @@ QStatus ControlPanelGenerated::PrepareWidgets(ControlPanelControllee*& controlPa
     PrepareLanguageSets();
 
     QStatus status = ER_OK;
-    controlPanelControllee = new ControlPanelControllee(UNIT_NAME);
+    controlPanelControllee = new ControlPanelControllee();
 
-    rootContainerControlPanel = ControlPanel::createControlPanel(LanguageSets::get("myLanguages"));
-    if (!rootContainerControlPanel)
+    myDeviceUnit = new ControlPanelControlleeUnit("MyDevice");
+    CHECK(controlPanelControllee->addControlPanelUnit(myDeviceUnit));
+
+    myDeviceRootContainerControlPanel = ControlPanel::createControlPanel(LanguageSets::get("myDeviceMyLanguages"));
+    if (!myDeviceRootContainerControlPanel)
         return ER_FAIL;
-    CHECK(controlPanelControllee->addControlPanel(rootContainerControlPanel));
+    CHECK(myDeviceUnit->addControlPanel(myDeviceRootContainerControlPanel));
 
-    rootContainer = new Container("rootContainer");
-    CHECK(rootContainerControlPanel->setRootWidget(rootContainer));
+    myDeviceRootContainer = new Container("rootContainer", NULL);
+    CHECK(myDeviceRootContainerControlPanel->setRootWidget(myDeviceRootContainer));
 
-    rootContainer->setEnabled(true);
-    rootContainer->setIsSecured(false);
-    rootContainer->setBgColor(0x1e90ff);
+    myDeviceRootContainer->setEnabled(true);
+    myDeviceRootContainer->setIsSecured(false);
+    myDeviceRootContainer->setBgColor(0x1e90ff);
 
-    std::vector<uint16_t> rootContainerHintsVec;
-    rootContainerHintsVec.push_back(VERTICAL_LINEAR);
-    rootContainerHintsVec.push_back(HORIZONTAL_LINEAR);
-    rootContainer->setHints(rootContainerHintsVec);
+    std::vector<uint16_t> myDeviceRootContainerHintsVec;
+    myDeviceRootContainerHintsVec.push_back(VERTICAL_LINEAR);
+    myDeviceRootContainerHintsVec.push_back(HORIZONTAL_LINEAR);
+    myDeviceRootContainer->setHints(myDeviceRootContainerHintsVec);
 
-    tempAndHumidityContainer = new Container("tempAndHumidityContainer");
-    CHECK(rootContainer->addChildWidget(tempAndHumidityContainer));
+    myDeviceTempAndHumidityContainer = new Container("tempAndHumidityContainer", myDeviceRootContainer);
+    CHECK(myDeviceRootContainer->addChildWidget(myDeviceTempAndHumidityContainer));
 
-    tempAndHumidityContainer->setEnabled(true);
-    tempAndHumidityContainer->setIsSecured(false);
-    tempAndHumidityContainer->setBgColor(0x200);
+    myDeviceTempAndHumidityContainer->setEnabled(true);
+    myDeviceTempAndHumidityContainer->setIsSecured(false);
+    myDeviceTempAndHumidityContainer->setBgColor(0x200);
 
-    std::vector<uint16_t> tempAndHumidityContainerHintsVec;
-    tempAndHumidityContainerHintsVec.push_back(VERTICAL_LINEAR);
-    tempAndHumidityContainer->setHints(tempAndHumidityContainerHintsVec);
+    std::vector<uint16_t> myDeviceTempAndHumidityContainerHintsVec;
+    myDeviceTempAndHumidityContainerHintsVec.push_back(VERTICAL_LINEAR);
+    myDeviceTempAndHumidityContainer->setHints(myDeviceTempAndHumidityContainerHintsVec);
 
-    currentTempStringProperty = new CurrentTempStringProperty("currentTempStringProperty", STRING_PROPERTY);
-    CHECK(tempAndHumidityContainer->addChildWidget(currentTempStringProperty));
+    myDeviceCurrentTempStringProperty = new MyDeviceCurrentTempStringProperty("CurrentTempStringProperty", myDeviceTempAndHumidityContainer, STRING_PROPERTY);
+    CHECK(myDeviceTempAndHumidityContainer->addChildWidget(myDeviceCurrentTempStringProperty));
 
-    currentTempStringProperty->setEnabled(true);
-    currentTempStringProperty->setIsSecured(false);
-    currentTempStringProperty->setWritable(false);
-    CHECK(currentTempStringProperty->setGetValue(getCurrentTemperatureString));
-    currentTempStringProperty->setBgColor(0x500);
+    myDeviceCurrentTempStringProperty->setEnabled(true);
+    myDeviceCurrentTempStringProperty->setIsSecured(false);
+    myDeviceCurrentTempStringProperty->setWritable(false);
+    CHECK(myDeviceCurrentTempStringProperty->setGetValue(getCurrentTemperatureString));
+    myDeviceCurrentTempStringProperty->setBgColor(0x500);
 
-    std::vector<qcc::String> currentTempStringPropertylabelVec;
-    currentTempStringPropertylabelVec.push_back("Current Temperature:");
-    currentTempStringProperty->setLabels(currentTempStringPropertylabelVec);
+    std::vector<qcc::String> myDeviceCurrentTempStringPropertylabelVec;
+    myDeviceCurrentTempStringPropertylabelVec.push_back("Current Temperature:");
+    myDeviceCurrentTempStringProperty->setLabels(myDeviceCurrentTempStringPropertylabelVec);
 
-    std::vector<uint16_t> currentTempStringPropertyHintsVec;
-    currentTempStringPropertyHintsVec.push_back(TEXTVIEW);
-    currentTempStringProperty->setHints(currentTempStringPropertyHintsVec);
+    std::vector<uint16_t> myDeviceCurrentTempStringPropertyHintsVec;
+    myDeviceCurrentTempStringPropertyHintsVec.push_back(TEXTVIEW);
+    myDeviceCurrentTempStringProperty->setHints(myDeviceCurrentTempStringPropertyHintsVec);
 
-    currentHumidityStringProperty = new CurrentHumidityStringProperty("currentHumidityStringProperty", STRING_PROPERTY);
-    CHECK(tempAndHumidityContainer->addChildWidget(currentHumidityStringProperty));
+    myDeviceCurrentHumidityStringProperty = new MyDeviceCurrentHumidityStringProperty("CurrentHumidityStringProperty", myDeviceTempAndHumidityContainer, STRING_PROPERTY);
+    CHECK(myDeviceTempAndHumidityContainer->addChildWidget(myDeviceCurrentHumidityStringProperty));
 
-    currentHumidityStringProperty->setEnabled(true);
-    currentHumidityStringProperty->setIsSecured(false);
-    currentHumidityStringProperty->setWritable(false);
-    CHECK(currentHumidityStringProperty->setGetValue(getCurrentHumidityString));
-    currentHumidityStringProperty->setBgColor(0x500);
+    myDeviceCurrentHumidityStringProperty->setEnabled(true);
+    myDeviceCurrentHumidityStringProperty->setIsSecured(false);
+    myDeviceCurrentHumidityStringProperty->setWritable(false);
+    CHECK(myDeviceCurrentHumidityStringProperty->setGetValue(getCurrentHumidityString));
+    myDeviceCurrentHumidityStringProperty->setBgColor(0x500);
 
-    std::vector<qcc::String> currentHumidityStringPropertylabelVec;
-    currentHumidityStringPropertylabelVec.push_back("Current Humidity:");
-    currentHumidityStringProperty->setLabels(currentHumidityStringPropertylabelVec);
+    std::vector<qcc::String> myDeviceCurrentHumidityStringPropertylabelVec;
+    myDeviceCurrentHumidityStringPropertylabelVec.push_back("Current Humidity:");
+    myDeviceCurrentHumidityStringProperty->setLabels(myDeviceCurrentHumidityStringPropertylabelVec);
 
-    std::vector<uint16_t> currentHumidityStringPropertyHintsVec;
-    currentHumidityStringPropertyHintsVec.push_back(TEXTVIEW);
-    currentHumidityStringProperty->setHints(currentHumidityStringPropertyHintsVec);
+    std::vector<uint16_t> myDeviceCurrentHumidityStringPropertyHintsVec;
+    myDeviceCurrentHumidityStringPropertyHintsVec.push_back(TEXTVIEW);
+    myDeviceCurrentHumidityStringProperty->setHints(myDeviceCurrentHumidityStringPropertyHintsVec);
 
-    controlsContainer = new Container("controlsContainer");
-    CHECK(rootContainer->addChildWidget(controlsContainer));
+    myDeviceControlsContainer = new Container("controlsContainer", myDeviceRootContainer);
+    CHECK(myDeviceRootContainer->addChildWidget(myDeviceControlsContainer));
 
-    controlsContainer->setEnabled(true);
-    controlsContainer->setIsSecured(false);
-    controlsContainer->setBgColor(0x200);
+    myDeviceControlsContainer->setEnabled(true);
+    myDeviceControlsContainer->setIsSecured(false);
+    myDeviceControlsContainer->setBgColor(0x200);
 
-    std::vector<uint16_t> controlsContainerHintsVec;
-    controlsContainerHintsVec.push_back(HORIZONTAL_LINEAR);
-    controlsContainer->setHints(controlsContainerHintsVec);
+    std::vector<uint16_t> myDeviceControlsContainerHintsVec;
+    myDeviceControlsContainerHintsVec.push_back(HORIZONTAL_LINEAR);
+    myDeviceControlsContainer->setHints(myDeviceControlsContainerHintsVec);
 
-    ac_mode = new Ac_mode("ac_mode", UINT16_PROPERTY);
-    CHECK(controlsContainer->addChildWidget(ac_mode));
+    myDeviceAc_mode = new MyDeviceAc_mode("ac_mode", myDeviceControlsContainer, UINT16_PROPERTY);
+    CHECK(myDeviceControlsContainer->addChildWidget(myDeviceAc_mode));
 
-    ac_mode->setEnabled(true);
-    ac_mode->setIsSecured(false);
-    ac_mode->setWritable(true);
-    CHECK(ac_mode->setGetValue(getCurrentMode));
-    ac_mode->setBgColor(0xffd700);
+    myDeviceAc_mode->setEnabled(true);
+    myDeviceAc_mode->setIsSecured(false);
+    myDeviceAc_mode->setWritable(true);
+    CHECK(myDeviceAc_mode->setGetValue(getCurrentMode));
+    myDeviceAc_mode->setBgColor(0xffd700);
 
-    std::vector<qcc::String> ac_modelabelVec;
-    ac_modelabelVec.push_back("Mode");
-    ac_mode->setLabels(ac_modelabelVec);
+    std::vector<qcc::String> myDeviceAc_modelabelVec;
+    myDeviceAc_modelabelVec.push_back("Mode");
+    myDeviceAc_mode->setLabels(myDeviceAc_modelabelVec);
 
-    std::vector<uint16_t> ac_modeHintsVec;
-    ac_modeHintsVec.push_back(SPINNER);
-    ac_mode->setHints(ac_modeHintsVec);
+    std::vector<uint16_t> myDeviceAc_modeHintsVec;
+    myDeviceAc_modeHintsVec.push_back(SPINNER);
+    myDeviceAc_mode->setHints(myDeviceAc_modeHintsVec);
 
-    std::vector<ConstraintList> ac_modeConstraintListVec(5);
+    std::vector<ConstraintList> myDeviceAc_modeConstraintListVec(5);
 
-    std::vector<qcc::String> ac_modeDisplay1Vec;
-    ac_modeDisplay1Vec.push_back("Auto");
-    ac_modeConstraintListVec[0].setDisplays(ac_modeDisplay1Vec);
-    ac_modeConstraintListVec[0].setConstraintValue((uint16_t)0);
+    std::vector<qcc::String> myDeviceAc_modeDisplay1Vec;
+    myDeviceAc_modeDisplay1Vec.push_back("Auto");
+    myDeviceAc_modeConstraintListVec[0].setDisplays(myDeviceAc_modeDisplay1Vec);
+    myDeviceAc_modeConstraintListVec[0].setConstraintValue((uint16_t)0);
 
-    std::vector<qcc::String> ac_modeDisplay2Vec;
-    ac_modeDisplay2Vec.push_back("Cool");
-    ac_modeConstraintListVec[1].setDisplays(ac_modeDisplay2Vec);
-    ac_modeConstraintListVec[1].setConstraintValue((uint16_t)1);
+    std::vector<qcc::String> myDeviceAc_modeDisplay2Vec;
+    myDeviceAc_modeDisplay2Vec.push_back("Cool");
+    myDeviceAc_modeConstraintListVec[1].setDisplays(myDeviceAc_modeDisplay2Vec);
+    myDeviceAc_modeConstraintListVec[1].setConstraintValue((uint16_t)1);
 
-    std::vector<qcc::String> ac_modeDisplay3Vec;
-    ac_modeDisplay3Vec.push_back("Heat");
-    ac_modeConstraintListVec[2].setDisplays(ac_modeDisplay3Vec);
-    ac_modeConstraintListVec[2].setConstraintValue((uint16_t)2);
+    std::vector<qcc::String> myDeviceAc_modeDisplay3Vec;
+    myDeviceAc_modeDisplay3Vec.push_back("Heat");
+    myDeviceAc_modeConstraintListVec[2].setDisplays(myDeviceAc_modeDisplay3Vec);
+    myDeviceAc_modeConstraintListVec[2].setConstraintValue((uint16_t)2);
 
-    std::vector<qcc::String> ac_modeDisplay4Vec;
-    ac_modeDisplay4Vec.push_back("Fan");
-    ac_modeConstraintListVec[3].setDisplays(ac_modeDisplay4Vec);
-    ac_modeConstraintListVec[3].setConstraintValue((uint16_t)3);
+    std::vector<qcc::String> myDeviceAc_modeDisplay4Vec;
+    myDeviceAc_modeDisplay4Vec.push_back("Fan");
+    myDeviceAc_modeConstraintListVec[3].setDisplays(myDeviceAc_modeDisplay4Vec);
+    myDeviceAc_modeConstraintListVec[3].setConstraintValue((uint16_t)3);
 
-    std::vector<qcc::String> ac_modeDisplay5Vec;
-    ac_modeDisplay5Vec.push_back("Off");
-    ac_modeConstraintListVec[4].setDisplays(ac_modeDisplay5Vec);
-    ac_modeConstraintListVec[4].setConstraintValue((uint16_t)4);
+    std::vector<qcc::String> myDeviceAc_modeDisplay5Vec;
+    myDeviceAc_modeDisplay5Vec.push_back("Off");
+    myDeviceAc_modeConstraintListVec[4].setDisplays(myDeviceAc_modeDisplay5Vec);
+    myDeviceAc_modeConstraintListVec[4].setConstraintValue((uint16_t)4);
 
-    ac_mode->setConstraintList(ac_modeConstraintListVec);
+    myDeviceAc_mode->setConstraintList(myDeviceAc_modeConstraintListVec);
 
-    statusStringProperty = new StatusStringProperty("statusStringProperty", STRING_PROPERTY);
-    CHECK(controlsContainer->addChildWidget(statusStringProperty));
+    myDeviceStatusStringProperty = new MyDeviceStatusStringProperty("statusStringProperty", myDeviceControlsContainer, STRING_PROPERTY);
+    CHECK(myDeviceControlsContainer->addChildWidget(myDeviceStatusStringProperty));
 
-    statusStringProperty->setEnabled(true);
-    statusStringProperty->setIsSecured(false);
-    statusStringProperty->setWritable(false);
-    CHECK(statusStringProperty->setGetValue(getStatusString));
-    statusStringProperty->setBgColor(0x500);
+    myDeviceStatusStringProperty->setEnabled(true);
+    myDeviceStatusStringProperty->setIsSecured(false);
+    myDeviceStatusStringProperty->setWritable(false);
+    CHECK(myDeviceStatusStringProperty->setGetValue(getStatusString));
+    myDeviceStatusStringProperty->setBgColor(0x500);
 
-    std::vector<qcc::String> statusStringPropertylabelVec;
-    statusStringPropertylabelVec.push_back("Status:");
-    statusStringProperty->setLabels(statusStringPropertylabelVec);
+    std::vector<qcc::String> myDeviceStatusStringPropertylabelVec;
+    myDeviceStatusStringPropertylabelVec.push_back("Status:");
+    myDeviceStatusStringProperty->setLabels(myDeviceStatusStringPropertylabelVec);
 
-    std::vector<uint16_t> statusStringPropertyHintsVec;
-    statusStringPropertyHintsVec.push_back(TEXTVIEW);
-    statusStringProperty->setHints(statusStringPropertyHintsVec);
+    std::vector<uint16_t> myDeviceStatusStringPropertyHintsVec;
+    myDeviceStatusStringPropertyHintsVec.push_back(TEXTVIEW);
+    myDeviceStatusStringProperty->setHints(myDeviceStatusStringPropertyHintsVec);
 
-    set_temperature = new Set_temperature("set_temperature", UINT16_PROPERTY);
-    CHECK(rootContainer->addChildWidget(set_temperature));
+    myDeviceSet_temperature = new MyDeviceSet_temperature("set_temperature", myDeviceRootContainer, UINT16_PROPERTY);
+    CHECK(myDeviceRootContainer->addChildWidget(myDeviceSet_temperature));
 
-    set_temperature->setEnabled(false);
-    set_temperature->setIsSecured(false);
-    set_temperature->setWritable(true);
-    CHECK(set_temperature->setGetValue(getTargetTemperature));
-    set_temperature->setBgColor(0x008000);
+    myDeviceSet_temperature->setEnabled(false);
+    myDeviceSet_temperature->setIsSecured(false);
+    myDeviceSet_temperature->setWritable(true);
+    CHECK(myDeviceSet_temperature->setGetValue(getTargetTemperature));
+    myDeviceSet_temperature->setBgColor(0x008000);
 
-    std::vector<qcc::String> set_temperaturelabelVec;
-    set_temperaturelabelVec.push_back("Temperature");
-    set_temperature->setLabels(set_temperaturelabelVec);
+    std::vector<qcc::String> myDeviceSet_temperaturelabelVec;
+    myDeviceSet_temperaturelabelVec.push_back("Temperature");
+    myDeviceSet_temperature->setLabels(myDeviceSet_temperaturelabelVec);
 
-    std::vector<uint16_t> set_temperatureHintsVec;
-    set_temperatureHintsVec.push_back(SLIDER);
-    set_temperature->setHints(set_temperatureHintsVec);
+    std::vector<uint16_t> myDeviceSet_temperatureHintsVec;
+    myDeviceSet_temperatureHintsVec.push_back(SLIDER);
+    myDeviceSet_temperature->setHints(myDeviceSet_temperatureHintsVec);
 
-    std::vector<qcc::String> set_temperatureunitMeasureVec;
-    set_temperatureunitMeasureVec.push_back("Degrees");
-    set_temperature->setUnitOfMeasures(set_temperatureunitMeasureVec);
+    std::vector<qcc::String> myDeviceSet_temperatureunitMeasureVec;
+    myDeviceSet_temperatureunitMeasureVec.push_back("Degrees");
+    myDeviceSet_temperature->setUnitOfMeasures(myDeviceSet_temperatureunitMeasureVec);
 
-    ConstraintRange* set_temperatureConstraintRange = new ConstraintRange();
-    CHECK(set_temperatureConstraintRange->setConstraintMin((uint16_t)50));
-    CHECK(set_temperatureConstraintRange->setConstraintMax((uint16_t)90));
-    CHECK(set_temperatureConstraintRange->setConstraintIncrement((uint16_t)1));
-    set_temperature->setConstraintRange(set_temperatureConstraintRange);
+    ConstraintRange* myDeviceSet_temperatureConstraintRange = new ConstraintRange();
+    myDeviceSet_temperature->setConstraintRange(myDeviceSet_temperatureConstraintRange);
+    CHECK(myDeviceSet_temperatureConstraintRange->setConstraintMin((uint16_t)50));
+    CHECK(myDeviceSet_temperatureConstraintRange->setConstraintMax((uint16_t)90));
+    CHECK(myDeviceSet_temperatureConstraintRange->setConstraintIncrement((uint16_t)1));
 
-    fan_speed = new Fan_speed("fan_speed", UINT16_PROPERTY);
-    CHECK(rootContainer->addChildWidget(fan_speed));
+    myDeviceFan_speed = new MyDeviceFan_speed("fan_speed", myDeviceRootContainer, UINT16_PROPERTY);
+    CHECK(myDeviceRootContainer->addChildWidget(myDeviceFan_speed));
 
-    fan_speed->setEnabled(false);
-    fan_speed->setIsSecured(false);
-    fan_speed->setWritable(true);
-    CHECK(fan_speed->setGetValue(getFanSpeed));
-    fan_speed->setBgColor(0xff69b4);
+    myDeviceFan_speed->setEnabled(false);
+    myDeviceFan_speed->setIsSecured(false);
+    myDeviceFan_speed->setWritable(true);
+    CHECK(myDeviceFan_speed->setGetValue(getFanSpeed));
+    myDeviceFan_speed->setBgColor(0xff69b4);
 
-    std::vector<qcc::String> fan_speedlabelVec;
-    fan_speedlabelVec.push_back("Fan Speed");
-    fan_speed->setLabels(fan_speedlabelVec);
+    std::vector<qcc::String> myDeviceFan_speedlabelVec;
+    myDeviceFan_speedlabelVec.push_back("Fan Speed");
+    myDeviceFan_speed->setLabels(myDeviceFan_speedlabelVec);
 
-    std::vector<uint16_t> fan_speedHintsVec;
-    fan_speedHintsVec.push_back(SPINNER);
-    fan_speed->setHints(fan_speedHintsVec);
+    std::vector<uint16_t> myDeviceFan_speedHintsVec;
+    myDeviceFan_speedHintsVec.push_back(SPINNER);
+    myDeviceFan_speed->setHints(myDeviceFan_speedHintsVec);
 
-    std::vector<ConstraintList> fan_speedConstraintListVec(3);
+    std::vector<ConstraintList> myDeviceFan_speedConstraintListVec(3);
 
-    std::vector<qcc::String> fan_speedDisplay1Vec;
-    fan_speedDisplay1Vec.push_back("Low");
-    fan_speedConstraintListVec[0].setDisplays(fan_speedDisplay1Vec);
-    fan_speedConstraintListVec[0].setConstraintValue((uint16_t)0);
+    std::vector<qcc::String> myDeviceFan_speedDisplay1Vec;
+    myDeviceFan_speedDisplay1Vec.push_back("Low");
+    myDeviceFan_speedConstraintListVec[0].setDisplays(myDeviceFan_speedDisplay1Vec);
+    myDeviceFan_speedConstraintListVec[0].setConstraintValue((uint16_t)0);
 
-    std::vector<qcc::String> fan_speedDisplay2Vec;
-    fan_speedDisplay2Vec.push_back("Medium");
-    fan_speedConstraintListVec[1].setDisplays(fan_speedDisplay2Vec);
-    fan_speedConstraintListVec[1].setConstraintValue((uint16_t)1);
+    std::vector<qcc::String> myDeviceFan_speedDisplay2Vec;
+    myDeviceFan_speedDisplay2Vec.push_back("Medium");
+    myDeviceFan_speedConstraintListVec[1].setDisplays(myDeviceFan_speedDisplay2Vec);
+    myDeviceFan_speedConstraintListVec[1].setConstraintValue((uint16_t)1);
 
-    std::vector<qcc::String> fan_speedDisplay3Vec;
-    fan_speedDisplay3Vec.push_back("High");
-    fan_speedConstraintListVec[2].setDisplays(fan_speedDisplay3Vec);
-    fan_speedConstraintListVec[2].setConstraintValue((uint16_t)2);
+    std::vector<qcc::String> myDeviceFan_speedDisplay3Vec;
+    myDeviceFan_speedDisplay3Vec.push_back("High");
+    myDeviceFan_speedConstraintListVec[2].setDisplays(myDeviceFan_speedDisplay3Vec);
+    myDeviceFan_speedConstraintListVec[2].setConstraintValue((uint16_t)2);
 
-    fan_speed->setConstraintList(fan_speedConstraintListVec);
+    myDeviceFan_speed->setConstraintList(myDeviceFan_speedConstraintListVec);
 
     return status;
 }
 
 void ControlPanelGenerated::Shutdown()
 {
-    if (rootContainerControlPanel) {
-        delete (rootContainerControlPanel);
-        rootContainerControlPanel = 0;
+    if (myDeviceUnit) {
+        delete (myDeviceUnit);
+        myDeviceUnit = 0;
     }
-    if (rootContainer) {
-        delete (rootContainer);
-        rootContainer = 0;
+    if (myDeviceRootContainerControlPanel) {
+        delete (myDeviceRootContainerControlPanel);
+        myDeviceRootContainerControlPanel = 0;
     }
-    if (tempAndHumidityContainer) {
-        delete (tempAndHumidityContainer);
-        tempAndHumidityContainer = 0;
+    if (myDeviceRootContainer) {
+        delete (myDeviceRootContainer);
+        myDeviceRootContainer = 0;
     }
-    if (currentTempStringProperty) {
-        delete (currentTempStringProperty);
-        currentTempStringProperty = 0;
+    if (myDeviceTempAndHumidityContainer) {
+        delete (myDeviceTempAndHumidityContainer);
+        myDeviceTempAndHumidityContainer = 0;
     }
-    if (currentHumidityStringProperty) {
-        delete (currentHumidityStringProperty);
-        currentHumidityStringProperty = 0;
+    if (myDeviceCurrentTempStringProperty) {
+        delete (myDeviceCurrentTempStringProperty);
+        myDeviceCurrentTempStringProperty = 0;
     }
-    if (controlsContainer) {
-        delete (controlsContainer);
-        controlsContainer = 0;
+    if (myDeviceCurrentHumidityStringProperty) {
+        delete (myDeviceCurrentHumidityStringProperty);
+        myDeviceCurrentHumidityStringProperty = 0;
     }
-    if (ac_mode) {
-        delete (ac_mode);
-        ac_mode = 0;
+    if (myDeviceControlsContainer) {
+        delete (myDeviceControlsContainer);
+        myDeviceControlsContainer = 0;
     }
-    if (statusStringProperty) {
-        delete (statusStringProperty);
-        statusStringProperty = 0;
+    if (myDeviceAc_mode) {
+        delete (myDeviceAc_mode);
+        myDeviceAc_mode = 0;
     }
-    if (set_temperature) {
-        delete (set_temperature);
-        set_temperature = 0;
+    if (myDeviceStatusStringProperty) {
+        delete (myDeviceStatusStringProperty);
+        myDeviceStatusStringProperty = 0;
     }
-    if (fan_speed) {
-        delete (fan_speed);
-        fan_speed = 0;
+    if (myDeviceSet_temperature) {
+        delete (myDeviceSet_temperature);
+        myDeviceSet_temperature = 0;
+    }
+    if (myDeviceFan_speed) {
+        delete (myDeviceFan_speed);
+        myDeviceFan_speed = 0;
     }
 
 }

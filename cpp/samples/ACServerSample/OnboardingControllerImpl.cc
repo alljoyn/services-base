@@ -273,7 +273,7 @@ void OnboardingControllerImpl::ParseScanInfo()
                 m_ScanArray[current].SSID.append(ssid);
             } else if (!strcmp(key, "encryption")) {
                 const char*gcipher;
-                int wpa;
+                int wpa = -1;
                 GroupCiphers GCiphers = CIPHER_NONE;
                 json_object_object_foreach(val, ekey, eval) {
                     if (!strcmp(ekey, "wep")) {
