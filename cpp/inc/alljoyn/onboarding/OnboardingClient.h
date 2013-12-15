@@ -59,7 +59,7 @@ class OnboardingClient {
      * Get the ScanInfo array for specified bus name.
      * @param[in] busName Unique or well-known name of AllJoyn node to retrieve Onboarding data from.
      * @param[out] age
-     * @param[out] scnaInfos
+     * @param[out] scanInfos
      * @param[in] sessionId sessionIdthe session received  after joining alljoyn session
      * @return Status.OK if successful.
      */
