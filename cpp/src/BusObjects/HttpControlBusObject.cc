@@ -62,14 +62,14 @@ HttpControlBusObject::HttpControlBusObject(BusAttachment* bus, String const& obj
         return;
     }
 
-    if (m_HttpControl->getWidgetMode() == CONTROLLEE_WIDGET) {
+    if (m_HttpControl->getControlPanelMode() == CONTROLLEE_MODE) {
         //Get the signal methods for future use
         const ajn::InterfaceDescription::Member* getRootUrlMember = m_InterfaceDescription->GetMember(AJ_METHOD_GETROOTURL.c_str());
 
         status = AddMethodHandler(getRootUrlMember, static_cast<MessageReceiver::MethodHandler>(&HttpControlBusObject::HttpControlGetUrl));
         if (status != ER_OK) {
             if (logger)
-                logger->warn(TAG, "Could not register the SignalHandler");
+                logger->warn(TAG, "Could not register the MethodHandler");
             return;
         }
     }
@@ -133,7 +133,7 @@ QStatus HttpControlBusObject::setRemoteController(BusAttachment* bus, qcc::Strin
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
 
-    if (m_Proxy) {
+    if (m_Proxy && m_Proxy->GetSessionId() == sessionId) {
         if (logger)
             logger->debug(TAG, "ProxyBusObject already set - ignoring");
         return ER_OK;
@@ -144,6 +144,9 @@ QStatus HttpControlBusObject::setRemoteController(BusAttachment* bus, qcc::Strin
             logger->warn(TAG, "InterfaceDescription is not set. Cannot set RemoteController");
         return ER_FAIL;
     }
+
+    if (m_Proxy) // delete ProxyBusObject before creating a new one with correct sessionId
+        delete m_Proxy;
 
     m_Proxy = new ProxyBusObject(*bus, deviceBusName.c_str(), m_ObjectPath.c_str(), sessionId);
     QStatus status = m_Proxy->AddInterface(*m_InterfaceDescription);
@@ -186,8 +189,12 @@ QStatus HttpControlBusObject::checkVersions()
         return ER_BUS_INTERFACE_MISMATCH;
     }
 
-    m_HttpControl->setVersion(version);
-    return ER_OK;
+    QStatus setVersionStatus = m_HttpControl->readVersionArg(value);
+    if (setVersionStatus != ER_OK) {
+        if (logger)
+            logger->warn(TAG, "Could not set version property");
+    }
+    return status;
 }
 
 QStatus HttpControlBusObject::GetUrl(BusAttachment* bus)

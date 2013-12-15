@@ -39,25 +39,31 @@ class ControlPanelController {
      */
     virtual ~ControlPanelController();
 
+    /**
+     * create a controllable device by parsing announce descriptions.
+     * @param deviceBusName - BusName of device received in announce
+     * @param objectDescs - ObjectDescriptions received in announce
+     * @return a ControlPanelDevice
+     */
     ControlPanelDevice* createControllableDevice(qcc::String const& deviceBusName, const AnnounceHandler::ObjectDescriptions& objectDescs);
 
     /**
-     * getControllableDevice
-     * @param[out] deviceBusName
-     * @return ControlPanelDevice*
+     * GetControllableDevice - get a device using the busName - creates it if it doesn't exist
+     * @param deviceBusName - deviceName to get
+     * @return ControlPanelDevice* - returns the Device
      */
     ControlPanelDevice* getControllableDevice(qcc::String const& deviceBusName);
 
     /**
-     * stopControllableDevice
-     * @param[out] deviceBusName
-     * @return QStatus
+     * deleteControllableDevice - shutdown a controllable device and delete it from the Controller
+     * @param deviceBusName - deviceName to delete
+     * @return status - success-failure
      */
     QStatus deleteControllableDevice(qcc::String const& deviceBusName);
 
     /**
-     * stopAllControllableDevices
-     * @return QStatus
+     * deleteAllControllableDevices - shutdown and delete all controllable devices from the controller
+     * @return status - success-failure
      */
     QStatus deleteAllControllableDevices();
 
@@ -69,6 +75,9 @@ class ControlPanelController {
 
   private:
 
+    /**
+     * Map of ControllableDevices added to Controller
+     */
     std::map<qcc::String, ControlPanelDevice*> m_ControllableDevices;
 };
 

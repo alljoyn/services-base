@@ -25,12 +25,12 @@ class Widget:
         self.generated = generated
         self.element = element
         self.parentName = parentName
-        self.name = element.name
+        self.name = self.generated.unitName + self.element.name[:1].upper() + self.element.name[1:]
         self.languageSetName = languageSetName
         self.languageSet = self.generated.languageSets[languageSetName]
         self.parentAddFunc = "addChildWidget"
         self.additionalParams = ""
-
+        self.isRoot = 0
 
     def generate(self) :
         self.generateBasics()
@@ -42,7 +42,10 @@ class Widget:
         self.generated.varDecl += """    static ajn::services::{0}* {1};\n\n""".format(self.widgetName, self.name)
         self.generated.varDef += """{0}* ControlPanelGenerated::{1} = 0;\n""".format(self.widgetName, self.name)
 
-        self.generated.initCode += """\n    {0} = new {1}("{0}"{2});\n""".format(self.name, self.widgetName, self.additionalParams)
+        rootWidget = self.parentName
+        if self.isRoot :
+            rootWidget = "NULL"
+        self.generated.initCode += """\n    {0} = new {1}("{2}", {3}{4});\n""".format(self.name, self.widgetName, self.element.name, rootWidget, self.additionalParams)
         self.generated.initCode += """    CHECK({0}->{1}({2}));\n\n""".format(self.parentName, self.parentAddFunc, self.name)
 
         self.generated.shutdown += """    if ({0}) {1}\n        delete ({0});\n        {0} = 0;\n    {2}\n""".format(self.name, "{", "}")

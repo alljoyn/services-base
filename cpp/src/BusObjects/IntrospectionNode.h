@@ -18,7 +18,7 @@
 #define INTROSPECTIONNODE_H_
 
 #include <qcc/String.h>
-#include <alljoyn/controlpanel/WidgetEnums.h>
+#include <alljoyn/controlpanel/ControlPanelEnums.h>
 
 namespace ajn {
 namespace services {

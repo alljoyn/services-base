@@ -18,14 +18,13 @@
 #define CONTROLPANELGENERATED_H_
 
 #include <alljoyn/controlpanel/ControlPanelControllee.h>
-#include <alljoyn/controlpanel/ControlPanelHints.h>
 #include <alljoyn/controlpanel/Container.h>
 #include <alljoyn/controlpanel/Label.h>
 #include <alljoyn/controlpanel/ActionWithDialog.h>
-#include "../generated/HeatProperty.h"
-#include "../generated/OvenAction.h"
-#include "../generated/LightConfirm.h"
-#include "../generated/AreYouSure.h"
+#include "../generated/MyDeviceHeatProperty.h"
+#include "../generated/MyDeviceOvenAction.h"
+#include "../generated/MyDeviceLightConfirm.h"
+#include "../generated/MyDeviceAreYouSure.h"
 
 
 /**
@@ -42,23 +41,25 @@ class ControlPanelGenerated {
 
     static bool languageSetsDone;
 
-    static ajn::services::ControlPanel* rootContainerControlPanel;
+    static ajn::services::ControlPanelControlleeUnit* myDeviceUnit;
 
-    static ajn::services::Container* rootContainer;
+    static ajn::services::ControlPanel* myDeviceRootContainerControlPanel;
 
-    static ajn::services::Label* CurrentTemp;
+    static ajn::services::Container* myDeviceRootContainer;
 
-    static ajn::services::HeatProperty* heatProperty;
+    static ajn::services::Label* myDeviceCurrentTemp;
 
-    static ajn::services::OvenAction* ovenAction;
+    static ajn::services::MyDeviceHeatProperty* myDeviceHeatProperty;
 
-    static ajn::services::ActionWithDialog* lightAction;
+    static ajn::services::MyDeviceOvenAction* myDeviceOvenAction;
 
-    static ajn::services::LightConfirm* lightConfirm;
+    static ajn::services::ActionWithDialog* myDeviceLightAction;
 
-    static ajn::services::NotificationAction* areYouSureNotificationAction;
+    static ajn::services::MyDeviceLightConfirm* myDeviceLightConfirm;
 
-    static ajn::services::AreYouSure* areYouSure;
+    static ajn::services::NotificationAction* myDeviceAreYouSureNotificationAction;
+
+    static ajn::services::MyDeviceAreYouSure* myDeviceAreYouSure;
 
 
 };

@@ -19,9 +19,12 @@
 
 #include <alljoyn/controlpanel/RootWidget.h>
 #include <alljoyn/BusObject.h>
+#include <alljoyn/controlpanel/ControlPanelDevice.h>
 
 namespace ajn {
 namespace services {
+
+class NotificationActionBusObject;
 
 /**
  * NotificationAction class.
@@ -37,6 +40,14 @@ class NotificationAction {
     static NotificationAction* createNotificationAction(LanguageSet* languageSet);
 
     /**
+     * NotificationAction constructor
+     * @param languageSet - languageSet of NotificationAction
+     * @param objectPath - objectPath of NotificationAction
+     * @param device - device that contains this NotificationAction
+     */
+    NotificationAction(LanguageSet const& languageSet, qcc::String objectPath, ControlPanelDevice* device);
+
+    /**
      * Destructor of NotificationAction class
      */
     virtual ~NotificationAction();
@@ -49,6 +60,12 @@ class NotificationAction {
     QStatus setRootWidget(RootWidget* rootWidget);
 
     /**
+     * Get the name of the NotificationAction - the name of the rootWidget
+     * @return name of the NotificationAction
+     */
+    qcc::String getNotificationActionName() const;
+
+    /**
      * Register the BusObjects of the Notification Action
      * @param bus - bus to register the objects on
      * @param unitName - unitName to use in ObjectPath
@@ -57,11 +74,48 @@ class NotificationAction {
     QStatus registerObjects(BusAttachment* bus, qcc::String const& unitName);
 
     /**
+     * Register the BusObjects for this Widget
+     * @param bus - bus used to register the busObjects
+     * @return status - success/failure
+     */
+    QStatus registerObjects(BusAttachment* bus);
+
+    /**
      * Unregister the BusObjects of the NotificationAction class
      * @param bus - bus used to unregister the objects
      * @return status - success/failure
      */
     QStatus unregisterObjects(BusAttachment* bus);
+
+    /**
+     * Get the LanguageSet of the NotificationAction
+     * @return
+     */
+    const LanguageSet& getLanguageSet() const;
+
+    /**
+     * Get the Device of the NotificationAction
+     * @return controlPanelDevice
+     */
+    ControlPanelDevice* getDevice() const;
+
+    /**
+     * Get the objectPath
+     * @return
+     */
+    const qcc::String& getObjectPath() const;
+
+    /**
+     * Get the RootWidget of the NotificationAction
+     * @param Language - languageSet of RootWidget to retrieve
+     * @return rootWidget
+     */
+    RootWidget* getRootWidget(qcc::String const& Language) const;
+
+    /**
+     * Callback when DismissSignal is received by the BusObject
+     */
+    void DismissSignal();
 
   private:
 
@@ -74,7 +128,7 @@ class NotificationAction {
     /**
      * The LanguageSet of the NotificationAction
      */
-    LanguageSet const& m_LanguageSet;
+    LanguageSet m_LanguageSet;
 
     /**
      * The RootWidget of the NotificationAction
@@ -82,9 +136,49 @@ class NotificationAction {
     RootWidget* m_RootWidget;
 
     /**
+     * RootWidgetMap of this NotificationAction
+     */
+    std::map<qcc::String, RootWidget*> m_RootWidgetMap;
+
+    /**
      * The BusObject of the NotificationAction
      */
-    BusObject* m_NotificationActionBusObject;
+    NotificationActionBusObject* m_NotificationActionBusObject;
+
+    /**
+     * ObjectPath of the NotificationAction
+     */
+    qcc::String m_ObjectPath;
+
+    /**
+     * Device containing the NotificationAction
+     */
+    ControlPanelDevice* m_Device;
+
+    /**
+     * Copy constructor of NotificationAction - private. NotificationAction is not copy-able
+     * @param notificationAction - notificationAction to copy
+     */
+    NotificationAction(const NotificationAction& notificationAction);
+
+    /**
+     * Assignment operator of NotificationAction - private. NotificationAction is not assignable
+     * @param notificationAction
+     * @return
+     */
+    NotificationAction& operator=(const NotificationAction& notificationAction);
+
+    /**
+     * Check the compatibility of the versions with remote controlpanel
+     * @return status - success/failure
+     */
+    QStatus checkVersions();
+
+    /**
+     * Add the Child Widgets
+     * @return status - success/failure
+     */
+    QStatus addChildren();
 };
 
 } /* namespace services */

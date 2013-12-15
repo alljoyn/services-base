@@ -18,7 +18,7 @@
 #define CONTROLPANELDEVICE2_H_
 
 #include <alljoyn/controlpanel/ControlPanelSessionHandler.h>
-#include <alljoyn/controlpanel/ControlPanelUnit.h>
+#include <alljoyn/controlpanel/ControlPanelControllerUnit.h>
 #include <alljoyn/controlpanel/NotificationAction.h>
 #include <map>
 
@@ -36,42 +36,48 @@ class ControlPanelDevice {
     friend class ControlPanelSessionHandler;
 
     /**
-     * ControlPanelDevice
+     * Constructor for ControlPanelDevice
      * @param deviceBusName
      */
     ControlPanelDevice(qcc::String const& deviceBusName);
 
     /**
-     * ~ControlPanelDevice()
+     * Destructor for ControlPanelDevice
      */
     virtual ~ControlPanelDevice();
 
     /**
-     * startSession
+     * startSessionAsync - start a session with Device Asynchronously
+     * @return status - success/failure
+     */
+    QStatus startSessionAsync();
+
+    /**
+     * startSession - start session with device synchronously
      * @return status - success/failure
      */
     QStatus startSession();
 
     /**
-     * endSession
+     * endSession - endSession with device
      * @return status - success/failure
      */
     QStatus endSession();
 
     /**
      * ShutDown device - end Session and release units
-     * @return
+     * @return status - success/failure
      */
     QStatus shutdownDevice();
 
     /**
-     * getDeviceBusName
-     * @return deviceBusName
+     * getDeviceBusName - get the busName of the device
+     * @return deviceBusName - busName of device
      */
     const qcc::String& getDeviceBusName() const;
 
     /**
-     * getSessionId
+     * getSessionId - get the SessionId of the remote Session with device
      * @return const ajn::SessionId
      */
     const ajn::SessionId getSessionId() const;
@@ -80,28 +86,42 @@ class ControlPanelDevice {
      * getDeviceUnits
      * @return the ControlPanelUnits of this Device
      */
-    const std::map<qcc::String, ControlPanelUnit*>& getDeviceUnits() const;
+    const std::map<qcc::String, ControlPanelControllerUnit*>& getDeviceUnits() const;
 
     /**
-     * getAllControlPanels
-     * @return a vector with all the controlPanel defined as children of this DeviceUnit
+     * getAllControlPanels - fills the passed in vector with all controlPanels contained by this device
+     * @param controlPanelsVec - a vector with all the controlPanel defined as children of this DeviceUnit
      */
     void getAllControlPanels(std::vector<ControlPanel*>& controlPanelsVec);
 
     /**
-     * addControlPanelUnit
-     * @param objectPath
-     * @param interfaces
-     * @return const ControlPanelUnit pointer
+     * Get an existing unit using the objectPath
+     * @param objectPath - objectPath of unit
+     * @return ControlPanelUnit pointer
      */
-    ControlPanelUnit* addControlPanelUnit(qcc::String const& objectPath, std::vector<qcc::String> const& interfaces);
+    ControlPanelControllerUnit* getControlPanelUnit(qcc::String const& objectPath);
 
     /**
-     * addNotificationAction
-     * @param objectPath
+     * addControlPanelUnit - add a ControlPanel unit using the objectPath and interfaces passed in
+     * @param objectPath - objectPath received in the announce
+     * @param interfaces - interfaces received in the announce
+     * @return ControlPanelUnit pointer
+     */
+    ControlPanelControllerUnit* addControlPanelUnit(qcc::String const& objectPath, std::vector<qcc::String> const& interfaces);
+
+    /**
+     * addNotificationAction - add a Notification using an objectPath received in a notification
+     * @param objectPath - objectPath used to create the NotificationAction
      * @return NotificationAction pointer
      */
     NotificationAction* addNotificationAction(qcc::String const& objectPath);
+
+    /**
+     * Delete and shutdown the NotificationAction
+     * @param notificationAction - notificationAction to remove
+     * @return status - success/failure
+     */
+    QStatus removeNotificationAction(NotificationAction* notificationAction);
 
     /**
      * Get the Listener defined for this SessionHandler
@@ -128,9 +148,10 @@ class ControlPanelDevice {
      * @param objectPath - objectPath to parse
      * @param unitName - unitname will be filled based on the objectPath
      * @param panel - panel will be filled based on the objectPath
+     * @param createIfNotFound - create Unit if it is not found in map
      * @return a ControlPanelUnit
      */
-    ControlPanelUnit* getControlPanelUnit(qcc::String const& objectPath, qcc::String& unitName, qcc::String& panel);
+    ControlPanelControllerUnit* getControlPanelUnit(qcc::String const& objectPath, qcc::String& unitName, qcc::String& panel, bool createIfNotFound = true);
 
     /**
      * The Device's BusName
@@ -145,7 +166,7 @@ class ControlPanelDevice {
     /**
      * Map containing the Devices Units
      */
-    std::map<qcc::String, ControlPanelUnit*> m_DeviceUnits;
+    std::map<qcc::String, ControlPanelControllerUnit*> m_DeviceUnits;
 
     /**
      * Listener - can be used to override the default ControlPanelListener of the Device

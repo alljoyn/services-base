@@ -27,7 +27,7 @@ namespace services {
  */
 class REGULAR_NAME_HERE : public ajn::services::Property {
   public:
-    REGULAR_NAME_HERE(qcc::String name, PropertyType propertyType);
+    REGULAR_NAME_HERE(qcc::String name, Widget* rootWidget, PropertyType propertyType);
     virtual ~REGULAR_NAME_HERE();
 
     QStatus setValue(VALUE_TYPE_HERE value);

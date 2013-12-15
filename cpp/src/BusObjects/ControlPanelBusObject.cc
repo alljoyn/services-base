@@ -84,9 +84,9 @@ QStatus ControlPanelBusObject::setRemoteController(BusAttachment* bus, qcc::Stri
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
 
-    if (m_Proxy) {
+    if (m_Proxy && m_Proxy->GetSessionId() == sessionId) {
         if (logger)
-            logger->debug(TAG, "ProxyBusObject already set - ignorings");
+            logger->debug(TAG, "ProxyBusObject already set - ignoring");
         return ER_OK;
     }
 
@@ -95,6 +95,9 @@ QStatus ControlPanelBusObject::setRemoteController(BusAttachment* bus, qcc::Stri
             logger->warn(TAG, "InterfaceDescription is not set. Cannot set RemoteController");
         return ER_FAIL;
     }
+
+    if (m_Proxy) // delete existing ProxyBusObject and create new one with correct sessionId
+        delete m_Proxy;
 
     m_Proxy = new ProxyBusObject(*bus, deviceBusName.c_str(), m_ObjectPath.c_str(), sessionId);
     QStatus status = m_Proxy->AddInterface(*m_InterfaceDescription);

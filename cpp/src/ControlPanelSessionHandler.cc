@@ -26,7 +26,7 @@ using namespace cpsConsts;
 
 #define TAG TAG_CONTROLPANELSESSIONHANDLER
 
-ControlPanelSessionHandler::ControlPanelSessionHandler() : m_SessionId(0)
+ControlPanelSessionHandler::ControlPanelSessionHandler(ControlPanelDevice* device) : m_SessionId(0), m_Device(device)
 {
 
 }
@@ -45,15 +45,22 @@ void ControlPanelSessionHandler::SessionLost(ajn::SessionId sessionId)
         logger->info(TAG, "Session lost for sessionId: " + qcc::String(sessionIdStr.str().c_str()));
     }
     m_SessionId = 0;
+
+    ControlPanelListener* listener = m_Device->getListener();
+    if (listener)
+        listener->sessionLost(m_Device);
 }
 
 void ControlPanelSessionHandler::JoinSessionCB(QStatus status, ajn::SessionId id, const ajn::SessionOpts& opts, void* context)
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
+
     if (status != ER_OK) {
         if (logger)
             logger->warn(TAG, qcc::String("Joining session failed. Status: ") + QCC_StatusText(status));
-        //TODO: Opportunity for Error Occurred
+        ControlPanelListener* listener = m_Device->getListener();
+        if (listener)
+            listener->errorOccured(m_Device, status, SESSION_JOIN, "Could not join session");
         return;
     }
 
@@ -64,8 +71,7 @@ void ControlPanelSessionHandler::JoinSessionCB(QStatus status, ajn::SessionId id
     }
 
     m_SessionId = id;
-    ControlPanelDevice* device = (ControlPanelDevice*) context;
-    device->handleSessionJoined();
+    m_Device->handleSessionJoined();
 }
 
 ajn::SessionId ControlPanelSessionHandler::getSessionId() const

@@ -332,6 +332,7 @@ QStatus ConstraintRange::fillConstraintArg(MsgArg& val, uint16_t languageIndx, P
         return status;
     }
 
+    val.SetOwnershipFlags(MsgArg::OwnsArgs, true);
     return status;
 }
 

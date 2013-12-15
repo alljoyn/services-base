@@ -52,6 +52,15 @@ ControlPanel::ControlPanel(LanguageSet const& languageSet, qcc::String objectPat
 
 }
 
+ControlPanel::ControlPanel(const ControlPanel& controlPanel) : m_LanguageSet(controlPanel.m_LanguageSet)
+{
+
+}
+
+ControlPanel& ControlPanel::operator=(const ControlPanel& controlPanel)
+{
+    return *this;
+}
 
 ControlPanel::~ControlPanel()
 {
@@ -79,6 +88,17 @@ QStatus ControlPanel::setRootWidget(Container* rootWidget)
 
     m_RootWidget = rootWidget;
     return ER_OK;
+}
+
+qcc::String ControlPanel::getPanelName() const
+{
+    if (m_RootWidget)
+        return m_RootWidget->getWidgetName();
+
+    if (m_RootWidgetMap.size())
+        return m_RootWidgetMap.begin()->second->getWidgetName();
+
+    return "";
 }
 
 Container* ControlPanel::getRootWidget() const
@@ -191,12 +211,6 @@ QStatus ControlPanel::registerObjects(BusAttachment* bus)
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
 
-    if (m_ControlPanelBusObject) {
-        if (logger)
-            logger->warn(TAG, "Could not register Object. BusObject already exists");
-        return ER_OK;
-    }
-
     if (!bus) {
         if (logger)
             logger->warn(TAG, "Could not register Object. Bus is NULL");
@@ -207,6 +221,12 @@ QStatus ControlPanel::registerObjects(BusAttachment* bus)
         if (logger)
             logger->warn(TAG, "Could not register Object. Bus is not started or not connected");
         return ER_BAD_ARG_1;
+    }
+
+    if (m_ControlPanelBusObject) {
+        if (logger)
+            logger->debug(TAG, "BusObject already exists, just refreshing remote controller");
+        return m_ControlPanelBusObject->setRemoteController(bus, m_Device->getDeviceBusName(), m_Device->getSessionId());
     }
 
     QStatus status = ER_OK;
@@ -278,7 +298,7 @@ QStatus ControlPanel::addChildren()
         qcc::String const& containerName = splitPath[2];
         qcc::String const& language = splitPath[3];
         m_LanguageSet.addLanguage(language);
-        Container* container = new Container(containerName, childNodes[i].getObjectPath(), m_Device);
+        Container* container = new Container(containerName, NULL, childNodes[i].getObjectPath(), m_Device);
         container->setIsSecured(childNodes[i].isSecured());
         m_RootWidgetMap[language] = container;
     }

@@ -33,15 +33,17 @@ class ActionWithDialog : public Widget {
     /**
      * Constructor for Action with Dialog class
      * @param name - name of Widget
+     * @param rootWidget - the RootWidget of the widget
      */
-    ActionWithDialog(qcc::String const& name);
+    ActionWithDialog(qcc::String const& name, Widget* rootWidget);
 
     /**
      * Constructor for Action with Dialog class
      * @param name - name of Widget
+     * @param rootWidget - the RootWidget of the widget
      * @param device - device that contains this Action
      */
-    ActionWithDialog(qcc::String const& name, ControlPanelDevice* device);
+    ActionWithDialog(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* device);
 
     /**
      * Destructor for Action with Dialog Class
@@ -92,6 +94,13 @@ class ActionWithDialog : public Widget {
      */
     virtual QStatus unregisterObjects(BusAttachment* bus);
 
+  private:
+
+    /**
+     * The Child Dialog of the Action
+     */
+    Dialog* m_Dialog;
+
     /**
      * Add ChildDialog for Action
      * @param bus - busAttachment to use
@@ -99,12 +108,13 @@ class ActionWithDialog : public Widget {
      */
     QStatus addChildren(BusAttachment* bus);
 
-  private:
-
     /**
-     * The Child Dialog of the Action
+     * Override default refreshChildren Implementation to refresh Action's child dialog
+     * @param bus - bus used to create and register children
+     * @return status - success/failure
      */
-    Dialog* m_Dialog;
+    QStatus refreshChildren(BusAttachment* bus);
+
 };
 } //namespace services
 } //namespace ajn

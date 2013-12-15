@@ -114,6 +114,13 @@ class WidgetBusObject : public ajn::BusObject {
      */
     virtual QStatus Introspect(std::vector<IntrospectionNode>& childNodes);
 
+    /**
+     * remove the SignalHandler of the BusObject
+     * @param bus - busAttachment used to remove the signalHandlers
+     * @return status - success/failure
+     */
+    virtual QStatus UnregisterSignalHandler(BusAttachment* bus);
+
   protected:
 
     /**

@@ -23,11 +23,12 @@ namespace ajn {
 namespace services {
 using namespace cpsConsts;
 
-Action::Action(qcc::String const& name) : Widget(name, ACTION, TAG_ACTION_WIDGET)
+Action::Action(qcc::String const& name, Widget* rootWidget) : Widget(name, rootWidget, ACTION, TAG_ACTION_WIDGET)
 {
 }
 
-Action::Action(qcc::String const& name, ControlPanelDevice* device) : Widget(name, device, ACTION, TAG_ACTION_WIDGET)
+Action::Action(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* device) :
+    Widget(name, rootWidget, device, ACTION, TAG_ACTION_WIDGET)
 {
 
 }
@@ -45,7 +46,7 @@ WidgetBusObject* Action::createWidgetBusObject(BusAttachment* bus, qcc::String c
 QStatus Action::executeAction()
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-    if (m_WidgetMode == CONTROLLEE_WIDGET) {
+    if (m_ControlPanelMode == CONTROLLEE_MODE) {
         if (logger)
             logger->warn(TAG, "Cannot execute Action. Widget is a Controllee widget");
         return ER_NOT_IMPLEMENTED;

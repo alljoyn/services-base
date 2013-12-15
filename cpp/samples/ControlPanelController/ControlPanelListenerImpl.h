@@ -18,10 +18,7 @@
 #define CONTROLPANELLISTENERIMPL_H_
 
 #include <alljoyn/controlpanel/ControlPanelListener.h>
-#include <alljoyn/controlpanel/Container.h>
-#include <alljoyn/controlpanel/Property.h>
-#include <alljoyn/controlpanel/Dialog.h>
-#include <alljoyn/controlpanel/Action.h>
+#include <alljoyn/controlpanel/ControlPanelController.h>
 
 /*
  *
@@ -29,43 +26,28 @@
 class ControlPanelListenerImpl : public ajn::services::ControlPanelListener {
   public:
 
-    ControlPanelListenerImpl();
+    ControlPanelListenerImpl(ajn::services::ControlPanelController* controller);
 
-    virtual ~ControlPanelListenerImpl();
+    ~ControlPanelListenerImpl();
 
-    virtual void sessionEstablished(ajn::services::ControlPanelDevice* device);
+    void sessionEstablished(ajn::services::ControlPanelDevice* device);
 
-    virtual void sessionLost(ajn::services::ControlPanelDevice* device);
+    void sessionLost(ajn::services::ControlPanelDevice* device);
 
-    virtual void errorOccured(ajn::services::ControlPanelDevice* device, qcc::String const& error);
+    void errorOccured(ajn::services::ControlPanelDevice* device, QStatus status,
+                      ajn::services::ControlPanelTransaction transaction, qcc::String const& error);
 
-    virtual void signalPropertiesChanged(ajn::services::ControlPanelDevice* device, ajn::services::Widget* widget);
+    void signalPropertiesChanged(ajn::services::ControlPanelDevice* device, ajn::services::Widget* widget);
 
-    virtual void signalValueChanged(ajn::services::ControlPanelDevice* device, ajn::services::Widget* widget);
+    void signalPropertyValueChanged(ajn::services::ControlPanelDevice* device, ajn::services::Property* property);
+
+    void signalDismiss(ajn::services::ControlPanelDevice* device, ajn::services::NotificationAction* notificationAction);
 
   private:
 
-    void printBasicWidget(ajn::services::Widget* widget, qcc::String const& widgetType, qcc::String const& indent);
+    ajn::services::ControlPanelController* m_Controller;
 
-    void printContainer(ajn::services::Container* rootContainer, std::vector<ajn::services::Action*>& actionsToExecute,
-                        std::vector<ajn::services::Dialog*>& dialogsToExecute, std::vector<ajn::services::Property*>& propertiesToChange,
-                        qcc::String const& indent = "");
-
-    void printProperty(ajn::services::Property* property, qcc::String const& indent);
-
-    void printDialog(ajn::services::Dialog* dialog, qcc::String const& indent);
-
-    void printPropertyValue(ajn::services::PropertyValue propertyValue, ajn::services::PropertyType propertyType, qcc::String const& indent);
-
-    void printConstraintRange(ajn::services::ConstraintRange* constraintRange, ajn::services::PropertyType propertyType,
-                              qcc::String const& indent);
-
-    void printConstraintList(const std::vector<ajn::services::ConstraintList>& constraintList, ajn::services::PropertyType propertyType,
-                             qcc::String const& indent);
-
-    void executeActions(std::vector<ajn::services::Action*>& actionsToExecute);
-
-    void executeDialogActions(std::vector<ajn::services::Dialog*>& dialogsToExecute);
+    std::vector<qcc::String> m_ConnectedDevices;
 
 };
 

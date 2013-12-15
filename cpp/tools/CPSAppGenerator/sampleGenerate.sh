@@ -18,7 +18,7 @@ echo "Generating code for testOneOfEachWidget.xml"
 INITIAL_DIR=`pwd` # Save current dir
 cd `dirname $0`       # Go to script dir
 
-python generateCPSApp.py SampleXMLs/testOneOfEachWidget.xml ../../samples/generated/ 
+python generateCPSApp.py SampleXMLs/testOneOfEachWidget.xml -p ../../samples/generated/ 
 
 cd ${INITIAL_DIR}
 

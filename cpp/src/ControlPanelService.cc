@@ -42,7 +42,8 @@ ControlPanelService* ControlPanelService::getInstance()
 }
 
 ControlPanelService::ControlPanelService() :
-    m_Bus(0), m_BusListener(0), m_ControlPanelControllee(0), logger(0)
+    m_Bus(0), m_BusListener(0), m_ControlPanelControllee(0),
+    m_ControlPanelController(0), m_ControlPanelListener(0), logger(0)
 {
     setLogger(&cpsLogger);
 }
@@ -248,8 +249,6 @@ QStatus ControlPanelService::initController(BusAttachment* bus, ControlPanelCont
 
 QStatus ControlPanelService::shutdownController()
 {
-    QStatus returnStatus = ER_OK;
-
     if (!m_ControlPanelController) {
         if (logger)
             logger->info(TAG, "ControlPanelControllee not initialized. Returning");
@@ -266,13 +265,12 @@ QStatus ControlPanelService::shutdownController()
     if (status != ER_OK) {
         if (logger)
             logger->warn(TAG, "Could not stop all Controllable Devices");
-        returnStatus = status;
     }
 
     m_ControlPanelController = 0;
     m_ControlPanelListener = 0;
 
-    return returnStatus;
+    return status;
 }
 
 void ControlPanelService::GenericLoggerCallBack(DbgMsgType type, const char* module, const char* msg, void* context)

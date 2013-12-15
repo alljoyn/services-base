@@ -32,20 +32,26 @@ class Container : public RootWidget {
     /**
      * Constructor for container Class
      * @param name - name of Widget
+     * @param rootWidget - the RootWidget of the widget
      */
-    Container(qcc::String const& name);
+    Container(qcc::String const& name, Widget* rootWidget);
 
     /**
      * Constructor for container Class
      * @param name - name of Widget
+     * @param rootWidget - the RootWidget of the widget
+     * @param objectPath - the objectPath of the Container
+     * @param device - the Device that contains this Container
      */
-    Container(qcc::String const& name, qcc::String const& objectPath, ControlPanelDevice* device);
+    Container(qcc::String const& name, Widget* rootWidget, qcc::String const& objectPath, ControlPanelDevice* device);
 
     /**
      * Constructor for container Class
      * @param name - name of Widget
+     * @param rootWidget - the RootWidget of the widget
+     * @param device - the Device that contains this Container
      */
-    Container(qcc::String const& name, ControlPanelDevice* device);
+    Container(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* device);
 
     /**
      * Destructor for Container Class
@@ -133,6 +139,23 @@ class Container : public RootWidget {
      * @return status - success/failure
      */
     QStatus addChildren(BusAttachment* bus);
+
+    /**
+     * Override default refreshChildren Implementation to refresh container's child widgets
+     * @param bus - bus used to create and register children
+     * @return status - success/failure
+     */
+    QStatus refreshChildren(BusAttachment* bus);
+
+    /**
+     * Create Widget based on WidgetType passed in
+     * @param name - name of Widget
+     * @param rootWidget - the RootWidget of the widget
+     * @param device - device that contains Widget
+     * @param widgetType - type of widget to create
+     * @return newly created widget or NULL if error
+     */
+    Widget* createWidget(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* device, WidgetType widgetType);
 
 };
 } //namespace services

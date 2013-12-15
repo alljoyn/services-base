@@ -38,8 +38,7 @@ providedobjs = samples_env.SConscript('provided/SConscript', {'env': samples_env
 
 # Sample programs
 sample_dirs = [
-    'ControlPanelSample',
-    'ControlPanelController'
+    'ControlPanelSample'
     ]
 
 exports = { 'env': samples_env, 'cobjs': cobjs, 'genobjs' : genobjs, 'providedobjs' : providedobjs }
@@ -51,7 +50,8 @@ progs = [ samples_env.SConscript('%s/SConscript' % sampleapp, exports = exports)
 samples_env2 = samples_env.Clone()
 
 sample_dirs_with_notification = [
-    'ControlPanelProducer'
+    'ControlPanelProducer',
+    'ControlPanelController'
     ]
 
 samples_env2.Prepend(LIBS = ['alljoyn_notification'])

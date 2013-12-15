@@ -18,7 +18,6 @@
 #define CONTROLPANELGENERATED_H_
 
 #include <alljoyn/controlpanel/ControlPanelControllee.h>
-#include <alljoyn/controlpanel/ControlPanelHints.h>
 #include <alljoyn/controlpanel/Container.h>
 #include <alljoyn/controlpanel/Label.h>
 #include <alljoyn/controlpanel/ActionWithDialog.h>

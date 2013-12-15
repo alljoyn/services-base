@@ -59,7 +59,7 @@ LabelBusObject::LabelBusObject(BusAttachment* bus, String const& objectPath, uin
 
     //Get the signal methods for future use
     m_SignalPropertyChanged = m_InterfaceDescription->GetMember(AJ_SIGNAL_PROPERTIES_CHANGED.c_str());
-    if (widget->getWidgetMode() == CONTROLLER_WIDGET) {
+    if (widget->getControlPanelMode() == CONTROLLER_MODE) {
         status = addSignalHandler(bus);
     }
     if (logger)

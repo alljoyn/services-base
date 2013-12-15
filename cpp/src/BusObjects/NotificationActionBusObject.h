@@ -20,6 +20,9 @@
 #include <alljoyn/BusAttachment.h>
 #include <alljoyn/BusObject.h>
 #include <alljoyn/InterfaceDescription.h>
+#include <alljoyn/controlpanel/NotificationAction.h>
+#include <vector>
+#include "IntrospectionNode.h"
 
 namespace ajn {
 namespace services {
@@ -36,7 +39,8 @@ class NotificationActionBusObject : public BusObject {
      * @param objectPath - objectPath of BusObject
      * @param status - success/failure
      */
-    NotificationActionBusObject(ajn::BusAttachment* bus, qcc::String const& objectPath, QStatus& status);
+    NotificationActionBusObject(BusAttachment* bus, qcc::String const& objectPath,
+                                QStatus& status, NotificationAction* notificationAction = 0);
 
     /**
      * Destructor of NotificationActionBusObject class
@@ -67,12 +71,69 @@ class NotificationActionBusObject : public BusObject {
      */
     QStatus SendDismissSignal();
 
+    /**
+     * Callback for DismissSignal signal
+     * @param member - signal received
+     * @param srcPath - objectPath of signal
+     * @param msg - Message received
+     */
+    void DismissSignal(const InterfaceDescription::Member* member, const char* srcPath, Message& msg);
+
+    /**
+     * Set RemoteController
+     * @param bus - busAttachment
+     * @param deviceBusName
+     * @param sessionId
+     * @return
+     */
+    QStatus setRemoteController(BusAttachment* bus, qcc::String const& deviceBusName, SessionId sessionId);
+
+    /**
+     * Check compatibility of the versions
+     * @return status - success/failure
+     */
+    QStatus checkVersions();
+
+    /**
+     * Introspect to receive childNodes
+     * @param childNodes - childNodes found during introspection
+     * @return status - success/failure
+     */
+    QStatus Introspect(std::vector<IntrospectionNode>& childNodes);
+
+    /**
+     * remove the SignalHandler of the BusObject
+     * @param bus - busAttachment used to remove the signalHandlers
+     * @return status - success/failure
+     */
+    virtual QStatus UnregisterSignalHandler(BusAttachment* bus);
+
   private:
 
     /**
      * The pointer used to send signal/register Signal Handler
      */
     const ajn::InterfaceDescription::Member* m_SignalDismiss;
+
+    /**
+     * The NotificationAction of this BusObject
+     */
+    NotificationAction* m_NotificationAction;
+
+    /**
+     * Pointer to ProxybusObject for this widget
+     */
+    ProxyBusObject* m_Proxy;
+
+    /**
+     * ObjectPath of the BusObject
+     */
+    qcc::String m_ObjectPath;
+
+    /**
+     * InterfaceDescription of the BusObject
+     */
+    InterfaceDescription* m_InterfaceDescription;
 
 };
 

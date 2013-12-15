@@ -27,7 +27,7 @@ namespace services {
  */
 class REGULAR_NAME_HERE : public ajn::services::Action {
   public:
-    REGULAR_NAME_HERE(qcc::String name);
+    REGULAR_NAME_HERE(qcc::String name, Widget* rootWidget);
     virtual ~REGULAR_NAME_HERE();
 
     bool executeCallBack();

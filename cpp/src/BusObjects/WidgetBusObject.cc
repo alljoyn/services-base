@@ -69,10 +69,24 @@ QStatus WidgetBusObject::addSignalHandler(BusAttachment* bus)
     QStatus status =  bus->RegisterSignalHandler(this,
                                                  static_cast<MessageReceiver::SignalHandler>(&WidgetBusObject::PropertyChanged),
                                                  m_SignalPropertyChanged,
-                                                 NULL);
+                                                 m_ObjectPath.c_str());
     if (status != ER_OK) {
         if (logger)
             logger->warn(TAG, "Could not register the SignalHandler");
+    }
+    return status;
+}
+
+QStatus WidgetBusObject::UnregisterSignalHandler(BusAttachment* bus)
+{
+    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
+    QStatus status =  bus->UnregisterSignalHandler(this,
+                                                   static_cast<MessageReceiver::SignalHandler>(&WidgetBusObject::PropertyChanged),
+                                                   m_SignalPropertyChanged,
+                                                   m_ObjectPath.c_str());
+    if (status != ER_OK) {
+        if (logger)
+            logger->warn(TAG, "Could not unregister the SignalHandler");
     }
     return status;
 }
@@ -102,6 +116,12 @@ QStatus WidgetBusObject::Set(const char* interfaceName, const char* propName, Ms
 void WidgetBusObject::PropertyChanged(const InterfaceDescription::Member* member, const char* srcPath, Message& msg)
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
+    if (msg.unwrap()->GetSender() && strcmp(msg.unwrap()->GetSender(), m_Widget->getDevice()->getDeviceBusName().c_str()) != 0) {
+        if (logger)
+            logger->debug(TAG, "Received PropertyChanged signal for someone else");
+        return;
+    }
+
     if (logger)
         logger->debug(TAG, "Received PropertyChanged signal - reloading properties");
 
@@ -141,9 +161,9 @@ QStatus WidgetBusObject::setRemoteController(BusAttachment* bus, qcc::String con
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
 
-    if (m_Proxy) {
+    if (m_Proxy && m_Proxy->GetSessionId() == sessionId) {
         if (logger)
-            logger->debug(TAG, "ProxyBusObject already set - ignorings");
+            logger->debug(TAG, "ProxyBusObject already set - ignoring");
         return ER_OK;
     }
 
@@ -152,6 +172,9 @@ QStatus WidgetBusObject::setRemoteController(BusAttachment* bus, qcc::String con
             logger->warn(TAG, "InterfaceDescription is not set. Cannot set RemoteController");
         return ER_FAIL;
     }
+
+    if (m_Proxy)
+        delete m_Proxy;  // delete existing proxyBusObject. create new one with new sessionId
 
     m_Proxy = new ProxyBusObject(*bus, deviceBusName.c_str(), m_ObjectPath.c_str(), sessionId);
     QStatus status = m_Proxy->AddInterface(*m_InterfaceDescription);

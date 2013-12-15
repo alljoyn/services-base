@@ -17,9 +17,7 @@
 #ifndef CONTROLPANELCONTROLLEE_H_
 #define CONTROLPANELCONTROLLEE_H_
 
-#include <alljoyn/controlpanel/ControlPanel.h>
-#include <alljoyn/controlpanel/NotificationAction.h>
-#include <alljoyn/controlpanel/HttpControl.h>
+#include <alljoyn/controlpanel/ControlPanelControlleeUnit.h>
 
 namespace ajn {
 namespace services {
@@ -37,7 +35,7 @@ class ControlPanelControllee {
      * Constructor of ControlPanelControllee
      * @param unitName - name of ControlPanelControllee Unit
      */
-    ControlPanelControllee(qcc::String const& unitName);
+    ControlPanelControllee();
 
     /**
      * Destructor of ControlPanelControllee
@@ -45,49 +43,12 @@ class ControlPanelControllee {
     virtual ~ControlPanelControllee();
 
     /**
-     * Get the UnitName of the ControlPanelControllee
-     * @return unitName
-     */
-    const qcc::String& getUnitName() const;
-
-    /**
-     * Add a ControlPanel to the ControlPanelControllee
-     * @param controlPanel
+     * Add a ControlPanelUnit to the ControlPanelControllee
+     * @param unit - unit to add
      * @return status - success/failure
      */
-    QStatus addControlPanel(ControlPanel* controlPanel);
+    QStatus addControlPanelUnit(ControlPanelControlleeUnit* unit);
 
-    /**
-     * Get the ControlPanels of the Controllee
-     * @return ControlPanels
-     */
-    const std::vector<ControlPanel*>& getControlPanels() const;
-
-    /**
-     * Add a NotificationAction to the ControlPanelControllee
-     * @param notificationAction
-     * @return status - success/failure
-     */
-    QStatus addNotificationAction(NotificationAction* notificationAction);
-
-    /**
-     * Get the NotificationActions of the ControlPanelControllee
-     * @return the NotificationActions
-     */
-    const std::vector<NotificationAction*>& getNotificationActions() const;
-
-    /**
-     * Set the HTTPControl of the ControlPanelControllee
-     * @param httpControl
-     * @return status - success/failure
-     */
-    QStatus setHttpControl(HttpControl* httpControl);
-
-    /**
-     * Get the HttpControl of the ControlPanelControllee
-     * @return HttpControl
-     */
-    const HttpControl* getHttpControl() const;
     /**
      * Register the busObjects of the ControlPanelControllee
      * @param bus - the bus to register the Objects with
@@ -96,33 +57,24 @@ class ControlPanelControllee {
     QStatus registerObjects(BusAttachment* bus);
 
     /**
-     * UnRegister the busObjects of the ControlPanelControllee
+     * Unregister the busObjects of the ControlPanelControllee
      * @param bus - the bus to unregister the Objects with
      * @return status - success/failure
      */
     QStatus unregisterObjects(BusAttachment* bus);
 
+    /**
+     * Get the Units of the Controllee
+     * @return the Controllee Units
+     */
+    const std::vector<ControlPanelControlleeUnit*>& getControlleeUnits() const;
+
   private:
 
     /**
-     * The name of the Unit
+     * Vector containing the Devices Units
      */
-    qcc::String m_UnitName;
-
-    /**
-     * Vector of ControlPanels implemented by the Controllee
-     */
-    std::vector<ControlPanel*> m_ControlPanels;
-
-    /**
-     * Vector of NotificationActions implemented by the Controllee
-     */
-    std::vector<NotificationAction*> m_NotificationActions;
-
-    /**
-     * The HTTPControl of the Controllee
-     */
-    HttpControl* m_HttpControl;
+    std::vector<ControlPanelControlleeUnit*> m_Units;
 };
 
 } /* namespace services */

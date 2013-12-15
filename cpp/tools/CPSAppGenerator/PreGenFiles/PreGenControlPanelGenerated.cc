@@ -27,7 +27,6 @@ bool ControlPanelGenerated::languageSetsDone = false;
 //STATIC_DECLARATION_HERE
 
 #define CHECK(x) if ((status = x) != ER_OK) return status;
-#define UNIT_NAME "//UNITNAME_GO_HERE"
 
 void ControlPanelGenerated::PrepareLanguageSets()
 {
@@ -45,7 +44,7 @@ QStatus ControlPanelGenerated::PrepareWidgets(ControlPanelControllee*& controlPa
     PrepareLanguageSets();
 
     QStatus status = ER_OK;
-    controlPanelControllee = new ControlPanelControllee(UNIT_NAME);
+    controlPanelControllee = new ControlPanelControllee();
 //INITCODE_GO_HERE
     return status;
 }

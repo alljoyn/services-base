@@ -23,21 +23,21 @@ namespace ajn {
 namespace services {
 using namespace cpsConsts;
 
-Dialog::Dialog(qcc::String const& name) : RootWidget(name, DIALOG, TAG_DIALOG_WIDGET),
+Dialog::Dialog(qcc::String const& name, Widget* rootWidget) : RootWidget(name, rootWidget, DIALOG, TAG_DIALOG_WIDGET),
     m_NumActions(0), m_GetMessages(0), m_LabelAction1(""), m_GetLabelsAction1(0), m_LabelAction2(""),
     m_GetLabelsAction2(0), m_LabelAction3(""), m_GetLabelsAction3(0)
 {
 }
 
-Dialog::Dialog(qcc::String const& name, qcc::String const& objectPath, ControlPanelDevice* device) :
-    RootWidget(name, objectPath, device, DIALOG, TAG_DIALOG_WIDGET), m_NumActions(0), m_GetMessages(0), m_LabelAction1(""),
+Dialog::Dialog(qcc::String const& name, Widget* rootWidget, qcc::String const& objectPath, ControlPanelDevice* device) :
+    RootWidget(name, rootWidget, objectPath, device, DIALOG, TAG_DIALOG_WIDGET), m_NumActions(0), m_GetMessages(0), m_LabelAction1(""),
     m_GetLabelsAction1(0), m_LabelAction2(""), m_GetLabelsAction2(0), m_LabelAction3(""), m_GetLabelsAction3(0)
 {
 }
 
-Dialog::Dialog(qcc::String const& name, ControlPanelDevice* device) :
-    RootWidget(name, "", device, DIALOG, TAG_DIALOG_WIDGET), m_NumActions(0), m_GetMessages(0), m_LabelAction1(""), m_GetLabelsAction1(0),
-    m_LabelAction2(""), m_GetLabelsAction2(0), m_LabelAction3(""), m_GetLabelsAction3(0)
+Dialog::Dialog(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* device) :
+    RootWidget(name, rootWidget, "", device, DIALOG, TAG_DIALOG_WIDGET), m_NumActions(0), m_GetMessages(0), m_LabelAction1(""),
+    m_GetLabelsAction1(0), m_LabelAction2(""), m_GetLabelsAction2(0), m_LabelAction3(""), m_GetLabelsAction3(0)
 {
 }
 
@@ -300,7 +300,7 @@ bool Dialog::executeActionNotDefined()
 QStatus Dialog::executeAction1()
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-    if (m_WidgetMode == CONTROLLEE_WIDGET) {
+    if (m_ControlPanelMode == CONTROLLEE_MODE) {
         if (logger)
             logger->warn(TAG, "Cannot execute Action 1. Widget is a Controllee widget");
         return ER_NOT_IMPLEMENTED;
@@ -324,7 +324,7 @@ QStatus Dialog::executeAction1()
 QStatus Dialog::executeAction2()
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-    if (m_WidgetMode == CONTROLLEE_WIDGET) {
+    if (m_ControlPanelMode == CONTROLLEE_MODE) {
         if (logger)
             logger->warn(TAG, "Cannot execute Action 2. Widget is a Controllee widget");
         return ER_NOT_IMPLEMENTED;
@@ -336,7 +336,7 @@ QStatus Dialog::executeAction2()
         return ER_BUS_BUS_NOT_STARTED;
     }
 
-    if (m_NumActions < 1) {
+    if (m_NumActions < 2) {
         if (logger)
             logger->warn(TAG, "Cannot execute Action2 - numActions is less than 2");
         return ER_NOT_IMPLEMENTED;
@@ -348,7 +348,7 @@ QStatus Dialog::executeAction2()
 QStatus Dialog::executeAction3()
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-    if (m_WidgetMode == CONTROLLEE_WIDGET) {
+    if (m_ControlPanelMode == CONTROLLEE_MODE) {
         if (logger)
             logger->warn(TAG, "Cannot execute Action 3. Widget is a Controllee widget");
         return ER_NOT_IMPLEMENTED;

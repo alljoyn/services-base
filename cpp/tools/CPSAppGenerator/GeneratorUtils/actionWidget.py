@@ -22,7 +22,6 @@ class Action (common.Widget):
         common.Widget.__init__(self, generated, actionElement, parentObjectPath, languageSetName)
         if hasattr(self.element.onAction, "executeCode") : 
             self.widgetName = self.name[:1].upper() + self.name [1:]
-            self.name = self.name[:1].lower() + self.name [1:]
         else :
             self.widgetName = "ActionWithDialog"
 

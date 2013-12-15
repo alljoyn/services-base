@@ -20,8 +20,7 @@ class Dialog (common.Widget):
     def __init__(self, generated, dialogElement, parentName, languageSetName, isRoot = 0) :
         common.Widget.__init__(self, generated, dialogElement, parentName, languageSetName)
         self.isRoot = 1
-        self.widgetName = self.name[:1].upper() + self.name [1:]
-        self.name = self.name[:1].lower() + self.name [1:]
+        self.widgetName = self.name[:1].upper() + self.name[1:]
         if not isRoot :
             self.parentAddFunc = "addChildDialog"
         else :

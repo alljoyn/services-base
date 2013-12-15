@@ -32,19 +32,23 @@ class RootWidget : public Widget {
     /**
      * Constructor for RootWidget
      * @param name - name of Widget
+     * @param rootWidget - the RootWidget of the widget
+     * @param widgetType - the type of the widget
      * @param tag - Tag for logging
      */
-    RootWidget(qcc::String const& name, WidgetType widgetType, qcc::String const& tag);
+    RootWidget(qcc::String const& name, Widget* rootWidget, WidgetType widgetType, qcc::String const& tag);
 
     /**
      * Constructor for RootWidget
      * @param name - name of Widget
+     * @param rootWidget - the RootWidget of the widget
      * @param objectPath the objectPath of the widget
      * @param device - the device that contains the widget
      * @param widgetType - the type of Widget created
      * @param tag - Tag for logging
      */
-    RootWidget(qcc::String const& name, qcc::String const& objectPath, ControlPanelDevice* device, WidgetType widgetType, qcc::String const& tag);
+    RootWidget(qcc::String const& name, Widget* rootWidget, qcc::String const& objectPath,
+               ControlPanelDevice* device, WidgetType widgetType, qcc::String const& tag);
 
     /**
      * Destructor of RootWidget
@@ -70,6 +74,33 @@ class RootWidget : public Widget {
      * @return status - success/failure
      */
     virtual QStatus unregisterObjects(BusAttachment* bus);
+
+    /**
+     * Register the BusObjects for this Widget
+     * @param bus - the bus to be used
+     * @return status - success/failure
+     */
+    virtual QStatus registerObjects(BusAttachment* bus);
+
+    /**
+     * Register the BusObjects for this Widget
+     * @param bus - the bus used to register the busObject
+     * @param objectPath - the objectPath of the busObject
+     * @return
+     */
+    virtual QStatus registerObjects(BusAttachment* bus, qcc::String const& objectPath);
+
+    /**
+     * Register the BusObjects for this Widget
+     * @param bus - the bus used to register the busObjects
+     * @param languageSet -  the languageSet to register the busObjects for
+     * @param objectPathPrefix - the objectPathPrefix of the busObject
+     * @param objectPathSuffix - the objectPathSuffix of the busObject
+     * @param isRoot - is this a rootWidget
+     * @return status - success/failure
+     */
+    virtual QStatus registerObjects(BusAttachment* bus, LanguageSet const& languageSet,
+                                    qcc::String const& objectPathPrefix, qcc::String const& objectPathSuffix, bool isRoot = false);
 
   protected:
 

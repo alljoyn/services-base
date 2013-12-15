@@ -18,7 +18,6 @@
 #define PROPERTY_H_
 
 #include <alljoyn/controlpanel/Widget.h>
-#include <alljoyn/controlpanel/PropertyType.h>
 #include <alljoyn/controlpanel/ConstraintList.h>
 #include <alljoyn/controlpanel/ConstraintRange.h>
 #include <alljoyn/controlpanel/CPSDate.h>
@@ -164,16 +163,18 @@ class Property : public Widget {
     /**
      * Constructor for Property Class
      * @param name - name of Widget
+     * @param rootWidget - the RootWidget of the widget
      * @param propertyType - type of Property Value
      */
-    Property(qcc::String name, PropertyType propertyType);
+    Property(qcc::String name, Widget* rootWidget, PropertyType propertyType);
 
     /**
      * Constructor for Property Class
      * @param name - name of Widget
-     * @param propertyType - type of Property Value
+     * @param rootWidget - the RootWidget of the widget
+     * @param device - the device that contains this Property
      */
-    Property(qcc::String name, ControlPanelDevice* device);
+    Property(qcc::String name, Widget* rootWidget, ControlPanelDevice* device);
 
 
     /**
@@ -218,7 +219,7 @@ class Property : public Widget {
 
     /**
      * Set the Unit of Measure vector
-     * @param unitOfMeasure - vector of Unit of Measure values
+     * @param unitOfMeasures - vector of Unit of Measure values
      */
     void setUnitOfMeasures(const std::vector<qcc::String>& unitOfMeasures);
 
@@ -230,7 +231,7 @@ class Property : public Widget {
 
     /**
      * Set the GetUnitOfMeasure Function pointer
-     * @param getUnitOfMeasure - the GetUnitOfMeasure function Pointer
+     * @param getUnitOfMeasures - the GetUnitOfMeasure function Pointer
      */
     void setGetUnitOfMeasures(GetStringFptr getUnitOfMeasures);
 
@@ -378,82 +379,6 @@ class Property : public Widget {
      */
     void ValueChanged(Message& msg);
 
-  private:
-
-    /**
-     * The Property Type of the Property
-     */
-    PropertyType m_PropertyType;
-
-    /**
-     * The Value of the Property
-     */
-    PropertyValue m_Value;
-
-    /**
-     * The string placeholder for the value if it is a string propertyType
-     */
-    qcc::String m_ValueString;
-
-    /**
-     * The GetValue functionPointers of the Property
-     */
-    PropertyValueFptr m_GetValue;
-
-    /**
-     * The Unit of Measure of the Property
-     */
-    qcc::String m_UnitOfMeasure;
-
-    /**
-     * The Unit of Measure of the Property
-     */
-    std::vector<qcc::String> m_UnitOfMeasures;
-
-    /**
-     * The GetUnitOfMeasure function Pointer of the Property
-     */
-    GetStringFptr m_GetUnitOfMeasures;
-
-    /**
-     * The ConstraintList of the Property
-     */
-    std::vector<ConstraintList> m_ConstraintList;
-
-    /**
-     * The ConstraintRange of the Property
-     */
-    ConstraintRange* m_ConstraintRange;
-
-    /**
-     * Read the MsgArg passed in and fill the OptParam
-     * @param key - the optParam to fill
-     * @param val - the MsgArg passed in
-     * @return status - success/failure
-     */
-    QStatus readOptParamsArg(uint16_t key, MsgArg* val);
-
-    /**
-     * Validate that the GetValue passed in fits the Property's property Type
-     * @param propertyType - the property Type passed in
-     * @return true/false
-     */
-    bool validateGetValue(PropertyType propertyType);
-
-    /**
-     * Validate that the GetValue passed in fits the Property's property Type
-     * @param propertyType - the property Type passed in
-     * @return status - success/failure
-     */
-    QStatus validateValue(PropertyType propertyType);
-
-    /**
-     * Error Message if the correct SetValue function
-     * is not defined in the implementation
-     * @return status - success/failure
-     */
-    QStatus defaultErrorSetValue();
-
     /**
      * Set the new Value
      * @param value - new Value to be set to
@@ -530,6 +455,83 @@ class Property : public Widget {
      * @return status - success/failure
      */
     virtual QStatus setValue(const CPSTime& value);
+
+  private:
+
+    /**
+     * The Property Type of the Property
+     */
+    PropertyType m_PropertyType;
+
+    /**
+     * The Value of the Property
+     */
+    PropertyValue m_Value;
+
+    /**
+     * The string placeholder for the value if it is a string propertyType
+     */
+    qcc::String m_ValueString;
+
+    /**
+     * The GetValue functionPointers of the Property
+     */
+    PropertyValueFptr m_GetValue;
+
+    /**
+     * The Unit of Measure of the Property
+     */
+    qcc::String m_UnitOfMeasure;
+
+    /**
+     * The Unit of Measure of the Property
+     */
+    std::vector<qcc::String> m_UnitOfMeasures;
+
+    /**
+     * The GetUnitOfMeasure function Pointer of the Property
+     */
+    GetStringFptr m_GetUnitOfMeasures;
+
+    /**
+     * The ConstraintList of the Property
+     */
+    std::vector<ConstraintList> m_ConstraintList;
+
+    /**
+     * The ConstraintRange of the Property
+     */
+    ConstraintRange* m_ConstraintRange;
+
+    /**
+     * Read the MsgArg passed in and fill the OptParam
+     * @param key - the optParam to fill
+     * @param val - the MsgArg passed in
+     * @return status - success/failure
+     */
+    QStatus readOptParamsArg(uint16_t key, MsgArg* val);
+
+    /**
+     * Validate that the GetValue passed in fits the Property's property Type
+     * @param propertyType - the property Type passed in
+     * @return true/false
+     */
+    bool validateGetValue(PropertyType propertyType);
+
+    /**
+     * Validate that the GetValue passed in fits the Property's property Type
+     * @param propertyType - the property Type passed in
+     * @return status - success/failure
+     */
+    QStatus validateValue(PropertyType propertyType);
+
+    /**
+     * Error Message if the correct SetValue function
+     * is not defined in the implementation
+     * @return status - success/failure
+     */
+    QStatus defaultErrorSetValue();
+
 };
 } //namespace services
 } //namespace ajn

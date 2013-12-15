@@ -21,7 +21,7 @@
 #include <alljoyn/BusObject.h>
 #include <alljoyn/InterfaceDescription.h>
 #include <alljoyn/controlpanel/LanguageSet.h>
-#include <alljoyn/controlpanel/WidgetEnums.h>
+#include <alljoyn/controlpanel/ControlPanelEnums.h>
 
 namespace ajn {
 namespace services {
@@ -41,16 +41,21 @@ class Widget {
     /**
      * Constructor for Widget class
      * @param name - name of Widget
+     * @param rootWidget - the RootWidget of the widget
+     * @param widgetType - the type of the widget
      * @param tag - tag for logging
      */
-    Widget(qcc::String const& name, WidgetType widgetType, qcc::String const& tag);
+    Widget(qcc::String const& name, Widget* rootWidget, WidgetType widgetType, qcc::String const& tag);
 
     /**
      * Constructor for Widget class
      * @param name - name of Widget
+     * @param rootWidget - the RootWidget of the widget
+     * @param device - the device containing this widget
+     * @param widgetType - the type of the widget
      * @param tag - tag for logging
      */
-    Widget(qcc::String const& name, ControlPanelDevice* device, WidgetType widgetType, qcc::String const& tag);
+    Widget(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* device, WidgetType widgetType, qcc::String const& tag);
 
     /**
      * Destructor for Widget
@@ -83,9 +88,21 @@ class Widget {
 
     /**
      * Get the mode of the Widget
-     * @return widgetMode
+     * @return controlPanelMode
      */
-    WidgetMode getWidgetMode() const;
+    ControlPanelMode getControlPanelMode() const;
+
+    /**
+     * Get this widget's RootWidget
+     * @return rootWidget
+     */
+    Widget* getRootWidget() const;
+
+    /**
+     * Get the Device of the widget
+     * @return device
+     */
+    ControlPanelDevice* getDevice() const;
 
     /**
      * Get the Interface Version of the Widget
@@ -204,7 +221,7 @@ class Widget {
 
     /**
      * Set the labels vector of the widget
-     * @param label - vector of labels
+     * @param labels - vector of labels
      */
     virtual void setLabels(const std::vector<qcc::String>& labels);
 
@@ -216,7 +233,7 @@ class Widget {
 
     /**
      * Set the GetLabel function pointer
-     * @param getLabel - getLabel function pointer
+     * @param getLabels - getLabel function pointer
      */
     virtual void setGetLabels(GetStringFptr getLabels);
 
@@ -251,6 +268,13 @@ class Widget {
      */
     virtual QStatus registerObjects(BusAttachment* bus, LanguageSet const& languageSet,
                                     qcc::String const& objectPathPrefix, qcc::String const& objectPathSuffix, bool isRoot = false);
+
+    /**
+     * Refresh the Widget
+     * @param bus - bus used for refreshing the object
+     * @return status - success/failure
+     */
+    QStatus refreshObjects(BusAttachment* bus);
 
     /**
      * Unregister the BusObjects for this widget
@@ -320,6 +344,11 @@ class Widget {
     WidgetType m_WidgetType;
 
     /**
+     * The RootWidget of this Widget
+     */
+    Widget* m_RootWidget;
+
+    /**
      * Is the Widget Secured
      */
     bool m_IsSecured;
@@ -382,7 +411,7 @@ class Widget {
     /**
      * Mode widget is in
      */
-    WidgetMode m_WidgetMode;
+    ControlPanelMode m_ControlPanelMode;
 
     /**
      * The Device that contains this widget
@@ -425,10 +454,32 @@ class Widget {
     virtual QStatus addChildren(BusAttachment* bus);
 
     /**
+     * Refresh the Children of this Widget
+     * @param bus - bus to use
+     * @return status - success/failure
+     */
+    virtual QStatus refreshChildren(BusAttachment* bus);
+
+    /**
      * FillProperties for Widget
      * @return status - success/failure
      */
     virtual QStatus fillProperties();
+
+  private:
+
+    /**
+     * Copy constructor of widget - private. widget is not copy-able
+     * @param widget - widget to copy
+     */
+    Widget(const Widget& widget);
+
+    /**
+     * Assignment operator of widget - private. widget is not assignable
+     * @param widget
+     * @return
+     */
+    Widget& operator=(const Widget& widget);
 };
 } //namespace services
 } //namespace ajn

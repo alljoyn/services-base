@@ -63,7 +63,7 @@ PropertyBusObject::PropertyBusObject(BusAttachment* bus, String const& objectPat
     //Get the signal methods for future use
     m_SignalPropertyChanged = m_InterfaceDescription->GetMember(AJ_SIGNAL_PROPERTIES_CHANGED.c_str());
     m_SignalValueChanged = m_InterfaceDescription->GetMember(AJ_SIGNAL_VALUE_CHANGED.c_str());
-    if (widget->getWidgetMode() == CONTROLLER_WIDGET) {
+    if (widget->getControlPanelMode() == CONTROLLER_MODE) {
         status = addSignalHandler(bus);
     }
     if (logger)
@@ -80,10 +80,24 @@ QStatus PropertyBusObject::addSignalHandler(BusAttachment* bus)
     QStatus status;
     CHECK_AND_RETURN(WidgetBusObject::addSignalHandler(bus))
     status = bus->RegisterSignalHandler(this, static_cast<MessageReceiver::SignalHandler>(&PropertyBusObject::ValueChanged),
-                                        m_SignalValueChanged, NULL);
+                                        m_SignalValueChanged, m_ObjectPath.c_str());
     if (status != ER_OK) {
         if (logger)
             logger->warn(TAG, "Could not register the SignalHandler");
+    }
+    return status;
+}
+
+QStatus PropertyBusObject::UnregisterSignalHandler(BusAttachment* bus)
+{
+    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
+    WidgetBusObject::addSignalHandler(bus);
+    QStatus status = bus->UnregisterSignalHandler(this,
+                                                  static_cast<MessageReceiver::SignalHandler>(&PropertyBusObject::ValueChanged),
+                                                  m_SignalValueChanged, m_ObjectPath.c_str());
+    if (status != ER_OK) {
+        if (logger)
+            logger->warn(TAG, "Could not unregister the SignalHandler");
     }
     return status;
 }
@@ -92,7 +106,7 @@ QStatus PropertyBusObject::Get(const char* interfaceName, const char* propName, 
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (logger)
-        logger->debug(TAG, "Get property was called - in PropertyBusObject class:\n");
+        logger->debug(TAG, "Get property was called - in PropertyBusObject class:");
 
     if (0 == strcmp(AJ_PROPERTY_VALUE.c_str(), propName)) {
         return ((Property*)m_Widget)->fillPropertyValueArg(val, m_LanguageIndx);
@@ -105,12 +119,39 @@ QStatus PropertyBusObject::Set(const char* interfaceName, const char* propName, 
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (logger)
-        logger->debug(TAG, "Set property was called - in PropertyBusObject class:\n");
+        logger->debug(TAG, "Set property was called - in PropertyBusObject class:");
 
     if (0 != strcmp(AJ_PROPERTY_VALUE.c_str(), propName))
         return ER_BUS_PROPERTY_ACCESS_DENIED;
 
     return ((Property*)m_Widget)->setPropertyValue(val, m_LanguageIndx);
+}
+
+QStatus PropertyBusObject::SetValue(MsgArg& value)
+{
+    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
+    if (logger)
+        logger->debug(TAG, "Set Value was called");
+
+    if (!m_Proxy) {
+        if (logger)
+            logger->warn(TAG, "Cannot set the Value. ProxyBusObject is not set");
+        return ER_BUS_PROPERTY_VALUE_NOT_SET;
+    }
+
+    if (!m_InterfaceDescription) {
+        if (logger)
+            logger->warn(TAG, "Cannot set the Value. InterfaceDescription is not set");
+        return ER_BUS_PROPERTY_VALUE_NOT_SET;
+    }
+
+    QStatus status = m_Proxy->SetProperty(m_InterfaceDescription->GetName(), AJ_PROPERTY_VALUE.c_str(), value);
+    if (status != ER_OK) {
+        if (logger)
+            logger->warn(TAG, "Call to set Property failed");
+    }
+
+    return status;
 }
 
 QStatus PropertyBusObject::SendValueChangedSignal()
@@ -149,6 +190,12 @@ QStatus PropertyBusObject::SendValueChangedSignal()
 void PropertyBusObject::ValueChanged(const InterfaceDescription::Member* member, const char* srcPath, Message& msg)
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
+    if (msg.unwrap()->GetSender() && strcmp(msg.unwrap()->GetSender(), m_Widget->getDevice()->getDeviceBusName().c_str()) != 0) {
+        if (logger)
+            logger->debug(TAG, "Received ValueChanged signal for someone else");
+        return;
+    }
+
     if (logger)
         logger->debug(TAG, "Received ValueChanged signal");
 

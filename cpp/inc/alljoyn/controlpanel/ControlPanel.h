@@ -41,9 +41,10 @@ class ControlPanel {
     static ControlPanel* createControlPanel(LanguageSet* languageSet);
 
     /**
-     * Private Constructor for ControlPanel.
-     * To construct instance of ControlPanel used createControlPanel
-     * @param languageSet
+     * ControlPanel constructor
+     * @param languageSet - languageSet of controlPanel
+     * @param objectPath - objectPath of controlPanel
+     * @param device - device that contains this controlPanel
      */
     ControlPanel(LanguageSet const& languageSet, qcc::String objectPath, ControlPanelDevice* device);
 
@@ -58,6 +59,12 @@ class ControlPanel {
      * @return status - success/failure
      */
     QStatus setRootWidget(Container* rootWidget);
+
+    /**
+     * Get the name of the Panel - the name of the rootWidget
+     * @return name of the Panel
+     */
+    qcc::String getPanelName() const;
 
     /**
      * Get the RootWidget of the ControlPanel
@@ -76,6 +83,7 @@ class ControlPanel {
     /**
      * Register the BusObjects for this Widget
      * @param bus - bus used to register the busObjects
+     * @return status - success/failure
      */
     QStatus registerObjects(BusAttachment* bus);
 
@@ -106,7 +114,8 @@ class ControlPanel {
 
     /**
      * Get the RootWidget of the ControlPanel
-     * @return rootWidget
+     * @param Language
+     * @return pointer to rootWidget
      */
     Container* getRootWidget(qcc::String const& Language) const;
 
@@ -148,6 +157,19 @@ class ControlPanel {
      * Device containing the ControlPanel
      */
     ControlPanelDevice* m_Device;
+
+    /**
+     * Copy constructor of ControlPanel - private. ControlPanel is not copy-able
+     * @param controlPanel - ControlPanel to copy
+     */
+    ControlPanel(const ControlPanel& controlPanel);
+
+    /**
+     * Assignment operator of ControlPanel - private. ControlPanel is not assignable
+     * @param controlPanel
+     * @return
+     */
+    ControlPanel& operator=(const ControlPanel& controlPanel);
 
     /**
      * Check the compatibility of the versions with remote controlpanel

@@ -72,8 +72,17 @@ class ControlPanelBusObject : public BusObject {
      */
     QStatus setRemoteController(BusAttachment* bus, qcc::String const& deviceBusName, SessionId sessionId);
 
+    /**
+     * Check compatibility of the versions
+     * @return status - success/failure
+     */
     QStatus checkVersions();
 
+    /**
+     * Introspect to receive childNodes
+     * @param childNodes - childNodes found during introspection
+     * @return status - success/failure
+     */
     QStatus Introspect(std::vector<IntrospectionNode>& childNodes);
 
   private:
@@ -83,8 +92,14 @@ class ControlPanelBusObject : public BusObject {
      */
     ProxyBusObject* m_Proxy;
 
+    /**
+     * ObjectPath of the BusObject
+     */
     qcc::String m_ObjectPath;
 
+    /**
+     * InterfaceDescription of the BusObject
+     */
     InterfaceDescription* m_InterfaceDescription;
 
 };

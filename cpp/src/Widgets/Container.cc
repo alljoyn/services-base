@@ -14,9 +14,12 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#include <alljoyn/controlpanel/Container.h>
 #include <alljoyn/controlpanel/ControlPanelService.h>
-#include "WidgetFactory.h"
+#include <alljoyn/controlpanel/Container.h>
+#include <alljoyn/controlpanel/Action.h>
+#include <alljoyn/controlpanel/ActionWithDialog.h>
+#include <alljoyn/controlpanel/Label.h>
+#include <alljoyn/controlpanel/Property.h>
 #include "../ControlPanelConstants.h"
 #include "../BusObjects/ContainerBusObject.h"
 #include "../BusObjects/NotificationActionBusObject.h"
@@ -25,24 +28,24 @@ namespace ajn {
 namespace services {
 using namespace cpsConsts;
 
-Container::Container(qcc::String const& name) : RootWidget(name, CONTAINER, TAG_CONTAINER_WIDGET),
+Container::Container(qcc::String const& name, Widget* rootWidget) : RootWidget(name, rootWidget, CONTAINER, TAG_CONTAINER_WIDGET),
     m_IsDismissable(false)
 {
 }
 
-Container::Container(qcc::String const& name, qcc::String const& objectPath, ControlPanelDevice* device) :
-    RootWidget(name, objectPath, device, CONTAINER, TAG_CONTAINER_WIDGET), m_IsDismissable(false)
+Container::Container(qcc::String const& name, Widget* rootWidget, qcc::String const& objectPath, ControlPanelDevice* device) :
+    RootWidget(name, rootWidget, objectPath, device, CONTAINER, TAG_CONTAINER_WIDGET), m_IsDismissable(false)
 {
 }
 
-Container::Container(qcc::String const& name, ControlPanelDevice* device) :
-    RootWidget(name, "", device, CONTAINER, TAG_CONTAINER_WIDGET), m_IsDismissable(false)
+Container::Container(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* device) :
+    RootWidget(name, rootWidget, "", device, CONTAINER, TAG_CONTAINER_WIDGET), m_IsDismissable(false)
 {
 }
 
 Container::~Container()
 {
-    if (m_WidgetMode == CONTROLLER_WIDGET) {
+    if (m_ControlPanelMode == CONTROLLER_MODE) {
         for (size_t i = 0; i < m_ChildWidgets.size(); i++) {
             delete m_ChildWidgets[i];
         }
@@ -144,12 +147,27 @@ QStatus Container::addChildren(BusAttachment* bus)
         qcc::String const& objectPath = childNodes[i].getObjectPath();
         std::vector<qcc::String> splitObjectPath = ControlPanelService::SplitObjectPath(objectPath.c_str());
         qcc::String name = splitObjectPath.back();
-        Widget* widget = WidgetFactory::createWidget(name, m_Device, childNodes[i].getWidgetType());
+        Widget* widget = createWidget(name, this, m_Device, childNodes[i].getWidgetType());
         widget->setIsSecured(childNodes[i].isSecured());
         addChildWidget(widget);
         widget->registerObjects(bus, objectPath);
     }
     return ER_OK;
+}
+
+QStatus Container::refreshChildren(BusAttachment* bus)
+{
+    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
+    QStatus status = ER_OK;
+    for (size_t i = 0; i < m_ChildWidgets.size(); i++) {
+        status = m_ChildWidgets[i]->refreshObjects(bus);
+        if (status != ER_OK) {
+            if (logger)
+                logger->warn(TAG, "Error refreshing Child: " + m_ChildWidgets[i]->getWidgetName());
+            return status;
+        }
+    }
+    return status;
 }
 
 QStatus Container::addChildWidget(Widget* childWidget)
@@ -177,6 +195,36 @@ bool Container::getIsDismissable() const
 void Container::setIsDismissable(bool isDismissable)
 {
     m_IsDismissable = isDismissable;
+}
+
+Widget* Container::createWidget(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* device, WidgetType widgetType)
+{
+    switch (widgetType) {
+    case ACTION:
+        return new Action(name, rootWidget, device);
+        break;
+
+    case ACTION_WITH_DIALOG:
+        return new ActionWithDialog(name, rootWidget, device);
+        break;
+
+    case CONTAINER:
+        return new Container(name, rootWidget, device);
+        break;
+
+    case DIALOG:
+        return new Dialog(name, rootWidget, device);
+        break;
+
+    case LABEL:
+        return new Label(name, rootWidget, device);
+        break;
+
+    case PROPERTY:
+        return new Property(name, rootWidget, device);
+        break;
+    }
+    return NULL;
 }
 
 } /* namespace services */

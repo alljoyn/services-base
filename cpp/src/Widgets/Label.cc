@@ -22,13 +22,13 @@ namespace ajn {
 namespace services {
 using namespace cpsConsts;
 
-Label::Label(qcc::String const& name) :
-    Widget(name, LABEL, TAG_LABEL_WIDGET), m_LabelWidgetGetLabels(0)
+Label::Label(qcc::String const& name, Widget* rootWidget) :
+    Widget(name, rootWidget, LABEL, TAG_LABEL_WIDGET), m_LabelWidgetGetLabels(0)
 {
 }
 
-Label::Label(qcc::String const& name, ControlPanelDevice* device) :
-    Widget(name, device, LABEL, TAG_LABEL_WIDGET), m_LabelWidgetGetLabels(0)
+Label::Label(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* device) :
+    Widget(name, rootWidget, device, LABEL, TAG_LABEL_WIDGET), m_LabelWidgetGetLabels(0)
 {
 }
 

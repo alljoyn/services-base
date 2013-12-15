@@ -191,6 +191,7 @@ QStatus ConstraintList::fillConstraintArg(MsgArg& val, uint16_t languageIndx, Pr
         delete valueArg;
         return status;
     }
+    val.SetOwnershipFlags(MsgArg::OwnsArgs, true);
     return status;
 }
 

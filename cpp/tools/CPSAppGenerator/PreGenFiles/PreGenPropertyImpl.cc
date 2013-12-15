@@ -20,8 +20,8 @@ ADDITIONAL_INCLUDES_HERE
 namespace ajn {
 namespace services {
 
-REGULAR_NAME_HERE::REGULAR_NAME_HERE(qcc::String name, PropertyType propertyType) :
-    Property(name, propertyType)
+REGULAR_NAME_HERE::REGULAR_NAME_HERE(qcc::String name, Widget* rootWidget, PropertyType propertyType) :
+    Property(name, rootWidget, propertyType)
 {
 
 }

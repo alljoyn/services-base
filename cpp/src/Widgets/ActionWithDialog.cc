@@ -23,19 +23,19 @@ namespace ajn {
 namespace services {
 using namespace cpsConsts;
 
-ActionWithDialog::ActionWithDialog(qcc::String const& name) :
-    Widget(name, ACTION_WITH_DIALOG, TAG_ACTION_WIDGET), m_Dialog(0)
+ActionWithDialog::ActionWithDialog(qcc::String const& name, Widget* rootWidget) :
+    Widget(name, rootWidget, ACTION_WITH_DIALOG, TAG_ACTION_WIDGET), m_Dialog(0)
 {
 }
 
-ActionWithDialog::ActionWithDialog(qcc::String const& name, ControlPanelDevice* device) :
-    Widget(name, device, ACTION_WITH_DIALOG, TAG_ACTION_WIDGET), m_Dialog(0)
+ActionWithDialog::ActionWithDialog(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* device) :
+    Widget(name, rootWidget, device, ACTION_WITH_DIALOG, TAG_ACTION_WIDGET), m_Dialog(0)
 {
 }
 
 ActionWithDialog::~ActionWithDialog()
 {
-    if (m_WidgetMode == CONTROLLER_WIDGET && m_Dialog)
+    if (m_ControlPanelMode == CONTROLLER_MODE && m_Dialog)
         delete m_Dialog;
 }
 
@@ -136,12 +136,30 @@ QStatus ActionWithDialog::addChildren(BusAttachment* bus)
         qcc::String const& objectPath = childNodes[i].getObjectPath();
         std::vector<qcc::String> splitObjectPath = ControlPanelService::SplitObjectPath(objectPath.c_str());
         qcc::String name = splitObjectPath.back();
-        Dialog* dialog = new Dialog(name, m_Device);
+        Dialog* dialog = new Dialog(name, this, m_Device);
         dialog->setIsSecured(childNodes[i].isSecured());
         addChildDialog(dialog);
         dialog->registerObjects(bus, objectPath);
     }
     return ER_OK;
+}
+
+QStatus ActionWithDialog::refreshChildren(BusAttachment* bus)
+{
+    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
+    if (!m_Dialog) {
+        if (logger)
+            logger->warn(TAG, "Could not refresh. ActionWithDialog is missing the child Dialog");
+        return ER_FAIL;
+    }
+
+    QStatus status = m_Dialog->refreshObjects(bus);
+    if (status != ER_OK) {
+        if (logger)
+            logger->warn(TAG, "Error refreshing Child: " + m_Dialog->getWidgetName());
+    }
+
+    return status;
 }
 
 } /* namespace services */

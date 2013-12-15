@@ -32,14 +32,17 @@ class Action : public Widget {
     /**
      * Constructor for Action class
      * @param name - name of Widget
+     * @param rootWidget - the RootWidget of the widget
      */
-    Action(qcc::String const& name);
+    Action(qcc::String const& name, Widget* rootWidget);
 
     /**
      * Constructor for Action class
      * @param name - name of Widget
+     * @param rootWidget - the RootWidget of the widget
+     * @param device - the Device that contains this Action
      */
-    Action(qcc::String const& name, ControlPanelDevice* device);
+    Action(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* device);
 
 
     /**

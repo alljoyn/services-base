@@ -32,23 +32,26 @@ class Dialog : public RootWidget {
     /**
      * Constructor for Dialog Widget
      * @param name - name of Widget
+     * @param rootWidget - the RootWidget of the widget
      */
-    Dialog(qcc::String const& name);
+    Dialog(qcc::String const& name, Widget* rootWidget);
 
     /**
      * Constructor for Dialog Widget
      * @param name - name of Widget
+     * @param rootWidget - the RootWidget of the widget
      * @param objectPath - objectPath of Widget
      * @param device - device that contains this Widget
      */
-    Dialog(qcc::String const& name, qcc::String const& objectPath, ControlPanelDevice* device);
+    Dialog(qcc::String const& name, Widget* rootWidget, qcc::String const& objectPath, ControlPanelDevice* device);
 
     /**
      * Constructor for Dialog Widget
      * @param name - name of Widget
+     * @param rootWidget - the RootWidget of the widget
      * @param device - device that contains this Widget
      */
-    Dialog(qcc::String const& name, ControlPanelDevice* device);
+    Dialog(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* device);
 
     /**
      * Destructor for Dialog Widget
@@ -92,7 +95,7 @@ class Dialog : public RootWidget {
 
     /**
      * Set the Message vector of the Dialog
-     * @param message - the messages
+     * @param messages - the messages
      */
     void setMessages(const std::vector<qcc::String>& messages);
 
@@ -104,7 +107,7 @@ class Dialog : public RootWidget {
 
     /**
      * Set the GetMessage Function Pointer for the Dialog
-     * @param getMessage - the GetMessage function pointer
+     * @param getMessages - the GetMessage function pointer
      */
     void setGetMessages(GetStringFptr getMessages);
 
@@ -134,7 +137,7 @@ class Dialog : public RootWidget {
 
     /**
      * Set the Vector of Labels for Action 1
-     * @param labelAction1
+     * @param labelsAction1
      */
     void setLabelsAction1(const std::vector<qcc::String>& labelsAction1);
 
@@ -146,7 +149,7 @@ class Dialog : public RootWidget {
 
     /**
      * Set the GetLabel function Pointer for Action 1
-     * @param getLabelAction1
+     * @param getLabelsAction1
      */
     void setGetLabelsAction1(GetStringFptr getLabelsAction1);
 
@@ -158,7 +161,7 @@ class Dialog : public RootWidget {
 
     /**
      * Set the Vector of Labels for Action 2
-     * @param labelAction2
+     * @param labelsAction2
      */
     void setLabelsAction2(const std::vector<qcc::String>& labelsAction2);
 
@@ -170,7 +173,7 @@ class Dialog : public RootWidget {
 
     /**
      * Set the GetLabel function Pointer for Action 2
-     * @param getLabelAction2
+     * @param getLabelsAction2
      */
     void setGetLabelsAction2(GetStringFptr getLabelsAction2);
 
@@ -182,7 +185,7 @@ class Dialog : public RootWidget {
 
     /**
      * Set the Vector of Labels for Action 3
-     * @param labelAction3
+     * @param labelsAction3
      */
     void setLabelsAction3(const std::vector<qcc::String>& labelsAction3);
 
@@ -194,7 +197,7 @@ class Dialog : public RootWidget {
 
     /**
      * Set the GetLabel function Pointer for Action 3
-     * @param getLabelAction3
+     * @param getLabelsAction3
      */
     void setGetLabelsAction3(GetStringFptr getLabelsAction3);
 
@@ -221,6 +224,20 @@ class Dialog : public RootWidget {
      * @return status - success/failure
      */
     QStatus fillNumActionArg(MsgArg& val, uint16_t languageIndx);
+
+    /**
+     * Read the MsgArg passed in to fill the Message property
+     * @param val - MsgArg passed in
+     * @return status - success/failure
+     */
+    QStatus readMessageArg(MsgArg* val);
+
+    /**
+     * Read the MsgArg passed in to fill the NumActions property
+     * @param val - MsgArg passed in
+     * @return status - success/failure
+     */
+    QStatus readNumActionsArg(MsgArg* val);
 
     /**
      * Call to execute this Dialog's Action 1 remotely
@@ -260,20 +277,6 @@ class Dialog : public RootWidget {
      * @return success/failure
      */
     virtual bool executeAction3CallBack();
-
-    /**
-     * Read the MsgArg passed in to fill the Message property
-     * @param val - MsgArg passed in
-     * @return status - success/failure
-     */
-    QStatus readMessageArg(MsgArg* val);
-
-    /**
-     * Read the MsgArg passed in to fill the NumActions property
-     * @param val - MsgArg passed in
-     * @return status - success/failure
-     */
-    QStatus readNumActionsArg(MsgArg* val);
 
   protected:
 

@@ -27,13 +27,23 @@ using namespace cpsConsts;
 #define TAG TAG_HTTPCONTROL
 
 HttpControl::HttpControl(qcc::String const& url) : m_Url(url), m_ObjectPath(""),
-    m_HttpControlBusObject(0), m_Device(0), m_WidgetMode(CONTROLLEE_WIDGET), m_Version(0)
+    m_HttpControlBusObject(0), m_Device(0), m_ControlPanelMode(CONTROLLEE_MODE), m_Version(0)
 {
 }
 
 HttpControl::HttpControl(qcc::String const& objectPath, ControlPanelDevice* device) : m_Url(""), m_ObjectPath(objectPath),
-    m_HttpControlBusObject(0), m_Device(device), m_WidgetMode(CONTROLLER_WIDGET), m_Version(0)
+    m_HttpControlBusObject(0), m_Device(device), m_ControlPanelMode(CONTROLLER_MODE), m_Version(0)
 {
+}
+
+HttpControl::HttpControl(const HttpControl& httpControl)
+{
+
+}
+
+HttpControl& HttpControl::operator=(const HttpControl& httpControl)
+{
+    return *this;
 }
 
 HttpControl::~HttpControl()
@@ -45,7 +55,7 @@ const uint16_t HttpControl::getInterfaceVersion() const
     if (!m_HttpControlBusObject)
         return 1;
 
-    return m_WidgetMode == CONTROLLEE_WIDGET ? m_HttpControlBusObject->getInterfaceVersion() : m_Version;
+    return m_ControlPanelMode == CONTROLLEE_MODE ? m_HttpControlBusObject->getInterfaceVersion() : m_Version;
 }
 
 QStatus HttpControl::registerObjects(BusAttachment* bus, qcc::String const& unitName)
@@ -105,8 +115,8 @@ QStatus HttpControl::registerObjects(BusAttachment* bus)
 
     if (m_HttpControlBusObject) {
         if (logger)
-            logger->info(TAG, "Could not register Object. BusObject already exists");
-        return ER_OK;
+            logger->debug(TAG, "BusObject already exists - refreshing widget");
+        return refreshObjects(bus);
     }
 
     if (!bus) {
@@ -153,6 +163,54 @@ QStatus HttpControl::registerObjects(BusAttachment* bus)
     return status;
 }
 
+QStatus HttpControl::refreshObjects(BusAttachment* bus)
+{
+    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
+
+    if (!m_HttpControlBusObject) {
+        if (logger)
+            logger->warn(TAG, "BusObject does not exist - exiting");
+        return ER_BUS_OBJECT_NOT_REGISTERED;
+    }
+
+    if (!bus) {
+        if (logger)
+            logger->warn(TAG, "Could not register Object. Bus is NULL");
+        return ER_BAD_ARG_1;
+    }
+
+    if (!(bus->IsStarted() && bus->IsConnected())) {
+        if (logger)
+            logger->warn(TAG, "Could not register Object. Bus is not started or not connected");
+        return ER_BAD_ARG_1;
+    }
+
+    QStatus status;
+    status = m_HttpControlBusObject->setRemoteController(bus, m_Device->getDeviceBusName(), m_Device->getSessionId());
+    if (status != ER_OK) {
+        if (logger)
+            logger->warn(TAG, "Call to SetRemoteController failed");
+        return status;
+    }
+
+    status = m_HttpControlBusObject->checkVersions();
+    if (status != ER_OK) {
+        if (logger)
+            logger->warn(TAG, "Call to CheckVersions failed");
+        return status;
+    }
+
+    status = m_HttpControlBusObject->GetUrl(bus);
+    if (status != ER_OK) {
+        if (logger)
+            logger->warn(TAG, "Call to GetUrl failed");
+        return status;
+    }
+
+    return status;
+
+}
+
 QStatus HttpControl::unregisterObjects(BusAttachment* bus)
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
@@ -189,6 +247,11 @@ QStatus HttpControl::readUrlArg(MsgArg const& val)
     return status;
 }
 
+QStatus HttpControl::readVersionArg(MsgArg const& val)
+{
+    return val.Get(AJPARAM_UINT16.c_str(), &m_Version);
+}
+
 ControlPanelDevice* HttpControl::getDevice() const
 {
     return m_Device;
@@ -199,14 +262,9 @@ const qcc::String& HttpControl::getUrl() const
     return m_Url;
 }
 
-WidgetMode HttpControl::getWidgetMode() const
+ControlPanelMode HttpControl::getControlPanelMode() const
 {
-    return m_WidgetMode;
-}
-
-void HttpControl::setVersion(uint16_t version)
-{
-    m_Version = version;
+    return m_ControlPanelMode;
 }
 
 } /* namespace services */

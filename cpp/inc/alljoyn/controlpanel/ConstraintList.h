@@ -19,7 +19,6 @@
 
 #include <alljoyn/BusAttachment.h>
 #include <alljoyn/controlpanel/Widget.h>
-#include <alljoyn/controlpanel/PropertyType.h>
 #include <vector>
 
 namespace ajn {
@@ -157,7 +156,7 @@ class ConstraintList {
 
     /**
      * Set the Display vector
-     * @param display - vector of the display values
+     * @param displays - vector of the display values
      */
     void setDisplays(const std::vector<qcc::String>& displays);
 
@@ -169,7 +168,7 @@ class ConstraintList {
 
     /**
      * Set the GetDisplay function pointer
-     * @param getDisplay - the function pointer to get the display values
+     * @param getDisplays - the function pointer to get the display values
      */
     void setGetDisplays(GetStringFptr getDisplays);
 
@@ -197,7 +196,7 @@ class ConstraintList {
     PropertyType m_PropertyType;
 
     /**
-     * The Constraint Value of the Cosntraint
+     * The Constraint Value of the Constraint
      */
     ConstraintValue m_ConstraintValue;
 

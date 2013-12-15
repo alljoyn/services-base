@@ -76,6 +76,20 @@ class PropertyBusObject : public WidgetBusObject {
      */
     void ValueChanged(const InterfaceDescription::Member* member, const char* srcPath, Message& msg);
 
+    /**
+     * Set the value of the remote property
+     * @param value - value to be set
+     * @return status - success/failure
+     */
+    QStatus SetValue(MsgArg& value);
+
+    /**
+     * remove the SignalHandler of the BusObject
+     * @param bus - busAttachment used to remove the signalHandlers
+     * @return status - success/failure
+     */
+    QStatus UnregisterSignalHandler(BusAttachment* bus);
+
   private:
 
     /**

@@ -68,7 +68,7 @@ DialogBusObject::DialogBusObject(BusAttachment* bus, String const& objectPath, u
 
     //Get the signal methods for future use
     m_SignalPropertyChanged = m_InterfaceDescription->GetMember(AJ_SIGNAL_PROPERTIES_CHANGED.c_str());
-    if (widget->getWidgetMode() == CONTROLLER_WIDGET) {
+    if (widget->getControlPanelMode() == CONTROLLER_MODE) {
         status = addSignalHandler(bus);
     } else {
         const ajn::InterfaceDescription::Member* execMember1 = m_InterfaceDescription->GetMember(AJ_METHOD_ACTION1.c_str());

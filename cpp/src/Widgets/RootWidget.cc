@@ -21,13 +21,14 @@
 namespace ajn {
 namespace services {
 
-RootWidget::RootWidget(qcc::String const& name, WidgetType widgetType, qcc::String const& tag) : Widget(name, widgetType, tag),
-    m_NotificationActionBusObject(0), m_ObjectPath("")
+RootWidget::RootWidget(qcc::String const& name, Widget* rootWidget, WidgetType widgetType, qcc::String const& tag) :
+    Widget(name, rootWidget, widgetType, tag), m_NotificationActionBusObject(0), m_ObjectPath("")
 {
 }
 
-RootWidget::RootWidget(qcc::String const& name, qcc::String const& objectPath, ControlPanelDevice* device, WidgetType widgetType, qcc::String const& tag) :
-    Widget(name, device, widgetType, tag), m_NotificationActionBusObject(0), m_ObjectPath(objectPath)
+RootWidget::RootWidget(qcc::String const& name, Widget* rootWidget, qcc::String const& objectPath, ControlPanelDevice* device,
+                       WidgetType widgetType, qcc::String const& tag) :
+    Widget(name, rootWidget, device, widgetType, tag), m_NotificationActionBusObject(0), m_ObjectPath(objectPath)
 {
 }
 
@@ -78,6 +79,22 @@ QStatus RootWidget::unregisterObjects(BusAttachment* bus)
         m_NotificationActionBusObject = 0;
     }
     return status;
+}
+
+QStatus RootWidget::registerObjects(BusAttachment* bus)
+{
+    return Widget::registerObjects(bus, m_ObjectPath);
+}
+
+QStatus RootWidget::registerObjects(BusAttachment* bus, qcc::String const& objectPath)
+{
+    return Widget::registerObjects(bus, objectPath);
+}
+
+QStatus RootWidget::registerObjects(BusAttachment* bus, LanguageSet const& languageSet, qcc::String const& objectPathPrefix,
+                                    qcc::String const& objectPathSuffix, bool isRoot)
+{
+    return Widget::registerObjects(bus, languageSet, objectPathPrefix, objectPathSuffix, isRoot);
 }
 
 } /* namespace services */

@@ -19,6 +19,7 @@
 #define CONTROLPANELLISTENER_H_
 
 #include <alljoyn/controlpanel/ControlPanelDevice.h>
+#include <alljoyn/controlpanel/Property.h>
 
 namespace ajn {
 namespace services {
@@ -32,47 +33,56 @@ class ControlPanelListener {
   public:
 
     /**
-     * Constructor for DeviceEventsListener
+     * Constructor for ControlPanelListener
      */
     ControlPanelListener() { };
 
     /**
-     * Destructor for DeviceEventsListener
+     * Destructor for ControlPanelListener
      */
     virtual ~ControlPanelListener() { };
 
     /**
-     * sessionEstablished
-     * @param device
+     * sessionEstablished - callback when a session is established with a device
+     * @param device - the device that the session was established with
      */
     virtual void sessionEstablished(ControlPanelDevice* device) = 0;
 
     /**
-     * sessionLost
-     * @param device
+     * sessionLost - callback when a session is lost with a device
+     * @param device - device that the session was lost with
      */
     virtual void sessionLost(ControlPanelDevice* device) = 0;
 
     /**
-     * signalPropertiesChanged
-     * @param device
-     * @param widget
+     * signalPropertiesChanged - callback when a property Changed signal is received
+     * @param device - device signal was received from
+     * @param widget - widget signal was received for
      */
     virtual void signalPropertiesChanged(ControlPanelDevice* device, Widget* widget) = 0;
 
     /**
-     * signalPropertiesChanged
-     * @param device
-     * @param widget
+     * signalPropertyValueChanged - callback when a property Value Changed signal is received
+     * @param device - device signal was received from
+     * @param property - Property signal was received for
      */
-    virtual void signalValueChanged(ControlPanelDevice* device, Widget* widget) = 0;
+    virtual void signalPropertyValueChanged(ControlPanelDevice* device, Property* property) = 0;
 
     /**
-     * errorOccured
-     * @param device
-     * @param error
+     * signalDismiss - callback when a Dismiss signal is received
+     * @param device - device signal was received from
+     * @param notificationAction - notificationAction signal was received for
      */
-    virtual void errorOccured(ControlPanelDevice* device, qcc::String const& error) = 0;
+    virtual void signalDismiss(ControlPanelDevice* device, NotificationAction* notificationAction) = 0;
+
+    /**
+     * ErrorOccured - callback to tell application when something goes wrong
+     * @param device - device  that had the error
+     * @param status - status associated with error if applicable
+     * @param transaction - the type of transaction that resulted in the error
+     * @param errorMessage - a log-able error Message
+     */
+    virtual void errorOccured(ControlPanelDevice* device, QStatus status, ControlPanelTransaction transaction, qcc::String const& errorMessage) = 0;
 };
 } //namespace services
 } //namespace ajn

@@ -21,7 +21,6 @@ class Property (common.Widget):
     def __init__(self, generated, propertyElement, parentObjectPath, languageSetName) :
         common.Widget.__init__(self, generated, propertyElement, parentObjectPath, languageSetName)
         self.widgetName = self.name[:1].upper() + self.name [1:]
-        self.name = self.name[:1].lower() + self.name [1:]
         self.getSignatureAndVarType()
         self.additionalParams = ", " + self.propType
 

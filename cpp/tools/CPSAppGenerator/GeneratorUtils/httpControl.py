@@ -19,13 +19,14 @@ class HttpControl:
     def __init__(self, generated, url) :
         self.generated = generated
         self.url = url
+        self.name = generated.unitName + "HttpControl"
         
     def generate(self) :
-        self.generated.varDecl += """    static ajn::services::HttpControl* httpControl;\n"""
-        self.generated.varDef += """HttpControl* ControlPanelGenerated::httpControl = 0;\n"""
+        self.generated.varDecl += """    static ajn::services::HttpControl* {0};\n""".format(self.name)
+        self.generated.varDef += """HttpControl* ControlPanelGenerated::{0} = 0;\n""".format(self.name)
 
-        self.generated.initCode += """\n    httpControl = new HttpControl("{0}");\n""".format(self.url)
-        self.generated.initCode += """    CHECK(controlPanelControllee->setHttpControl(httpControl));\n"""
+        self.generated.initCode += """\n    {0} = new HttpControl("{1}");\n""".format(self.name, self.url)
+        self.generated.initCode += """    CHECK({0}->setHttpControl({1}));\n""".format(self.generated.unitObject, self.name)
 
-        self.generated.shutdown += """    if (httpControl) {\n        delete (httpControl);\n        httpControl = 0;\n    }\n"""
+        self.generated.shutdown += """    if ({0}) {1}\n        delete ({0});\n        {0} = 0;\n    {2}\n""".format(self.name, "{", "}")
 

@@ -19,9 +19,6 @@
 #include "../ControlPanelConstants.h"
 #include "../BusObjects/WidgetBusObject.h"
 
-#ifndef UINT32_MAX
-#define UINT32_MAX      (4294967295U)
-#endif
 #define STATE_ENABLED 0x01
 #define STATE_WRITABLE 0x02
 
@@ -29,16 +26,25 @@ namespace ajn {
 namespace services {
 using namespace cpsConsts;
 
-Widget::Widget(qcc::String const& name, WidgetType widgetType, qcc::String const& tag) : m_Name(name), m_WidgetType(widgetType),
-    m_IsSecured(false), m_Version(1), m_States(0), m_GetEnabled(0), m_GetWritable(0), m_BgColor(UINT32_MAX),
-    m_GetBgColor(0), m_Label(""), m_GetLabels(0), m_WidgetMode(CONTROLLEE_WIDGET), m_Device(0), TAG(tag)
+Widget::Widget(qcc::String const& name, Widget* rootWidget, WidgetType widgetType, qcc::String const& tag) : m_Name(name), m_WidgetType(widgetType),
+    m_RootWidget(rootWidget), m_IsSecured(false), m_Version(1), m_States(0), m_GetEnabled(0), m_GetWritable(0), m_BgColor(UINT32_MAX),
+    m_GetBgColor(0), m_Label(""), m_GetLabels(0), m_ControlPanelMode(CONTROLLEE_MODE), m_Device(0), TAG(tag)
 {
 }
 
-Widget::Widget(qcc::String const& name, ControlPanelDevice* device, WidgetType widgetType, qcc::String const& tag) : m_Name(name),
-    m_WidgetType(widgetType), m_IsSecured(false), m_Version(1), m_States(0), m_GetEnabled(0), m_GetWritable(0), m_BgColor(UINT32_MAX),
-    m_GetBgColor(0), m_Label(""), m_GetLabels(0), m_WidgetMode(CONTROLLER_WIDGET), m_Device(device), TAG(tag)
+Widget::Widget(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* device, WidgetType widgetType, qcc::String const& tag) : m_Name(name),
+    m_WidgetType(widgetType), m_RootWidget(rootWidget), m_IsSecured(false), m_Version(1), m_States(0), m_GetEnabled(0), m_GetWritable(0), m_BgColor(UINT32_MAX),
+    m_GetBgColor(0), m_Label(""), m_GetLabels(0), m_ControlPanelMode(CONTROLLER_MODE), m_Device(device), TAG(tag)
 {
+}
+
+Widget::Widget(const Widget& widget) : TAG(widget.TAG)
+{
+}
+
+Widget& Widget::operator=(const Widget& widget)
+{
+    return *this;
 }
 
 Widget::~Widget()
@@ -56,9 +62,19 @@ qcc::String const& Widget::getWidgetName() const
     return m_Name;
 }
 
-WidgetMode Widget::getWidgetMode() const
+ControlPanelMode Widget::getControlPanelMode() const
 {
-    return m_WidgetMode;
+    return m_ControlPanelMode;
+}
+
+Widget* Widget::getRootWidget() const
+{
+    return m_RootWidget;
+}
+
+ControlPanelDevice* Widget::getDevice() const
+{
+    return m_Device;
 }
 
 const uint16_t Widget::getInterfaceVersion() const
@@ -66,7 +82,7 @@ const uint16_t Widget::getInterfaceVersion() const
     if (!m_BusObjects.size())
         return 1;
 
-    return m_WidgetMode == CONTROLLEE_WIDGET ? m_BusObjects[0]->getInterfaceVersion() : m_Version;
+    return m_ControlPanelMode == CONTROLLEE_MODE ? m_BusObjects[0]->getInterfaceVersion() : m_Version;
 }
 
 void Widget::setIsSecured(bool secured)
@@ -236,8 +252,8 @@ QStatus Widget::registerObjects(BusAttachment* bus, qcc::String const& objectPat
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (m_BusObjects.size()) {
         if (logger)
-            logger->debug(TAG, "BusObjects arleady set. returning");
-        return ER_OK;
+            logger->debug(TAG, "BusObject already exists - refreshing widget");
+        return refreshObjects(bus);
     }
 
     if (!bus) {
@@ -292,6 +308,57 @@ QStatus Widget::registerObjects(BusAttachment* bus, qcc::String const& objectPat
     return status;
 }
 
+QStatus Widget::refreshObjects(BusAttachment* bus)
+{
+    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
+    if (!m_BusObjects.size()) {
+        if (logger)
+            logger->info(TAG, "BusObject does not exist - exiting");
+        return ER_BUS_OBJECT_NOT_REGISTERED;
+    }
+
+    if (!bus) {
+        if (logger)
+            logger->warn(TAG, "Could not register Object. Bus is NULL");
+        return ER_BAD_ARG_1;
+    }
+
+    if (!(bus->IsStarted() && bus->IsConnected())) {
+        if (logger)
+            logger->warn(TAG, "Could not register Object. Bus is not started or not connected");
+        return ER_BAD_ARG_1;
+    }
+
+    QStatus status = m_BusObjects[0]->setRemoteController(bus, m_Device->getDeviceBusName(), m_Device->getSessionId());
+    if (status != ER_OK) {
+        if (logger)
+            logger->warn(TAG, "Call to SetRemoteController failed");
+        return status;
+    }
+
+    status = checkVersions();
+    if (status != ER_OK) {
+        if (logger)
+            logger->warn(TAG, "Call to CheckVersions failed");
+        return status;
+    }
+
+    status = fillProperties();
+    if (status != ER_OK) {
+        if (logger)
+            logger->warn(TAG, "Call to FillProperties failed");
+        return status;
+    }
+
+    status = refreshChildren(bus);
+    if (status != ER_OK) {
+        if (logger)
+            logger->warn(TAG, "Call to refreshChildren failed");
+        return status;
+    }
+    return status;
+}
+
 QStatus Widget::unregisterObjects(BusAttachment* bus)
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
@@ -309,7 +376,10 @@ QStatus Widget::unregisterObjects(BusAttachment* bus)
 
     std::vector<WidgetBusObject*>::iterator it;
     for (it = m_BusObjects.begin(); it != m_BusObjects.end();) {
-        bus->UnregisterBusObject(*(*it));
+        if (m_ControlPanelMode == CONTROLLEE_MODE)
+            bus->UnregisterBusObject(*(*it));
+        else
+            (*it)->UnregisterSignalHandler(bus);
         delete *it;
         it = m_BusObjects.erase(it);
     }
@@ -488,6 +558,11 @@ QStatus Widget::addChildren(BusAttachment* bus)
     return ER_OK;
 }
 
+QStatus Widget::refreshChildren(BusAttachment* bus)
+{
+    return ER_OK;
+}
+
 QStatus Widget::fillProperties()
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
@@ -502,13 +577,17 @@ QStatus Widget::fillProperties()
 void Widget::PropertyChanged()
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
+    BusAttachment* busAttachment = ControlPanelService::getInstance()->getBusAttachment();
+    if (busAttachment)
+        busAttachment->EnableConcurrentCallbacks();
+
     ControlPanelListener* listener = m_Device->getListener();
     QStatus status = fillProperties();
     if (status != ER_OK) {
         if (logger)
             logger->warn(TAG, "Something went wrong reloading properties");
-        //TODO: Opportunity for errorOccured
-        //if (listener) listener->errorOccured...
+        if (listener)
+            listener->errorOccured(m_Device, status, REFRESH_PROPERTIES, "Something went wrong reloading properties");
         return;
     }
 

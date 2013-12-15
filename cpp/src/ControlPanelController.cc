@@ -71,7 +71,7 @@ ControlPanelDevice* ControlPanelController::createControllableDevice(qcc::String
     if (hasControlPanel) {
         if (logger)
             logger->debug(TAG, "Calling startSession for device " + sender);
-        device->startSession();
+        device->startSessionAsync();
     }
     return device;
 }

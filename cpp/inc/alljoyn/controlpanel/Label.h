@@ -32,15 +32,17 @@ class Label : public Widget {
     /**
      * Constructor for Label class
      * @param name - name of Widget
+     * @param rootWidget - the RootWidget of the widget
      */
-    Label(qcc::String const& name);
+    Label(qcc::String const& name, Widget* rootWidget);
 
     /**
      * Constructor for Label class
      * @param name - name of Widget
+     * @param rootWidget - the RootWidget of the widget
      * @param device - the device that contains this Widget
      */
-    Label(qcc::String const& name, ControlPanelDevice* device);
+    Label(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* device);
 
     /**
      * Destructor for Label class
@@ -66,7 +68,7 @@ class Label : public Widget {
 
     /**
      * Set the labels vector of the widget
-     * @param label - vector of labels
+     * @param labels - vector of labels
      */
     void setLabels(const std::vector<qcc::String>& labels);
 

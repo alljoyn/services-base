@@ -18,7 +18,7 @@
 #define HTTPCONTROL_H_
 
 #include <alljoyn/BusObject.h>
-#include <alljoyn/controlpanel/WidgetEnums.h>
+#include <alljoyn/controlpanel/ControlPanelEnums.h>
 
 namespace ajn {
 namespace services {
@@ -40,7 +40,8 @@ class HttpControl {
 
     /**
      * Constructor for HttpControl
-     * @param url - url of HttpControl
+     * @param objectPath - objectPath of HttpControl
+     * @param device - the device containing this HttpControl
      */
     HttpControl(qcc::String const& objectPath, ControlPanelDevice* device);
 
@@ -71,6 +72,13 @@ class HttpControl {
     QStatus registerObjects(BusAttachment* bus);
 
     /**
+     * Refresh the HttpControl
+     * @param bus - bus used for refreshing the object
+     * @return status - success/failure
+     */
+    QStatus refreshObjects(BusAttachment* bus);
+
+    /**
      * Unregister the HttpControl BusObject
      * @param bus - bus used to unregister the object
      * @return status - success/failure
@@ -92,6 +100,13 @@ class HttpControl {
     QStatus readUrlArg(MsgArg const& val);
 
     /**
+     * Read MsgArg passed in and use it to set the url
+     * @param val - MsgArg passed in
+     * @return status - success/failure
+     */
+    QStatus readVersionArg(MsgArg const& val);
+
+    /**
      * Get the Device that contains this HttpControl
      * @return ControlPanelDevice
      */
@@ -104,17 +119,10 @@ class HttpControl {
     const qcc::String& getUrl() const;
 
     /**
-     * Get the WidgetMode of this HttpControl
-     * @return widgetMode
+     * Get the ControlPanelMode of this HttpControl
+     * @return ControlPanelMode
      */
-    WidgetMode getWidgetMode() const;
-
-    //TODO: Possibly switch setVersion for readVersionArg
-    /**
-     * Set the version of this HttpControl
-     * @param version
-     */
-    void setVersion(uint16_t version);
+    ControlPanelMode getControlPanelMode() const;
 
   private:
 
@@ -139,14 +147,27 @@ class HttpControl {
     ControlPanelDevice* m_Device;
 
     /**
-     * The mode of the Widget
+     * The mode of the HttpControl
      */
-    WidgetMode m_WidgetMode;
+    ControlPanelMode m_ControlPanelMode;
 
     /**
      * Version of the Widget
      */
     uint16_t m_Version;
+
+    /**
+     * Copy constructor of  HttpControl - private.  HttpControl is not copy-able
+     * @param  httpControl -  HttpControl to copy
+     */
+    HttpControl(const HttpControl&  httpControl);
+
+    /**
+     * Assignment operator of HttpControl - private. HttpControl is not assignable
+     * @param httpControl
+     * @return
+     */
+    HttpControl& operator=(const HttpControl&  httpControl);
 };
 } //namespace services
 } //namespace ajn

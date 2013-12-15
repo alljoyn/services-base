@@ -23,6 +23,8 @@
 namespace ajn {
 namespace services {
 
+class ControlPanelDevice;
+
 /**
  * class ControlPanelSessionHandler
  */
@@ -32,7 +34,7 @@ class ControlPanelSessionHandler : public ajn::BusAttachment::JoinSessionAsyncCB
     /**
      * Constructor for ControlPanelSessionHandler
      */
-    ControlPanelSessionHandler();
+    ControlPanelSessionHandler(ControlPanelDevice* device);
 
     /**
      * Destructor for ControlPanelSessionHandler
@@ -66,6 +68,11 @@ class ControlPanelSessionHandler : public ajn::BusAttachment::JoinSessionAsyncCB
      * SessionId for this Device
      */
     ajn::SessionId m_SessionId;
+
+    /**
+     * The device of this Session Handler
+     */
+    ControlPanelDevice* m_Device;
 
 };
 

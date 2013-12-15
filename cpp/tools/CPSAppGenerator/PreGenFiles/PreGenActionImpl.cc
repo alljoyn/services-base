@@ -20,7 +20,7 @@ ADDITIONAL_INCLUDES_HERE
 namespace ajn {
 namespace services {
 
-REGULAR_NAME_HERE::REGULAR_NAME_HERE(qcc::String name) : Action(name)
+REGULAR_NAME_HERE::REGULAR_NAME_HERE(qcc::String name, Widget* rootWidget) : Action(name, rootWidget)
 {
 
 }

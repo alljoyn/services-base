@@ -24,49 +24,66 @@ class Generator:
     def __init__(self, scriptDir, path):
         self.scriptDir = scriptDir
         self.path = path
-        self.languageSets = {}
         self.languageSetsCode = ""
         self.headerIncludes = ""
         self.initCode = ""
         self.varDecl = ""
         self.varDef = ""
         self.shutdown = ""
+        self.srcIncludes = ""
+        self.units = {}
 
     def setControlDeviceData(self, unitName, headerCode) :
-        self.unitName = unitName
-        self.ObjectPathPrefix = "/ControlPanel/" + self.unitName + "/"
-        self.srcIncludes = headerCode
+        self.unitName = unitName[:1].lower() + unitName[1:]
+        self.unitObject = self.unitName + "Unit"
+        if unitName in self.units :
+            print >> sys.stderr, "\nERROR - an xml with unit name " + unitName + " has already been generated. When generating multiple xmls the unit names must be unique\n"
+            sys.exit(3)
+        self.units[unitName] = []
+
+        self.ObjectPathPrefix = "/ControlPanel/" + unitName + "/"
+        self.srcIncludes += headerCode + "\n"
+        
+        self.varDecl += """    static ajn::services::ControlPanelControlleeUnit* {0};\n\n""".format(self.unitObject)
+        self.varDef += """ControlPanelControlleeUnit* ControlPanelGenerated::{0} = 0;\n""".format(self.unitObject)
+
+        self.initCode += """\n    {0} = new ControlPanelControlleeUnit("{1}");\n""".format(self.unitObject, unitName)
+        self.initCode += """    CHECK(controlPanelControllee->addControlPanelUnit({0}));\n""".format(self.unitObject)
+
+        self.shutdown += """    if ({0}) {1}\n        delete ({0});\n        {0} = 0;\n    {2}\n""".format(self.unitObject, "{", "}")        
 
     def setLanguageSets(self, languageSet) :
+        self.languageSets = {}    
         for langElement in languageSet:
             name = langElement.attr["name"]
+            deviceLangName = self.unitName + langElement.attr["name"][:1].upper() + langElement.attr["name"][1:]
             self.languageSets[name] = []
-            self.languageSetsCode += """    LanguageSet {0}("{0}");\n""".format(name)
+            self.languageSetsCode += """    LanguageSet {0}("{0}");\n""".format(deviceLangName)
             languages = as_list(langElement.language)
             for language in languages :
                 self.languageSets[name].append(language)
-                self.languageSetsCode += """    {0}.addLanguage("{1}");\n""".format(name, language.replace("-", "_"))
-            self.languageSetsCode += """    LanguageSets::add({0}.getLanguageSetName(), {0});\n\n""".format(name)    
+                self.languageSetsCode += """    {0}.addLanguage("{1}");\n""".format(deviceLangName, language.replace("-", "_"))
+            self.languageSetsCode += """    LanguageSets::add({0}.getLanguageSetName(), {0});\n\n""".format(deviceLangName)    
     
     def addControlPanel(self, rootElement, languageSet) :
-        name = rootElement.name + "ControlPanel"
+        name = self.unitName + rootElement.name[:1].upper() + rootElement.name[1:] + "ControlPanel"
         self.varDecl += """    static ajn::services::ControlPanel* {0};\n\n""".format(name)
         self.varDef += """ControlPanel* ControlPanelGenerated::{0} = 0;\n""".format(name)
 
-        self.initCode += """\n    {0} = ControlPanel::createControlPanel(LanguageSets::get("{1}"));\n""".format(name, languageSet)
+        self.initCode += """\n    {0} = ControlPanel::createControlPanel(LanguageSets::get("{1}"));\n""".format(name, self.unitName + languageSet[:1].upper() + languageSet[1:])
         self.initCode += """    if (!{0})\n        return ER_FAIL;\n""".format(name)
-        self.initCode += """    CHECK(controlPanelControllee->addControlPanel({0}));\n""".format(name)
+        self.initCode += """    CHECK({0}->addControlPanel({1}));\n""".format(self.unitObject, name)
 
         self.shutdown += """    if ({0}) {1}\n        delete ({0});\n        {0} = 0;\n    {2}\n""".format(name, "{", "}")
 
     def addNotificationAction(self, rootElement, languageSet) :
-        name = rootElement.name + "NotificationAction"
+        name = self.unitName + rootElement.name[:1].upper() + rootElement.name[1:] + "NotificationAction"
         self.varDecl += """    static ajn::services::NotificationAction* {0};\n\n""".format(name)
         self.varDef += """NotificationAction* ControlPanelGenerated::{0} = 0;\n""".format(name)
 
-        self.initCode += """\n    {0} = NotificationAction::createNotificationAction(LanguageSets::get("{1}"));\n""".format(name, languageSet)
+        self.initCode += """\n    {0} = NotificationAction::createNotificationAction(LanguageSets::get("{1}"));\n""".format(name, self.unitName + languageSet[:1].upper() + languageSet[1:])
         self.initCode += """    if (!{0})\n        return ER_FAIL;\n""".format(name)
-        self.initCode += """    CHECK(controlPanelControllee->addNotificationAction({0}));\n""".format(name)
+        self.initCode += """    CHECK({0}->addNotificationAction({1}));\n""".format(self.unitObject, name)
 
         self.shutdown += """    if ({0}) {1}\n        delete ({0});\n        {0} = 0;\n    {2}\n""".format(name, "{", "}")
 
@@ -121,7 +138,6 @@ class Generator:
         self.genHeaderFile = self.genHeaderFile.replace("//VARIABLE_DECLARATIONS_GO_HERE", self.varDecl)
         self.genHeaderFile = self.genHeaderFile.replace("//NEW_WIDGET_CLASSES_HERE", self.headerIncludes)
 
-        self.genSrcFile = self.genSrcFile.replace("//UNITNAME_GO_HERE", self.unitName)
         self.genSrcFile = self.genSrcFile.replace("//INCLUDES_GO_HERE", self.srcIncludes)
         self.genSrcFile = self.genSrcFile.replace("//STATIC_DECLARATION_HERE", self.varDef)
         self.genSrcFile = self.genSrcFile.replace("//LANGUAGESET_CODE_HERE", self.languageSetsCode)

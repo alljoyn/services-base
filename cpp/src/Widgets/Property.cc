@@ -23,16 +23,16 @@ namespace ajn {
 namespace services {
 using namespace cpsConsts;
 
-Property::Property(qcc::String name, PropertyType propertyType) :
-    Widget(name, PROPERTY, TAG_PROPERTY_WIDGET), m_PropertyType(propertyType), m_ValueString(""),
+Property::Property(qcc::String name, Widget* rootWidget, PropertyType propertyType) :
+    Widget(name, rootWidget, PROPERTY, TAG_PROPERTY_WIDGET), m_PropertyType(propertyType), m_ValueString(""),
     m_UnitOfMeasure(""), m_GetUnitOfMeasures(0), m_ConstraintRange(0)
 {
     m_GetValue.getBoolValue = 0; // initialize to null
     m_Value.dateValue = 0; // initialize to null
 }
 
-Property::Property(qcc::String name, ControlPanelDevice* device) :
-    Widget(name, device, PROPERTY, TAG_PROPERTY_WIDGET), m_PropertyType(UNDEFINED), m_ValueString(""),
+Property::Property(qcc::String name, Widget* rootWidget, ControlPanelDevice* device) :
+    Widget(name, rootWidget, device, PROPERTY, TAG_PROPERTY_WIDGET), m_PropertyType(UNDEFINED), m_ValueString(""),
     m_UnitOfMeasure(""), m_GetUnitOfMeasures(0), m_ConstraintRange(0)
 {
     m_GetValue.getBoolValue = 0; // initialize to null
@@ -44,9 +44,9 @@ Property::~Property()
     if (m_ConstraintRange)
         delete m_ConstraintRange;
 
-    if (m_WidgetMode == CONTROLLER_WIDGET && m_PropertyType == DATE_PROPERTY && m_Value.dateValue != 0) {
+    if (m_ControlPanelMode == CONTROLLER_MODE && m_PropertyType == DATE_PROPERTY && m_Value.dateValue != 0) {
         delete m_Value.dateValue;
-    } else if (m_WidgetMode == CONTROLLER_WIDGET && m_PropertyType == TIME_PROPERTY && m_Value.timeValue != 0) {
+    } else if (m_ControlPanelMode == CONTROLLER_MODE && m_PropertyType == TIME_PROPERTY && m_Value.timeValue != 0) {
         delete m_Value.timeValue;
     }
 }
@@ -245,54 +245,55 @@ QStatus Property::fillPropertyValueArg(MsgArg& val, uint16_t languageIndx)
         return status;
     }
 
+    MsgArg* variantArg = new MsgArg();
     switch (m_PropertyType) {
     case UINT16_PROPERTY:
-        status = val.Set(AJPARAM_VAR.c_str(), new MsgArg(AJPARAM_UINT16.c_str(), m_GetValue.getUint16Value()));
+        status = variantArg->Set(AJPARAM_UINT16.c_str(), m_GetValue.getUint16Value());
         break;
 
     case INT16_PROPERTY:
-        status = val.Set(AJPARAM_VAR.c_str(), new MsgArg(AJPARAM_INT16.c_str(), m_GetValue.getInt16Value()));
+        status = variantArg->Set(AJPARAM_INT16.c_str(), m_GetValue.getInt16Value());
         break;
 
     case UINT32_PROPERTY:
-        status = val.Set(AJPARAM_VAR.c_str(), new MsgArg(AJPARAM_UINT32.c_str(), m_GetValue.getUint32Value()));
+        status = variantArg->Set(AJPARAM_UINT32.c_str(), m_GetValue.getUint32Value());
         break;
 
     case INT32_PROPERTY:
-        status = val.Set(AJPARAM_VAR.c_str(), new MsgArg(AJPARAM_INT32.c_str(), m_GetValue.getInt32Value()));
+        status = variantArg->Set(AJPARAM_INT32.c_str(), m_GetValue.getInt32Value());
         break;
 
     case UINT64_PROPERTY:
-        status = val.Set(AJPARAM_VAR.c_str(), new MsgArg(AJPARAM_UINT64.c_str(), m_GetValue.getUint64Value()));
+        status = variantArg->Set(AJPARAM_UINT64.c_str(), m_GetValue.getUint64Value());
         break;
 
     case INT64_PROPERTY:
-        status = val.Set(AJPARAM_VAR.c_str(), new MsgArg(AJPARAM_INT64.c_str(), m_GetValue.getInt64Value()));
+        status = variantArg->Set(AJPARAM_INT64.c_str(), m_GetValue.getInt64Value());
         break;
 
     case DOUBLE_PROPERTY:
-        status = val.Set(AJPARAM_VAR.c_str(), new MsgArg(AJPARAM_DOUBLE.c_str(), m_GetValue.getDoubleValue()));
+        status = variantArg->Set(AJPARAM_DOUBLE.c_str(), m_GetValue.getDoubleValue());
         break;
 
     case STRING_PROPERTY:
-        status = val.Set(AJPARAM_VAR.c_str(), new MsgArg(AJPARAM_STR.c_str(), m_GetValue.getCharValue()));
+        status = variantArg->Set(AJPARAM_STR.c_str(), m_GetValue.getCharValue());
         break;
 
     case BOOL_PROPERTY:
-        status = val.Set(AJPARAM_VAR.c_str(), new MsgArg(AJPARAM_BOOL.c_str(), m_GetValue.getBoolValue()));
+        status = variantArg->Set(AJPARAM_BOOL.c_str(), m_GetValue.getBoolValue());
         break;
 
     case DATE_PROPERTY: {
         CPSDate date = m_GetValue.getDateValue();
-        status = val.Set(AJPARAM_VAR.c_str(), new MsgArg(AJPARAM_DATE_OR_TIME.c_str(), DATE_PROPERTY_TYPE,
-                                                         date.getDay(), date.getMonth(), date.getYear()));
+        status = variantArg->Set(AJPARAM_DATE_OR_TIME.c_str(), DATE_PROPERTY_TYPE,
+                                 date.getDay(), date.getMonth(), date.getYear());
         break;
     }
 
     case TIME_PROPERTY: {
         CPSTime time = m_GetValue.getTimeValue();
-        status = val.Set(AJPARAM_VAR.c_str(), new MsgArg(AJPARAM_DATE_OR_TIME.c_str(), TIME_PROPERTY_TYPE,
-                                                         time.getHour(), time.getMinute(), time.getSecond()));
+        status = variantArg->Set(AJPARAM_DATE_OR_TIME.c_str(), TIME_PROPERTY_TYPE,
+                                 time.getHour(), time.getMinute(), time.getSecond());
         break;
     }
 
@@ -301,6 +302,21 @@ QStatus Property::fillPropertyValueArg(MsgArg& val, uint16_t languageIndx)
             logger->warn(TAG, "Property type is not defined");
         break;
     }
+    if (status != ER_OK) {
+        if (logger)
+            logger->warn(TAG, "Could not marshal VariantArg");
+        delete variantArg;
+        return status;
+    }
+
+    status = val.Set(AJPARAM_VAR.c_str(), variantArg);
+    if (status != ER_OK) {
+        if (logger)
+            logger->warn(TAG, "Could not marshal ValueArg");
+        delete variantArg;
+        return status;
+    }
+    val.SetOwnershipFlags(MsgArg::OwnsArgs, true);
     return status;
 }
 
@@ -686,6 +702,9 @@ void Property::ValueChanged(Message& msg)
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     ControlPanelListener* listener = m_Device->getListener();
+    BusAttachment* busAttachment = ControlPanelService::getInstance()->getBusAttachment();
+    if (busAttachment)
+        busAttachment->EnableConcurrentCallbacks();
 
     const ajn::MsgArg* returnArgs;
     size_t numArgs;
@@ -693,21 +712,22 @@ void Property::ValueChanged(Message& msg)
     if (numArgs != 1) {
         if (logger)
             logger->warn(TAG, "Received unexpected amount of returnArgs");
-        //TODO: Opportunity for errorOccured
-        //if (listener) listener->errorOccured...
+        if (listener)
+            listener->errorOccured(m_Device, ER_BUS_UNEXPECTED_SIGNATURE, REFRESH_VALUE, "Received unexpected amount of returnArgs");
+        return;
     }
 
     QStatus status = readValueArg(&returnArgs[0]);
     if (status != ER_OK) {
         if (logger)
             logger->warn(TAG, "Something went wrong reading the Value Argument");
-        //TODO: Opportunity for errorOccured
-        //if (listener) listener->errorOccured...
+        if (listener)
+            listener->errorOccured(m_Device, status, REFRESH_VALUE, "Could not read Value Argument");
         return;
     }
 
     if (listener)
-        listener->signalValueChanged(m_Device, this);
+        listener->signalPropertyValueChanged(m_Device, this);
 }
 
 QStatus Property::defaultErrorSetValue()
@@ -715,62 +735,282 @@ QStatus Property::defaultErrorSetValue()
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (logger)
         logger->warn(TAG, "setValue function not defined");
-    return ER_FAIL;
+    return ER_NOT_IMPLEMENTED;
 }
 
 QStatus Property::setValue(bool value)
 {
-    return defaultErrorSetValue();
+    if (m_ControlPanelMode == CONTROLLEE_MODE)
+        return defaultErrorSetValue();
+
+    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
+    if (!m_BusObjects.size()) {
+        if (logger)
+            logger->warn(TAG, "Cannot SetValue. BusObject is not set");
+        return ER_BUS_BUS_NOT_STARTED;
+    }
+
+    MsgArg valueArg;
+    MsgArg* variantArg = new MsgArg(AJPARAM_BOOL.c_str(), value);
+    QStatus status = valueArg.Set(AJPARAM_VAR.c_str(), variantArg);
+    if (status != ER_OK) {
+        if (logger)
+            logger->warn(TAG, "Could not SetValue of property");
+        delete variantArg;
+        return status;
+    }
+    valueArg.SetOwnershipFlags(MsgArg::OwnsArgs, true);
+    return ((PropertyBusObject*)m_BusObjects[0])->SetValue(valueArg);
 }
 
 QStatus Property::setValue(uint16_t value)
 {
-    return defaultErrorSetValue();
+    if (m_ControlPanelMode == CONTROLLEE_MODE)
+        return defaultErrorSetValue();
+
+    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
+    if (!m_BusObjects.size()) {
+        if (logger)
+            logger->warn(TAG, "Cannot SetValue. BusObject is not set");
+        return ER_BUS_BUS_NOT_STARTED;
+    }
+
+    MsgArg valueArg;
+    MsgArg* variantArg = new MsgArg(AJPARAM_UINT16.c_str(), value);
+    QStatus status = valueArg.Set(AJPARAM_VAR.c_str(), variantArg);
+    if (status != ER_OK) {
+        if (logger)
+            logger->warn(TAG, "Could not SetValue of property");
+        delete variantArg;
+        return status;
+    }
+    valueArg.SetOwnershipFlags(MsgArg::OwnsArgs, true);
+    return ((PropertyBusObject*)m_BusObjects[0])->SetValue(valueArg);
 }
 
 QStatus Property::setValue(int16_t value)
 {
-    return defaultErrorSetValue();
+    if (m_ControlPanelMode == CONTROLLEE_MODE)
+        return defaultErrorSetValue();
+
+    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
+    if (!m_BusObjects.size()) {
+        if (logger)
+            logger->warn(TAG, "Cannot SetValue. BusObject is not set");
+        return ER_BUS_BUS_NOT_STARTED;
+    }
+
+    MsgArg valueArg;
+    MsgArg* variantArg = new MsgArg(AJPARAM_INT16.c_str(), value);
+    QStatus status = valueArg.Set(AJPARAM_VAR.c_str(), variantArg);
+    if (status != ER_OK) {
+        if (logger)
+            logger->warn(TAG, "Could not SetValue of property");
+        delete variantArg;
+        return status;
+    }
+    valueArg.SetOwnershipFlags(MsgArg::OwnsArgs, true);
+    return ((PropertyBusObject*)m_BusObjects[0])->SetValue(valueArg);
 }
 
 QStatus Property::setValue(uint32_t value)
 {
-    return defaultErrorSetValue();
+    if (m_ControlPanelMode == CONTROLLEE_MODE)
+        return defaultErrorSetValue();
+
+    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
+    if (!m_BusObjects.size()) {
+        if (logger)
+            logger->warn(TAG, "Cannot SetValue. BusObject is not set");
+        return ER_BUS_BUS_NOT_STARTED;
+    }
+
+    MsgArg valueArg;
+    MsgArg* variantArg = new MsgArg(AJPARAM_UINT32.c_str(), value);
+    QStatus status = valueArg.Set(AJPARAM_VAR.c_str(), variantArg);
+    if (status != ER_OK) {
+        if (logger)
+            logger->warn(TAG, "Could not SetValue of property");
+        delete variantArg;
+        return status;
+    }
+    valueArg.SetOwnershipFlags(MsgArg::OwnsArgs, true);
+    return ((PropertyBusObject*)m_BusObjects[0])->SetValue(valueArg);
 }
 
 QStatus Property::setValue(int32_t value)
 {
-    return defaultErrorSetValue();
+    if (m_ControlPanelMode == CONTROLLEE_MODE)
+        return defaultErrorSetValue();
+
+    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
+    if (!m_BusObjects.size()) {
+        if (logger)
+            logger->warn(TAG, "Cannot SetValue. BusObject is not set");
+        return ER_BUS_BUS_NOT_STARTED;
+    }
+
+    MsgArg valueArg;
+    MsgArg* variantArg = new MsgArg(AJPARAM_INT32.c_str(), value);
+    QStatus status = valueArg.Set(AJPARAM_VAR.c_str(), variantArg);
+    if (status != ER_OK) {
+        if (logger)
+            logger->warn(TAG, "Could not SetValue of property");
+        delete variantArg;
+        return status;
+    }
+    valueArg.SetOwnershipFlags(MsgArg::OwnsArgs, true);
+    return ((PropertyBusObject*)m_BusObjects[0])->SetValue(valueArg);
 }
 
 QStatus Property::setValue(uint64_t value)
 {
-    return defaultErrorSetValue();
+    if (m_ControlPanelMode == CONTROLLEE_MODE)
+        return defaultErrorSetValue();
+
+    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
+    if (!m_BusObjects.size()) {
+        if (logger)
+            logger->warn(TAG, "Cannot SetValue. BusObject is not set");
+        return ER_BUS_BUS_NOT_STARTED;
+    }
+
+    MsgArg valueArg;
+    MsgArg* variantArg = new MsgArg(AJPARAM_UINT64.c_str(), value);
+    QStatus status = valueArg.Set(AJPARAM_VAR.c_str(), variantArg);
+    if (status != ER_OK) {
+        if (logger)
+            logger->warn(TAG, "Could not SetValue of property");
+        delete variantArg;
+        return status;
+    }
+    valueArg.SetOwnershipFlags(MsgArg::OwnsArgs, true);
+    return ((PropertyBusObject*)m_BusObjects[0])->SetValue(valueArg);
 }
 
 QStatus Property::setValue(int64_t value)
 {
-    return defaultErrorSetValue();
+    if (m_ControlPanelMode == CONTROLLEE_MODE)
+        return defaultErrorSetValue();
+
+    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
+    if (!m_BusObjects.size()) {
+        if (logger)
+            logger->warn(TAG, "Cannot SetValue. BusObject is not set");
+        return ER_BUS_BUS_NOT_STARTED;
+    }
+
+    MsgArg valueArg;
+    MsgArg* variantArg = new MsgArg(AJPARAM_INT64.c_str(), value);
+    QStatus status = valueArg.Set(AJPARAM_VAR.c_str(), variantArg);
+    if (status != ER_OK) {
+        if (logger)
+            logger->warn(TAG, "Could not SetValue of property");
+        delete variantArg;
+        return status;
+    }
+    valueArg.SetOwnershipFlags(MsgArg::OwnsArgs, true);
+    return ((PropertyBusObject*)m_BusObjects[0])->SetValue(valueArg);
 }
 
 QStatus Property::setValue(double value)
 {
-    return defaultErrorSetValue();
+    if (m_ControlPanelMode == CONTROLLEE_MODE)
+        return defaultErrorSetValue();
+
+    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
+    if (!m_BusObjects.size()) {
+        if (logger)
+            logger->warn(TAG, "Cannot SetValue. BusObject is not set");
+        return ER_BUS_BUS_NOT_STARTED;
+    }
+
+    MsgArg valueArg;
+    MsgArg* variantArg = new MsgArg(AJPARAM_DOUBLE.c_str(), value);
+    QStatus status = valueArg.Set(AJPARAM_VAR.c_str(), variantArg);
+    if (status != ER_OK) {
+        if (logger)
+            logger->warn(TAG, "Could not SetValue of property");
+        delete variantArg;
+        return status;
+    }
+    valueArg.SetOwnershipFlags(MsgArg::OwnsArgs, true);
+    return ((PropertyBusObject*)m_BusObjects[0])->SetValue(valueArg);
 }
 
 QStatus Property::setValue(const char* value)
 {
-    return defaultErrorSetValue();
+    if (m_ControlPanelMode == CONTROLLEE_MODE)
+        return defaultErrorSetValue();
+
+    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
+    if (!m_BusObjects.size()) {
+        if (logger)
+            logger->warn(TAG, "Cannot SetValue. BusObject is not set");
+        return ER_BUS_BUS_NOT_STARTED;
+    }
+
+    MsgArg valueArg;
+    MsgArg* variantArg = new MsgArg(AJPARAM_STR.c_str(), value);
+    QStatus status = valueArg.Set(AJPARAM_VAR.c_str(), variantArg);
+    if (status != ER_OK) {
+        if (logger)
+            logger->warn(TAG, "Could not SetValue of property");
+        delete variantArg;
+        return status;
+    }
+    valueArg.SetOwnershipFlags(MsgArg::OwnsArgs, true);
+    return ((PropertyBusObject*)m_BusObjects[0])->SetValue(valueArg);
 }
 
 QStatus Property::setValue(const CPSDate& value)
 {
-    return defaultErrorSetValue();
+    if (m_ControlPanelMode == CONTROLLEE_MODE)
+        return defaultErrorSetValue();
+
+    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
+    if (!m_BusObjects.size()) {
+        if (logger)
+            logger->warn(TAG, "Cannot SetValue. BusObject is not set");
+        return ER_BUS_BUS_NOT_STARTED;
+    }
+
+    MsgArg valueArg;
+    MsgArg* variantArg = new MsgArg(AJPARAM_DATE_OR_TIME.c_str(), DATE_PROPERTY_TYPE, value.getDay(), value.getMonth(), value.getYear());
+    QStatus status = valueArg.Set(AJPARAM_VAR.c_str(), variantArg);
+    if (status != ER_OK) {
+        if (logger)
+            logger->warn(TAG, "Could not SetValue of property");
+        delete variantArg;
+        return status;
+    }
+    valueArg.SetOwnershipFlags(MsgArg::OwnsArgs, true);
+    return ((PropertyBusObject*)m_BusObjects[0])->SetValue(valueArg);
 }
 
 QStatus Property::setValue(const CPSTime& value)
 {
-    return defaultErrorSetValue();
+    if (m_ControlPanelMode == CONTROLLEE_MODE)
+        return defaultErrorSetValue();
+
+    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
+    if (!m_BusObjects.size()) {
+        if (logger)
+            logger->warn(TAG, "Cannot SetValue. BusObject is not set");
+        return ER_BUS_BUS_NOT_STARTED;
+    }
+
+    MsgArg valueArg;
+    MsgArg* variantArg = new MsgArg(AJPARAM_DATE_OR_TIME.c_str(), TIME_PROPERTY_TYPE, value.getHour(), value.getMinute(), value.getSecond());
+    QStatus status = valueArg.Set(AJPARAM_VAR.c_str(), variantArg);
+    if (status != ER_OK) {
+        if (logger)
+            logger->warn(TAG, "Could not SetValue of property");
+        delete variantArg;
+        return status;
+    }
+    valueArg.SetOwnershipFlags(MsgArg::OwnsArgs, true);
+    return ((PropertyBusObject*)m_BusObjects[0])->SetValue(valueArg);
 }
 
 } /* namespace services */
