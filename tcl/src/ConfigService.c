@@ -75,7 +75,7 @@ AJ_Status ConfigGetConfigurations(AJ_Message* msg)
     AJ_Status status = AJ_OK;
     AJ_Message reply;
     char* language;
-    int8_t langIndex = 0;
+    enum_lang_indecies_t langIndex = ERROR_LANGUAGE_INDEX;
 
     AJ_Printf("GetConfigurations()\n");
 
@@ -85,7 +85,7 @@ AJ_Status ConfigGetConfigurations(AJ_Message* msg)
 
     do {
         CHECK(AJ_UnmarshalArgs(msg, "s", &language));
-        if ((langIndex = Common_IsLanguageSupported(msg, &reply, language)) >= 0) {
+        if (Common_IsLanguageSupported(msg, &reply, language, &langIndex)) {
             CHECK(AJ_MarshalReplyMsg(msg, &reply));
             CHECK(PropertyStore_ReadAll(&reply, filter, langIndex));
         }
@@ -98,14 +98,19 @@ AJ_Status ConfigGetConfigurations(AJ_Message* msg)
 static uint8_t Config_IsValueValid(AJ_Message* msg, AJ_Message* reply, const char* key, const char* value)
 {
     if (strcmp(PropertyStore_GetFieldNameForIndex(DefaultLanguage), key) == 0) { // Check that if language was updated that it is supported
-        if (Common_IsLanguageSupported(msg, reply, value) >= 0) {
+        if (Common_IsLanguageSupported(msg, reply, value, NULL)) {
             return TRUE;
         }
-    } else if (strcmp(PropertyStore_GetFieldNameForIndex(DeviceName), key) == 0) { // Check that if device name was updated that it does not exceed maximum length
-        if (strlen(value) <= DEVICE_NAME_VALUE_LENGTH) {
-            return TRUE;
+    } else if (strcmp(PropertyStore_GetFieldNameForIndex(DeviceName), key) == 0) { // Check that if device name was updated
+        if (strlen(value) <= DEVICE_NAME_VALUE_LENGTH) {                           // that it does not exceed maximum length
+            if (strlen(value) > 0) {                                               // that it is not empty
+                return TRUE;
+            } else {
+                AJ_MarshalErrorMsg(msg, reply, InvalidValue);
+            }
+        } else {
+            AJ_MarshalErrorMsg(msg, reply, MaxSizeExceeded);
         }
-        AJ_MarshalErrorMsg(msg, reply, MaxSizeExceeded);
     } else {
         if (App_IsValueValid(key, value)) {
             return TRUE;
@@ -125,7 +130,7 @@ AJ_Status ConfigUpdateConfigurations(AJ_Message* msg)
     char* sig;
     char* value;
     char* language;
-    int8_t langIndex = ERROR_LANGUAGE_INDEX;
+    enum_lang_indecies_t langIndex = ERROR_LANGUAGE_INDEX;
     uint8_t numOfUpdatedItems = 0;
 
     AJ_Printf("UpdateConfigurations()\n");
@@ -134,7 +139,7 @@ AJ_Status ConfigUpdateConfigurations(AJ_Message* msg)
         CHECK(AJ_UnmarshalArgs(msg, "s", &language));
         AJ_Printf("Lang=%s\n", language);
 
-        if ((langIndex = Common_IsLanguageSupported(msg, &reply, language)) >= 0) {
+        if (Common_IsLanguageSupported(msg, &reply, language, &langIndex)) {
             CHECK(AJ_MarshalReplyMsg(msg, &reply));
             CHECK(AJ_UnmarshalContainer(msg, &array, AJ_ARG_ARRAY));
             while (1) {
@@ -146,6 +151,8 @@ AJ_Status ConfigUpdateConfigurations(AJ_Message* msg)
                 if (Config_IsValueValid(msg, &reply, key, value)) {
                     if (PropertyStore_Update(key, langIndex, value) == AJ_OK) {
                         numOfUpdatedItems++;
+                    } else {
+                        AJ_MarshalErrorMsg(msg, &reply, UpdateNotAllowed);
                     }
                 }
                 CHECK(AJ_UnmarshalCloseContainer(msg, &dict));
@@ -173,7 +180,7 @@ AJ_Status ConfigResetConfigurations(AJ_Message* msg)
     AJ_Message reply;
     char* key;
     char* language;
-    int8_t langIndex = ERROR_LANGUAGE_INDEX;
+    enum_lang_indecies_t langIndex = ERROR_LANGUAGE_INDEX;
     uint8_t numOfDeletedItems = 0;
 
     AJ_Printf("ResetConfigurations()\n");
@@ -181,7 +188,7 @@ AJ_Status ConfigResetConfigurations(AJ_Message* msg)
     do {
         CHECK(AJ_UnmarshalArgs(msg, "s", &language));
         AJ_Printf("Lang=%s\n", language);
-        if ((langIndex = Common_IsLanguageSupported(msg, &reply, language)) >= 0) {
+        if (Common_IsLanguageSupported(msg, &reply, language, &langIndex)) {
             CHECK(AJ_MarshalReplyMsg(msg, &reply));
             CHECK(AJ_UnmarshalContainer(msg, &array, AJ_ARG_ARRAY));
             while (1) {
@@ -189,6 +196,8 @@ AJ_Status ConfigResetConfigurations(AJ_Message* msg)
                 AJ_Printf("Key=%s\n", key);
                 if (PropertyStore_Reset(key, langIndex) == AJ_OK) {
                     numOfDeletedItems++;
+                } else {
+                    AJ_MarshalErrorMsg(msg, &reply, UpdateNotAllowed);
                 }
             }
             if (status != AJ_OK && status != AJ_ERR_NO_MORE) {
