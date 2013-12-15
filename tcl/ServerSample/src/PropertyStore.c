@@ -65,7 +65,7 @@ static enum_lang_indecies_t GetLanguageIndexForProperty(enum_lang_indecies_t lan
 
 const char* PropertyStore_GetValueForLang(enum_field_indecies_t fieldIndex, enum_lang_indecies_t langIndex)
 {
-    if (fieldIndex <= ERROR_FIELD_INDEX || fieldIndex >= NUMBER_OF_KEYS || langIndex <= ERROR_LANGUAGE_INDEX || langIndex >= NUMBER_OF_LANGUAGES) {
+    if ((int8_t)fieldIndex <= (int8_t)ERROR_FIELD_INDEX || (int8_t)fieldIndex >= (int8_t)NUMBER_OF_KEYS || (int8_t)langIndex <= (int8_t)ERROR_LANGUAGE_INDEX || (int8_t)langIndex >= (int8_t)NUMBER_OF_LANGUAGES) {
         return NULL;
     }
 
@@ -119,7 +119,7 @@ enum_lang_indecies_t PropertyStore_GetLanguageIndex(const char* const language)
 
 uint8_t PropertyStore_SetValueForLang(enum_field_indecies_t fieldIndex, enum_lang_indecies_t langIndex, const char* value)
 {
-    if (fieldIndex <= ERROR_FIELD_INDEX || fieldIndex >= NUMBER_OF_CONFIG_KEYS || langIndex <= ERROR_LANGUAGE_INDEX || langIndex >= NUMBER_OF_LANGUAGES) {
+    if ((int8_t)fieldIndex <= (int8_t)ERROR_FIELD_INDEX || (int8_t)fieldIndex >= (int8_t)NUMBER_OF_CONFIG_KEYS || (int8_t)langIndex <= (int8_t)ERROR_LANGUAGE_INDEX || (int8_t)langIndex >= (int8_t)NUMBER_OF_LANGUAGES) {
         return FALSE;
     }
 
@@ -141,7 +141,7 @@ enum_lang_indecies_t PropertyStore_GetCurrentDefaultLanguageIndex()
 {
     const char* currentDefaultLanguage = PropertyStore_GetValue(DefaultLanguage);
     enum_lang_indecies_t currentDefaultLanguageIndex = PropertyStore_GetLanguageIndex(currentDefaultLanguage);
-    if (currentDefaultLanguageIndex == ERROR_LANGUAGE_INDEX) {
+    if ((int8_t)currentDefaultLanguageIndex == (int8_t)ERROR_LANGUAGE_INDEX) {
         currentDefaultLanguageIndex = NO_LANGUAGE_INDEX;
         AJ_Printf("Failed to find default language %s defaulting to %s", (currentDefaultLanguage != NULL ? currentDefaultLanguage : "NULL"), theDefaultLanguages[currentDefaultLanguageIndex]);
     }
@@ -386,6 +386,7 @@ AJ_Status PropertyStore_Update(const char* key, enum_lang_indecies_t langIndex, 
 AJ_Status PropertyStore_Reset(const char* key, enum_lang_indecies_t langIndex)
 {
     if (DeleteFieldFromRAM(PropertyStore_GetIndexOfField(key), langIndex)) {
+        InitMandatoryPropertiesInRAM();
         return AJ_OK;
     }
 

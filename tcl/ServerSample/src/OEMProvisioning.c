@@ -136,7 +136,7 @@ AJ_Status App_SetPasscode(const char* daemonRealm, const char* newStringPasscode
     do {
         if (PropertyStore_SetValue(RealmName, daemonRealm) && PropertyStore_SetValue(Passcode, newStringPasscode)) {
             CHECK(PropertyStore_SaveAll());
-            CHECK(AJ_ClearCredentials());
+            /*CHECK(*/ AJ_ClearCredentials() /*)*/;
             status = AJ_ERR_READ; //Force disconnect of AJ and services to refresh current sessions
         } else {
             CHECK(PropertyStore_LoadAll());
@@ -158,7 +158,7 @@ uint8_t App_IsValueValid(const char* key, const char* value)
  */
 const uint8_t OBS_SoftAPIsHidden = FALSE;
 /**
- * SoftAP passpharse. If NULL means OPEN network otherwise assumes WPA2 up to 63 characters.
+ * SoftAP passpharse. If NULL means OPEN network otherwise assumes WPA2 from 8 up to 63 characters.
  */
 const char* OBS_SoftAPPassphrase = NULL;
 /**
