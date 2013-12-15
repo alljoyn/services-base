@@ -61,7 +61,7 @@ AJ_Status ConsumerSetSignalRules(AJ_BusAttachment* bus, int8_t superAgentMode, c
     if (senderBusName == 0) {
         AJ_Printf("Running SetSignalRules - Adding Notification interface.\n");
 
-        status = BusSetSignalRule(bus, notificationMatch, AJ_BUS_SIGNAL_ALLOW);
+        status = AJ_BusSetSignalRuleFlags(bus, notificationMatch, AJ_BUS_SIGNAL_ALLOW, AJ_FLAG_NO_REPLY_EXPECTED);
         if (status != AJ_OK) {
             AJ_Printf("Could not set Notification Interface AddMatch\n");
             return status;
@@ -69,7 +69,7 @@ AJ_Status ConsumerSetSignalRules(AJ_BusAttachment* bus, int8_t superAgentMode, c
 
         if (superAgentMode) {
             AJ_Printf("Running SetSignalRules - Adding Superagent interface.\n");
-            status = BusSetSignalRule(bus, superAgentMatch, AJ_BUS_SIGNAL_ALLOW);
+            status = AJ_BusSetSignalRuleFlags(bus, superAgentMatch, AJ_BUS_SIGNAL_ALLOW, AJ_FLAG_NO_REPLY_EXPECTED);
             if (status != AJ_OK) {
                 AJ_Printf("Could not set Notification Interface AddMatch\n");
                 return status;
@@ -79,7 +79,7 @@ AJ_Status ConsumerSetSignalRules(AJ_BusAttachment* bus, int8_t superAgentMode, c
         AJ_Printf("Running SetSignalRules with sender bus name.\n");
 
         AJ_Printf("Removing Notification match.\n");
-        status = BusSetSignalRule(bus, notificationMatch, AJ_BUS_SIGNAL_DENY);
+        status = AJ_BusSetSignalRuleFlags(bus, notificationMatch, AJ_BUS_SIGNAL_DENY, AJ_FLAG_NO_REPLY_EXPECTED);
         if (status != AJ_OK) {
             AJ_Printf("Could not remove Notification Interface match\n");
             return status;
@@ -93,14 +93,14 @@ AJ_Status ConsumerSetSignalRules(AJ_BusAttachment* bus, int8_t superAgentMode, c
 
         AJ_Printf("Re-adding superagent match with sender bus name %s.\n", senderBusName);
 
-        status = BusSetSignalRule(bus, senderMatch, AJ_BUS_SIGNAL_ALLOW);
+        status = AJ_BusSetSignalRuleFlags(bus, senderMatch, AJ_BUS_SIGNAL_ALLOW, AJ_FLAG_NO_REPLY_EXPECTED);
         if (status != AJ_OK) {
             AJ_Printf("Could not add SuperAgent specific match\n");
             return status;
         }
 
         AJ_Printf("Removing Superagent match.\n");
-        status = BusSetSignalRule(bus, superAgentMatch, AJ_BUS_SIGNAL_DENY);
+        status = AJ_BusSetSignalRuleFlags(bus, superAgentMatch, AJ_BUS_SIGNAL_DENY, AJ_FLAG_NO_REPLY_EXPECTED);
         if (status != AJ_OK) {
             AJ_Printf("Could not remove SuperAgent Interface match\n");
             return status;

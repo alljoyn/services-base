@@ -17,6 +17,12 @@
 #include <NotificationConsumerSample.h>
 #include <alljoyn/notification/NotificationConsumer.h>
 
+#ifdef QCC_OS_LINUX
+#include <consumer_sample_util.h>
+#else
+#define Consumer_SetupEnv(x) do { } while (0)
+#endif
+
 static int8_t superAgentMode = 1;
 
 void Consumer_Init()
