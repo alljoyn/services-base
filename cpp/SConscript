@@ -19,7 +19,8 @@ if not onb_env.has_key('_ALLJOYNCORE_'):
     onb_env.Append(LIBS = ['alljoyn'])
     if onb_env['BD'] == 'on' :
         bdFile = onb_env.subst('$DISTDIR') + '/cpp/lib/BundledDaemon.o'
-        onb_env.Prepend(LIBS = [File(bdFile), 'ajdaemon'])        
+        onb_env['bdobj'] = bdFile
+        onb_env['bdlib'] = 'ajdaemon'
     if onb_env['OS'] == 'openwrt':
         onb_env.AppendUnique(LIBS = [ 'stdc++', 'pthread' ])
 
