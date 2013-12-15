@@ -22,18 +22,17 @@ env['_ALLJOYN_SERVER_SAMPLE_'] = True
 #env.Append(LIBPATH = '$DISTDIR/onboarding/lib');
 #env.Append(CPPPATH = '$DISTDIR/onboarding/inc');
 
-if not env.has_key('_ALLJOYN_ABOUT_') and os.path.exists('../../services/about/SConscript'):
-    env.SConscript('../../services/about/SConscript')
+if not env.has_key('_ALLJOYN_ABOUT_') and os.path.exists('../../core/alljoyn/services/about/SConscript'):
+    env.SConscript('../../core/alljoyn/services/about/SConscript')
 
 if not env.has_key('_ALLJOYN_CONFIG_') and os.path.exists('../../services/config/SConscript'):
     env.SConscript('../../services/config/SConscript')
 
-#if not env.has_key('_ALLJOYN_NOTIFICATION_') and os.path.exists('../../services/notification/SConscript'):
-#    env.SConscript('../../services/notification/SConscript')
+if not env.has_key('_ALLJOYN_NOTIFICATION_') and os.path.exists('../../services/notification/SConscript'):
+    env.SConscript('../../services/notification/SConscript')
 
 if not env.has_key('_ALLJOYN_ONBOARDING_') and os.path.exists('../../services/onboarding/SConscript'):
     env.SConscript('../../services/onboarding/SConscript')
-
 
 if not env.has_key('_ALLJOYN_CONTROLPANEL_') and os.path.exists('../../services/controlpanel/SConscript'):
     env.SConscript('../../services/controlpanel/SConscript')
@@ -41,11 +40,11 @@ if not env.has_key('_ALLJOYN_CONTROLPANEL_') and os.path.exists('../../services/
 if not env.has_key('_ALLJOYN_SERVICES_COMMON_') and os.path.exists('../../services/services_common/SConscript'):
     env.SConscript('../../services/services_common/SConscript')
 
-if 'cpp' in env['bindings'] and not env.has_key('_ALLJOYNCORE_') and os.path.exists('../../alljoyn_core/SConscript'):
-   env.SConscript('../../alljoyn_core/SConscript')
+if 'cpp' in env['bindings'] and not env.has_key('_ALLJOYNCORE_') and os.path.exists('../../core/alljoyn/alljoyn_core/SConscript'):
+    env.SConscript('../../core/alljoyn/alljoyn_core/SConscript')
 
-if 'java' in env['bindings'] and not env.has_key('_ALLJOYN_JAVA_') and os.path.exists('../../alljoyn_java/SConscript'):
-   env.SConscript('../../alljoyn_java/SConscript')
+if 'java' in env['bindings'] and not env.has_key('_ALLJOYN_JAVA_') and os.path.exists('../../core/alljoyn/alljoyn_java/SConscript'):
+    env.SConscript('../../core/alljoyn/alljoyn_java/SConscript')
 
 server_sample_env = env.Clone()
 
