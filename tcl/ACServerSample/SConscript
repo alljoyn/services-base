@@ -21,11 +21,11 @@
 #       CPS_ROOT=/path/to/nonstandard/location/controlpanel/tcl/samples/sampleapp \
 #       AJ_TCL_ROOT=/path/to/ajtcl
 
-services_common_root_default = '../../../../services/services_common/tcl'
-about_root_default           = '../../../../services/about/tcl'
-config_root_default          = '../../../../services/config/tcl'
-notification_root_default    = '../../../../services/notification/tcl'
-cps_root_default             = '../../../../services/controlpanel/tcl/samples/ACControlleeSample'
+services_common_root_default = '../../../services_common/tcl'
+about_root_default           = '../../../../core/about_tcl/tcl'
+config_root_default          = '../../../config/tcl'
+notification_root_default    = '../../../notification/tcl'
+cps_root_default             = '../../../controlpanel/tcl/samples/ACControlleeSample'
 
 import os
 

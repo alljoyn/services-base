@@ -13,7 +13,7 @@
 #    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 import os.path
-ajtcl_root_default = '../../../../ajtcl'
+ajtcl_root_default = '../../../../core/ajtcl'
 ajtcl_root = ARGUMENTS.get('AJ_TCL_ROOT', ajtcl_root_default)
 if not os.path.isfile(ajtcl_root + '/SConscript'):
     print "SConscript in 'AJ_TCL_ROOT=" + ajtcl_root + "' not found; aborting.\n"
