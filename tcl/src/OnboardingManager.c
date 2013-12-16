@@ -29,6 +29,7 @@ OBScanInfo obScanInfos[OBS_MAX_SCAN_INFOS];
 uint8_t obScanInfoCount = 0;
 AJ_Time obRetryTimer;
 uint8_t bTimerActivated = FALSE;
+uint8_t bFirstStart = TRUE;
 
 /* SoftAP state variable for AJTCL */
 extern uint8_t IsSoftAP;
@@ -355,7 +356,7 @@ static AJ_Status OBM_EnableSoftAP(const char* ssid, A_UINT8 hidden, const char* 
 
     status = AJ_EnableSoftAP(ssid, hidden, passphrase);
     if (status != AJ_OK) {
-        AJ_Printf("ConfigureWifi error\n");
+        AJ_Printf("EnableSoftAP error\n");
         return status;
     }
 
@@ -532,6 +533,13 @@ AJ_Status OBCAPI_StartSoftAPIfNeededOrConnect(OBInfo* obInfo)
 {
     AJ_Status status = AJ_OK;
 
+    // Check if just started
+    if (bFirstStart) {
+        bFirstStart = FALSE;
+        if (obInfo->state == CONFIGURED_RETRY) {
+            obInfo->state = CONFIGURED_VALIDATED;
+        }
+    }
     while (1) {
         // Check if require to switch into AP mode.
         if ((obInfo->state == NOT_CONFIGURED || obInfo->state == CONFIGURED_ERROR || obInfo->state == CONFIGURED_RETRY)) {
@@ -542,8 +550,6 @@ AJ_Status OBCAPI_StartSoftAPIfNeededOrConnect(OBInfo* obInfo)
                 status = OBM_EnableSoftAP(softApSSID, OBS_SoftAPIsHidden, OBS_SoftAPPassphrase);
                 if (AJ_OK == status) {
                     if (obInfo->state == CONFIGURED_RETRY) {
-                        obInfo->state = CONFIGURED_VALIDATED;
-                        status = OBS_WriteInfo(obInfo);
                         AJ_Printf("Retry timer activated\n");
                         AJ_InitTimer(&obRetryTimer);
                         bTimerActivated = TRUE;
@@ -554,17 +560,21 @@ AJ_Status OBCAPI_StartSoftAPIfNeededOrConnect(OBInfo* obInfo)
              * Wait until a remote station connects
              */
             AJ_Printf("Waiting for remote station to connect\n");
-            while (AJ_GetWifiConnectState() != AJ_WIFI_STATION_OK) {
+            AJ_WiFiConnectState wifiConnectState = AJ_GetWifiConnectState();
+            while (wifiConnectState != AJ_WIFI_STATION_OK) {
                 //check for timer elapsed for retry
                 if (bTimerActivated) {
                     uint32_t elapsed = AJ_GetElapsedTime(&obRetryTimer, TRUE);
                     if (elapsed > OBS_WAIT_BETWEEN_RETRIES) {
                         AJ_Printf("Retry timer elapsed at %ums\n", OBS_WAIT_BETWEEN_RETRIES);
+                        obInfo->state = CONFIGURED_VALIDATED;
+                        status = OBS_WriteInfo(obInfo);
                         break;
                     }
                 }
                 AJ_Sleep(100);
-                if (AJ_GetWifiConnectState() != AJ_WIFI_SOFT_AP_UP) {
+                wifiConnectState = AJ_GetWifiConnectState();
+                if (wifiConnectState != AJ_WIFI_SOFT_AP_UP) {
                     break;
                 }
             }
@@ -616,3 +626,4 @@ AJ_Status OBCAPI_DoOffboardWiFi()
 
     return status;
 }
+
