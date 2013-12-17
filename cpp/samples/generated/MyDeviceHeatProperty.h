@@ -14,33 +14,25 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#ifndef CONTROLPANELPROPERTYTYPE_H_
-#define CONTROLPANELPROPERTYTYPE_H_
+#ifndef MYDEVICEHEATPROPERTY_H_
+#define MYDEVICEHEATPROPERTY_H_
 
-#include <qcc/String.h>
+#include <alljoyn/controlpanel/Property.h>
 
 namespace ajn {
 namespace services {
 
 /**
- * Enum to define the type of Property
+ * Generated class
  */
-enum PropertyType {
-    BOOL_PROPERTY = 0,  //!< BOOL_PROPERTY
-    UINT16_PROPERTY = 1, //!< UINT16_PROPERTY
-    INT16_PROPERTY = 2, //!< INT16_PROPERTY
-    UINT32_PROPERTY = 3, //!< UINT32_PROPERTY
-    INT32_PROPERTY = 4, //!< INT32_PROPERTY
-    UINT64_PROPERTY = 5, //!< UINT64_PROPERTY
-    INT64_PROPERTY = 6, //!< INT64_PROPERTY
-    DOUBLE_PROPERTY = 7, //!< DOUBLE_PROPERTY
-    STRING_PROPERTY = 8, //!< STRING_PROPERTY
-    DATE_PROPERTY = 9,  //!< DATE_PROPERTY
-    TIME_PROPERTY = 10, //!< TIME_PROPERTY
-    UNDEFINED = 11      //!< UNDEFINED
-};
+class MyDeviceHeatProperty : public ajn::services::Property {
+  public:
+    MyDeviceHeatProperty(qcc::String name, Widget* rootWidget, PropertyType propertyType);
+    virtual ~MyDeviceHeatProperty();
 
+    QStatus setValue(uint16_t value);
+};
 } //namespace services
 } //namespace ajn
 
-#endif /* CONTROLPANELPROPERTYTYPE_H_ */
+#endif /* MYDEVICEHEATPROPERTY_H_ */

@@ -14,29 +14,27 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#include "OvenAction.h"
-#include "ControlPanelProvided.h"
+#ifndef MYDEVICELIGHTCONFIRM_H_
+#define MYDEVICELIGHTCONFIRM_H_
+
+#include <alljoyn/controlpanel/Dialog.h>
 
 namespace ajn {
 namespace services {
 
-OvenAction::OvenAction(qcc::String name) : Action(name)
-{
+/**
+ * Generated class
+ */
+class MyDeviceLightConfirm : public ajn::services::Dialog {
+  public:
+    MyDeviceLightConfirm(qcc::String name, Widget* rootWidget);
+    virtual ~MyDeviceLightConfirm();
 
-}
+    bool executeAction1CallBack();
+    bool executeAction2CallBack();
+    bool executeAction3CallBack();
+};
+} //namespace services
+} //namespace ajn
 
-OvenAction::~OvenAction()
-{
-
-}
-
-bool OvenAction::executeCallBack()
-{
-    AJ_Printf("Starting the Oven. Execute was called\n");
-
-    //by default return success
-    return true;
-}
-
-} /* namespace services */
-} /* namespace ajn */
+#endif /* MYDEVICELIGHTCONFIRM_H_ */

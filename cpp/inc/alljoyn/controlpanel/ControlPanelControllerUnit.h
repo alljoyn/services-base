@@ -14,8 +14,8 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#ifndef CONTROLPANELUNIT_H_
-#define CONTROLPANELUNIT_H_
+#ifndef CONTROLPANELCONTROLLERUNIT_H_
+#define CONTROLPANELCONTROLLERUNIT_H_
 
 #include <qcc/String.h>
 #include <alljoyn/Status.h>
@@ -27,11 +27,12 @@ namespace services {
 
 class ControlPanelDevice;
 class ControlPanel;
+class NotificationAction;
 
 /**
  * Class that represents a ControlPanel Unit.
  */
-class ControlPanelUnit {
+class ControlPanelControllerUnit {
   public:
 
     /**
@@ -39,12 +40,53 @@ class ControlPanelUnit {
      * @param unitName
      * @param device
      */
-    ControlPanelUnit(qcc::String const& unitName, ControlPanelDevice* device);
+    ControlPanelControllerUnit(qcc::String const& unitName, ControlPanelDevice* device);
 
     /**
      * ~ControlPanelUnit()
      */
-    virtual ~ControlPanelUnit();
+    virtual ~ControlPanelControllerUnit();
+
+    /**
+     * add a HttpControl
+     * @param objectPath of HTTPControl
+     * @return status - success/failure
+     */
+    QStatus addHttpControl(qcc::String const& objectPath);
+
+    /**
+     * addControlPanel
+     * @param objectPath
+     * @param panelName
+     * @return status - success/failure
+     */
+    QStatus addControlPanel(qcc::String const& objectPath, qcc::String const& panelName);
+
+    /**
+     * addNotificationAction to controlpanel unit
+     * @param objectPath the objectpath of the notification action
+     * @param actionName - the actionName parsed from the objectpath
+     * @return status - success/failure
+     */
+    QStatus addNotificationAction(qcc::String const& objectPath, qcc::String const& actionName);
+
+    /**
+     * remove a Notification Action
+     * @param actionName
+     * @return status - success/failure
+     */
+    QStatus removeNotificationAction(qcc::String const& actionName);
+
+    /**
+     * Fill control panels and the HTTPControl
+     */
+    QStatus registerObjects();
+
+    /**
+     * Called when shutting down device
+     * @return status - success/failure
+     */
+    QStatus shutdownUnit();
 
     /**
      * getDevice()
@@ -59,34 +101,30 @@ class ControlPanelUnit {
     const qcc::String& getUnitName() const;
 
     /**
-     * add a HttpControl
-     * @param objectPath of HTTPControl
-     */
-    QStatus addHttpControl(qcc::String const& objectPath);
-
-    /**
-     * addControlPanel
-     * @param objectPath
-     * @param panelName
-     */
-    QStatus addControlPanel(qcc::String const& objectPath, qcc::String const& panelName);
-
-    /**
-     * Fill control panels and the HTTPControl
-     */
-    QStatus registerObjects();
-
-    /**
-     * Called when shutting down device
-     * @return status - success/failure
-     */
-    QStatus shutdownUnit();
-
-    /**
      * Get the ControlPanels of the Unit
      * @return controlPanels map
      */
     const std::map<qcc::String, ControlPanel*>& getControlPanels() const;
+
+    /**
+     * Get the NotificationActions of the Unit
+     * @return NotificationActions map
+     */
+    const std::map<qcc::String, NotificationAction*>& getNotificationActions() const;
+
+    /**
+     * Get a ControlPanel of the Unit
+     * @param panelName - name of the Panel to get
+     * @return ControlPanel or NULL if it doesn't' exist
+     */
+    ControlPanel* getControlPanel(qcc::String const& panelName) const;
+
+    /**
+     * Get a NotificationAction of the Unit
+     * @param actionName - name of the NotificaitonAction to get
+     * @return NotificationAction or NULL if it doesn't exist
+     */
+    NotificationAction* getNotificationAction(qcc::String const& actionName) const;
 
     /**
      * Get the HttpControl of the Unit
@@ -112,6 +150,11 @@ class ControlPanelUnit {
     std::map<qcc::String, ControlPanel*> m_ControlPanels;
 
     /**
+     * The NotificationActions of this Unit
+     */
+    std::map<qcc::String, NotificationAction*> m_NotificationActions;
+
+    /**
      * The HTTPControl of the Unit
      */
     HttpControl* m_HttpControl;
@@ -119,4 +162,4 @@ class ControlPanelUnit {
 
 } /* namespace services */
 } /* namespace ajn */
-#endif /* CONTROLPANELUNIT_H_ */
+#endif /* CONTROLPANELCONTROLLERUNIT_H_ */

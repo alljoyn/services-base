@@ -14,23 +14,24 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#include "LightConfirm.h"
+#include "MyDeviceAreYouSure.h"
 #include "ControlPanelProvided.h"
+
 
 namespace ajn {
 namespace services {
 
-LightConfirm::LightConfirm(qcc::String name) : Dialog(name)
+MyDeviceAreYouSure::MyDeviceAreYouSure(qcc::String name, Widget* rootWidget) : Dialog(name, rootWidget)
 {
 
 }
 
-LightConfirm::~LightConfirm()
+MyDeviceAreYouSure::~MyDeviceAreYouSure()
 {
 
 }
 
-bool LightConfirm::executeAction1CallBack()
+bool MyDeviceAreYouSure::executeAction1CallBack()
 {
     AJ_Printf("Execute Action1 was called\n");
 
@@ -38,17 +39,17 @@ bool LightConfirm::executeAction1CallBack()
     return true;
 }
 
-bool LightConfirm::executeAction2CallBack()
+bool MyDeviceAreYouSure::executeAction2CallBack()
 {
-    AJ_Printf("Execute Action2 was called\n");
+    return executeActionNotDefined();
 
     //by default return success
     return true;
 }
 
-bool LightConfirm::executeAction3CallBack()
+bool MyDeviceAreYouSure::executeAction3CallBack()
 {
-    AJ_Printf("Execute Action3 was called\n");
+    return executeActionNotDefined();
 
     //by default return success
     return true;

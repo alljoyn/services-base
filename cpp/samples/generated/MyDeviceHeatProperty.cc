@@ -14,31 +14,29 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#ifndef WIDGETFACTORY_H_
-#define WIDGETFACTORY_H_
+#include "MyDeviceHeatProperty.h"
+#include "ControlPanelProvided.h"
 
-#include "../BusObjects/IntrospectionNode.h"
-#include <alljoyn/controlpanel/Widget.h>
 
 namespace ajn {
 namespace services {
 
-/**
- * Class used to create Widgets based on widgetType
- */
-class WidgetFactory {
-  public:
+MyDeviceHeatProperty::MyDeviceHeatProperty(qcc::String name, Widget* rootWidget, PropertyType propertyType) :
+    Property(name, rootWidget, propertyType)
+{
 
-    /**
-     * Create Widget based on WidgetType passed in
-     * @param name - name of Widget
-     * @param device - device that contains Widget
-     * @param widgetType - type of widget to create
-     * @return newly created widget or NULL if error
-     */
-    static Widget* createWidget(qcc::String const& name, ControlPanelDevice* device, WidgetType widgetType);
-};
+}
+
+MyDeviceHeatProperty::~MyDeviceHeatProperty()
+{
+
+}
+
+QStatus MyDeviceHeatProperty::setValue(uint16_t value)
+{
+    setuint16Var(value);
+    return ER_OK;
+}
 
 } /* namespace services */
 } /* namespace ajn */
-#endif /* WIDGETFACTORY_H_ */

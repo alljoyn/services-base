@@ -14,43 +14,46 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#ifndef WIDGETENUMS_H_
-#define WIDGETENUMS_H_
+#include "MyDeviceLightConfirm.h"
+#include "ControlPanelProvided.h"
+
 
 namespace ajn {
 namespace services {
 
-#ifndef UINT32_MAX
-#define UINT32_MAX      (4294967295U)
-#endif
+MyDeviceLightConfirm::MyDeviceLightConfirm(qcc::String name, Widget* rootWidget) : Dialog(name, rootWidget)
+{
 
-/*
- * Typedefs for functionPointers used
- */
-typedef bool (*GetBoolFptr)();
-typedef uint32_t (*GetUint32Fptr)();
-typedef const char* (*GetStringFptr)(uint16_t);
+}
 
-/**
- * Mode Widget is in
- */
-typedef enum {
-    CONTROLLEE_WIDGET, //!< CONTROLLEE_WIDGET
-    CONTROLLER_WIDGET //!< CONTROLLER_WIDGET
-} WidgetMode;
+MyDeviceLightConfirm::~MyDeviceLightConfirm()
+{
 
-typedef enum {
-    CONTAINER = 0,
-    ACTION = 1,
-    ACTION_WITH_DIALOG = 2,
-    LABEL = 3,
-    PROPERTY = 4,
-    DIALOG = 5
-} WidgetType;
+}
 
-} //namespace services
-} //namespace ajn
+bool MyDeviceLightConfirm::executeAction1CallBack()
+{
+    AJ_Printf("Execute Action1 was called\n");
 
-#endif /* WIDGETENUMS_H_ */
+    //by default return success
+    return true;
+}
 
+bool MyDeviceLightConfirm::executeAction2CallBack()
+{
+    AJ_Printf("Execute Action2 was called\n");
 
+    //by default return success
+    return true;
+}
+
+bool MyDeviceLightConfirm::executeAction3CallBack()
+{
+    AJ_Printf("Execute Action3 was called\n");
+
+    //by default return success
+    return true;
+}
+
+} /* namespace services */
+} /* namespace ajn */

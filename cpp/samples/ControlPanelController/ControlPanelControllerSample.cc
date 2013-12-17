@@ -19,10 +19,12 @@
 #include <cstdio>
 #include <signal.h>
 #include <alljoyn/about/AnnouncementRegistrar.h>
+#include <alljoyn/notification/NotificationService.h>
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include <alljoyn/controlpanel/ControlPanelController.h>
 #include <alljoyn/services_common/GenericLogger.h>
 #include "ControlPanelListenerImpl.h"
+#include "ControllerNotificationReceiver.h"
 #include <SrpKeyXListener.h>
 #include <CommonSampleUtil.h>
 #include <AnnounceHandlerImpl.h>
@@ -38,7 +40,9 @@ ControlPanelService* controlPanelService = 0;
 ControlPanelController* controlPanelController = 0;
 ControlPanelListenerImpl* controlPanelListener = 0;
 SrpKeyXListener* srpKeyXListener = 0;
-AnnounceHandlerImpl* announceHandler;
+AnnounceHandlerImpl* announceHandler = 0;
+NotificationService* conService = 0;
+ControllerNotificationReceiver* receiver = 0;
 qcc::String ControlPanelPrefix = "/ControlPanel/";
 
 void exitApp(int32_t signum)
@@ -60,6 +64,10 @@ void exitApp(int32_t signum)
         delete announceHandler;
     if (srpKeyXListener)
         delete srpKeyXListener;
+    if (conService)
+        conService->shutdown();
+    if (receiver)
+        delete receiver;
     if (bus)
         delete bus;
 
@@ -73,7 +81,7 @@ static void announceHandlerCallback(qcc::String const& busName, unsigned short v
     controlPanelController->createControllableDevice(busName, objectDescs);
 }
 
-int32_t main()
+int main()
 {
     QStatus status;
 
@@ -98,7 +106,7 @@ int32_t main()
     }
 
     controlPanelController = new ControlPanelController();
-    controlPanelListener = new ControlPanelListenerImpl();
+    controlPanelListener = new ControlPanelListenerImpl(controlPanelController);
 
     status = controlPanelService->initController(bus, controlPanelController, controlPanelListener);
     if (status != ER_OK) {
@@ -108,6 +116,14 @@ int32_t main()
 
     announceHandler = new AnnounceHandlerImpl(NULL, announceHandlerCallback);
     AnnouncementRegistrar::RegisterAnnounceHandler(*bus, *announceHandler);
+
+    conService = NotificationService::getInstance();
+    receiver = new ControllerNotificationReceiver(controlPanelController);
+    status = conService->initReceive(bus, receiver);
+    if (status != ER_OK) {
+        std::cout << "Could not initialize receiver." << std::endl;
+        exitApp(1);
+    }
 
     status = CommonSampleUtil::addSessionlessMatch(bus);
     if (status != ER_OK) {
