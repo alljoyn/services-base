@@ -14,8 +14,8 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#ifndef LIGHTCONFIRM_H_
-#define LIGHTCONFIRM_H_
+#ifndef MYDEVICEAREYOUSURE_H_
+#define MYDEVICEAREYOUSURE_H_
 
 #include <alljoyn/controlpanel/Dialog.h>
 
@@ -25,10 +25,10 @@ namespace services {
 /**
  * Generated class
  */
-class LightConfirm : public ajn::services::Dialog {
+class MyDeviceAreYouSure : public ajn::services::Dialog {
   public:
-    LightConfirm(qcc::String name);
-    virtual ~LightConfirm();
+    MyDeviceAreYouSure(qcc::String name, Widget* rootWidget);
+    virtual ~MyDeviceAreYouSure();
 
     bool executeAction1CallBack();
     bool executeAction2CallBack();
@@ -37,4 +37,4 @@ class LightConfirm : public ajn::services::Dialog {
 } //namespace services
 } //namespace ajn
 
-#endif /* LIGHTCONFIRM_H_ */
+#endif /* MYDEVICEAREYOUSURE_H_ */

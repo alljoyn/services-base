@@ -14,27 +14,29 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#include "Fan_speed.h"
+#include "MyDeviceOvenAction.h"
 #include "ControlPanelProvided.h"
+
 
 namespace ajn {
 namespace services {
 
-Fan_speed::Fan_speed(qcc::String name, PropertyType propertyType) :
-    Property(name, propertyType)
+MyDeviceOvenAction::MyDeviceOvenAction(qcc::String name, Widget* rootWidget) : Action(name, rootWidget)
 {
 
 }
 
-Fan_speed::~Fan_speed()
+MyDeviceOvenAction::~MyDeviceOvenAction()
 {
 
 }
 
-QStatus Fan_speed::setValue(uint16_t value)
+bool MyDeviceOvenAction::executeCallBack()
 {
-    setFanSpeed(value);
-    return ER_OK;
+    AJ_Printf("Starting the Oven. Execute was called\n");
+
+    //by default return success
+    return true;
 }
 
 } /* namespace services */

@@ -14,8 +14,8 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#ifndef CURRENTHUMIDITYSTRINGPROPERTY_H_
-#define CURRENTHUMIDITYSTRINGPROPERTY_H_
+#ifndef MYDEVICECURRENTTEMPSTRINGPROPERTY_H_
+#define MYDEVICECURRENTTEMPSTRINGPROPERTY_H_
 
 #include <alljoyn/controlpanel/Property.h>
 
@@ -25,14 +25,14 @@ namespace services {
 /**
  * Generated class
  */
-class CurrentHumidityStringProperty : public ajn::services::Property {
+class MyDeviceCurrentTempStringProperty : public ajn::services::Property {
   public:
-    CurrentHumidityStringProperty(qcc::String name, PropertyType propertyType);
-    virtual ~CurrentHumidityStringProperty();
+    MyDeviceCurrentTempStringProperty(qcc::String name, Widget* rootWidget, PropertyType propertyType);
+    virtual ~MyDeviceCurrentTempStringProperty();
 
     QStatus setValue(const char* value);
 };
 } //namespace services
 } //namespace ajn
 
-#endif /* CURRENTHUMIDITYSTRINGPROPERTY_H_ */
+#endif /* MYDEVICECURRENTTEMPSTRINGPROPERTY_H_ */

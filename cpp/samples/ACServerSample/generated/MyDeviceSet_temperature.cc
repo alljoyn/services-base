@@ -14,24 +14,25 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#include "Set_temperature.h"
+#include "MyDeviceSet_temperature.h"
 #include "ControlPanelProvided.h"
+
 
 namespace ajn {
 namespace services {
 
-Set_temperature::Set_temperature(qcc::String name, PropertyType propertyType) :
-    Property(name, propertyType)
+MyDeviceSet_temperature::MyDeviceSet_temperature(qcc::String name, Widget* rootWidget, PropertyType propertyType) :
+    Property(name, rootWidget, propertyType)
 {
 
 }
 
-Set_temperature::~Set_temperature()
+MyDeviceSet_temperature::~MyDeviceSet_temperature()
 {
 
 }
 
-QStatus Set_temperature::setValue(uint16_t value)
+QStatus MyDeviceSet_temperature::setValue(uint16_t value)
 {
     setTargetTemperature(value);
     return ER_OK;

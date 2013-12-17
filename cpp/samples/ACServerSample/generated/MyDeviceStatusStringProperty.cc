@@ -14,25 +14,29 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#ifndef STATUSSTRINGPROPERTY_H_
-#define STATUSSTRINGPROPERTY_H_
+#include "MyDeviceStatusStringProperty.h"
+#include "ControlPanelProvided.h"
 
-#include <alljoyn/controlpanel/Property.h>
 
 namespace ajn {
 namespace services {
 
-/**
- * Generated class
- */
-class StatusStringProperty : public ajn::services::Property {
-  public:
-    StatusStringProperty(qcc::String name, PropertyType propertyType);
-    virtual ~StatusStringProperty();
+MyDeviceStatusStringProperty::MyDeviceStatusStringProperty(qcc::String name, Widget* rootWidget, PropertyType propertyType) :
+    Property(name, rootWidget, propertyType)
+{
 
-    QStatus setValue(const char* value);
-};
-} //namespace services
-} //namespace ajn
+}
 
-#endif /* STATUSSTRINGPROPERTY_H_ */
+MyDeviceStatusStringProperty::~MyDeviceStatusStringProperty()
+{
+
+}
+
+QStatus MyDeviceStatusStringProperty::setValue(const char* value)
+{
+    setStatusString(value);
+    return ER_OK;
+}
+
+} /* namespace services */
+} /* namespace ajn */

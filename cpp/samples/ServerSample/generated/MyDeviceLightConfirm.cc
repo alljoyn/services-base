@@ -14,25 +14,46 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#ifndef FAN_SPEED_H_
-#define FAN_SPEED_H_
+#include "MyDeviceLightConfirm.h"
+#include "ControlPanelProvided.h"
 
-#include <alljoyn/controlpanel/Property.h>
 
 namespace ajn {
 namespace services {
 
-/**
- * Generated class
- */
-class Fan_speed : public ajn::services::Property {
-  public:
-    Fan_speed(qcc::String name, PropertyType propertyType);
-    virtual ~Fan_speed();
+MyDeviceLightConfirm::MyDeviceLightConfirm(qcc::String name, Widget* rootWidget) : Dialog(name, rootWidget)
+{
 
-    QStatus setValue(uint16_t value);
-};
-} //namespace services
-} //namespace ajn
+}
 
-#endif /* FAN_SPEED_H_ */
+MyDeviceLightConfirm::~MyDeviceLightConfirm()
+{
+
+}
+
+bool MyDeviceLightConfirm::executeAction1CallBack()
+{
+    AJ_Printf("Execute Action1 was called\n");
+
+    //by default return success
+    return true;
+}
+
+bool MyDeviceLightConfirm::executeAction2CallBack()
+{
+    AJ_Printf("Execute Action2 was called\n");
+
+    //by default return success
+    return true;
+}
+
+bool MyDeviceLightConfirm::executeAction3CallBack()
+{
+    AJ_Printf("Execute Action3 was called\n");
+
+    //by default return success
+    return true;
+}
+
+} /* namespace services */
+} /* namespace ajn */

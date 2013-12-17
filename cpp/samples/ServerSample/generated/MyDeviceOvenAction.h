@@ -14,28 +14,25 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#include "StatusStringProperty.h"
-#include "ControlPanelProvided.h"
+#ifndef MYDEVICEOVENACTION_H_
+#define MYDEVICEOVENACTION_H_
+
+#include <alljoyn/controlpanel/Action.h>
 
 namespace ajn {
 namespace services {
 
-StatusStringProperty::StatusStringProperty(qcc::String name, PropertyType propertyType) :
-    Property(name, propertyType)
-{
+/**
+ * Generated class - implements Action Widget
+ */
+class MyDeviceOvenAction : public ajn::services::Action {
+  public:
+    MyDeviceOvenAction(qcc::String name, Widget* rootWidget);
+    virtual ~MyDeviceOvenAction();
 
-}
+    bool executeCallBack();
+};
+} //namespace services
+} //namespace ajn
 
-StatusStringProperty::~StatusStringProperty()
-{
-
-}
-
-QStatus StatusStringProperty::setValue(const char* value)
-{
-    setStatusString(value);
-    return ER_OK;
-}
-
-} /* namespace services */
-} /* namespace ajn */
+#endif /* MYDEVICEOVENACTION_H_ */

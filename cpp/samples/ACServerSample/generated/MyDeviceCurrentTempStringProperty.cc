@@ -14,25 +14,29 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#ifndef SET_TEMPERATURE_H_
-#define SET_TEMPERATURE_H_
+#include "MyDeviceCurrentTempStringProperty.h"
+#include "ControlPanelProvided.h"
 
-#include <alljoyn/controlpanel/Property.h>
 
 namespace ajn {
 namespace services {
 
-/**
- * Generated class
- */
-class Set_temperature : public ajn::services::Property {
-  public:
-    Set_temperature(qcc::String name, PropertyType propertyType);
-    virtual ~Set_temperature();
+MyDeviceCurrentTempStringProperty::MyDeviceCurrentTempStringProperty(qcc::String name, Widget* rootWidget, PropertyType propertyType) :
+    Property(name, rootWidget, propertyType)
+{
 
-    QStatus setValue(uint16_t value);
-};
-} //namespace services
-} //namespace ajn
+}
 
-#endif /* SET_TEMPERATURE_H_ */
+MyDeviceCurrentTempStringProperty::~MyDeviceCurrentTempStringProperty()
+{
+
+}
+
+QStatus MyDeviceCurrentTempStringProperty::setValue(const char* value)
+{
+    setCurrentTemperatureString(value);
+    return ER_OK;
+}
+
+} /* namespace services */
+} /* namespace ajn */

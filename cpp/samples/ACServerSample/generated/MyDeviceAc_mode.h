@@ -14,45 +14,25 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#include "AreYouSure.h"
-#include "ControlPanelProvided.h"
+#ifndef MYDEVICEAC_MODE_H_
+#define MYDEVICEAC_MODE_H_
+
+#include <alljoyn/controlpanel/Property.h>
 
 namespace ajn {
 namespace services {
 
-AreYouSure::AreYouSure(qcc::String name) : Dialog(name)
-{
+/**
+ * Generated class
+ */
+class MyDeviceAc_mode : public ajn::services::Property {
+  public:
+    MyDeviceAc_mode(qcc::String name, Widget* rootWidget, PropertyType propertyType);
+    virtual ~MyDeviceAc_mode();
 
-}
+    QStatus setValue(uint16_t value);
+};
+} //namespace services
+} //namespace ajn
 
-AreYouSure::~AreYouSure()
-{
-
-}
-
-bool AreYouSure::executeAction1CallBack()
-{
-    AJ_Printf("Execute Action1 was called\n");
-
-    //by default return success
-    return true;
-}
-
-bool AreYouSure::executeAction2CallBack()
-{
-    return executeActionNotDefined();
-
-    //by default return success
-    return true;
-}
-
-bool AreYouSure::executeAction3CallBack()
-{
-    return executeActionNotDefined();
-
-    //by default return success
-    return true;
-}
-
-} /* namespace services */
-} /* namespace ajn */
+#endif /* MYDEVICEAC_MODE_H_ */

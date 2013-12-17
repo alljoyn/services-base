@@ -14,25 +14,46 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#ifndef CURRENTTEMPSTRINGPROPERTY_H_
-#define CURRENTTEMPSTRINGPROPERTY_H_
+#include "MyDeviceAreYouSure.h"
+#include "ControlPanelProvided.h"
 
-#include <alljoyn/controlpanel/Property.h>
 
 namespace ajn {
 namespace services {
 
-/**
- * Generated class
- */
-class CurrentTempStringProperty : public ajn::services::Property {
-  public:
-    CurrentTempStringProperty(qcc::String name, PropertyType propertyType);
-    virtual ~CurrentTempStringProperty();
+MyDeviceAreYouSure::MyDeviceAreYouSure(qcc::String name, Widget* rootWidget) : Dialog(name, rootWidget)
+{
 
-    QStatus setValue(const char* value);
-};
-} //namespace services
-} //namespace ajn
+}
 
-#endif /* CURRENTTEMPSTRINGPROPERTY_H_ */
+MyDeviceAreYouSure::~MyDeviceAreYouSure()
+{
+
+}
+
+bool MyDeviceAreYouSure::executeAction1CallBack()
+{
+    AJ_Printf("Execute Action1 was called\n");
+
+    //by default return success
+    return true;
+}
+
+bool MyDeviceAreYouSure::executeAction2CallBack()
+{
+    return executeActionNotDefined();
+
+    //by default return success
+    return true;
+}
+
+bool MyDeviceAreYouSure::executeAction3CallBack()
+{
+    return executeActionNotDefined();
+
+    //by default return success
+    return true;
+}
+
+} /* namespace services */
+} /* namespace ajn */

@@ -14,26 +14,27 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#include "CurrentTempStringProperty.h"
+#include "MyDeviceCurrentHumidityStringProperty.h"
 #include "ControlPanelProvided.h"
+
 
 namespace ajn {
 namespace services {
 
-CurrentTempStringProperty::CurrentTempStringProperty(qcc::String name, PropertyType propertyType) :
-    Property(name, propertyType)
+MyDeviceCurrentHumidityStringProperty::MyDeviceCurrentHumidityStringProperty(qcc::String name, Widget* rootWidget, PropertyType propertyType) :
+    Property(name, rootWidget, propertyType)
 {
 
 }
 
-CurrentTempStringProperty::~CurrentTempStringProperty()
+MyDeviceCurrentHumidityStringProperty::~MyDeviceCurrentHumidityStringProperty()
 {
 
 }
 
-QStatus CurrentTempStringProperty::setValue(const char* value)
+QStatus MyDeviceCurrentHumidityStringProperty::setValue(const char* value)
 {
-    setCurrentTemperatureString(value);
+    setCurrentHumidityString(value);
     return ER_OK;
 }
 

@@ -14,10 +14,10 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#ifndef AREYOUSURE_H_
-#define AREYOUSURE_H_
+#ifndef MYDEVICESET_TEMPERATURE_H_
+#define MYDEVICESET_TEMPERATURE_H_
 
-#include <alljoyn/controlpanel/Dialog.h>
+#include <alljoyn/controlpanel/Property.h>
 
 namespace ajn {
 namespace services {
@@ -25,16 +25,14 @@ namespace services {
 /**
  * Generated class
  */
-class AreYouSure : public ajn::services::Dialog {
+class MyDeviceSet_temperature : public ajn::services::Property {
   public:
-    AreYouSure(qcc::String name);
-    virtual ~AreYouSure();
+    MyDeviceSet_temperature(qcc::String name, Widget* rootWidget, PropertyType propertyType);
+    virtual ~MyDeviceSet_temperature();
 
-    bool executeAction1CallBack();
-    bool executeAction2CallBack();
-    bool executeAction3CallBack();
+    QStatus setValue(uint16_t value);
 };
 } //namespace services
 } //namespace ajn
 
-#endif /* AREYOUSURE_H_ */
+#endif /* MYDEVICESET_TEMPERATURE_H_ */

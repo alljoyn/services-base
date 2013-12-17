@@ -14,25 +14,29 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#ifndef AC_MODE_H_
-#define AC_MODE_H_
+#include "MyDeviceHeatProperty.h"
+#include "ControlPanelProvided.h"
 
-#include <alljoyn/controlpanel/Property.h>
 
 namespace ajn {
 namespace services {
 
-/**
- * Generated class
- */
-class Ac_mode : public ajn::services::Property {
-  public:
-    Ac_mode(qcc::String name, PropertyType propertyType);
-    virtual ~Ac_mode();
+MyDeviceHeatProperty::MyDeviceHeatProperty(qcc::String name, Widget* rootWidget, PropertyType propertyType) :
+    Property(name, rootWidget, propertyType)
+{
 
-    QStatus setValue(uint16_t value);
-};
-} //namespace services
-} //namespace ajn
+}
 
-#endif /* AC_MODE_H_ */
+MyDeviceHeatProperty::~MyDeviceHeatProperty()
+{
+
+}
+
+QStatus MyDeviceHeatProperty::setValue(uint16_t value)
+{
+    setuint16Var(value);
+    return ER_OK;
+}
+
+} /* namespace services */
+} /* namespace ajn */

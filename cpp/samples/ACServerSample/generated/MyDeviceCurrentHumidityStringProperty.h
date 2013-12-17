@@ -14,28 +14,25 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#include "HeatProperty.h"
-#include "ControlPanelProvided.h"
+#ifndef MYDEVICECURRENTHUMIDITYSTRINGPROPERTY_H_
+#define MYDEVICECURRENTHUMIDITYSTRINGPROPERTY_H_
+
+#include <alljoyn/controlpanel/Property.h>
 
 namespace ajn {
 namespace services {
 
-HeatProperty::HeatProperty(qcc::String name, PropertyType propertyType) :
-    Property(name, propertyType)
-{
+/**
+ * Generated class
+ */
+class MyDeviceCurrentHumidityStringProperty : public ajn::services::Property {
+  public:
+    MyDeviceCurrentHumidityStringProperty(qcc::String name, Widget* rootWidget, PropertyType propertyType);
+    virtual ~MyDeviceCurrentHumidityStringProperty();
 
-}
+    QStatus setValue(const char* value);
+};
+} //namespace services
+} //namespace ajn
 
-HeatProperty::~HeatProperty()
-{
-
-}
-
-QStatus HeatProperty::setValue(uint16_t value)
-{
-    setuint16Var(value);
-    return ER_OK;
-}
-
-} /* namespace services */
-} /* namespace ajn */
+#endif /* MYDEVICECURRENTHUMIDITYSTRINGPROPERTY_H_ */

@@ -14,26 +14,27 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#include "Ac_mode.h"
-#include <ControlPanelProvided.h>
+#include "MyDeviceFan_speed.h"
+#include "ControlPanelProvided.h"
+
 
 namespace ajn {
 namespace services {
 
-Ac_mode::Ac_mode(qcc::String name, PropertyType propertyType) :
-    Property(name, propertyType)
+MyDeviceFan_speed::MyDeviceFan_speed(qcc::String name, Widget* rootWidget, PropertyType propertyType) :
+    Property(name, rootWidget, propertyType)
 {
 
 }
 
-Ac_mode::~Ac_mode()
+MyDeviceFan_speed::~MyDeviceFan_speed()
 {
 
 }
 
-QStatus Ac_mode::setValue(uint16_t value)
+QStatus MyDeviceFan_speed::setValue(uint16_t value)
 {
-    setCurrentMode(value);
+    setFanSpeed(value);
     return ER_OK;
 }
 

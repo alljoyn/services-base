@@ -14,8 +14,8 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#ifndef HEATPROPERTY_H_
-#define HEATPROPERTY_H_
+#ifndef MYDEVICESTATUSSTRINGPROPERTY_H_
+#define MYDEVICESTATUSSTRINGPROPERTY_H_
 
 #include <alljoyn/controlpanel/Property.h>
 
@@ -25,14 +25,14 @@ namespace services {
 /**
  * Generated class
  */
-class HeatProperty : public ajn::services::Property {
+class MyDeviceStatusStringProperty : public ajn::services::Property {
   public:
-    HeatProperty(qcc::String name, PropertyType propertyType);
-    virtual ~HeatProperty();
+    MyDeviceStatusStringProperty(qcc::String name, Widget* rootWidget, PropertyType propertyType);
+    virtual ~MyDeviceStatusStringProperty();
 
-    QStatus setValue(uint16_t value);
+    QStatus setValue(const char* value);
 };
 } //namespace services
 } //namespace ajn
 
-#endif /* HEATPROPERTY_H_ */
+#endif /* MYDEVICESTATUSSTRINGPROPERTY_H_ */

@@ -14,44 +14,28 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#include "LightConfirm.h"
+#include "MyDeviceAc_mode.h"
 #include "ControlPanelProvided.h"
+
 
 namespace ajn {
 namespace services {
 
-LightConfirm::LightConfirm(qcc::String name) : Dialog(name)
+MyDeviceAc_mode::MyDeviceAc_mode(qcc::String name, Widget* rootWidget, PropertyType propertyType) :
+    Property(name, rootWidget, propertyType)
 {
 
 }
 
-LightConfirm::~LightConfirm()
+MyDeviceAc_mode::~MyDeviceAc_mode()
 {
 
 }
 
-bool LightConfirm::executeAction1CallBack()
+QStatus MyDeviceAc_mode::setValue(uint16_t value)
 {
-    AJ_Printf("Execute Action1 was called\n");
-
-    //by default return success
-    return true;
-}
-
-bool LightConfirm::executeAction2CallBack()
-{
-    AJ_Printf("Execute Action2 was called\n");
-
-    //by default return success
-    return true;
-}
-
-bool LightConfirm::executeAction3CallBack()
-{
-    AJ_Printf("Execute Action3 was called\n");
-
-    //by default return success
-    return true;
+    setCurrentMode(value);
+    return ER_OK;
 }
 
 } /* namespace services */

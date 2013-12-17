@@ -14,29 +14,25 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#include "OvenAction.h"
-#include "ControlPanelProvided.h"
+#ifndef MYDEVICEHEATPROPERTY_H_
+#define MYDEVICEHEATPROPERTY_H_
+
+#include <alljoyn/controlpanel/Property.h>
 
 namespace ajn {
 namespace services {
 
-OvenAction::OvenAction(qcc::String name) : Action(name)
-{
+/**
+ * Generated class
+ */
+class MyDeviceHeatProperty : public ajn::services::Property {
+  public:
+    MyDeviceHeatProperty(qcc::String name, Widget* rootWidget, PropertyType propertyType);
+    virtual ~MyDeviceHeatProperty();
 
-}
+    QStatus setValue(uint16_t value);
+};
+} //namespace services
+} //namespace ajn
 
-OvenAction::~OvenAction()
-{
-
-}
-
-bool OvenAction::executeCallBack()
-{
-    AJ_Printf("Starting the Oven. Execute was called\n");
-
-    //by default return success
-    return true;
-}
-
-} /* namespace services */
-} /* namespace ajn */
+#endif /* MYDEVICEHEATPROPERTY_H_ */
