@@ -22,7 +22,7 @@
 # sample usage:
 # scons VARIANT=debug TARG=linux WS=off AJ_TCL_ROOT=../ajtcl
 
-ajtcl_root_default = '../../../ajtcl'
+ajtcl_root_default = '../../../core/ajtcl'
 
 env = SConscript(ajtcl_root_default + '/SConscript')
 
