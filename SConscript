@@ -22,17 +22,17 @@ env['_ALLJOYN_NOTIFICATION_'] = True
 env.Append(LIBPATH = '$DISTDIR/notification/lib');
 env.Append(CPPPATH = '$DISTDIR/notification/inc');
 
-if not env.has_key('_ALLJOYN_ABOUT_') and os.path.exists('../about/SConscript'):
-    env.SConscript('../about/SConscript')
+if not env.has_key('_ALLJOYN_ABOUT_') and os.path.exists('../../core/alljoyn/services/about/SConscript'):
+    env.SConscript('../../core/alljoyn/services/about/SConscript')
 
 if not env.has_key('_ALLJOYN_SERVICES_COMMON_') and os.path.exists('../services_common/SConscript'):
     env.SConscript('../services_common/SConscript')
 
-if 'cpp' in env['bindings'] and not env.has_key('_ALLJOYNCORE_') and os.path.exists('../../alljoyn_core/SConscript'):
-    env.SConscript('../../alljoyn_core/SConscript')
+if 'cpp' in env['bindings'] and not env.has_key('_ALLJOYNCORE_') and os.path.exists('../../core/alljoyn/alljoyn_core/SConscript'):
+    env.SConscript('../../core/alljoyn/alljoyn_core/SConscript')
 
-if 'java' in env['bindings'] and not env.has_key('_ALLJOYN_JAVA_') and os.path.exists('../../alljoyn_java/SConscript'):
-   env.SConscript('../../alljoyn_java/SConscript')
+if 'java' in env['bindings'] and not env.has_key('_ALLJOYN_JAVA_') and os.path.exists('../../core/alljoyn/alljoyn_java/SConscript'):
+    env.SConscript('../../core/alljoyn/alljoyn_java/SConscript')
 
 nsenv = env.Clone()
 
