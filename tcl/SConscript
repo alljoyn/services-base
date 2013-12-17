@@ -15,8 +15,8 @@
 #*****************************************************************************
 
 services_common_root_default = '../../services_common/tcl'
-about_root_default           = '../../about/tcl'
-serversample_root_default    = '../../../applications/sample_apps/tcl/ServerSample'
+about_root_default           = '../../../core/about_tcl/tcl'
+serversample_root_default    = '../../sample_apps/tcl/ServerSample'
 
 import os
 Import('config_env')
