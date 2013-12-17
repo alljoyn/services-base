@@ -18,7 +18,7 @@ if not nsenv.has_key('_ALLJOYNCORE_'):
     nsenv.Append(LIBS = ['alljoyn'])
     if nsenv['BD'] == 'on' :
         bdFile = nsenv.subst('$DISTDIR') + '/cpp/lib/BundledDaemon.o'
-        nsenv['bdobj'] = bdFile
+        nsenv['bdobj'] = File(bdFile)
         nsenv['bdlib'] = 'ajdaemon'
     if nsenv['OS'] == 'openwrt':
         nsenv.AppendUnique(LIBS = [ 'stdc++', 'pthread' ])
