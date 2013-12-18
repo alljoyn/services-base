@@ -189,7 +189,7 @@
                     <value type="literal" language="de-AT">Ja</value>
                 </label>
                 <executeCode>AJ_Printf("Execute Action1 was called\n");
-                    addDismissSignal(context, NOTIFICATION_ACTION_AREYOUSURE_SIGNAL_DISMISS);
+                    addDismissSignal(context, MYDEVICE_NOTIFICATION_ACTION_AREYOUSURE_SIGNAL_DISMISS);
                 </executeCode>
             </button>
         </dialog>

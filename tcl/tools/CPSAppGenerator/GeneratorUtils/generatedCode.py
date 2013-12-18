@@ -12,6 +12,8 @@
 #    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 #    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+import sys;
+
 class Generator:
 
     def __init__(self, scriptDir, path, testFilePath):
@@ -19,7 +21,8 @@ class Generator:
         self.path = path
         self.testFilePath = testFilePath
         self.ns = ""
-        self.languageSets = {}
+        self.headerIncludes = ""
+        self.units = {}
 
         self.headerFile = ""
         self.sampleFile = ""
@@ -59,37 +62,41 @@ class Generator:
         self.initTests = ""
         self.allReplies = ""
 
-    def setControlDeviceData(self, uniqueId, headerCode) :
-        self.uniqueId = uniqueId
-        self.ObjectPathPrefix = "/ControlPanel/" + self.uniqueId + "/"
-        self.headerIncludes = headerCode
+    def setControlDeviceData(self, unitId, headerCode) :
+        self.unitId = unitId
+        self.ObjectPathPrefix = "/ControlPanel/" + self.unitId + "/"
+        self.headerIncludes += headerCode + "\n"
+        if unitId in self.units : 
+            print >> sys.stderr, "\nERROR - an xml with unit name " + unitId + " has already been generated. When generating multiple xmls the unit names must be unique\n"
+            sys.exit(3)        
+        self.units[unitId] = []
 
     def setLanguageSets(self, languageSet) :
 
+        self.languageSets = {}
         for langElement in languageSet:
             name = langElement.attr["name"]
             self.languageSets[name] = []
-
             if isinstance(langElement.language, list) :
                 langIndx = 0   
                 for language in langElement.language :
                     self.languageSets[name].append(language)
-                    self.defines += "#define {0}_{1} {2}\n".format(name.upper(), language.replace("-", "_").upper(), langIndx)
+                    self.defines += "#define {0}_{1}_{2} {3}\n".format(self.unitId.upper(), name.upper(), language.replace("-", "_").upper(), langIndx)
                     langIndx += 1
                 self.defines += "\n"
                 if langIndx > self.maxNumLang :
                     self.maxNumLang = langIndx
             else :
                 self.languageSets[name].append(langElement.language)
-                self.defines += "#define {0}_{1} {2}\n\n".format(name.upper(), langElement.language.replace("-", "_").upper(), 0)
+                self.defines += "#define {0}_{1}_{2} {3}\n\n".format(self.unitId.upper(), name.upper(), langElement.language.replace("-", "_").upper(), 0)
                 if 1 > self.maxNumLang :
                     self.maxNumLang = 1
 
     def addControlPanel(self, rootElement) :
-        name = rootElement.name
-        capName = "ROOT_CONTROLPANEL_" + name.upper()
+        name = self.unitId + rootElement.name[:1].upper() + rootElement.name[1:]
+        capName = self.unitId.upper() + "_" + "ROOT_CONTROLPANEL_" + rootElement.name.upper()
         objectPathVar = "{0}ObjectPath".format(name)
-        myObjectPath = self.ObjectPathPrefix + name
+        myObjectPath = self.ObjectPathPrefix + rootElement.name
         self.objectPathsDecl += "extern const char {0}[];\n".format(objectPathVar)
         self.objectPathsDef += "const char {0}[] = \"{1}\";\n".format(objectPathVar, myObjectPath)
         self.appObjects += "    {0}  {1}, ControlPanelInterfaces  {2}, \\\n".format("{", objectPathVar, "}")
@@ -113,13 +120,13 @@ class Generator:
             addNotificationAction(rootElement, 1)
 
     def addNotificationAction(self, rootElement, fromControlPanel = 0) :
-        name = rootElement.name
-        capName = "NOTIFICATION_ACTION_" + name.upper()
+        name = self.unitId + rootElement.name[:1].upper() + rootElement.name[1:]
+        capName = self.unitId.upper() + "_" + "NOTIFICATION_ACTION_" + rootElement.name.upper()
         objectPathVar = "{0}ObjectPath".format(name)
         self.appObjects += "    {0}  {1}, NotificationActionInterfaces  {2}, \\\n".format("{", objectPathVar, "}")
        
         if not fromControlPanel :
-            myObjectPath = self.ObjectPathPrefix + name
+            myObjectPath = self.ObjectPathPrefix + rootElement.name
             self.objectPathsDecl += "extern const char {0}[];\n".format(objectPathVar)
             self.objectPathsDef += "const char {0}[] = \"{1}\";\n".format(objectPathVar, myObjectPath)
 
@@ -183,7 +190,6 @@ class Generator:
         self.headerFile = self.headerFile.replace("//GET_URL_GO_HERE", self.httpCases)
         self.headerFile = self.headerFile.replace("//GETVALUES_ROOT_GO_HERE", self.getRootValuesCases)
         self.headerFile = self.headerFile.replace("//GETALLVALUES_ROOT_GO_HERE", self.getAllRootCases)
-        self.headerFile = self.headerFile.replace("//UNIQUEID_GO_HERE", self.uniqueId)
         self.headerFile = self.headerFile.replace("//MAXNUMLANGUAGES_GO_HERE", str(self.maxNumLang))
         self.headerFile = self.headerFile.replace("//NUM_CPSOBJ_GO_HERE", str(self.definesIndx))
         self.testerGeneratedHeader = self.headerFile ## Catch it after all replaces

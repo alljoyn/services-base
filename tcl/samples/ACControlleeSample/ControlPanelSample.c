@@ -188,19 +188,19 @@ void Controllee_DoWork(AJ_BusAttachment*bus)
 
         if ((sendUpdates & (1 << 0)) != 0) {
             AJ_Printf("##### Sending update signal: temperature string field \n");
-            CpsSendPropertyChangedSignal(bus, EN_CURRENTTEMPSTRINGPROPERTY_SIGNAL_VALUE_CHANGED, CPSsessionId);
+            CpsSendPropertyChangedSignal(bus, EN_MYDEVICE_CURRENTTEMPSTRINGPROPERTY_SIGNAL_VALUE_CHANGED, CPSsessionId);
         }
         if ((sendUpdates & (1 << 1)) != 0) {
             AJ_Printf("##### Sending update signal: status string field \n");
-            CpsSendPropertyChangedSignal(bus, EN_STATUSSTRINGPROPERTY_SIGNAL_VALUE_CHANGED, CPSsessionId);
+            CpsSendPropertyChangedSignal(bus, EN_MYDEVICE_STATUSSTRINGPROPERTY_SIGNAL_VALUE_CHANGED, CPSsessionId);
         }
         if ((sendUpdates & (1 << 2)) != 0) {
             AJ_Printf("##### Sending update signal: temperature selector state \n");
-            CpsSendPropertyChangedSignal(bus, EN_SET_TEMPERATURE_SIGNAL_PROPERTIES_CHANGED, CPSsessionId);
+            CpsSendPropertyChangedSignal(bus, EN_MYDEVICE_SET_TEMPERATURE_SIGNAL_PROPERTIES_CHANGED, CPSsessionId);
         }
         if ((sendUpdates & (1 << 3)) != 0) {
             AJ_Printf("##### Sending update signal: fan speed selector state \n");
-            CpsSendPropertyChangedSignal(bus, EN_FAN_SPEED_SIGNAL_PROPERTIES_CHANGED, CPSsessionId);
+            CpsSendPropertyChangedSignal(bus, EN_MYDEVICE_FAN_SPEED_SIGNAL_PROPERTIES_CHANGED, CPSsessionId);
         }
     }
     return;

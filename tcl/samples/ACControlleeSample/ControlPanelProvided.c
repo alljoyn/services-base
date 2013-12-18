@@ -198,22 +198,22 @@ static uint8_t modeOrTargetTempChanged = 0;
 
 void disableFan()
 {
-    setBaseEnabled(&fan_speed.base, FALSE);
+    setBaseEnabled(&MyDeviceFan_speed.base, FALSE);
 }
 
 void enableFan()
 {
-    setBaseEnabled(&fan_speed.base, TRUE);
+    setBaseEnabled(&MyDeviceFan_speed.base, TRUE);
 }
 
 void disableTempSelect()
 {
-    setBaseEnabled(&set_temperature.base, FALSE);
+    setBaseEnabled(&MyDeviceSet_temperature.base, FALSE);
 }
 
 void enableTempSelect()
 {
-    setBaseEnabled(&set_temperature.base, TRUE);
+    setBaseEnabled(&MyDeviceSet_temperature.base, TRUE);
 }
 
 const char* getNotificationString()

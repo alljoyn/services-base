@@ -18,212 +18,213 @@
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include "ControlPanelProvided.h"
 
-const char rootContainerObjectPath[] = "/ControlPanel/MyDevice/rootContainer";
-const char enRootcontainerObjectPath[] = "/ControlPanel/MyDevice/rootContainer/en";
-const char enTempandhumiditycontainerObjectPath[] = "/ControlPanel/MyDevice/rootContainer/en/tempAndHumidityContainer";
-const char enCurrenttempstringpropertyObjectPath[] = "/ControlPanel/MyDevice/rootContainer/en/tempAndHumidityContainer/CurrentTempStringProperty";
-const char enCurrenthumiditystringpropertyObjectPath[] = "/ControlPanel/MyDevice/rootContainer/en/tempAndHumidityContainer/CurrentHumidityStringProperty";
-const char enControlscontainerObjectPath[] = "/ControlPanel/MyDevice/rootContainer/en/controlsContainer";
-const char enAc_modeObjectPath[] = "/ControlPanel/MyDevice/rootContainer/en/controlsContainer/ac_mode";
-const char enStatusstringpropertyObjectPath[] = "/ControlPanel/MyDevice/rootContainer/en/controlsContainer/statusStringProperty";
-const char enSet_temperatureObjectPath[] = "/ControlPanel/MyDevice/rootContainer/en/set_temperature";
-const char enFan_speedObjectPath[] = "/ControlPanel/MyDevice/rootContainer/en/fan_speed";
 
-ContainerWidget rootContainer;
-ContainerWidget tempAndHumidityContainer;
-PropertyWidget CurrentTempStringProperty;
-PropertyWidget CurrentHumidityStringProperty;
-ContainerWidget controlsContainer;
-PropertyWidget ac_mode;
-PropertyWidget statusStringProperty;
-PropertyWidget set_temperature;
-PropertyWidget fan_speed;
+const char MyDeviceRootContainerObjectPath[] = "/ControlPanel/MyDevice/rootContainer";
+const char enMyDeviceRootContainerObjectPath[] = "/ControlPanel/MyDevice/rootContainer/en";
+const char enMyDeviceTempAndHumidityContainerObjectPath[] = "/ControlPanel/MyDevice/rootContainer/en/tempAndHumidityContainer";
+const char enMyDeviceCurrentTempStringPropertyObjectPath[] = "/ControlPanel/MyDevice/rootContainer/en/tempAndHumidityContainer/CurrentTempStringProperty";
+const char enMyDeviceCurrentHumidityStringPropertyObjectPath[] = "/ControlPanel/MyDevice/rootContainer/en/tempAndHumidityContainer/CurrentHumidityStringProperty";
+const char enMyDeviceControlsContainerObjectPath[] = "/ControlPanel/MyDevice/rootContainer/en/controlsContainer";
+const char enMyDeviceAc_modeObjectPath[] = "/ControlPanel/MyDevice/rootContainer/en/controlsContainer/ac_mode";
+const char enMyDeviceStatusStringPropertyObjectPath[] = "/ControlPanel/MyDevice/rootContainer/en/controlsContainer/statusStringProperty";
+const char enMyDeviceSet_temperatureObjectPath[] = "/ControlPanel/MyDevice/rootContainer/en/set_temperature";
+const char enMyDeviceFan_speedObjectPath[] = "/ControlPanel/MyDevice/rootContainer/en/fan_speed";
+
+ContainerWidget MyDeviceRootContainer;
+ContainerWidget MyDeviceTempAndHumidityContainer;
+PropertyWidget MyDeviceCurrentTempStringProperty;
+PropertyWidget MyDeviceCurrentHumidityStringProperty;
+ContainerWidget MyDeviceControlsContainer;
+PropertyWidget MyDeviceAc_mode;
+PropertyWidget MyDeviceStatusStringProperty;
+PropertyWidget MyDeviceSet_temperature;
+PropertyWidget MyDeviceFan_speed;
 
 /*
  * Static variables used to fill widgets
  */
-static const uint16_t rootContainerHints[] = { LAYOUT_HINT_VERTICAL_LINEAR, LAYOUT_HINT_HORIZONTAL_LINEAR };
-static const uint16_t tempAndHumidityContainerHints[] = { LAYOUT_HINT_VERTICAL_LINEAR };
-static const char* const CurrentTempStringPropertySignature = "s";
-static const char* const CurrentTempStringPropertyLabel[] = { "Current Temperature:" };
-static const uint16_t CurrentTempStringPropertyHints[] = { PROPERTY_WIDGET_HINT_TEXTVIEW };
-static const char* const CurrentHumidityStringPropertySignature = "s";
-static const char* const CurrentHumidityStringPropertyLabel[] = { "Current Humidity:" };
-static const uint16_t CurrentHumidityStringPropertyHints[] = { PROPERTY_WIDGET_HINT_TEXTVIEW };
-static const uint16_t controlsContainerHints[] = { LAYOUT_HINT_HORIZONTAL_LINEAR };
-static const char* const ac_modeSignature = "q";
-static const char* const ac_modeLabel[] = { "Mode" };
-static const uint16_t ac_modeHints[] = { PROPERTY_WIDGET_HINT_SPINNER };
-static ConstraintList ac_modeConstraintList[5];
-static const uint16_t ac_modeConstraintValue0 = 0;
-static const char* const ac_modeDisplay0[] = { "Auto" };
-static const uint16_t ac_modeConstraintValue1 = 1;
-static const char* const ac_modeDisplay1[] = { "Cool" };
-static const uint16_t ac_modeConstraintValue2 = 2;
-static const char* const ac_modeDisplay2[] = { "Heat" };
-static const uint16_t ac_modeConstraintValue3 = 3;
-static const char* const ac_modeDisplay3[] = { "Fan" };
-static const uint16_t ac_modeConstraintValue4 = 4;
-static const char* const ac_modeDisplay4[] = { "Off" };
-static const char* const statusStringPropertySignature = "s";
-static const char* const statusStringPropertyLabel[] = { "Status:" };
-static const uint16_t statusStringPropertyHints[] = { PROPERTY_WIDGET_HINT_TEXTVIEW };
-static const char* const set_temperatureSignature = "q";
-static const char* const set_temperatureLabel[] = { "Temperature" };
-static const uint16_t set_temperatureHints[] = { PROPERTY_WIDGET_HINT_SLIDER };
-static const char* const set_temperatureUnitMeasure[] = { "Degrees" };
-static const uint16_t set_temperatureConstraintRangeMin = 50;
-static const uint16_t set_temperatureConstraintRangeMax = 90;
-static const uint16_t set_temperatureConstraintRangeInc = 1;
-static const char* const fan_speedSignature = "q";
-static const char* const fan_speedLabel[] = { "Fan Speed" };
-static const uint16_t fan_speedHints[] = { PROPERTY_WIDGET_HINT_SPINNER };
-static ConstraintList fan_speedConstraintList[3];
-static const uint16_t fan_speedConstraintValue0 = 0;
-static const char* const fan_speedDisplay0[] = { "Low" };
-static const uint16_t fan_speedConstraintValue1 = 1;
-static const char* const fan_speedDisplay1[] = { "Medium" };
-static const uint16_t fan_speedConstraintValue2 = 2;
-static const char* const fan_speedDisplay2[] = { "High" };
+static const uint16_t MyDeviceRootContainerHints[] = { LAYOUT_HINT_VERTICAL_LINEAR, LAYOUT_HINT_HORIZONTAL_LINEAR };
+static const uint16_t MyDeviceTempAndHumidityContainerHints[] = { LAYOUT_HINT_VERTICAL_LINEAR };
+static const char* const MyDeviceCurrentTempStringPropertySignature = "s";
+static const char* const MyDeviceCurrentTempStringPropertyLabel[] = { "Current Temperature:" };
+static const uint16_t MyDeviceCurrentTempStringPropertyHints[] = { PROPERTY_WIDGET_HINT_TEXTVIEW };
+static const char* const MyDeviceCurrentHumidityStringPropertySignature = "s";
+static const char* const MyDeviceCurrentHumidityStringPropertyLabel[] = { "Current Humidity:" };
+static const uint16_t MyDeviceCurrentHumidityStringPropertyHints[] = { PROPERTY_WIDGET_HINT_TEXTVIEW };
+static const uint16_t MyDeviceControlsContainerHints[] = { LAYOUT_HINT_HORIZONTAL_LINEAR };
+static const char* const MyDeviceAc_modeSignature = "q";
+static const char* const MyDeviceAc_modeLabel[] = { "Mode" };
+static const uint16_t MyDeviceAc_modeHints[] = { PROPERTY_WIDGET_HINT_SPINNER };
+static ConstraintList MyDeviceAc_modeConstraintList[5];
+static const uint16_t MyDeviceAc_modeConstraintValue0 = 0;
+static const char* const MyDeviceAc_modeDisplay0[] = { "Auto" };
+static const uint16_t MyDeviceAc_modeConstraintValue1 = 1;
+static const char* const MyDeviceAc_modeDisplay1[] = { "Cool" };
+static const uint16_t MyDeviceAc_modeConstraintValue2 = 2;
+static const char* const MyDeviceAc_modeDisplay2[] = { "Heat" };
+static const uint16_t MyDeviceAc_modeConstraintValue3 = 3;
+static const char* const MyDeviceAc_modeDisplay3[] = { "Fan" };
+static const uint16_t MyDeviceAc_modeConstraintValue4 = 4;
+static const char* const MyDeviceAc_modeDisplay4[] = { "Off" };
+static const char* const MyDeviceStatusStringPropertySignature = "s";
+static const char* const MyDeviceStatusStringPropertyLabel[] = { "Status:" };
+static const uint16_t MyDeviceStatusStringPropertyHints[] = { PROPERTY_WIDGET_HINT_TEXTVIEW };
+static const char* const MyDeviceSet_temperatureSignature = "q";
+static const char* const MyDeviceSet_temperatureLabel[] = { "Temperature" };
+static const uint16_t MyDeviceSet_temperatureHints[] = { PROPERTY_WIDGET_HINT_SLIDER };
+static const char* const MyDeviceSet_temperatureUnitMeasure[] = { "Degrees" };
+static const uint16_t MyDeviceSet_temperatureConstraintRangeMin = 50;
+static const uint16_t MyDeviceSet_temperatureConstraintRangeMax = 90;
+static const uint16_t MyDeviceSet_temperatureConstraintRangeInc = 1;
+static const char* const MyDeviceFan_speedSignature = "q";
+static const char* const MyDeviceFan_speedLabel[] = { "Fan Speed" };
+static const uint16_t MyDeviceFan_speedHints[] = { PROPERTY_WIDGET_HINT_SPINNER };
+static ConstraintList MyDeviceFan_speedConstraintList[3];
+static const uint16_t MyDeviceFan_speedConstraintValue0 = 0;
+static const char* const MyDeviceFan_speedDisplay0[] = { "Low" };
+static const uint16_t MyDeviceFan_speedConstraintValue1 = 1;
+static const char* const MyDeviceFan_speedDisplay1[] = { "Medium" };
+static const uint16_t MyDeviceFan_speedConstraintValue2 = 2;
+static const char* const MyDeviceFan_speedDisplay2[] = { "High" };
 
 
 void WidgetsInit()
 {
-    initializeContainerWidget(&rootContainer);
-    rootContainer.base.numLanguages = 1;
-    setBaseEnabled(&rootContainer.base, TRUE);
+    initializeContainerWidget(&MyDeviceRootContainer);
+    MyDeviceRootContainer.base.numLanguages = 1;
+    setBaseEnabled(&MyDeviceRootContainer.base, TRUE);
 
-    rootContainer.base.optParams.bgColor = 0x1e90ff;
-    rootContainer.base.optParams.hints = rootContainerHints;
-    rootContainer.base.optParams.numHints = 2;
+    MyDeviceRootContainer.base.optParams.bgColor = 0x1e90ff;
+    MyDeviceRootContainer.base.optParams.hints = MyDeviceRootContainerHints;
+    MyDeviceRootContainer.base.optParams.numHints = 2;
 
-    initializeContainerWidget(&tempAndHumidityContainer);
-    tempAndHumidityContainer.base.numLanguages = 1;
-    setBaseEnabled(&tempAndHumidityContainer.base, TRUE);
+    initializeContainerWidget(&MyDeviceTempAndHumidityContainer);
+    MyDeviceTempAndHumidityContainer.base.numLanguages = 1;
+    setBaseEnabled(&MyDeviceTempAndHumidityContainer.base, TRUE);
 
-    tempAndHumidityContainer.base.optParams.bgColor = 0x200;
-    tempAndHumidityContainer.base.optParams.hints = tempAndHumidityContainerHints;
-    tempAndHumidityContainer.base.optParams.numHints = 1;
+    MyDeviceTempAndHumidityContainer.base.optParams.bgColor = 0x200;
+    MyDeviceTempAndHumidityContainer.base.optParams.hints = MyDeviceTempAndHumidityContainerHints;
+    MyDeviceTempAndHumidityContainer.base.optParams.numHints = 1;
 
-    initializePropertyWidget(&CurrentTempStringProperty);
-    CurrentTempStringProperty.base.numLanguages = 1;
-    setBaseEnabled(&CurrentTempStringProperty.base, TRUE);
-    setBaseWritable(&CurrentTempStringProperty.base, FALSE);
+    initializePropertyWidget(&MyDeviceCurrentTempStringProperty);
+    MyDeviceCurrentTempStringProperty.base.numLanguages = 1;
+    setBaseEnabled(&MyDeviceCurrentTempStringProperty.base, TRUE);
+    setBaseWritable(&MyDeviceCurrentTempStringProperty.base, FALSE);
 
-    CurrentTempStringProperty.signature = CurrentTempStringPropertySignature;
-    CurrentTempStringProperty.propertyType = SINGLE_VALUE_PROPERTY;
-    CurrentTempStringProperty.getValue = &getCurrentTemperatureString;
+    MyDeviceCurrentTempStringProperty.signature = MyDeviceCurrentTempStringPropertySignature;
+    MyDeviceCurrentTempStringProperty.propertyType = SINGLE_VALUE_PROPERTY;
+    MyDeviceCurrentTempStringProperty.getValue = &getCurrentTemperatureString;
 
-    CurrentTempStringProperty.base.optParams.bgColor = 0x500;
-    CurrentTempStringProperty.base.optParams.label = CurrentTempStringPropertyLabel;
-    CurrentTempStringProperty.base.optParams.hints = CurrentTempStringPropertyHints;
-    CurrentTempStringProperty.base.optParams.numHints = 1;
+    MyDeviceCurrentTempStringProperty.base.optParams.bgColor = 0x500;
+    MyDeviceCurrentTempStringProperty.base.optParams.label = MyDeviceCurrentTempStringPropertyLabel;
+    MyDeviceCurrentTempStringProperty.base.optParams.hints = MyDeviceCurrentTempStringPropertyHints;
+    MyDeviceCurrentTempStringProperty.base.optParams.numHints = 1;
 
-    initializePropertyWidget(&CurrentHumidityStringProperty);
-    CurrentHumidityStringProperty.base.numLanguages = 1;
-    setBaseEnabled(&CurrentHumidityStringProperty.base, TRUE);
-    setBaseWritable(&CurrentHumidityStringProperty.base, FALSE);
+    initializePropertyWidget(&MyDeviceCurrentHumidityStringProperty);
+    MyDeviceCurrentHumidityStringProperty.base.numLanguages = 1;
+    setBaseEnabled(&MyDeviceCurrentHumidityStringProperty.base, TRUE);
+    setBaseWritable(&MyDeviceCurrentHumidityStringProperty.base, FALSE);
 
-    CurrentHumidityStringProperty.signature = CurrentHumidityStringPropertySignature;
-    CurrentHumidityStringProperty.propertyType = SINGLE_VALUE_PROPERTY;
-    CurrentHumidityStringProperty.getValue = &getCurrentHumidityString;
+    MyDeviceCurrentHumidityStringProperty.signature = MyDeviceCurrentHumidityStringPropertySignature;
+    MyDeviceCurrentHumidityStringProperty.propertyType = SINGLE_VALUE_PROPERTY;
+    MyDeviceCurrentHumidityStringProperty.getValue = &getCurrentHumidityString;
 
-    CurrentHumidityStringProperty.base.optParams.bgColor = 0x500;
-    CurrentHumidityStringProperty.base.optParams.label = CurrentHumidityStringPropertyLabel;
-    CurrentHumidityStringProperty.base.optParams.hints = CurrentHumidityStringPropertyHints;
-    CurrentHumidityStringProperty.base.optParams.numHints = 1;
+    MyDeviceCurrentHumidityStringProperty.base.optParams.bgColor = 0x500;
+    MyDeviceCurrentHumidityStringProperty.base.optParams.label = MyDeviceCurrentHumidityStringPropertyLabel;
+    MyDeviceCurrentHumidityStringProperty.base.optParams.hints = MyDeviceCurrentHumidityStringPropertyHints;
+    MyDeviceCurrentHumidityStringProperty.base.optParams.numHints = 1;
 
-    initializeContainerWidget(&controlsContainer);
-    controlsContainer.base.numLanguages = 1;
-    setBaseEnabled(&controlsContainer.base, TRUE);
+    initializeContainerWidget(&MyDeviceControlsContainer);
+    MyDeviceControlsContainer.base.numLanguages = 1;
+    setBaseEnabled(&MyDeviceControlsContainer.base, TRUE);
 
-    controlsContainer.base.optParams.bgColor = 0x200;
-    controlsContainer.base.optParams.hints = controlsContainerHints;
-    controlsContainer.base.optParams.numHints = 1;
+    MyDeviceControlsContainer.base.optParams.bgColor = 0x200;
+    MyDeviceControlsContainer.base.optParams.hints = MyDeviceControlsContainerHints;
+    MyDeviceControlsContainer.base.optParams.numHints = 1;
 
-    initializePropertyWidget(&ac_mode);
-    ac_mode.base.numLanguages = 1;
-    setBaseEnabled(&ac_mode.base, TRUE);
-    setBaseWritable(&ac_mode.base, TRUE);
+    initializePropertyWidget(&MyDeviceAc_mode);
+    MyDeviceAc_mode.base.numLanguages = 1;
+    setBaseEnabled(&MyDeviceAc_mode.base, TRUE);
+    setBaseWritable(&MyDeviceAc_mode.base, TRUE);
 
-    ac_mode.signature = ac_modeSignature;
-    ac_mode.propertyType = SINGLE_VALUE_PROPERTY;
-    ac_mode.getValue = &getCurrentMode;
+    MyDeviceAc_mode.signature = MyDeviceAc_modeSignature;
+    MyDeviceAc_mode.propertyType = SINGLE_VALUE_PROPERTY;
+    MyDeviceAc_mode.getValue = &getCurrentMode;
 
-    ac_mode.base.optParams.bgColor = 0xffd700;
-    ac_mode.base.optParams.label = ac_modeLabel;
-    ac_mode.base.optParams.hints = ac_modeHints;
-    ac_mode.base.optParams.numHints = 1;
+    MyDeviceAc_mode.base.optParams.bgColor = 0xffd700;
+    MyDeviceAc_mode.base.optParams.label = MyDeviceAc_modeLabel;
+    MyDeviceAc_mode.base.optParams.hints = MyDeviceAc_modeHints;
+    MyDeviceAc_mode.base.optParams.numHints = 1;
 
-    ac_mode.optParams.numConstraints = 5;
-    ac_mode.optParams.constraintList = ac_modeConstraintList;
-    ac_mode.optParams.constraintList[0].value = &ac_modeConstraintValue0;
-    ac_mode.optParams.constraintList[0].display = ac_modeDisplay0;
-    ac_mode.optParams.constraintList[1].value = &ac_modeConstraintValue1;
-    ac_mode.optParams.constraintList[1].display = ac_modeDisplay1;
-    ac_mode.optParams.constraintList[2].value = &ac_modeConstraintValue2;
-    ac_mode.optParams.constraintList[2].display = ac_modeDisplay2;
-    ac_mode.optParams.constraintList[3].value = &ac_modeConstraintValue3;
-    ac_mode.optParams.constraintList[3].display = ac_modeDisplay3;
-    ac_mode.optParams.constraintList[4].value = &ac_modeConstraintValue4;
-    ac_mode.optParams.constraintList[4].display = ac_modeDisplay4;
+    MyDeviceAc_mode.optParams.numConstraints = 5;
+    MyDeviceAc_mode.optParams.constraintList = MyDeviceAc_modeConstraintList;
+    MyDeviceAc_mode.optParams.constraintList[0].value = &MyDeviceAc_modeConstraintValue0;
+    MyDeviceAc_mode.optParams.constraintList[0].display = MyDeviceAc_modeDisplay0;
+    MyDeviceAc_mode.optParams.constraintList[1].value = &MyDeviceAc_modeConstraintValue1;
+    MyDeviceAc_mode.optParams.constraintList[1].display = MyDeviceAc_modeDisplay1;
+    MyDeviceAc_mode.optParams.constraintList[2].value = &MyDeviceAc_modeConstraintValue2;
+    MyDeviceAc_mode.optParams.constraintList[2].display = MyDeviceAc_modeDisplay2;
+    MyDeviceAc_mode.optParams.constraintList[3].value = &MyDeviceAc_modeConstraintValue3;
+    MyDeviceAc_mode.optParams.constraintList[3].display = MyDeviceAc_modeDisplay3;
+    MyDeviceAc_mode.optParams.constraintList[4].value = &MyDeviceAc_modeConstraintValue4;
+    MyDeviceAc_mode.optParams.constraintList[4].display = MyDeviceAc_modeDisplay4;
 
-    initializePropertyWidget(&statusStringProperty);
-    statusStringProperty.base.numLanguages = 1;
-    setBaseEnabled(&statusStringProperty.base, TRUE);
-    setBaseWritable(&statusStringProperty.base, FALSE);
+    initializePropertyWidget(&MyDeviceStatusStringProperty);
+    MyDeviceStatusStringProperty.base.numLanguages = 1;
+    setBaseEnabled(&MyDeviceStatusStringProperty.base, TRUE);
+    setBaseWritable(&MyDeviceStatusStringProperty.base, FALSE);
 
-    statusStringProperty.signature = statusStringPropertySignature;
-    statusStringProperty.propertyType = SINGLE_VALUE_PROPERTY;
-    statusStringProperty.getValue = &getStatusString;
+    MyDeviceStatusStringProperty.signature = MyDeviceStatusStringPropertySignature;
+    MyDeviceStatusStringProperty.propertyType = SINGLE_VALUE_PROPERTY;
+    MyDeviceStatusStringProperty.getValue = &getStatusString;
 
-    statusStringProperty.base.optParams.bgColor = 0x500;
-    statusStringProperty.base.optParams.label = statusStringPropertyLabel;
-    statusStringProperty.base.optParams.hints = statusStringPropertyHints;
-    statusStringProperty.base.optParams.numHints = 1;
+    MyDeviceStatusStringProperty.base.optParams.bgColor = 0x500;
+    MyDeviceStatusStringProperty.base.optParams.label = MyDeviceStatusStringPropertyLabel;
+    MyDeviceStatusStringProperty.base.optParams.hints = MyDeviceStatusStringPropertyHints;
+    MyDeviceStatusStringProperty.base.optParams.numHints = 1;
 
-    initializePropertyWidget(&set_temperature);
-    set_temperature.base.numLanguages = 1;
-    setBaseEnabled(&set_temperature.base, FALSE);
-    setBaseWritable(&set_temperature.base, TRUE);
+    initializePropertyWidget(&MyDeviceSet_temperature);
+    MyDeviceSet_temperature.base.numLanguages = 1;
+    setBaseEnabled(&MyDeviceSet_temperature.base, FALSE);
+    setBaseWritable(&MyDeviceSet_temperature.base, TRUE);
 
-    set_temperature.signature = set_temperatureSignature;
-    set_temperature.propertyType = SINGLE_VALUE_PROPERTY;
-    set_temperature.getValue = &getTargetTemperature;
+    MyDeviceSet_temperature.signature = MyDeviceSet_temperatureSignature;
+    MyDeviceSet_temperature.propertyType = SINGLE_VALUE_PROPERTY;
+    MyDeviceSet_temperature.getValue = &getTargetTemperature;
 
-    set_temperature.base.optParams.bgColor = 0x008000;
-    set_temperature.base.optParams.label = set_temperatureLabel;
-    set_temperature.base.optParams.hints = set_temperatureHints;
-    set_temperature.base.optParams.numHints = 1;
-    set_temperature.optParams.unitOfMeasure = set_temperatureUnitMeasure;
+    MyDeviceSet_temperature.base.optParams.bgColor = 0x008000;
+    MyDeviceSet_temperature.base.optParams.label = MyDeviceSet_temperatureLabel;
+    MyDeviceSet_temperature.base.optParams.hints = MyDeviceSet_temperatureHints;
+    MyDeviceSet_temperature.base.optParams.numHints = 1;
+    MyDeviceSet_temperature.optParams.unitOfMeasure = MyDeviceSet_temperatureUnitMeasure;
 
-    set_temperature.optParams.constraintRangeDefined = TRUE;
-    set_temperature.optParams.constraintRange.minValue = &set_temperatureConstraintRangeMin;
-    set_temperature.optParams.constraintRange.maxValue = &set_temperatureConstraintRangeMax;
-    set_temperature.optParams.constraintRange.increment = &set_temperatureConstraintRangeInc;
+    MyDeviceSet_temperature.optParams.constraintRangeDefined = TRUE;
+    MyDeviceSet_temperature.optParams.constraintRange.minValue = &MyDeviceSet_temperatureConstraintRangeMin;
+    MyDeviceSet_temperature.optParams.constraintRange.maxValue = &MyDeviceSet_temperatureConstraintRangeMax;
+    MyDeviceSet_temperature.optParams.constraintRange.increment = &MyDeviceSet_temperatureConstraintRangeInc;
 
-    initializePropertyWidget(&fan_speed);
-    fan_speed.base.numLanguages = 1;
-    setBaseEnabled(&fan_speed.base, FALSE);
-    setBaseWritable(&fan_speed.base, TRUE);
+    initializePropertyWidget(&MyDeviceFan_speed);
+    MyDeviceFan_speed.base.numLanguages = 1;
+    setBaseEnabled(&MyDeviceFan_speed.base, FALSE);
+    setBaseWritable(&MyDeviceFan_speed.base, TRUE);
 
-    fan_speed.signature = fan_speedSignature;
-    fan_speed.propertyType = SINGLE_VALUE_PROPERTY;
-    fan_speed.getValue = &getFanSpeed;
+    MyDeviceFan_speed.signature = MyDeviceFan_speedSignature;
+    MyDeviceFan_speed.propertyType = SINGLE_VALUE_PROPERTY;
+    MyDeviceFan_speed.getValue = &getFanSpeed;
 
-    fan_speed.base.optParams.bgColor = 0xff69b4;
-    fan_speed.base.optParams.label = fan_speedLabel;
-    fan_speed.base.optParams.hints = fan_speedHints;
-    fan_speed.base.optParams.numHints = 1;
+    MyDeviceFan_speed.base.optParams.bgColor = 0xff69b4;
+    MyDeviceFan_speed.base.optParams.label = MyDeviceFan_speedLabel;
+    MyDeviceFan_speed.base.optParams.hints = MyDeviceFan_speedHints;
+    MyDeviceFan_speed.base.optParams.numHints = 1;
 
-    fan_speed.optParams.numConstraints = 3;
-    fan_speed.optParams.constraintList = fan_speedConstraintList;
-    fan_speed.optParams.constraintList[0].value = &fan_speedConstraintValue0;
-    fan_speed.optParams.constraintList[0].display = fan_speedDisplay0;
-    fan_speed.optParams.constraintList[1].value = &fan_speedConstraintValue1;
-    fan_speed.optParams.constraintList[1].display = fan_speedDisplay1;
-    fan_speed.optParams.constraintList[2].value = &fan_speedConstraintValue2;
-    fan_speed.optParams.constraintList[2].display = fan_speedDisplay2;
+    MyDeviceFan_speed.optParams.numConstraints = 3;
+    MyDeviceFan_speed.optParams.constraintList = MyDeviceFan_speedConstraintList;
+    MyDeviceFan_speed.optParams.constraintList[0].value = &MyDeviceFan_speedConstraintValue0;
+    MyDeviceFan_speed.optParams.constraintList[0].display = MyDeviceFan_speedDisplay0;
+    MyDeviceFan_speed.optParams.constraintList[1].value = &MyDeviceFan_speedConstraintValue1;
+    MyDeviceFan_speed.optParams.constraintList[1].display = MyDeviceFan_speedDisplay1;
+    MyDeviceFan_speed.optParams.constraintList[2].value = &MyDeviceFan_speedConstraintValue2;
+    MyDeviceFan_speed.optParams.constraintList[2].display = MyDeviceFan_speedDisplay2;
 
     return;
 }
@@ -231,248 +232,248 @@ void WidgetsInit()
 void* identifyMsgOrPropId(uint32_t identifier, uint16_t* widgetType, uint16_t* propType, uint16_t* language)
 {
     switch (identifier) {
-    case EN_ROOTCONTAINER_GET_ALL_VALUES:
+    case EN_MYDEVICE_ROOTCONTAINER_GET_ALL_VALUES:
         *widgetType = WIDGET_TYPE_CONTAINER;
-        *language = MYLANGUAGES_EN;
-        return &rootContainer;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceRootContainer;
 
-    case EN_ROOTCONTAINER_VERSION_PROPERTY:
-        *widgetType = WIDGET_TYPE_CONTAINER;
-        *propType = PROPERTY_TYPE_VERSION;
-        *language = MYLANGUAGES_EN;
-        return &rootContainer;
-
-    case EN_ROOTCONTAINER_STATES_PROPERTY:
-        *widgetType = WIDGET_TYPE_CONTAINER;
-        *propType = PROPERTY_TYPE_STATES;
-        *language = MYLANGUAGES_EN;
-        return &rootContainer;
-
-    case EN_ROOTCONTAINER_OPTPARAMS_PROPERTY:
-        *widgetType = WIDGET_TYPE_CONTAINER;
-        *propType = PROPERTY_TYPE_OPTPARAMS;
-        *language = MYLANGUAGES_EN;
-        return &rootContainer;
-
-    case EN_TEMPANDHUMIDITYCONTAINER_GET_ALL_VALUES:
-        *widgetType = WIDGET_TYPE_CONTAINER;
-        *language = MYLANGUAGES_EN;
-        return &tempAndHumidityContainer;
-
-    case EN_TEMPANDHUMIDITYCONTAINER_VERSION_PROPERTY:
+    case EN_MYDEVICE_ROOTCONTAINER_VERSION_PROPERTY:
         *widgetType = WIDGET_TYPE_CONTAINER;
         *propType = PROPERTY_TYPE_VERSION;
-        *language = MYLANGUAGES_EN;
-        return &tempAndHumidityContainer;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceRootContainer;
 
-    case EN_TEMPANDHUMIDITYCONTAINER_STATES_PROPERTY:
+    case EN_MYDEVICE_ROOTCONTAINER_STATES_PROPERTY:
         *widgetType = WIDGET_TYPE_CONTAINER;
         *propType = PROPERTY_TYPE_STATES;
-        *language = MYLANGUAGES_EN;
-        return &tempAndHumidityContainer;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceRootContainer;
 
-    case EN_TEMPANDHUMIDITYCONTAINER_OPTPARAMS_PROPERTY:
+    case EN_MYDEVICE_ROOTCONTAINER_OPTPARAMS_PROPERTY:
         *widgetType = WIDGET_TYPE_CONTAINER;
         *propType = PROPERTY_TYPE_OPTPARAMS;
-        *language = MYLANGUAGES_EN;
-        return &tempAndHumidityContainer;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceRootContainer;
 
-    case EN_CURRENTTEMPSTRINGPROPERTY_GET_ALL_VALUES:
+    case EN_MYDEVICE_TEMPANDHUMIDITYCONTAINER_GET_ALL_VALUES:
+        *widgetType = WIDGET_TYPE_CONTAINER;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceTempAndHumidityContainer;
+
+    case EN_MYDEVICE_TEMPANDHUMIDITYCONTAINER_VERSION_PROPERTY:
+        *widgetType = WIDGET_TYPE_CONTAINER;
+        *propType = PROPERTY_TYPE_VERSION;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceTempAndHumidityContainer;
+
+    case EN_MYDEVICE_TEMPANDHUMIDITYCONTAINER_STATES_PROPERTY:
+        *widgetType = WIDGET_TYPE_CONTAINER;
+        *propType = PROPERTY_TYPE_STATES;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceTempAndHumidityContainer;
+
+    case EN_MYDEVICE_TEMPANDHUMIDITYCONTAINER_OPTPARAMS_PROPERTY:
+        *widgetType = WIDGET_TYPE_CONTAINER;
+        *propType = PROPERTY_TYPE_OPTPARAMS;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceTempAndHumidityContainer;
+
+    case EN_MYDEVICE_CURRENTTEMPSTRINGPROPERTY_GET_ALL_VALUES:
         *widgetType = WIDGET_TYPE_PROPERTY;
-        *language = MYLANGUAGES_EN;
-        return &CurrentTempStringProperty;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceCurrentTempStringProperty;
 
-    case EN_CURRENTTEMPSTRINGPROPERTY_VERSION_PROPERTY:
+    case EN_MYDEVICE_CURRENTTEMPSTRINGPROPERTY_VERSION_PROPERTY:
         *widgetType = WIDGET_TYPE_PROPERTY;
         *propType = PROPERTY_TYPE_VERSION;
-        *language = MYLANGUAGES_EN;
-        return &CurrentTempStringProperty;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceCurrentTempStringProperty;
 
-    case EN_CURRENTTEMPSTRINGPROPERTY_STATES_PROPERTY:
+    case EN_MYDEVICE_CURRENTTEMPSTRINGPROPERTY_STATES_PROPERTY:
         *widgetType = WIDGET_TYPE_PROPERTY;
         *propType = PROPERTY_TYPE_STATES;
-        *language = MYLANGUAGES_EN;
-        return &CurrentTempStringProperty;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceCurrentTempStringProperty;
 
-    case EN_CURRENTTEMPSTRINGPROPERTY_OPTPARAMS_PROPERTY:
+    case EN_MYDEVICE_CURRENTTEMPSTRINGPROPERTY_OPTPARAMS_PROPERTY:
         *widgetType = WIDGET_TYPE_PROPERTY;
         *propType = PROPERTY_TYPE_OPTPARAMS;
-        *language = MYLANGUAGES_EN;
-        return &CurrentTempStringProperty;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceCurrentTempStringProperty;
 
-    case EN_CURRENTTEMPSTRINGPROPERTY_VALUE_PROPERTY:
+    case EN_MYDEVICE_CURRENTTEMPSTRINGPROPERTY_VALUE_PROPERTY:
         *widgetType = WIDGET_TYPE_PROPERTY;
         *propType = PROPERTY_TYPE_VALUE;
-        *language = MYLANGUAGES_EN;
-        return &CurrentTempStringProperty;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceCurrentTempStringProperty;
 
-    case EN_CURRENTHUMIDITYSTRINGPROPERTY_GET_ALL_VALUES:
+    case EN_MYDEVICE_CURRENTHUMIDITYSTRINGPROPERTY_GET_ALL_VALUES:
         *widgetType = WIDGET_TYPE_PROPERTY;
-        *language = MYLANGUAGES_EN;
-        return &CurrentHumidityStringProperty;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceCurrentHumidityStringProperty;
 
-    case EN_CURRENTHUMIDITYSTRINGPROPERTY_VERSION_PROPERTY:
+    case EN_MYDEVICE_CURRENTHUMIDITYSTRINGPROPERTY_VERSION_PROPERTY:
         *widgetType = WIDGET_TYPE_PROPERTY;
         *propType = PROPERTY_TYPE_VERSION;
-        *language = MYLANGUAGES_EN;
-        return &CurrentHumidityStringProperty;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceCurrentHumidityStringProperty;
 
-    case EN_CURRENTHUMIDITYSTRINGPROPERTY_STATES_PROPERTY:
+    case EN_MYDEVICE_CURRENTHUMIDITYSTRINGPROPERTY_STATES_PROPERTY:
         *widgetType = WIDGET_TYPE_PROPERTY;
         *propType = PROPERTY_TYPE_STATES;
-        *language = MYLANGUAGES_EN;
-        return &CurrentHumidityStringProperty;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceCurrentHumidityStringProperty;
 
-    case EN_CURRENTHUMIDITYSTRINGPROPERTY_OPTPARAMS_PROPERTY:
+    case EN_MYDEVICE_CURRENTHUMIDITYSTRINGPROPERTY_OPTPARAMS_PROPERTY:
         *widgetType = WIDGET_TYPE_PROPERTY;
         *propType = PROPERTY_TYPE_OPTPARAMS;
-        *language = MYLANGUAGES_EN;
-        return &CurrentHumidityStringProperty;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceCurrentHumidityStringProperty;
 
-    case EN_CURRENTHUMIDITYSTRINGPROPERTY_VALUE_PROPERTY:
+    case EN_MYDEVICE_CURRENTHUMIDITYSTRINGPROPERTY_VALUE_PROPERTY:
         *widgetType = WIDGET_TYPE_PROPERTY;
         *propType = PROPERTY_TYPE_VALUE;
-        *language = MYLANGUAGES_EN;
-        return &CurrentHumidityStringProperty;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceCurrentHumidityStringProperty;
 
-    case EN_CONTROLSCONTAINER_GET_ALL_VALUES:
+    case EN_MYDEVICE_CONTROLSCONTAINER_GET_ALL_VALUES:
         *widgetType = WIDGET_TYPE_CONTAINER;
-        *language = MYLANGUAGES_EN;
-        return &controlsContainer;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceControlsContainer;
 
-    case EN_CONTROLSCONTAINER_VERSION_PROPERTY:
+    case EN_MYDEVICE_CONTROLSCONTAINER_VERSION_PROPERTY:
         *widgetType = WIDGET_TYPE_CONTAINER;
         *propType = PROPERTY_TYPE_VERSION;
-        *language = MYLANGUAGES_EN;
-        return &controlsContainer;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceControlsContainer;
 
-    case EN_CONTROLSCONTAINER_STATES_PROPERTY:
+    case EN_MYDEVICE_CONTROLSCONTAINER_STATES_PROPERTY:
         *widgetType = WIDGET_TYPE_CONTAINER;
         *propType = PROPERTY_TYPE_STATES;
-        *language = MYLANGUAGES_EN;
-        return &controlsContainer;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceControlsContainer;
 
-    case EN_CONTROLSCONTAINER_OPTPARAMS_PROPERTY:
+    case EN_MYDEVICE_CONTROLSCONTAINER_OPTPARAMS_PROPERTY:
         *widgetType = WIDGET_TYPE_CONTAINER;
         *propType = PROPERTY_TYPE_OPTPARAMS;
-        *language = MYLANGUAGES_EN;
-        return &controlsContainer;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceControlsContainer;
 
-    case EN_AC_MODE_GET_ALL_VALUES:
+    case EN_MYDEVICE_AC_MODE_GET_ALL_VALUES:
         *widgetType = WIDGET_TYPE_PROPERTY;
-        *language = MYLANGUAGES_EN;
-        return &ac_mode;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceAc_mode;
 
-    case EN_AC_MODE_VERSION_PROPERTY:
-        *widgetType = WIDGET_TYPE_PROPERTY;
-        *propType = PROPERTY_TYPE_VERSION;
-        *language = MYLANGUAGES_EN;
-        return &ac_mode;
-
-    case EN_AC_MODE_STATES_PROPERTY:
-        *widgetType = WIDGET_TYPE_PROPERTY;
-        *propType = PROPERTY_TYPE_STATES;
-        *language = MYLANGUAGES_EN;
-        return &ac_mode;
-
-    case EN_AC_MODE_OPTPARAMS_PROPERTY:
-        *widgetType = WIDGET_TYPE_PROPERTY;
-        *propType = PROPERTY_TYPE_OPTPARAMS;
-        *language = MYLANGUAGES_EN;
-        return &ac_mode;
-
-    case EN_AC_MODE_VALUE_PROPERTY:
-        *widgetType = WIDGET_TYPE_PROPERTY;
-        *propType = PROPERTY_TYPE_VALUE;
-        *language = MYLANGUAGES_EN;
-        return &ac_mode;
-
-    case EN_STATUSSTRINGPROPERTY_GET_ALL_VALUES:
-        *widgetType = WIDGET_TYPE_PROPERTY;
-        *language = MYLANGUAGES_EN;
-        return &statusStringProperty;
-
-    case EN_STATUSSTRINGPROPERTY_VERSION_PROPERTY:
+    case EN_MYDEVICE_AC_MODE_VERSION_PROPERTY:
         *widgetType = WIDGET_TYPE_PROPERTY;
         *propType = PROPERTY_TYPE_VERSION;
-        *language = MYLANGUAGES_EN;
-        return &statusStringProperty;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceAc_mode;
 
-    case EN_STATUSSTRINGPROPERTY_STATES_PROPERTY:
+    case EN_MYDEVICE_AC_MODE_STATES_PROPERTY:
         *widgetType = WIDGET_TYPE_PROPERTY;
         *propType = PROPERTY_TYPE_STATES;
-        *language = MYLANGUAGES_EN;
-        return &statusStringProperty;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceAc_mode;
 
-    case EN_STATUSSTRINGPROPERTY_OPTPARAMS_PROPERTY:
+    case EN_MYDEVICE_AC_MODE_OPTPARAMS_PROPERTY:
         *widgetType = WIDGET_TYPE_PROPERTY;
         *propType = PROPERTY_TYPE_OPTPARAMS;
-        *language = MYLANGUAGES_EN;
-        return &statusStringProperty;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceAc_mode;
 
-    case EN_STATUSSTRINGPROPERTY_VALUE_PROPERTY:
+    case EN_MYDEVICE_AC_MODE_VALUE_PROPERTY:
         *widgetType = WIDGET_TYPE_PROPERTY;
         *propType = PROPERTY_TYPE_VALUE;
-        *language = MYLANGUAGES_EN;
-        return &statusStringProperty;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceAc_mode;
 
-    case EN_SET_TEMPERATURE_GET_ALL_VALUES:
+    case EN_MYDEVICE_STATUSSTRINGPROPERTY_GET_ALL_VALUES:
         *widgetType = WIDGET_TYPE_PROPERTY;
-        *language = MYLANGUAGES_EN;
-        return &set_temperature;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceStatusStringProperty;
 
-    case EN_SET_TEMPERATURE_VERSION_PROPERTY:
+    case EN_MYDEVICE_STATUSSTRINGPROPERTY_VERSION_PROPERTY:
         *widgetType = WIDGET_TYPE_PROPERTY;
         *propType = PROPERTY_TYPE_VERSION;
-        *language = MYLANGUAGES_EN;
-        return &set_temperature;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceStatusStringProperty;
 
-    case EN_SET_TEMPERATURE_STATES_PROPERTY:
+    case EN_MYDEVICE_STATUSSTRINGPROPERTY_STATES_PROPERTY:
         *widgetType = WIDGET_TYPE_PROPERTY;
         *propType = PROPERTY_TYPE_STATES;
-        *language = MYLANGUAGES_EN;
-        return &set_temperature;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceStatusStringProperty;
 
-    case EN_SET_TEMPERATURE_OPTPARAMS_PROPERTY:
+    case EN_MYDEVICE_STATUSSTRINGPROPERTY_OPTPARAMS_PROPERTY:
         *widgetType = WIDGET_TYPE_PROPERTY;
         *propType = PROPERTY_TYPE_OPTPARAMS;
-        *language = MYLANGUAGES_EN;
-        return &set_temperature;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceStatusStringProperty;
 
-    case EN_SET_TEMPERATURE_VALUE_PROPERTY:
+    case EN_MYDEVICE_STATUSSTRINGPROPERTY_VALUE_PROPERTY:
         *widgetType = WIDGET_TYPE_PROPERTY;
         *propType = PROPERTY_TYPE_VALUE;
-        *language = MYLANGUAGES_EN;
-        return &set_temperature;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceStatusStringProperty;
 
-    case EN_FAN_SPEED_GET_ALL_VALUES:
+    case EN_MYDEVICE_SET_TEMPERATURE_GET_ALL_VALUES:
         *widgetType = WIDGET_TYPE_PROPERTY;
-        *language = MYLANGUAGES_EN;
-        return &fan_speed;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceSet_temperature;
 
-    case EN_FAN_SPEED_VERSION_PROPERTY:
+    case EN_MYDEVICE_SET_TEMPERATURE_VERSION_PROPERTY:
         *widgetType = WIDGET_TYPE_PROPERTY;
         *propType = PROPERTY_TYPE_VERSION;
-        *language = MYLANGUAGES_EN;
-        return &fan_speed;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceSet_temperature;
 
-    case EN_FAN_SPEED_STATES_PROPERTY:
+    case EN_MYDEVICE_SET_TEMPERATURE_STATES_PROPERTY:
         *widgetType = WIDGET_TYPE_PROPERTY;
         *propType = PROPERTY_TYPE_STATES;
-        *language = MYLANGUAGES_EN;
-        return &fan_speed;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceSet_temperature;
 
-    case EN_FAN_SPEED_OPTPARAMS_PROPERTY:
+    case EN_MYDEVICE_SET_TEMPERATURE_OPTPARAMS_PROPERTY:
         *widgetType = WIDGET_TYPE_PROPERTY;
         *propType = PROPERTY_TYPE_OPTPARAMS;
-        *language = MYLANGUAGES_EN;
-        return &fan_speed;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceSet_temperature;
 
-    case EN_FAN_SPEED_VALUE_PROPERTY:
+    case EN_MYDEVICE_SET_TEMPERATURE_VALUE_PROPERTY:
         *widgetType = WIDGET_TYPE_PROPERTY;
         *propType = PROPERTY_TYPE_VALUE;
-        *language = MYLANGUAGES_EN;
-        return &fan_speed;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceSet_temperature;
+
+    case EN_MYDEVICE_FAN_SPEED_GET_ALL_VALUES:
+        *widgetType = WIDGET_TYPE_PROPERTY;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceFan_speed;
+
+    case EN_MYDEVICE_FAN_SPEED_VERSION_PROPERTY:
+        *widgetType = WIDGET_TYPE_PROPERTY;
+        *propType = PROPERTY_TYPE_VERSION;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceFan_speed;
+
+    case EN_MYDEVICE_FAN_SPEED_STATES_PROPERTY:
+        *widgetType = WIDGET_TYPE_PROPERTY;
+        *propType = PROPERTY_TYPE_STATES;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceFan_speed;
+
+    case EN_MYDEVICE_FAN_SPEED_OPTPARAMS_PROPERTY:
+        *widgetType = WIDGET_TYPE_PROPERTY;
+        *propType = PROPERTY_TYPE_OPTPARAMS;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceFan_speed;
+
+    case EN_MYDEVICE_FAN_SPEED_VALUE_PROPERTY:
+        *widgetType = WIDGET_TYPE_PROPERTY;
+        *propType = PROPERTY_TYPE_VALUE;
+        *language = MYDEVICE_MYLANGUAGES_EN;
+        return &MyDeviceFan_speed;
 
     default:
         return FALSE;
@@ -482,56 +483,56 @@ void* identifyMsgOrPropId(uint32_t identifier, uint16_t* widgetType, uint16_t* p
 void* identifyMsgOrPropIdForSignal(uint32_t identifier, uint8_t* isProperty)
 {
     switch (identifier) {
-    case EN_ROOTCONTAINER_SIGNAL_PROPERTIES_CHANGED:
-        return &rootContainer;
+    case EN_MYDEVICE_ROOTCONTAINER_SIGNAL_PROPERTIES_CHANGED:
+        return &MyDeviceRootContainer;
 
-    case EN_TEMPANDHUMIDITYCONTAINER_SIGNAL_PROPERTIES_CHANGED:
-        return &tempAndHumidityContainer;
+    case EN_MYDEVICE_TEMPANDHUMIDITYCONTAINER_SIGNAL_PROPERTIES_CHANGED:
+        return &MyDeviceTempAndHumidityContainer;
 
-    case EN_CURRENTTEMPSTRINGPROPERTY_SIGNAL_PROPERTIES_CHANGED:
-        return &CurrentTempStringProperty;
+    case EN_MYDEVICE_CURRENTTEMPSTRINGPROPERTY_SIGNAL_PROPERTIES_CHANGED:
+        return &MyDeviceCurrentTempStringProperty;
 
-    case EN_CURRENTTEMPSTRINGPROPERTY_SIGNAL_VALUE_CHANGED:
+    case EN_MYDEVICE_CURRENTTEMPSTRINGPROPERTY_SIGNAL_VALUE_CHANGED:
         *isProperty = TRUE;
-        return &CurrentTempStringProperty;
+        return &MyDeviceCurrentTempStringProperty;
 
-    case EN_CURRENTHUMIDITYSTRINGPROPERTY_SIGNAL_PROPERTIES_CHANGED:
-        return &CurrentHumidityStringProperty;
+    case EN_MYDEVICE_CURRENTHUMIDITYSTRINGPROPERTY_SIGNAL_PROPERTIES_CHANGED:
+        return &MyDeviceCurrentHumidityStringProperty;
 
-    case EN_CURRENTHUMIDITYSTRINGPROPERTY_SIGNAL_VALUE_CHANGED:
+    case EN_MYDEVICE_CURRENTHUMIDITYSTRINGPROPERTY_SIGNAL_VALUE_CHANGED:
         *isProperty = TRUE;
-        return &CurrentHumidityStringProperty;
+        return &MyDeviceCurrentHumidityStringProperty;
 
-    case EN_CONTROLSCONTAINER_SIGNAL_PROPERTIES_CHANGED:
-        return &controlsContainer;
+    case EN_MYDEVICE_CONTROLSCONTAINER_SIGNAL_PROPERTIES_CHANGED:
+        return &MyDeviceControlsContainer;
 
-    case EN_AC_MODE_SIGNAL_PROPERTIES_CHANGED:
-        return &ac_mode;
+    case EN_MYDEVICE_AC_MODE_SIGNAL_PROPERTIES_CHANGED:
+        return &MyDeviceAc_mode;
 
-    case EN_AC_MODE_SIGNAL_VALUE_CHANGED:
+    case EN_MYDEVICE_AC_MODE_SIGNAL_VALUE_CHANGED:
         *isProperty = TRUE;
-        return &ac_mode;
+        return &MyDeviceAc_mode;
 
-    case EN_STATUSSTRINGPROPERTY_SIGNAL_PROPERTIES_CHANGED:
-        return &statusStringProperty;
+    case EN_MYDEVICE_STATUSSTRINGPROPERTY_SIGNAL_PROPERTIES_CHANGED:
+        return &MyDeviceStatusStringProperty;
 
-    case EN_STATUSSTRINGPROPERTY_SIGNAL_VALUE_CHANGED:
+    case EN_MYDEVICE_STATUSSTRINGPROPERTY_SIGNAL_VALUE_CHANGED:
         *isProperty = TRUE;
-        return &statusStringProperty;
+        return &MyDeviceStatusStringProperty;
 
-    case EN_SET_TEMPERATURE_SIGNAL_PROPERTIES_CHANGED:
-        return &set_temperature;
+    case EN_MYDEVICE_SET_TEMPERATURE_SIGNAL_PROPERTIES_CHANGED:
+        return &MyDeviceSet_temperature;
 
-    case EN_SET_TEMPERATURE_SIGNAL_VALUE_CHANGED:
+    case EN_MYDEVICE_SET_TEMPERATURE_SIGNAL_VALUE_CHANGED:
         *isProperty = TRUE;
-        return &set_temperature;
+        return &MyDeviceSet_temperature;
 
-    case EN_FAN_SPEED_SIGNAL_PROPERTIES_CHANGED:
-        return &fan_speed;
+    case EN_MYDEVICE_FAN_SPEED_SIGNAL_PROPERTIES_CHANGED:
+        return &MyDeviceFan_speed;
 
-    case EN_FAN_SPEED_SIGNAL_VALUE_CHANGED:
+    case EN_MYDEVICE_FAN_SPEED_SIGNAL_VALUE_CHANGED:
         *isProperty = TRUE;
-        return &fan_speed;
+        return &MyDeviceFan_speed;
 
     default:
         return FALSE;
@@ -541,8 +542,8 @@ void* identifyMsgOrPropIdForSignal(uint32_t identifier, uint8_t* isProperty)
 uint8_t identifyRootMsgOrPropId(uint32_t identifier)
 {
     switch (identifier) {
-    case ROOT_CONTROLPANEL_ROOTCONTAINER_VERSION_PROPERTY:
-    case ROOT_CONTROLPANEL_ROOTCONTAINER_GET_ALL_VALUES:
+    case MYDEVICE_ROOT_CONTROLPANEL_ROOTCONTAINER_VERSION_PROPERTY:
+    case MYDEVICE_ROOT_CONTROLPANEL_ROOTCONTAINER_GET_ALL_VALUES:
         return TRUE;
 
     default:
@@ -558,69 +559,69 @@ AJ_Status SetValueProperty(AJ_Message* replyMsg, uint32_t propId, void* context)
     AJ_UnmarshalVariant(replyMsg, &variantSig);
 
     switch (propId) {
-    case EN_CURRENTTEMPSTRINGPROPERTY_VALUE_PROPERTY:
+    case EN_MYDEVICE_CURRENTTEMPSTRINGPROPERTY_VALUE_PROPERTY:
     {
         const char* newValue;
-        if ((status = unmarshalPropertyValue(&CurrentTempStringProperty, replyMsg, &newValue, ((SetValueContext*)context)->sender)))
+        if ((status = unmarshalPropertyValue(&MyDeviceCurrentTempStringProperty, replyMsg, &newValue, ((SetValueContext*)context)->sender)))
             return status;
         setCurrentTemperatureString(newValue);
         ((SetValueContext*)context)->numSignals = 1;
-        ((SetValueContext*)context)->signals[0] = EN_CURRENTTEMPSTRINGPROPERTY_SIGNAL_VALUE_CHANGED;
+        ((SetValueContext*)context)->signals[0] = EN_MYDEVICE_CURRENTTEMPSTRINGPROPERTY_SIGNAL_VALUE_CHANGED;
     }
     break;
 
-    case EN_CURRENTHUMIDITYSTRINGPROPERTY_VALUE_PROPERTY:
+    case EN_MYDEVICE_CURRENTHUMIDITYSTRINGPROPERTY_VALUE_PROPERTY:
     {
         const char* newValue;
-        if ((status = unmarshalPropertyValue(&CurrentHumidityStringProperty, replyMsg, &newValue, ((SetValueContext*)context)->sender)))
+        if ((status = unmarshalPropertyValue(&MyDeviceCurrentHumidityStringProperty, replyMsg, &newValue, ((SetValueContext*)context)->sender)))
             return status;
         setCurrentHumidityString(newValue);
         ((SetValueContext*)context)->numSignals = 1;
-        ((SetValueContext*)context)->signals[0] = EN_CURRENTHUMIDITYSTRINGPROPERTY_SIGNAL_VALUE_CHANGED;
+        ((SetValueContext*)context)->signals[0] = EN_MYDEVICE_CURRENTHUMIDITYSTRINGPROPERTY_SIGNAL_VALUE_CHANGED;
     }
     break;
 
-    case EN_AC_MODE_VALUE_PROPERTY:
+    case EN_MYDEVICE_AC_MODE_VALUE_PROPERTY:
     {
         uint16_t newValue;
-        if ((status = unmarshalPropertyValue(&ac_mode, replyMsg, &newValue, ((SetValueContext*)context)->sender)))
+        if ((status = unmarshalPropertyValue(&MyDeviceAc_mode, replyMsg, &newValue, ((SetValueContext*)context)->sender)))
             return status;
         setCurrentMode(newValue);
         ((SetValueContext*)context)->numSignals = 1;
-        ((SetValueContext*)context)->signals[0] = EN_AC_MODE_SIGNAL_VALUE_CHANGED;
+        ((SetValueContext*)context)->signals[0] = EN_MYDEVICE_AC_MODE_SIGNAL_VALUE_CHANGED;
     }
     break;
 
-    case EN_STATUSSTRINGPROPERTY_VALUE_PROPERTY:
+    case EN_MYDEVICE_STATUSSTRINGPROPERTY_VALUE_PROPERTY:
     {
         const char* newValue;
-        if ((status = unmarshalPropertyValue(&statusStringProperty, replyMsg, &newValue, ((SetValueContext*)context)->sender)))
+        if ((status = unmarshalPropertyValue(&MyDeviceStatusStringProperty, replyMsg, &newValue, ((SetValueContext*)context)->sender)))
             return status;
         setStatusString(newValue);
         ((SetValueContext*)context)->numSignals = 1;
-        ((SetValueContext*)context)->signals[0] = EN_STATUSSTRINGPROPERTY_SIGNAL_VALUE_CHANGED;
+        ((SetValueContext*)context)->signals[0] = EN_MYDEVICE_STATUSSTRINGPROPERTY_SIGNAL_VALUE_CHANGED;
     }
     break;
 
-    case EN_SET_TEMPERATURE_VALUE_PROPERTY:
+    case EN_MYDEVICE_SET_TEMPERATURE_VALUE_PROPERTY:
     {
         uint16_t newValue;
-        if ((status = unmarshalPropertyValue(&set_temperature, replyMsg, &newValue, ((SetValueContext*)context)->sender)))
+        if ((status = unmarshalPropertyValue(&MyDeviceSet_temperature, replyMsg, &newValue, ((SetValueContext*)context)->sender)))
             return status;
         setTargetTemperature(newValue);
         ((SetValueContext*)context)->numSignals = 1;
-        ((SetValueContext*)context)->signals[0] = EN_SET_TEMPERATURE_SIGNAL_VALUE_CHANGED;
+        ((SetValueContext*)context)->signals[0] = EN_MYDEVICE_SET_TEMPERATURE_SIGNAL_VALUE_CHANGED;
     }
     break;
 
-    case EN_FAN_SPEED_VALUE_PROPERTY:
+    case EN_MYDEVICE_FAN_SPEED_VALUE_PROPERTY:
     {
         uint16_t newValue;
-        if ((status = unmarshalPropertyValue(&fan_speed, replyMsg, &newValue, ((SetValueContext*)context)->sender)))
+        if ((status = unmarshalPropertyValue(&MyDeviceFan_speed, replyMsg, &newValue, ((SetValueContext*)context)->sender)))
             return status;
         setFanSpeed(newValue);
         ((SetValueContext*)context)->numSignals = 1;
-        ((SetValueContext*)context)->signals[0] = EN_FAN_SPEED_SIGNAL_VALUE_CHANGED;
+        ((SetValueContext*)context)->signals[0] = EN_MYDEVICE_FAN_SPEED_SIGNAL_VALUE_CHANGED;
     }
     break;
 

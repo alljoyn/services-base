@@ -13,12 +13,12 @@
 #    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 #    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
-echo "Generating code for" $1
+echo "Generating code for" "$@"
 
 INITIAL_DIR=`pwd` # Save current dir
 cd `dirname $0`       # Go to script dir
 
-python generateCPSApp.py $1 ../../samples/CPSControlleeSample/ ../CPSControlleeTester/
+python generateCPSApp.py "$@" -p ../../samples/CPSControlleeSample/ -t ../CPSControlleeTester/
 retval=$?
 
 cd ${INITIAL_DIR}

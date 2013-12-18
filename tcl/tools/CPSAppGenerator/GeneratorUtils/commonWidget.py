@@ -27,8 +27,9 @@ class Widget:
         self.languageSetName = languageSetName
         self.languageSet = self.generated.languageSets[languageSetName]
         self.parentObjectPath = parentObjectPath
-        self.name = element.name
-        self.objectPathSuffix = "/" + self.name
+        self.name = self.generated.unitId + self.element.name[:1].upper() + self.element.name[1:]
+        self.capNamePrefix = self.generated.unitId + "_" + self.element.name[:1].upper() + self.element.name[1:]        
+        self.objectPathSuffix = "/" + self.element.name
         if hasattr(self.element, "secured") :
             self.secured = self.element.secured.upper()
         else :
@@ -47,20 +48,20 @@ class Widget:
 
     def generateBasicsPerLanguage(self, language) :
         ### objectPath stuff
-        objectPathVar = "{0}{1}ObjectPath".format(language, self.name.capitalize())
+        objectPathVar = "{0}{1}ObjectPath".format(language, self.name[:1].upper() + self.name[1:])
         myObjectPath = self.parentObjectPath.replace("REPLACE_LANG",language) + self.objectPathSuffix
 
         self.generated.objectPathsDecl += "extern const char {0}[];\n".format(objectPathVar)
         self.generated.objectPathsDef += "const char {0}[] = \"{1}\";\n".format(objectPathVar, myObjectPath)
 
         ### Defines for Interfaces
-        capName = language.upper() + "_" + self.name.upper()        
+        capName = language.upper() + "_" + self.capNamePrefix.upper()        
         self.generateDefines(capName)
          
         self.generated.defines += "\n"
         self.generated.definesIndx += 1	
     
-        self.generateIdentify(capName, self.languageSetName.upper() + "_" + language.upper())
+        self.generateIdentify(capName, self.generated.unitId.upper() + "_" + self.languageSetName.upper() + "_" + language.upper())
 
         ### Add Interface to AppObjects
         if self.secured == "FALSE" :

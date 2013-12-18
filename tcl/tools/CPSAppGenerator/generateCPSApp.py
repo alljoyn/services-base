@@ -27,6 +27,7 @@ import dialogWidget as dw
 import commonWidget as common
 import httpControl as http
 import cpvalidate
+from optparse import OptionParser
 
 ## ERROR CODES ##
 ## 1 : missing command line arguments
@@ -35,61 +36,65 @@ import cpvalidate
 
 ### Start by validating the input and the xml ###
 
-if len(sys.argv) < 2 :
+parser = OptionParser()
+parser.add_option("-p", "--path", dest="path", default=scriptDir + "/../../samples/CPSControlleeSample/",
+                  help="destination path for generated files")
+parser.add_option("-t", "--testpath", dest="testpath", default="",
+                  help="destination path for generated files of tester application")
+(options, args) = parser.parse_args()
+
+path = options.path
+testFilePath = options.testpath
+generated = gen.Generator(scriptDir, path, testFilePath)
+generated.initializeFiles()
+
+if len(args) < 1 :
     print >> sys.stderr, "ERROR - Please provide the xml file as input"
     sys.exit(1)
 
-xmlfile = sys.argv[1]
-cpFile = scriptDir + "/cp.xsd"
-subprocArgs = "xmllint --noout --schema {0} {1}".format(cpFile, xmlfile)
-rc = subprocess.call(subprocArgs, shell=True)
-if rc != 0 :
-    print >> sys.stderr, "\nERROR - xml validation did not pass"
-    sys.exit(2)
+for i in range(0, len(args)) :
+    xmlfile = args[i]
+    print "\nProcessing xmlfile: " + xmlfile + "\n"    
+    cpFile = scriptDir + "/cp.xsd"
+    subprocArgs = "xmllint --noout --schema {0} {1}".format(cpFile, xmlfile)
+    rc = subprocess.call(subprocArgs, shell=True)
+    if rc != 0 :
+        print >> sys.stderr, "\nERROR - xml validation did not pass for xml: " + xmlfile + "\n"
+        sys.exit(2)
 
-path = "."
-if len(sys.argv) >= 3 :
-    path = sys.argv[2]
+    ### Initialize the generated structure ###
+    o = xml2objects.ObjectBuilder(xmlfile)
 
-testFilePath = ""
-if len(sys.argv) >= 4 :
-    testFilePath = sys.argv[3]
-  
-### Initialize the generated structure ###
-o = xml2objects.ObjectBuilder(xmlfile)
-	
-if not cpvalidate.validate_all(o.root):
-    sys.exit(3)
+    if not cpvalidate.validate_all(o.root):
+        sys.exit(3)
 
-generated = gen.Generator(scriptDir, path, testFilePath)
-generated.initializeFiles()
-generated.setControlDeviceData(o.root.controlPanelDevice.name, o.root.controlPanelDevice.headerCode)
-generated.setLanguageSets(o.root.controlPanelDevice.languageSet)
+    generated.setControlDeviceData(o.root.controlPanelDevice.name, o.root.controlPanelDevice.headerCode)
+    generated.setLanguageSets(o.root.controlPanelDevice.languageSet)
 
-### Get and process HttpControlElements
-if hasattr(o.root.controlPanelDevice, "url") :
-    httpControl = http.HttpControl(generated, o.root.controlPanelDevice.url)
-    httpControl.generate()
+    ### Get and process HttpControlElements
+    if hasattr(o.root.controlPanelDevice, "url") :
+        httpControl = http.HttpControl(generated, o.root.controlPanelDevice.url)
+        httpControl.generate()
 
-### Get and process all ControlPanels
-if hasattr(o.root.controlPanelDevice, "controlPanels") :
-   for cp in o.root.controlPanelDevice.controlPanels.controlPanel :
-        generated.addControlPanel(cp.rootContainer)
-        container = cw.Container(generated, cp.rootContainer, generated.ObjectPathPrefix + cp.rootContainer.name + "/REPLACE_LANG", cp.attr["languageSet"], 1)
-        container.generate()
-
-### Get and process all NotificationAction 
-if hasattr(o.root.controlPanelDevice, "notificationActions") :
-    if hasattr(o.root.controlPanelDevice.notificationActions, "dialog") :
-        for notDialog in o.root.controlPanelDevice.notificationActions.dialog :
-            generated.addNotificationAction(notDialog)
-            dialog = dw.Dialog(generated, notDialog, generated.ObjectPathPrefix + notDialog.name + "/REPLACE_LANG", notDialog.attr["languageSet"], 1)
-            dialog.generate()
-    if hasattr(o.root.controlPanelDevice.notificationActions, "container") : 
-        for notContainer in o.root.controlPanelDevice.notificationActions.container :
-            generated.addNotificationAction(notContainer)
-            container = cw.Container(generated, notContainer, generated.ObjectPathPrefix + notContainer.name + "/REPLACE_LANG", notContainer.attr["languageSet"], 1)
+    ### Get and process all ControlPanels
+    if hasattr(o.root.controlPanelDevice, "controlPanels") :
+       for cp in o.root.controlPanelDevice.controlPanels.controlPanel :
+            generated.addControlPanel(cp.rootContainer)
+            container = cw.Container(generated, cp.rootContainer, generated.ObjectPathPrefix + cp.rootContainer.name + "/REPLACE_LANG", cp.attr["languageSet"], 1)
             container.generate()
+
+    ### Get and process all NotificationAction 
+    if hasattr(o.root.controlPanelDevice, "notificationActions") :
+        if hasattr(o.root.controlPanelDevice.notificationActions, "dialog") :
+            for notDialog in o.root.controlPanelDevice.notificationActions.dialog :
+                generated.addNotificationAction(notDialog)
+                dialog = dw.Dialog(generated, notDialog, generated.ObjectPathPrefix + notDialog.name + "/REPLACE_LANG", notDialog.attr["languageSet"], 1)
+                dialog.generate()
+        if hasattr(o.root.controlPanelDevice.notificationActions, "container") : 
+            for notContainer in o.root.controlPanelDevice.notificationActions.container :
+                generated.addNotificationAction(notContainer)
+                container = cw.Container(generated, notContainer, generated.ObjectPathPrefix + notContainer.name + "/REPLACE_LANG", notContainer.attr["languageSet"], 1)
+                container.generate()
 
 ### Finish up merging all the different components ###
 generated.replaceInFiles()
