@@ -14,12 +14,15 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-package org.alljoyn.ns;
+package org.alljoyn.ns.transport.producer;
 
 import java.util.EnumMap;
 import java.util.Map;
 
 import org.alljoyn.bus.Variant;
+import org.alljoyn.ns.NotificationMessageType;
+import org.alljoyn.ns.transport.TransportNotificationText;
+import org.alljoyn.ns.transport.interfaces.NotificationTransport;
 
 /* 
  * The class used to send session less signals
@@ -50,7 +53,7 @@ class NotificationTransportProducer implements NotificationTransport {
 	
 	/**
 	 * Use this method to send session less signals
-	 * @see org.alljoyn.ns.NotificationTransport#notify(int, int, short, String, String, byte[], String, Map, Map, TransportNotificationText[])
+	 * @see org.alljoyn.ns.transport.interfaces.NotificationTransport#notify(int, int, short, String, String, byte[], String, Map, Map, TransportNotificationText[])
 	 */
 	@Override
 	public void notify(int version, int msgId,

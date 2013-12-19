@@ -14,15 +14,21 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-package org.alljoyn.ns;
+package org.alljoyn.ns.transport.consumer;
 
 import java.util.Map;
 
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.Variant;
+import org.alljoyn.ns.NotificationServiceException;
+import org.alljoyn.ns.PayloadAdapter;
 import org.alljoyn.ns.commons.GenericLogger;
 import org.alljoyn.ns.commons.NativePlatformFactory;
 import org.alljoyn.ns.commons.NativePlatformFactoryException;
+import org.alljoyn.ns.transport.Transport;
+import org.alljoyn.ns.transport.TransportNotificationText;
+import org.alljoyn.ns.transport.interfaces.NotificationTransport;
+import org.alljoyn.ns.transport.interfaces.NotificationTransportSuperAgent;
 
 
 /*
@@ -64,7 +70,7 @@ class NotificationTransportConsumer implements NotificationTransport, Notificati
 
 	/**
 	 * This method will be called by the AJ bus when a notification is received
-	 * @see org.alljoyn.ns.NotificationTransport#notify(int, int, short, String, String, byte[], String, Map, Map, TransportNotificationText[])
+	 * @see org.alljoyn.ns.transport.interfaces.NotificationTransport#notify(int, int, short, String, String, byte[], String, Map, Map, TransportNotificationText[])
 	 */
 	@Override
 	public void notify(int version, int msgId, short messageType, String deviceId, String deviceName, byte[] appId, String appName, Map<Integer, Variant> attributes, Map<String, String> customAttributes, TransportNotificationText[] text) {

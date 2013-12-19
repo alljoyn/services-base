@@ -26,6 +26,7 @@ import org.alljoyn.ns.commons.GenericLogger;
 import org.alljoyn.ns.commons.NativePlatform;
 import org.alljoyn.ns.commons.NativePlatformFactory;
 import org.alljoyn.ns.commons.NativePlatformFactoryException;
+import org.alljoyn.ns.transport.Transport;
 import org.alljoyn.services.android.storage.Property;
 import org.alljoyn.services.common.PropertyStore;
 import org.alljoyn.services.common.PropertyStore.Filter;

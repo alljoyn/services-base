@@ -14,7 +14,7 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-package org.alljoyn.ns;
+package org.alljoyn.ns.transport.interfaces;
 
 import java.util.Map;
 
@@ -22,12 +22,13 @@ import org.alljoyn.bus.BusObject;
 import org.alljoyn.bus.Variant;
 import org.alljoyn.bus.annotation.BusInterface;
 import org.alljoyn.bus.annotation.BusSignal;
+import org.alljoyn.ns.transport.TransportNotificationText;
 
 /** 
  * The interface used to send and receive "session less" notification signals  
  */
 @BusInterface (name = NotificationTransport.IF_NAME)
-interface NotificationTransport extends BusObject {
+public interface NotificationTransport extends BusObject {
 	
 	public static final String IF_NAME = "org.alljoyn.Notification"; 
 	

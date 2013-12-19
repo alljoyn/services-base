@@ -21,6 +21,7 @@ import org.alljoyn.ns.commons.GenericLogger;
 import org.alljoyn.ns.commons.NativePlatform;
 import org.alljoyn.ns.commons.NativePlatformFactory;
 import org.alljoyn.ns.commons.NativePlatformFactoryException;
+import org.alljoyn.ns.transport.Transport;
 import org.alljoyn.services.common.PropertyStore;
 
 
@@ -103,8 +104,8 @@ public class NotificationService  {
 			throw new NotificationServiceException("NotificationReceiver interface should be implemented in order to receive notifications, received null pointer");
 		}
 		
-		transport.setNotificationReceiver(receiver);
 		transport.startReceiverTransport(bus);
+		transport.setNotificationReceiver(receiver);
 	}//initReceive
 
 	/**

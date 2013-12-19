@@ -14,9 +14,10 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-package org.alljoyn.ns;
+package org.alljoyn.ns.transport;
 
 import org.alljoyn.bus.annotation.Position;
+import org.alljoyn.ns.NotificationText;
 
 /* 
  * The utility class used to wrap NotificationText object into format of TransportNotificationText that 

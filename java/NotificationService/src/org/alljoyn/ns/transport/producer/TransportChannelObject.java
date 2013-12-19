@@ -18,7 +18,7 @@
  * NotificationSenderImpl. Creates object of the NotificationSenderImpl class
  */
 
-package org.alljoyn.ns;
+package org.alljoyn.ns.transport.producer;
 
 import java.util.Map;
 
@@ -26,8 +26,12 @@ import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.SignalEmitter;
 import org.alljoyn.bus.Status;
 import org.alljoyn.bus.Variant;
+import org.alljoyn.ns.NotificationMessageType;
+import org.alljoyn.ns.NotificationServiceException;
 import org.alljoyn.ns.commons.GenericLogger;
 import org.alljoyn.ns.commons.NativePlatform;
+import org.alljoyn.ns.transport.TransportNotificationText;
+import org.alljoyn.ns.transport.interfaces.NotificationTransport;
 
 
 /**

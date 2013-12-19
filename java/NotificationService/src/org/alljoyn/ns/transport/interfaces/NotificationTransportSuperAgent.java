@@ -14,7 +14,7 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-package org.alljoyn.ns;
+package org.alljoyn.ns.transport.interfaces;
 
 import java.util.Map;
 
@@ -22,9 +22,10 @@ import org.alljoyn.bus.BusObject;
 import org.alljoyn.bus.Variant;
 import org.alljoyn.bus.annotation.BusInterface;
 import org.alljoyn.bus.annotation.BusSignal;
+import org.alljoyn.ns.transport.TransportNotificationText;
 
 @BusInterface (name = NotificationTransportSuperAgent.IF_NAME)
-interface NotificationTransportSuperAgent extends BusObject {
+public interface NotificationTransportSuperAgent extends BusObject {
 	
 	public static final String IF_NAME = "org.alljoyn.Notification.Superagent";
 	

@@ -14,7 +14,7 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-package org.alljoyn.ns;
+package org.alljoyn.ns.transport.consumer;
 
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.RejectedExecutionHandler;
@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  *  The thread pool manager, is used to return the received notifications to
  *  an application writer
  */
-class TransportReceiverPoolManager implements RejectedExecutionHandler {
+class NotificationReceiverPoolManager implements RejectedExecutionHandler {
 	
 	/**
 	 * The thread TTL time
@@ -57,7 +57,7 @@ class TransportReceiverPoolManager implements RejectedExecutionHandler {
 	 * Constructor 
 	 * Starts the thread pool
 	 */
-	public TransportReceiverPoolManager() {
+	public NotificationReceiverPoolManager() {
 		initPool();
 	}
 	

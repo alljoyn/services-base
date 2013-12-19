@@ -27,12 +27,15 @@ import org.alljoyn.bus.Variant;
 import org.alljoyn.ns.commons.GenericLogger;
 import org.alljoyn.ns.commons.NativePlatformFactory;
 import org.alljoyn.ns.commons.NativePlatformFactoryException;
+import org.alljoyn.ns.transport.Transport;
+import org.alljoyn.ns.transport.TransportNotificationText;
+import org.alljoyn.ns.transport.TransportRichAudioUrl;
 
 
 /**
  * Mediate between variables structure sent over AJ network to Notification object structure and vice versa   
  */
-class PayloadAdapter {
+public class PayloadAdapter {
 		
 	private enum ArgumentKey {
 		RICH_NOTIFICATION_ICON_URL(0),
