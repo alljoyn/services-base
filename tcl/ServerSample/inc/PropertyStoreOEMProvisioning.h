@@ -24,6 +24,7 @@
 
 #include <alljoyn.h>
 #include <aj_auth.h>
+#include <aj_config.h>
 
 /**
  * field indecies
@@ -85,7 +86,7 @@ extern const char* theDefaultLanguages[NUMBER_OF_LANGUAGES];
 #define KEY_VALUE_LENGTH 10
 #define MACHINE_ID_LENGTH 32
 #define DEVICE_NAME_VALUE_LENGTH 32
-#define PASSWORD_VALUE_LENGTH ADHOC_LEN
+#define PASSWORD_VALUE_LENGTH AJ_ADHOC_LEN
 
 /**
  * property container for non-default parameters
