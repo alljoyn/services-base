@@ -14,6 +14,7 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+#include <GuidUtil.h>
 #include "OptParser.h"
 #include <IniParser.h>
 #include <alljoyn/about/AboutPropertyStoreImpl.h>
@@ -27,8 +28,12 @@ OptParser::OptParser(int argc, char** argv) :
     argc(argc), argv(argv) {
     port = 900;
     concurrency = 0;
-    appGUID.assign("000102030405060708090A0B0C0D0E0F");
-    deviceId.assign("1231232145667745675477");
+    char deviceid[GUID_STRING_MAX_LENGTH];
+    GuidUtil::GetInstance()->GetDeviceIdString(deviceid);
+    char appid[GUID_STRING_MAX_LENGTH];
+    GuidUtil::GetInstance()->GenerateGUID(appid);
+    appGUID.assign(appid);
+    deviceId.assign(deviceid);
     deviceName.assign("MyDeviceName");
     defaultLanguage.assign("en");
     configFile.assign("ACServerSample.conf");
