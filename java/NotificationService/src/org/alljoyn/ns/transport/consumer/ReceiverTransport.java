@@ -105,8 +105,9 @@ public class ReceiverTransport implements AnnouncementHandler {
 	 * Constructor
 	 * @param nativePlatform The reference to the platform dependent object
 	 */
-	public ReceiverTransport(NativePlatform nativePlatform) {
-		this.nativePlatform = nativePlatform;
+	public ReceiverTransport(NativePlatform nativePlatform, NotificationReceiver receiver) {
+		this.notificationReceiver = receiver;
+		this.nativePlatform       = nativePlatform;
 	}
 	
 	/**
@@ -115,13 +116,6 @@ public class ReceiverTransport implements AnnouncementHandler {
 	public boolean getIsSuperAgentFound() {
 		return isSuperAgentFound.get();
 	}//getIsSuperAgentFound
-	
-	/**
-	 * Set Notification receiver
-	 */
-	public void setNotificationReceiver(NotificationReceiver receiver) {
-		this.notificationReceiver = receiver;
-	}//setNotificationReceiver
 	
 	/**
 	 * Starts the service in the Notification Receiver mode

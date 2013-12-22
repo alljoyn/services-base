@@ -104,8 +104,7 @@ public class NotificationService  {
 			throw new NotificationServiceException("NotificationReceiver interface should be implemented in order to receive notifications, received null pointer");
 		}
 		
-		transport.startReceiverTransport(bus);
-		transport.setNotificationReceiver(receiver);
+		transport.startReceiverTransport(bus, receiver);
 	}//initReceive
 
 	/**

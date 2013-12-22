@@ -112,17 +112,6 @@ public class Transport {
 	}//getSuperAgentFound
 	
 	
-	/**
-	 * Set notificationReceiver object
-	 * This will be used to call back the receiver once, we received a notification 
-	 * @param notificationReceiver
-	 */
-	public void setNotificationReceiver(NotificationReceiver notificationReceiver){	
-		if ( receiverTransport != null ) {
-			receiverTransport.setNotificationReceiver(notificationReceiver);
-		}
-	}//setNotificationReceiver
-	
 	
 	/**
 	 * Starts the service in the Sender mode
@@ -156,11 +145,12 @@ public class Transport {
 	
 	
 	/**
-	 * Starts the Receiver Tra
+	 * Starts the Receiver Transport
 	 * @param bus The {@link BusAttachment} to be used by this {@link Transport} object
+	 * @param receiver {@link NotificationReceiver} 
 	 * @throws NotificationServiceException Is thrown if failed to start the ReceiverTransport
 	 */
-	public synchronized void startReceiverTransport(BusAttachment bus) throws NotificationServiceException {
+	public synchronized void startReceiverTransport(BusAttachment bus, NotificationReceiver receiver) throws NotificationServiceException {
 		GenericLogger logger;
 		logger = getLogger();
 		
@@ -171,7 +161,7 @@ public class Transport {
 		
 		saveBus(bus);
 		
-		receiverTransport = new ReceiverTransport(nativePlatform);
+		receiverTransport = new ReceiverTransport(nativePlatform, receiver);
 		
 		try {
 			receiverTransport.startReceiverTransport();
