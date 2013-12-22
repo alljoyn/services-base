@@ -92,11 +92,6 @@ public class ReceiverTransport implements AnnouncementHandler {
 	private NotificationTransport fromSuperAgentChannel; 
 	
 	/**
-	 * Pool of threads that is used to return the received notifications to a {@link NotificationReceiver} 
-	 */
-	private NotificationReceiverPoolManager receiverPool;
-	
-	/**
 	 * Reference to NotificationReceiver object
 	 */
 	private NotificationReceiver notificationReceiver;
@@ -181,8 +176,6 @@ public class ReceiverTransport implements AnnouncementHandler {
 			throw new NotificationServiceException("Failed to call AddMatch: '" + matchRuleStr + "'");
 		}
 		
-		//Initialize the receiver pool of threads 
-		receiverPool = new NotificationReceiverPoolManager();
 	}//startReceiverTransp
 	
 	/**
@@ -232,12 +225,6 @@ public class ReceiverTransport implements AnnouncementHandler {
 			signalReceiverMatchRule   = null;
 		}
 		
-		if ( receiverPool != null ) {
-			logger.debug(TAG, "Shutting down the Receiver Thread Pool");
-			receiverPool.shutdown();
-			receiverPool = null;
-		}
-		
 	}//stopReceiverTransport
 	
 	/**
@@ -254,7 +241,7 @@ public class ReceiverTransport implements AnnouncementHandler {
 		}
 
 		try {
-			receiverPool.execute(
+			Transport.getInstance().dispatchTask(
 					new Runnable() {
 						@Override
 						public void run() {
@@ -266,7 +253,6 @@ public class ReceiverTransport implements AnnouncementHandler {
 		catch(RejectedExecutionException ree) {
 			logger.error(TAG, "Failed to return a received notification, id: '" + notification.getMessageId() + "', Error: '" + ree.getMessage());
 		}
-
 		
 	}//onReceivedNotification
 	

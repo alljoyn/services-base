@@ -30,7 +30,15 @@ import org.alljoyn.ns.transport.TransportNotificationText;
 @BusInterface (name = NotificationTransport.IF_NAME)
 public interface NotificationTransport extends BusObject {
 	
+	/**
+	 * AllJoyn interface name
+	 */
 	public static final String IF_NAME = "org.alljoyn.Notification"; 
+
+	/**
+	 * The interface version
+	 */
+	public static final short VERSION  = 1;
 	
 	/**
 	 * Use the method to send or receive AJ session less signal

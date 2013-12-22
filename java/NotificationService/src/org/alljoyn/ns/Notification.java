@@ -61,9 +61,16 @@ public class Notification {
 	private String deviceId;	
 			
 	/**
-	 * Sender Id - name of sending bus 
+	 * Sender Id - name of the bus that has sent the {@link Notification} 
 	 */
 	private String sender;
+	
+	/**
+	 * The sender Id of the Bus that originally sent the {@link Notification} message.
+	 * If a Super Agent exists in the proximity, the sender field of the object is of the Super Agent, 
+	 * and this field is the value of the {@link Notification} producer that has originally sent the message.    
+	 */
+	private String origSender;
 	
 	/**
 	 * Map of customized array variable
@@ -111,70 +118,80 @@ public class Notification {
 	}//Notification
 
 	/**
-	 * @see org.alljoyn.ns.Notification#getVersion()
+	 * @param The protocol version
 	 */
 	public int getVersion() {
 		return version;
 	}
 
 	/**
-	 * @see org.alljoyn.ns.Notification#getMessageType()
+	 * @param Notification message type
 	 */
 	public NotificationMessageType getMessageType() {
 		return messageType;
 	}
 
 	/**
-	 * @see org.alljoyn.ns.Notification#getAppName()
+	 * @param Returns the application name
 	 */
 	public String getAppName() {
 		return appName;
 	}
 
 	/**
-	 * @see org.alljoyn.ns.Notification#getAppId()
+	 * @return The application identifier
 	 */
 	public UUID getAppId() {
 		return appId;
 	}
 	
 	/**
-	 * @see org.alljoyn.ns.Notification#getDeviceName()
+	 * The device name that has sent the {@link Notification}
 	 */
 	public String getDeviceName() {
 		return deviceName;
 	}
 
 	/**
-	 * @see org.alljoyn.ns.Notification#getDeviceId()
+	 * The device id that has sent the {@link Notification}
 	 */
 	public String getDeviceId() {
 		return deviceId;
 	}
 
 	/**
-	 * @see org.alljoyn.ns.Notification#getSenderBusName()
+	 * Sender Id - name of the bus that has sent the {@link Notification}
 	 */
 	public String getSenderBusName() {
 		return sender;
 	}
 	
 	/**
-	 * @see org.alljoyn.ns.Notification#getCustomAttributes()
+	 * The sender Id of the Bus that originally sent the {@link Notification} message.
+	 * If a Super Agent exists in the proximity, the sender field of the object is of the Super Agent, 
+	 * and this field is the value of the {@link Notification} producer that has originally sent the message.
+	 * @return Bus name of the original {@link Notification} sender
+	 */
+	public String getOriginalSenderBusName() {
+		return origSender;
+	}
+	
+	/**
+	 * Map of customized array variable
 	 */
 	public Map<String, String> getCustomAttributes() {
 		return customAttributes;
 	}
 
 	/**
-	 * @see org.alljoyn.ns.Notification#getText()
+	 * List of {@link NotificationText} objects
 	 */
 	public List<NotificationText> getText() {
 		return text;
 	}
 
 	/**
-	 * @see org.alljoyn.ns.Notification#getMessageId()
+	 * {@link Notification} message id
 	 */
 	public int getMessageId() {
 		return messageId;
@@ -188,28 +205,29 @@ public class Notification {
 	}
 	
 	/**
-	 * @see org.alljoyn.ns.Notification#getRichAudioUrl()
+	 * Rich notification icon URL
 	 */
 	public List<RichAudioUrl> getRichAudioUrl() {
 		return richAudioUrl;
 	}	
 	
 	/**
-	 * @see org.alljoyn.ns.Notification#getRichIconObjPath()
+	 * Rich notification icon object path
 	 */
 	public String getRichIconObjPath() {
 		return richIconObjPath;
 	}
 	
 	/**
-	 * @see org.alljoyn.ns.Notification#getRichAudioObjPath()
+	 * Rich notification audio object path
 	 */
 	public String getRichAudioObjPath() {
 		return richAudioObjPath;
 	}
 	
 	/**
-	 * @see org.alljoyn.ns.Notification#getResponseObjectPath()
+	 * The object identifier to be used to invoke methods of the {@link Notification} sender.
+	 * Usually is used for Notification with action.
 	 */
 	public String getResponseObjectPath() {
 		return responseObjectPath;
@@ -286,6 +304,24 @@ public class Notification {
 		this.responseObjectPath = responseObjectPath;
 	}
 
+	
+	//=======================================//
+	
+	/**
+	 * When the notification message is acknowledged, the notification sender stops its broadcasting
+	 */
+	public void acknowledge() {
+		
+	}//acknowledge
+	
+	/**
+	 * When the notification message is dismissed, it's first of all acknowledged and then a dismiss signal is sent
+	 * to all notification consumers to update them that the {@link Notification} has been dismissed   
+	 */
+	public void dismiss() {
+		
+	}//dismiss
+	
 	//=======================================//
 	
 	/**
@@ -342,6 +378,14 @@ public class Notification {
 	 */
 	void setSender(String sender) {
 		this.sender = sender;
+	}
+	
+	/**
+	 * Set the original sender name
+	 * @param origSender
+	 */
+	void setOrigSender(String origSender) {
+		this.origSender = origSender;
 	}
 	
 }//NotificationImpl

@@ -38,9 +38,9 @@ public class NotificationService  {
 	private static final NotificationService SELF = new NotificationService();
 	
 	/**
-	 * The version of the message signature
+	 * The protocol version that is sent in the {@link Notification} message
 	 */
-	public static final int VERSION = 1;
+	public static final int PROTOCOL_VERSION = 2;
 	
 	/**
 	 * Reference to transport object

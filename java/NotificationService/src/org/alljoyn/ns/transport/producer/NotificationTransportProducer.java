@@ -20,12 +20,13 @@ import java.util.EnumMap;
 import java.util.Map;
 
 import org.alljoyn.bus.Variant;
+import org.alljoyn.ns.Notification;
 import org.alljoyn.ns.NotificationMessageType;
 import org.alljoyn.ns.transport.TransportNotificationText;
 import org.alljoyn.ns.transport.interfaces.NotificationTransport;
 
-/* 
- * The class used to send session less signals
+/** 
+ * The class is used to send {@link Notification} session less signals
  */
 class NotificationTransportProducer implements NotificationTransport {
 

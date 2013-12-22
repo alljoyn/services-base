@@ -42,7 +42,8 @@ public class PayloadAdapter {
 		RICH_NOTIFICATION_AUDIO_URL(1),
 		RICH_NOTIFICATION_ICON_OBJECT_PATH(2),
 		RICH_NOTIFICATION_AUDIO_OBJECT_PATH(3),
-		RESPONSE_OBJECT_PATH(4)
+		RESPONSE_OBJECT_PATH(4),
+		ORIGINAL_SENDER_NAME(5)
 		;
 
 		/**
@@ -147,6 +148,10 @@ public class PayloadAdapter {
 			attributes.put(ArgumentKey.RESPONSE_OBJECT_PATH.ID, new Variant(responseObjectPath, "s"));
 		}//if :: responseObjectPath	
 		
+		//Add the notification producer sender name to the sent attributes
+		String sender = Transport.getInstance().getBusAttachment().getUniqueName();
+		attributes.put(ArgumentKey.ORIGINAL_SENDER_NAME.ID, new Variant(sender, "s"));
+		
 		//Process customAttributes
 		if ( customAttributes != null ) {
 			logger.debug(TAG, "Preparing customAttributes...");
@@ -176,7 +181,7 @@ public class PayloadAdapter {
 			++i;
 		}
 		
-		Transport.getInstance().sendNotification(NotificationService.VERSION,
+		Transport.getInstance().sendNotification(NotificationService.PROTOCOL_VERSION,
 												 genMsgId(),
 												 messageType,
 												 deviceId,
@@ -248,7 +253,8 @@ public class PayloadAdapter {
 					ArgumentKey attrKey = ArgumentKey.getArgumentKeyById(key);
 					
 					if ( attrKey == null ) {
-						throw new NotificationServiceException("Unknown attribute key: '" + key + "' received");
+						logger.warn(TAG, "An unknown attribute key: '" + key + "' received, ignoring the key");
+						continue;
 					}
 					
 					switch(attrKey) {
@@ -286,6 +292,12 @@ public class PayloadAdapter {
 							String responseObjectPath = vObj.getObject(String.class);
 							logger.debug(TAG, "Received a Response ObjectPath object path: '" + responseObjectPath + "'");
 							notif.setResponseObjectPath(responseObjectPath);
+							break;
+						}
+						case ORIGINAL_SENDER_NAME: {
+							String origSender = vObj.getObject(String.class);
+							logger.debug(TAG, "Received an original sender: '" + origSender + "'");
+							notif.setOrigSender(origSender);
 							break;
 						}
 						

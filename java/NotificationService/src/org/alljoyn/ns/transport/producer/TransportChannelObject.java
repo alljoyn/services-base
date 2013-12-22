@@ -14,13 +14,10 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-/* 
- * NotificationSenderImpl. Creates object of the NotificationSenderImpl class
- */
-
 package org.alljoyn.ns.transport.producer;
 
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.SignalEmitter;
@@ -37,9 +34,13 @@ import org.alljoyn.ns.transport.interfaces.NotificationTransport;
 /**
  * Utility class used to store and manage sending notification messages
  */
-
 class TransportChannelObject {
 	private static final String TAG = "ioe" + TransportChannelObject.class.getSimpleName();
+	
+	/**
+	 * The object thread lock
+	 */
+	private final ReentrantLock LOCK; 
 	
 	/**
 	 * Notification message type
@@ -64,7 +65,12 @@ class TransportChannelObject {
 	/**
 	 * The serialId of the last sent message
 	 */
-	private Integer lastMsgSerialId;
+	private volatile Integer lastMsgSerialId;
+	
+	/**
+	 * The notification id of the last sent message
+	 */
+	private volatile Integer lastNotifId;
 	
 	/**
 	 * Constructor
@@ -77,6 +83,7 @@ class TransportChannelObject {
 		this.nativePlatform  = nativePlatform;
 		GenericLogger logger = nativePlatform.getNativeLogger();
 		
+		this.LOCK            = new ReentrantLock(true);
 		this.transportObj    = new NotificationTransportProducer();
 		this.lastMsgSerialId = null;
 		
@@ -95,6 +102,28 @@ class TransportChannelObject {
 	    emitter = new SignalEmitter(transportObj, SignalEmitter.GlobalBroadcast.Off);
 		emitter.setSessionlessFlag(true);
 	}//Constructor
+	
+	/**
+	 * Acquires the lock of the object <br>
+	 * Very important to call releaseLock method to release the lock
+	 */
+	public void acquireLock() {
+		LOCK.lock();
+	}//acquireLock
+	
+	/**
+	 * Releases the lock of the object
+	 */
+	public void releaseLock() {
+		LOCK.unlock();
+	}//releaseLock
+	
+	/**
+	 * Returns the notification id of the last sent message
+	 */
+	public int getNotificationId() {
+		return lastNotifId;
+	}//getNotificationId
 	
 	/**
 	 * Called when we need to send a signal
@@ -117,15 +146,21 @@ class TransportChannelObject {
 		emitter.setTimeToLive(ttl);		   	    
 		NotificationTransport transportChannel = emitter.getInterface(NotificationTransport.class);
 		
+		LOCK.lock();      // The lock protects the lastMsgSerialId
 		try {
 			transportChannel.notify(version, msgId, messageType, deviceId, deviceName, appId, appName, attributes, customAttributes, text);
 			lastMsgSerialId = emitter.getMessageContext().serial;
+			lastNotifId     = msgId;
 			logger.debug(TAG, "The message was sent successfully. messageType: '" + messageType + "' message id: '" + msgId + "' SerialId: '" + lastMsgSerialId + "'");
 		}
 		catch (Exception e) {
 			logger.error(TAG, "Failed to call notify to send notification");
 			throw new NotificationServiceException("Failed to send notification", e);
 		}
+		finally {
+			LOCK.unlock();
+		}
+		
 	}//sendNotification
  
 	/**
@@ -134,20 +169,28 @@ class TransportChannelObject {
 	public void deleteNotification() {
 		GenericLogger logger = nativePlatform.getNativeLogger();
 		
-		if ( lastMsgSerialId == null ) {
-			logger.warn(TAG, "Unable to delete last message for  messageType: '" + messageType + "'. No message was previously sent from this object, lastMsgSerialId is NULL");
-			return;
+		LOCK.lock();  // The lock protects the lastMsgSerialId
+		try {
+			
+			if ( lastMsgSerialId == null ) {
+				logger.warn(TAG, "Unable to delete last message for  messageType: '" + messageType + "'. No message was previously sent from this object, lastMsgSerialId is NULL");
+				return;
+			}
+			
+			logger.debug(TAG, "Deleting last notification message for messageType: '" + messageType + "', MsgSerialId: '" + lastMsgSerialId + "'");
+			
+			Status status = emitter.cancelSessionlessSignal(lastMsgSerialId);
+			if ( status == Status.OK ) {
+				logger.debug(TAG, "The notification message deleted successfully, messageType: '" + messageType + "', MsgSerialId: '" + lastMsgSerialId + "', lastNotifId: '" + lastNotifId + "'");
+				lastMsgSerialId = null;
+				lastNotifId     = null;
+			}
+			else {
+				logger.warn(TAG, "Failed to delete last message for  messageType: '" + messageType + "'. Status: '" + status + "'");
+			}
 		}
-		
-		logger.debug(TAG, "Deleting last notification message for messageType: '" + messageType + "', MsgSerialId: '" + lastMsgSerialId + "'");
-		
-		Status status = emitter.cancelSessionlessSignal(lastMsgSerialId);
-		if ( status == Status.OK ) {
-			logger.debug(TAG, "The notification message deleted successfully, messageType: '" + messageType + "', MsgSerialId: '" + lastMsgSerialId + "'");
-			lastMsgSerialId = null;
-		}
-		else {
-			logger.warn(TAG, "Failed to delete last message for  messageType: '" + messageType + "'. Status: '" + status + "'");
+		finally {
+			LOCK.unlock();
 		}
 	}//deleteNotification
 	
@@ -159,6 +202,8 @@ class TransportChannelObject {
 		busAttachment.unregisterBusObject(transportObj);
 		transportObj 		= null;
 		emitter             = null;
+		lastMsgSerialId     = null;
+		lastNotifId	        = null;
 	}//clean
 	
 }

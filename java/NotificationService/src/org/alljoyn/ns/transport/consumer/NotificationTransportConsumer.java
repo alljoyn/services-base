@@ -101,7 +101,7 @@ class NotificationTransportConsumer implements NotificationTransport, Notificati
 			}
 		}
 		catch (NativePlatformFactoryException npfe) {
-			System.err.println(TAG + ": Unexpected error occured: " + npfe.getMessage());
+			System.out.println(TAG + ": Unexpected error occured: " + npfe.getMessage());
 		}
 	}//notify
 

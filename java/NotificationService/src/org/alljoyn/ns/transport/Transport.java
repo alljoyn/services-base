@@ -19,6 +19,7 @@ package org.alljoyn.ns.transport;
 
 import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.concurrent.RejectedExecutionException;
 
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.BusObject;
@@ -69,14 +70,19 @@ public class Transport {
 	private BusAttachment busAttachment;
 	
 	/**
+	 * The thread pool that is used to execute a variety of service tasks to release AllJoyn thread as soon as possible
+	 */
+	private WorkersPoolManager workerPool;
+	
+	/**
 	 * Received TRUE if sender transport was already called
 	 */
-	private boolean isSenderTransportCalled   = false;
+	private boolean isSenderTransportCalled     = false;
 	
 	/**
 	 * Receives TRUE if receiver transport was called
 	 */
-	private boolean isReceiverTransportCalled = false;
+	private boolean isReceiverTransportCalled   = false;
 	
 	/**
 	 * Return the Transport object
@@ -130,6 +136,10 @@ public class Transport {
 		//Store the received busAttachment or verify if already exists
 		saveBus(bus);
 		
+		if ( workerPool == null ) {
+			workerPool = new WorkersPoolManager();
+		}
+		
 		senderTransport = new SenderTransport(nativePlatform);
 		
 		try {
@@ -160,6 +170,10 @@ public class Transport {
 		}
 		
 		saveBus(bus);
+		
+		if ( workerPool == null ) {
+			workerPool = new WorkersPoolManager();
+		}
 		
 		receiverTransport = new ReceiverTransport(nativePlatform, receiver);
 		
@@ -293,6 +307,15 @@ public class Transport {
 		
 		receiverTransport.onReceivedFirstSuperAgentNotification(superAgentUniqueName);
 	}//onReceivedFirstSuperAgentNotification
+	
+	/**
+	 * Executed task the given {@link Runnable} task on the {@link WorkersPoolManager} 
+	 * @param task
+	 * @throws RejectedExecutionException Might be thrown when the was no a free thread to execute the task
+	 */
+	public void dispatchTask(Runnable task) {
+		workerPool.execute(task);
+	}//dispatchTask
 	
 	/**
 	 * Stop Notification Service
@@ -450,6 +473,10 @@ public class Transport {
 			busAttachment = null;
 		}
 		
+		if ( workerPool != null ) {
+			workerPool.shutdown();
+		}
+		
 		isSenderTransportCalled   = false;
 	}//cleanTransportProducerChannel
 	
@@ -469,6 +496,10 @@ public class Transport {
 		if ( !isSenderTransportCalled ) {
 			logger.debug(TAG, "Sender is not running, clearing busAttachment");
 			busAttachment = null;
+		}
+		
+		if ( workerPool != null ) {
+			workerPool.shutdown();
 		}
 		
 		isReceiverTransportCalled = false;
