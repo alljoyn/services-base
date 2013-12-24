@@ -34,8 +34,6 @@ import org.alljoyn.ns.transport.interfaces.NotificationProducer;
 class NotificationProducerImpl implements NotificationProducer {
 	private static final String TAG = "ioe" + NotificationProducerImpl.class.getSimpleName();
 	
-	public static final String OBJ_PATH = "/notificationProducer";
-	
 	/**
 	 * The Sender transport
 	 */
@@ -63,6 +61,9 @@ class NotificationProducerImpl implements NotificationProducer {
 	 */
 	public void init() throws NotificationServiceException {
 		Status status = Transport.getInstance().getBusAttachment().registerBusObject(this, OBJ_PATH);
+		
+		nativePlatform.getNativeLogger().debug(TAG, "NotificationProducer BusObject: '" + OBJ_PATH + "' was registered on the bus, Status: '" + status + "'");
+		
 		if ( status != Status.OK ) {
 			throw new NotificationServiceException("Failed to register BusObject: '" + OBJ_PATH + "', Error: '" + status + "'");
 		}
@@ -97,7 +98,7 @@ class NotificationProducerImpl implements NotificationProducer {
 	@Override
 	public void dismiss(final int msgId) throws BusException {
 		GenericLogger logger = nativePlatform.getNativeLogger();
-		logger.debug(TAG, "Received Dismiss for: '" + msgId + "', delegating to be executed");
+		logger.debug(TAG, "Received Dismiss for notifId: '" + msgId + "', delegating to be executed");
 		
 		try {
 		

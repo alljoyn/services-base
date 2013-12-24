@@ -66,6 +66,8 @@ public class SenderSessionListener extends SessionPortListener {
 		BusAttachment bus = Transport.getInstance().getBusAttachment();
 		Status status     = bus.bindSessionPort(new ShortValue(PORT_NUM), getSessionOpts(), this);
 		
+		nativePlatform.getNativeLogger().debug(TAG, "Session port: '" + PORT_NUM + "' was bound on the bus: '" + status + "'");
+		
 		if ( status != Status.OK ) {
 			throw new NotificationServiceException("Failed to bind session port: '" + PORT_NUM + "', Error: '" + status + "'");
 		}
@@ -126,7 +128,7 @@ public class SenderSessionListener extends SessionPortListener {
 	/**
 	 * @return {@link SessionOpts}
 	 */
-	private SessionOpts getSessionOpts() {
+	public static SessionOpts getSessionOpts() {
 		SessionOpts sessionOpts   = new SessionOpts();
 	    sessionOpts.traffic       = SessionOpts.TRAFFIC_MESSAGES;   // Use reliable message-based communication to move data between session endpoints
 	    sessionOpts.isMultipoint  = false;                          // A session is multi-point if it can be joined multiple times 

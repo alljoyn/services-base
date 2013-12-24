@@ -105,7 +105,7 @@ class TransportChannelObject {
 	
 	/**
 	 * Acquires the lock of the object <br>
-	 * Very important to call releaseLock method to release the lock
+	 * Very important to call the releaseLock method to release the lock
 	 */
 	public void acquireLock() {
 		LOCK.lock();
@@ -121,7 +121,7 @@ class TransportChannelObject {
 	/**
 	 * Returns the notification id of the last sent message
 	 */
-	public int getNotificationId() {
+	public Integer getNotificationId() {
 		return lastNotifId;
 	}//getNotificationId
 	

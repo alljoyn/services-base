@@ -208,7 +208,7 @@ public class SenderTransport {
 	public void acknowledge(int notifId) {
 		
 		GenericLogger logger = nativePlatform.getNativeLogger();
-		logger.debug(TAG, "Acknowledgement method has been called for: '" + notifId + "', searching for the relevant object");
+		logger.debug(TAG, "Acknowledgement method has been called for notifId: '" + notifId + "', searching for the relevant object");
 		
 		boolean isObjFound = false;
 		
@@ -216,7 +216,9 @@ public class SenderTransport {
 			
 			channelObj.acquireLock();       // Lock the object to prevent changing its state
 			
-			if ( channelObj.getNotificationId() == notifId ) {     // Found the object to be cancelled
+			Integer chanObjNotifId = channelObj.getNotificationId(); 
+			
+			if ( chanObjNotifId != null && chanObjNotifId == notifId ) {     // Found the object to be cancelled
 				logger.debug(TAG, "Found the object with notifId: '" + notifId + "' to be cancelled");
 				channelObj.deleteNotification();
 				isObjFound = true;

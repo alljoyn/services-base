@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.alljoyn.ns.transport.consumer.NotificationFeedback;
+
 /**
  * The Notification that is sent over the network
  */
@@ -61,13 +63,13 @@ public class Notification {
 	private String deviceId;	
 			
 	/**
-	 * Sender Id - name of the bus that has sent the {@link Notification} 
+	 * Sender Id - name of the bus that the {@link Notification} was received from 
 	 */
 	private String sender;
 	
 	/**
 	 * The sender Id of the Bus that originally sent the {@link Notification} message.
-	 * If a Super Agent exists in the proximity, the sender field of the object is of the Super Agent, 
+	 * If the {@link Notification} was received from a Super Agent, the sender field of the object is of the Super Agent, 
 	 * and this field is the value of the {@link Notification} producer that has originally sent the message.    
 	 */
 	private String origSender;
@@ -160,7 +162,7 @@ public class Notification {
 	}
 
 	/**
-	 * Sender Id - name of the bus that has sent the {@link Notification}
+	 * Sender Id - name of the bus that the {@link Notification} was received from
 	 */
 	public String getSenderBusName() {
 		return sender;
@@ -168,7 +170,7 @@ public class Notification {
 	
 	/**
 	 * The sender Id of the Bus that originally sent the {@link Notification} message.
-	 * If a Super Agent exists in the proximity, the sender field of the object is of the Super Agent, 
+	 * If the {@link Notification} was received from a Super Agent, the sender field of the object is of the Super Agent, 
 	 * and this field is the value of the {@link Notification} producer that has originally sent the message.
 	 * @return Bus name of the original {@link Notification} sender
 	 */
@@ -226,8 +228,8 @@ public class Notification {
 	}
 	
 	/**
-	 * The object identifier to be used to invoke methods of the {@link Notification} sender.
-	 * Usually is used for Notification with action.
+	 * The object identifier to be used to invoke methods of the sender.
+	 * Usually used for Notification with action.
 	 */
 	public String getResponseObjectPath() {
 		return responseObjectPath;
@@ -311,15 +313,23 @@ public class Notification {
 	 * When the notification message is acknowledged, the notification sender stops its broadcasting
 	 */
 	public void acknowledge() {
-		
+		try {
+			new NotificationFeedback(this).acknowledge();
+		} catch (NotificationServiceException nse) {
+			System.out.println("Failed to call the acknowledge method, Error: '" + nse.getMessage() + "'");
+		}
 	}//acknowledge
 	
 	/**
 	 * When the notification message is dismissed, it's first of all acknowledged and then a dismiss signal is sent
-	 * to all notification consumers to update them that the {@link Notification} has been dismissed   
+	 * to update another Notification Consumers that the {@link Notification} has been dismissed   
 	 */
 	public void dismiss() {
-		
+		try {
+			new NotificationFeedback(this).dismiss();
+		} catch (NotificationServiceException nse) {
+			System.out.println("Failed to call the dismiss method, Error: '" + nse.getMessage() + "'");
+		}
 	}//dismiss
 	
 	//=======================================//

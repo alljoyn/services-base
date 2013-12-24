@@ -311,7 +311,7 @@ public class Transport {
 	/**
 	 * Executed task the given {@link Runnable} task on the {@link WorkersPoolManager} 
 	 * @param task
-	 * @throws RejectedExecutionException Might be thrown when the was no a free thread to execute the task
+	 * @throws RejectedExecutionException Might be thrown when there was no a free thread to execute the task
 	 */
 	public void dispatchTask(Runnable task) {
 		workerPool.execute(task);
@@ -475,6 +475,7 @@ public class Transport {
 		
 		if ( workerPool != null ) {
 			workerPool.shutdown();
+			workerPool = null;
 		}
 		
 		isSenderTransportCalled   = false;
@@ -500,6 +501,7 @@ public class Transport {
 		
 		if ( workerPool != null ) {
 			workerPool.shutdown();
+			workerPool = null;
 		}
 		
 		isReceiverTransportCalled = false;

@@ -37,6 +37,11 @@ public interface NotificationProducer extends BusObject {
 	public static final String IFNAME = "org.alljoyn.Notification.Producer";
 	
 	/**
+	 * Notification producer object
+	 */
+	public static final String OBJ_PATH = "/notificationProducer";
+	
+	/**
 	 * The interface version
 	 */
 	public static final short VERSION = 1;
