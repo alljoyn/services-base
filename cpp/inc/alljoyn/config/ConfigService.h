@@ -81,11 +81,6 @@ class ConfigService : public ajn::BusObject {
     QStatus Register();
 
     /**
-     * Unregister the ConfigService on the alljoyn bus.
-     */
-    void Unregister();
-
-    /**
      * Receive GenericLogger* to use for logging
      * @param logger Implementation of GenericLogger
      * @return previous logger
