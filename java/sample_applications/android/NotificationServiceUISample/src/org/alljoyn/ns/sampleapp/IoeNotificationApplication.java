@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.alljoyn.about.AboutKeys;
 import org.alljoyn.about.AboutService;
@@ -414,7 +415,24 @@ public class IoeNotificationApplication extends Application implements Notificat
 		 
 		renderNotification(notification.getMessageType().toString(), notification.getText(), richIconUrl, richAudioUrl, richIconObjPath, richAudioObjPath);
 
+		/*Log.d(TAG, "======= Calling Feedback =======");
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		notification.dismiss();
+		*/
 	}//receive
+
+	/**
+	 * @see org.alljoyn.ns.NotificationReceiver#dismiss(int, java.util.UUID)
+	 */
+	@Override
+	public void dismiss(int notifId, UUID appId) {
+		Log.d(TAG, " !!!!! DISMISS RECEIVED !!!! : '" + notifId + "', appId: '" + appId + "'");
+	}//dismiss
 	
 	/**
 	 * Send the notification message to be presented
@@ -616,5 +634,6 @@ public class IoeNotificationApplication extends Application implements Notificat
             }
         }
     }//advertiseDaemon
+
     
 }//IoeNotificationApplication

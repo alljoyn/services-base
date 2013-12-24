@@ -18,9 +18,12 @@
 package org.alljoyn.ns.transport;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.RejectedExecutionException;
 
+import org.alljoyn.about.AboutKeys;
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.BusObject;
 import org.alljoyn.bus.Status;
@@ -35,6 +38,10 @@ import org.alljoyn.ns.commons.NativePlatformFactory;
 import org.alljoyn.ns.commons.NativePlatformFactoryException;
 import org.alljoyn.ns.transport.consumer.ReceiverTransport;
 import org.alljoyn.ns.transport.producer.SenderTransport;
+import org.alljoyn.services.android.storage.Property;
+import org.alljoyn.services.common.PropertyStore;
+import org.alljoyn.services.common.PropertyStoreException;
+import org.alljoyn.services.common.PropertyStore.Filter;
 
 /**
  * The main transport controller class 
@@ -63,6 +70,11 @@ public class Transport {
 	 * Reference to native platform object
 	 */
 	private NativePlatform nativePlatform;
+	
+	/**
+	 * Service configuration properties
+	 */
+	private PropertyStore propertyStore;
 	
 	/**
 	 * Reference to BusAttachment object
@@ -106,6 +118,39 @@ public class Transport {
 		return busAttachment;
 	}
 	
+	/**
+	 * @return All properties read from the {@link PropertyStore}
+	 * @throws If failed to read the properties from the {@link PropertyStore}
+	 */
+	public Map<String, Object> readAllProperties() throws NotificationServiceException {
+   	    Map<String, Object> props = new HashMap<String, Object>(); 
+   	    try {
+			propertyStore.readAll(Property.NO_LANGUAGE, Filter.READ, props);
+		} catch (PropertyStoreException pse) {
+			throw new NotificationServiceException("Failed to read properties from the PropertyStore, Error: '" + pse.getMessage() + "'", pse);
+		}
+   	    
+   	    return props;
+	}//readAllProperties
+	
+	/**
+	 * Retrieve AppId from the given properties
+	 * @param props {@link PropertyStore} properties Map object
+	 * @return AppId
+	 * @throws NotificationServiceException if failed to retrieve the AppId parameter
+	 */
+	public UUID getAppId(Map<String, Object> props) throws NotificationServiceException {
+		if ( props == null ) {
+			throw new NotificationServiceException("props can't be NULL");
+		}
+		
+   	    Object appIdObj   = props.get(AboutKeys.ABOUT_APP_ID);
+   	    if ( !(appIdObj instanceof UUID) ) {
+   	    	throw new NotificationServiceException("The AppId is NULL or not an instance of UUID");
+   	    }
+   	    
+   	    return (UUID) appIdObj;
+	}//getAppId
 	
 	/**
 	 * @return Returns TRUE if SuperAgent was found
@@ -121,10 +166,11 @@ public class Transport {
 	
 	/**
 	 * Starts the service in the Sender mode
+	 * @param propertyStore The reference to the application {@link PropertyStore} object
 	 * @param bus The {@link BusAttachment} to be used by this {@link Transport} object
 	 * @throws NotificationServiceException Is thrown if failed to start the SenderTransport
 	 */
-	public synchronized void startSenderTransport(BusAttachment bus) throws NotificationServiceException {
+	public synchronized void startSenderTransport(BusAttachment bus, PropertyStore propertyStore) throws NotificationServiceException {
 		GenericLogger logger;
 		logger = getLogger();
 
@@ -140,7 +186,9 @@ public class Transport {
 			workerPool = new WorkersPoolManager();
 		}
 		
-		senderTransport = new SenderTransport(nativePlatform);
+		this.propertyStore = propertyStore;
+		
+		senderTransport    = new SenderTransport(nativePlatform);
 		
 		try {
 			senderTransport.startSenderTransport();   //Delegate the starting sender transport logic
@@ -284,7 +332,14 @@ public class Transport {
 		
 	}//onReceivedNotification
 	
-	
+	/**
+	 * Handle the received Dismiss signal
+	 * @param msgId The message id of the {@link Notification} that should be dismissed
+	 * @param appId The appId of the Notification sender service
+	 */
+	public void onReceivedNotificationDismiss(int msgId, UUID appId) {
+		receiverTransport.onReceivedNotificationDismiss(msgId, appId);
+	}//onDismissReceived
 
 	/**
 	 * Handle receiving a first Notification from a SuperAgent
@@ -478,6 +533,7 @@ public class Transport {
 			workerPool = null;
 		}
 		
+		propertyStore = null;
 		isSenderTransportCalled   = false;
 	}//cleanTransportProducerChannel
 	
@@ -506,6 +562,7 @@ public class Transport {
 		
 		isReceiverTransportCalled = false;
 	}//stopReceiverTransport
+
 	
 }//Transport
 

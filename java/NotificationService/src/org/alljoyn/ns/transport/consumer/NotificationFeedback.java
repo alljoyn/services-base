@@ -17,9 +17,11 @@
 package org.alljoyn.ns.transport.consumer;
 
 import java.lang.reflect.Method;
+import java.util.UUID;
 
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.BusException;
+import org.alljoyn.bus.ErrorReplyBusException;
 import org.alljoyn.bus.OnJoinSessionListener;
 import org.alljoyn.bus.ProxyBusObject;
 import org.alljoyn.bus.SessionListener;
@@ -28,6 +30,7 @@ import org.alljoyn.bus.Status;
 import org.alljoyn.ns.Notification;
 import org.alljoyn.ns.NotificationServiceException;
 import org.alljoyn.ns.commons.GenericLogger;
+import org.alljoyn.ns.transport.DismissSender;
 import org.alljoyn.ns.transport.Transport;
 import org.alljoyn.ns.transport.interfaces.NotificationProducer;
 import org.alljoyn.ns.transport.producer.SenderSessionListener;
@@ -80,7 +83,7 @@ public class NotificationFeedback extends OnJoinSessionListener {
 	/**
 	 * The application 
 	 */
-	private final String appId;
+	private final UUID appId;
 	
 	/**
 	 * The established session id
@@ -104,7 +107,7 @@ public class NotificationFeedback extends OnJoinSessionListener {
 		version    = notification.getVersion();
 		origSender = notification.getOriginalSenderBusName();
 		notifId    = notification.getMessageId();
-		appId      = notification.getAppId().toString().replace("-", "");
+		appId      = notification.getAppId();
 	}
 	
 	/**
@@ -142,7 +145,8 @@ public class NotificationFeedback extends OnJoinSessionListener {
 		if ( version < 2 || origSender == null ) {
 			logger.debug(TAG, "The notification sender doesn't support the NotificationProducer interface, version: '" +
 		                       version + "', appId: '" + appId + "', notifId '" + notifId + "', sending the Dismiss signal");
-			//TODO send the dismiss signal
+			
+			spawnThreadSendDismissSignal();
 			return;
 		}
 		
@@ -155,12 +159,16 @@ public class NotificationFeedback extends OnJoinSessionListener {
 		Status status = establishSession(invokeDismissMethod);
 		logger.debug(TAG, "The establishSession was called, Status: '" + status + "'");
 		
-		//If the session is already joined call dismiss on the remote peer 
-		if ( status == Status.ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED  ) {
-			invokeDismiss(status);
-		}
-		else if ( status == Status.FAIL ) {
-			//TODO send the Dismiss signal
+		if ( status != Status.OK ) {
+			
+			//If the session is already joined call dismiss on the remote peer 
+			if ( status == Status.ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED  ) {
+				invokeDismiss(status);
+			}
+			else {
+				logger.warn(TAG, "Failed to establish session with the Notification sender, senging Dismiss signal, Error: '" + status + "'");
+				spawnThreadSendDismissSignal();
+			}
 		}
 		
 	}//dismiss
@@ -257,6 +265,9 @@ public class NotificationFeedback extends OnJoinSessionListener {
 						logger.debug(TAG, "Invoking acknowledgement for notifId: '" + notifId + "'");
 						notifProducer.acknowledge(notifId);
 					}
+					catch (ErrorReplyBusException erbe) {
+						logger.error(TAG, "Failed to call acknowledge for notifId: '" + notifId + "', ErrorName: '" + erbe.getErrorName() + "', ErrorMessage: '" + erbe.getErrorMessage() + "'");
+					}
 					catch (BusException be) {
 						logger.error(TAG, "Failed to call acknowledge for notifId: '" + notifId + "', Error: '" + be.getMessage() + "'");
 					}
@@ -273,34 +284,52 @@ public class NotificationFeedback extends OnJoinSessionListener {
 	 * Calls the remote dismiss method if fails, then send the Dismiss signal
 	 * @param status Session establishment status
 	 */
-	private void invokeDismiss(Status status) {
-		
-		if ( status == Status.ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED || status == Status.OK ) {
-			
+	private void invokeDismiss(final Status status) {
+
 			new Thread(new Runnable() {
+				
 				@Override
 				public void run() {
-					NotificationProducer notifProducer = getRemoteProxyObject();
-					try {
-						logger.debug(TAG, "Invoking dismiss method for notifId: '" + notifId + "'");
-						notifProducer.dismiss(notifId);
-					}
-					catch (BusException be) {
-						logger.error(TAG, "Failed to call dismiss method for notifId: '" + notifId + "', Error: '" + be.getMessage() + "', Sending Dismiss signal");
-						//TODO send the Dismiss signal
-					}
-					finally {
-						leaveSession();
+					
+					if ( status == Status.ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED || status == Status.OK ) {
+						
+						NotificationProducer notifProducer = getRemoteProxyObject();
+						try {
+							logger.debug(TAG, "Invoking dismiss method for notifId: '" + notifId + "'");
+							notifProducer.dismiss(notifId);
+						}
+						catch (ErrorReplyBusException erbe) {
+							logger.error(TAG, "Failed to call dismiss for notifId: '" + notifId + "', ErrorName: '" + erbe.getErrorName() + "', ErrorMessage: '" + erbe.getErrorMessage() + "', sending Dismiss signal");
+							DismissSender.send(notifId, appId);
+						}
+						catch (BusException be) {
+							logger.error(TAG, "Failed to call dismiss method for notifId: '" + notifId + "', Error: '" + be.getMessage() + "', Sending Dismiss signal");
+							DismissSender.send(notifId, appId);
+						}
+						finally {
+							leaveSession();
+						}
+						
+					}//if :: status
+					else {
+						logger.warn(TAG, "Failed to establish session with the Notification sender, senging Dismiss signal, Error: '" + status + "'");
+						DismissSender.send(notifId, appId);
 					}
 				}//run
 			}).start();
-			
-		}//if :: status
-		else {
-			//TODO send the Dismiss signal
-		}
-			
 	}//invokeDismiss
+	
+	/**
+	 * Spawns a thread and invokes {@link DismissSender#send(int, UUID)} on it 
+	 */
+	private void spawnThreadSendDismissSignal() {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				DismissSender.send(notifId, appId);
+			}
+		}).start();
+	}//sendDismissSignal
 	
 	/**
 	 * @param methodName Get the reflection of the method of this method name. 

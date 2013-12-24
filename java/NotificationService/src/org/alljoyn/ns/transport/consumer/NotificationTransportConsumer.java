@@ -31,8 +31,8 @@ import org.alljoyn.ns.transport.interfaces.NotificationTransport;
 import org.alljoyn.ns.transport.interfaces.NotificationTransportSuperAgent;
 
 
-/*
- * The class used to receive AllJoyn session less signals
+/**
+ * The class is used to receive AllJoyn notify session-less-signals
  */
 class NotificationTransportConsumer implements NotificationTransport, NotificationTransportSuperAgent {
 	private static final String TAG = "ioe" + NotificationTransportConsumer.class.getSimpleName();

@@ -18,6 +18,7 @@ package org.alljoyn.ns.transport.producer;
 
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.alljoyn.about.AboutService;
 import org.alljoyn.about.AboutServiceImpl;
@@ -27,6 +28,7 @@ import org.alljoyn.ns.NotificationMessageType;
 import org.alljoyn.ns.NotificationServiceException;
 import org.alljoyn.ns.commons.GenericLogger;
 import org.alljoyn.ns.commons.NativePlatform;
+import org.alljoyn.ns.transport.DismissSender;
 import org.alljoyn.ns.transport.Transport;
 import org.alljoyn.ns.transport.TransportNotificationText;
 import org.alljoyn.ns.transport.interfaces.NotificationProducer;
@@ -242,8 +244,17 @@ public class SenderTransport {
 	 */
 	public void dismiss(int notifId) {
 		GenericLogger logger = nativePlatform.getNativeLogger();
+		Transport transport  = Transport.getInstance();
+		
 		logger.debug(TAG, "Dismiss method has been called, first call for Acknowledgement for notifId: '" + notifId + "'");
 		acknowledge(notifId);
-		//TODO Call for Dismisser
+		
+		//Sending dismiss signal
+		try {
+			UUID appId = transport.getAppId(transport.readAllProperties());
+			DismissSender.send(notifId, appId);
+		} catch (NotificationServiceException nse) {
+			logger.error(TAG, "Unable to send the Dismiss signal for notifId: '" + notifId + "', Error: '" + nse.getMessage() + "'");
+		}
 	}//dismiss
 }

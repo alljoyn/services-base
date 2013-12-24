@@ -16,7 +16,6 @@
 
 package org.alljoyn.ns;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -27,10 +26,6 @@ import org.alljoyn.ns.commons.NativePlatform;
 import org.alljoyn.ns.commons.NativePlatformFactory;
 import org.alljoyn.ns.commons.NativePlatformFactoryException;
 import org.alljoyn.ns.transport.Transport;
-import org.alljoyn.services.android.storage.Property;
-import org.alljoyn.services.common.PropertyStore;
-import org.alljoyn.services.common.PropertyStore.Filter;
-import org.alljoyn.services.common.PropertyStoreException;
 
 
 /** 
@@ -42,12 +37,12 @@ public class NotificationSender {
 	/**
 	 * The TTL low limit in seconds  
 	 */
-	private static final int MESSAGE_TTL_LL = 30;
+	public static final int MESSAGE_TTL_LL = 30;
 	
 	/**
 	 * The TTL upper limit in seconds
 	 */
-	private static final int MESSAGE_TTL_UL = 43200;
+	public static final int MESSAGE_TTL_UL = 43200;
 		
 	/**
 	 * Reference to native platform object
@@ -55,18 +50,10 @@ public class NotificationSender {
 	private NativePlatform nativePlatform;
 
 	/**
-	 * Service configuration properties
-	 */
-	private PropertyStore propertyStore;
-	
-	/**
 	 * Constructor
-	 * @param propertyStore Service configuration {@link PropertyStore}
 	 * @throws NotificationServiceException
 	 */
-	public NotificationSender(PropertyStore propertyStore) throws NotificationServiceException {
-		this.propertyStore = propertyStore;
-		
+	public NotificationSender() throws NotificationServiceException {
 		try {
 			nativePlatform       = NativePlatformFactory.getPlatformObject();
 			GenericLogger logger = nativePlatform.getNativeLogger();
@@ -88,34 +75,26 @@ public class NotificationSender {
 			throw new NotificationServiceException("The allowed TTL range is between '" + MESSAGE_TTL_LL + "' and '" + MESSAGE_TTL_UL + "'");
 		}
 		
-		//get a map of the configuration parameters 
-   	    Map<String, Object> config = new HashMap<String, Object>(); 
-   	    try {
-			propertyStore.readAll(Property.NO_LANGUAGE, Filter.READ, config);
-		} catch (PropertyStoreException pse) {
-			throw new NotificationServiceException("Failed to read the PropertyStore, Error: '" + pse.getMessage() + "'");
-		}
+		Transport transport = Transport.getInstance();
+		
+		//get a map of the PropertyStore properties 
+   	    Map<String, Object> props = transport.readAllProperties();
    	    
-   	    String deviceId   = (String)config.get(AboutKeys.ABOUT_DEVICE_ID);
+   	    UUID appId = transport.getAppId(props);
+   	    
+   	    String deviceId   = (String)props.get(AboutKeys.ABOUT_DEVICE_ID);
    	    if ( deviceId == null || deviceId.length() == 0 ) {
    	    	logger.error(TAG, "The DeviceId is NULL or empty");
    	    	throw new NotificationServiceException("The DeviceId is not set in the PropertyStore");
    	    }
    	    
-   	    String deviceName = (String)config.get(AboutKeys.ABOUT_DEVICE_NAME);
+   	    String deviceName = (String)props.get(AboutKeys.ABOUT_DEVICE_NAME);
    	    if ( deviceName == null || deviceName.length() == 0 ) {
    	    	logger.error(TAG, "The DeviceName is NULL or empty");
    	    	throw new NotificationServiceException("The DeviceName is not set in the PropertyStore");
    	    }
-		
-   	    Object appIdObj   = config.get(AboutKeys.ABOUT_APP_ID);
-   	    if ( !(appIdObj instanceof UUID) ) {
-   	    	logger.error(TAG, "The AppId is NULL or not a UUID object as expected");
-   	    	throw new NotificationServiceException("The AppId is NULL or not an instance of UUID");
-   	    }
-   	    byte[] appId      = uuidToByteArray((UUID)appIdObj);
    	    
-   	    String appName    = (String)config.get(AboutKeys.ABOUT_APP_NAME); 
+   	    String appName    = (String)props.get(AboutKeys.ABOUT_APP_NAME); 
    	    if ( appName == null || appName.length() == 0 ) {
    	    	logger.error(TAG, "The AppName is NULL or empty");
    	    	throw new NotificationServiceException("The AppName is not set in the PropertyStore");
@@ -152,27 +131,5 @@ public class NotificationSender {
 	}//deleteLastMsg
 
 	
-	
-	/**
-	 * Convert from UUID object into a byte array
-	 * @param uuid
-	 * @return byte array
-	 */
-    private byte[] uuidToByteArray(UUID uuid) {
-    	long msUuid = uuid.getMostSignificantBits();
-    	long lsUuid = uuid.getLeastSignificantBits();
-    	byte[] byteArrayUuid = new byte[16];
-
-    	for (int i = 0; i < 8; i++) {
-    		byteArrayUuid[i] = (byte) (msUuid >>> 8 * (7 - i));
-    	}
-    	for (int i = 8; i < 16; i++) {
-    		byteArrayUuid[i] = (byte) (lsUuid >>> 8 * (7 - i));
-    	}
-
-    	return byteArrayUuid;
-    }//uuidToByteArray
-
-
 
 }//NotificationSenderImpl

@@ -18,6 +18,7 @@ package org.alljoyn.ns.transport.consumer;
 
 import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -26,6 +27,7 @@ import org.alljoyn.about.AboutServiceImpl;
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.Status;
 import org.alljoyn.bus.Variant;
+import org.alljoyn.bus.annotation.BusSignal;
 import org.alljoyn.ns.Notification;
 import org.alljoyn.ns.NotificationReceiver;
 import org.alljoyn.ns.NotificationServiceException;
@@ -33,6 +35,7 @@ import org.alljoyn.ns.commons.GenericLogger;
 import org.alljoyn.ns.commons.NativePlatform;
 import org.alljoyn.ns.transport.Transport;
 import org.alljoyn.ns.transport.TransportNotificationText;
+import org.alljoyn.ns.transport.interfaces.NotificationDismisser;
 import org.alljoyn.ns.transport.interfaces.NotificationTransport;
 import org.alljoyn.ns.transport.interfaces.NotificationTransportSuperAgent;
 import org.alljoyn.services.common.AnnouncementHandler;
@@ -42,7 +45,7 @@ import org.alljoyn.services.common.BusObjectDescription;
  * The class manages NotificationReceiver transport logic
  */
 public class ReceiverTransport implements AnnouncementHandler {
-	private static final String TAG = ReceiverTransport.class.getSimpleName();
+	private static final String TAG = "ioe" + ReceiverTransport.class.getSimpleName();
 	
 	/**
 	 * The reference to the platform dependent object
@@ -58,6 +61,11 @@ public class ReceiverTransport implements AnnouncementHandler {
 	 * The name of the notification signal
 	 */
 	private static final String NOTIF_SIGNAL_NAME           = "notify";
+	
+	/**
+	 * The name of the Dismiss signal
+	 */
+	private static final String DISMISS_SIGNAL_NAME         = "dismiss";
 	
 	/**
 	 * TRUE if we need to look for the SuperAgent
@@ -90,6 +98,11 @@ public class ReceiverTransport implements AnnouncementHandler {
 	 * Receives and handles session less signals from Super Agent
 	 */
 	private NotificationTransport fromSuperAgentChannel; 
+	
+	/**
+	 * Receives the Dismiss signals
+	 */
+	private DismissConsumer dismissSignalHandler;
 	
 	/**
 	 * Reference to NotificationReceiver object
@@ -135,7 +148,7 @@ public class ReceiverTransport implements AnnouncementHandler {
 			
 			//Register to receive signals directly from SA
 			fromSuperAgentChannel = new NotificationTransportConsumer(NotificationTransportConsumer.FROM_SUPERAGENT_RECEIVER_PATH);
-			boolean regSAHandler  = registerNotificationSignalHandlerChannel(logger, fromSuperAgentChannel, NotificationTransportConsumer.FROM_SUPERAGENT_RECEIVER_PATH, NotificationTransportSuperAgent.IF_NAME);
+			boolean regSAHandler  = registerNotificationSignalHandlerChannel(fromSuperAgentChannel, NotificationTransportConsumer.FROM_SUPERAGENT_RECEIVER_PATH, NotificationTransportSuperAgent.IF_NAME);
 			
 			if ( !regSAHandler ) {
 				logger.error(TAG, "Failed to register a SuperAgent signal handler");
@@ -158,11 +171,20 @@ public class ReceiverTransport implements AnnouncementHandler {
 		logger.debug(TAG, "Registering to receive signals from producers");
 		
 		fromProducerChannel        = new NotificationTransportConsumer(NotificationTransportConsumer.FROM_PRODUCER_RECEIVER_PATH);
-		boolean regProducerHandler = registerNotificationSignalHandlerChannel(logger, fromProducerChannel, NotificationTransportConsumer.FROM_PRODUCER_RECEIVER_PATH, NotificationTransport.IF_NAME);
+		boolean regProducerHandler = registerNotificationSignalHandlerChannel(fromProducerChannel, NotificationTransportConsumer.FROM_PRODUCER_RECEIVER_PATH, NotificationTransport.IF_NAME);
 		
 		if ( !regProducerHandler ) {
 			logger.error(TAG, "Failed to register a Producer signal handler");
 			throw new NotificationServiceException("Failed to register a Producer signal handler");
+		}
+		
+		//Register to receive Dismiss signals
+		dismissSignalHandler      = new DismissConsumer();
+		boolean regDismissHandler = registerDismissSignalHandler(dismissSignalHandler);
+		
+		if ( !regDismissHandler ) {
+			logger.error(TAG, "Failed to register Dismiss signal handler");
+			throw new NotificationServiceException("Failed to register Dismiss signal handler");
 		}
 		
 		String matchRuleStr = signalReceiverMatchRule.toString();
@@ -193,7 +215,7 @@ public class ReceiverTransport implements AnnouncementHandler {
 		
 		if ( fromSuperAgentChannel != null ) {
 			logger.debug(TAG, "Searched for a SuperAgent, cleaning up...");
-			logger.debug(TAG, "Unregister from SuperAgent signal handler and bus object");
+			logger.debug(TAG, "Unregister SuperAgent signal handler");
 			
 			if ( notifConsumerMethod != null ) {
 				busAttachment.unregisterSignalHandler(fromSuperAgentChannel, notifConsumerMethod);
@@ -208,7 +230,7 @@ public class ReceiverTransport implements AnnouncementHandler {
 		AboutServiceImpl.getInstance().removeAnnouncementHandler(this);
 		
 		if ( fromProducerChannel != null ) {
-			logger.debug(TAG, "Unregister from Producer signal handler and bus object");
+			logger.debug(TAG, "Unregister Producer signal handler");
 			
 			if ( notifConsumerMethod != null ) {
 				busAttachment.unregisterSignalHandler(fromProducerChannel, notifConsumerMethod);
@@ -216,6 +238,18 @@ public class ReceiverTransport implements AnnouncementHandler {
 			
 			busAttachment.unregisterBusObject(fromProducerChannel);
 			fromProducerChannel = null;
+		}
+		
+		if ( dismissSignalHandler != null ) {
+			logger.debug(TAG, "Unregister Dismiss signal handler");
+			
+			Method dismisSignalMethod = getDismissSignalMethod();
+			if ( dismisSignalMethod == null ) {
+				busAttachment.unregisterSignalHandler(dismissSignalHandler, dismisSignalMethod);
+			}
+			
+			busAttachment.unregisterBusObject(dismissSignalHandler);
+			dismissSignalHandler = null;
 		}
 		
 		if ( signalReceiverMatchRule != null  ) {
@@ -251,10 +285,34 @@ public class ReceiverTransport implements AnnouncementHandler {
 			);
 		}
 		catch(RejectedExecutionException ree) {
-			logger.error(TAG, "Failed to return a received notification, id: '" + notification.getMessageId() + "', Error: '" + ree.getMessage());
+			logger.error(TAG, "Failed to return a received notification, id: '" + notification.getMessageId() + "', Error: '" + ree.getMessage() + "'");
 		}
 		
 	}//onReceivedNotification
+	
+	/**
+	 * Handle the received Dismiss signal
+	 * @param msgId The message id of the {@link Notification} that should be dismissed
+	 * @param appId The appId of the Notification sender service
+	 */
+	public void onReceivedNotificationDismiss(final int msgId, final UUID appId) {
+		GenericLogger logger = nativePlatform.getNativeLogger();
+		logger.debug(TAG, "Received the Dismiss signal notifId: '" + msgId + "', from the appId: '" + appId + "', delivering to the NotificationReceiver");
+		
+		try {
+			Transport.getInstance().dispatchTask(
+					new Runnable() {
+						@Override
+						public void run() {
+							notificationReceiver.dismiss(msgId, appId);
+						}
+					}//runnable
+			);
+		}
+		catch(RejectedExecutionException ree) {
+			logger.error(TAG, "Failed to deliver the Dismiss event of the notifId: '" + msgId + "', from the appId:'" + appId + "', Error: '" + ree.getMessage() + "'");
+		}
+	}//onReceivedNotificationDismiss
 	
 	/**
 	 * Called on received an Announcement signal
@@ -351,14 +409,15 @@ public class ReceiverTransport implements AnnouncementHandler {
 	
 	/**
 	 * Register channel object to receive Notification signals 
-	 * @param logger
 	 * @param receiverChannel Receiver channel object
 	 * @param receiverChannelServicePath The service path of the receiver channel object
 	 * @param signalHandlerIfName The interface name the receiver channel is listening
 	 * @param signalName The signal name that belongs to the interface name
 	 * @return TRUE on success or FALSE on fail
 	 */
-	private boolean registerNotificationSignalHandlerChannel (GenericLogger logger, NotificationTransport receiverChannel, String receiverChannelServicePath, String signalHandlerIfName) {
+	private boolean registerNotificationSignalHandlerChannel (NotificationTransport receiverChannel, String receiverChannelServicePath, String signalHandlerIfName) {
+		GenericLogger logger = nativePlatform.getNativeLogger();
+		
 		logger.debug(TAG, "Registering signal handler for interface: '" + signalHandlerIfName + "' servicePath: " + receiverChannelServicePath);
 
 		Method handlerMethod = getNotificationConsumerSignalMethod();
@@ -375,6 +434,33 @@ public class ReceiverTransport implements AnnouncementHandler {
 			
 		return true;
 	}//registerSignalHandlerChannel
+	
+	
+	/**
+	 * Registers Dismiss signal receiver 
+	 * @param dismissConsumer
+	 * @return TRUE on success or FALSE on fail
+	 */
+	private boolean registerDismissSignalHandler(DismissConsumer dismissConsumer) {
+		GenericLogger logger = nativePlatform.getNativeLogger();
+		
+		logger.debug(TAG, "Registering signal handler for interface: '" + DismissConsumer.IFNAME + "' servicePath: '" + DismissConsumer.OBJ_PATH + "'");
+		
+		Method handlerMethod = getDismissSignalMethod();
+		if ( handlerMethod == null ) {
+			return false;
+		}
+		
+		String allJoynName = handlerMethod.getAnnotation(BusSignal.class).name();
+		boolean regRes = Transport.getInstance().registerObjectAndSetSignalHandler(logger, DismissConsumer.IFNAME, allJoynName, handlerMethod, dismissConsumer, DismissConsumer.OBJ_PATH);
+
+		if ( !regRes ) {
+			stopReceiverTransport();       // Stop receiver transport to allow later recovery
+			return false;
+		}
+			
+		return true;
+	}//registerDismissSignalReceiver
 	
 	/**
 	 * Returns reflection of {@link NotificationTransport#notify} method
@@ -398,11 +484,33 @@ public class ReceiverTransport implements AnnouncementHandler {
 
 		}
 		catch(Exception ex) {
-			nativePlatform.getNativeLogger().error(TAG, "Failed to get a reflection for the signal method: '" + NOTIF_SIGNAL_NAME + "', Error: " + ex.getMessage());
+			nativePlatform.getNativeLogger().error(TAG, "Failed to get a reflection of the signal method: '" + NOTIF_SIGNAL_NAME + "', Error: " + ex.getMessage());
 			retMethod = null;
 		}
 		
 		return retMethod;
 	}//getNotificationTransportSignalMethod
+
+
+	
+	/**
+	 * Returns reflection of the {@link DismissConsumer#dismiss(int, byte[])}
+	 * @return Method object or NULL if failed to retrieve
+	 */
+	private Method getDismissSignalMethod() {
+		Method retMethod;
+		
+		try {
+			retMethod = NotificationDismisser.class.getMethod(DISMISS_SIGNAL_NAME,
+															  int.class,
+															  byte[].class);
+		}
+		catch(Exception ex) {
+			nativePlatform.getNativeLogger().error(TAG, "Failed to get a reflection of the signal method: '" + DISMISS_SIGNAL_NAME + "', Error: " + ex.getMessage());
+			retMethod = null;
+		}
+		
+		return retMethod;
+	}//getDismissSignalMethod
 	
 }

@@ -88,6 +88,7 @@ public class PayloadAdapter {
 	
 	/**
 	 * Convert the sent data into the format of {@link NotificationTransport#notify(int, int, short, String, String, byte[], String, Map, Map, TransportNotificationText[])
+	 * @param deviceId device Id
 	 * @param deviceName device name
 	 * @param appId app Id
 	 * @param appName app name
@@ -102,7 +103,7 @@ public class PayloadAdapter {
 	 * @param responseObjectPath CPS object path
 	 * @throws NotificationServiceException
 	 */
-	public static void sendPayload(String deviceId, String deviceName, byte[] appId, String appName, NotificationMessageType messageType, List<NotificationText> text, Map<String, String> customAttributes, int ttl, String richIconUrl, List<RichAudioUrl> richAudioUrl, String richIconObjPath, String richAudioObjPath, String responseObjectPath) throws NotificationServiceException {
+	public static void sendPayload(String deviceId, String deviceName, UUID appId, String appName, NotificationMessageType messageType, List<NotificationText> text, Map<String, String> customAttributes, int ttl, String richIconUrl, List<RichAudioUrl> richAudioUrl, String richIconObjPath, String richAudioObjPath, String responseObjectPath) throws NotificationServiceException {
 		GenericLogger logger;
 		
 		try {
@@ -186,7 +187,7 @@ public class PayloadAdapter {
 												 messageType,
 												 deviceId,
 												 deviceName,
-												 appId, 
+												 uuidToByteArray(appId), 
 												 appName,												 
 												 attributes,
 												 customAttributes,
@@ -328,10 +329,10 @@ public class PayloadAdapter {
 	
 	/**
 	 * Convert the byte array to a UUID
-	 * @param bAppId
-	 * @return UUID
+	 * @param bAppId Byte Array to be converted to {@link UUID}
+	 * @return UUID {@link UUID} object or NULL if failed to create
 	 */
-    private static UUID byteArrayToUUID(byte[] bAppId) {
+    public static UUID byteArrayToUUID(byte[] bAppId) {
 
     	long msUuid = 0;
     	long lsUuid = 0;
@@ -351,5 +352,27 @@ public class PayloadAdapter {
     	UUID result = new UUID(msUuid, lsUuid);
 
     	return result;
-    }
+    }//byteArrayToUUID
+    
+	
+	/**
+	 * Convert from UUID object into a byte array
+	 * @param uuid
+	 * @return byte array
+	 */
+    public static byte[] uuidToByteArray(UUID uuid) {
+    	long msUuid = uuid.getMostSignificantBits();
+    	long lsUuid = uuid.getLeastSignificantBits();
+    	byte[] byteArrayUuid = new byte[16];
+
+    	for (int i = 0; i < 8; i++) {
+    		byteArrayUuid[i] = (byte) (msUuid >>> 8 * (7 - i));
+    	}
+    	for (int i = 8; i < 16; i++) {
+    		byteArrayUuid[i] = (byte) (lsUuid >>> 8 * (7 - i));
+    	}
+
+    	return byteArrayUuid;
+    }//uuidToByteArray
+    
 }//PayloadAdapter

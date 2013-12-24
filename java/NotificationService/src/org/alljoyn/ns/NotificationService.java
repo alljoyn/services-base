@@ -82,10 +82,10 @@ public class NotificationService  {
 		}
 		
 		logger.debug(TAG, "Init Send invoked, calling Transport");
-		transport.startSenderTransport(bus);
+		transport.startSenderTransport(bus, propertyStore);
 		
 		logger.debug(TAG, "Creating and returning NotificationSender");
-		return new NotificationSender(propertyStore);
+		return new NotificationSender();
 	}//initSend
 
 	/**
