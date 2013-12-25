@@ -26,13 +26,13 @@ import org.alljoyn.bus.annotation.BusSignal;
 /**
  * The interface provides the functionality to send and receive Dismiss session-less-signals
  */
-@BusInterface(name = NotificationDismisser.IFNAME)
+@BusInterface(name = NotificationDismisser.IF_NAME)
 public interface NotificationDismisser extends BusObject {
 	
 	/**
 	 * The AllJoyn interface name
 	 */
-	public static final String IFNAME    = "org.alljoyn.Notification.Dismisser";
+	public static final String IF_NAME   = "org.alljoyn.Notification.Dismisser";
 	
 	/**
 	 * The interface version

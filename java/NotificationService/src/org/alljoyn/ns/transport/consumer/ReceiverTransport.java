@@ -53,10 +53,30 @@ public class ReceiverTransport implements AnnouncementHandler {
 	private NativePlatform nativePlatform;
 
 	/**
-	 * The basic addMatch rule to receive session less signals(SLS) 
+	 * addMatch rule to receive {@link NotificationTransport} session-less-signals 
 	 */
-	private static final String NOTIF_SLS_BASIC_RULE        = "type='signal'";
+	private static final String NOTIF_TRANS_MATCH_RULE      = "type='signal',interface='" + NotificationTransport.IF_NAME + "'";
+
+	/**
+	 * addMatch rule to receive {@link NotificationTransportSuperAgent} session-less-signals
+	 */
+	private static final String SUPER_AGENT_MATCH_RULE      = "type='signal',interface='" + NotificationTransportSuperAgent.IF_NAME + "'";
 	
+	/**
+	 * addMatch rule to receive {@link NotificationDismisser} session-less-signals
+	 */
+	private static final String DISMISSER_MATCH_RULE        = "type='signal',interface='" + NotificationDismisser.IF_NAME + "'";
+	
+	/**
+	 * addMatch rule to receive session-less-signals from a specific SuperAgent identified by the superAgentSenderName
+	 */
+	private String superAgentSpecificRule;
+	
+	/**
+	 * The sender name of the SuperAgent that this consumer is listening to receive Notification signals
+	 */
+	private String superAgentSenderName;
+		
 	/**
 	 * The name of the notification signal
 	 */
@@ -76,11 +96,7 @@ public class ReceiverTransport implements AnnouncementHandler {
 	 * TRUE means stop forwarding notification messages to notificationReceiver
 	 */
 	private boolean stopReceiving     = false;
-	
-	/**
-	 * The addMatch rule we used to receive signals
-	 */
-	private StringBuilder signalReceiverMatchRule;
+		
 	
 	/**
 	 * TRUE means received message from SuperAgent, possible to stop receiving message from a regular consumers
@@ -135,16 +151,12 @@ public class ReceiverTransport implements AnnouncementHandler {
 		
 		logger.debug(TAG, "Starting receiver transport");
 		
-		Transport transport         = Transport.getInstance();
-		BusAttachment busAttachment = transport.getBusAttachment();
-		
-		//Save the basic rule of receiving session less signals
-		signalReceiverMatchRule = new StringBuilder(NOTIF_SLS_BASIC_RULE);
-		
 		isSuperAgentFound       = new AtomicBoolean(false);
 		
 		if ( isNeedSearchSA ) {
 			logger.debug(TAG, "Need to search for SuperAgent, register SuperAgent signal receiver, announcement receiver and then Producer signal receiver");
+
+			superAgentSenderName = "";
 			
 			//Register to receive signals directly from SA
 			fromSuperAgentChannel = new NotificationTransportConsumer(NotificationTransportConsumer.FROM_SUPERAGENT_RECEIVER_PATH);
@@ -155,6 +167,11 @@ public class ReceiverTransport implements AnnouncementHandler {
 				throw new NotificationServiceException("Failed to register a SuperAgent signal handler");
 			}
 			
+			// Add SuperAgent match rule, this allows to receive Notification signals from all the SuperAgents in proximity
+			addMatchRule(SUPER_AGENT_MATCH_RULE);
+			
+			//Check whether About service is running in the client mode,
+			// then registers to receive Announcements
 			AboutService aboutService = AboutServiceImpl.getInstance();
 			if ( !aboutService.isClientRunning() ) {
 				logger.error(TAG, "The AboutClient wasn't started, unable to register to receive Announcement signals");
@@ -167,17 +184,6 @@ public class ReceiverTransport implements AnnouncementHandler {
 			aboutService.addAnnouncementHandler(this);
 		}//if :: isNeedSearchSA
 		
-		//Register to receive signals directly from Producers
-		logger.debug(TAG, "Registering to receive signals from producers");
-		
-		fromProducerChannel        = new NotificationTransportConsumer(NotificationTransportConsumer.FROM_PRODUCER_RECEIVER_PATH);
-		boolean regProducerHandler = registerNotificationSignalHandlerChannel(fromProducerChannel, NotificationTransportConsumer.FROM_PRODUCER_RECEIVER_PATH, NotificationTransport.IF_NAME);
-		
-		if ( !regProducerHandler ) {
-			logger.error(TAG, "Failed to register a Producer signal handler");
-			throw new NotificationServiceException("Failed to register a Producer signal handler");
-		}
-		
 		//Register to receive Dismiss signals
 		dismissSignalHandler      = new DismissConsumer();
 		boolean regDismissHandler = registerDismissSignalHandler(dismissSignalHandler);
@@ -187,16 +193,12 @@ public class ReceiverTransport implements AnnouncementHandler {
 			throw new NotificationServiceException("Failed to register Dismiss signal handler");
 		}
 		
-		String matchRuleStr = signalReceiverMatchRule.toString();
-		Status status       = busAttachment.addMatch(matchRuleStr);
-		if ( status == Status.OK ) {
-			logger.debug(TAG, "The signal handler match rule: '" + matchRuleStr + "' added successfully, signal handler established");
-		}
-		else {			
-			logger.error(TAG, "Failed to add match rule: '" + matchRuleStr + "', signal handler not established");
-			stopReceiverTransport();
-			throw new NotificationServiceException("Failed to call AddMatch: '" + matchRuleStr + "'");
-		}
+		//Add Match rule to receive dismiss signals
+		addMatchRule(DISMISSER_MATCH_RULE);
+		
+		//Register to receive Notification signals directly from Producers
+		//Additionally calls AddMatch(NOTIF_SLS_BASIC_RULE)
+		registerReceivingProducerNotifications();
 		
 	}//startReceiverTransp
 	
@@ -214,6 +216,7 @@ public class ReceiverTransport implements AnnouncementHandler {
 		Method notifConsumerMethod = getNotificationConsumerSignalMethod();
 		
 		if ( fromSuperAgentChannel != null ) {
+			
 			logger.debug(TAG, "Searched for a SuperAgent, cleaning up...");
 			logger.debug(TAG, "Unregister SuperAgent signal handler");
 			
@@ -222,9 +225,19 @@ public class ReceiverTransport implements AnnouncementHandler {
 			}
 				
 			busAttachment.unregisterBusObject(fromSuperAgentChannel);
+			
+			if ( isSuperAgentFound.get() ) {
+				removeMatchRule(superAgentSpecificRule);
+				superAgentSpecificRule = "";
+			}
+			else {
+				removeMatchRule(SUPER_AGENT_MATCH_RULE);
+			}
+			
 			fromSuperAgentChannel = null;
 			isSuperAgentFound     = null;
-		}
+			
+		}//if ::SuperAgent
 		
 		logger.debug(TAG, "Remove the AnnouncementReceiver");
 		AboutServiceImpl.getInstance().removeAnnouncementHandler(this);
@@ -238,7 +251,8 @@ public class ReceiverTransport implements AnnouncementHandler {
 			
 			busAttachment.unregisterBusObject(fromProducerChannel);
 			fromProducerChannel = null;
-		}
+			removeMatchRule(NOTIF_TRANS_MATCH_RULE);
+		}//if :: producer
 		
 		if ( dismissSignalHandler != null ) {
 			logger.debug(TAG, "Unregister Dismiss signal handler");
@@ -250,14 +264,9 @@ public class ReceiverTransport implements AnnouncementHandler {
 			
 			busAttachment.unregisterBusObject(dismissSignalHandler);
 			dismissSignalHandler = null;
-		}
-		
-		if ( signalReceiverMatchRule != null  ) {
-			String currentMatchRule = signalReceiverMatchRule.toString();
-			logger.debug(TAG, "Removing signal MatchRule: " + currentMatchRule);
-			busAttachment.removeMatch(currentMatchRule);
-			signalReceiverMatchRule   = null;
-		}
+			
+			removeMatchRule(DISMISSER_MATCH_RULE);
+		}//if :: dismiss
 		
 	}//stopReceiverTransport
 	
@@ -350,7 +359,7 @@ public class ReceiverTransport implements AnnouncementHandler {
 	 * 2. remove existing match rule
 	 * 3. add match rule only of this SuperAgent 
 	 */
-	public void onReceivedFirstSuperAgentNotification(String superAgentUniqueName) {
+	public void onReceivedFirstSuperAgentNotification(String superAgentSenderName) {
 		
 		GenericLogger logger 		= nativePlatform.getNativeLogger();
 		BusAttachment busAttachment = Transport.getInstance().getBusAttachment();
@@ -360,34 +369,34 @@ public class ReceiverTransport implements AnnouncementHandler {
 			return;
 		}
 		
-		String previousRule = signalReceiverMatchRule.toString();
-		signalReceiverMatchRule.setLength(0);
-		
-		//Build the new signal receiving match rule
-		signalReceiverMatchRule.append(NOTIF_SLS_BASIC_RULE)
-							   .append(",sender='")
-							   .append(superAgentUniqueName)
-							   .append("'");
-		
-		String newRule = signalReceiverMatchRule.toString();
-		logger.debug(TAG, "Adding the new addMatch rule: '" + newRule + "'");
-		
-		Status status = busAttachment.addMatch(newRule);
-		if ( status != Status.OK ) {
-			logger.error(TAG, "Failed to set the new addMatch rule: '" + newRule + "', not listening to a SuperAgent");
-			signalReceiverMatchRule.setLength(0);
-			signalReceiverMatchRule.append(previousRule);
+		//Build the AddMatch rule to receive Notification from the specified SuperAgent
+		superAgentSpecificRule = SUPER_AGENT_MATCH_RULE + ",sender='" + superAgentSenderName + "'";
+		logger.debug(TAG, "Add the Match rule to receive Notifications from the specific SuperAgent, Rule: '" + superAgentSpecificRule + "'");
+		try {	
+			addMatchRule(superAgentSpecificRule);
+		}
+		catch(NotificationServiceException nse) {
+			logger.error(TAG, "Failed to add the new Match rule: '" + superAgentSpecificRule + "', not listening to this SuperAgent, Error: '" + nse.getMessage() + "'");
 			return;
 		}
 	 	
-		logger.debug(TAG, "Remove the previous addMatch rule: '" + previousRule + "'");
-		status = busAttachment.removeMatch(previousRule);
+		//Remove the Match rule to receive notifications from ALL the SuperAgents
+		logger.debug(TAG, "Remove the generic SuperAgent Match rule: '" + SUPER_AGENT_MATCH_RULE + "'");
+		Status status = removeMatchRule(SUPER_AGENT_MATCH_RULE);
 		if ( status != Status.OK ) {
-			logger.warn(TAG, "Failed to remove the previous addMatch rule: '" + previousRule + "'");
+			logger.warn(TAG, "Failed to remove the generic SuperAgent Match rule: '" + SUPER_AGENT_MATCH_RULE + "', we may continue receiving Notifications from another SuperAgents");
+		}
+		
+		logger.debug(TAG, "Remove the Producer Match rule: '" + NOTIF_TRANS_MATCH_RULE + "'");
+		status = removeMatchRule(NOTIF_TRANS_MATCH_RULE);
+		if ( status != Status.OK ) {
+			logger.warn(TAG, "Failed to remove Notification Producer Match rule: '" + NOTIF_TRANS_MATCH_RULE + "', we may continue receiving Notifications from Notification Producers");
 		}
 		
 		logger.debug(TAG, "Set SuperAgent found as TRUE");
 		isSuperAgentFound.set(true);
+		
+		this.superAgentSenderName = superAgentSenderName; 
 		
 		logger.debug(TAG, "Unregister fromProducer signal handler");
 		busAttachment.unregisterSignalHandler(fromProducerChannel, getNotificationConsumerSignalMethod());
@@ -395,9 +404,6 @@ public class ReceiverTransport implements AnnouncementHandler {
 		logger.debug(TAG, "Unregister fromProducer bus object");
 		busAttachment.unregisterBusObject(fromProducerChannel);
 		fromProducerChannel = null;
-		
-		logger.debug(TAG, "Unregister Announcment signal handler");
-		AboutServiceImpl.getInstance().removeAnnouncementHandler(this);
 	}//onReceivedFirstSuperAgentNotification
 
 	
@@ -405,7 +411,64 @@ public class ReceiverTransport implements AnnouncementHandler {
 	 * @see org.alljoyn.services.common.AnnouncementHandler#onDeviceLost(java.lang.String)
 	 */
 	@Override
-	public void onDeviceLost(String arg0) {}
+	public void onDeviceLost(String senderName) {
+		
+		GenericLogger logger = nativePlatform.getNativeLogger();
+		logger.debug(TAG, "lostAdvertisedName: '" + senderName + "'");
+		
+		if ( !senderName.equals(superAgentSenderName) ) {
+			return;
+		}
+		
+		logger.debug(TAG, "Received lostAdvertisedName for SuperAgent: '" + superAgentSenderName + "', registering to listen for Producer and SuperAgent notifications");
+		
+		//Register signal handler to receive Notifications directly from consumers
+		try {
+			registerReceivingProducerNotifications();
+		} catch (NotificationServiceException nse) {
+			logger.error(TAG, "Failed to register receiving Notifications back directly from Producers, Error: '" + nse.getMessage() + "'");
+			return;
+		}
+		
+		//Add the match rule to receive Notifications from all the SuperAgents in the proximity 
+		try {
+			addMatchRule(SUPER_AGENT_MATCH_RULE);
+		} catch (NotificationServiceException nse) {
+			logger.warn(TAG, "Failed to add SuperAgent generic match rule: '" + SUPER_AGENT_MATCH_RULE + "', possibly we will not receive Notifications from a SuperAgent, Error: '" + nse.getMessage() + "'");
+		}
+		
+		logger.debug(TAG, "Removing the specific SuperAgent Match rule: '" + superAgentSpecificRule + "'");
+		removeMatchRule(superAgentSpecificRule);
+		
+		
+		superAgentSenderName   = "";
+		superAgentSpecificRule = "";
+		isSuperAgentFound.set(false);
+	}//onDeviceLost
+	
+
+	/**
+	 * Register receiving {@link Notification} messages directly from Notification producers
+	 * Additionally calls AddMatch(NOTIF_SLS_BASIC_RULE)
+	 * @throws NotificationServiceException
+	 */
+	private void registerReceivingProducerNotifications() throws NotificationServiceException {
+		
+		GenericLogger logger  	     = nativePlatform.getNativeLogger();
+		
+		//Register to receive signals directly from Producers
+		logger.debug(TAG, "Registering to receive signals from producers");
+		
+		fromProducerChannel        = new NotificationTransportConsumer(NotificationTransportConsumer.FROM_PRODUCER_RECEIVER_PATH);
+		boolean regProducerHandler = registerNotificationSignalHandlerChannel(fromProducerChannel, NotificationTransportConsumer.FROM_PRODUCER_RECEIVER_PATH, NotificationTransport.IF_NAME);
+		
+		if ( !regProducerHandler ) {
+			logger.error(TAG, "Failed to register a Producer signal handler");
+			throw new NotificationServiceException("Failed to register a Producer signal handler");
+		}
+		
+		addMatchRule(NOTIF_TRANS_MATCH_RULE);
+	}//regReceivingProducerNotifications
 	
 	/**
 	 * Register channel object to receive Notification signals 
@@ -444,7 +507,7 @@ public class ReceiverTransport implements AnnouncementHandler {
 	private boolean registerDismissSignalHandler(DismissConsumer dismissConsumer) {
 		GenericLogger logger = nativePlatform.getNativeLogger();
 		
-		logger.debug(TAG, "Registering signal handler for interface: '" + DismissConsumer.IFNAME + "' servicePath: '" + DismissConsumer.OBJ_PATH + "'");
+		logger.debug(TAG, "Registering signal handler for interface: '" + DismissConsumer.IF_NAME + "' servicePath: '" + DismissConsumer.OBJ_PATH + "'");
 		
 		Method handlerMethod = getDismissSignalMethod();
 		if ( handlerMethod == null ) {
@@ -452,7 +515,7 @@ public class ReceiverTransport implements AnnouncementHandler {
 		}
 		
 		String allJoynName = handlerMethod.getAnnotation(BusSignal.class).name();
-		boolean regRes = Transport.getInstance().registerObjectAndSetSignalHandler(logger, DismissConsumer.IFNAME, allJoynName, handlerMethod, dismissConsumer, DismissConsumer.OBJ_PATH);
+		boolean regRes = Transport.getInstance().registerObjectAndSetSignalHandler(logger, DismissConsumer.IF_NAME, allJoynName, handlerMethod, dismissConsumer, DismissConsumer.OBJ_PATH);
 
 		if ( !regRes ) {
 			stopReceiverTransport();       // Stop receiver transport to allow later recovery
@@ -461,6 +524,38 @@ public class ReceiverTransport implements AnnouncementHandler {
 			
 		return true;
 	}//registerDismissSignalReceiver
+	
+	/**
+	 * Call the method {@link BusAttachment#addMatch(String)} with the given rule
+	 * @param rule The rule to add
+	 * @throws NotificationServiceException is throws if the AddMatch return status wasn't OK
+	 */
+	private void addMatchRule(String rule) throws NotificationServiceException { 
+		
+		GenericLogger logger = nativePlatform.getNativeLogger();
+		logger.debug(TAG, "Call AddMatch rule: '" + rule + "'");
+		
+		BusAttachment bus = Transport.getInstance().getBusAttachment();
+		Status status     = bus.addMatch(rule);
+		
+		if ( status != Status.OK ) {
+			logger.error(TAG, "Failed to call AddMatch rule: '" + rule + "', Error: '" + status + "'");
+			throw new NotificationServiceException("Failed to call AddMatch rule: '" + rule + "', Error: '" + status + "'");
+		}
+	}//addMathcRule
+
+	/**
+	 * Call the method {@link BusAttachment#removeMatch(String)} with the given rule
+	 * @param rule The rule to add	
+	 * @return The result status
+	 */
+	private Status removeMatchRule(String rule) {	
+		BusAttachment bus = Transport.getInstance().getBusAttachment();
+		Status status     = bus.removeMatch(rule);
+		nativePlatform.getNativeLogger().debug(TAG, "RemoveMatch rule: '" + rule + "' result: '" + status + "'");
+		return status;
+	}//removeMatchRule
+	
 	
 	/**
 	 * Returns reflection of {@link NotificationTransport#notify} method
