@@ -296,7 +296,8 @@ QStatus ControlPanel::addChildren()
             return ER_FAIL;
 
         qcc::String const& containerName = splitPath[2];
-        qcc::String const& language = splitPath[3];
+        qcc::String language = splitPath[3];
+        std::replace(language.begin(), language.end(), '_', '-'); //languages that have '_' should be replaced with '-'
         m_LanguageSet.addLanguage(language);
         Container* container = new Container(containerName, NULL, childNodes[i].getObjectPath(), m_Device);
         container->setIsSecured(childNodes[i].isSecured());
