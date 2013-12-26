@@ -25,23 +25,12 @@ vars.Add(EnumVariable('BUILD_SERVICES_SAMPLES',
 vars.Add(PathVariable('ALLJOYN_DISTDIR',
                       'Directory containing a built AllJoyn Core dist directory.',
                       os.environ.get('ALLJOYN_DISTDIR')))
-vars.Add(PathVariable('CONFIG_DISTDIR',
-                      'Directory containing a built AllJoyn Config dist directory (ALLJOYN_DISTDIR will be used if unset).',
-                      os.environ.get('CONFIG_DISTDIR',
-                                     ARGUMENTS.get('ALLJOYN_DISTDIR',
-                                                   os.environ.get('ALLJOYN_DISTDIR')))))
 vars.Add(PathVariable('APP_COMMON_DIR',
                       'Directory containing common sample application sources.',
                       os.environ.get('APP_COMMON_DIR','.')))
 
 vars.Update(env)
 Help(vars.GenerateHelpText(env))
-
-if env.get('CONFIG_DISTDIR'):
-    # normalize CONFIG_DISTDIR first
-    env['CONFIG_DISTDIR'] = env.Dir('$CONFIG_DISTDIR')
-    env.Append(CPPPATH = [ env.Dir('$CONFIG_DISTDIR/config/inc') ])
-    env.Append(LIBPATH = [ env.Dir('$CONFIG_DISTDIR/config/lib') ])
 
 if env.get('ALLJOYN_DISTDIR'):
     # normalize ALLJOYN_DISTDIR first
