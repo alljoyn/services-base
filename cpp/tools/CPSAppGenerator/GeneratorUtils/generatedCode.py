@@ -124,7 +124,7 @@ class Generator:
 
     def writeFiles(self) :
 
-        genH = open(self.path + "ControlPanelGenerated.h", 'w')
+        genH = open(self.path + "/ControlPanelGenerated.h", 'w')
         genH.write(self.genHeaderFile)
         genH.close()
 
