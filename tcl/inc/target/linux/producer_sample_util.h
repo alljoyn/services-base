@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -17,7 +17,7 @@
 #ifndef PRODUCER_SAMPLE_UTIL_H_
 #define PRODUCER_SAMPLE_UTIL_H_
 
-void Producer_SetupEnv(int8_t* inputMode);
+void Producer_SetupEnv(uint8_t* inputMode);
 void GetNotificationFromUser();
 void PossiblyDeleteNotification(uint16_t isMessageTime);
 void FreeNotification();

@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -14,7 +14,6 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#include <alljoyn/notification/common.h>
 #include <alljoyn/notification/NotificationProducer.h>
 #include <alljoyn/services_common/PropertyStore.h>
 #include <aj_crypto.h>
@@ -25,9 +24,15 @@
  */
 static uint8_t isMessageSet   = FALSE;
 static int8_t lastMessageType;
-static uint32_t messageId = 0;
+static uint32_t nextNotificationId = 0;
 static AJ_Message msg;
-static uint32_t LastSerialNum[NUM_MESSAGE_TYPES] = { 0, 0, 0 };
+
+typedef struct _NotificationMessageTracking {
+    uint32_t msgId;
+    uint32_t msgSerialNum;
+} NotificationMessageTracking_t;
+
+static NotificationMessageTracking_t LastSentNotifications[NUM_MESSAGE_TYPES] = { { 0, 0 }, { 0, 0 }, { 0, 0 } };
 
 /**
  * Static constants.
@@ -36,13 +41,10 @@ const char ServicePathEmergency[]   = "/emergency";
 const char ServicePathWarning[]     = "/warning";
 const char ServicePathInfo[]        = "/info";
 
-static const uint16_t TTL_MIN   = 30;
-static const uint16_t TTL_MAX   = 43200;
-
 /**
  * Set Notification - see notes in h file
  */
-AJ_Status ProducerSetNotification(notification*notificationContent)
+AJ_Status ProducerSetNotification(NotificationContent_t* notificationContent, uint16_t messageType, uint16_t ttl)
 {
     AJ_Printf("In SetNotification\n");
     AJ_Status status;
@@ -51,29 +53,33 @@ AJ_Status ProducerSetNotification(notification*notificationContent)
     const char* deviceName = PropertyStore_GetValue(DeviceName);
     const char* appId = PropertyStore_GetValue(AppID);
     const char* appName = PropertyStore_GetValue(AppName);
+    const char* originalSenderName = AJ_GetUniqueName(&busAttachment);
 
     if ((deviceId == 0) || (deviceName == 0) ||
-        (appId == 0) || (appName == 0)) {
-        AJ_Printf("DeviceId/DeviceName/AppId/AppName can not be NULL\n");
+        (appId == 0) || (appName == 0) ||
+        (originalSenderName == 0)) {
+        AJ_Printf("DeviceId/DeviceName/AppId/AppName/OriginalSender can not be NULL\n");
         return AJ_ERR_DISALLOWED;
     }
 
     if ((strlen(deviceId) == 0) || (strlen(deviceName) == 0) ||
-        (strlen(appId) == 0) || (strlen(appName) == 0)) {
-        AJ_Printf("DeviceId/DeviceName/AppId/AppName can not be empty\n");
+        (strlen(appId) == 0) || (strlen(appName) == 0) ||
+        (strlen(originalSenderName) == 0)) {
+        AJ_Printf("DeviceId/DeviceName/AppId/AppName/OriginalSender can not be empty\n");
         return AJ_ERR_DISALLOWED;
     }
 
-    if (notificationContent->messageType >= NUM_MESSAGE_TYPES) {
+    if (messageType >= NUM_MESSAGE_TYPES) {
         AJ_Printf("Could not Set Notification - MessageType is not valid\n");
         return AJ_ERR_DISALLOWED;
     }
-    if ((notificationContent->ttl < TTL_MIN) || (notificationContent->ttl > TTL_MAX)) {      //ttl is mandatory and must be in range
-        AJ_Printf("TTL '%d' is not a valid TTL value", notificationContent->ttl);
+
+    if ((ttl < NOTIFICATION_TTL_MIN) || (ttl > NOTIFICATION_TTL_MAX)) {      //ttl is mandatory and must be in range
+        AJ_Printf("TTL '%d' is not a valid TTL value\n", ttl);
         return AJ_ERR_DISALLOWED;
     }
 
-    status = AJ_MarshalSignal(&busAttachment, &msg, AJ_APP_MESSAGE_ID(notificationContent->messageType + NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS, 1, 0), NULL, 0, ALLJOYN_FLAG_SESSIONLESS, notificationContent->ttl);
+    status = AJ_MarshalSignal(&busAttachment, &msg, AJ_APP_MESSAGE_ID(messageType + NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS, 1, 0), NULL, 0, ALLJOYN_FLAG_SESSIONLESS, ttl);
     if (status != AJ_OK) {
         AJ_Printf("Could not Marshal Signal\n");
         return status;
@@ -81,7 +87,6 @@ AJ_Status ProducerSetNotification(notification*notificationContent)
 
     do {
         AJ_Arg attrbtArray;
-        AJ_Arg appIdArg;
         AJ_Arg customAttributeArray;
         AJ_Arg notTextArray;
         AJ_Arg richAudioArray;
@@ -92,17 +97,16 @@ AJ_Status ProducerSetNotification(notification*notificationContent)
         AJ_Arg richAudioAttrArray;
 
         ///////////////////       Proto     /////////////////////
+        CHECK(AJ_MarshalArgs(&msg, "q", NotificationVersion));
 
-        CHECK(AJ_MarshalArgs(&msg, "q", version));
-
-        ///////////////////    NotificationId    /////////////////////
-        if (!messageId)
-            AJ_RandBytes((uint8_t*)&messageId, 4);
-        CHECK(AJ_MarshalArgs(&msg, "i", messageId));
+        ///////////////////    MessgeId    /////////////////////
+        if (!nextNotificationId)
+            AJ_RandBytes((uint8_t*)&nextNotificationId, 4);
+        CHECK(AJ_MarshalArgs(&msg, "i", nextNotificationId));
 
         ///////////////////    MessageType   ////////////////////////////
 
-        CHECK(AJ_MarshalArgs(&msg, "q", notificationContent->messageType));
+        CHECK(AJ_MarshalArgs(&msg, "q", messageType));
 
         ///////////////////    DeviceId   ////////////////////////////
 
@@ -114,15 +118,7 @@ AJ_Status ProducerSetNotification(notification*notificationContent)
 
         ///////////////////    AppId   ////////////////////////////
 
-        uint8_t binAppId[UUID_LENGTH];
-        uint32_t sz = strlen(appId);
-        if (sz > UUID_LENGTH * 2)
-            sz = UUID_LENGTH * 2;
-        AJ_HexToRaw(appId, sz, binAppId, UUID_LENGTH);
-
-        AJ_InitArg(&appIdArg, AJ_ARG_BYTE, AJ_ARRAY_FLAG, binAppId, UUID_LENGTH);
-
-        CHECK(AJ_MarshalArg(&msg, &appIdArg));
+        CHECK(Common_MarshalAppId(&msg, appId));
 
         ///////////////////    AppName   ////////////////////////////
 
@@ -159,16 +155,13 @@ AJ_Status ProducerSetNotification(notification*notificationContent)
                 CHECK(AJ_MarshalArgs(&msg, "ss", notificationContent->richAudioUrls[indx].key, notificationContent->richAudioUrls[indx].value));
                 CHECK(AJ_MarshalCloseContainer(&msg, &audioStructArg));
             }
-
-            CHECK(AJ_MarshalCloseContainer(&msg, &richAudioAttrArray));
-
             if (status)
                 break;
 
+            CHECK(AJ_MarshalCloseContainer(&msg, &richAudioAttrArray));
+
             CHECK(AJ_MarshalCloseContainer(&msg, &richAudioArray));
-
         }
-
         if (status)
             break;
 
@@ -196,6 +189,12 @@ AJ_Status ProducerSetNotification(notification*notificationContent)
             AJ_MarshalCloseContainer(&msg, &dictArg);
         }
 
+        AJ_MarshalContainer(&msg, &dictArg, AJ_ARG_DICT_ENTRY);
+        AJ_MarshalArgs(&msg, "i", ORIGINAL_SENDER_NAME_ATTRIBUTE_KEY);
+        AJ_MarshalVariant(&msg, "s");
+        AJ_MarshalArgs(&msg, "s", originalSenderName);
+        AJ_MarshalCloseContainer(&msg, &dictArg);
+
         CHECK(AJ_MarshalCloseContainer(&msg, &attrbtArray));
 
         ///////////////////    Custom Attributes   ///////////////////
@@ -207,7 +206,6 @@ AJ_Status ProducerSetNotification(notification*notificationContent)
             CHECK(AJ_MarshalArgs(&msg, "ss", notificationContent->customAttributes[indx].key, notificationContent->customAttributes[indx].value));
             CHECK(AJ_MarshalCloseContainer(&msg, &customAttributeDictArg));
         }
-
         if (status)
             break;
 
@@ -234,7 +232,7 @@ AJ_Status ProducerSetNotification(notification*notificationContent)
         CHECK(AJ_MarshalCloseContainer(&msg, &notTextArray));
 
         isMessageSet = TRUE;
-        lastMessageType = notificationContent->messageType;
+        lastMessageType = messageType;
 
         return AJ_OK;
     } while (0);
@@ -269,9 +267,10 @@ AJ_Status ProducerSendNotifications()
         return status;
     }
 
-    AJ_Printf("***************** Message id %d delivered successfully *****************\n", messageId);
-    messageId++;
-    LastSerialNum[lastMessageType] = serialNum;
+    AJ_Printf("***************** Notification id %u delivered successfully *****************\n", nextNotificationId);
+    LastSentNotifications[lastMessageType].msgId = nextNotificationId;
+    LastSentNotifications[lastMessageType].msgSerialNum = serialNum;
+    nextNotificationId++;
 
     AJ_CloseMsg(&msg);
     isMessageSet = FALSE;
@@ -288,21 +287,105 @@ AJ_Status ProducerDeleteLastMsg(uint16_t messageType)
         return AJ_ERR_DISALLOWED;
     }
 
-    if (LastSerialNum[messageType] == 0) {
+    uint32_t lastSentSerialNumber = LastSentNotifications[messageType].msgSerialNum;
+    if (lastSentSerialNumber == 0) {
         AJ_Printf("Could not Delete Message - no message to delete\n");
         return AJ_OK;
     }
 
-    status = AJ_BusCancelSessionless(&busAttachment, LastSerialNum[messageType]);
+    status = AJ_BusCancelSessionless(&busAttachment, lastSentSerialNumber);
 
     if (status != AJ_OK) {
         AJ_Printf("Could not Delete Message\n");
         return status;
     }
 
-    LastSerialNum[messageType] = 0;
+    LastSentNotifications[messageType].msgId = 0;
+    LastSentNotifications[messageType].msgSerialNum = 0;
 
     AJ_Printf("***************** Message deleted successfully *****************\n");
+    return status;
+}
+
+static AJ_Status ProducerCancelMessage(int32_t msgId)
+{
+    AJ_Status status;
+    uint16_t messageType = 0;
+
+    AJ_Printf("In CancelMessage\n");
+
+    if (msgId == 0) {
+        AJ_Printf("Could not cancel Message - no message to cancel\n");
+        return AJ_OK;
+    }
+    for (; messageType < NUM_MESSAGE_TYPES; messageType++) {
+        if (LastSentNotifications[messageType].msgId == msgId) {
+            break;
+        }
+    }
+    if (messageType >= NUM_MESSAGE_TYPES) {
+        AJ_Printf("Could not find matching Message serial number - no message to cancel\n");
+        return AJ_OK;
+    }
+
+    status = AJ_BusCancelSessionless(&busAttachment, LastSentNotifications[messageType].msgSerialNum);
+
+    if (status != AJ_OK) {
+        AJ_Printf("Failed to send cancelation\n");
+        return status;
+    }
+
+    LastSentNotifications[messageType].msgId = 0;
+    LastSentNotifications[messageType].msgSerialNum = 0;
+
+    return status;
+}
+
+AJ_Status ProducerAcknowledgeMsg(AJ_Message*msg)
+{
+    AJ_Printf("In AcknowledgeMsg\n");
+    AJ_Status status;
+    int32_t msgId;
+
+    status = AJ_UnmarshalArgs(msg, "i", &msgId);
+    if (status != AJ_OK) {
+        AJ_Printf("Could not unmarshal message\n");
+        return status;
+    }
+
+    status = ProducerCancelMessage(msgId);
+    if (status != AJ_OK) {
+        return status;
+    }
+
+    AJ_Printf("***************** Message acknowledged successfully *****************\n");
+    return status;
+}
+
+AJ_Status ProducerDismissMsg(AJ_Message* msg)
+{
+    AJ_Printf("In DismissMsg\n");
+    AJ_Status status;
+    int32_t msgId;
+
+    status = AJ_UnmarshalArgs(msg, "i", &msgId);
+    if (status != AJ_OK) {
+        AJ_Printf("Could not unmarshal message\n");
+        return status;
+    }
+
+    status = ProducerCancelMessage(msgId);
+    if (status != AJ_OK) {
+        return status;
+    }
+
+    const char* appId = PropertyStore_GetValue(AppID);
+    status = NotificationSendDismiss(msgId, appId);
+    if (status != AJ_OK) {
+        return status;
+    }
+
+    AJ_Printf("***************** Message dismissed successfully *****************\n");
     return status;
 }
 
@@ -314,7 +397,15 @@ AJ_Status ProducerPropGetHandler(AJ_Message* replyMsg, uint32_t propId, void* co
     case GET_EMERGENCY_NOTIFICATION_VERSION_PROPERTY:
     case GET_WARNING_NOTIFICATION_VERSION_PROPERTY:
     case GET_INFO_NOTIFICATION_VERSION_PROPERTY:
-        status = AJ_MarshalArgs(replyMsg, "q", version);
+        status = AJ_MarshalArgs(replyMsg, "q", NotificationVersion);
+        break;
+
+    case GET_NOTIFICATION_PRODUCER_VERSION_PROPERTY:
+        status = AJ_MarshalArgs(replyMsg, "q", NotificationProducerVersion);
+        break;
+
+    case GET_NOTIFICATION_DISMISSER_VERSION_PROPERTY:
+        status = AJ_MarshalArgs(replyMsg, "q", NotificationDismisserVersion);
         break;
     }
     return status;

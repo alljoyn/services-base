@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -23,7 +23,7 @@
 /**
  * A function that allows us to enter InputMode
  */
-void Consumer_SetupEnv(int8_t* superAgentMode)
+void Consumer_SetupEnv(uint8_t* superAgentMode)
 {
     uint8_t inputMode = 0;
     char* value = getenv("INPUT_MODE");
@@ -34,10 +34,9 @@ void Consumer_SetupEnv(int8_t* superAgentMode)
         AJ_Printf("Please enter 1 if you want to run in SuperAgentMode. default is 0\n");
         if (AJ_GetLine(buf, 1024, stdin) != NULL) {
             if (strlen(buf)) {
-                *superAgentMode = atoi(buf);
+                *superAgentMode = (uint8_t)atoi(buf);
             }
         }
-
     }
 }
 

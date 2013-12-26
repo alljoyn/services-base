@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -23,6 +23,7 @@ static const char SuperagentInterfaceName[]  = "org.alljoyn.Notification.Superag
 static const char notificationMatch[] = "interface='org.alljoyn.Notification'";
 static const char superAgentMatch[] = "interface='org.alljoyn.Notification.Superagent'";
 static const char superAgentFilterMatch[] = "interface='org.alljoyn.Notification.Superagent',sender='";
+static const char dismisserMatch[] = "interface='org.alljoyn.Notification.Dismisser'";
 
 static const char* SuperagentInterface[] = {
     SuperagentInterfaceName,
@@ -47,19 +48,28 @@ const AJ_InterfaceDescription AllInterfaces[] = {
     NULL
 };
 
-const AJ_Object AllAppObject          = { "*",   AllInterfaces };
-const AJ_Object SuperAgentObject      = { "*",   SuperagentInterfaces };
-const AJ_Object NotificationAppObject = { "*",   NotificationInterfaces };
+const AJ_Object AllProxyObject          = { "*",   AllInterfaces };
+const AJ_Object SuperAgentProxyObject   = { "*",   SuperagentInterfaces };
+const AJ_Object NotificationProxyObject = { "*",   NotificationInterfaces };
+
+static char currentSuperAgentBusName[16] = { '\0' };
 
 struct keyValue textsRecd[NUMALLOWEDTEXTS], customAttributesRecd[NUMALLOWEDCUSTOMATTRIBUTES], richAudiosRecd[NUMALLOWEDRICHNOTS];
 
-AJ_Status ConsumerSetSignalRules(AJ_BusAttachment* bus, int8_t superAgentMode, const char* senderBusName)
+AJ_Status ConsumerSetSignalRules(AJ_BusAttachment* bus, uint8_t superAgentMode, const char* senderBusName)
 {
     AJ_Status status;
 
-    AJ_Printf("Running SetSignalRules.\n");
-    if (senderBusName == 0) {
-        AJ_Printf("Running SetSignalRules - Adding Notification interface.\n");
+    AJ_Printf("In SetSignalRules()\n");
+    AJ_Printf("Adding Dismisser interface match.\n");
+    status = AJ_BusSetSignalRuleFlags(bus, dismisserMatch, AJ_BUS_SIGNAL_ALLOW, AJ_FLAG_NO_REPLY_EXPECTED);
+    if (status != AJ_OK) {
+        AJ_Printf("Could not set Dismisser Interface AddMatch\n");
+        return status;
+    }
+
+    if (senderBusName == NULL) {
+        AJ_Printf("Adding Notification interface match.\n");
 
         status = AJ_BusSetSignalRuleFlags(bus, notificationMatch, AJ_BUS_SIGNAL_ALLOW, AJ_FLAG_NO_REPLY_EXPECTED);
         if (status != AJ_OK) {
@@ -67,8 +77,32 @@ AJ_Status ConsumerSetSignalRules(AJ_BusAttachment* bus, int8_t superAgentMode, c
             return status;
         }
 
+        if (currentSuperAgentBusName[0]) {
+            AJ_Printf("Removing Superagent interface matched for specific sender bus name %s.\n", currentSuperAgentBusName);
+
+            char senderMatch[100];
+            size_t availableLen = sizeof(senderMatch);
+            availableLen -= strlen(strncpy(senderMatch, superAgentFilterMatch, availableLen));
+            availableLen -= strlen(strncat(senderMatch, currentSuperAgentBusName, availableLen));
+            availableLen -= strlen(strncat(senderMatch, "'", availableLen));
+
+            status = AJ_BusSetSignalRuleFlags(bus, senderMatch, AJ_BUS_SIGNAL_DENY, AJ_FLAG_NO_REPLY_EXPECTED);
+            if (status != AJ_OK) {
+                AJ_Printf("Could not remove SuperAgent specific match\n");
+                return status;
+            }
+
+            status = AJ_BusFindAdvertisedName(bus, currentSuperAgentBusName, AJ_BUS_STOP_FINDING);
+            if (status != AJ_OK) {
+                AJ_Printf("Could not unregister to find advertised name of lost SuperAgent\n");
+                return status;
+            }
+
+            currentSuperAgentBusName[0] = '\0'; // Clear current SuperAgent BusUniqueName
+        }
+
         if (superAgentMode) {
-            AJ_Printf("Running SetSignalRules - Adding Superagent interface.\n");
+            AJ_Printf("Adding Superagent interface match.\n");
             status = AJ_BusSetSignalRuleFlags(bus, superAgentMatch, AJ_BUS_SIGNAL_ALLOW, AJ_FLAG_NO_REPLY_EXPECTED);
             if (status != AJ_OK) {
                 AJ_Printf("Could not set Notification Interface AddMatch\n");
@@ -78,7 +112,7 @@ AJ_Status ConsumerSetSignalRules(AJ_BusAttachment* bus, int8_t superAgentMode, c
     } else {
         AJ_Printf("Running SetSignalRules with sender bus name.\n");
 
-        AJ_Printf("Removing Notification match.\n");
+        AJ_Printf("Removing Notification interface match.\n");
         status = AJ_BusSetSignalRuleFlags(bus, notificationMatch, AJ_BUS_SIGNAL_DENY, AJ_FLAG_NO_REPLY_EXPECTED);
         if (status != AJ_OK) {
             AJ_Printf("Could not remove Notification Interface match\n");
@@ -91,7 +125,7 @@ AJ_Status ConsumerSetSignalRules(AJ_BusAttachment* bus, int8_t superAgentMode, c
         availableLen -= strlen(strncat(senderMatch, senderBusName, availableLen));
         availableLen -= strlen(strncat(senderMatch, "'", availableLen));
 
-        AJ_Printf("Re-adding superagent match with sender bus name %s.\n", senderBusName);
+        AJ_Printf("Adding Superagent interface matched for specific sender bus name %s.\n", senderBusName);
 
         status = AJ_BusSetSignalRuleFlags(bus, senderMatch, AJ_BUS_SIGNAL_ALLOW, AJ_FLAG_NO_REPLY_EXPECTED);
         if (status != AJ_OK) {
@@ -99,7 +133,15 @@ AJ_Status ConsumerSetSignalRules(AJ_BusAttachment* bus, int8_t superAgentMode, c
             return status;
         }
 
-        AJ_Printf("Removing Superagent match.\n");
+        status = AJ_BusFindAdvertisedName(bus, senderBusName, AJ_BUS_START_FINDING);
+        if (status != AJ_OK) {
+            AJ_Printf("Could not register to find advertised name of SuperAgent\n");
+            return status;
+        }
+
+        strncpy(currentSuperAgentBusName, senderBusName, 16); // Save current SuperAgent BusUniqueName
+
+        AJ_Printf("Removing Superagent interface match.\n");
         status = AJ_BusSetSignalRuleFlags(bus, superAgentMatch, AJ_BUS_SIGNAL_DENY, AJ_FLAG_NO_REPLY_EXPECTED);
         if (status != AJ_OK) {
             AJ_Printf("Could not remove SuperAgent Interface match\n");
@@ -110,17 +152,26 @@ AJ_Status ConsumerSetSignalRules(AJ_BusAttachment* bus, int8_t superAgentMode, c
     return status;
 }
 
-AJ_Status ConsumerHandleNotifyMsgObj(AJ_Message* msg)
+uint8_t ConsumerIsSuperAgentLost(AJ_Message* msg)
+{
+    if (msg->msgId == AJ_SIGNAL_LOST_ADV_NAME) {
+        AJ_Arg arg;
+        AJ_UnmarshalArg(msg, &arg); // <arg name="name" type="s" direction="out"/>
+        AJ_SkipArg(msg);            // <arg name="transport" type="q" direction="out"/>
+        AJ_SkipArg(msg);            // <arg name="prefix" type="s" direction="out"/>
+        AJ_ResetArgs(msg);          // Reset to allow others to re-unmarshal message
+        AJ_Printf("LostAdvertisedName(%s)\n", arg.val.v_string);
+        return (strcmp(arg.val.v_string, currentSuperAgentBusName) == 0);
+    }
+    return FALSE;
+}
+
+AJ_Status ConsumerNotifySignalHandler(AJ_Message* msg)
 {
     AJ_Status status;
-    uint16_t protoVer;
-    notification notificationContent;
+    Notification_t notification;
 
-    uint32_t messageId = 0;
-    char* deviceId = NULL;
-    char* deviceName = NULL;
     char appId[UUID_LENGTH * 2 + 1];
-    char* appName = NULL;
 
     AJ_Arg attrbtArray;
     AJ_Arg appIdArray;
@@ -128,32 +179,27 @@ AJ_Status ConsumerHandleNotifyMsgObj(AJ_Message* msg)
     AJ_Arg notTextArray;
     AJ_Arg richAudioArray;
 
-    notificationContent.numCustomAttributes = 0;
-    notificationContent.numTexts = 0;
-    notificationContent.numAudioUrls = 0;
-    notificationContent.richIconUrl = "";
-    notificationContent.richIconObjectPath = "";
-    notificationContent.richAudioObjectPath = "";
-    notificationContent.controlPanelServiceObjectPath = "";
+    memset(&notification, 0, sizeof(Notification_t));
 
-
+    AJ_Printf("Received notification signal from sender %s\n", msg->sender);
     do {
-        CHECK(AJ_UnmarshalArgs(msg, "q", &protoVer));
+        CHECK(AJ_UnmarshalArgs(msg, "q", &notification.header.version));
 
-        CHECK(AJ_UnmarshalArgs(msg, "i", &messageId));
+        CHECK(AJ_UnmarshalArgs(msg, "i", &notification.header.notificationId));
 
-        CHECK(AJ_UnmarshalArgs(msg, "q", &notificationContent.messageType));
+        CHECK(AJ_UnmarshalArgs(msg, "q", &notification.header.messageType));
 
-        CHECK(AJ_UnmarshalArgs(msg, "s", &deviceId));
+        CHECK(AJ_UnmarshalArgs(msg, "s", &notification.header.deviceId));
 
-        CHECK(AJ_UnmarshalArgs(msg, "s", &deviceName));
+        CHECK(AJ_UnmarshalArgs(msg, "s", &notification.header.deviceName));
 
         CHECK(AJ_UnmarshalArg(msg, &appIdArray));
 
         size_t appIdLen = ((appIdArray.len > UUID_LENGTH) ? UUID_LENGTH : appIdArray.len) * 2 + 1;
         CHECK(AJ_RawToHex(appIdArray.val.v_byte, appIdArray.len, appId, appIdLen, FALSE));
+        notification.header.appId = appId;
 
-        CHECK(AJ_UnmarshalArgs(msg, "s", &appName));
+        CHECK(AJ_UnmarshalArgs(msg, "s", &notification.header.appName));
 
         CHECK(AJ_UnmarshalContainer(msg, &attrbtArray, AJ_ARG_ARRAY));
 
@@ -175,28 +221,35 @@ AJ_Status ConsumerHandleNotifyMsgObj(AJ_Message* msg)
             case RICH_CONTENT_ICON_URL_ATTRIBUTE_KEY:
             {
                 CHECK(AJ_UnmarshalVariant(msg, &variantSig));
-                CHECK(AJ_UnmarshalArgs(msg, "s", &notificationContent.richIconUrl));
+                CHECK(AJ_UnmarshalArgs(msg, "s", &notification.content.richIconUrl));
             }
             break;
 
             case RICH_CONTENT_ICON_OBJECT_PATH_ATTRIBUTE_KEY:
             {
                 CHECK(AJ_UnmarshalVariant(msg, &variantSig));
-                CHECK(AJ_UnmarshalArgs(msg, "s", &notificationContent.richIconObjectPath));
+                CHECK(AJ_UnmarshalArgs(msg, "s", &notification.content.richIconObjectPath));
             }
             break;
 
             case RICH_CONTENT_AUDIO_OBJECT_PATH_ATTRIBUTE_KEY:
             {
                 CHECK(AJ_UnmarshalVariant(msg, &variantSig));
-                CHECK(AJ_UnmarshalArgs(msg, "s", &notificationContent.richAudioObjectPath));
+                CHECK(AJ_UnmarshalArgs(msg, "s", &notification.content.richAudioObjectPath));
             }
             break;
 
             case CONTROLPANELSERVICE_OBJECT_PATH_ATTRIBUTE_KEY:
             {
                 CHECK(AJ_UnmarshalVariant(msg, &variantSig));
-                CHECK(AJ_UnmarshalArgs(msg, "s", &notificationContent.controlPanelServiceObjectPath));
+                CHECK(AJ_UnmarshalArgs(msg, "s", &notification.content.controlPanelServiceObjectPath));
+            }
+            break;
+
+            case ORIGINAL_SENDER_NAME_ATTRIBUTE_KEY:
+            {
+                CHECK(AJ_UnmarshalVariant(msg, &variantSig));
+                CHECK(AJ_UnmarshalArgs(msg, "s", &notification.header.originalSenderName));
             }
             break;
 
@@ -220,15 +273,15 @@ AJ_Status ConsumerHandleNotifyMsgObj(AJ_Message* msg)
 
                     status = AJ_UnmarshalArgs(msg, "ss", &urlLanguage, &urlText);
 
-                    if (notificationContent.numAudioUrls < NUMALLOWEDRICHNOTS) {         // if it doesn't fit we just skip
-                        richAudiosRecd[notificationContent.numAudioUrls].key   = urlLanguage;
-                        richAudiosRecd[notificationContent.numAudioUrls].value = urlText;
+                    if (notification.content.numAudioUrls < NUMALLOWEDRICHNOTS) {         // if it doesn't fit we just skip
+                        richAudiosRecd[notification.content.numAudioUrls].key   = urlLanguage;
+                        richAudiosRecd[notification.content.numAudioUrls].value = urlText;
                     }
 
-                    notificationContent.numAudioUrls++;
+                    notification.content.numAudioUrls++;
                     status = AJ_UnmarshalCloseContainer(msg, &structArg);
                 }
-                notificationContent.richAudioUrls = richAudiosRecd;
+                notification.content.richAudioUrls = richAudiosRecd;
             }
             break;
 
@@ -263,15 +316,15 @@ AJ_Status ConsumerHandleNotifyMsgObj(AJ_Message* msg)
 
             status = AJ_UnmarshalArgs(msg, "ss", &customKey, &customVal);
 
-            if (notificationContent.numCustomAttributes < NUMALLOWEDCUSTOMATTRIBUTES) { // if it doesn't fit we just skip
-                customAttributesRecd[notificationContent.numCustomAttributes].key   = customKey;
-                customAttributesRecd[notificationContent.numCustomAttributes].value = customVal;
+            if (notification.content.numCustomAttributes < NUMALLOWEDCUSTOMATTRIBUTES) { // if it doesn't fit we just skip
+                customAttributesRecd[notification.content.numCustomAttributes].key   = customKey;
+                customAttributesRecd[notification.content.numCustomAttributes].value = customVal;
             }
 
-            notificationContent.numCustomAttributes++;
+            notification.content.numCustomAttributes++;
             status = AJ_UnmarshalCloseContainer(msg, &customAttributeDictArg);
         }
-        notificationContent.customAttributes = customAttributesRecd;
+        notification.content.customAttributes = customAttributesRecd;
 
         if (status && status != AJ_ERR_NO_MORE)
             break;
@@ -293,15 +346,15 @@ AJ_Status ConsumerHandleNotifyMsgObj(AJ_Message* msg)
 
             status = AJ_UnmarshalArgs(msg, "ss", &notificationLanguage, &notificationText);
 
-            if (notificationContent.numTexts < NUMALLOWEDTEXTS) { // if it doesn't fit we just skip
-                textsRecd[notificationContent.numTexts].key   = notificationLanguage;
-                textsRecd[notificationContent.numTexts].value = notificationText;
+            if (notification.content.numTexts < NUMALLOWEDTEXTS) { // if it doesn't fit we just skip
+                textsRecd[notification.content.numTexts].key   = notificationLanguage;
+                textsRecd[notification.content.numTexts].value = notificationText;
             }
 
-            notificationContent.numTexts++;
+            notification.content.numTexts++;
             status = AJ_UnmarshalCloseContainer(msg, &structArg);
         }
-        notificationContent.texts = textsRecd;
+        notification.content.texts = textsRecd;
         if (status && status != AJ_ERR_NO_MORE)
             break;
 
@@ -310,26 +363,96 @@ AJ_Status ConsumerHandleNotifyMsgObj(AJ_Message* msg)
     if (status && status != AJ_ERR_NO_MORE) {
         AJ_Printf("Handle Notification failed: '%s'\n", AJ_StatusText(status));
     } else {
-        status = HandleNotify(protoVer, messageId, &notificationContent, deviceId, deviceName, appId, appName);
+        status = ApplicationHandleNotify(&notification);
     }
     return status;
 }
 
-AJ_Status ConsumerPropGetHandler(AJ_Message* replyMsg, uint32_t propId, void* context)
+AJ_Status ConsumerDismissSignalHandler(AJ_Message* msg)
 {
-    AJ_Status status = AJ_ERR_UNEXPECTED;
+    AJ_Status status;
 
-    switch (propId) {
-    case GET_NOTIFICATION_VERSION_PROPERTY:
-    case GET_SUPERAGENT_VERSION_PROPERTY:
-        status = AJ_MarshalArgs(replyMsg, "q", version);
-        break;
+    uint32_t notificationId = 0;
+    char appId[UUID_LENGTH * 2 + 1];
+
+    do {
+        AJ_Arg appIdArray;
+
+        CHECK(AJ_UnmarshalArgs(msg, "i", &notificationId));
+        CHECK(AJ_UnmarshalArg(msg, &appIdArray));
+
+        size_t appIdLen = ((appIdArray.len > UUID_LENGTH) ? UUID_LENGTH : appIdArray.len) * 2 + 1;
+        CHECK(AJ_RawToHex(appIdArray.val.v_byte, appIdArray.len, appId, appIdLen, FALSE));
+
+        ApplicationHandleDismiss(notificationId, appId);
+    } while (0);
+
+    return status;
+}
+
+AJ_Status ConsumerAcknowledgeNotification(AJ_BusAttachment* bus, uint16_t version, int32_t msgId, const char* senderName, uint32_t sessionId)
+{
+    AJ_Printf("Inside AcknowledgeNotification()\n");
+    AJ_Status status = AJ_OK;
+
+    if (version < 2) { // Producer does not support acknowledgement
+        return AJ_ERR_INVALID;
+    }
+
+    if (status == AJ_OK && sessionId != 0) {
+        AJ_Message ackMsg;
+        status = AJ_MarshalMethodCall(bus, &ackMsg, NOTIFICATION_PRODUCER_ACKNOWLEDGE_PROXY, senderName, sessionId, AJ_NO_FLAGS, AJ_CALL_TIMEOUT);
+        if (status != AJ_OK) {
+            AJ_Printf("Could not marshal method call\n");
+            return status;
+        }
+        status = AJ_MarshalArgs(&ackMsg, "i", msgId);
+        if (status != AJ_OK) {
+            AJ_Printf("Could not marshal arguments\n");
+            return status;
+        }
+        status = AJ_DeliverMsg(&ackMsg);
+        if (status != AJ_OK) {
+            AJ_Printf("Could not deliver message\n");
+            return status;
+        }
+        AJ_CloseMsg(&ackMsg);
     }
     return status;
 }
 
-AJ_Status ConsumerPropSetHandler(AJ_Message* replyMsg, uint32_t propId, void* context)
+AJ_Status ConsumerDismissNotification(AJ_BusAttachment* bus, uint16_t version, int32_t msgId, const char* appId, const char* senderName, uint32_t sessionId)
 {
-    return AJ_ERR_DISALLOWED;
+    AJ_Printf("Inside DismissNotification()\n");
+    AJ_Status status = AJ_OK;
+
+    if (version < 2) { // Producer does not support dismissal but other consumers might so send Dismiss signal
+        status = NotificationSendDismiss(msgId, appId);
+        return status;
+    }
+
+    if (status == AJ_OK && sessionId != 0) {
+        AJ_Message dismissMsg;
+        status = AJ_MarshalMethodCall(bus, &dismissMsg, NOTIFICATION_PRODUCER_DISMISS_PROXY, senderName, sessionId, AJ_NO_FLAGS, AJ_CALL_TIMEOUT);
+        if (status != AJ_OK) {
+            AJ_Printf("Could not marshal method call\n");
+            return status;
+        }
+        status = AJ_MarshalArgs(&dismissMsg, "i", msgId);
+        if (status != AJ_OK) {
+            AJ_Printf("Could not marshal arguments\n");
+            return status;
+        }
+        status = AJ_DeliverMsg(&dismissMsg);
+        if (status != AJ_OK) {
+            AJ_Printf("Could not deliver message\n");
+            return status;
+        }
+        AJ_CloseMsg(&dismissMsg);
+    } else if (status != AJ_ERR_READ) { // Failed to perform in-session dismissal against producer so send Dismiss signal
+        status = NotificationSendDismiss(msgId, appId);
+    }
+
+    return status;
 }
 

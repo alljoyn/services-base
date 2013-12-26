@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -57,16 +57,18 @@ char*NS_GetLine(char*str, size_t num, void*fp)
     return p;
 }
 
-void Producer_SetupEnv(int8_t* inputMode)
+void Producer_SetupEnv(uint8_t* inputMode)
 {
     char* value = getenv("INPUT_MODE");
     if (value)
-        *inputMode = atoi(value);
+        *inputMode = (uint8_t)atoi(value);
 }
 
 void GetNotificationFromUser()
 {
-    notification notificationContent;
+    uint16_t messageType = 0;
+    uint16_t ttl = TTL_MIN;
+    NotificationContent_t notificationContent;
     struct keyValue richAudioUrls[100];
     struct keyValue texts[100];
     struct keyValue customAttributes[100];
@@ -78,22 +80,20 @@ void GetNotificationFromUser()
     char buf[BUF_SIZE];
     int8_t i;
 
-    notificationContent.messageType = 0;
     notificationContent.numCustomAttributes = 0;
     notificationContent.numTexts = 1;
     notificationContent.numAudioUrls = 0;
-    notificationContent.ttl = TTL_MIN;
 
     AJ_Printf("Please enter the messageType.\n");
     AJ_Printf("Empty string or invalid input will default to 0\n");
     if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
         if (strlen(buf)) {
-            notificationContent.messageType = atoi(buf);
+            messageType = (uint8_t)atoi(buf);
             char stringType[8];
-            sprintf(stringType, "%d", notificationContent.messageType);
+            sprintf(stringType, "%d", messageType);
             if (!(strcmp(buf, stringType) == 0)) {             //they do not match, it is not int
                 AJ_Printf("Message Type is not an integer value. Defaulting to 0\n");
-                notificationContent.messageType = 0;
+                messageType = 0;
             }
         }
     }
@@ -173,7 +173,7 @@ void GetNotificationFromUser()
 
     if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
         if (strlen(buf)) {
-            notificationContent.ttl = atoi(buf);
+            ttl = (uint8_t)atoi(buf);
         }
     }
 
@@ -248,7 +248,7 @@ void GetNotificationFromUser()
     } else
         notificationContent.controlPanelServiceObjectPath = NULL;
 
-    ProducerSetNotification(&notificationContent);
+    ProducerSetNotification(&notificationContent, messageType, ttl);
 
     for (i = 0; i < notificationContent.numTexts; i++) {
         free((char*)texts[i].key);

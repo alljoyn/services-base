@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -20,6 +20,39 @@
 #include <alljoyn/notification/common.h>
 #include <alljoyn/services_common/Services_Common.h>
 
+/* Allowed limits on message content */
+#define NUMALLOWEDCUSTOMATTRIBUTES 10
+#define NUMALLOWEDTEXTS         10
+#define NUMALLOWEDRICHNOTS      10
+
+/* Notification ProxyObject bus registration */
+#define NOTIFICATION_PROXYOBJECT_INDEX 0 + NUM_PRE_NOTIFICATION_CONSUMER_PROXYOBJECTS
+#define INTERFACE_GET_PROPERTY_PROXY                          AJ_PRX_MESSAGE_ID(NOTIFICATION_PROXYOBJECT_INDEX, 0, AJ_PROP_GET)
+#define INTERFACE_SET_PROPERTY_PROXY                          AJ_PRX_MESSAGE_ID(NOTIFICATION_PROXYOBJECT_INDEX, 0, AJ_PROP_SET)
+
+#define NOTIFICATION_SIGNAL                                   AJ_PRX_MESSAGE_ID(NOTIFICATION_PROXYOBJECT_INDEX, 1, 0)
+#define GET_NOTIFICATION_VERSION_PROPERTY_PROXY               AJ_PRX_PROPERTY_ID(NOTIFICATION_PROXYOBJECT_INDEX, 1, 1)
+
+#define SUPERAGENT_SIGNAL                                     AJ_PRX_MESSAGE_ID(NOTIFICATION_PROXYOBJECT_INDEX, 2, 0)
+#define GET_SUPERAGENT_VERSION_PROPERTY_PROXY                 AJ_PRX_PROPERTY_ID(NOTIFICATION_PROXYOBJECT_INDEX, 2, 1)
+
+/* Producer ProxyObject bus registration */
+#define NOTIFICATION_PRODUCER_PROXYOBJECT_INDEX 1 + NUM_PRE_NOTIFICATION_CONSUMER_PROXYOBJECTS
+#define NOTIFICATION_PRODUCER_GET_PROPERTY_PROXY              AJ_PRX_MESSAGE_ID(NOTIFICATION_PRODUCER_PROXYOBJECT_INDEX, 0, AJ_PROP_GET)
+#define NOTIFICATION_PRODUCER_SET_PROPERTY_PROXY              AJ_PRX_MESSAGE_ID(NOTIFICATION_PRODUCER_PROXYOBJECT_INDEX, 0, AJ_PROP_SET)
+
+#define NOTIFICATION_PRODUCER_ACKNOWLEDGE_PROXY               AJ_PRX_MESSAGE_ID(NOTIFICATION_PRODUCER_PROXYOBJECT_INDEX, 1, 0)
+#define NOTIFICATION_PRODUCER_DISMISS_PROXY                   AJ_PRX_MESSAGE_ID(NOTIFICATION_PRODUCER_PROXYOBJECT_INDEX, 1, 1)
+#define GET_NOTIFICATION_PRODUCER_VERSION_PROPERTY_PROXY      AJ_PRX_PROPERTY_ID(NOTIFICATION_PRODUCER_PROXYOBJECT_INDEX, 1, 2)
+
+/* Dismisser ProxyObject bus registration */
+#define NOTIFICATION_DISMISSER_PROXYOBJECT_INDEX 2 + NUM_PRE_NOTIFICATION_CONSUMER_PROXYOBJECTS
+#define NOTIFICATION_DISMISSER_GET_PROPERTY_PROXY             AJ_PRX_MESSAGE_ID(NOTIFICATION_DISMISSER_PROXYOBJECT_INDEX, 0, AJ_PROP_GET)
+#define NOTIFICATION_DISMISSER_SET_PROPERTY_PROXY             AJ_PRX_MESSAGE_ID(NOTIFICATION_DISMISSER_PROXYOBJECT_INDEX, 0, AJ_PROP_SET)
+
+#define NOTIFICATION_DISMISSER_DISMISS_RECEIVED               AJ_PRX_MESSAGE_ID(NOTIFICATION_DISMISSER_PROXYOBJECT_INDEX, 1, 0)
+#define GET_NOTIFICATION_DISMISSER_VERSION_PROPERTY_PROXY     AJ_PRX_PROPERTY_ID(NOTIFICATION_PRODUCER_PROXYOBJECT_INDEX, 1, 1)
+
 #ifndef NOTIFICATION_SERVICE_PRODUCER
    #define NOTIFICATION_SIGNAL_RECEIVED NOTIFICATION_SIGNAL
 #else
@@ -33,31 +66,19 @@ case NOTIFICATION_SIGNAL_PROD2 : \
 case NOTIFICATION_SIGNAL_PROD3
 #endif
 
-#define NUM_NOTIFICATION_CONSUMER_OBJECTS 1
+#define NUM_NOTIFICATION_CONSUMER_PROXYOBJECTS 3
 
-#define NOTIFICATION_CONSUMER_APPOBJECTS  { "*",   NotificationInterfaces },
-
-#define NOTIFICATION_SIGNAL    AJ_PRX_MESSAGE_ID(0 + NUM_PRE_NOTIFICATION_CONSUMER_OBJECTS, 1, 0)
-#define SUPERAGENT_SIGNAL      AJ_PRX_MESSAGE_ID(0 + NUM_PRE_NOTIFICATION_CONSUMER_OBJECTS, 2, 0)
-
-#define INTERFACE_GET_PROPERTY AJ_APP_MESSAGE_ID(0 + NUM_PRE_NOTIFICATION_CONSUMER_OBJECTS, 0, AJ_PROP_GET)
-#define INTERFACE_SET_PROPERTY AJ_APP_MESSAGE_ID(0 + NUM_PRE_NOTIFICATION_CONSUMER_OBJECTS, 0, AJ_PROP_SET)
-
-#define GET_NOTIFICATION_VERSION_PROPERTY AJ_APP_PROPERTY_ID(0 + NUM_PRE_NOTIFICATION_CONSUMER_OBJECTS, 1, 1)
-#define GET_SUPERAGENT_VERSION_PROPERTY   AJ_APP_PROPERTY_ID(0 + NUM_PRE_NOTIFICATION_CONSUMER_OBJECTS, 2, 1)
-
-#define NUMALLOWEDCUSTOMATTRIBUTES 10
-#define NUMALLOWEDTEXTS         10
-#define NUMALLOWEDRICHNOTS      10
-
-#define UUID_LENGTH 16
+#define NOTIFICATION_CONSUMER_PROXYOBJECTS  \
+    { "*",   NotificationInterfaces }, \
+    { NotificationProducerObjectPath,   NotificationProducerInterfaces }, \
+    { "*",  NotificationDismisserInterfaces },
 
 extern const AJ_InterfaceDescription SuperagentInterfaces[];
 extern const AJ_InterfaceDescription AllInterfaces[];
 
-extern const AJ_Object AllAppObject;
-extern const AJ_Object SuperAgentObject;
-extern const AJ_Object NotificationAppObject;
+extern const AJ_Object AllProxyObject;
+extern const AJ_Object SuperAgentProxyObject;
+extern const AJ_Object NotificationProxyObject;
 
 /**
  * ConsumerSetSignalRules, to add the correct filter for the required interface
@@ -66,14 +87,51 @@ extern const AJ_Object NotificationAppObject;
  * @param senderBusName
  * @return status
  */
-extern AJ_Status ConsumerSetSignalRules(AJ_BusAttachment* bus, int8_t superAgentMode, const char* senderBusName);
+extern AJ_Status ConsumerSetSignalRules(AJ_BusAttachment* bus, uint8_t superAgentMode, const char* senderBusName);
 
 /**
- * ConsumerHandleNotifyMsgObj - receives message, unmarshals it and calls handleNotify
- * @param msg
- * @return
+ * ConsumerIsSuperAgentLost, checks whether the lost device/app is the SuperAgent
+ * @param msg LOST_ADVERTISED_NAME message to process
+ * @return Whether the lost device/app is the SuperAgent
  */
-extern AJ_Status ConsumerHandleNotifyMsgObj(AJ_Message* msg);
+extern uint8_t ConsumerIsSuperAgentLost(AJ_Message* msg);
+
+/**
+ * ConsumerNotifySignalHandler - receives message, unmarshals it and calls handleNotify
+ * @param msg
+ * @return status
+ */
+extern AJ_Status ConsumerNotifySignalHandler(AJ_Message* msg);
+
+/**
+ * ConsumerDismissSignalHandler - receives message, unmarshals it and calls handleDismiss
+ * @param msg
+ * @return status
+ */
+extern AJ_Status ConsumerDismissSignalHandler(AJ_Message* msg);
+
+/**
+ * ConsumerAcknowledgeNotification - send an acknowledment request to the producer of the given message, marshals the methodcall and delivers it
+ * @param bus
+ * @param version       the message version
+ * @param msdId         the message id
+ * @param senderName    the bus unique name of the message sender
+ * @param sessionId     the session id for the proxy object
+ * @return status
+ */
+extern AJ_Status ConsumerAcknowledgeNotification(AJ_BusAttachment* bus, uint16_t version, int32_t msgId, const char* senderName, uint32_t sessionId);
+
+/**
+ * ConsumerDismissNotification - send a dismissal request to the producer of the given message, marshals the methodcall and delivers it
+ * @param bus
+ * @param version       the message version
+ * @param msdId         the message id
+ * @param appId         the application id of the message sender application
+ * @param senderName    the bus unique name of the message sender
+ * @param sessionId     the session id for the proxy object
+ * @return status
+ */
+extern AJ_Status ConsumerDismissNotification(AJ_BusAttachment* bus, uint16_t version, int32_t msgId, const char* appId, const char* senderName, uint32_t sessionId);
 
 /**
  * ConsumerPropGetHandler - handle get property call
@@ -94,23 +152,19 @@ extern AJ_Status ConsumerPropGetHandler(AJ_Message* replyMsg, uint32_t propId, v
 extern AJ_Status ConsumerPropSetHandler(AJ_Message* replyMsg, uint32_t propId, void* context);
 
 /**
- * HandleNotify implemented by the application
- * @param protoVer
- * @param messageId
- * @param notificationContent
- * @param deviceId
- * @param deviceName
- * @param appId
- * @param appName
+ * ApplicationHandleNotify implemented by the application
+ * @param notification header and content
  * @return status success/failure
  */
-extern AJ_Status HandleNotify(uint16_t protoVer,
-                              uint32_t messageId,
-                              notification*notificationContent,
-                              const char* deviceId,
-                              const char* deviceName,
-                              const char* appId,
-                              const char* appName);
+extern AJ_Status ApplicationHandleNotify(Notification_t* notification);
+
+/**
+ * ApplicationHandleDismiss implemented by the application
+ * @param notificationId the notification id of the notification to dismiss
+ * @param appId          the application id of the original sender of the notification to dismiss
+ * @return status success/failure
+ */
+extern AJ_Status ApplicationHandleDismiss(int32_t notificationId, const char* appId);
 
 #endif /* NOTIFICATIONCONSUMER_H_ */
 
