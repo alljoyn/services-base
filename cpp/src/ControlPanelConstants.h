@@ -54,6 +54,7 @@ static const qcc::String TAG_ACTION_WIDGET = "ActionWidget";
 static const qcc::String TAG_PROPERTY_WIDGET = "PropertyWidget";
 static const qcc::String TAG_LABEL_WIDGET = "LabelWidget";
 static const qcc::String TAG_DIALOG_WIDGET = "DialogWidget";
+static const qcc::String TAG_ERROR_WIDGET = "ErrorWidget";
 static const qcc::String TAG_HTTPCONTROL = "HttpControl";
 static const qcc::String TAG_CONSTRAINTLIST = "ConstraintList";
 static const qcc::String TAG_CONSTRAINTRANGE = "ConstraintRange";

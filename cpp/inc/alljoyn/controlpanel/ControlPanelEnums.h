@@ -43,12 +43,13 @@ typedef enum {
  * WidgetType
  */
 typedef enum {
-    CONTAINER = 0,         //!< CONTAINER
-    ACTION = 1,            //!< ACTION
+    CONTAINER =  0,         //!< CONTAINER
+    ACTION = 1,             //!< ACTION
     ACTION_WITH_DIALOG = 2, //!< ACTION_WITH_DIALOG
-    LABEL = 3,             //!< LABEL
-    PROPERTY = 4,          //!< PROPERTY
-    DIALOG = 5             //!< DIALOG
+    LABEL = 3,              //!< LABEL
+    PROPERTY = 4,           //!< PROPERTY
+    DIALOG = 5,             //!< DIALOG
+    ERROR = 6               //!< ERROR
 } WidgetType;
 
 /**

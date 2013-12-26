@@ -20,6 +20,7 @@
 #include <alljoyn/controlpanel/ActionWithDialog.h>
 #include <alljoyn/controlpanel/Label.h>
 #include <alljoyn/controlpanel/Property.h>
+#include <alljoyn/controlpanel/ErrorWidget.h>
 #include "../ControlPanelConstants.h"
 #include "../BusObjects/ContainerBusObject.h"
 #include "../BusObjects/NotificationActionBusObject.h"
@@ -149,8 +150,20 @@ QStatus Container::addChildren(BusAttachment* bus)
         qcc::String name = splitObjectPath.back();
         Widget* widget = createWidget(name, this, m_Device, childNodes[i].getWidgetType());
         widget->setIsSecured(childNodes[i].isSecured());
-        addChildWidget(widget);
-        widget->registerObjects(bus, objectPath);
+        QStatus childStatus = widget->registerObjects(bus, objectPath);
+        if (childStatus == ER_OK)
+            addChildWidget(widget);
+        else {
+            if (logger)
+                logger->warn(TAG, "Failed creating childWidget " + name);
+
+            ControlPanelListener* listener = m_Device->getListener();
+            if (listener)
+                listener->errorOccured(m_Device, status, REGISTER_OBJECTS, "Could not register Objects for Widget: " + name);
+
+            Widget* errorWidget = new ErrorWidget(name, this, widget, m_Device);
+            addChildWidget(errorWidget);
+        }
     }
     return ER_OK;
 }
@@ -222,6 +235,10 @@ Widget* Container::createWidget(qcc::String const& name, Widget* rootWidget, Con
 
     case PROPERTY:
         return new Property(name, rootWidget, device);
+        break;
+
+    case ERROR:
+        return NULL;
         break;
     }
     return NULL;

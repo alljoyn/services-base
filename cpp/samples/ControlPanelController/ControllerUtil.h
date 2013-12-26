@@ -41,6 +41,8 @@ class ControllerUtil {
 
   private:
 
+    static void printErrorWidget(ajn::services::Widget* widget, qcc::String const& indent);
+
     static void printBasicWidget(ajn::services::Widget* widget, qcc::String const& widgetType, qcc::String const& indent);
 
     static void printContainer(ajn::services::Container* rootContainer, std::vector<ajn::services::Action*>& actionsToExecute,

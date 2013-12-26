@@ -114,6 +114,9 @@ void ControllerUtil::printContainer(Container* container, std::vector<Action*>& 
             printDialog(((Dialog*)childWidgets[i]), indent + "  ");
             break;
 
+        case ERROR:
+            printErrorWidget(childWidgets[i], indent + "  ");
+            break;
         }
 
         std::cout << std::endl;
@@ -162,6 +165,13 @@ void ControllerUtil::printBasicWidget(Widget* widget, qcc::String const& widgetT
     if (widget->getBgColor() != UINT32_MAX)
         std::cout << indent.c_str() << widgetType.c_str() << " bgColor: " << widget->getBgColor() << std::endl;
     printHints(widget, widgetType, indent);
+}
+
+void ControllerUtil::printErrorWidget(Widget* widget, qcc::String const& indent)
+{
+    std::cout << indent.c_str() << "Received error widget with name: " << widget->getWidgetName().c_str() << std::endl;
+    if (widget->getLabel().size())
+        std::cout << indent.c_str() << "ErrorWidget label: " << widget->getLabel().c_str() << std::endl;
 }
 
 void ControllerUtil::printConstraintList(const std::vector<ConstraintList>& constraintList, PropertyType propertyType, qcc::String const& indent)
