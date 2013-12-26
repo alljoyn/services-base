@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -73,5 +73,18 @@ extern const char LanguageNotSupported[];
  * @return success
  */
 uint8_t Common_IsLanguageSupported(AJ_Message* msg, AJ_Message* reply, const char* language, enum_lang_indecies_t* langIndex);
+
+/*!
+   \brief Length of the AppID field
+ */
+#define UUID_LENGTH 16
+
+/**
+ * returns the language index for the given language name possibly creating an error reply message if erred
+ * @param msg   the message to marshal the appId into
+ * @param appId the application id to marshal
+ * @return status
+ */
+AJ_Status Common_MarshalAppId(AJ_Message* msg, const char* appId);
 
 #endif /* _SERVICES_COMMON_H_ */

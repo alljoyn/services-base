@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -17,6 +17,12 @@
 #include <alljoyn/services_common/PropertyStore.h>
 #include <alljoyn/services_common/Services_Common.h>
 
+const char UpdateNotAllowed[] =         "org.alljoyn.Error.UpdateNotAllowed";           //Update not allowed for given field
+const char InvalidValue[] =             "org.alljoyn.Error.InvalidValue";               //Invalid value
+const char FeatureNotAvailable[] =      "org.alljoyn.Error.FeatureNotAvailable";        //Feature not available
+const char MaxSizeExceeded[] =          "org.alljoyn.Error.MaxSizeExceeded";            //Maximum size exceeded
+const char LanguageNotSupported[] =     "org.alljoyn.Error.LanguageNotSupported";       //The language specified is not supported
+
 uint8_t Common_IsLanguageSupported(AJ_Message* msg, AJ_Message* reply, const char* language, enum_lang_indecies_t* langIndex)
 {
     uint8_t supported = TRUE;
@@ -30,3 +36,19 @@ uint8_t Common_IsLanguageSupported(AJ_Message* msg, AJ_Message* reply, const cha
     }
     return supported;
 }
+
+AJ_Status Common_MarshalAppId(AJ_Message*msg, const char* appId)
+{
+    AJ_Arg appIdArg;
+    uint8_t binAppId[UUID_LENGTH];
+    uint32_t sz = strlen(appId);
+    if (sz > UUID_LENGTH * 2) // Crop application id that is too long
+        sz = UUID_LENGTH * 2;
+    AJ_HexToRaw(appId, sz, binAppId, UUID_LENGTH);
+
+    AJ_InitArg(&appIdArg, AJ_ARG_BYTE, AJ_ARRAY_FLAG, binAppId, UUID_LENGTH);
+
+    return AJ_MarshalArg(msg, &appIdArg);
+}
+
+

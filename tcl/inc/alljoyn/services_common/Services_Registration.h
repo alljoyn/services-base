@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -51,7 +51,15 @@
     #define ONBOARDING_ANNOUNCEOBJECTS
 #endif
 
-#define NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS NUM_PRE_ONBOARDING_OBJECTS + NUM_ONBOARDING_OBJECTS
+#define NUM_PRE_NOTIFICATION_COMMON_OBJECTS   NUM_PRE_ONBOARDING_OBJECTS + NUM_ONBOARDING_OBJECTS
+#if defined(NOTIFICATION_SERVICE_PRODUCER) || defined(NOTIFICATION_SERVICE_CONSUMER)
+    #include "alljoyn/notification/common.h"
+#else
+    #define NUM_NOTIFICATION_COMMON_OBJECTS 0
+    #define NOTIFICATION_COMMON_APPOBJECTS
+#endif
+
+#define NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS NUM_PRE_NOTIFICATION_COMMON_OBJECTS + NUM_NOTIFICATION_COMMON_OBJECTS
 #ifdef NOTIFICATION_SERVICE_PRODUCER
     #include "alljoyn/notification/NotificationProducer.h"
 #else
@@ -69,12 +77,12 @@
     #define CONTROLPANEL_ANNOUNCEOBJECTS
 #endif
 
-#define NUM_PRE_NOTIFICATION_CONSUMER_OBJECTS 0
+#define NUM_PRE_NOTIFICATION_CONSUMER_PROXYOBJECTS 0
 #ifdef NOTIFICATION_SERVICE_CONSUMER
     #include "alljoyn/notification/NotificationConsumer.h"
 #else
-    #define NUM_NOTIFICATION_CONSUMER_OBJECTS 0
-    #define NOTIFICATION_CONSUMER_APPOBJECTS
+    #define NUM_NOTIFICATION_CONSUMER_PROXYOBJECTS 0
+    #define NOTIFICATION_CONSUMER_PROXYOBJECTS
 #endif
 
 /*
@@ -91,11 +99,12 @@
     ABOUT_APPOBJECTS \
     CONFIG_APPOBJECTS \
     ONBOARDING_APPOBJECTS \
+    NOTIFICATION_COMMON_APPOBJECTS \
     NOTIFICATION_PRODUCER_APPOBJECTS \
     CONTROLPANEL_APPOBJECTS
 
 #define IOE_SERVICES_PROXYOBJECTS \
-    NOTIFICATION_CONSUMER_APPOBJECTS
+    NOTIFICATION_CONSUMER_PROXYOBJECTS
 
 /*
  * Define all objects to be announced
