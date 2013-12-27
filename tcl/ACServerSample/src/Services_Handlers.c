@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -37,14 +37,7 @@
     #include <NotificationConsumerSample.h>
 #endif
 
-const char UpdateNotAllowed[] =         "org.alljoyn.Error.UpdateNotAllowed";           //Update not allowed for given field
-const char InvalidValue[] =             "org.alljoyn.Error.InvalidValue";               //Invalid value
-const char FeatureNotAvailable[] =      "org.alljoyn.Error.FeatureNotAvailable";        //Feature not available
-const char MaxSizeExceeded[] =          "org.alljoyn.Error.MaxSizeExceeded";            //Maximum size exceeded
-const char LanguageNotSupported[] =     "org.alljoyn.Error.LanguageNotSupported";       //The language specified is not supported
-
 const char SESSIONLESS_MATCH[] = "sessionless='t',type='error'"; //AddMatch to allow sessionless messages coming in
-const char NAMEOWNER_MATCH[] = "type='signal',member='NameOwnerChanged',interface='org.freedesktop.DBus'"; //AddMatch to receive Nameowner changed signals
 
 #ifdef NOTIFICATION_SERVICE_CONSUMER
 uint8_t addSessionLessMatch = TRUE;
@@ -236,6 +229,10 @@ static uint8_t Services_CheckSessionAccepted(uint16_t port, uint32_t sessionId, 
     uint8_t session_accepted = FALSE;
     session_accepted |= (port == App_ServicePort);
 
+#ifdef NOTIFICATION_SERVICE_PRODUCER
+    session_accepted |= Producer_CheckSessionAccepted(port, sessionId, joiner);
+#endif
+
 #ifdef CONTROLPANEL_SERVICE
     session_accepted |= CPS_CheckSessionAccepted(port, sessionId, joiner);
 #endif
@@ -243,10 +240,23 @@ static uint8_t Services_CheckSessionAccepted(uint16_t port, uint32_t sessionId, 
     return session_accepted;
 }
 
-Service_Status Service_MessageProcessor(AJ_Message* msg, AJ_Status* status)
+static Service_Status Services_HandleSessionStateChanged(AJ_BusAttachment* bus, uint32_t sessionId, uint8_t sessionJoined, uint32_t replySerialNum)
 {
     Service_Status serviceStatus = SERVICE_STATUS_NOT_HANDLED;
-    if  (msg->msgId == AJ_METHOD_ACCEPT_SESSION) {
+
+#ifdef NOTIFICATION_SERVICE_CONSUMER
+    if (serviceStatus == SERVICE_STATUS_NOT_HANDLED)
+        serviceStatus = Consumer_HandleSessionStateChanged(bus, sessionId, sessionJoined, replySerialNum);
+#endif
+
+    return serviceStatus;
+}
+
+Service_Status Service_MessageProcessor(AJ_Message* msg, AJ_Status* status)
+{
+    AJ_Printf("Processing message with id %u\n", msg->msgId);
+    Service_Status serviceStatus = SERVICE_STATUS_NOT_HANDLED;
+    if  (msg->msgId == AJ_METHOD_ACCEPT_SESSION) {    // Process all incoming request to join a session and pass request for acceptance by all services
         uint16_t port;
         char* joiner;
         uint32_t sessionId = 0;
@@ -257,8 +267,50 @@ Service_Status Service_MessageProcessor(AJ_Message* msg, AJ_Status* status)
 
         *status = AJ_BusReplyAcceptSession(msg, session_accepted);
         AJ_Printf("%s session session_id=%u joiner=%s for port %u\n", (session_accepted ? "Accepted" : "Rejected"), sessionId, joiner, port);
-
         serviceStatus = SERVICE_STATUS_HANDLED;
+    } else if (msg->msgId == AJ_REPLY_ID(AJ_METHOD_JOIN_SESSION)) {     // Process all incoming replies to join a session and pass session state change to all services
+        uint32_t replyCode = 0;
+        uint32_t sessionId = 0;
+        uint8_t sessionJoined = FALSE;
+        uint32_t sessionReplySerialNum = msg->replySerial;
+        if (msg->hdr->msgType == AJ_MSG_ERROR) {
+            AJ_Printf("JoinSessionReply: AJ_METHOD_JOIN_SESSION: AJ_ERR_FAILURE\n");
+            *status = AJ_ERR_FAILURE;
+        } else {
+            *status = AJ_UnmarshalArgs(msg, "uu", &replyCode, &sessionId);
+            if (*status != AJ_OK) {
+                AJ_Printf("JoinSessionReply: failed to unmarshal\n");
+            } else {
+                if (replyCode == AJ_JOINSESSION_REPLY_SUCCESS) {
+                    AJ_Printf("JoinSessionReply: AJ_JOINSESSION_REPLY_SUCCESS with sessionId=%u\n", sessionId);
+                    sessionJoined = TRUE;
+                } else {
+                    AJ_Printf("JoinSessionReply: AJ_ERR_FAILURE\n");
+                    *status = AJ_ERR_FAILURE;
+                }
+            }
+        }
+        serviceStatus = Services_HandleSessionStateChanged(&busAttachment, sessionId, sessionJoined, sessionReplySerialNum);
+        if (serviceStatus == SERVICE_STATUS_NOT_HANDLED) {
+            AJ_ResetArgs(msg);
+        }
+/*  } else if (msg->msgId == AJ_SIGNAL_SESSION_LOST_WITH_REASON || msg->msgId == AJ_SIGNAL_SESSION_LOST) {     // Process all incoming lost session signals and pass session state change to all services
+        uint32_t sessionId = 0;
+        uint32_t reason = 0;
+        if (msg->msgId == AJ_SIGNAL_SESSION_LOST_WITH_REASON) {
+            *status = AJ_UnmarshalArgs(msg, "uu", &sessionId, &reason);
+        } else {
+            *status = AJ_UnmarshalArgs(msg, "u", &sessionId);
+        }
+        if (*status != AJ_OK) {
+            AJ_Printf("JoinSessionReply: failed to marshal\n");
+        } else {
+            AJ_Printf("Session lost: sessionId = %u, reason = %u", sessionId, reason);
+            serviceStatus = Services_HandleSessionStateChanged(&busAttachment, sessionId, FALSE, 0);
+            if (serviceStatus == SERVICE_STATUS_NOT_HANDLED) {
+                AJ_ResetArgs(msg);
+            }
+        }*/
     } else {
         if (serviceStatus == SERVICE_STATUS_NOT_HANDLED)
             serviceStatus = Application_MessageProcessor(&busAttachment, msg, status);
