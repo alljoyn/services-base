@@ -18,26 +18,31 @@
 #define _APPS_COMMON_H_
 
 #include <alljoyn.h>
+#include <aj_config.h>
 
 /*
  * Define timeout/pause values. Values are in milli seconds.
  * The following may be tuned according to platform requirements such as battery usage.
  */
-#ifndef AJ_CONNECT_TIMEOUT
+#ifdef AJ_CONNECT_TIMEOUT
+#undef AJ_CONNECT_TIMEOUT
+#endif
 #define AJ_CONNECT_TIMEOUT     (1000 * 60)
-#endif
 
-#ifndef AJ_CONNECT_PAUSE
+#ifdef AJ_CONNECT_PAUSE
+#undef AJ_CONNECT_PAUSE
+#endif
 #define AJ_CONNECT_PAUSE       (1000 * 2)
-#endif
 
-#ifndef AJ_UNMARSHAL_TIMEOUT
-#define AJ_UNMARSHAL_TIMEOUT   (1000 * 1)
+#ifdef AJ_UNMARSHAL_TIMEOUT
+#undef AJ_UNMARSHAL_TIMEOUT
 #endif
+#define AJ_UNMARSHAL_TIMEOUT   (1000 * 1)
 
 #ifndef AJ_SLEEP_TIME
-#define AJ_SLEEP_TIME          (1000 * 2)
+#undef AJ_SLEEP_TIME
 #endif
+#define AJ_SLEEP_TIME          (1000 * 2)
 
 /**
  * Service Status is an enum that signals whether a call was handled
