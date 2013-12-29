@@ -17,6 +17,7 @@
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include "WidgetBusObject.h"
 #include "../ControlPanelConstants.h"
+#include "WidgetProxyBusObjectListener.h"
 
 namespace ajn {
 namespace services {
@@ -225,7 +226,7 @@ QStatus WidgetBusObject::fillProperties()
 
     if (!m_Proxy) {
         if (logger)
-            logger->warn(TAG, "Cannot Check Versions. ProxyBusObject is not set");
+            logger->warn(TAG, "Cannot fill Properties. ProxyBusObject is not set");
         return ER_BUS_PROPERTY_VALUE_NOT_SET;
     }
 
@@ -236,7 +237,34 @@ QStatus WidgetBusObject::fillProperties()
             logger->warn(TAG, "Call to getAllProperties failed");
         return status;
     }
+    return fillAllProperties(allPropValues);
+}
 
+QStatus WidgetBusObject::refreshProperties()
+{
+    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
+
+    if (!m_Proxy) {
+        if (logger)
+            logger->warn(TAG, "Cannot refresh Properties. ProxyBusObject is not set");
+        return ER_BUS_PROPERTY_VALUE_NOT_SET;
+    }
+
+    WidgetProxyBusObjectListener* listener = new WidgetProxyBusObjectListener(m_Widget, this, TAG);
+    QStatus status = m_Proxy->GetAllPropertiesAsync(m_InterfaceDescription->GetName(), listener,
+                                                    static_cast<ProxyBusObject::Listener::GetAllPropertiesCB>(&WidgetProxyBusObjectListener::GetAllPropertiesCallBack),
+                                                    NULL);
+
+    if (status != ER_OK) {
+        if (logger)
+            logger->warn(TAG, "Call to getAllProperties failed");
+    }
+    return status;
+}
+
+QStatus WidgetBusObject::fillAllProperties(MsgArg const& allPropValues)
+{
+    QStatus status;
     do {
         MsgArg* allPropEntries;
         size_t allPropNum;

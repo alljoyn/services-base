@@ -582,7 +582,15 @@ void Widget::PropertyChanged()
         busAttachment->EnableConcurrentCallbacks();
 
     ControlPanelListener* listener = m_Device->getListener();
-    QStatus status = fillProperties();
+    if (!m_BusObjects.size()) {
+        if (logger)
+            logger->warn(TAG, "BusObject is not set");
+        if (listener)
+            listener->errorOccured(m_Device, ER_BUS_NO_SUCH_OBJECT, REFRESH_PROPERTIES, "BusObjects are not set. Can't reload properties");
+        return;
+    }
+
+    QStatus status = m_BusObjects[0]->refreshProperties();
     if (status != ER_OK) {
         if (logger)
             logger->warn(TAG, "Something went wrong reloading properties");
@@ -590,9 +598,6 @@ void Widget::PropertyChanged()
             listener->errorOccured(m_Device, status, REFRESH_PROPERTIES, "Something went wrong reloading properties");
         return;
     }
-
-    if (listener)
-        listener->signalPropertiesChanged(m_Device, this);
 }
 
 } /* namespace services */

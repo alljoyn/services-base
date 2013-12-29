@@ -30,6 +30,8 @@ namespace services {
  * WidgetBusObject class. Base class to create a BusObject for a Widget
  */
 class WidgetBusObject : public ajn::BusObject {
+
+    friend class WidgetProxyBusObjectListener;
   public:
 
     /**
@@ -108,6 +110,12 @@ class WidgetBusObject : public ajn::BusObject {
     virtual QStatus fillProperties();
 
     /**
+     * Refresh the properties of the widget with async call
+     * @return status - success/failure
+     */
+    virtual QStatus refreshProperties();
+
+    /**
      * Introspect to receive childNodes
      * @param childNodes - childNodes found during introspection
      * @return status - success/failure
@@ -124,9 +132,16 @@ class WidgetBusObject : public ajn::BusObject {
   protected:
 
     /**
+     * Unmarshal and parse the result for a GetAllProperties request
+     * @param allPropValues - msrgArg with all property values
+     * @return status - success/failure
+     */
+    QStatus fillAllProperties(MsgArg const& allPropValues);
+
+    /**
      * add the Default Interface Variables
      * @param intf
-     * @return
+     * @return status - success/failure
      */
     QStatus addDefaultInterfaceVariables(InterfaceDescription* intf);
 
