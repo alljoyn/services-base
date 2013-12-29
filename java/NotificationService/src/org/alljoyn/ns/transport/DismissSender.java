@@ -54,7 +54,12 @@ public class DismissSender implements NotificationDismisser {
 		} catch (NotificationServiceException nse) {
 			System.out.println(TAG + ": Unexpected error occured: " + nse.getMessage());
 			return;
-		} 
+		}
+		
+		if ( bus == null ) {
+			logger.error(TAG, "Can't call Dismiss signal, BusAttachment isn't defined, returning...");
+			return;
+		}
 		
 		logger.debug(TAG, "Sending the Dismiss signal notifId: '" + msgId + "', appId: '" + appId + "'");
 		DismissSender dismissSenderBusObj = new DismissSender();

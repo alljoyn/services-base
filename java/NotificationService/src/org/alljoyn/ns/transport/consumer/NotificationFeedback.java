@@ -204,6 +204,12 @@ public class NotificationFeedback extends OnJoinSessionListener {
 	 */
 	private Status establishSession(Method callbackMethod) {
 		BusAttachment bus = Transport.getInstance().getBusAttachment();
+		
+		if ( bus == null ) {
+			logger.error(TAG, "Unable to call JoinSession, BusAttachment is undefined, returning Status.Fail");
+			return Status.FAIL;
+		}
+		
 		return bus.joinSession( origSender, 
 							    SenderSessionListener.PORT_NUM,
 							    SenderSessionListener.getSessionOpts(), 
@@ -222,6 +228,12 @@ public class NotificationFeedback extends OnJoinSessionListener {
 		}
 		
 		BusAttachment bus = Transport.getInstance().getBusAttachment();
+		
+		if ( bus == null ) {
+			logger.error(TAG, "Unable to call LeaveSession, BusAttachment isn't defined, returning...");
+			return;
+		}
+		
 		Status status     = bus.leaveSession(sessionId);
 		
 		if ( status == Status.OK ) {
@@ -234,9 +246,15 @@ public class NotificationFeedback extends OnJoinSessionListener {
 	
 	/**
 	 * @return Creates and returns the {@link ProxyBusObject}, casted to the {@link NotificationProducer} object
+	 * If failed to create {@link ProxyBusObject} NULL is returned
 	 */
 	private NotificationProducer getRemoteProxyObject() {
 		BusAttachment bus = Transport.getInstance().getBusAttachment();
+		
+		if ( bus == null ) {
+			logger.error(TAG, "Can't create ProxyBusObject, BusAttachment isn't defined, returning...");
+			return null;
+		}
 		
 		int sid = (sessionId != null) ? sessionId : 0;
 		
@@ -260,7 +278,13 @@ public class NotificationFeedback extends OnJoinSessionListener {
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
+					
 					NotificationProducer notifProducer = getRemoteProxyObject();
+					
+					if ( notifProducer == null ) {
+						return;
+					}
+					
 					try {
 						logger.debug(TAG, "Invoking acknowledgement for notifId: '" + notifId + "'");
 						notifProducer.acknowledge(notifId);
@@ -294,6 +318,11 @@ public class NotificationFeedback extends OnJoinSessionListener {
 					if ( status == Status.ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED || status == Status.OK ) {
 						
 						NotificationProducer notifProducer = getRemoteProxyObject();
+						
+						if ( notifProducer == null ) {
+							return;
+						}
+						
 						try {
 							logger.debug(TAG, "Invoking dismiss method for notifId: '" + notifId + "'");
 							notifProducer.dismiss(notifId);
