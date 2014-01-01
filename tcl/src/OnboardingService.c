@@ -93,8 +93,8 @@ AJ_Status OBS_ConfigureWiFi(AJ_Message*msg)
         AJ_Printf("ConfigureWiFi()\n");
 
         OBInfo newInfo;
-        char*ssid;
-        char*pc;
+        char* ssid;
+        char* pc;
         CHECK(AJ_UnmarshalArgs(msg, "ssn", &ssid, &pc, &newInfo.authType));
         if ((int8_t)newInfo.authType >= MAX_OF_WIFI_AUTH_TYPE || (int8_t)newInfo.authType <= MIN_OF_WIFI_AUTH_TYPE) {
             AJ_Printf("Unknown authentication type %d\n", newInfo.authType);
@@ -102,8 +102,12 @@ AJ_Status OBS_ConfigureWiFi(AJ_Message*msg)
             CHECK(AJ_DeliverMsg(&reply));
             return status;
         }
+        size_t ssidLen = min(strlen(ssid), SSID_MAX_LENGTH);
         strncpy(newInfo.ssid, ssid, SSID_MAX_LENGTH);
+        newInfo.ssid[ssidLen] = '\0';
+        size_t pcLen = min(strlen(pc), PASSCODE_MAX_LENGTH);
         strncpy(newInfo.pc, pc, PASSCODE_MAX_LENGTH);
+        newInfo.pc[pcLen] = '\0';
 
         AJ_Printf("Got new info for %s with passcode=%s and auth=%d\n", newInfo.ssid, newInfo.pc, newInfo.authType);
         int16_t retVal = 1;
