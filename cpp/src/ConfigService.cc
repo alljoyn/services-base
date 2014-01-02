@@ -187,6 +187,8 @@ void ConfigService::UpdateConfigurationsHandler(const InterfaceDescription::Memb
                 logger->debug(TAG, logline);
             }
         }
+        CHECK_BREAK(status)
+
         MsgArg args[0];
         MethodReply(msg, args, 0);
         return;
