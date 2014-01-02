@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 
+<!--
   Copyright (c) 2013, AllSeen Alliance. All rights reserved.
 
      Permission to use, copy, modify, and/or distribute this software for any
@@ -13,53 +13,72 @@
      WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
      OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
-
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    >
+    
     <TextView
         android:id="@+id/tv_nitem_msgtype"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="8sp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
         android:textColor="#BDBDBD"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-
+        android:textSize="8sp"
+     />
+    
     <TextView
         android:id="@+id/tv_nitem_text"
         android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:textSize="20sp"
-        android:layout_weight="0.04"/>
-    
-    <TextView
-        android:id="@+id/tv_nitem_rich_icon"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="8sp"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-    
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/tv_nitem_msgtype"
+        android:textSize="20sp" />
+
     <TextView
         android:id="@+id/tv_nitem_rich_audio"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="8sp"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/tv_nitem_text"
+        android:textSize="8sp" />
+
+    <TextView
+        android:id="@+id/tv_nitem_rich_audio_ObjPath"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/tv_nitem_rich_audio"
+        android:textSize="8sp" />
+
+     <TextView
+        android:id="@+id/tv_nitem_rich_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/tv_nitem_rich_audio_ObjPath"
+        android:text="tv_nitem_rich_icon"
+        android:textSize="8sp" />
     
     <TextView
         android:id="@+id/tv_nitem_rich_icon_ObjPath"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="8sp"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-    
-    <TextView
-        android:id="@+id/tv_nitem_rich_audio_ObjPath"
+         android:layout_alignParentLeft="true"
+        android:layout_below="@+id/tv_nitem_rich_icon"
+        android:text="tv_nitem_rich_icon_ObjPath"
+        android:textSize="8sp" />
+
+  <CheckBox
+        android:id="@+id/chb_selector"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="8sp"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-</LinearLayout>
+        android:gravity="center_vertical"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="16dp" 
+        android:layout_centerInParent="true"
+        />
+    
+</RelativeLayout>

@@ -331,9 +331,53 @@ public class Notification {
 			System.out.println("Failed to call the dismiss method, Error: '" + nse.getMessage() + "'");
 		}
 	}//dismiss
+
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		
+		StringBuilder sb = new StringBuilder("Notification: ");
+		sb.append("Id: '").append(messageId).append("'")
+		.append(",' MsgType: '").append(messageType).append("'")
+		.append(", DeviceId: '").append(deviceId).append("'")
+		.append(", DeviceName: '").append(deviceName).append("'")
+		.append(", Version: '").append(version).append("'")
+		.append(", Sender: '").append(sender).append("'")
+		.append(", OrigSender: '").append(origSender).append("'")
+		.append(", AppId: '").append(appId).append("'")
+		.append(", AppName: '").append(appName).append("'")
+		.append(", CustomAttributes: '").append(customAttributes).append("'")
+		.append(", TextMessage: '").append(text).append("'");
+		
+		if ( richIconUrl != null && richIconUrl.length() > 0 ) {
+			sb.append(", RichIconURL: '").append(richIconUrl).append("'");
+		}
+		
+		if ( richIconObjPath != null && richIconObjPath.length() > 0 ) {
+			sb.append(", RichIconObjPath: '").append(richIconObjPath).append("'");
+		}
+		
+		if ( richAudioUrl != null && richAudioUrl.size() > 0 ) {
+			sb.append(", RichAudioUrl: '").append(richAudioUrl).append("'");
+		}
+		
+		if ( richAudioObjPath != null && richAudioObjPath.length() > 0 ) {
+			sb.append(", RichAudioObjPath: '").append(richAudioObjPath).append("'");
+		}
+		
+		if ( responseObjectPath != null && responseObjectPath.length() > 0 ) {
+			sb.append(", ResponseObjPath: '").append(responseObjectPath).append("'");
+		}
+		
+		return sb.toString();
+	}//toString
 	
 	//=======================================//
 	
+
+
 	/**
 	 * Set message signature version
 	 * @param version

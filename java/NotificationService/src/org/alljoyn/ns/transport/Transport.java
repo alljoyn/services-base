@@ -183,7 +183,7 @@ public class Transport {
 		saveBus(bus);
 		
 		if ( workerPool == null ) {
-			workerPool = new WorkersPoolManager();
+			workerPool = new WorkersPoolManager(nativePlatform);
 		}
 		
 		this.propertyStore = propertyStore;
@@ -220,7 +220,7 @@ public class Transport {
 		saveBus(bus);
 		
 		if ( workerPool == null ) {
-			workerPool = new WorkersPoolManager();
+			workerPool = new WorkersPoolManager(nativePlatform);
 		}
 		
 		receiverTransport = new ReceiverTransport(nativePlatform, receiver);

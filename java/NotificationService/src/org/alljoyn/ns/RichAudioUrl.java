@@ -86,7 +86,15 @@ public class RichAudioUrl {
 		}
 		this.url = url;
 	}//setUrl
+
 	
+	/**
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "RichAudioUrl [language= '" + language + "', url='" + url + "']";
+	}
 	
 }//RichNotificationAudioUrl
 

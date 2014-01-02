@@ -23,11 +23,18 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.alljoyn.ns.NotificationService;
+import org.alljoyn.ns.commons.NativePlatform;
 
 /**
  *  The thread pool manager, is used to manage a different {@link NotificationService} tasks.
  */
 class WorkersPoolManager implements RejectedExecutionHandler {
+	private static final String TAG = "ioe" + WorkersPoolManager.class.getSimpleName();
+	
+	/**
+	 * The platform dependent object
+	 */
+	private NativePlatform nativePlatform;
 	
 	/**
 	 * The thread TTL time
@@ -57,15 +64,18 @@ class WorkersPoolManager implements RejectedExecutionHandler {
 	/**
 	 * Constructor 
 	 * Starts the thread pool
+	 * @param nativePlatform
 	 */
-	public WorkersPoolManager() {
+	public WorkersPoolManager(NativePlatform nativePlatform) {
+		this.nativePlatform = nativePlatform;
 		initPool();
 	}
-	
+
 	/**
 	 * @param task Execute the given runnable task if there is a free thread worker
 	 */
 	public void execute(Runnable task) {
+		nativePlatform.getNativeLogger().debug(TAG,"Executing task");
 		threadPool.execute(task);
 	}//execute
 	

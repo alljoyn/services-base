@@ -16,11 +16,14 @@
 
 package org.alljoyn.ns.sampleapp;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import org.alljoyn.ns.Notification;
 import org.alljoyn.ns.NotificationServiceException;
 import org.alljoyn.ns.NotificationText;
 
@@ -34,13 +37,10 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
@@ -78,22 +78,20 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 	 */
 	private EditText appName;
 	
-	/*
+	/**
 	 * Notification receiver list view and adapter
 	 */
-	private ListView lstv1Id;
-	private static List<Map<String, String>> notificationItemsList = new LinkedList<Map<String,String>>();
-	private ListAdapter listAdapter;
+	private ListView notifListView;
 	
-	/*
-	 * Notification list view item keys.
+	/**
+	 * Notification adapter to render the received {@link Notification} objects
 	 */
-	private static final String MSG_TYPE 	        = "MSG_TYPE";
-	private static final String TEXT                = "TEXT";
-	private static final String RICH_ICON_URL       = "RICH_ICON_URL";
-	private static final String RICH_AUDIO_URL      = "RICH_AUDIO_URL";
-	private static final String RICH_ICON_OBJ_PATH  = "RICH_ICON_OBJ_PATH";
-	private static final String RICH_AUDIO_OBJ_PATH = "RICH_AUDIO_OBJ_PATH";
+	private VisualNotificationAdapter notificationAdapter;
+
+	/**
+	 * The received {@link Notification} objects to be rendered
+	 */
+	private static List<VisualNotification> notificationList = new ArrayList<VisualNotification>();
 	
 	/**
 	 * Reference to this Application object
@@ -144,6 +142,21 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 	 * Reference to CPS object path check box
 	 */
 	private CheckBox cpsObjPath;
+	
+	/**
+	 * The {@link Notification} Acknowledge button
+	 */
+	private Button ackButton;
+	
+	/**
+	 * The {@link Notification} Dismiss button
+	 */
+	private Button dismissButton;
+	
+	/**
+	 * The Notification with Action trigger button
+	 */
+	private Button actionButton;
 	
 	/**
 	 * Producer related Layouts
@@ -198,6 +211,8 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 		actCache.put("PROD_CHK_BTN", producerChbId.isChecked());
 		actCache.put("CONS_CHK_BTN", consumerChbId.isChecked());
 		actCache.put("SRVC_CNTRL_BTN", shutdownButton.isEnabled());
+		actCache.put("ACK_BTN", ackButton.isEnabled());
+		actCache.put("DISMISS_BTN", dismissButton.isEnabled());
 		actCache.put("APP_NAME", appName.getText().toString());
 	}//onPause
 	
@@ -261,25 +276,34 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 		cpsObjPath.setOnClickListener(this);
 		
 		//set the lstv_1 ListView id's
-		lstv1Id = (ListView) findViewById(R.id.lstv_1);
-		lstv1Id.setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
+		notifListView = (ListView) findViewById(R.id.lstv_1);
+		notifListView.setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
 		
-		String[] from = {MSG_TYPE, TEXT, RICH_ICON_URL, RICH_AUDIO_URL, RICH_ICON_OBJ_PATH, RICH_AUDIO_OBJ_PATH};
-		int[] to      = {R.id.tv_nitem_msgtype, R.id.tv_nitem_text, R.id.tv_nitem_rich_icon, R.id.tv_nitem_rich_audio, R.id.tv_nitem_rich_icon_ObjPath, R.id.tv_nitem_rich_audio_ObjPath};
+		notificationAdapter = new VisualNotificationAdapter(this, R.layout.notification_item, notificationList);
+		notifListView.setAdapter(notificationAdapter);
+		notifListView.setSelection(notificationAdapter.getCount() - 1);
 		
-		listAdapter = new SimpleAdapter(this, notificationItemsList, R.layout.notification_item, from, to);
-		lstv1Id.setAdapter(listAdapter);
-		lstv1Id.setSelection(lstv1Id.getCount() - 1);
-	
 		shutdownButton.setEnabled(false);
 		setProducerLayout(false);
 		setConsumerLayout(false);
+		
+		ackButton      = (Button) findViewById(R.id.btn_ack);
+		dismissButton  = (Button) findViewById(R.id.btn_dismiss);
+		actionButton   = (Button) findViewById(R.id.btn_action);
+		
+		ackButton.setOnClickListener(this);
+		ackButton.setEnabled(false);
+		dismissButton.setOnClickListener(this);
+		dismissButton.setEnabled(false);
+		actionButton.setEnabled(false);
 		
 		//Check persistence
 		Log.d(TAG, "Check UI persistense");
 		Boolean prodChkBoxState = (Boolean)actCache.get("PROD_CHK_BTN");
 		Boolean consChkBoxState = (Boolean)actCache.get("CONS_CHK_BTN");
 		Boolean shutdownBtn     = (Boolean)actCache.get("SRVC_CNTRL_BTN");
+		Boolean ackBtn          = (Boolean)actCache.get("ACK_BTN");
+		Boolean dismissBtn      = (Boolean)actCache.get("DISMISS_BTN");
 		String  appNameStr      = (String)actCache.get("APP_NAME");
 		
 		//application name
@@ -300,82 +324,47 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 			consumerChbId.setChecked(consChkBoxState);
 			setConsumerLayout(consChkBoxState); 
 		}
-		//setConsProdChbEnabled(false);
+		
+		//acknowledge button
+		if ( ackBtn != null ) {
+			ackButton.setEnabled(ackBtn);
+		}
+		
+		//dismiss button
+		if ( dismissBtn != null ) {
+			dismissButton.setEnabled(dismissBtn);
+		}
+		
 	}//setUI
 	
 	/**
 	 * Show Notification
-	 * @param messageType
-	 * @param text
+	 * @param The received {@link Notification} object
 	 */
-	public synchronized void showNotification(String messageType, List <NotificationText> text, String richIconUrl, String richAudioUrl, String richIconObjPath, String richAudioObjPath) {
+	public synchronized void showNotification(Notification notification) {
 		LangEnum usrPrefLang    = LangEnum.valueOf(languageSpinnerConsumer.getSelectedItem().toString());
 		String  usrPrefLangStr  = usrPrefLang.INT_NAME;
 		
-		//Received default message in english
-		String recvDefltMsg  = "";
-		String msgToShow     = "";
-		
-		// Search notification in the preferred language, if not found - use English
-		for (NotificationText ntObj : text ) {
-			Log.d(TAG, "Received message Lang: '" + ntObj.getLanguage() + "', text: '" + ntObj.getText() + "'");
-			if ( ntObj.getLanguage().startsWith(usrPrefLangStr) ) {
-					msgToShow = ntObj.getText();
-					break;
-			}
-			else if ( ntObj.getLanguage().startsWith(LangEnum.English.INT_NAME) ) { // The default English language must be sent  
-				recvDefltMsg = ntObj.getText();
-			}
-		}//for :: languages
-
-		// Not found notification in the desired language
-		if ( msgToShow.length() == 0 ) {
-			Log.d(TAG, "Not found message in the desired language: " + usrPrefLang.toString() + ", show english msg: " + recvDefltMsg);
-			msgToShow = recvDefltMsg;
-		}
-		else {
-			Log.d(TAG, "Found message in the desired language: '" + usrPrefLang.toString() + "', message: '" + msgToShow + "'");
-		}
-		
-		final Map<String, String> newNotification = new HashMap<String, String>();
-		newNotification.put(MSG_TYPE, messageType);
-		newNotification.put(TEXT, msgToShow);
-		
-		if (richIconUrl == null) {
-			newNotification.put(RICH_ICON_URL, "");
-		}
-		else {
-			newNotification.put(RICH_ICON_URL, richIconUrl);
-		}
-		if (richAudioUrl == null) {
-			newNotification.put(RICH_AUDIO_URL, "");
-		}
-		else {
-			newNotification.put(RICH_AUDIO_URL, richAudioUrl);
-		}
-		if (richIconObjPath == null) {
-			newNotification.put(RICH_ICON_OBJ_PATH, "");
-		}
-		else {
-			newNotification.put(RICH_ICON_OBJ_PATH, richIconObjPath);
-		}
-		if (richAudioObjPath == null) {
-			newNotification.put(RICH_AUDIO_OBJ_PATH, "");
-		}
-		else {
-			newNotification.put(RICH_AUDIO_OBJ_PATH, richAudioObjPath);
-		}
-		
+		final VisualNotification visualNotification = new VisualNotification(notification, usrPrefLangStr);
 		
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				notificationItemsList.add(newNotification);
-				((BaseAdapter)listAdapter).notifyDataSetChanged();
-				lstv1Id.setSelection(lstv1Id.getCount() - 1);
+				notificationAdapter.add(visualNotification);
+				notifListView.setSelection(notificationAdapter.getCount() - 1);
 			}
 		});
+		
 	}//viewNewNotification
+	
+	/**
+	 * Handle the received Dismiss signal for the given notification id and appId  
+	 * @param notifId The notification id that should be dismissed
+	 * @param appId The application id that sent the dismissed notification 
+	 */
+	public void handleDismiss(int notifId, UUID appId) {
+		new DismissSignalHandler(this, notifId, appId, notificationList, notificationAdapter).execute();
+	}//handleDismiss
 	
 	/**
 	 * Create a Spinner reference for each spinner (using prepareSpinner method)
@@ -471,6 +460,11 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 				Log.d(TAG, "Rich Audio obj path was clicked");
 				break;
 			}
+			case R.id.btn_ack: 
+			case R.id.btn_dismiss: {
+				onAckDismissClicked(view.getId());
+				break;
+			}
 		}//switch
 	}//onClick
 
@@ -514,8 +508,9 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 				}
 				else {
 					setConsumerLayout(false);
-					notificationItemsList.clear();
-					((BaseAdapter)listAdapter).notifyDataSetChanged();
+
+					//Remove notifications from the listview
+					notificationAdapter.clear();
 					myApp.stopReceiver();
 				}
 				break;
@@ -544,10 +539,6 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 		//3. clear application name
 		appName.setText("");
 		
-		//4. clear the notificationItemsList
-		notificationItemsList.clear();
-		((BaseAdapter)listAdapter).notifyDataSetChanged();
-
 		//display producer layout's
 		setProducerLayout(false);
 		setConsumerLayout(false);
@@ -560,16 +551,27 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 		cpsObjPath.setChecked(false);
 		
 		shutdownButton.setEnabled(false);
-
+		
+		//Remove notifications from the listview
+		notificationAdapter.clear();
+		
 		//clean act persistence
 		actCache.clear();
 		
 		if ( callNSShutdown ) {
-			//deligate shutdown to my app
+			//delegate shutdown to my app
 			myApp.shutdown();
 		}
 	}//shutdownToStart	
-	   
+
+	/**
+	 * @param enabled the Consumer Acknowledge | Dismiss | Action button  
+	 */
+	public void enableDeleteButtons(boolean enabled) {
+		ackButton.setEnabled(enabled);
+		dismissButton.setEnabled(enabled);
+	}//enableDeleteButtons
+	
 	/**
 	 * set Producer Layout visible/invisible according to isVisable parameter
 	 * @param isVisible true - producer layout should be visible.
@@ -615,6 +617,31 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 		producerChbId.setChecked(isChecked);
 	}//setConsProdChbChecked
 
+	/**
+	 * Is invoked when Consumer Acknowledge or Dismiss button is clicked
+	 * @param
+	 */
+	private void onAckDismissClicked(int btnId) {
+		
+		for (VisualNotification vn : notificationList) {
+			
+			if ( vn.isChecked() ) {
+				if ( btnId == R.id.btn_ack ) {
+					vn.getNotification().acknowledge();
+				}
+				else if ( btnId == R.id.btn_dismiss ) {
+					vn.getNotification().dismiss();
+				}
+				
+				if ( !vn.isDismissed() ) {      // Check that this VisualNotification object hasn't previously marked as dismissed
+					vn.setDismissed(true);
+					notificationAdapter.notifyDataSetChanged();
+				}
+			}//if :: checked
+		}//for
+		
+	}//onAcknowledgeClicked
+	
 	/**
 	 * Grab send control area.
 	 * Prepare data structure to send Notification
@@ -724,4 +751,5 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 		myApp.delete(msgType);
 	}//grabDeleteControlArea
 
+	
 }//MainActivity

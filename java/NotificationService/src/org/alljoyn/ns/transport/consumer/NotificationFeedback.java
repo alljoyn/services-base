@@ -16,16 +16,17 @@
 
 package org.alljoyn.ns.transport.consumer;
 
-import java.lang.reflect.Method;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.ErrorReplyBusException;
+import org.alljoyn.bus.Mutable;
 import org.alljoyn.bus.OnJoinSessionListener;
 import org.alljoyn.bus.ProxyBusObject;
 import org.alljoyn.bus.SessionListener;
-import org.alljoyn.bus.SessionOpts;
 import org.alljoyn.bus.Status;
 import org.alljoyn.ns.Notification;
 import org.alljoyn.ns.NotificationServiceException;
@@ -64,6 +65,16 @@ public class NotificationFeedback extends OnJoinSessionListener {
 	}
 	
 	//============================================//
+
+	/**
+	 * Handles sequentially the ack | dismiss tasks
+	 */
+	private static ExecutorService taskDispatcher = Executors.newSingleThreadExecutor();
+	
+	/**
+	 * {@link Transport} object
+	 */
+	private Transport transport;
 	
 	/**
 	 * The logger
@@ -86,11 +97,6 @@ public class NotificationFeedback extends OnJoinSessionListener {
 	private final UUID appId;
 	
 	/**
-	 * The established session id
-	 */
-	private Integer sessionId = null; 
-	
-	/**
 	 * Notification version
 	 */
 	private int version;
@@ -102,7 +108,8 @@ public class NotificationFeedback extends OnJoinSessionListener {
 	 */
 	public NotificationFeedback(Notification notification) throws NotificationServiceException {
 		super();
-		logger = Transport.getInstance().getLogger();
+		transport  = Transport.getInstance();
+		logger     = transport.getLogger();
 		
 		version    = notification.getVersion();
 		origSender = notification.getOriginalSenderBusName();
@@ -117,23 +124,16 @@ public class NotificationFeedback extends OnJoinSessionListener {
 		
 		//Version less than 2 means that the Notification sender doesn't support the NotificationProducer interface 
 		if ( version < 2 || origSender == null ) {
-			logger.debug(TAG, "The notification sender doesn't support the NotificationProducer interface, version:'" + version + "', notifId: '" + notifId + "' can't be acknowledged");
+			logger.debug(TAG, "The notification sender version: '" + version + "', doesn't support the NotificationProducer interface, notifId: '" + notifId + "' can't be acknowledged");
 			return;
 		}
 		
-		Method invokeAckMethod = getMethod("invokeAck", Status.class);
-		if ( invokeAckMethod == null ) {
-			return;
-		}
-		
-		//Asynchronously establish the session 
-		Status status = establishSession(invokeAckMethod);
-		logger.debug(TAG, "establishSession was called, Status: '" + status + "'");
-		
-		//If the session is already joined call acknowledge on the remote peer 
-		if ( status == Status.ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED ) {
-			invokeAck(status);
-		}
+		taskDispatcher.execute( new Runnable() {
+			@Override
+			public void run() {
+				invokeAck();
+			}
+		});
 	}//acknowledge
 	
 	/**
@@ -141,123 +141,140 @@ public class NotificationFeedback extends OnJoinSessionListener {
 	 */
 	public void dismiss() {
 		
-		//Version less than 2 means that the Notification sender doesn't support the NotificationProducer interface
-		if ( version < 2 || origSender == null ) {
-			logger.debug(TAG, "The notification sender doesn't support the NotificationProducer interface, version: '" +
-		                       version + "', appId: '" + appId + "', notifId '" + notifId + "', sending the Dismiss signal");
-			
-			spawnThreadSendDismissSignal();
-			return;
-		}
-		
-		Method invokeDismissMethod = getMethod("invokeDismiss", Status.class);
-		if ( invokeDismissMethod == null ) {
-			return;
-		}
-		
-		//Asynchronously establish the session 
-		Status status = establishSession(invokeDismissMethod);
-		logger.debug(TAG, "The establishSession was called, Status: '" + status + "'");
-		
-		if ( status != Status.OK ) {
-			
-			//If the session is already joined call dismiss on the remote peer 
-			if ( status == Status.ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED  ) {
-				invokeDismiss(status);
-			}
-			else {
-				logger.warn(TAG, "Failed to establish session with the Notification sender, senging Dismiss signal, Error: '" + status + "'");
-				spawnThreadSendDismissSignal();
-			}
-		}
-		
+		taskDispatcher.execute( new Runnable() {
+			@Override
+			public void run() {
+				
+				//Version less than 2 means that the Notification sender doesn't support the NotificationProducer interface 
+				if ( version < 2 || origSender == null ) {
+					logger.debug(TAG, "The notification sender version: '" + version + "', doesn't support the NotificationProducer interface, version:'" + version + "', notifId: '" + notifId + "', can't call the Dismiss method, sending the Dismiss signal");
+					DismissSender.send(notifId, appId);
+					return;
+				}
+
+				invokeDismiss();
+			}//run
+		});
 	}//dismiss
 	
+	
 	/**
-	 * @see org.alljoyn.bus.OnJoinSessionListener#onJoinSession(org.alljoyn.bus.Status, int, org.alljoyn.bus.SessionOpts, java.lang.Object)
+	 * Calls the remote acknowledgement method
+	 * @param status Session establishment status   
 	 */
-	@Override
-	public void onJoinSession(Status status, int sessionId, SessionOpts opts, Object context) {
-		logger.debug(TAG, "Received sessionJoin callback, status: '" + status + "', sid: '" + sessionId + "'");
+	private void invokeAck() {
 		
-		if ( status == Status.OK  || status == Status.ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED ) {
-			this.sessionId = sessionId;
-		}
-		
-		if ( !(context instanceof Method) ) {
-			logger.warn(TAG, "sessionJoin context isn't a Method");
+	    BusAttachment bus = transport.getBusAttachment();
+		if ( bus == null ) {
+			logger.error(TAG, "Failed to call acknowledge for notifId: '" + notifId + "', BusAttachment isn't defined, returning...");
 			return;
 		}
 		
-		Method method = (Method) context;
-		try {
-			method.invoke(this, status);
-		} catch (Exception e) {
-			logger.error(TAG, "Failed to invoke the method: '" + method.getName() + "'");
+		Mutable.IntegerValue sid = new Mutable.IntegerValue();
+		Status status            = establishSession(bus, sid);
+		if ( status != Status.OK && status != Status.ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED ) {
+			logger.error(TAG, "Failed to call acknowledge for notifId: '" + notifId + "', session not established, Error: '" + status + "'");
+			return;
 		}
-	}//onJoinSession
+		
+		logger.debug(TAG, "Handling acknowledge method call for notifId: '" + notifId + "', session: '" + sid.value + "', SessionJoin status: '" + status + "'");
+		NotificationProducer notifProducer = getRemoteProxyObject(bus, sid.value);
+					
+		try {
+			notifProducer.acknowledge(notifId);
+		}
+		catch (ErrorReplyBusException erbe) {
+			logger.error(TAG, "Failed to call acknowledge for notifId: '" + notifId + "', ErrorName: '" + erbe.getErrorName() + "', ErrorMessage: '" + erbe.getErrorMessage() + "'");
+		}
+		catch (BusException be) {
+			logger.error(TAG, "Failed to call acknowledge for notifId: '" + notifId + "', Error: '" + be.getMessage() + "'");
+		}
+		finally {
+			if ( status != Status.ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED ) {
+				leaveSession(bus, sid.value);
+			}
+		}
+    }//invokeAck
+	
+	/**
+	 * Calls the remote dismiss method if fails, then send the Dismiss signal
+	 * @param status Session establishment status
+	 */
+	private void invokeDismiss() {
 
+	    BusAttachment bus = transport.getBusAttachment();
+		if ( bus == null ) {
+			logger.error(TAG, "Failed to call dismiss for notifId: '" + notifId + "', BusAttachment isn't defined, returning...");
+			return;
+		}
+		
+		Mutable.IntegerValue sid = new Mutable.IntegerValue();
+		Status status            = establishSession(bus, sid);
+		if ( status != Status.OK && status != Status.ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED ) {
+			logger.error(TAG, "Failed to call dismiss method for notifId: '" + notifId + "', session isn't not established, Error: '" + status + "', Sending a Dismiss signal");
+			DismissSender.send(notifId, appId);
+			return;
+		}
+		
+		logger.debug(TAG, "Handling dismiss method call for notifId: '" + notifId + "', session: '" + sid.value + "', SessionJoin status: '" + status + "'");
+		NotificationProducer notifProducer = getRemoteProxyObject(bus, sid.value);
+					
+		try {
+			notifProducer.dismiss(notifId);
+		}
+		catch (ErrorReplyBusException erbe) {
+			logger.error(TAG, "Failed to call dismiss for notifId: '" + notifId + "', ErrorName: '" + erbe.getErrorName() + "', ErrorMessage: '" + erbe.getErrorMessage() + "', sending Dismiss signal");
+			DismissSender.send(notifId, appId);
+		}
+		catch (BusException be) {
+			logger.error(TAG, "Failed to call dismiss method for notifId: '" + notifId + "', Error: '" + be.getMessage() + "', Sending Dismiss signal");
+			DismissSender.send(notifId, appId);
+		}
+		finally {
+			if ( status != Status.ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED ) {
+				leaveSession(bus, sid.value);
+			}
+		}
+		
+	}//invokeDismiss
+	
 	/**
 	 * Calls to establish a session with a NotificationProducer
-	 * @param callbackMethod The method to be invoked once the session is established
-	 * @return Status The synchronous session establishment status
+	 * @param bus {@link BusAttachment}
+	 * @param sessionId The sessionId that has been created following the request
+	 * @return Status The session establishment status
 	 */
-	private Status establishSession(Method callbackMethod) {
-		BusAttachment bus = Transport.getInstance().getBusAttachment();
-		
-		if ( bus == null ) {
-			logger.error(TAG, "Unable to call JoinSession, BusAttachment is undefined, returning Status.Fail");
-			return Status.FAIL;
-		}
-		
-		return bus.joinSession( origSender, 
-							    SenderSessionListener.PORT_NUM,
-							    SenderSessionListener.getSessionOpts(), 
-							    new NFSessionListener(),
-							    this,
-							    callbackMethod);
+	private Status establishSession(BusAttachment bus, Mutable.IntegerValue sessionId) {
+		return bus.joinSession(origSender,
+							   SenderSessionListener.PORT_NUM,
+							   sessionId, 
+							   SenderSessionListener.getSessionOpts(), 
+							   new NFSessionListener());
 	}//establishSession
+
 	
 	/**
 	 * Leave the session if the sessionId isn't NULL and not zero <br>
+	 * @param bus {@link BusAttachment}
+	 * @param sid 
 	 */
-	private void leaveSession() {
-		
-		if ( sessionId == null || sessionId == 0 ) { // This means that the session wasn't established by this object, or the session has been already closed
-			return;  
-		}
-		
-		BusAttachment bus = Transport.getInstance().getBusAttachment();
-		
-		if ( bus == null ) {
-			logger.error(TAG, "Unable to call LeaveSession, BusAttachment isn't defined, returning...");
-			return;
-		}
-		
-		Status status     = bus.leaveSession(sessionId);
+	private void leaveSession(BusAttachment bus, int sid) {
+		Status status = bus.leaveSession(sid);
 		
 		if ( status == Status.OK ) {
-			logger.debug(TAG, "The session: '" + sessionId + "' was disconnected successfully");
+			logger.debug(TAG, "The session: '" + sid + "' was disconnected successfully");
 		}
 		else {
-			logger.error(TAG, "Failed to disconnect the session: '" + sessionId + "', Error: '" + status + "'");
+			logger.error(TAG, "Failed to disconnect the session: '" + sid + "', Error: '" + status + "'");
 		}
 	}//leaveSession
 	
 	/**
+	 * Create {@link ProxyBusObject}
+	 * @param bus {@link BusAttachment}
 	 * @return Creates and returns the {@link ProxyBusObject}, casted to the {@link NotificationProducer} object
-	 * If failed to create {@link ProxyBusObject} NULL is returned
 	 */
-	private NotificationProducer getRemoteProxyObject() {
-		BusAttachment bus = Transport.getInstance().getBusAttachment();
-		
-		if ( bus == null ) {
-			logger.error(TAG, "Can't create ProxyBusObject, BusAttachment isn't defined, returning...");
-			return null;
-		}
-		
-		int sid = (sessionId != null) ? sessionId : 0;
-		
+	private NotificationProducer getRemoteProxyObject(BusAttachment bus, int sid) {
 		logger.debug(TAG, "Creating ProxyBusObject with sender: '" + origSender + "', SID: '" + sid + "'");
 		ProxyBusObject proxyObj = bus.getProxyBusObject(origSender,
 														NotificationProducer.OBJ_PATH,
@@ -266,112 +283,5 @@ public class NotificationFeedback extends OnJoinSessionListener {
 		
 		return proxyObj.getInterface(NotificationProducer.class);
 	}//getRemoteProxyObject
-	
-	/**
-	 * Calls the remote acknowledgement method
-	 * @param status Session establishment status   
-	 */
-	private void invokeAck(Status status) {
-		
-		if ( status == Status.ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED || status == Status.OK) {
-			
-			new Thread(new Runnable() {
-				@Override
-				public void run() {
-					
-					NotificationProducer notifProducer = getRemoteProxyObject();
-					
-					if ( notifProducer == null ) {
-						return;
-					}
-					
-					try {
-						logger.debug(TAG, "Invoking acknowledgement for notifId: '" + notifId + "'");
-						notifProducer.acknowledge(notifId);
-					}
-					catch (ErrorReplyBusException erbe) {
-						logger.error(TAG, "Failed to call acknowledge for notifId: '" + notifId + "', ErrorName: '" + erbe.getErrorName() + "', ErrorMessage: '" + erbe.getErrorMessage() + "'");
-					}
-					catch (BusException be) {
-						logger.error(TAG, "Failed to call acknowledge for notifId: '" + notifId + "', Error: '" + be.getMessage() + "'");
-					}
-					finally {
-						leaveSession();
-					}
-				}//run
-			}).start();
-			
-		}//if :: status
-	}//invokeAck
-	
-	/**
-	 * Calls the remote dismiss method if fails, then send the Dismiss signal
-	 * @param status Session establishment status
-	 */
-	private void invokeDismiss(final Status status) {
-
-			new Thread(new Runnable() {
-				
-				@Override
-				public void run() {
-					
-					if ( status == Status.ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED || status == Status.OK ) {
-						
-						NotificationProducer notifProducer = getRemoteProxyObject();
-						
-						if ( notifProducer == null ) {
-							return;
-						}
-						
-						try {
-							logger.debug(TAG, "Invoking dismiss method for notifId: '" + notifId + "'");
-							notifProducer.dismiss(notifId);
-						}
-						catch (ErrorReplyBusException erbe) {
-							logger.error(TAG, "Failed to call dismiss for notifId: '" + notifId + "', ErrorName: '" + erbe.getErrorName() + "', ErrorMessage: '" + erbe.getErrorMessage() + "', sending Dismiss signal");
-							DismissSender.send(notifId, appId);
-						}
-						catch (BusException be) {
-							logger.error(TAG, "Failed to call dismiss method for notifId: '" + notifId + "', Error: '" + be.getMessage() + "', Sending Dismiss signal");
-							DismissSender.send(notifId, appId);
-						}
-						finally {
-							leaveSession();
-						}
-						
-					}//if :: status
-					else {
-						logger.warn(TAG, "Failed to establish session with the Notification sender, senging Dismiss signal, Error: '" + status + "'");
-						DismissSender.send(notifId, appId);
-					}
-				}//run
-			}).start();
-	}//invokeDismiss
-	
-	/**
-	 * Spawns a thread and invokes {@link DismissSender#send(int, UUID)} on it 
-	 */
-	private void spawnThreadSendDismissSignal() {
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				DismissSender.send(notifId, appId);
-			}
-		}).start();
-	}//sendDismissSignal
-	
-	/**
-	 * @param methodName Get the reflection of the method of this method name. 
-	 * @return 	Returns the reflection of the requested method
-	 */
-	private Method getMethod(String methodName, Class<?>... args) {
-		try {
-			return this.getClass().getDeclaredMethod(methodName, args);
-		} catch (Exception e) {
-			logger.error(TAG, "Failed to find the reflection method of '" + methodName + "', Error: '" + e.getMessage() + "'");
-			return null;
-		}
-	}//getMethod
-	
 	
 }

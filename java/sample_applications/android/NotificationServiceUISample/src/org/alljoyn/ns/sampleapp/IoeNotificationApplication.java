@@ -103,12 +103,12 @@ public class IoeNotificationApplication extends Application implements Notificat
 	/**
 	 * Rich content icon Object Path
 	 */
-	private static final String ICON_OBJ_PATH 	     = "/OBJ/PATH/ICON";
+	private static final String ICON_OBJ_PATH 	 = "/OBJ/PATH/ICON";
 	
 	/**
 	 * Rich content audio Object Path
 	 */
-	private static final String AUDIO_OBJ_PATH 	     = "/OBJ/PATH/AUDIO";
+	private static final String AUDIO_OBJ_PATH 	 = "/OBJ/PATH/AUDIO";
 	
 	/**
 	 * controlPanalService object path
@@ -160,6 +160,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 	 * UI Activity 
 	 */
 	private NotificationServiceControlsActivity myActiv;
+	
 	
 	/**
 	 * Method called when the application started
@@ -274,6 +275,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 			notificationService.initReceive(bus, this);
 			bus.addMatch("sessionless='t',type='error'");
 			isReceiverStarted = true;
+			
 		} catch (NotificationServiceException nse) {
 			Log.e(TAG,"Failed on startReceiver - can't present notifications error: " + nse.getMessage());
 			showToast("Failed to start receiver");
@@ -377,7 +379,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 	@Override
 	public void receive(Notification notification) {
 		
-		Log.d(TAG, String.format("Received new Notification, Id: '%d', MessageType: '%s', DeviceId: '%s', DeviceName: '%s', Sender: '%s', AppId: '%s', AppName: '%s', CustomAttributes: '%s', FirstMsg: '%s'", notification.getMessageId(), notification.getMessageType(), notification.getDeviceId(), notification.getDeviceName(), notification.getSenderBusName(), notification.getAppId().toString(), notification.getAppName(), notification.getCustomAttributes().toString(), notification.getText().get(0).getText()));
+		Log.d(TAG, "Receveid new " + notification);
 
 		String notifAppName = notification.getAppName();
 		//If received notification application name isn't equals to my application name, ignore the notification
@@ -386,44 +388,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 			return;
 		}
 
-		String richIconUrl = notification.getRichIconUrl();
-		if (richIconUrl != null){
-			Log.d(TAG, "Rich icon URL: '" + richIconUrl +"'");
-		}
-		
-		List<RichAudioUrl> richAudioUrlL = notification.getRichAudioUrl();//
-		String richAudioUrl = null;
-		if (richAudioUrlL != null && richAudioUrlL.size() > 0){
-			richAudioUrl = richAudioUrlL.get(0).getUrl(); 
-			Log.d(TAG, "Rich audio URL: '" + richAudioUrl + "'");
-		}	
-		
-		String richIconObjPath = notification.getRichIconObjPath();
-		if (richIconObjPath != null){
-			Log.d(TAG, "Rich icon ObjPath: '" + richIconObjPath +"'");
-		}
-		
-		String richAudioObjPath = notification.getRichAudioObjPath();
-		if (richAudioObjPath != null){
-			Log.d(TAG, "Rich audio ObjPath: '" + richAudioObjPath + "'");
-		}	
-		
-		String responseObjectPath = notification.getResponseObjectPath();
-		if (responseObjectPath != null){
-			Log.d(TAG, "Control Panel Service response Object Path: '" + responseObjectPath +"'");
-		}
-		 
-		renderNotification(notification.getMessageType().toString(), notification.getText(), richIconUrl, richAudioUrl, richIconObjPath, richAudioObjPath);
-
-		/*Log.d(TAG, "======= Calling Feedback =======");
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		notification.dismiss();
-		*/
+		renderNotification(notification);
 	}//receive
 
 	/**
@@ -432,19 +397,15 @@ public class IoeNotificationApplication extends Application implements Notificat
 	@Override
 	public void dismiss(int notifId, UUID appId) {
 		Log.d(TAG, " !!!!! DISMISS RECEIVED !!!! : '" + notifId + "', appId: '" + appId + "'");
+		myActiv.handleDismiss(notifId, appId);
 	}//dismiss
 	
 	/**
 	 * Send the notification message to be presented
-	 * @param msgType
-	 * @param text
-	 * @param richIconUrl
-	 * @param richAudioUrl
-	 * @param richIconObjPath
-	 * @param richAudioObjPath
+	 * @param notification
 	 */
-	public void renderNotification(String msgType, List<NotificationText> text, String richIconUrl, String richAudioUrl, String richIconObjPath, String richAudioObjPath) {
-        myActiv.showNotification(msgType, text, richIconUrl, richAudioUrl, richIconObjPath, richAudioObjPath);
+	public void renderNotification(Notification notification) {
+        myActiv.showNotification(notification);
 		if ( isBackground ) {
 			Log.d(TAG, "Found the app in BG, sending Android Notification");
 			showNotification(null);
@@ -590,10 +551,10 @@ public class IoeNotificationApplication extends Application implements Notificat
         bus = new BusAttachment("NotificationService", BusAttachment.RemoteMessage.Receive);
 
         //For verbose AJ logging use the following lines
-        //busAttachment.setDaemonDebug("ALL", 7);
-        //busAttachment.setLogLevels("ALLJOYN=7");
-        //busAttachment.setLogLevels("ALL=7");
-        //busAttachment.useOSLogging(true);
+        //bus.setDaemonDebug("ALL", 7);
+        //bus.setLogLevels("ALLJOYN=7");
+        //bus.setLogLevels("ALL=7");
+        //bus.useOSLogging(true);
 
         //setting the password for the daemon to allow thin clients to connect
         Log.d(TAG, "Setting daemon password");
@@ -635,5 +596,4 @@ public class IoeNotificationApplication extends Application implements Notificat
         }
     }//advertiseDaemon
 
-    
 }//IoeNotificationApplication
