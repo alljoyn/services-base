@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -29,11 +29,11 @@ AJ_Status marshalConstraintRange(ConstraintRange* constraints, AJ_Message* reply
     AJ_Status status;
     AJ_Arg constraintRange;
 
-    CPS_CHECK(StartComplexOptionalParam(reply, &constraintRange, PROPERTY_CONSTRAINT_RANGE,
-                                        PROPERTY_CONSTRAINT_RANGE_SIG));
+    if (status = StartComplexOptionalParam(reply, &constraintRange, PROPERTY_CONSTRAINT_RANGE, PROPERTY_CONSTRAINT_RANGE_SIG) != AJ_OK)
+        return status;
 
-    CPS_CHECK(AddConstraintRange(reply, *constraints->signature, constraints->minValue,
-                                 constraints->maxValue, constraints->increment));
+    if (status = AddConstraintRange(reply, *constraints->signature, constraints->minValue, constraints->maxValue, constraints->increment) != AJ_OK)
+        return status;
 
     return AJ_MarshalCloseContainer(reply, &constraintRange);
 }

@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -21,8 +21,6 @@
 #include <alljoyn/controlpanel/Definitions.h>
 #include <alljoyn/controlpanel/Common/BaseWidget.h>
 
-#define CPS_CHECK(s) if ((status = s)) return status;
-#define CPS_CHECK_OR_BREAK(s) if ((status = s)) break;
 #define StartOptionalParams(reply, arg) AJ_MarshalContainer(reply, arg, AJ_ARG_ARRAY)
 
 /**

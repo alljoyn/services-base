@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -23,20 +23,25 @@ AJ_Status marshalConstraintList(ConstraintList* constraints, AJ_Message* reply, 
     AJ_Status status;
     AJ_Arg arrayArg, opParams;
 
-    CPS_CHECK(StartComplexOptionalParam(reply, &opParams, PROPERTY_CONSTRAINT_LIST, PROPERTY_CONSTRAINT_LIST_SIG));
+    if (status = StartComplexOptionalParam(reply, &opParams, PROPERTY_CONSTRAINT_LIST, PROPERTY_CONSTRAINT_LIST_SIG) != AJ_OK)
+        return status;
 
-    CPS_CHECK(AJ_MarshalContainer(reply, &arrayArg, AJ_ARG_ARRAY));
+    if (status = AJ_MarshalContainer(reply, &arrayArg, AJ_ARG_ARRAY) != AJ_OK)
+        return status;
 
     uint16_t cnt;
     for (cnt = 0; cnt < numConstraints; cnt++) {
         if (constraints[cnt].getDisplay != 0) {
-            CPS_CHECK(AddConstraintValue(reply, signature, constraints[cnt].value, constraints[cnt].getDisplay(language)));
+            if (status = AddConstraintValue(reply, signature, constraints[cnt].value, constraints[cnt].getDisplay(language)) != AJ_OK)
+                return status;
         } else {
-            CPS_CHECK(AddConstraintValue(reply, signature, constraints[cnt].value, constraints[cnt].display[language]));
+            if (status = AddConstraintValue(reply, signature, constraints[cnt].value, constraints[cnt].display[language]) != AJ_OK)
+                return status;
         }
     }
 
-    CPS_CHECK(AJ_MarshalCloseContainer(reply, &arrayArg));
+    if (status = AJ_MarshalCloseContainer(reply, &arrayArg) != AJ_OK)
+        return status;
 
     return AJ_MarshalCloseContainer(reply, &opParams);
 }

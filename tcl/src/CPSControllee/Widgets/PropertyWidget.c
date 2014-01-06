@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -82,27 +82,33 @@ AJ_Status marshalPropertyOptParam(BaseWidget* widget, AJ_Message* reply, uint16_
     AJ_Status status;
     AJ_Arg propertyOptParams;
 
-    CPS_CHECK(StartOptionalParams(reply, &propertyOptParams));
+    if (status = StartOptionalParams(reply, &propertyOptParams) != AJ_OK)
+        return status;
 
-    CPS_CHECK(marshalBaseOptParam(widget, reply, language));
+    if (status = marshalBaseOptParam(widget, reply, language) != AJ_OK)
+        return status;
 
     if (optParams->getUnitOfMeasure) {
         const char* unitOfMeasure = optParams->getUnitOfMeasure(language);
-        CPS_CHECK(AddBasicOptionalParam(reply, PROPERTY_UNIT_OF_MEASURE,
-                                        PROPERTY_UNIT_OF_MEASURE_SIG, &unitOfMeasure));
+        if (status = AddBasicOptionalParam(reply, PROPERTY_UNIT_OF_MEASURE, PROPERTY_UNIT_OF_MEASURE_SIG,
+                                           &unitOfMeasure) != AJ_OK)
+            return status;
     } else if (optParams->unitOfMeasure) {
         const char* unitOfMeasure = optParams->unitOfMeasure[language];
-        CPS_CHECK(AddBasicOptionalParam(reply, PROPERTY_UNIT_OF_MEASURE,
-                                        PROPERTY_UNIT_OF_MEASURE_SIG, &unitOfMeasure));
+        if (status = AddBasicOptionalParam(reply, PROPERTY_UNIT_OF_MEASURE, PROPERTY_UNIT_OF_MEASURE_SIG,
+                                           &unitOfMeasure) != AJ_OK)
+            return status;
     }
 
     if (optParams->constraintList && optParams->numConstraints) {
-        CPS_CHECK(marshalConstraintList(optParams->constraintList, reply,
-                                        optParams->numConstraints, ((PropertyWidget*)widget)->signature, language));
+        if (status = marshalConstraintList(optParams->constraintList, reply, optParams->numConstraints,
+                                           ((PropertyWidget*)widget)->signature, language) != AJ_OK)
+            return status;
     }
 
     if (optParams->constraintRangeDefined) {
-        CPS_CHECK(marshalConstraintRange(&optParams->constraintRange, reply));
+        if (status = marshalConstraintRange(&optParams->constraintRange, reply) != AJ_OK)
+            return status;
     }
 
     return AJ_MarshalCloseContainer(reply, &propertyOptParams);
@@ -113,15 +119,19 @@ AJ_Status marshalAllPropertyProperties(BaseWidget* widget, AJ_Message* reply, ui
     AJ_Status status;
     AJ_Arg propertyGetAllArray;
 
-    CPS_CHECK(AJ_MarshalContainer(reply, &propertyGetAllArray, AJ_ARG_ARRAY));
+    if (status = AJ_MarshalContainer(reply, &propertyGetAllArray, AJ_ARG_ARRAY) != AJ_OK)
+        return status;
 
-    CPS_CHECK(marshalAllBaseProperties(widget, reply, language));
+    if (status = marshalAllBaseProperties(widget, reply, language) != AJ_OK)
+        return status;
 
-    CPS_CHECK(AddPropertyForGetAll(reply, PROPERTY_TYPE_OPTPARAMS_NAME, PROPERTY_TYPE_OPTPARAMS_SIG,
-                                   widget, language, marshalPropertyOptParam));
+    if (status = AddPropertyForGetAll(reply, PROPERTY_TYPE_OPTPARAMS_NAME, PROPERTY_TYPE_OPTPARAMS_SIG,
+                                      widget, language, marshalPropertyOptParam) != AJ_OK)
+        return status;
 
-    CPS_CHECK(AddPropertyForGetAll(reply, PROPERTY_TYPE_VALUE_NAME, PROPERTY_TYPE_VALUE_SIG,
-                                   widget, language, (MarshalWidgetFptr)marshalPropertyValue));
+    if (status = AddPropertyForGetAll(reply, PROPERTY_TYPE_VALUE_NAME, PROPERTY_TYPE_VALUE_SIG,
+                                      widget, language, (MarshalWidgetFptr)marshalPropertyValue) != AJ_OK)
+        return status;
 
     return AJ_MarshalCloseContainer(reply, &propertyGetAllArray);
 }
