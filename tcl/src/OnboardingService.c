@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -95,11 +95,14 @@ AJ_Status OBS_ConfigureWiFi(AJ_Message*msg)
         OBInfo newInfo;
         char* ssid;
         char* pc;
-        CHECK(AJ_UnmarshalArgs(msg, "ssn", &ssid, &pc, &newInfo.authType));
+        if (status = AJ_UnmarshalArgs(msg, "ssn", &ssid, &pc, &newInfo.authType) != AJ_OK)
+            break;
         if ((int8_t)newInfo.authType >= MAX_OF_WIFI_AUTH_TYPE || (int8_t)newInfo.authType <= MIN_OF_WIFI_AUTH_TYPE) {
             AJ_Printf("Unknown authentication type %d\n", newInfo.authType);
-            CHECK(AJ_MarshalErrorMsg(msg, &reply, InvalidValue));
-            CHECK(AJ_DeliverMsg(&reply));
+            if (status = AJ_MarshalErrorMsg(msg, &reply, InvalidValue) != AJ_OK)
+                break;
+            if (status = AJ_DeliverMsg(&reply) != AJ_OK)
+                break;
             return status;
         }
         size_t ssidLen = min(strlen(ssid), SSID_MAX_LENGTH);
@@ -111,9 +114,12 @@ AJ_Status OBS_ConfigureWiFi(AJ_Message*msg)
 
         AJ_Printf("Got new info for %s with passcode=%s and auth=%d\n", newInfo.ssid, newInfo.pc, newInfo.authType);
         int16_t retVal = 1;
-        CHECK(AJ_MarshalReplyMsg(msg, &reply));
-        CHECK(AJ_MarshalArgs(&reply, "n", retVal));
-        CHECK(AJ_DeliverMsg(&reply));
+        if (status = AJ_MarshalReplyMsg(msg, &reply) != AJ_OK)
+            break;
+        if (status = AJ_MarshalArgs(&reply, "n", retVal) != AJ_OK)
+            break;
+        if (status = AJ_DeliverMsg(&reply) != AJ_OK)
+            break;
 
         newInfo.state = CONFIGURED_NOT_VALIDATED;
         status = OBS_WriteInfo(&newInfo);
@@ -134,7 +140,8 @@ AJ_Status OBS_ConnectWiFi(AJ_Message*msg)
     do {
         AJ_Printf("Got connect\n");
         OBInfo obInfo;
-        CHECK(OBS_ReadInfo(&obInfo));
+        if (status = OBS_ReadInfo(&obInfo) != AJ_OK)
+            break;
         AJ_Printf("ReadInfo status: %s\n", AJ_StatusText(status));
         status = AJ_ERR_RESTART; // Force disconnect of AJ and services and reconnection of WiFi on restart
     } while (0);
@@ -148,7 +155,8 @@ AJ_Status OBS_OffboardWiFi(AJ_Message*msg)
 
     do {
         AJ_Printf("Offboard()\n");
-        CHECK(OBCAPI_DoOffboardWiFi());
+        if (status = OBCAPI_DoOffboardWiFi() != AJ_OK)
+            break;
         status = AJ_ERR_RESTART; // Force disconnect of AJ and services and reconnection of WiFi on restart
     } while (0);
 
@@ -165,25 +173,34 @@ AJ_Status OBS_GetScanInfo(AJ_Message*msg)
     do {
         AJ_Printf("GetScanInfo()\n");
 
-        CHECK(AJ_MarshalReplyMsg(msg, &reply));
+        if (status = AJ_MarshalReplyMsg(msg, &reply) != AJ_OK)
+            break;
 
         uint32_t elapsed = AJ_GetElapsedTime(&obLastScan, TRUE);
         if (elapsed > 0) {
             elapsed /= 60000;
         }
-        CHECK(AJ_MarshalArgs(&reply, "q", (uint16_t) elapsed));
-        CHECK(AJ_MarshalContainer(&reply, &array, AJ_ARG_ARRAY));
+        if (status = AJ_MarshalArgs(&reply, "q", (uint16_t) elapsed) != AJ_OK)
+            break;
+        if (status = AJ_MarshalContainer(&reply, &array, AJ_ARG_ARRAY) != AJ_OK)
+            break;
 
         int i = 0;
         for (; i < obScanInfoCount; ++i) {
-            CHECK(AJ_MarshalContainer(&reply, &structure, AJ_ARG_STRUCT));
-            CHECK(AJ_MarshalArgs(&reply, "s", obScanInfos[i].ssid));
-            CHECK(AJ_MarshalArgs(&reply, "n", obScanInfos[i].authType));
-            CHECK(AJ_MarshalCloseContainer(&reply, &structure));
+            if (status = AJ_MarshalContainer(&reply, &structure, AJ_ARG_STRUCT) != AJ_OK)
+                break;
+            if (status = AJ_MarshalArgs(&reply, "s", obScanInfos[i].ssid) != AJ_OK)
+                break;
+            if (status = AJ_MarshalArgs(&reply, "n", obScanInfos[i].authType) != AJ_OK)
+                break;
+            if (status = AJ_MarshalCloseContainer(&reply, &structure) != AJ_OK)
+                break;
         }
 
-        CHECK(AJ_MarshalCloseContainer(&reply, &array));
-        CHECK(AJ_DeliverMsg(&reply));
+        if (status = AJ_MarshalCloseContainer(&reply, &array) != AJ_OK)
+            break;
+        if (status = AJ_DeliverMsg(&reply) != AJ_OK)
+            break;
     } while (0);
 
     return status;
@@ -198,11 +215,16 @@ AJ_Status OBS_GetScanInfo(AJ_Message*msg)
         AJ_Printf("ConnectionResult()\n");
         AJ_Message out;
         AJ_Arg structure;
-        CHECK(AJ_MarshalSignal(bus, &out, OBS_CONNECTION_RESULT, NULL, obsSessionId, AJ_FLAG_GLOBAL_BROADCAST, CONNECTION_RESULT_TTL));
-        CHECK(AJ_MarshalContainer(&out, &structure, AJ_ARG_STRUCT));
-        CHECK(AJ_MarshalArgs(&out, "n", obLastError.code));
-        CHECK(AJ_MarshalArgs(&out, "s", obLastError.message));
-        CHECK(AJ_MarshalCloseContainer(&out, &structure));
+        if (status = AJ_MarshalSignal(bus, &out, OBS_CONNECTION_RESULT, NULL, obsSessionId, AJ_FLAG_GLOBAL_BROADCAST, CONNECTION_RESULT_TTL) != AJ_OK)
+            break;
+        if (status = AJ_MarshalContainer(&out, &structure, AJ_ARG_STRUCT) != AJ_OK)
+            break;
+        if (status = AJ_MarshalArgs(&out, "n", obLastError.code) != AJ_OK)
+            break;
+        if (status = AJ_MarshalArgs(&out, "s", obLastError.message) != AJ_OK)
+            break;
+        if (status = AJ_MarshalCloseContainer(&out, &structure) != AJ_OK)
+            break;
         AJ_DeliverMsg(&out);
         AJ_CloseMsg(&out);
     } while (0);

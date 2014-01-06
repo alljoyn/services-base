@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -59,9 +59,11 @@ void Onboarding_SwitchToRetry()
 
     do {
         OBInfo obInfo;
-        CHECK(OBS_ReadInfo(&obInfo));
+        if (status = OBS_ReadInfo(&obInfo) != AJ_OK)
+            break;
         obInfo.state = CONFIGURED_RETRY;
-        CHECK(OBS_WriteInfo(&obInfo));
+        if (status = OBS_WriteInfo(&obInfo) != AJ_OK)
+            break;
     } while (0);
 
     AJ_Printf("SwitchToRetry status: %s\n", AJ_StatusText(status));
@@ -115,7 +117,8 @@ AJ_Status Onboarding_DisconnectedHandler(AJ_BusAttachment* bus)
 {
     AJ_Status status = AJ_OK;
     do {
-        CHECK(OBCAPI_GotoIdleWiFi(TRUE));
+        if (status = OBCAPI_GotoIdleWiFi(TRUE) != AJ_OK)
+            break;
     } while (0);
 
     return status;

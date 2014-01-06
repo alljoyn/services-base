@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -610,7 +610,8 @@ AJ_Status OBS_ClearInfo()
     obLastError.message[0] = '\0';
 
     do {
-        CHECK(OBS_WriteInfo(&emptyInfo));
+        if (status = OBS_WriteInfo(&emptyInfo) != AJ_OK)
+            break;
     } while (0);
 
     return status;
@@ -621,7 +622,8 @@ AJ_Status OBCAPI_DoOffboardWiFi()
     AJ_Status status = AJ_OK;
 
     do {
-        CHECK(OBS_ClearInfo());
+        if (status = OBS_ClearInfo() != AJ_OK)
+            break;
     } while (0);
 
     return status;
