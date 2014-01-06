@@ -598,7 +598,6 @@ AJ_Status OBCAPI_StartSoftAPIfNeededOrConnect(OBInfo* obInfo)
 
 AJ_Status OBS_ClearInfo()
 {
-    AJ_Status status = AJ_OK;
     OBInfo emptyInfo;
     memset(&emptyInfo, 0, sizeof(emptyInfo));
 
@@ -609,23 +608,11 @@ AJ_Status OBS_ClearInfo()
     obLastError.code = OBLastError_Validated;
     obLastError.message[0] = '\0';
 
-    do {
-        if (status = OBS_WriteInfo(&emptyInfo) != AJ_OK)
-            break;
-    } while (0);
-
-    return status;
+    return (OBS_WriteInfo(&emptyInfo));
 }
 
 AJ_Status OBCAPI_DoOffboardWiFi()
 {
-    AJ_Status status = AJ_OK;
-
-    do {
-        if (status = OBS_ClearInfo() != AJ_OK)
-            break;
-    } while (0);
-
-    return status;
+    return (OBS_ClearInfo());
 }
 
