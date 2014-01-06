@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -66,35 +66,43 @@ AJ_Status marshalDialogOptParam(BaseWidget* widget, AJ_Message* reply, uint16_t 
     AJ_Status status;
     AJ_Arg dialogOptParams;
 
-    CPS_CHECK(StartOptionalParams(reply, &dialogOptParams));
+    if (status = StartOptionalParams(reply, &dialogOptParams) != AJ_OK)
+        return status;
 
-    CPS_CHECK(marshalBaseOptParam(widget, reply, language));
+    if (status = marshalBaseOptParam(widget, reply, language) != AJ_OK)
+        return status;
 
     if (optParams->getLabelAction1) {
         const char* labelAction1 = optParams->getLabelAction1(language);
-        CPS_CHECK(AddBasicOptionalParam(reply, DIALOG_LABEL_ACTION1,
-                                        DIALOG_LABEL_ACTION1_SIG, &labelAction1));
+        if (status = AddBasicOptionalParam(reply, DIALOG_LABEL_ACTION1, DIALOG_LABEL_ACTION1_SIG,
+                                           &labelAction1) != AJ_OK)
+            return status;
     } else if (optParams->labelAction1) {
-        CPS_CHECK(AddBasicOptionalParam(reply, DIALOG_LABEL_ACTION1,
-                                        DIALOG_LABEL_ACTION1_SIG, &optParams->labelAction1[language]));
+        if (status = AddBasicOptionalParam(reply, DIALOG_LABEL_ACTION1, DIALOG_LABEL_ACTION1_SIG,
+                                           &optParams->labelAction1[language]) != AJ_OK)
+            return status;
     }
 
     if (optParams->getLabelAction2) {
         const char* labelAction2 = optParams->getLabelAction2(language);
-        CPS_CHECK(AddBasicOptionalParam(reply, DIALOG_LABEL_ACTION2,
-                                        DIALOG_LABEL_ACTION2_SIG, &labelAction2));
+        if (status = AddBasicOptionalParam(reply, DIALOG_LABEL_ACTION2, DIALOG_LABEL_ACTION2_SIG,
+                                           &labelAction2) != AJ_OK)
+            return status;
     } else if (optParams->labelAction2) {
-        CPS_CHECK(AddBasicOptionalParam(reply, DIALOG_LABEL_ACTION2,
-                                        DIALOG_LABEL_ACTION2_SIG, &optParams->labelAction2[language]));
+        if (status = AddBasicOptionalParam(reply, DIALOG_LABEL_ACTION2, DIALOG_LABEL_ACTION2_SIG,
+                                           &optParams->labelAction2[language]) != AJ_OK)
+            return status;
     }
 
     if (optParams->getLabelAction3) {
         const char* labelAction3 = optParams->getLabelAction3(language);
-        CPS_CHECK(AddBasicOptionalParam(reply, DIALOG_LABEL_ACTION3,
-                                        DIALOG_LABEL_ACTION3_SIG, &labelAction3));
+        if (status = AddBasicOptionalParam(reply, DIALOG_LABEL_ACTION3, DIALOG_LABEL_ACTION3_SIG,
+                                           &labelAction3) != AJ_OK)
+            return status;
     } else if (optParams->labelAction3) {
-        CPS_CHECK(AddBasicOptionalParam(reply, DIALOG_LABEL_ACTION3,
-                                        DIALOG_LABEL_ACTION3_SIG, &optParams->labelAction3[language]));
+        if (status = AddBasicOptionalParam(reply, DIALOG_LABEL_ACTION3, DIALOG_LABEL_ACTION3_SIG,
+                                           &optParams->labelAction3[language]) != AJ_OK)
+            return status;
     }
 
     return AJ_MarshalCloseContainer(reply, &dialogOptParams);
@@ -105,18 +113,23 @@ AJ_Status marshalAllDialogProperties(BaseWidget* widget, AJ_Message* reply, uint
     AJ_Status status;
     AJ_Arg dialogGetAllArray;
 
-    CPS_CHECK(AJ_MarshalContainer(reply, &dialogGetAllArray, AJ_ARG_ARRAY));
+    if (status = AJ_MarshalContainer(reply, &dialogGetAllArray, AJ_ARG_ARRAY) != AJ_OK)
+        return status;
 
-    CPS_CHECK(marshalAllBaseProperties(widget, reply, language));
+    if (status = marshalAllBaseProperties(widget, reply, language) != AJ_OK)
+        return status;
 
-    CPS_CHECK(AddPropertyForGetAll(reply, PROPERTY_TYPE_OPTPARAMS_NAME, PROPERTY_TYPE_OPTPARAMS_SIG,
-                                   widget, language, marshalDialogOptParam));
+    if (status = AddPropertyForGetAll(reply, PROPERTY_TYPE_OPTPARAMS_NAME, PROPERTY_TYPE_OPTPARAMS_SIG,
+                                      widget, language, marshalDialogOptParam) != AJ_OK)
+        return status;
 
-    CPS_CHECK(AddPropertyForGetAll(reply, PROPERTY_TYPE_MESSAGE_NAME, PROPERTY_TYPE_MESSAGE_SIG,
-                                   widget, language, (MarshalWidgetFptr)marshalDialogMessage));
+    if (status = AddPropertyForGetAll(reply, PROPERTY_TYPE_MESSAGE_NAME, PROPERTY_TYPE_MESSAGE_SIG,
+                                      widget, language, (MarshalWidgetFptr)marshalDialogMessage) != AJ_OK)
+        return status;
 
-    CPS_CHECK(AddPropertyForGetAll(reply, PROPERTY_TYPE_NUM_ACTIONS_NAME, PROPERTY_TYPE_NUM_ACTIONS_SIG,
-                                   widget, language, (MarshalWidgetFptr)marshalDialogNumActions));
+    if (status = AddPropertyForGetAll(reply, PROPERTY_TYPE_NUM_ACTIONS_NAME, PROPERTY_TYPE_NUM_ACTIONS_SIG,
+                                      widget, language, (MarshalWidgetFptr)marshalDialogNumActions) != AJ_OK)
+        return status;
 
     return AJ_MarshalCloseContainer(reply, &dialogGetAllArray);
 }

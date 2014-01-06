@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -43,15 +43,19 @@ AJ_Status marshalAllLabelProperties(BaseWidget* widget, AJ_Message* reply, uint1
     AJ_Status status;
     AJ_Arg labelGetAllArray;
 
-    CPS_CHECK(AJ_MarshalContainer(reply, &labelGetAllArray, AJ_ARG_ARRAY));
+    if (status = AJ_MarshalContainer(reply, &labelGetAllArray, AJ_ARG_ARRAY) != AJ_OK)
+        return status;
 
-    CPS_CHECK(marshalAllBaseProperties(widget, reply, language));
+    if (status = marshalAllBaseProperties(widget, reply, language) != AJ_OK)
+        return status;
 
-    CPS_CHECK(AddPropertyForGetAll(reply, PROPERTY_TYPE_LABEL_NAME, PROPERTY_TYPE_LABEL_SIG,
-                                   widget, language, (MarshalWidgetFptr)marshalLabelLabel));
+    if (status = AddPropertyForGetAll(reply, PROPERTY_TYPE_LABEL_NAME, PROPERTY_TYPE_LABEL_SIG,
+                                      widget, language, (MarshalWidgetFptr)marshalLabelLabel) != AJ_OK)
+        return status;
 
-    CPS_CHECK(AddPropertyForGetAll(reply, PROPERTY_TYPE_OPTPARAMS_NAME, PROPERTY_TYPE_OPTPARAMS_SIG,
-                                   widget, language, marshalOnlyBaseOptParam));
+    if (status = AddPropertyForGetAll(reply, PROPERTY_TYPE_OPTPARAMS_NAME, PROPERTY_TYPE_OPTPARAMS_SIG,
+                                      widget, language, marshalOnlyBaseOptParam) != AJ_OK)
+        return status;
 
     return AJ_MarshalCloseContainer(reply, &labelGetAllArray);
 }

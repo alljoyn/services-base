@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -49,8 +49,6 @@ AJ_Object AppObjects[] =
 };
 
 #define CONTROL_ANNOUNCE_SIGNAL_RECEIVED  AJ_PRX_MESSAGE_ID(NUM_CONTROLPANEL_OBJECTS, 0, 0)
-#define CHECK_AND_RETURN(x) if ((status = (x)) != AJ_OK) return FALSE;
-#define CHECK_AND_BREAK(x) if ((status = (x)) != AJ_OK) break;
 
 uint8_t isControlPanelAnnounce(AJ_Message* msg)
 {
@@ -59,21 +57,30 @@ uint8_t isControlPanelAnnounce(AJ_Message* msg)
     uint16_t uint1, uint2;
     char* buffer;
 
-    CHECK_AND_RETURN(AJ_UnmarshalArgs(msg, "q", &uint1));
-    CHECK_AND_RETURN(AJ_UnmarshalArgs(msg, "q", &uint2));
-    CHECK_AND_RETURN(AJ_UnmarshalContainer(msg, &array1, AJ_ARG_ARRAY));
+    if (status = AJ_UnmarshalArgs(msg, "q", &uint1) != AJ_OK)
+        return FLASE;
+    if (status = AJ_UnmarshalArgs(msg, "q", &uint2) != AJ_OK)
+        return FLASE;
+    if (status = AJ_UnmarshalContainer(msg, &array1, AJ_ARG_ARRAY) != AJ_OK)
+        return FLASE;
     do {
-        CHECK_AND_RETURN(AJ_UnmarshalContainer(msg, &struct1, AJ_ARG_STRUCT));
-        CHECK_AND_RETURN(AJ_UnmarshalArgs(msg, "o", &buffer));
+        if (status = AJ_UnmarshalContainer(msg, &struct1, AJ_ARG_STRUCT) != AJ_OK)
+            return FLASE;
+        if (status = AJ_UnmarshalArgs(msg, "o", &buffer) != AJ_OK)
+            return FLASE;
 
-        CHECK_AND_RETURN(AJ_UnmarshalContainer(msg, &array2, AJ_ARG_ARRAY));
+        if (status = AJ_UnmarshalContainer(msg, &array2, AJ_ARG_ARRAY) != AJ_OK)
+            return FLASE;
         do {
-            CHECK_AND_BREAK(AJ_UnmarshalArgs(msg, "s", &buffer));
+            if (status = AJ_UnmarshalArgs(msg, "s", &buffer) != AJ_OK)
+                break;
             if (strcmp(buffer, "org.alljoyn.ControlPanel.ControlPanel") == 0)
                 return TRUE;
         } while (1);
-        CHECK_AND_BREAK(AJ_MarshalCloseContainer(msg, &array2));
-        CHECK_AND_BREAK(AJ_MarshalCloseContainer(msg, &struct1));
+        if (status = AJ_MarshalCloseContainer(msg, &array2) != AJ_OK)
+            break;
+        if (status = AJ_MarshalCloseContainer(msg, &struct1) != AJ_OK)
+            break;
     } while (1);
     return FALSE;
 }

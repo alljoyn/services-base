@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -85,9 +85,11 @@ AJ_Status marshalOnlyBaseOptParam(BaseWidget* widget, AJ_Message* reply, uint16_
     AJ_Status status;
     AJ_Arg baseOptParams;
 
-    CPS_CHECK(StartOptionalParams(reply, &baseOptParams));
+    if (status = StartOptionalParams(reply, &baseOptParams) != AJ_OK)
+        return status;
 
-    CPS_CHECK(marshalBaseOptParam(widget, reply, language));
+    if (status = marshalBaseOptParam(widget, reply, language) != AJ_OK)
+        return status;
 
     return AJ_MarshalCloseContainer(reply, &baseOptParams);
 }
@@ -103,27 +105,32 @@ AJ_Status marshalBaseOptParam(BaseWidget* widget, AJ_Message* reply, uint16_t la
 
     if (optParams->getLabel) {
         const char* label = optParams->getLabel(language);
-        CPS_CHECK(AddBasicOptionalParam(reply, BASE_LABEL, BASE_LABEL_SIG, &label));
+        if (status = AddBasicOptionalParam(reply, BASE_LABEL, BASE_LABEL_SIG, &label) != AJ_OK)
+            return status;
     } else if (optParams->label) {
         const char* label = optParams->label[language];
-        CPS_CHECK(AddBasicOptionalParam(reply, BASE_LABEL, BASE_LABEL_SIG, &label));
+        if (status = AddBasicOptionalParam(reply, BASE_LABEL, BASE_LABEL_SIG, &label) != AJ_OK)
+            return status;
     }
 
     if (optParams->getBgColor) {
         uint32_t bgColor = optParams->getBgColor();
-        CPS_CHECK(AddBasicOptionalParam(reply, BASE_BG_COLOR, BASE_BG_COLOR_SIG, &bgColor));
+        if (status = AddBasicOptionalParam(reply, BASE_BG_COLOR, BASE_BG_COLOR_SIG, &bgColor) != AJ_OK)
+            return status;
     } else if (optParams->bgColor != UINT32_MAX) {
-        CPS_CHECK(AddBasicOptionalParam(reply, BASE_BG_COLOR,
-                                        BASE_BG_COLOR_SIG, &optParams->bgColor));
+        if (status = AddBasicOptionalParam(reply, BASE_BG_COLOR, BASE_BG_COLOR_SIG, &optParams->bgColor) != AJ_OK)
+            return status;
     }
 
     if (optParams->hints && optParams->numHints) {
-        CPS_CHECK(StartComplexOptionalParam(reply, &baseLayoutHints,
-                                            BASE_LAYOUT_HINTS, BASE_LAYOUT_HINTS_SIG));
+        if (status = StartComplexOptionalParam(reply, &baseLayoutHints, BASE_LAYOUT_HINTS, BASE_LAYOUT_HINTS_SIG) !=                                        AJ_OK)
+            return status;
 
-        CPS_CHECK(AddHints(reply, optParams->hints, optParams->numHints));
+        if (status = AddHints(reply, optParams->hints, optParams->numHints) != AJ_OK)
+            return status;
 
-        CPS_CHECK(AJ_MarshalCloseContainer(reply, &baseLayoutHints));
+        if (status = AJ_MarshalCloseContainer(reply, &baseLayoutHints) != AJ_OK)
+            return status;
     }
 
     return status;
@@ -132,8 +139,8 @@ AJ_Status marshalBaseOptParam(BaseWidget* widget, AJ_Message* reply, uint16_t la
 AJ_Status marshalAllBaseProperties(BaseWidget* widget, AJ_Message* reply, uint16_t language)
 {
     AJ_Status status;
-    CPS_CHECK(AddPropertyForGetAll(reply, PROPERTY_TYPE_VERSION_NAME, PROPERTY_TYPE_VERSION_SIG,
-                                   widget, language, marshalBaseVersion));
+    if (status = AddPropertyForGetAll(reply, PROPERTY_TYPE_VERSION_NAME, PROPERTY_TYPE_VERSION_SIG, widget, language,                                   marshalBaseVersion) != AJ_OK)
+        return status;
 
     return AddPropertyForGetAll(reply, PROPERTY_TYPE_STATES_NAME, PROPERTY_TYPE_STATES_SIG,
                                 widget, language, marshalBaseStates);
@@ -144,12 +151,14 @@ AJ_Status marshalAllOnlyBaseProperties(BaseWidget* widget, AJ_Message* reply, ui
     AJ_Status status;
     AJ_Arg widgetGetAllArray;
 
-    CPS_CHECK(AJ_MarshalContainer(reply, &widgetGetAllArray, AJ_ARG_ARRAY));
+    if (status = AJ_MarshalContainer(reply, &widgetGetAllArray, AJ_ARG_ARRAY) != AJ_OK)
+        return status;
 
-    CPS_CHECK(marshalAllBaseProperties(widget, reply, language));
+    if (status = marshalAllBaseProperties(widget, reply, language) != AJ_OK)
+        return status;
 
-    CPS_CHECK(AddPropertyForGetAll(reply, PROPERTY_TYPE_OPTPARAMS_NAME, PROPERTY_TYPE_OPTPARAMS_SIG,
-                                   widget, language, marshalOnlyBaseOptParam));
+    if (status = AddPropertyForGetAll(reply, PROPERTY_TYPE_OPTPARAMS_NAME, PROPERTY_TYPE_OPTPARAMS_SIG, widget,                                     language, marshalOnlyBaseOptParam) != AJ_OK)
+        return status;
 
     return AJ_MarshalCloseContainer(reply, &widgetGetAllArray);
 }
