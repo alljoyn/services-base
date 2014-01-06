@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -82,14 +82,17 @@ AJ_Status ConfigGetConfigurations(AJ_Message* msg)
     property_store_filter_t filter;
     memset(&filter, 0, sizeof(property_store_filter_t));
     filter.bit1Config = TRUE;
-
     do {
-        CHECK(AJ_UnmarshalArgs(msg, "s", &language));
+        if (status = AJ_UnmarshalArgs(msg, "s", &language) != AJ_OK)
+            break;
         if (Common_IsLanguageSupported(msg, &reply, language, &langIndex)) {
-            CHECK(AJ_MarshalReplyMsg(msg, &reply));
-            CHECK(PropertyStore_ReadAll(&reply, filter, langIndex));
+            if (status = AJ_MarshalReplyMsg(msg, &reply) != AJ_OK)
+                break;
+            if (status = PropertyStore_ReadAll(&reply, filter, langIndex) != AJ_OK)
+                break;
         }
-        CHECK(AJ_DeliverMsg(&reply));
+        if (status = AJ_DeliverMsg(&reply) != AJ_OK)
+            break;
     } while (0);
 
     return status;
@@ -136,17 +139,24 @@ AJ_Status ConfigUpdateConfigurations(AJ_Message* msg)
     AJ_Printf("UpdateConfigurations()\n");
 
     do {
-        CHECK(AJ_UnmarshalArgs(msg, "s", &language));
+        if (status = AJ_UnmarshalArgs(msg, "s", &language) != AJ_OK)
+            break;
         AJ_Printf("Lang=%s\n", language);
 
         if (Common_IsLanguageSupported(msg, &reply, language, &langIndex)) {
-            CHECK(AJ_MarshalReplyMsg(msg, &reply));
-            CHECK(AJ_UnmarshalContainer(msg, &array, AJ_ARG_ARRAY));
+            if (status = AJ_MarshalReplyMsg(msg, &reply) != AJ_OK)
+                break;
+            if (status = AJ_UnmarshalContainer(msg, &array, AJ_ARG_ARRAY) != AJ_OK)
+                break;
             while (1) {
-                CHECK(AJ_UnmarshalContainer(msg, &dict, AJ_ARG_DICT_ENTRY));
-                CHECK(AJ_UnmarshalArgs(msg, "s", &key));
-                CHECK(AJ_UnmarshalVariant(msg, (const char**)&sig));
-                CHECK(AJ_UnmarshalArgs(msg, sig, &value));
+                if (status = AJ_UnmarshalContainer(msg, &dict, AJ_ARG_DICT_ENTRY) != AJ_OK)
+                    break;
+                if (status = AJ_UnmarshalArgs(msg, "s", &key) != AJ_OK)
+                    break;
+                if (status = AJ_UnmarshalVariant(msg, (const char**)&sig) != AJ_OK)
+                    break;
+                if (status = AJ_UnmarshalArgs(msg, sig, &value) != AJ_OK)
+                    break;
                 AJ_Printf("key=%s value=%s\n", key, value);
                 if (Config_IsValueValid(msg, &reply, key, value)) {
                     if (PropertyStore_Update(key, langIndex, value) == AJ_OK) {
@@ -155,14 +165,17 @@ AJ_Status ConfigUpdateConfigurations(AJ_Message* msg)
                         AJ_MarshalErrorMsg(msg, &reply, UpdateNotAllowed);
                     }
                 }
-                CHECK(AJ_UnmarshalCloseContainer(msg, &dict));
+                if (status = AJ_UnmarshalCloseContainer(msg, &dict) != AJ_OK)
+                    break;
             }
             if (status != AJ_OK && status != AJ_ERR_NO_MORE) {
                 break;
             }
-            CHECK(AJ_UnmarshalCloseContainer(msg, &array));
+            if (status = AJ_UnmarshalCloseContainer(msg, &array) != AJ_OK)
+                break;
         }
-        CHECK(AJ_DeliverMsg(&reply));
+        if (status = AJ_DeliverMsg(&reply) != AJ_OK)
+            break;
     } while (0);
 
     if (numOfUpdatedItems) {
@@ -186,13 +199,17 @@ AJ_Status ConfigResetConfigurations(AJ_Message* msg)
     AJ_Printf("ResetConfigurations()\n");
 
     do {
-        CHECK(AJ_UnmarshalArgs(msg, "s", &language));
+        if (status = AJ_UnmarshalArgs(msg, "s", &language) != AJ_OK)
+            break;
         AJ_Printf("Lang=%s\n", language);
         if (Common_IsLanguageSupported(msg, &reply, language, &langIndex)) {
-            CHECK(AJ_MarshalReplyMsg(msg, &reply));
-            CHECK(AJ_UnmarshalContainer(msg, &array, AJ_ARG_ARRAY));
+            if (status = AJ_MarshalReplyMsg(msg, &reply) != AJ_OK)
+                break;
+            if (status = AJ_UnmarshalContainer(msg, &array, AJ_ARG_ARRAY) != AJ_OK)
+                break;
             while (1) {
-                CHECK(AJ_UnmarshalArgs(msg, "s", &key));
+                if (status = AJ_UnmarshalArgs(msg, "s", &key) != AJ_OK)
+                    break;
                 AJ_Printf("Key=%s\n", key);
                 if (PropertyStore_Reset(key, langIndex) == AJ_OK) {
                     numOfDeletedItems++;
@@ -203,9 +220,11 @@ AJ_Status ConfigResetConfigurations(AJ_Message* msg)
             if (status != AJ_OK && status != AJ_ERR_NO_MORE) {
                 break;
             }
-            CHECK(AJ_UnmarshalCloseContainer(msg, &array));
+            if (status = AJ_UnmarshalCloseContainer(msg, &array) != AJ_OK)
+                break;
         }
-        CHECK(AJ_DeliverMsg(&reply));
+        if (status = AJ_DeliverMsg(&reply) != AJ_OK)
+            break;
     } while (0);
 
     if (numOfDeletedItems) {
@@ -227,32 +246,40 @@ AJ_Status ConfigSetPasscode(AJ_Message* msg)
     AJ_Printf("SetPasscode()\n");
 
     do {
-        CHECK(AJ_UnmarshalArgs(msg, "s", &daemonRealm));
+        if (status = AJ_UnmarshalArgs(msg, "s", &daemonRealm) != AJ_OK)
+            break;
         AJ_Printf("DaemonRealm=%s\n", daemonRealm);
-        CHECK(AJ_UnmarshalArg(msg, &newPasscode));
+        if (status = AJ_UnmarshalArg(msg, &newPasscode) != AJ_OK)
+            break;
         if (newPasscode.typeId == AJ_ARG_BYTE) {
-            if (newPasscode.len <= PASSWORD_VALUE_LENGTH) { // Check passcode does not exceed limit
-                if (newPasscode.len > 0) { // Check passcode is not empty
+            if (newPasscode.len <= PASSWORD_VALUE_LENGTH) {                                                                                                                 // Check passcode does not exceed limit
+                if (newPasscode.len > 0) {                                                                                                                 // Check passcode is not empty
                     memset(newStringPasscode, 0, sizeof(newStringPasscode));
                     strncpy(newStringPasscode, newPasscode.val.v_string, min(newPasscode.len, PASSWORD_VALUE_LENGTH));
                     AJ_Printf("newStringPasscode=%s\n", newStringPasscode);
-                    CHECK(AJ_MarshalReplyMsg(msg, &reply));
-                    CHECK(AJ_DeliverMsg(&reply));
-                    CHECK(App_SetPasscode(daemonRealm, newStringPasscode));
+                    if (status = AJ_MarshalReplyMsg(msg, &reply) != AJ_OK)
+                        break;
+                    if (status = AJ_DeliverMsg(&reply) != AJ_OK)
+                        break;
+                    if (status = App_SetPasscode(daemonRealm, newStringPasscode) != AJ_OK)
+                        break;
                 } else {
                     AJ_Printf("Error - newPasscode cannot be empty!\n");
                     AJ_MarshalErrorMsg(msg, &reply, InvalidValue);
-                    CHECK(AJ_DeliverMsg(&reply));
+                    if (status = AJ_DeliverMsg(&reply) != AJ_OK)
+                        break;
                 }
             } else {
                 AJ_Printf("Error - newPasscode length %d > %d!\n", newPasscode.len, PASSWORD_VALUE_LENGTH);
                 AJ_MarshalErrorMsg(msg, &reply, MaxSizeExceeded);
-                CHECK(AJ_DeliverMsg(&reply));
+                if (status = AJ_DeliverMsg(&reply) != AJ_OK)
+                    break;
             }
         } else {
             AJ_Printf("Error - newPasscode is not an 'ay' rather type '%c'!\n", newPasscode.typeId);
             AJ_MarshalErrorMsg(msg, &reply, InvalidValue);
-            CHECK(AJ_DeliverMsg(&reply));
+            if (status = AJ_DeliverMsg(&reply) != AJ_OK)
+                break;
         }
     } while (0);
 
