@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -109,12 +109,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 	 * Rich content audio Object Path
 	 */
 	private static final String AUDIO_OBJ_PATH 	 = "/OBJ/PATH/AUDIO";
-	
-	/**
-	 * controlPanalService object path
-	 */
-	private static final String RESP_OBJ_PATH    = "/CPS/OBJ/PATH";
-	
+		
 	/**
 	 * For testers who don't want the app to filter notifications on the app name
 	 */
@@ -191,6 +186,13 @@ public class IoeNotificationApplication extends Application implements Notificat
 		this.isBackground = isBackground;
 	}
 
+	/**
+	 * @return {@link BusAttachment}
+	 */
+	public BusAttachment getBusAttachment() {
+		return bus;
+	}//getBusAttachment
+	
 	/**
 	 * Returns App Name
 	 * @return
@@ -314,7 +316,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 	 * @param textList		    holds text and language
 	 * @param ttl               Notification message ttl
 	 */
-	public void send(String messageType, List<NotificationText> textList, Map<String, String> customAttributes, int ttl, boolean isIcon, boolean isAudio, boolean isIconObjPath, boolean isAudioObjPath, boolean isRespObjPath) {
+	public void send(String messageType, List<NotificationText> textList, Map<String, String> customAttributes, int ttl, boolean isIcon, boolean isAudio, boolean isIconObjPath, boolean isAudioObjPath) {
 		Log.d(TAG, "Received send, executing");
 		
 		if(notificationSender != null) {
@@ -344,13 +346,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 			if ( isAudioObjPath ) {
 				richAudioObjPath = AUDIO_OBJ_PATH;
 			}
-			
-			String respObjPathStr = null;
-			if (isRespObjPath) {
-				respObjPathStr = RESP_OBJ_PATH; 
-			}
-			
-			
+						
 			try {
 				    Notification notif = new Notification(NotificationMessageType.valueOf(messageType), textList);
 				    notif.setCustomAttributes(customAttributes);
@@ -358,7 +354,6 @@ public class IoeNotificationApplication extends Application implements Notificat
 				    notif.setRichAudioUrl(audioUrl);
 				    notif.setRichIconObjPath(richIconObjPath);
 				    notif.setRichAudioObjPath(richAudioObjPath);
-				    notif.setResponseObjectPath(respObjPathStr);
 				    
 					notificationSender.send(notif, ttl);
 					
@@ -495,9 +490,23 @@ public class IoeNotificationApplication extends Application implements Notificat
     * Show the Android toast message
     * @param msg
     */
-    public void showToast(String msg) {
-         Toast toast = Toast.makeText(this, msg, Toast.LENGTH_LONG);
-         toast.show();
+    public void showToast(final String msg) {
+         Log.d(TAG, "Showing Toast: '" + msg + "'");
+         
+         if ( myActiv != null ) {
+        	 
+	         myActiv.runOnUiThread( new Runnable() {             // Run the Toast on the Activity UI thread
+				@Override
+				public void run() {
+					Toast toast = Toast.makeText(IoeNotificationApplication.this, msg, Toast.LENGTH_LONG);
+					toast.show();
+				}
+			 }); 
+         }
+         else {
+     		Toast toast = Toast.makeText(this, msg, Toast.LENGTH_LONG);
+			toast.show();
+         }
     }//showToast
     
    /**

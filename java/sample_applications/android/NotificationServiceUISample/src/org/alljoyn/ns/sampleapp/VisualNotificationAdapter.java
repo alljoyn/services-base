@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -231,10 +231,10 @@ public class VisualNotificationAdapter extends ArrayAdapter<VisualNotification> 
 		
 		int checkedCounter = VisualNotification.getCheckedCounter();
 		if ( checkedCounter == 0 ) {        // Call to disable the Ack|Dismiss|Action button
-			((NotificationServiceControlsActivity) activityContext).enableDeleteButtons(false);
+			((NotificationServiceControlsActivity) activityContext).enableReceiverControlButtons(false);
 		}
 		else if ( checkedCounter == 1 ) {   // Call to enable the Ack|Dismiss|Action button
-			((NotificationServiceControlsActivity) activityContext).enableDeleteButtons(true);
+			((NotificationServiceControlsActivity) activityContext).enableReceiverControlButtons(true);
 		}
 	}//updateDeleteButtonsState
 
@@ -299,10 +299,10 @@ public class VisualNotificationAdapter extends ArrayAdapter<VisualNotification> 
 	 */
 	private String findTextToPresent(VisualNotification data) {
 		
-		String  usrPrefLangStr  = data.getUserPreferredLang();
+		String usrPrefLangStr   = data.getUserPreferredLang();
 		String msgToShow        = data.getUserPreferredText(); 
 
-		// Check whether the message to show have been previously found for the given VisualNotification
+		// Check whether the message to show has been previously found for the given VisualNotification
 		if ( msgToShow != null && msgToShow.length() > 0 ) {
 			return msgToShow;
 		}
@@ -323,7 +323,7 @@ public class VisualNotificationAdapter extends ArrayAdapter<VisualNotification> 
             
         }//for :: languages
 
-        // Not found notification in the desired language
+        // The Notification in the desired language was not found
         if ( msgToShow == null || msgToShow.length() == 0 ) { 
             msgToShow = recvDefltMsg;
         }   
@@ -331,6 +331,6 @@ public class VisualNotificationAdapter extends ArrayAdapter<VisualNotification> 
         data.setUserPreferredText(msgToShow);
         
 		return msgToShow;
-	}//chooseLanguage
+	}//findTextToPresent
 	
 }

@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -340,7 +340,7 @@ public class Notification {
 		
 		StringBuilder sb = new StringBuilder("Notification: ");
 		sb.append("Id: '").append(messageId).append("'")
-		.append(",' MsgType: '").append(messageType).append("'")
+		.append(", MsgType: '").append(messageType).append("'")
 		.append(", DeviceId: '").append(deviceId).append("'")
 		.append(", DeviceName: '").append(deviceName).append("'")
 		.append(", Version: '").append(version).append("'")
