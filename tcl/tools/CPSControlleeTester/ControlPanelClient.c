@@ -72,14 +72,18 @@ uint8_t isControlPanelAnnounce(AJ_Message* msg)
         if (status = AJ_UnmarshalContainer(msg, &array2, AJ_ARG_ARRAY) != AJ_OK)
             return FLASE;
         do {
-            if (status = AJ_UnmarshalArgs(msg, "s", &buffer) != AJ_OK)
-                break;
+            if (status = AJ_UnmarshalArgs(msg, "s", &buffer) != AJ_OK) {
+                if (status == AJ_ERR_NO_MORE)
+                    break;
+                else
+                    return FALSE;
+            }
             if (strcmp(buffer, "org.alljoyn.ControlPanel.ControlPanel") == 0)
                 return TRUE;
         } while (1);
-        if (status = AJ_MarshalCloseContainer(msg, &array2) != AJ_OK)
+        if (status = AJ_UnmarshalCloseContainer(msg, &array2) != AJ_OK)
             break;
-        if (status = AJ_MarshalCloseContainer(msg, &struct1) != AJ_OK)
+        if (status = AJ_UnmarshalCloseContainer(msg, &struct1) != AJ_OK)
             break;
     } while (1);
     return FALSE;
