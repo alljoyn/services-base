@@ -53,7 +53,7 @@
 
 #define NUM_PRE_NOTIFICATION_COMMON_OBJECTS   NUM_PRE_ONBOARDING_OBJECTS + NUM_ONBOARDING_OBJECTS
 #if defined(NOTIFICATION_SERVICE_PRODUCER) || defined(NOTIFICATION_SERVICE_CONSUMER)
-    #include "alljoyn/notification/common.h"
+    #include "alljoyn/notification/NotificationCommon.h"
 #else
     #define NUM_NOTIFICATION_COMMON_OBJECTS 0
     #define NOTIFICATION_COMMON_APPOBJECTS

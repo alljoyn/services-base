@@ -40,6 +40,11 @@ extern uint8_t isBusConnected;
 extern uint8_t isRebootRequired;
 
 /**
+ * Interface version property
+ */
+#define AJSVC_INTERFACE_PROPERTY_VERSION "@Version>q"
+
+/**
  * UpdateNotAllowed Error Message for services
  */
 extern const char UpdateNotAllowed[];
