@@ -98,7 +98,7 @@ AJ_Status OBS_ConfigureWiFi(AJ_Message*msg)
         return status;
     if ((int8_t)newInfo.authType >= MAX_OF_WIFI_AUTH_TYPE || (int8_t)newInfo.authType <= MIN_OF_WIFI_AUTH_TYPE) {
         AJ_Printf("Unknown authentication type %d\n", newInfo.authType);
-        if (status = AJ_MarshalErrorMsg(msg, &reply, InvalidValue) != AJ_OK)
+        if (status = AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_INVALID_VALUE) != AJ_OK)
             return status;
         if (status = AJ_DeliverMsg(&reply) != AJ_OK)
             return status;
