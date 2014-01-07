@@ -17,18 +17,12 @@
 #include <alljoyn/services_common/PropertyStore.h>
 #include <alljoyn/services_common/Services_Common.h>
 
-const char UpdateNotAllowed[] =         "org.alljoyn.Error.UpdateNotAllowed";           //Update not allowed for given field
-const char InvalidValue[] =             "org.alljoyn.Error.InvalidValue";               //Invalid value
-const char FeatureNotAvailable[] =      "org.alljoyn.Error.FeatureNotAvailable";        //Feature not available
-const char MaxSizeExceeded[] =          "org.alljoyn.Error.MaxSizeExceeded";            //Maximum size exceeded
-const char LanguageNotSupported[] =     "org.alljoyn.Error.LanguageNotSupported";       //The language specified is not supported
-
 uint8_t Common_IsLanguageSupported(AJ_Message* msg, AJ_Message* reply, const char* language, enum_lang_indecies_t* langIndex)
 {
     uint8_t supported = TRUE;
     enum_lang_indecies_t foundLangIndex = PropertyStore_GetLanguageIndex(language);
     if ((int8_t)foundLangIndex == (int8_t)ERROR_LANGUAGE_INDEX) {
-        AJ_MarshalErrorMsg(msg, reply, LanguageNotSupported);
+        AJ_MarshalErrorMsg(msg, reply, AJSVC_ERROR_LANGUAGE_NOT_SUPPORTED);
         supported = FALSE;
     }
     if (langIndex != NULL) {

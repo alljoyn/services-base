@@ -40,34 +40,29 @@ extern uint8_t isBusConnected;
 extern uint8_t isRebootRequired;
 
 /**
- * Interface version property
- */
-#define AJSVC_INTERFACE_PROPERTY_VERSION "@Version>q"
-
-/**
  * UpdateNotAllowed Error Message for services
  */
-extern const char UpdateNotAllowed[];
+#define AJSVC_ERROR_UPDATE_NOT_ALLOWED         "org.alljoyn.Error.UpdateNotAllowed"
 
 /**
  * InvalidValue Error Message for services
  */
-extern const char InvalidValue[];
+#define AJSVC_ERROR_INVALID_VALUE               "org.alljoyn.Error.InvalidValue"
 
 /**
  * FeatureNotAvailable Error Message for services
  */
-extern const char FeatureNotAvailable[];
+#define AJSVC_ERROR_FEATURE_NOT_AVAILABLE       "org.alljoyn.Error.FeatureNotAvailable"
 
 /**
  * MazSizeExceeded Error Message for services
  */
-extern const char MaxSizeExceeded[];
+#define AJSVC_ERROR_MAX_SIZE_EXCEEDED           "org.alljoyn.Error.MaxSizeExceeded"
 
 /**
  * LanguageNotSupported Error Message for services
  */
-extern const char LanguageNotSupported[];
+#define AJSVC_ERROR_LANGUAGE_NOT_SUPPORTED      "org.alljoyn.Error.LanguageNotSupported"
 
 /**
  * returns the language index for the given language name possibly creating an error reply message if erred
