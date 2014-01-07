@@ -185,7 +185,7 @@ void Producer_DoWork(AJ_BusAttachment* bus)
         textToSend[0].key   = langEng;
         textToSend[0].value = getNotificationString();
 
-        ProducerSetNotification(&notificationContent, INFO, 20000);
+        ProducerSetNotification(&notificationContent, NOTIFICATION_MESSAGE_TYPE_INFO, 20000);
         AJ_Printf("About to send Notification ==> %s \n", textToSend[0].value);
         ProducerSendNotifications();
     }

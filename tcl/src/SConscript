@@ -32,7 +32,7 @@ for appdir in notif_env['notif_app_list']:
 
 # if we are called as part of services server sample, then add common objs once now:
 if not notif_env.has_key('INDIV_BUILD'):
-    notif_env['SERVICE_COMMON_OBJS'] = notif_env.SConscript('common/SConscript', variant_dir = "common/obj", duplicate = 0)
+    notif_env['SERVICE_COMMON_OBJS'] = notif_env.SConscript('NotificationCommon/SConscript', variant_dir = "common/obj", duplicate = 0)
     returnValue += notif_env['SERVICE_COMMON_OBJS']
 
 Return('returnValue') 

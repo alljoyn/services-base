@@ -17,7 +17,7 @@
 #ifndef NOTIFICATIONCONSUMER_H_
 #define NOTIFICATIONCONSUMER_H_
 
-#include <alljoyn/notification/common.h>
+#include <alljoyn/notification/NotificationCommon.h>
 #include <alljoyn/services_common/Services_Common.h>
 
 /* Allowed limits on message content */

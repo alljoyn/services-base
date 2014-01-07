@@ -24,23 +24,23 @@
 #ifndef NOTIFICATIONPRODUCER_H_
 #define NOTIFICATIONPRODUCER_H_
 
-#include <alljoyn/notification/common.h>
+#include <alljoyn/notification/NotificationCommon.h>
 #include <alljoyn/services_common/Services_Common.h>
 
 /*!
    \brief Constant for messageType  parameter to \ref SetNotification
  */
-#define EMERGENCY 0
+#define NOTIFICATION_MESSAGE_TYPE_EMERGENCY 0
 
 /*!
    \brief Constant for messageType  parameter to \ref SetNotification
  */
-#define WARNING   1
+#define NOTIFICATION_MESSAGE_TYPE_WARNING   1
 
 /*!
    \brief Constant for messageType  parameter to \ref SetNotification
  */
-#define INFO      2
+#define NOTIFICATION_MESSAGE_TYPE_INFO      2
 
 /*!
    \brief Constant for about of notification producer objects
@@ -131,17 +131,17 @@
 /*!
    \brief The object path on which "Emergency" type notifications are sent
  */
-extern const char ServicePathEmergency[];
+extern const char NotificationObjectPathEmergency[];
 
 /*!
    \brief The object path on which "warning" type notifications are sent
  */
-extern const char ServicePathWarning[];
+extern const char NotificationObjectPathWarning[];
 
 /*!
    \brief The object path on which "Info" type notifications are sent
  */
-extern const char ServicePathInfo[];
+extern const char NotificationObjectPathInfo[];
 
 /* Producer Object bus registration */
 #define NOTIFICATION_PRODUCER_OBJECT_INDEX 3 + NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS
@@ -156,18 +156,18 @@ extern const char ServicePathInfo[];
    \brief AllJoyn objects exposed by the NotificationProducer
  */
 #define NOTIFICATION_PRODUCER_APPOBJECTS \
-    { ServicePathEmergency,             NotificationInterfaces }, \
-    { ServicePathWarning,               NotificationInterfaces }, \
-    { ServicePathInfo,                  NotificationInterfaces }, \
+    { NotificationObjectPathEmergency,  NotificationInterfaces }, \
+    { NotificationObjectPathWarning,    NotificationInterfaces }, \
+    { NotificationObjectPathInfo,       NotificationInterfaces }, \
     { NotificationProducerObjectPath,   NotificationProducerInterfaces },
 
 /*!
    \brief AllJoyn objects announced by the NotificationProducer
  */
 #define NOTIFICATION_PRODUCER_ANNOUNCEOBJECTS  \
-    { ServicePathEmergency,             NotificationInterfaces }, \
-    { ServicePathWarning,               NotificationInterfaces }, \
-    { ServicePathInfo,                  NotificationInterfaces }, \
+    { NotificationObjectPathEmergency,  NotificationInterfaces }, \
+    { NotificationObjectPathWarning,    NotificationInterfaces }, \
+    { NotificationObjectPathInfo,       NotificationInterfaces }, \
     { NotificationProducerObjectPath,   NotificationProducerInterfaces },
 
 /*!
@@ -187,7 +187,7 @@ extern AJ_Status ProducerSendNotifications();
    \brief Instruct the AllJoyn bus to remove last message of the specified message type from the bus
    \details
    Effectively, this overrides the ttl parameter in the \ref SetNotification function
-   \param messageType One of \ref INFO, \ref WARNING, or \ref EMERGENCY
+   \param messageType One of \ref NOTIFICATION_MESSAGE_TYPE_INFO, \ref NOTIFICATION_MESSAGE_TYPE_WARNING, or \ref NOTIFICATION_MESSAGE_TYPE_EMERGENCY
    \return AJ_Status
  */
 extern AJ_Status ProducerDeleteLastMsg(uint16_t messageType);

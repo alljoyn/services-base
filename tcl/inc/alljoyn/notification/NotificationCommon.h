@@ -44,7 +44,7 @@ struct keyValue {
  */
 typedef struct _NotificationHeader {
     uint16_t version;                           /**< version of notification */
-    uint16_t messageType;                       /**< messageType One of \ref INFO, \ref WARNING, or \ref EMERGENCY */
+    uint16_t messageType;                       /**< messageType One of \ref NOTIFICATION_MESSAGE_TYPE_INFO, \ref NOTIFICATION_MESSAGE_TYPE_WARNING, or \ref NOTIFICATION_MESSAGE_TYPE_EMERGENCY */
     int32_t notificationId;                     /**< notification message id */
     const char* originalSenderName;             /**< originalSenderName The AllJoyn bus unique name of the originating producer application */
     const char* deviceId;                       /**< device id of originating producer application */
@@ -81,15 +81,15 @@ typedef struct _Notification {
 /**
  * Notification interface name
  */
-extern const char InterfaceName[];
+extern const char NotificationInterfaceName[];
 /**
  * Notification interface signal
  */
-extern const char SignalName[];
+extern const char NotificationSignalName[];
 /**
- * Notification interface version property
+ * Notification interface property version
  */
-extern const char Version[];
+extern const char NotificationPropertyVersion[];
 /**
  * Notification interface version property value
  */

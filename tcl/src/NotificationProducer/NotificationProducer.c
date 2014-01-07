@@ -37,9 +37,9 @@ static NotificationMessageTracking_t LastSentNotifications[NUM_MESSAGE_TYPES] = 
 /**
  * Static constants.
  */
-const char ServicePathEmergency[]   = "/emergency";
-const char ServicePathWarning[]     = "/warning";
-const char ServicePathInfo[]        = "/info";
+const char NotificationObjectPathEmergency[]   = "/emergency";
+const char NotificationObjectPathWarning[]     = "/warning";
+const char NotificationObjectPathInfo[]        = "/info";
 
 /**
  * Set Notification - see notes in h file
