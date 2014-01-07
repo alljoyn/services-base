@@ -107,16 +107,16 @@ static uint8_t Config_IsValueValid(AJ_Message* msg, AJ_Message* reply, const cha
             if (strlen(value) > 0) {                                               // that it is not empty
                 return TRUE;
             } else {
-                AJ_MarshalErrorMsg(msg, reply, InvalidValue);
+                AJ_MarshalErrorMsg(msg, reply, AJSVC_ERROR_INVALID_VALUE);
             }
         } else {
-            AJ_MarshalErrorMsg(msg, reply, MaxSizeExceeded);
+            AJ_MarshalErrorMsg(msg, reply, AJSVC_ERROR_MAX_SIZE_EXCEEDED);
         }
     } else {
         if (App_IsValueValid(key, value)) {
             return TRUE;
         }
-        AJ_MarshalErrorMsg(msg, reply, InvalidValue);
+        AJ_MarshalErrorMsg(msg, reply, AJSVC_ERROR_INVALID_VALUE);
     }
     return FALSE;
 }
@@ -139,7 +139,6 @@ AJ_Status ConfigUpdateConfigurations(AJ_Message* msg)
     if (status = AJ_UnmarshalArgs(msg, "s", &language) != AJ_OK)
         goto Exit;
     AJ_Printf("Lang=%s\n", language);
-
     if (Common_IsLanguageSupported(msg, &reply, language, &langIndex)) {
         if (status = AJ_MarshalReplyMsg(msg, &reply) != AJ_OK)
             goto Exit;
@@ -159,7 +158,7 @@ AJ_Status ConfigUpdateConfigurations(AJ_Message* msg)
                 if (PropertyStore_Update(key, langIndex, value) == AJ_OK) {
                     numOfUpdatedItems++;
                 } else {
-                    AJ_MarshalErrorMsg(msg, &reply, UpdateNotAllowed);
+                    AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_UPDATE_NOT_ALLOWED);
                 }
             }
             if (status = AJ_UnmarshalCloseContainer(msg, &dict) != AJ_OK)
@@ -211,7 +210,7 @@ AJ_Status ConfigResetConfigurations(AJ_Message* msg)
             if (PropertyStore_Reset(key, langIndex) == AJ_OK) {
                 numOfDeletedItems++;
             } else {
-                AJ_MarshalErrorMsg(msg, &reply, UpdateNotAllowed);
+                AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_UPDATE_NOT_ALLOWED);
             }
         }
         if (status != AJ_OK && status != AJ_ERR_NO_MORE) {
@@ -249,8 +248,8 @@ AJ_Status ConfigSetPasscode(AJ_Message* msg)
     if (status = AJ_UnmarshalArg(msg, &newPasscode) != AJ_OK)
         return status;
     if (newPasscode.typeId == AJ_ARG_BYTE) {
-        if (newPasscode.len <= PASSWORD_VALUE_LENGTH) {                                                                                                                     // Check passcode does not exceed limit
-            if (newPasscode.len > 0) {                                                                                                                     // Check passcode is not empty
+        if (newPasscode.len <= PASSWORD_VALUE_LENGTH) { // Check passcode does not exceed limit
+            if (newPasscode.len > 0) { // Check passcode is not empty
                 memset(newStringPasscode, 0, sizeof(newStringPasscode));
                 strncpy(newStringPasscode, newPasscode.val.v_string, min(newPasscode.len, PASSWORD_VALUE_LENGTH));
                 AJ_Printf("newStringPasscode=%s\n", newStringPasscode);
@@ -262,19 +261,19 @@ AJ_Status ConfigSetPasscode(AJ_Message* msg)
                     return status;
             } else {
                 AJ_Printf("Error - newPasscode cannot be empty!\n");
-                AJ_MarshalErrorMsg(msg, &reply, InvalidValue);
+                AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_INVALID_VALUE);
                 if (status = AJ_DeliverMsg(&reply) != AJ_OK)
                     return status;
             }
         } else {
             AJ_Printf("Error - newPasscode length %d > %d!\n", newPasscode.len, PASSWORD_VALUE_LENGTH);
-            AJ_MarshalErrorMsg(msg, &reply, MaxSizeExceeded);
+            AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_MAX_SIZE_EXCEEDED);
             if (status = AJ_DeliverMsg(&reply) != AJ_OK)
                 return status;
         }
     } else {
         AJ_Printf("Error - newPasscode is not an 'ay' rather type '%c'!\n", newPasscode.typeId);
-        AJ_MarshalErrorMsg(msg, &reply, InvalidValue);
+        AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_INVALID_VALUE);
         if (status = AJ_DeliverMsg(&reply) != AJ_OK)
             return status;
     }
