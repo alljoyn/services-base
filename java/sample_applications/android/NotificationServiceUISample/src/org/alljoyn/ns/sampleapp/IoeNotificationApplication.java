@@ -588,21 +588,32 @@ public class IoeNotificationApplication extends Application implements Notificat
      * @param logger
      */
    private void advertiseDaemon() throws NotificationServiceException {
-       //request the name   
        int flag = BusAttachment.ALLJOYN_REQUESTNAME_FLAG_DO_NOT_QUEUE;
-       Status reqStatus = bus.requestName(DAEMON_NAME, flag);
+       
+       String daemonName = DAEMON_NAME + ".G" + bus.getGlobalGUIDString();
+       
+       //request the name   
+       Status reqStatus = bus.requestName(daemonName, flag);
         if (reqStatus == Status.OK) {
+        	
             //advertise the name with a quite prefix for TC to find it
-            Status adStatus = bus.advertiseName(DAEMON_QUIET_PREFIX + DAEMON_NAME, SessionOpts.TRANSPORT_ANY);
+            Status adStatus = bus.advertiseName(DAEMON_QUIET_PREFIX + daemonName, SessionOpts.TRANSPORT_ANY);
+            
             if (adStatus != Status.OK){
-                bus.releaseName(DAEMON_NAME); 
-                Log.e(TAG, "Failed to advertise daemon name " + DAEMON_NAME + ", Error: '" + adStatus + "'"); 
-                throw new NotificationServiceException("Failed to advertise daemon name '" + DAEMON_NAME + "', Error: '" + adStatus + "'"); 
+            	
+                bus.releaseName(daemonName); 
+                Log.e(TAG, "Failed to advertise daemon name " + daemonName + ", Error: '" + adStatus + "'"); 
+                throw new NotificationServiceException("Failed to advertise daemon name '" + daemonName + "', Error: '" + adStatus + "'"); 
             } 
             else{ 
-                Log.d(TAG, "Succefully advertised daemon name " + DAEMON_NAME); 
+                Log.d(TAG, "Succefully advertised daemon name: '" + daemonName + "'"); 
             }
         }
+        else {
+        	Log.d(TAG, "Failed to request the daemon name: '" + daemonName + "', Error: '" + reqStatus + "'");
+        	throw new NotificationServiceException("Failed to request the DaemonName: '" + daemonName + "', Error: '" + reqStatus + "'");
+        }
+        
     }//advertiseDaemon
 
 }//IoeNotificationApplication
