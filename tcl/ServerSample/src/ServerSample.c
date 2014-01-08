@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -78,7 +78,7 @@ int AJ_Main(void)
         }
 
         if (status == AJ_OK) {
-            status = AJ_UnmarshalMsg(&busAttachment, &msg, AJ_UNMARSHAL_TIMEOUT);
+            status = AJ_UnmarshalMsg(&busAttachment, &msg, AJAPP_UNMARSHAL_TIMEOUT);
             isUnmarshalingSuccessful = (status == AJ_OK);
 
             if (status == AJ_ERR_TIMEOUT) {
@@ -114,7 +114,7 @@ int AJ_Main(void)
                     AJ_Reboot();
                 }
                 // Sleep a little while before trying to reconnect
-                AJ_Sleep(AJ_SLEEP_TIME);
+                AJ_Sleep(AJAPP_SLEEP_TIME);
             }
         }
     }     // while (TRUE)

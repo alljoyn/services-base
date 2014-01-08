@@ -85,15 +85,15 @@ uint8_t Daemon_Connect(char* daemonName)
         status = Onboarding_IdleDisconnectedHandler(&busAttachment);
         if (status != AJ_OK) {
             AJ_Printf("Failed to establish WiFi connectivity\n");
-            AJ_Sleep(AJ_CONNECT_PAUSE);
+            AJ_Sleep(AJAPP_CONNECT_PAUSE);
             return FALSE;
         }
 #endif
         AJ_Printf("Attempting to connect to bus '%s'\n", daemonName);
-        status = AJ_Connect(&busAttachment, daemonName, AJ_CONNECT_TIMEOUT);
+        status = AJ_Connect(&busAttachment, daemonName, AJAPP_CONNECT_TIMEOUT);
         if (status != AJ_OK) {
-            AJ_Printf("Failed to connect to bus sleeping for %d seconds\n", AJ_CONNECT_PAUSE / 1000);
-            AJ_Sleep(AJ_CONNECT_PAUSE);
+            AJ_Printf("Failed to connect to bus sleeping for %d seconds\n", AJAPP_CONNECT_PAUSE / 1000);
+            AJ_Sleep(AJAPP_CONNECT_PAUSE);
 #ifdef ONBOARDING_SERVICE
             if (status == AJ_ERR_DHCP) {
                 Onboarding_SwitchToRetry();
@@ -188,7 +188,7 @@ AJ_Status Application_ConnectedHandler()
         if (init_retries > MAX_INIT_RETRIES) {
             status = AJ_ERR_READ; // Force disconnect
         } else {
-            AJ_Sleep(AJ_SLEEP_TIME);
+            AJ_Sleep(AJAPP_SLEEP_TIME);
         }
     }
     return status;
@@ -398,7 +398,7 @@ void Service_DisconnectHandler()
 uint8_t Daemon_Disconnect(uint8_t disconnectWiFi)
 {
     AJ_Printf("AllJoyn disconnect\n");
-    AJ_Sleep(AJ_SLEEP_TIME); // Sleep a little to let any pending requests to daemon to be sent
+    AJ_Sleep(AJAPP_SLEEP_TIME); // Sleep a little to let any pending requests to daemon to be sent
     AJ_Disconnect(&busAttachment);
 #ifdef ONBOARDING_SERVICE
     if (disconnectWiFi) {

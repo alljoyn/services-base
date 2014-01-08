@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -24,25 +24,13 @@
  * Define timeout/pause values. Values are in milli seconds.
  * The following may be tuned according to platform requirements such as battery usage.
  */
-#ifdef AJ_CONNECT_TIMEOUT
-#undef AJ_CONNECT_TIMEOUT
-#endif
-#define AJ_CONNECT_TIMEOUT     (1000 * 60)
+#define AJAPP_CONNECT_TIMEOUT     AJ_CONNECT_TIMEOUT
 
-#ifdef AJ_CONNECT_PAUSE
-#undef AJ_CONNECT_PAUSE
-#endif
-#define AJ_CONNECT_PAUSE       (1000 * 2)
+#define AJAPP_CONNECT_PAUSE       (1000 * 2) // Override AJ_CONNECT_PAUSE to be more responsive
 
-#ifdef AJ_UNMARSHAL_TIMEOUT
-#undef AJ_UNMARSHAL_TIMEOUT
-#endif
-#define AJ_UNMARSHAL_TIMEOUT   (1000 * 1)
+#define AJAPP_UNMARSHAL_TIMEOUT   (1000 * 1) // Override AJ_UNMARSHAL_TIMEOUT to be more responsive
 
-#ifndef AJ_SLEEP_TIME
-#undef AJ_SLEEP_TIME
-#endif
-#define AJ_SLEEP_TIME          (1000 * 2)
+#define AJAPP_SLEEP_TIME          (1000 * 2) // A little pause to let things settle
 
 /**
  * Service Status is an enum that signals whether a call was handled
