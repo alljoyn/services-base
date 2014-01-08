@@ -387,7 +387,7 @@ public class Transport {
 	 * Stop Notification Service
 	 * @throws NotificationServiceException
 	 */
-	public void shutdown() throws NotificationServiceException {
+	public synchronized void shutdown() throws NotificationServiceException {
 		GenericLogger logger = getLogger();
 		
 		if ( busAttachment == null ) {
@@ -404,7 +404,7 @@ public class Transport {
 	 * Verifies that sender transport was started, then calls stopSenderTransport() 
 	 * @throws NotificationServiceException
 	 */
-	public void shutdownSender() throws NotificationServiceException {
+	public synchronized void shutdownSender() throws NotificationServiceException {
 		GenericLogger logger = getLogger();
 		
 		if ( !isSenderTransportCalled ) {
@@ -420,7 +420,7 @@ public class Transport {
 	 * Verifies that receiver transport was started, then calls stopReceiverTransport()
 	 * @throws NotificationServiceException
 	 */
-	public void shutdownReceiver() throws NotificationServiceException {
+	public synchronized void shutdownReceiver() throws NotificationServiceException {
 		GenericLogger logger = getLogger();
 		
 		if ( !isReceiverTransportCalled ) {
@@ -526,7 +526,7 @@ public class Transport {
 	 * Sender Transport cleanup
 	 * @param logger
 	 */
-	private synchronized void stopSenderTransport(GenericLogger logger) {
+	private void stopSenderTransport(GenericLogger logger) {
 		 
 		if ( senderTransport != null ) {
 			senderTransport.stopSenderTransport();
@@ -553,7 +553,7 @@ public class Transport {
 	 * Receiver Transport cleanup
 	 * @param logger
 	 */
-	private synchronized void stopReceiverTransport(GenericLogger logger) {
+	private void stopReceiverTransport(GenericLogger logger) {
 		
 		if ( receiverTransport != null ) {
 			receiverTransport.stopReceiverTransport();
