@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -77,6 +77,8 @@ class NotificationProducerImpl implements NotificationProducer {
 		GenericLogger logger = nativePlatform.getNativeLogger();
 		logger.debug(TAG, "Received Acknowledgement for: '" + msgId + "', delegating to be executed");
 		
+		Transport.getInstance().getBusAttachment().enableConcurrentCallbacks();
+		
 		try {
 			
 			Transport.getInstance().dispatchTask(new Runnable() {
@@ -99,6 +101,8 @@ class NotificationProducerImpl implements NotificationProducer {
 	public void dismiss(final int msgId) throws BusException {
 		GenericLogger logger = nativePlatform.getNativeLogger();
 		logger.debug(TAG, "Received Dismiss for notifId: '" + msgId + "', delegating to be executed");
+		
+		Transport.getInstance().getBusAttachment().enableConcurrentCallbacks();
 		
 		try {
 		

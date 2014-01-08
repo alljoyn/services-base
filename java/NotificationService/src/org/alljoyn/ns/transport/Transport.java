@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -351,7 +351,7 @@ public class Transport {
 			logger = getLogger();
 		}
 		catch (NotificationServiceException nse) {
-		    System.out.println("Could not get logger in onReceivedFirstSuperAgentNotification error: " + nse.getMessage());
+		    System.out.println("Could not get logger in onReceivedFirstSuperAgentNotification error: '" + nse.getMessage() + "'");
 		    return;
 		}
 		
@@ -369,6 +369,17 @@ public class Transport {
 	 * @throws RejectedExecutionException Might be thrown when there was no a free thread to execute the task
 	 */
 	public void dispatchTask(Runnable task) {
+		
+		GenericLogger logger;
+		try {
+			logger = getLogger();
+		}
+		catch (NotificationServiceException nse) {
+		    System.out.println("Could not get logger in dispatchTask error: '" + nse.getMessage() + "'");
+		    return;
+		}
+		
+		logger.debug(TAG, "Dispatching a runnable task to WorkersPoolManager");
 		workerPool.execute(task);
 	}//dispatchTask
 	
