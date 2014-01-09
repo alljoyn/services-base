@@ -55,7 +55,7 @@ if not notif_env.has_key('INDIV_BUILD'):
 local_env['SERSAMP_VARIANT_DIR'] = define_string.lower()
 serversample_objs = local_env.SConscript('$SERVERSAMPLE_ROOT_FROM_COMPONENT/SConscript', {'env': local_env})
 
-local_objs.append(local_env.SConscript('../../common/SConscript', variant_dir = "common", exports = {'notif_env': local_env}))
+local_objs.append(local_env.SConscript('../../NotificationCommon/SConscript', variant_dir = "common", exports = {'notif_env': local_env}))
 
 prog = local_env.Program(target = target_name, 
             source = [

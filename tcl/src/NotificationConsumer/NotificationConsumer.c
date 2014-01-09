@@ -27,8 +27,8 @@ static const char dismisserMatch[] = "interface='org.alljoyn.Notification.Dismis
 
 static const char* SuperagentInterface[] = {
     SuperagentInterfaceName,
-    SignalName,
-    Version,
+    NotificationSignalName,
+    NotificationPropertyVersion,
     NULL
 };
 

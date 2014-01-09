@@ -180,7 +180,7 @@ static void PossiblySetNotifications()
     if (isMessageTime == 0) {
         if (!inputMode) {
             notificationContent.controlPanelServiceObjectPath = ((notificationContent.controlPanelServiceObjectPath == NULL) ? controlPanelServiceObjectPath : NULL); // Toggle notification with action ON/OFF
-            ProducerSetNotification(&notificationContent, INFO, 20000);
+            ProducerSetNotification(&notificationContent, NOTIFICATION_MESSAGE_TYPE_INFO, 20000);
         } else
             GetNotificationFromUser();
     }
