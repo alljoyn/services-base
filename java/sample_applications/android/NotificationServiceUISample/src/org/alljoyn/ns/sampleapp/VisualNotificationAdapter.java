@@ -202,7 +202,7 @@ public class VisualNotificationAdapter extends ArrayAdapter<VisualNotification> 
 					CheckBox chb = (CheckBox) v;
 					//Update the VisualNotification checked state
 					visualNotification.setChecked(chb.isChecked());
-					updateDeleteButtonsState();
+					updateReceiverControlButtonsState();
 				}//onClick
 					
 			}); //checkbox OnClickListener
@@ -219,7 +219,7 @@ public class VisualNotificationAdapter extends ArrayAdapter<VisualNotification> 
 		}
 		
 		//Decide what is the UI state of the Ack|Dismiss|Action buttons
-		updateDeleteButtonsState();
+		updateReceiverControlButtonsState();
 
 		return row;
 	}//getView
@@ -227,7 +227,7 @@ public class VisualNotificationAdapter extends ArrayAdapter<VisualNotification> 
 	/**
 	 * Update the state of the Ack|Dismiss|Action buttons in depend on the {@link VisualNotification#getCheckedCounter()}
 	 */
-	private void updateDeleteButtonsState() {
+	private void updateReceiverControlButtonsState() {
 		
 		int checkedCounter = VisualNotification.getCheckedCounter();
 		if ( checkedCounter == 0 ) {        // Call to disable the Ack|Dismiss|Action button

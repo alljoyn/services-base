@@ -86,7 +86,7 @@ class ControlPanelManager implements ControlPanelExceptionHandler, ControlPanelE
 	@Override
 	public void handleControlPanelException(ControlPanelException cpe) {
 		Log.d(TAG, "A fail has happened in ControlPanelAgapter: '" + cpe.getMessage() + "'");
-		myApp.showToast("Uuups, failed to execute an action");
+		myApp.showToast("Oops, failed to execute an action");
 	}//handleControlPanelException
 
 	/**
@@ -126,7 +126,7 @@ class ControlPanelManager implements ControlPanelExceptionHandler, ControlPanelE
 	@Override
 	public void errorOccurred(DeviceControlPanel panel, String reason) {
 		Log.d(TAG, "Control panel error has occurred, Error: '" + reason + "'");
-		myApp.showToast("Uuups, Control Panel error has occurred");
+		myApp.showToast("Oops, Control Panel error has occurred");
 	}//errorOccurred
 
 	

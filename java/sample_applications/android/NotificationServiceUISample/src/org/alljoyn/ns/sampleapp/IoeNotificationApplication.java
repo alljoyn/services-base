@@ -65,7 +65,7 @@ public class IoeNotificationApplication extends Application implements Notificat
       * The daemon should advertise itself "quietly" (directly to the calling port)
       * This is to reply directly to a TC looking for a daemon 
       */  
-     private static final String DAEMON_NAME                 = "org.alljoyn.BusNode.IoeService";
+     private static final String DAEMON_NAME_PREFIX          = "org.alljoyn.BusNode.IoeService";
      
      /** 
       * The daemon should advertise itself "quietly" (directly to the calling port)
@@ -590,7 +590,7 @@ public class IoeNotificationApplication extends Application implements Notificat
    private void advertiseDaemon() throws NotificationServiceException {
        int flag = BusAttachment.ALLJOYN_REQUESTNAME_FLAG_DO_NOT_QUEUE;
        
-       String daemonName = DAEMON_NAME + ".G" + bus.getGlobalGUIDString();
+       String daemonName = DAEMON_NAME_PREFIX + ".G" + bus.getGlobalGUIDString();
        
        //request the name   
        Status reqStatus = bus.requestName(daemonName, flag);

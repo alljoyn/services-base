@@ -197,7 +197,7 @@ public class ControlPanelActivity extends Activity implements DeviceEventsListen
 	@Override
 	public void errorOccurred(ControllableDevice device, String reason) {
 		Log.d(TAG, "Control Panel Error: '" + reason + "'");
-		backOnError("Uuups, Control Panel Error");
+		backOnError("Oops, Control Panel Error");
 	}//errorOccurred
 	
 	/**
@@ -340,7 +340,7 @@ public class ControlPanelActivity extends Activity implements DeviceEventsListen
 	void onReadyPanelView(final View view) {
 		
 		if ( view == null ) {
-			backOnError("Uuups, Failed to load the panel elements");
+			backOnError("Oops, Failed to load the panel elements");
 			return;
 		}
 		
