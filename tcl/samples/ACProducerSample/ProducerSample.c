@@ -121,15 +121,15 @@ AJ_Status Producer_ConnectedHandler(AJ_BusAttachment* bus)
 
         AJ_GetElapsedTime(&timer, TRUE);
 
-        status = AJ_UnmarshalMsg(bus, &msg, AJ_UNMARSHAL_TIMEOUT);
+        status = AJ_UnmarshalMsg(bus, &msg, AJAPP_UNMARSHAL_TIMEOUT);
 
         /*
          * TODO This is a temporary hack to work around buggy select implementations
          */
         if (status == AJ_ERR_TIMEOUT) {
             uint32_t elapsed = AJ_GetElapsedTime(&timer, TRUE);
-            if (elapsed < AJ_UNMARSHAL_TIMEOUT) {
-                AJ_Printf("Spurious timeout error (elapsed=%d < AJ_UNMARSHAL_TIMEOUT=%d) - continuing\n", elapsed, AJ_UNMARSHAL_TIMEOUT);
+            if (elapsed < AJAPP_UNMARSHAL_TIMEOUT) {
+                AJ_Printf("Spurious timeout error (elapsed=%d < AJAPP_UNMARSHAL_TIMEOUT=%d) - continuing\n", elapsed, AJAPP_UNMARSHAL_TIMEOUT);
                 status = AJ_OK;
                 continue;
             }
