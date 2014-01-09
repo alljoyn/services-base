@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -206,7 +206,8 @@ bool disableSuperAgent(std::map<qcc::String, qcc::String>& params)
 
 bool initReceive(std::map<qcc::String, qcc::String>& params)
 {
-    Receiver = new NotificationReceiverTestImpl();
+    NotificationReceiverTestImpl::NotificationAction action = ((NotificationReceiverTestImpl::NotificationAction)atoi(params["action"].c_str()));
+    Receiver = new NotificationReceiverTestImpl(action);
     if (Service->initReceive(testBus, Receiver) != ER_OK) {
         std::cout << "Could not initialize receiver." << std::endl;
         return false;
@@ -413,9 +414,10 @@ void createListOfFunctions(TestFunction*testFunctions)
     checkNumFunctions(&i);
     // initReceive
     testFunctions[i].functionName  = "initreceive";
-    testFunctions[i].usage = testFunctions[i].functionName;
+    testFunctions[i].usage = testFunctions[i].functionName + " action=<0,1,2>";
     testFunctions[i].activateTest = initReceive;
     testFunctions[i].requiredSteps.push_back("Service");
+    testFunctions[i].requiredParams.push_back("action");
 
     i++;
     checkNumFunctions(&i);

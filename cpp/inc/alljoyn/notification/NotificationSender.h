@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -19,12 +19,14 @@
 
 #include <vector>
 #include <map>
-#include <alljoyn/notification/Notification.h>
 #include <alljoyn/Status.h>
 #include <alljoyn/about/PropertyStore.h>
+#include <alljoyn/notification/NotificationEnums.h>
 
 namespace ajn {
 namespace services {
+
+class Notification;
 
 /**
  * The class used to send Notifications or delete the last sent Notification

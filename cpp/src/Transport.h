@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -19,19 +19,25 @@
 
 #include <map>
 #include <alljoyn/BusAttachment.h>
-
 #include <alljoyn/notification/NotificationEnums.h>
-#include <alljoyn/notification/NotificationReceiver.h>
-
-#include "NotificationAnnounceListener.h"
 #include "NotificationConstants.h"
-#include "NotificationTransportConsumer.h"
-#include "NotificationTransportProducer.h"
-#include "NotificationTransportSuperAgent.h"
 
 namespace ajn {
 namespace services {
 
+class Notification;
+class NotificationReceiver;
+class NotificationProducerSender;
+class NotificationProducerReceiver;
+class NotificationProducerListener;
+class NotificationDismisserSender;
+class NotificationDismisserReceiver;
+class SuperAgentBusListener;
+class NotificationAnnounceListener;
+class NotificationConstants;
+class NotificationTransportConsumer;
+class NotificationTransportProducer;
+class NotificationTransportSuperAgent;
 /**
  * Class Used for all Transport related tasks including initializing and shutting
  * down the BusObjects of the services and sending and receiving messages
@@ -92,6 +98,13 @@ class Transport {
     QStatus listenToSuperAgent(const char* senderId);
 
     /**
+     * Begin listening to found SuperAgent
+     * @param senderId
+     * @return status - success/failure
+     */
+    QStatus cancelListenToSuperAgent(const char* senderId);
+
+    /**
      * Send Notification
      * @param messageType
      * @param notificationArgs
@@ -109,6 +122,12 @@ class Transport {
      */
     QStatus deleteLastMsg(NotificationMessageType messageType);
 
+    /**
+     * Delete Signal sent off for this messageType
+     * @param messageId
+     * @return status
+     */
+    QStatus deleteMsg(int32_t msgId);
     /**
      * Pass on the notification received to the NotificationReceiver
      * @param notification
@@ -132,7 +151,6 @@ class Transport {
      */
     void cleanupTransportSuperAgent(bool unregister = false);
 
-
     /**
      * Cleanup all Sender Transport objects. and Unregister the BusObject
      */
@@ -148,11 +166,40 @@ class Transport {
      * @param unregister - should listener be Unregistered from aboutclient
      */
     void cleanupAnnouncementListener(bool unregister = false);
-
+    /**
+     * Cleanup cleanupNotificationProducerSender. and Unregister the BusObject.
+     */
+    void cleanupNotificationProducerSender();
     /**
      * getBusAttachment - returns BusObject
      */
     ajn::BusAttachment* getBusAttachment();
+
+    /**
+     * get function for NotificationProducerSender
+     */
+    NotificationProducerSender* getNotificationProducerSender();
+
+    /**
+     * get function for NotificationProducerReceiver
+     */
+    NotificationProducerReceiver* getNotificationProducerReceiver();
+
+    /**
+     * get function for NotificationDismisserSender
+     */
+    NotificationDismisserSender* getNotificationDismisserSender();
+
+    /**
+     * get function for NotificationReceiver
+     */
+    NotificationReceiver* getNotificationReceiver();
+
+    /**
+     * FindSuperAgent
+     */
+    QStatus FindSuperAgent(const char* busName);
+
 
   private:
 
@@ -176,7 +223,18 @@ class Transport {
      * @param unregister - should BusObject be Unregistered from Bus
      */
     void cleanupTransportProducer(int32_t messageTypeIndx, bool unregister = false);
-
+    /**
+     * cleanupSenderProducerReceiver
+     */
+    void cleanupNotificationProducerReceiver();
+    /**
+     * cleanupNotificationDismisserSender
+     */
+    void cleanupNotificationDismisserSender();
+    /**
+     * cleanupNotificationDismisserReceiver
+     */
+    void cleanupNotificationDismisserReceiver();
     /**
      * ListenForSuperAgent uses AllJoyn's announcement interface to try and find a SuperAgent
      * Messages are sessionless
@@ -221,6 +279,10 @@ class Transport {
     NotificationAnnounceListener* m_AnnounceListener;
 
     /**
+     * SuperAgentBusListener - receive found and lost advertise name
+     */
+    SuperAgentBusListener* m_SuperAgentBusListener;
+    /**
      * Boolean to dictate whether we send notifications or swallow them
      */
     bool m_IsSendingDisabled;
@@ -244,6 +306,27 @@ class Transport {
      * Tag for logging
      */
     qcc::String TAG;
+
+    /**
+     * NotificationProducerSender
+     */
+    NotificationProducerSender* m_NotificationProducerSender;
+    /**
+     * NotificationProducerReceiver
+     */
+    NotificationProducerReceiver* m_NotificationProducerReceiver;
+    /**
+     * NotificationProducerListener
+     */
+    NotificationProducerListener* m_NotificationProducerListener;
+    /**
+     * NotificationDismisserSender
+     */
+    NotificationDismisserSender* m_NotificationDismisserSender;
+    /**
+     * NotificationDismisserReceiver
+     */
+    NotificationDismisserReceiver* m_NotificationDismisserReceiver;
 
 };
 } //namespace services

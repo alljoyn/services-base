@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -21,6 +21,8 @@
 #include <alljoyn/notification/NotificationReceiver.h>
 #include <alljoyn/notification/Notification.h>
 
+
+
 /**
  * Class that will receive Notifications. Implements NotificationReceiver
  * Receives list of applications to filter by and will only display notifications
@@ -28,11 +30,15 @@
  */
 class NotificationReceiverTestImpl : public ajn::services::NotificationReceiver {
   public:
-
+    enum NotificationAction {
+        ACTION_NOTHING,
+        ACTION_ACKNOWLEDGE,
+        ACTION_DISMISS
+    };
     /**
      * Constructor
      */
-    NotificationReceiverTestImpl();
+    NotificationReceiverTestImpl(NotificationAction notificationAction);
 
     /**
      * Destructor
@@ -43,7 +49,7 @@ class NotificationReceiverTestImpl : public ajn::services::NotificationReceiver 
      * Receive - function that receives a notification
      * @param notification
      */
-    void receive(ajn::services::Notification const& notification);
+    void Receive(ajn::services::Notification const& notification);
 
     /**
      * receive a list of applications to filter by and set the filter
@@ -51,12 +57,23 @@ class NotificationReceiverTestImpl : public ajn::services::NotificationReceiver 
      */
     void setApplications(qcc::String const& listOfApps);
 
+    /**
+     * receive Dismiss signal
+     * @param message id
+     * @param application id
+     */
+    void Dismiss(const int32_t msgId, const qcc::String appId);
+
   private:
 
     /**
      * vector of applications to filter by
      */
     std::vector<qcc::String> m_Applications;
+    /**
+     * action to do after getting notification
+     */
+    NotificationAction m_NotificationAction;
 };
 
 #endif /* NOTIFICATIONRECEIVERTESTIMPL_H_ */

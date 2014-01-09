@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -15,7 +15,6 @@
  ******************************************************************************/
 
 #include <alljoyn/notification/NotificationService.h>
-
 #include "NotificationAnnounceListener.h"
 #include "NotificationConstants.h"
 #include "Transport.h"
@@ -28,19 +27,20 @@ using namespace qcc;
 NotificationAnnounceListener::NotificationAnnounceListener() :
     AnnounceHandler(), TAG(TAG_NOTIFICATION_ANNOUNCE_LISTENER)
 {
-
 }
 
 NotificationAnnounceListener::~NotificationAnnounceListener()
 {
-
 }
 
 void NotificationAnnounceListener::Announce(uint16_t version, uint16_t port, const char* busName, const ObjectDescriptions& objectDescs, const AboutData& aboutData)
 {
     GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "Received Announce Signal");
+    }
+
+    Transport::getInstance()->getBusAttachment()->EnableConcurrentCallbacks();
 
     for (AboutClient::ObjectDescriptions::const_iterator it = objectDescs.begin(); it != objectDescs.end(); ++it) {
         std::vector<qcc::String> interfaces = it->second;
@@ -48,15 +48,23 @@ void NotificationAnnounceListener::Announce(uint16_t version, uint16_t port, con
 
         for (interfaceIter = interfaces.begin(); interfaceIter != interfaces.end(); ++interfaceIter) {
 
-            if (logger)
+            if (logger) {
                 logger->debug(TAG, "Received announce of interface " + *interfaceIter +
                               " for objectpath " + it->first);
+            }
 
             if (0 == interfaceIter->compare(AJ_SA_INTERFACE_NAME)) {
-                if (logger)
+                if (logger) {
                     logger->debug(TAG, "Received announce of superAgent interface");
+                }
 
-                Transport::getInstance()->listenToSuperAgent(busName);
+                QStatus status = Transport::getInstance()->FindSuperAgent(busName);
+                if (status != ER_OK) {
+                    if (logger) {
+                        logger->debug(TAG, "FindAdvertisedName failed");
+                    }
+                }
+
                 return;
             }
         }

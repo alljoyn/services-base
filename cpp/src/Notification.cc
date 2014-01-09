@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -16,10 +16,20 @@
 
 #include <alljoyn/notification/Notification.h>
 #include <alljoyn/notification/NotificationService.h>
+#include "Transport.h"
+#include "NotificationConstants.h"
+#include <alljoyn/services_common/AsyncTask.h>
+#include <alljoyn/notification/NotificationAsyncTaskEvents.h>
 
 using namespace ajn;
 using namespace services;
 using namespace qcc;
+
+NotificationAsyncTaskEvents<NotificationMsg> Notification::m_NotificationAsyncTaskEvents;
+AsyncTask<NotificationMsg> Notification::m_feedbackAsyncTask(&Notification::m_NotificationAsyncTaskEvents);
+
+const char* TAG = "Notification";
+String Notification::TAG(nsConsts::TAG_NOTIFICATION);
 
 Notification::Notification(int32_t messageId,
                            NotificationMessageType messageType, const char* deviceId, const char* deviceName,
@@ -28,19 +38,22 @@ Notification::Notification(int32_t messageId,
                            std::vector<NotificationText> const& notificationText,
                            const char* richIconUrl, std::vector<RichAudioUrl> const&  richAudioUrl,
                            const char* richIconObjectPath, const char* richAudioObjectPath,
-                           const char* controlPanelServiceObjectPath) :
+                           const char* controlPanelServiceObjectPath, const char* originalSender) :
     m_MessageId(messageId), m_Sender(sender), m_MessageType(messageType), m_DeviceId(deviceId),
     m_DeviceName(deviceName), m_AppId(appId), m_AppName(appName), m_CustomAttributes(customAttributes),
     m_Text(notificationText), m_RichIconUrl(richIconUrl), m_RichAudioUrl(richAudioUrl), m_RichIconObjectPath(richIconObjectPath),
-    m_RichAudioObjectPath(richAudioObjectPath), m_ControlPanelServiceObjectPath(controlPanelServiceObjectPath)
+    m_RichAudioObjectPath(richAudioObjectPath), m_ControlPanelServiceObjectPath(controlPanelServiceObjectPath), m_OriginalSender(originalSender)
 {
-
 }
 
 Notification::Notification(NotificationMessageType messageType, std::vector<NotificationText> const& notificationText) :
     m_MessageId(-1), m_Sender(0), m_MessageType(messageType), m_DeviceId(0),
     m_DeviceName(0), m_AppId(0), m_AppName(0), m_Text(notificationText), m_RichIconUrl(0), m_RichIconObjectPath(0),
-    m_RichAudioObjectPath(0), m_ControlPanelServiceObjectPath(0)
+    m_RichAudioObjectPath(0), m_ControlPanelServiceObjectPath(0), m_OriginalSender(0)
+{
+}
+
+Notification::~Notification()
 {
 
 }
@@ -120,6 +133,11 @@ const char* Notification::getControlPanelServiceObjectPath() const
     return m_ControlPanelServiceObjectPath;
 }
 
+const char* Notification::getOriginalSender() const
+{
+    return m_OriginalSender;
+}
+
 void Notification::setAppId(const char* appId) {
     m_AppId = appId;
 }
@@ -170,3 +188,40 @@ void Notification::setRichAudioObjectPath(const char* richAudioObjectPath) {
 void Notification::setSender(const char* sender) {
     m_Sender = sender;
 }
+
+QStatus Notification::acknowledge()
+{
+    GenericLogger* logger = NotificationService::getInstance()->getLogger();
+    if (logger) {
+        logger->debug(TAG, "Notification::acknowledge() called");
+    }
+
+    NotificationMsg notificationMsg(NotificationMsg::ACKNOWLEDGE, getOriginalSender(), getMessageId(), getAppId());
+    m_feedbackAsyncTask.HandleTask(notificationMsg);
+
+    return ER_OK;
+}
+
+QStatus Notification::dismiss()
+{
+    GenericLogger* logger = NotificationService::getInstance()->getLogger();
+    if (logger) {
+        qcc::String log("Notification::dismiss() called");
+        log.append(" OriginalSender:");
+        log.append(const_cast<char*>(getOriginalSender()));
+        log.append(" MessageId:");
+        log.append(std::to_string(getMessageId()).c_str());
+        log.append(" AppId:");
+        log.append(const_cast<char*>(getAppId()));
+
+
+        logger->debug(TAG, log);
+    }
+
+    NotificationMsg notificationMsg(NotificationMsg::DISMISS, getOriginalSender(), getMessageId(), getAppId());
+    m_feedbackAsyncTask.HandleTask(notificationMsg);
+
+    return ER_OK;
+}
+
+template class AsyncTask<NotificationMsg>;

@@ -1,3 +1,4 @@
+
 /******************************************************************************
  * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
@@ -14,50 +15,52 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#ifndef NOTIFICATIONANNOUNCELISTENER_H_
-#define NOTIFICATIONANNOUNCELISTENER_H_
+#ifndef NOTIFICATIONPRODUCERSENDER_H_
+#define NOTIFICATIONPRODUCERSENDER_H_
 
-#include <alljoyn/about/AnnounceHandler.h>
-#include <alljoyn/about/AnnouncementRegistrar.h>
+#include "NotificationProducer.h"
 
 namespace ajn {
 namespace services {
 
-class SuperAgentBusListener;
-
 /**
- * Notification announce lisener. Receives announce signal from super agent.
+ * NotificationProducerSender class
+ * Calls NotificationProducer interface methods
  */
-class NotificationAnnounceListener : public ajn::services::AnnounceHandler {
+class NotificationProducerSender : public ajn::services::NotificationProducer {
 
   public:
-    /*
-     * Constructor of class NotificationAnnounceListener
+    /**
+     * constructor of NotificationProducerSender
+     * @param bus attachment
+     * @param status
      */
-    NotificationAnnounceListener();
-    /*
-     * Destructor of class NotificationAnnounceListener
+    NotificationProducerSender(ajn::BusAttachment* bus, QStatus& status);
+    /**
+     * destructor of NotificationProducerSender
      */
-    ~NotificationAnnounceListener();
+    ~NotificationProducerSender();
     /*
-     * a callback for getting announce message
-     * @param version
-     * @param port
-     * @param busNAme - the bus unique name of the announce sender
-     * @param object description related to the sender
-     * @param aboutData
+     * calls method Acknowledge at the producer side
+     * @param bus attachment
+     * @param relevant session id
+     * @param elevant message id
+     * @return status
      */
-    void Announce(uint16_t version, uint16_t port, const char* busName, const ObjectDescriptions& objectDescs, const AboutData& aboutData);
+    QStatus Acknowledge(const char* busName, ajn::SessionId sessionId, int32_t mgsId);
+    /*
+     * calls method Dismiss at the producer side
+     * @param bus attachment
+     * @param relevant session id
+     * @param elevant message id
+     * @return status
+     */
+    QStatus Dismiss(const char* busName, ajn::SessionId sessionId, int32_t mgsId);
 
   private:
-
-    /**
-     * Tag used for logging
-     */
-    qcc::String TAG;
 
 };
 } //namespace services
 } //namespace ajn
 
-#endif /* NOTIFICATIONANNOUNCELISTENER_H_ */
+#endif /* NOTIFICATIONPRODUCERSENDER_H_ */

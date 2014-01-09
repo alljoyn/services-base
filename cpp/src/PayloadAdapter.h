@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -59,7 +59,7 @@ class PayloadAdapter {
      * @param richIconObjectPath
      * @param richAudioObjectPath
      * @param controlPanelServiceObjectPath
-     * @param messageId
+     * @param originalSender
      * @return status - success/failure
      */
     static QStatus sendPayload(ajn::services::PropertyStore* propertyStore,
@@ -69,7 +69,8 @@ class PayloadAdapter {
                                uint16_t ttl,
                                const char* richIconUrl, std::vector<RichAudioUrl> const&  richAudioUrl,
                                const char* richIconObjectPath, const char* richAudioObjectPath,
-                               const char* controlPanelServiceObjectPath);
+                               const char* controlPanelServiceObjectPath,
+                               const char* originalSender);
 
     /**
      * SendPayload Marshals the Arguments to be sent
@@ -86,6 +87,8 @@ class PayloadAdapter {
      * @param richIconObjectPath
      * @param richAudioObjectPath
      * @param controlPanelServiceObjectPath
+     * @param originalSender
+     * @param messageId     *
      * @return status - success/failure
      */
     static QStatus sendPayload(const char* deviceId, const char* deviceName,
@@ -96,7 +99,7 @@ class PayloadAdapter {
                                uint16_t ttl,
                                const char* richIconUrl, std::vector<RichAudioUrl> const&  richAudioUrl,
                                const char* richIconObjectPath, const char* richAudioObjectPath,
-                               const char* controlPanelServiceObjectPath, int32_t messageId);
+                               const char* controlPanelServiceObjectPath, const char* originalSender, int32_t messageId);
 
     /**
      * ReceivePayload Unmarshals the arguments received
@@ -121,6 +124,7 @@ class PayloadAdapter {
      * @param richIconObjectPath
      * @param richAudioObjectPath
      * @param controlPanelServiceObjectPath
+     * @param originalSender
      * @param messageId
      * @return status - success/failure
      */
@@ -132,7 +136,7 @@ class PayloadAdapter {
                                uint16_t ttl,
                                const char* richIconUrl, std::vector<RichAudioUrl> const&  richAudioUrl,
                                const char* richIconObjectPath, const char* richAudioObjectPath,
-                               const char* controlPanelServiceObjectPath, int32_t messageId);
+                               const char* controlPanelServiceObjectPath, const char* originalSender, int32_t messageId);
 
     /**
      * static MessageId

@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -22,9 +22,55 @@
 #include <alljoyn/notification/NotificationText.h>
 #include <alljoyn/notification/NotificationEnums.h>
 #include <alljoyn/notification/RichAudioUrl.h>
+#include <alljoyn/Status.h>
+#include <alljoyn/services_common/AsyncTask.h>
+#include "NotificationAsyncTaskEvents.h"
 
 namespace ajn {
 namespace services {
+
+/**
+ * NotificationMsg
+ * This message will be sent when user uses interface NotificationProducer
+ */
+class NotificationMsg {
+  public:
+    /**
+     * enum for type of message
+     */
+    enum MethodCall { ACKNOWLEDGE, DISMISS };
+
+    /**
+     * NotificationMsg constructor
+     */
+    NotificationMsg(MethodCall methodCall, const char* originalSender, int32_t messageId, const char* appId) :
+        m_MethodCall(methodCall), m_OriginalSender(originalSender), m_MessageId(messageId), m_AppId(appId)
+    {
+    }
+
+    ~NotificationMsg()
+    {
+    }
+
+  public:
+    /**
+     * The method call
+     */
+    const MethodCall m_MethodCall;
+    /**
+     * The Notification's ControlPanelService object path
+     */
+    const qcc::String m_OriginalSender;
+    /**
+     * The Notification's Message Id
+     */
+    const int32_t m_MessageId;
+    /**
+     * The Notification's App Id
+     */
+    const qcc::String m_AppId;
+};
+
 
 /**
  * The Notification Class is used to send and receive Notifications
@@ -48,6 +94,7 @@ class Notification {
      * @param richIconObjectPath
      * @param richAudioObjectPath
      * @param controlPanelServiceObjectPath
+     * @param originalSender
      */
     Notification(int32_t messageId, NotificationMessageType messageType,
                  const char* deviceId, const char* deviceName,
@@ -56,7 +103,7 @@ class Notification {
                  std::vector<NotificationText> const& notificationText,
                  const char* richIconUrl, std::vector<RichAudioUrl> const&  richAudioUrl,
                  const char* richIconObjectPath, const char* richAudioObjectPath,
-                 const char* controlPanelServiceObjectPath);
+                 const char* controlPanelServiceObjectPath, const char* originalSender);
 
 
     /**
@@ -70,7 +117,7 @@ class Notification {
     /**
      * Destructor of Notification
      */
-    ~Notification() { };
+    ~Notification();
 
     /**
      * Get the Version
@@ -163,6 +210,12 @@ class Notification {
     const char* getControlPanelServiceObjectPath() const;
 
     /**
+     * Get the OriginalSender object path
+     * @return OriginalSender
+     */
+    const char* getOriginalSender() const;
+
+    /**
      * Set the App Id of the Notification
      * @param appId
      */
@@ -235,6 +288,28 @@ class Notification {
      * @param sender
      */
     void setSender(const char* sender);
+    /**
+     * acknowledge
+     */
+    QStatus acknowledge();
+    /**
+     * dismiss
+     */
+    QStatus dismiss();
+    /**
+     * sendDismissSignal
+     */
+    QStatus sendDismissSignal();
+
+    /**
+     * Responsible to get and handle events comming from the queue.
+     */
+    static NotificationAsyncTaskEvents<NotificationMsg> m_NotificationAsyncTaskEvents;
+    /**
+     * Purpose is to handle tasks asynchronously.
+     * Handling user acknowledge and dismiss of the notification.
+     */
+    static AsyncTask<NotificationMsg> m_feedbackAsyncTask;
 
   private:
 
@@ -308,7 +383,16 @@ class Notification {
      */
     const char* m_ControlPanelServiceObjectPath;
 
+    /**
+     * The Notification's ControlPanelService object path
+     */
+    const char* m_OriginalSender;
+    /**
+     * Tag for Logging
+     */
+    static qcc::String TAG;
 };
+
 } //namespace services
 } //namespace ajn
 

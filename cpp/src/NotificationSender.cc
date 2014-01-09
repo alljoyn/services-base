@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -16,11 +16,13 @@
 
 #include <alljoyn/notification/NotificationSender.h>
 #include <alljoyn/notification/NotificationService.h>
+#include <alljoyn/notification/Notification.h>
 #include <alljoyn/services_common/GenericLogger.h>
 
 #include "PayloadAdapter.h"
 #include "Transport.h"
 #include "NotificationConstants.h"
+#include <string.h>
 
 using namespace ajn;
 using namespace services;
@@ -36,41 +38,52 @@ NotificationSender::NotificationSender(PropertyStore* propertyStore) :
 QStatus NotificationSender::send(Notification const& notification, uint16_t ttl)
 {
     GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) logger->debug(TAG, "Send Message called");
+    if (logger) {
+        logger->debug(TAG, "Send Message called");
+    }
 
     //Validations
     if (notification.getMessageType() < 0 || notification.getMessageType() >= MESSAGE_TYPE_CNT) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "MessageType sent is not a valid MessageType");
+        }
         return ER_BAD_ARG_1;
     }
 
     if (notification.getText().size() == 0) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "There must be at least one notification defined");
+        }
         return ER_BAD_ARG_1;
     } else if ((TTL_MIN > ttl) || (ttl  > TTL_MAX)) {   // ttl value is not in range
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "TTL sent is not a valid TTL value");
+        }
         return ER_BAD_ARG_2;
     }
 
+    ajn::BusAttachment* pBus = Transport::getInstance()->getBusAttachment();
+    String originalSender = pBus ? pBus->GetUniqueName() : "";
     return PayloadAdapter::sendPayload(m_PropertyStore,
                                        notification.getMessageType(), notification.getText(),
                                        notification.getCustomAttributes(), ttl, notification.getRichIconUrl(),
                                        notification.getRichAudioUrl(), notification.getRichIconObjectPath(),
-                                       notification.getRichAudioObjectPath(), notification.getControlPanelServiceObjectPath());
+                                       notification.getRichAudioObjectPath(), notification.getControlPanelServiceObjectPath(),
+                                       originalSender.c_str());
 }
 
 QStatus NotificationSender::deleteLastMsg(NotificationMessageType messageType)
 {
     GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) logger->debug(TAG, "Delete Last Message called");
+    if (logger) {
+        logger->debug(TAG, "Delete Last Message called");
+    }
 
     //Validation
     if (messageType < 0 || messageType >= MESSAGE_TYPE_CNT) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "MessageType sent is not a valid MessageType");
+        }
         return ER_BAD_ARG_1;
     }
 
