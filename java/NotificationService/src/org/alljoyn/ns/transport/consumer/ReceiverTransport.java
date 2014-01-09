@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -135,7 +135,8 @@ public class ReceiverTransport implements AnnouncementHandler {
 	}
 	
 	/**
-	 * @param Is SuperAgent found
+	 * Is SuperAgent found
+	 * @return TRUE if the SuperAgent was found
 	 */
 	public boolean getIsSuperAgentFound() {
 		return isSuperAgentFound.get();
@@ -204,7 +205,6 @@ public class ReceiverTransport implements AnnouncementHandler {
 	
 	/**
 	 * ReceiverTransport cleanups
-	 * @param logger
 	 */
 	public void stopReceiverTransport() {
 		
@@ -272,7 +272,7 @@ public class ReceiverTransport implements AnnouncementHandler {
 	
 	/**
 	 * Received notification, call the notification receiver callback to pass the notification
-	 * @param notificaion
+	 * @param notification
 	 */
 	public void onReceivedNotification(final Notification notification) {
 		

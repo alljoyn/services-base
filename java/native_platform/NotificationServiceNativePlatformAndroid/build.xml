@@ -202,15 +202,18 @@
                </fileset>
               
                <fileset dir="${notifsrvc.dir}/src" defaultexcludes="yes">
-                     <include name="*/**"/>
+                    <include name="org/alljoyn/ns/**"/>
+                    <exclude name="org/alljoyn/ns/transport/**"/>
+                    <exclude name="org/alljoyn/ns/PayloadAdapter.java"/>
                </fileset>
                
+               
                <fileset dir="src" defaultexcludes="yes">
-                     <include name="org/alljoyn/**"/>
+                     <include name="org/alljoyn/ns/**"/>
                </fileset>
             
                <doctitle><![CDATA[<h1> Notification Service </h1>]]></doctitle> 
-               <bottom><![CDATA[<small>AllJoyn Notification Java API Reference Manual Version 1.0.0 (Thu Aug 08 09:21:01 2013)<br/>Copyright &copy; 2013 AllSeen Alliance.<br/><b>THIS DOCUMENT AND ALL INFORMATION CONTAIN HEREIN ARE PROVIDED ON AN "AS-IS" BASIS WITHOUT WARRANTY OF ANY KIND</b>.<br/><b>MAY CONTAIN U.S. AND INTERNATIONAL EXPORT CONTROLLED INFORMATION</b><br/></small>]]></bottom> 
+               <bottom><![CDATA[<small>AllJoyn Notification Java API Reference Manual Version 1.1.0 (Thu Jan 08 09:21:01 2014)<br/>Copyright &copy; 2013-2014 AllSeen Alliance.<br/><b>THIS DOCUMENT AND ALL INFORMATION CONTAIN HEREIN ARE PROVIDED ON AN "AS-IS" BASIS WITHOUT WARRANTY OF ANY KIND</b>.<br/><b>MAY CONTAIN U.S. AND INTERNATIONAL EXPORT CONTROLLED INFORMATION</b><br/></small>]]></bottom> 
          </javadoc>
      </target>
      

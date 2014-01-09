@@ -97,8 +97,7 @@ public class Transport {
 	private boolean isReceiverTransportCalled   = false;
 	
 	/**
-	 * Return the Transport object
-	 * @return
+	 * @return  Return the {@link Transport} object
 	 */
 	public static Transport getInstance() {
 		return transport;
@@ -111,8 +110,7 @@ public class Transport {
 	private Transport() {}//Constructor
 	
 	/**
-	 * Returns reference to the BusAttachment
-	 * @return
+	 * @return Reference to the {@link BusAttachment}
 	 */
 	public BusAttachment getBusAttachment() {
 		return busAttachment;
@@ -307,7 +305,7 @@ public class Transport {
 	
 	/**
 	 * Received notification, call the notification receiver callback to pass the notification
-	 * @param notificaion
+	 * @param notification
 	 */
 	public void onReceivedNotification(final Notification notification) {
 		

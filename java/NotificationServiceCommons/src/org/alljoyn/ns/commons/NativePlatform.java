@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -16,7 +16,9 @@
 
 package org.alljoyn.ns.commons;
 
-
+/**
+ * Implement this interface to provide platform dependent functionality for the Notification service
+ */
 public interface NativePlatform {
 	
 	/**
