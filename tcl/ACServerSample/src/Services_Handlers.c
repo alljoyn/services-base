@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -126,25 +126,38 @@ AJ_Status Service_ConnectedHandler()
     AJ_SetBusLinkTimeout(&busAttachment, 60);     // 60 seconds
 
     AJ_Status status = AJ_OK;
-    do {
-        CHECK(About_ConnectedHandler(&busAttachment));
+
+    if (status = About_ConnectedHandler(&busAttachment) != AJ_OK)
+        goto ErrorExit;
 #ifdef CONFIG_SERVICE
-        CHECK(Config_ConnectedHandler(&busAttachment));
+
+    if (status = Config_ConnectedHandler(&busAttachment) != AJ_OK)
+        goto ErrorExit;
 #endif
 #ifdef ONBOARDING_SERVICE
-        CHECK(Onboarding_ConnectedHandler(&busAttachment));
+
+    if (status = Onboarding_ConnectedHandler(&busAttachment) != AJ_OK)
+        goto ErrorExit;
 #endif
 #ifdef NOTIFICATION_SERVICE_PRODUCER
-        CHECK(Producer_ConnectedHandler(&busAttachment));
+
+    if (status = Producer_ConnectedHandler(&busAttachment) != AJ_OK)
+        goto ErrorExit;
 #endif
 #ifdef CONTROLPANEL_SERVICE
-        CHECK(ControlPanel_ConnectedHandler(&busAttachment));
+
+    if (status = ControlPanel_ConnectedHandler(&busAttachment) != AJ_OK)
+        goto ErrorExit;
 #endif
 #ifdef NOTIFICATION_SERVICE_CONSUMER
-        CHECK(Consumer_ConnectedHandler(&busAttachment));
+
+    if (status = Consumer_ConnectedHandler(&busAttachment) != AJ_OK)
+        goto ErrorExit;
 #endif
-        return status;
-    } while (0);
+    return status;
+
+ErrorExit:
+
     AJ_Printf("Service ConnectedHandler returned an error %s\n", (AJ_StatusText(status)));
     return status;
 }
@@ -159,12 +172,16 @@ AJ_Status Application_ConnectedHandler()
         if (currentServicesInitializationState == nextServicesInitializationState) {
             switch (currentServicesInitializationState) {
             case INIT_SERVICES_PORT:
-                CHECK(AJ_BusBindSessionPort(&busAttachment, App_ServicePort, NULL));
+
+                if (status = AJ_BusBindSessionPort(&busAttachment, App_ServicePort, NULL) != AJ_OK)
+                    goto Exit;
                 nextServicesInitializationState = INIT_ADVERTISE_NAME;
                 break;
 
             case INIT_ADVERTISE_NAME:
-                CHECK(AJ_BusAdvertiseName(&busAttachment, AJ_GetUniqueName(&busAttachment), AJ_TRANSPORT_ANY, AJ_BUS_START_ADVERTISING));
+
+                if (status = AJ_BusAdvertiseName(&busAttachment, AJ_GetUniqueName(&busAttachment), AJ_TRANSPORT_ANY, AJ_BUS_START_ADVERTISING) != AJ_OK)
+                    goto Exit;
                 if (addSessionLessMatch)
                     nextServicesInitializationState = INIT_ADDSLMATCH;
                 else
@@ -172,13 +189,17 @@ AJ_Status Application_ConnectedHandler()
                 break;
 
             case INIT_ADDSLMATCH:
-                CHECK(AJ_BusSetSignalRule(&busAttachment, SESSIONLESS_MATCH, AJ_BUS_SIGNAL_ALLOW));
+
+                if (status = AJ_BusSetSignalRule(&busAttachment, SESSIONLESS_MATCH, AJ_BUS_SIGNAL_ALLOW) != AJ_OK)
+                    goto Exit;
                 nextServicesInitializationState = INIT_FINISHED;
                 break;
 
             case INIT_FINISHED:
                 if (IsShouldAnnounce()) {
-                    CHECK(AboutAnnounce(&busAttachment));
+
+                    if (status = AboutAnnounce(&busAttachment) != AJ_OK)
+                        goto Exit;
                     SetShouldAnnounce(FALSE);
                 }
 #ifdef ONBOARDING_SERVICE
@@ -189,6 +210,8 @@ AJ_Status Application_ConnectedHandler()
             }
         }
     }
+
+Exit:
 
     if (status == AJ_ERR_RESOURCES) {
         init_retries++;
@@ -313,10 +336,8 @@ AJ_Status Application_DisconnectHandler(uint8_t restart)
     AJ_Status status = AJ_OK;
 
     if (restart) {
-        do {
-            CHECK(AJ_BusAdvertiseName(&busAttachment, AJ_GetUniqueName(&busAttachment), AJ_TRANSPORT_ANY, AJ_BUS_STOP_ADVERTISING));
-            CHECK(AJ_BusUnbindSession(&busAttachment, App_ServicePort));
-        } while (0);
+        AJ_BusAdvertiseName(&busAttachment, AJ_GetUniqueName(&busAttachment), AJ_TRANSPORT_ANY, AJ_BUS_STOP_ADVERTISING);
+        AJ_BusUnbindSession(&busAttachment, App_ServicePort);
     }
 
     SetShouldAnnounce(TRUE);

@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -26,8 +26,6 @@
 #endif
 #include <alljoyn/services_common/PropertyStore.h>
 #include <alljoyn/services_common/Services_Common.h>
-
-#define CHECK(x) if ((status = (x)) != AJ_OK) { break; }
 
 const char* deviceManufactureName = "QCA";
 const char* deviceProductName = "AC";
@@ -74,20 +72,18 @@ AJ_Status App_FactoryReset()
     AJ_Printf("GOT FACTORY RESET\n");
     AJ_Status status = AJ_OK;
 
-    do {
-        CHECK(PropertyStore_ResetAll());
-        /*CHECK(*/ AJ_ClearCredentials() /*)*/;
+
+    if (status = PropertyStore_ResetAll() != AJ_OK)
+        return status;
+    AJ_ClearCredentials();
 #ifdef ONBOARDING_SERVICE
-        CHECK(OBS_ClearInfo());
+
+    if (status = OBS_ClearInfo() != AJ_OK)
+        return status;
 #endif // ONBOARDING_SERVICE
-    } while (0);
 
-    if (status == AJ_OK) {
-        isRebootRequired = TRUE;
-        return AJ_ERR_RESTART; // Force disconnect of AJ and services and reconnection of WiFi on restart
-    }
-
-    return status;
+    isRebootRequired = TRUE;
+    return AJ_ERR_RESTART;     // Force disconnect of AJ and services and reconnection of WiFi on restart
 }
 
 AJ_Status App_Restart()
@@ -102,15 +98,17 @@ AJ_Status App_SetPasscode(const char* daemonRealm, const char* newStringPasscode
 {
     AJ_Status status = AJ_OK;
 
-    do {
-        if (PropertyStore_SetValue(RealmName, daemonRealm) && PropertyStore_SetValue(Passcode, newStringPasscode)) {
-            CHECK(PropertyStore_SaveAll());
-            /*CHECK(*/ AJ_ClearCredentials() /*)*/;
-            status = AJ_ERR_READ; //Force disconnect of AJ and services to refresh current sessions
-        } else {
-            CHECK(PropertyStore_LoadAll());
-        }
-    } while (0);
+    if (PropertyStore_SetValue(RealmName, daemonRealm) && PropertyStore_SetValue(Passcode, newStringPasscode)) {
+
+        if (status = PropertyStore_SaveAll() != AJ_OK)
+            return status;
+        AJ_ClearCredentials();
+        status = AJ_ERR_READ;     //Force disconnect of AJ and services to refresh current sessions
+    } else {
+
+        if (status = PropertyStore_LoadAll() != AJ_OK)
+            return status;
+    }
 
     return status;
 }
