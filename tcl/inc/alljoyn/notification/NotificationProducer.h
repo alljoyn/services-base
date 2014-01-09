@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -45,7 +45,7 @@
 /*!
    \brief Constant for about of notification producer objects
  */
-#define NUM_NOTIFICATION_PRODUCER_OBJECTS 3
+#define NUM_NOTIFICATION_PRODUCER_OBJECTS 4
 
 /*!
    \brief Get Property event for Emergency NotificationService object
@@ -129,11 +129,6 @@
 #define GET_INFO_NOTIFICATION_VERSION_PROPERTY      AJ_APP_PROPERTY_ID(2 + NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS, 1, 1)
 
 /*!
-   \brief Length of the AppID field
- */
-#define UUID_LENGTH 16
-
-/*!
    \brief The object path on which "Emergency" type notifications are sent
  */
 extern const char ServicePathEmergency[];
@@ -148,29 +143,39 @@ extern const char ServicePathWarning[];
  */
 extern const char ServicePathInfo[];
 
+/* Producer Object bus registration */
+#define NOTIFICATION_PRODUCER_OBJECT_INDEX 3 + NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS
+#define NOTIFICATION_PRODUCER_GET_PROPERTY AJ_APP_PROPERTY_ID(NOTIFICATION_PRODUCER_OBJECT_INDEX, 0, AJ_PROP_GET)
+#define NOTIFICATION_PRODUCER_SET_PROPERTY AJ_APP_PROPERTY_ID(NOTIFICATION_PRODUCER_OBJECT_INDEX, 0, AJ_PROP_SET)
+
+#define NOTIFICATION_PRODUCER_ACKNOWLEDGE               AJ_APP_MESSAGE_ID(NOTIFICATION_PRODUCER_OBJECT_INDEX, 1, 0)
+#define NOTIFICATION_PRODUCER_DISMISS                   AJ_APP_MESSAGE_ID(NOTIFICATION_PRODUCER_OBJECT_INDEX, 1, 1)
+#define GET_NOTIFICATION_PRODUCER_VERSION_PROPERTY      AJ_APP_PROPERTY_ID(NOTIFICATION_PRODUCER_OBJECT_INDEX, 1, 2)
+
 /*!
    \brief AllJoyn objects exposed by the NotificationProducer
  */
 #define NOTIFICATION_PRODUCER_APPOBJECTS \
-    { ServicePathEmergency,  NotificationInterfaces }, \
-    { ServicePathWarning,    NotificationInterfaces }, \
-    { ServicePathInfo,       NotificationInterfaces },
+    { ServicePathEmergency,             NotificationInterfaces }, \
+    { ServicePathWarning,               NotificationInterfaces }, \
+    { ServicePathInfo,                  NotificationInterfaces }, \
+    { NotificationProducerObjectPath,   NotificationProducerInterfaces },
 
 /*!
    \brief AllJoyn objects announced by the NotificationProducer
  */
 #define NOTIFICATION_PRODUCER_ANNOUNCEOBJECTS  \
-    { ServicePathEmergency,  NotificationInterfaces }, \
-    { ServicePathWarning,    NotificationInterfaces }, \
-    { ServicePathInfo,       NotificationInterfaces },
-
+    { ServicePathEmergency,             NotificationInterfaces }, \
+    { ServicePathWarning,               NotificationInterfaces }, \
+    { ServicePathInfo,                  NotificationInterfaces }, \
+    { NotificationProducerObjectPath,   NotificationProducerInterfaces },
 
 /*!
    \brief Prepare a notification for sending. Call \ref SendNotifications to actually send the notification after calling this function
    \param notificationContent The content of the notification to be set
    \return AJ_Status
  */
-extern AJ_Status ProducerSetNotification(notification* notificationContent);
+extern AJ_Status ProducerSetNotification(NotificationContent_t* notificationContent, uint16_t messageType, uint16_t ttl);
 
 /*!
    \brief Send the notifications previously set with \ref SetNotification
@@ -186,6 +191,24 @@ extern AJ_Status ProducerSendNotifications();
    \return AJ_Status
  */
 extern AJ_Status ProducerDeleteLastMsg(uint16_t messageType);
+
+/*!
+   \brief Implementation of Acknowledge functionality removing given message from the bus
+   \details
+   Effectively, this overrides the ttl parameter in the \ref SetNotification function
+   \param msg The received Acknowledge request message to process
+   \return AJ_Status
+ */
+extern AJ_Status ProducerAcknowledgeMsg(AJ_Message*msg);
+
+/*!
+   \brief Implementation of Dismiss functionality acknowledging and sending a Dismiss SSL to recall received message
+   \details
+   Effectively, this overrides the ttl parameter in the \ref SetNotification function
+   \param msg The received Dismiss request message to process
+   \return AJ_Status
+ */
+extern AJ_Status ProducerDismissMsg(AJ_Message*msg);
 
 /*!
    \brief Implementation of GetProperty functionality for the notification objects

@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -52,7 +52,7 @@ const static char* helloEng = "Hello AJL World";
 //const static char* richAudioObjectPath = "/audio/MyDevice";
 //static int8_t inputMode;
 //static uint16_t isMessageTime = 0;
-static notification notificationContent;
+static NotificationContent_t notificationContent;
 struct keyValue textToSend[NUM_TEXTS]; //, customAttributesToSend[NUM_CUSTOMS], richAudioUrls[NUM_RICH_AUDIO];
 
 
@@ -61,8 +61,6 @@ struct keyValue textToSend[NUM_TEXTS]; //, customAttributesToSend[NUM_CUSTOMS], 
  */
 static void InitNotification()
 {
-    notificationContent.messageType = INFO;
-
     notificationContent.numCustomAttributes = NUM_CUSTOMS;
 //    customAttributesToSend[0].key   = onKey;
 //    customAttributesToSend[0].value = HelloVal;
@@ -88,8 +86,6 @@ static void InitNotification()
 //    notificationContent.richIconObjectPath = richIconObjectPath;
 //    notificationContent.richAudioObjectPath = richAudioObjectPath;
 //    notificationContent.controlPanelServiceObjectPath = controlPanelServiceObjectPath;
-
-    notificationContent.ttl = 20000; // mandatory seconds
 }
 
 /**
@@ -103,8 +99,78 @@ void Producer_Init()
 
 AJ_Status Producer_ConnectedHandler(AJ_BusAttachment* bus)
 {
-    //Service function stub
-    return AJ_OK;
+    AJ_SessionOpts sessionOpts = {
+        AJ_SESSION_TRAFFIC_MESSAGES,
+        AJ_SESSION_PROXIMITY_ANY,
+        AJ_TRANSPORT_ANY,
+        FALSE
+    };
+
+    AJ_Status status;
+    AJ_Time timer = { 0, 0 };
+    AJ_InitTimer(&timer);
+
+    status = AJ_BusBindSessionPort(bus, NotificationProducerPort, &sessionOpts);
+    if (status != AJ_OK) {
+        AJ_Printf("Failed to send bind session port message\n");
+    }
+
+    uint8_t serviceStarted = FALSE;
+    while (!serviceStarted && (status == AJ_OK)) {
+        AJ_Message msg;
+
+        AJ_GetElapsedTime(&timer, TRUE);
+
+        status = AJ_UnmarshalMsg(bus, &msg, AJ_UNMARSHAL_TIMEOUT);
+
+        /*
+         * TODO This is a temporary hack to work around buggy select implementations
+         */
+        if (status == AJ_ERR_TIMEOUT) {
+            uint32_t elapsed = AJ_GetElapsedTime(&timer, TRUE);
+            if (elapsed < AJ_UNMARSHAL_TIMEOUT) {
+                AJ_Printf("Spurious timeout error (elapsed=%d < AJ_UNMARSHAL_TIMEOUT=%d) - continuing\n", elapsed, AJ_UNMARSHAL_TIMEOUT);
+                status = AJ_OK;
+                continue;
+            }
+        }
+
+        if (status != AJ_OK) {
+            break;
+        }
+
+        switch (msg.msgId) {
+        case AJ_REPLY_ID(AJ_METHOD_BIND_SESSION_PORT):
+            if (msg.hdr->msgType == AJ_MSG_ERROR) {
+                status = AJ_ERR_FAILURE;
+            } else {
+                serviceStarted = TRUE;
+            }
+            break;
+
+        default:
+            /*
+             * Pass to the built-in bus message handlers
+             */
+            status = AJ_BusHandleBusMessage(&msg);
+            break;
+        }
+        AJ_CloseMsg(&msg);
+    }
+
+    if (status != AJ_OK) {
+        AJ_Printf("AllJoyn disconnect bus status=%d\n", status);
+        status = AJ_ERR_READ;
+    }
+    return status;
+}
+
+uint8_t Producer_CheckSessionAccepted(uint16_t port, uint32_t sessionId, char* joiner)
+{
+    if (port != NotificationProducerPort)
+        return FALSE;
+    AJ_Printf("Producer: Accepted session on port %u from %s\n", port, joiner);
+    return TRUE;
 }
 
 /**
@@ -119,13 +185,13 @@ void Producer_DoWork(AJ_BusAttachment* bus)
         textToSend[0].key   = langEng;
         textToSend[0].value = getNotificationString();
 
-        ProducerSetNotification(&notificationContent);
+        ProducerSetNotification(&notificationContent, INFO, 20000);
         AJ_Printf("About to send Notification ==> %s \n", textToSend[0].value);
         ProducerSendNotifications();
     }
 }
 
-Service_Status Producer_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg, AJ_Status*msgStatus)
+Service_Status Producer_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg, AJ_Status* msgStatus)
 {
     Service_Status service_Status = SERVICE_STATUS_NOT_HANDLED;
 
@@ -133,6 +199,7 @@ Service_Status Producer_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg,
     case EMERGENCY_NOTIFICATION_GET_PROPERTY:
     case WARNING_NOTIFICATION_GET_PROPERTY:
     case INFO_NOTIFICATION_GET_PROPERTY:
+    case NOTIFICATION_PRODUCER_GET_PROPERTY:
         *msgStatus = AJ_BusPropGet(msg, ProducerPropGetHandler, NULL);
         service_Status = SERVICE_STATUS_HANDLED;
         break;
@@ -140,7 +207,18 @@ Service_Status Producer_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg,
     case EMERGENCY_NOTIFICATION_SET_PROPERTY:
     case WARNING_NOTIFICATION_SET_PROPERTY:
     case INFO_NOTIFICATION_SET_PROPERTY:
+    case NOTIFICATION_PRODUCER_SET_PROPERTY:
         *msgStatus = AJ_BusPropSet(msg, ProducerPropSetHandler, NULL);
+        service_Status = SERVICE_STATUS_HANDLED;
+        break;
+
+    case NOTIFICATION_PRODUCER_ACKNOWLEDGE:
+        *msgStatus = ProducerAcknowledgeMsg(msg);
+        service_Status = SERVICE_STATUS_HANDLED;
+        break;
+
+    case NOTIFICATION_PRODUCER_DISMISS:
+        *msgStatus = ProducerDismissMsg(msg);
         service_Status = SERVICE_STATUS_HANDLED;
         break;
 
@@ -152,6 +230,6 @@ Service_Status Producer_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg,
 
 void Producer_Finish(AJ_BusAttachment* bus)
 {
-    //Service function stub
+
     return;
 }

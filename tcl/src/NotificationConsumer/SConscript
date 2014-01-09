@@ -1,5 +1,5 @@
 #*****************************************************************************
-# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+# Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
@@ -18,14 +18,14 @@ Import('notif_env')
 
 target_name = 'NotificationConsumer'
 
-common_source_files = [
+consumer_source_files = [
                         'NotificationConsumer.c',
                         'target/' + notif_env['TARG'] + '/sample_util.c',
-                      ]
+]
 
 source_files = [
                 '../../../samples/SimpleConsumerSample/ConsumerSample.c',
-               ]
+]
 
 # Consumer define string, in case others need it (such as
 # Notification test apps?) 
@@ -42,7 +42,7 @@ local_env.Append(CPPDEFINES = [define_string])
 
 local_objs = local_env.Object(source_files)
 # save the common files in the parent environment for use by test-app builder
-notif_env['CONSUMER_COMMON_OBJS'] = local_env.Object(common_source_files)
+notif_env['CONSUMER_COMMON_OBJS'] = local_env.Object(consumer_source_files)
 
 local_objs.append(notif_env['CONSUMER_COMMON_OBJS'])
 
@@ -55,11 +55,12 @@ if not notif_env.has_key('INDIV_BUILD'):
 local_env['SERSAMP_VARIANT_DIR'] = define_string.lower()
 serversample_objs = local_env.SConscript('$SERVERSAMPLE_ROOT_FROM_COMPONENT/SConscript', {'env': local_env})
 
+local_objs.append(local_env.SConscript('../../common/SConscript', variant_dir = "common", exports = {'notif_env': local_env}))
+
 prog = local_env.Program(target = target_name, 
-			source = [
-    			local_objs,
-                notif_env['SERVICE_COMMON_OBJS'],
+            source = [
+                local_objs,
                 serversample_objs,
                 local_env['aj_obj'],
-			])
+            ])
 Return('prog')

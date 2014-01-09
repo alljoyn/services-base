@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -34,6 +34,8 @@ void Producer_Init();
  * @return status - was message handled
  */
 AJ_Status Producer_ConnectedHandler(AJ_BusAttachment* bus);
+
+uint8_t Producer_CheckSessionAccepted(uint16_t port, uint32_t sessionId, char* joiner);
 
 /**
  * If idle, do work

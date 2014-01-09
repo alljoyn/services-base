@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -52,12 +52,14 @@ void Consumer_IdleConnectedHandler(AJ_BusAttachment* bus);
 Service_Status Consumer_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg, AJ_Status*msgStatus);
 
 /**
- * Notify that the session was accepted
+ * Handle Session state changed
+ * @param bus
  * @param sessionId
- * @param senderBusName
+ * @param sessionJoined
+ * @param replySerialNum
  * @return status - was message handled
  */
-Service_Status Consumer_NotifySessionAccepted(uint32_t sessionId, const char*senderBusName);
+Service_Status Consumer_HandleSessionStateChanged(AJ_BusAttachment* bus, uint32_t sessionId, uint8_t sessionJoined, uint32_t replySerialNum);
 
 /**
  * Finish Consumer - called when bus disconnects

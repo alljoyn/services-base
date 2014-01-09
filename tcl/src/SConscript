@@ -1,5 +1,5 @@
 #*****************************************************************************
-# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+# Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
@@ -24,9 +24,7 @@ notif_env.Append(CPPPATH = [
 Export('notif_env') # needed when we are called directly by serversample
 returnValue = []
 if not notif_env.has_key('notif_app_list'):
-    notif_env['notif_app_list'] = ['NotificationConsumer', 'NotificationProducer']
-
-notif_env['SERVICE_COMMON_OBJS'] = notif_env.SConscript('common/SConscript', variant_dir = "common/obj", duplicate = 0)
+    notif_env['notif_app_list'] = ['NotificationProducer', 'NotificationConsumer']
 
 for appdir in notif_env['notif_app_list']:
     appname = notif_env.SConscript(appdir + '/SConscript', variant_dir = appdir + "/obj", duplicate = 0)
@@ -34,6 +32,7 @@ for appdir in notif_env['notif_app_list']:
 
 # if we are called as part of services server sample, then add common objs once now:
 if not notif_env.has_key('INDIV_BUILD'):
+    notif_env['SERVICE_COMMON_OBJS'] = notif_env.SConscript('common/SConscript', variant_dir = "common/obj", duplicate = 0)
     returnValue += notif_env['SERVICE_COMMON_OBJS']
 
 Return('returnValue') 
