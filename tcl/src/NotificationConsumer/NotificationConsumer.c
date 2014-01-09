@@ -182,185 +182,224 @@ AJ_Status ConsumerNotifySignalHandler(AJ_Message* msg)
     memset(&notification, 0, sizeof(Notification_t));
 
     AJ_Printf("Received notification signal from sender %s\n", msg->sender);
-    do {
-        CHECK(AJ_UnmarshalArgs(msg, "q", &notification.header.version));
 
-        CHECK(AJ_UnmarshalArgs(msg, "i", &notification.header.notificationId));
+    if (status = AJ_UnmarshalArgs(msg, "q", &notification.header.version) != AJ_OK)
+        goto Exit;
 
-        CHECK(AJ_UnmarshalArgs(msg, "q", &notification.header.messageType));
 
-        CHECK(AJ_UnmarshalArgs(msg, "s", &notification.header.deviceId));
+    if (status = AJ_UnmarshalArgs(msg, "i", &notification.header.notificationId) != AJ_OK)
+        goto Exit;
 
-        CHECK(AJ_UnmarshalArgs(msg, "s", &notification.header.deviceName));
 
-        CHECK(AJ_UnmarshalArg(msg, &appIdArray));
+    if (status = AJ_UnmarshalArgs(msg, "q", &notification.header.messageType) != AJ_OK)
+        goto Exit;
 
-        size_t appIdLen = ((appIdArray.len > UUID_LENGTH) ? UUID_LENGTH : appIdArray.len) * 2 + 1;
-        CHECK(AJ_RawToHex(appIdArray.val.v_byte, appIdArray.len, appId, appIdLen, FALSE));
-        notification.header.appId = appId;
 
-        CHECK(AJ_UnmarshalArgs(msg, "s", &notification.header.appName));
+    if (status = AJ_UnmarshalArgs(msg, "s", &notification.header.deviceId) != AJ_OK)
+        goto Exit;
 
-        CHECK(AJ_UnmarshalContainer(msg, &attrbtArray, AJ_ARG_ARRAY));
 
-        while (1) {
-            AJ_Arg dictArg;
-            int32_t attrbtKey;
-            const char* variantSig;
+    if (status = AJ_UnmarshalArgs(msg, "s", &notification.header.deviceName) != AJ_OK)
+        goto Exit;
 
-            status = AJ_UnmarshalContainer(msg, &dictArg, AJ_ARG_DICT_ENTRY);
-            if (status == AJ_ERR_NO_MORE) {
-                AJ_UnmarshalCloseContainer(msg, &attrbtArray);
+
+    if (status = AJ_UnmarshalArg(msg, &appIdArray) != AJ_OK)
+        goto Exit;
+
+    size_t appIdLen = ((appIdArray.len > UUID_LENGTH) ? UUID_LENGTH : appIdArray.len) * 2 + 1;
+
+    if (status = AJ_RawToHex(appIdArray.val.v_byte, appIdArray.len, appId, appIdLen, FALSE) != AJ_OK)
+        goto Exit;
+    notification.header.appId = appId;
+
+
+    if (status = AJ_UnmarshalArgs(msg, "s", &notification.header.appName) != AJ_OK)
+        goto Exit;
+
+
+    if (status = AJ_UnmarshalContainer(msg, &attrbtArray, AJ_ARG_ARRAY) != AJ_OK)
+        goto Exit;
+
+    while (1) {
+        AJ_Arg dictArg;
+        int32_t attrbtKey;
+        const char* variantSig;
+
+        status = AJ_UnmarshalContainer(msg, &dictArg, AJ_ARG_DICT_ENTRY);
+        if (status == AJ_ERR_NO_MORE) {
+            if (status = AJ_UnmarshalCloseContainer(msg, &attrbtArray) != AJ_OK)
+                goto Exit;
+            else
                 break;
-            } else if (status) {
-                break;
-            }
+        } else if (status) {
+            goto Exit;
+        }
 
-            status = AJ_UnmarshalArgs(msg, "i", &attrbtKey);
-            switch (attrbtKey) {
-            case RICH_CONTENT_ICON_URL_ATTRIBUTE_KEY:
-            {
-                CHECK(AJ_UnmarshalVariant(msg, &variantSig));
-                CHECK(AJ_UnmarshalArgs(msg, "s", &notification.content.richIconUrl));
-            }
-            break;
+        if (status = AJ_UnmarshalArgs(msg, "i", &attrbtKey) != AJ_OK)
+            goto Exit;
 
-            case RICH_CONTENT_ICON_OBJECT_PATH_ATTRIBUTE_KEY:
-            {
-                CHECK(AJ_UnmarshalVariant(msg, &variantSig));
-                CHECK(AJ_UnmarshalArgs(msg, "s", &notification.content.richIconObjectPath));
-            }
-            break;
+        switch (attrbtKey) {
+        case RICH_CONTENT_ICON_URL_ATTRIBUTE_KEY:
+        {
+            if (status = AJ_UnmarshalVariant(msg, &variantSig) != AJ_OK)
+                goto Exit;
+            if (status = AJ_UnmarshalArgs(msg, "s", &notification.content.richIconUrl) != AJ_OK)
+                goto Exit;
+        }
+        break;
 
-            case RICH_CONTENT_AUDIO_OBJECT_PATH_ATTRIBUTE_KEY:
-            {
-                CHECK(AJ_UnmarshalVariant(msg, &variantSig));
-                CHECK(AJ_UnmarshalArgs(msg, "s", &notification.content.richAudioObjectPath));
-            }
-            break;
+        case RICH_CONTENT_ICON_OBJECT_PATH_ATTRIBUTE_KEY:
+        {
+            if (status = AJ_UnmarshalVariant(msg, &variantSig) != AJ_OK)
+                goto Exit;
+            if (status = AJ_UnmarshalArgs(msg, "s", &notification.content.richIconObjectPath) != AJ_OK)
+                goto Exit;
+        }
+        break;
 
-            case CONTROLPANELSERVICE_OBJECT_PATH_ATTRIBUTE_KEY:
-            {
-                CHECK(AJ_UnmarshalVariant(msg, &variantSig));
-                CHECK(AJ_UnmarshalArgs(msg, "s", &notification.content.controlPanelServiceObjectPath));
-            }
-            break;
+        case RICH_CONTENT_AUDIO_OBJECT_PATH_ATTRIBUTE_KEY:
+        {
+            if (status = AJ_UnmarshalVariant(msg, &variantSig) != AJ_OK)
+                goto Exit;
+            if (status = AJ_UnmarshalArgs(msg, "s", &notification.content.richAudioObjectPath) != AJ_OK)
+                goto Exit;
+        }
+        break;
 
-            case ORIGINAL_SENDER_NAME_ATTRIBUTE_KEY:
-            {
-                CHECK(AJ_UnmarshalVariant(msg, &variantSig));
-                CHECK(AJ_UnmarshalArgs(msg, "s", &notification.header.originalSenderName));
-            }
-            break;
+        case CONTROLPANELSERVICE_OBJECT_PATH_ATTRIBUTE_KEY:
+        {
+            if (status = AJ_UnmarshalVariant(msg, &variantSig) != AJ_OK)
+                goto Exit;
+            if (status = AJ_UnmarshalArgs(msg, "s", &notification.content.controlPanelServiceObjectPath) != AJ_OK)
+                goto Exit;
+        }
+        break;
 
-            case RICH_CONTENT_AUDIO_URL_ATTRIBUTE_KEY:
-            {
-                CHECK(AJ_UnmarshalVariant(msg, &variantSig));
-                CHECK(AJ_UnmarshalContainer(msg, &richAudioArray, AJ_ARG_ARRAY));
+        case ORIGINAL_SENDER_NAME_ATTRIBUTE_KEY:
+        {
+            if (status = AJ_UnmarshalVariant(msg, &variantSig) != AJ_OK)
+                goto Exit;
+            if (status = AJ_UnmarshalArgs(msg, "s", &notification.header.originalSenderName) != AJ_OK)
+                goto Exit;
+        }
+        break;
 
-                while (1) {
-                    AJ_Arg structArg;
-                    char* urlLanguage;
-                    char* urlText;
+        case RICH_CONTENT_AUDIO_URL_ATTRIBUTE_KEY:
+        {
+            if (status = AJ_UnmarshalVariant(msg, &variantSig) != AJ_OK)
+                goto Exit;
+            if (status = AJ_UnmarshalContainer(msg, &richAudioArray, AJ_ARG_ARRAY) != AJ_OK)
+                goto Exit;
 
-                    status = AJ_UnmarshalContainer(msg, &structArg, AJ_ARG_STRUCT);
-                    if (status == AJ_ERR_NO_MORE) {
-                        AJ_UnmarshalCloseContainer(msg, &richAudioArray);
+            while (1) {
+                AJ_Arg structArg;
+                char* urlLanguage;
+                char* urlText;
+
+                status = AJ_UnmarshalContainer(msg, &structArg, AJ_ARG_STRUCT);
+                if (status == AJ_ERR_NO_MORE) {
+                    if (status = AJ_UnmarshalCloseContainer(msg, &richAudioArray) != AJ_OK)
+                        goto Exit;
+                    else
                         break;
-                    } else if (status) {
-                        break;
-                    }
+                } else if (status) {
+                    goto Exit;
+                }
 
-                    status = AJ_UnmarshalArgs(msg, "ss", &urlLanguage, &urlText);
-
-                    if (notification.content.numAudioUrls < NUMALLOWEDRICHNOTS) {         // if it doesn't fit we just skip
-                        richAudiosRecd[notification.content.numAudioUrls].key   = urlLanguage;
-                        richAudiosRecd[notification.content.numAudioUrls].value = urlText;
-                    }
-
+                if (status = AJ_UnmarshalArgs(msg, "ss", &urlLanguage, &urlText) != AJ_OK)
+                    goto Exit;
+                if (notification.content.numAudioUrls < NUMALLOWEDRICHNOTS) {             // if it doesn't fit we just skip
+                    richAudiosRecd[notification.content.numAudioUrls].key   = urlLanguage;
+                    richAudiosRecd[notification.content.numAudioUrls].value = urlText;
                     notification.content.numAudioUrls++;
-                    status = AJ_UnmarshalCloseContainer(msg, &structArg);
                 }
-                notification.content.richAudioUrls = richAudiosRecd;
-            }
-            break;
 
-            default:
-                AJ_Printf("Unknown argument - skipping\n");
-                status = AJ_SkipArg(msg);
-                if (status != AJ_OK) {
-                    AJ_Printf("Error could not skip argument\n");
-                    return status;
-                }
+                if (status = AJ_UnmarshalCloseContainer(msg, &structArg) != AJ_OK)
+                    goto Exit;
             }
-            status = AJ_UnmarshalCloseContainer(msg, &dictArg);
+            notification.content.richAudioUrls = richAudiosRecd;
+        }
+        break;
+
+        default:
+            AJ_Printf("Unknown argument - skipping\n");
+            status = AJ_SkipArg(msg);
+            if (status != AJ_OK) {
+                AJ_Printf("Error could not skip argument\n");
+                return status;
+            }
+        }
+        if (status = AJ_UnmarshalCloseContainer(msg, &dictArg) != AJ_OK)
+            goto Exit;
+    }
+
+    if (status = AJ_UnmarshalContainer(msg, &customAttributeArray, AJ_ARG_ARRAY) != AJ_OK)
+        goto Exit;
+
+    while (1) {
+        AJ_Arg customAttributeDictArg;
+        char* customKey;
+        char* customVal;
+
+        status = AJ_UnmarshalContainer(msg, &customAttributeDictArg, AJ_ARG_DICT_ENTRY);
+        if (status == AJ_ERR_NO_MORE) {
+            if (status = AJ_UnmarshalCloseContainer(msg, &customAttributeArray) != AJ_OK)
+                goto Exit;
+            else
+                break;
+        } else if (status) {
+            goto Exit;
         }
 
-        if (status && status != AJ_ERR_NO_MORE)
-            break;
+        if (status = AJ_UnmarshalArgs(msg, "ss", &customKey, &customVal) != AJ_OK)
+            goto Exit;
 
-        CHECK(AJ_UnmarshalContainer(msg, &customAttributeArray, AJ_ARG_ARRAY));
-
-        while (1) {
-            AJ_Arg customAttributeDictArg;
-            char* customKey;
-            char* customVal;
-
-            status = AJ_UnmarshalContainer(msg, &customAttributeDictArg, AJ_ARG_DICT_ENTRY);
-            if (status == AJ_ERR_NO_MORE) {
-                AJ_UnmarshalCloseContainer(msg, &customAttributeArray);
-                break;
-            } else if (status) {
-                break;
-            }
-
-            status = AJ_UnmarshalArgs(msg, "ss", &customKey, &customVal);
-
-            if (notification.content.numCustomAttributes < NUMALLOWEDCUSTOMATTRIBUTES) { // if it doesn't fit we just skip
-                customAttributesRecd[notification.content.numCustomAttributes].key   = customKey;
-                customAttributesRecd[notification.content.numCustomAttributes].value = customVal;
-            }
-
+        if (notification.content.numCustomAttributes < NUMALLOWEDCUSTOMATTRIBUTES) {     // if it doesn't fit we just skip
+            customAttributesRecd[notification.content.numCustomAttributes].key   = customKey;
+            customAttributesRecd[notification.content.numCustomAttributes].value = customVal;
             notification.content.numCustomAttributes++;
-            status = AJ_UnmarshalCloseContainer(msg, &customAttributeDictArg);
         }
-        notification.content.customAttributes = customAttributesRecd;
 
-        if (status && status != AJ_ERR_NO_MORE)
-            break;
+        if (status = AJ_UnmarshalCloseContainer(msg, &customAttributeDictArg) != AJ_OK)
+            goto Exit;
+    }
+    notification.content.customAttributes = customAttributesRecd;
 
-        CHECK(AJ_UnmarshalContainer(msg, &notTextArray, AJ_ARG_ARRAY));
+    if (status = AJ_UnmarshalContainer(msg, &notTextArray, AJ_ARG_ARRAY) != AJ_OK)
+        goto Exit;
 
-        while (1) {
-            AJ_Arg structArg;
-            char* notificationLanguage;
-            char* notificationText;
+    while (1) {
+        AJ_Arg structArg;
+        char* notificationLanguage;
+        char* notificationText;
 
-            status = AJ_UnmarshalContainer(msg, &structArg, AJ_ARG_STRUCT);
-            if (status == AJ_ERR_NO_MORE) {
-                AJ_UnmarshalCloseContainer(msg, &notTextArray);
+        status = AJ_UnmarshalContainer(msg, &structArg, AJ_ARG_STRUCT);
+        if (status == AJ_ERR_NO_MORE) {
+            if (status = AJ_UnmarshalCloseContainer(msg, &notTextArray) != AJ_OK)
+                goto Exit;
+            else
                 break;
-            } else if (status) {
-                break;
-            }
+        } else if (status) {
+            goto Exit;
+        }
 
-            status = AJ_UnmarshalArgs(msg, "ss", &notificationLanguage, &notificationText);
+        if (status = AJ_UnmarshalArgs(msg, "ss", &notificationLanguage, &notificationText) != AJ_OK)
+            goto Exit;
 
-            if (notification.content.numTexts < NUMALLOWEDTEXTS) { // if it doesn't fit we just skip
-                textsRecd[notification.content.numTexts].key   = notificationLanguage;
-                textsRecd[notification.content.numTexts].value = notificationText;
-            }
-
+        if (notification.content.numTexts < NUMALLOWEDTEXTS) {     // if it doesn't fit we just skip
+            textsRecd[notification.content.numTexts].key   = notificationLanguage;
+            textsRecd[notification.content.numTexts].value = notificationText;
             notification.content.numTexts++;
-            status = AJ_UnmarshalCloseContainer(msg, &structArg);
         }
-        notification.content.texts = textsRecd;
-        if (status && status != AJ_ERR_NO_MORE)
-            break;
 
-    } while (0);
+        if (status = AJ_UnmarshalCloseContainer(msg, &structArg) != AJ_OK)
+            goto Exit;
+    }
+    notification.content.texts = textsRecd;
 
-    if (status && status != AJ_ERR_NO_MORE) {
+Exit:
+
+    if (status != AJ_OK) {
         AJ_Printf("Handle Notification failed: '%s'\n", AJ_StatusText(status));
     } else {
         status = ApplicationHandleNotify(&notification);
@@ -375,17 +414,21 @@ AJ_Status ConsumerDismissSignalHandler(AJ_Message* msg)
     uint32_t notificationId = 0;
     char appId[UUID_LENGTH * 2 + 1];
 
-    do {
-        AJ_Arg appIdArray;
+    AJ_Arg appIdArray;
 
-        CHECK(AJ_UnmarshalArgs(msg, "i", &notificationId));
-        CHECK(AJ_UnmarshalArg(msg, &appIdArray));
 
-        size_t appIdLen = ((appIdArray.len > UUID_LENGTH) ? UUID_LENGTH : appIdArray.len) * 2 + 1;
-        CHECK(AJ_RawToHex(appIdArray.val.v_byte, appIdArray.len, appId, appIdLen, FALSE));
+    if (status = AJ_UnmarshalArgs(msg, "i", &notificationId) != AJ_OK)
+        return status;
 
-        ApplicationHandleDismiss(notificationId, appId);
-    } while (0);
+    if (status = AJ_UnmarshalArg(msg, &appIdArray) != AJ_OK)
+        return status;
+
+    size_t appIdLen = ((appIdArray.len > UUID_LENGTH) ? UUID_LENGTH : appIdArray.len) * 2 + 1;
+
+    if (status = AJ_RawToHex(appIdArray.val.v_byte, appIdArray.len, appId, appIdLen, FALSE) != AJ_OK)
+        return status;
+
+    ApplicationHandleDismiss(notificationId, appId);
 
     return status;
 }

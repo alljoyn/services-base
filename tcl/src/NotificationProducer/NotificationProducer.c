@@ -85,157 +85,194 @@ AJ_Status ProducerSetNotification(NotificationContent_t* notificationContent, ui
         return status;
     }
 
-    do {
-        AJ_Arg attrbtArray;
-        AJ_Arg customAttributeArray;
-        AJ_Arg notTextArray;
-        AJ_Arg richAudioArray;
-        AJ_Arg dictArg;
-        AJ_Arg customAttributeDictArg;
-        AJ_Arg structArg;
-        AJ_Arg audioStructArg;
-        AJ_Arg richAudioAttrArray;
+    AJ_Arg attrbtArray;
+    AJ_Arg customAttributeArray;
+    AJ_Arg notTextArray;
+    AJ_Arg richAudioArray;
+    AJ_Arg dictArg;
+    AJ_Arg customAttributeDictArg;
+    AJ_Arg structArg;
+    AJ_Arg audioStructArg;
+    AJ_Arg richAudioAttrArray;
 
-        ///////////////////       Proto     /////////////////////
-        CHECK(AJ_MarshalArgs(&msg, "q", NotificationVersion));
+    ///////////////////       Proto     /////////////////////
+    if (status = AJ_MarshalArgs(&msg, "q", NotificationVersion) != AJ_OK)
+        goto ErrorExit;
 
-        ///////////////////    MessgeId    /////////////////////
-        if (!nextNotificationId)
-            AJ_RandBytes((uint8_t*)&nextNotificationId, 4);
-        CHECK(AJ_MarshalArgs(&msg, "i", nextNotificationId));
+    ///////////////////    MessgeId    /////////////////////
+    if (!nextNotificationId)
+        AJ_RandBytes((uint8_t*)&nextNotificationId, 4);
 
-        ///////////////////    MessageType   ////////////////////////////
+    if (status = AJ_MarshalArgs(&msg, "i", nextNotificationId) != AJ_OK)
+        goto ErrorExit;
 
-        CHECK(AJ_MarshalArgs(&msg, "q", messageType));
+    ///////////////////    MessageType   ////////////////////////////
+    if (status = AJ_MarshalArgs(&msg, "q", messageType) != AJ_OK)
+        goto ErrorExit;
 
-        ///////////////////    DeviceId   ////////////////////////////
+    ///////////////////    DeviceId   ////////////////////////////
+    if (status = AJ_MarshalArgs(&msg, "s", deviceId) != AJ_OK)
+        goto ErrorExit;
 
-        CHECK(AJ_MarshalArgs(&msg, "s", deviceId));
+    ///////////////////    DeviceName   ////////////////////////////
+    if (status = AJ_MarshalArgs(&msg, "s", deviceName) != AJ_OK)
+        goto ErrorExit;
 
-        ///////////////////    DeviceName   ////////////////////////////
+    ///////////////////    AppId   ////////////////////////////
+    if (status = Common_MarshalAppId(&msg, appId) != AJ_OK)
+        goto ErrorExit;
 
-        CHECK(AJ_MarshalArgs(&msg, "s", deviceName));
+    ///////////////////    AppName   ////////////////////////////
+    if (status = AJ_MarshalArgs(&msg, "s", appName) != AJ_OK)
+        goto ErrorExit;
 
-        ///////////////////    AppId   ////////////////////////////
+    ///////////////////    Attributes   ////////////////////////////
+    if (status = AJ_MarshalContainer(&msg, &attrbtArray, AJ_ARG_ARRAY) != AJ_OK)
+        goto ErrorExit;
 
-        CHECK(Common_MarshalAppId(&msg, appId));
+    if (notificationContent->richIconUrl != 0) {
+        if (status = AJ_MarshalContainer(&msg, &dictArg, AJ_ARG_DICT_ENTRY) != AJ_OK)
+            goto ErrorExit;
+        if (status = AJ_MarshalArgs(&msg, "i", RICH_CONTENT_ICON_URL_ATTRIBUTE_KEY) != AJ_OK)
+            goto ErrorExit;
+        if (status = AJ_MarshalVariant(&msg, "s") != AJ_OK)
+            goto ErrorExit;
+        if (status = AJ_MarshalArgs(&msg, "s", notificationContent->richIconUrl) != AJ_OK)
+            goto ErrorExit;
+        if (status = AJ_MarshalCloseContainer(&msg, &dictArg) != AJ_OK)
+            goto ErrorExit;
+    }
+    int8_t indx;
+    if (notificationContent->numAudioUrls > 0) {
+        if (status = AJ_MarshalContainer(&msg, &richAudioArray, AJ_ARG_DICT_ENTRY) != AJ_OK)
+            goto ErrorExit;
 
-        ///////////////////    AppName   ////////////////////////////
+        if (status = AJ_MarshalArgs(&msg, "i", RICH_CONTENT_AUDIO_URL_ATTRIBUTE_KEY) != AJ_OK)
+            goto ErrorExit;
+        if (status = AJ_MarshalVariant(&msg, "a(ss)") != AJ_OK)
+            goto ErrorExit;
+        if (status = AJ_MarshalContainer(&msg, &richAudioAttrArray, AJ_ARG_ARRAY) != AJ_OK)
+            goto ErrorExit;
 
-        CHECK(AJ_MarshalArgs(&msg, "s", appName));
-
-        ///////////////////    Attributes   ////////////////////////////
-
-        CHECK(AJ_MarshalContainer(&msg, &attrbtArray, AJ_ARG_ARRAY));
-
-        if (notificationContent->richIconUrl != 0) {
-            AJ_MarshalContainer(&msg, &dictArg, AJ_ARG_DICT_ENTRY);
-            AJ_MarshalArgs(&msg, "i", RICH_CONTENT_ICON_URL_ATTRIBUTE_KEY);
-            AJ_MarshalVariant(&msg, "s");
-            AJ_MarshalArgs(&msg, "s", notificationContent->richIconUrl);
-            AJ_MarshalCloseContainer(&msg, &dictArg);
-        }
-        int8_t indx;
-        if (notificationContent->numAudioUrls > 0) {
-            CHECK(AJ_MarshalContainer(&msg, &richAudioArray, AJ_ARG_DICT_ENTRY));
-
-            AJ_MarshalArgs(&msg, "i", RICH_CONTENT_AUDIO_URL_ATTRIBUTE_KEY);
-            AJ_MarshalVariant(&msg, "a(ss)");
-
-            CHECK(AJ_MarshalContainer(&msg, &richAudioAttrArray, AJ_ARG_ARRAY));
-
-            for (indx = 0; indx < notificationContent->numAudioUrls; indx++) {
-                if ((strlen(notificationContent->richAudioUrls[indx].key) == 0) || (strlen(notificationContent->richAudioUrls[indx].value) == 0)) {
-                    AJ_Printf("Rich Audio Language/Url can not be empty\n");
-                    AJ_MarshalCloseContainer(&msg, &richAudioArray);
-                    status = AJ_ERR_DISALLOWED;
-                    break;
-                }
-                CHECK(AJ_MarshalContainer(&msg, &audioStructArg, AJ_ARG_STRUCT));
-                CHECK(AJ_MarshalArgs(&msg, "ss", notificationContent->richAudioUrls[indx].key, notificationContent->richAudioUrls[indx].value));
-                CHECK(AJ_MarshalCloseContainer(&msg, &audioStructArg));
-            }
-            if (status)
-                break;
-
-            CHECK(AJ_MarshalCloseContainer(&msg, &richAudioAttrArray));
-
-            CHECK(AJ_MarshalCloseContainer(&msg, &richAudioArray));
-        }
-        if (status)
-            break;
-
-        if (notificationContent->richIconObjectPath != 0) {
-            AJ_MarshalContainer(&msg, &dictArg, AJ_ARG_DICT_ENTRY);
-            AJ_MarshalArgs(&msg, "i", RICH_CONTENT_ICON_OBJECT_PATH_ATTRIBUTE_KEY);
-            AJ_MarshalVariant(&msg, "s");
-            AJ_MarshalArgs(&msg, "s", notificationContent->richIconObjectPath);
-            AJ_MarshalCloseContainer(&msg, &dictArg);
-        }
-
-        if (notificationContent->richAudioObjectPath != 0) {
-            AJ_MarshalContainer(&msg, &dictArg, AJ_ARG_DICT_ENTRY);
-            AJ_MarshalArgs(&msg, "i", RICH_CONTENT_AUDIO_OBJECT_PATH_ATTRIBUTE_KEY);
-            AJ_MarshalVariant(&msg, "s");
-            AJ_MarshalArgs(&msg, "s", notificationContent->richAudioObjectPath);
-            AJ_MarshalCloseContainer(&msg, &dictArg);
-        }
-
-        if (notificationContent->controlPanelServiceObjectPath != 0) {
-            AJ_MarshalContainer(&msg, &dictArg, AJ_ARG_DICT_ENTRY);
-            AJ_MarshalArgs(&msg, "i", CONTROLPANELSERVICE_OBJECT_PATH_ATTRIBUTE_KEY);
-            AJ_MarshalVariant(&msg, "s");
-            AJ_MarshalArgs(&msg, "s", notificationContent->controlPanelServiceObjectPath);
-            AJ_MarshalCloseContainer(&msg, &dictArg);
-        }
-
-        AJ_MarshalContainer(&msg, &dictArg, AJ_ARG_DICT_ENTRY);
-        AJ_MarshalArgs(&msg, "i", ORIGINAL_SENDER_NAME_ATTRIBUTE_KEY);
-        AJ_MarshalVariant(&msg, "s");
-        AJ_MarshalArgs(&msg, "s", originalSenderName);
-        AJ_MarshalCloseContainer(&msg, &dictArg);
-
-        CHECK(AJ_MarshalCloseContainer(&msg, &attrbtArray));
-
-        ///////////////////    Custom Attributes   ///////////////////
-
-        CHECK(AJ_MarshalContainer(&msg, &customAttributeArray, AJ_ARG_ARRAY));
-
-        for (indx = 0; indx < notificationContent->numCustomAttributes; indx++) {
-            CHECK(AJ_MarshalContainer(&msg, &customAttributeDictArg, AJ_ARG_DICT_ENTRY));
-            CHECK(AJ_MarshalArgs(&msg, "ss", notificationContent->customAttributes[indx].key, notificationContent->customAttributes[indx].value));
-            CHECK(AJ_MarshalCloseContainer(&msg, &customAttributeDictArg));
-        }
-        if (status)
-            break;
-
-        CHECK(AJ_MarshalCloseContainer(&msg, &customAttributeArray));
-
-        ///////////////////   Notifications   ////////////////////////////
-
-        CHECK(AJ_MarshalContainer(&msg, &notTextArray, AJ_ARG_ARRAY));
-
-        for (indx = 0; indx < notificationContent->numTexts; indx++) {
-            if ((strlen(notificationContent->texts[indx].key) == 0) || (strlen(notificationContent->texts[indx].value) == 0)) {
-                AJ_Printf("Language/Text can not be empty\n");
-                AJ_MarshalCloseContainer(&msg, &notTextArray);
+        for (indx = 0; indx < notificationContent->numAudioUrls; indx++) {
+            if ((strlen(notificationContent->richAudioUrls[indx].key) == 0) || (strlen(notificationContent->richAudioUrls[indx].value) == 0)) {
+                AJ_Printf("Rich Audio Language/Url can not be empty\n");
+                AJ_MarshalCloseContainer(&msg, &richAudioArray);
                 status = AJ_ERR_DISALLOWED;
-                break;
+                goto ErrorExit;
             }
-            CHECK(AJ_MarshalContainer(&msg, &structArg, AJ_ARG_STRUCT));
-            CHECK(AJ_MarshalArgs(&msg, "ss", notificationContent->texts[indx].key, notificationContent->texts[indx].value));
-            CHECK(AJ_MarshalCloseContainer(&msg, &structArg));
+            if (status = AJ_MarshalContainer(&msg, &audioStructArg, AJ_ARG_STRUCT) != AJ_OK)
+                goto ErrorExit;
+            if (status = AJ_MarshalArgs(&msg, "ss", notificationContent->richAudioUrls[indx].key, notificationContent->richAudioUrls[indx].value) != AJ_OK)
+                goto ErrorExit;
+            if (status = AJ_MarshalCloseContainer(&msg, &audioStructArg) != AJ_OK)
+                goto ErrorExit;
         }
-        if (status)
-            break;
 
-        CHECK(AJ_MarshalCloseContainer(&msg, &notTextArray));
+        if (status = AJ_MarshalCloseContainer(&msg, &richAudioAttrArray) != AJ_OK)
+            goto ErrorExit;
 
-        isMessageSet = TRUE;
-        lastMessageType = messageType;
+        if (status = AJ_MarshalCloseContainer(&msg, &richAudioArray) != AJ_OK)
+            goto ErrorExit;
+    }
 
-        return AJ_OK;
-    } while (0);
+    if (notificationContent->richIconObjectPath != 0) {
+        if (status = AJ_MarshalContainer(&msg, &dictArg, AJ_ARG_DICT_ENTRY) != AJ_OK)
+            goto ErrorExit;
+        if (status = AJ_MarshalArgs(&msg, "i", RICH_CONTENT_ICON_OBJECT_PATH_ATTRIBUTE_KEY) != AJ_OK)
+            goto ErrorExit;
+        if (status = AJ_MarshalVariant(&msg, "s") != AJ_OK)
+            goto ErrorExit;
+        if (status = AJ_MarshalArgs(&msg, "s", notificationContent->richIconObjectPath) != AJ_OK)
+            goto ErrorExit;
+        if (status = AJ_MarshalCloseContainer(&msg, &dictArg) != AJ_OK)
+            goto ErrorExit;
+    }
+
+    if (notificationContent->richAudioObjectPath != 0) {
+        if (status = AJ_MarshalContainer(&msg, &dictArg, AJ_ARG_DICT_ENTRY) != AJ_OK)
+            goto ErrorExit;
+        if (status = AJ_MarshalArgs(&msg, "i", RICH_CONTENT_AUDIO_OBJECT_PATH_ATTRIBUTE_KEY) != AJ_OK)
+            goto ErrorExit;
+        if (status = AJ_MarshalVariant(&msg, "s") != AJ_OK)
+            goto ErrorExit;
+        if (status = AJ_MarshalArgs(&msg, "s", notificationContent->richAudioObjectPath) != AJ_OK)
+            goto ErrorExit;
+        if (status = AJ_MarshalCloseContainer(&msg, &dictArg) != AJ_OK)
+            goto ErrorExit;
+    }
+
+    if (notificationContent->controlPanelServiceObjectPath != 0) {
+        if (status = AJ_MarshalContainer(&msg, &dictArg, AJ_ARG_DICT_ENTRY) != AJ_OK)
+            goto ErrorExit;
+        if (status = AJ_MarshalArgs(&msg, "i", CONTROLPANELSERVICE_OBJECT_PATH_ATTRIBUTE_KEY) != AJ_OK)
+            goto ErrorExit;
+        if (status = AJ_MarshalVariant(&msg, "s") != AJ_OK)
+            goto ErrorExit;
+        if (status = AJ_MarshalArgs(&msg, "s", notificationContent->controlPanelServiceObjectPath) != AJ_OK)
+            goto ErrorExit;
+        if (status = AJ_MarshalCloseContainer(&msg, &dictArg) != AJ_OK)
+            goto ErrorExit;
+    }
+
+    if (status = AJ_MarshalContainer(&msg, &dictArg, AJ_ARG_DICT_ENTRY) != AJ_OK)
+        goto ErrorExit;
+    if (status = AJ_MarshalArgs(&msg, "i", ORIGINAL_SENDER_NAME_ATTRIBUTE_KEY) != AJ_OK)
+        goto ErrorExit;
+    if (status = AJ_MarshalVariant(&msg, "s") != AJ_OK)
+        goto ErrorExit;
+    if (status = AJ_MarshalArgs(&msg, "s", originalSenderName) != AJ_OK)
+        goto ErrorExit;
+    if (status = AJ_MarshalCloseContainer(&msg, &dictArg) != AJ_OK)
+        goto ErrorExit;
+
+    if (status = AJ_MarshalCloseContainer(&msg, &attrbtArray) != AJ_OK)
+        goto ErrorExit;
+
+    ///////////////////    Custom Attributes   ///////////////////
+    if (status = AJ_MarshalContainer(&msg, &customAttributeArray, AJ_ARG_ARRAY) != AJ_OK)
+        goto ErrorExit;
+
+    for (indx = 0; indx < notificationContent->numCustomAttributes; indx++) {
+        if (status = AJ_MarshalContainer(&msg, &customAttributeDictArg, AJ_ARG_DICT_ENTRY) != AJ_OK)
+            goto ErrorExit;
+        if (status = AJ_MarshalArgs(&msg, "ss", notificationContent->customAttributes[indx].key, notificationContent->customAttributes[indx].value) != AJ_OK)
+            goto ErrorExit;
+        if (status = AJ_MarshalCloseContainer(&msg, &customAttributeDictArg) != AJ_OK)
+            goto ErrorExit;
+    }
+
+    if (status = AJ_MarshalCloseContainer(&msg, &customAttributeArray) != AJ_OK)
+        goto ErrorExit;
+
+    ///////////////////   Notifications   ////////////////////////////
+    if (status = AJ_MarshalContainer(&msg, &notTextArray, AJ_ARG_ARRAY) != AJ_OK)
+        goto ErrorExit;
+
+    for (indx = 0; indx < notificationContent->numTexts; indx++) {
+        if ((strlen(notificationContent->texts[indx].key) == 0) || (strlen(notificationContent->texts[indx].value) == 0)) {
+            AJ_Printf("Language/Text can not be empty\n");
+            AJ_MarshalCloseContainer(&msg, &notTextArray);
+            status = AJ_ERR_DISALLOWED;
+            goto ErrorExit;
+        }
+        if (status = AJ_MarshalContainer(&msg, &structArg, AJ_ARG_STRUCT) != AJ_OK)
+            goto ErrorExit;
+        if (status = AJ_MarshalArgs(&msg, "ss", notificationContent->texts[indx].key, notificationContent->texts[indx].value) != AJ_OK)
+            goto ErrorExit;
+        if (status = AJ_MarshalCloseContainer(&msg, &structArg) != AJ_OK)
+            goto ErrorExit;
+    }
+
+    if (status = AJ_MarshalCloseContainer(&msg, &notTextArray) != AJ_OK)
+        goto ErrorExit;
+
+    isMessageSet = TRUE;
+    lastMessageType = messageType;
+
+    return AJ_OK;
+
+ErrorExit:
 
     AJ_Printf("SetNotification failed: '%s'\n", AJ_StatusText(status));
     isMessageSet = FALSE;
