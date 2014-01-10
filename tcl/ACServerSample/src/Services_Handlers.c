@@ -317,23 +317,23 @@ Service_Status Service_MessageProcessor(AJ_Message* msg, AJ_Status* status)
         if (serviceStatus == SERVICE_STATUS_NOT_HANDLED) {
             AJ_ResetArgs(msg);
         }
-/*  } else if (msg->msgId == AJ_SIGNAL_SESSION_LOST_WITH_REASON || msg->msgId == AJ_SIGNAL_SESSION_LOST) {     // Process all incoming lost session signals and pass session state change to all services
-        uint32_t sessionId = 0;
-        uint32_t reason = 0;
-        if (msg->msgId == AJ_SIGNAL_SESSION_LOST_WITH_REASON) {
-            *status = AJ_UnmarshalArgs(msg, "uu", &sessionId, &reason);
-        } else {
-            *status = AJ_UnmarshalArgs(msg, "u", &sessionId);
-        }
-        if (*status != AJ_OK) {
-            AJ_Printf("JoinSessionReply: failed to marshal\n");
-        } else {
-            AJ_Printf("Session lost: sessionId = %u, reason = %u", sessionId, reason);
-            serviceStatus = Services_HandleSessionStateChanged(&busAttachment, sessionId, FALSE, 0);
-            if (serviceStatus == SERVICE_STATUS_NOT_HANDLED) {
-                AJ_ResetArgs(msg);
-            }
-        }*/
+//  } else if (msg->msgId == AJ_SIGNAL_SESSION_LOST_WITH_REASON || msg->msgId == AJ_SIGNAL_SESSION_LOST) {     // Process all incoming lost session signals and pass session state change to all services
+//      uint32_t sessionId = 0;
+//      uint32_t reason = 0;
+//      if (msg->msgId == AJ_SIGNAL_SESSION_LOST_WITH_REASON) {
+//          *status = AJ_UnmarshalArgs(msg, "uu", &sessionId, &reason);
+//      } else {
+//          *status = AJ_UnmarshalArgs(msg, "u", &sessionId);
+//      }
+//      if (*status != AJ_OK) {
+//          AJ_Printf("JoinSessionReply: failed to marshal\n");
+//      } else {
+//          AJ_Printf("Session lost: sessionId = %u, reason = %u", sessionId, reason);
+//          serviceStatus = Services_HandleSessionStateChanged(&busAttachment, sessionId, FALSE, 0);
+//          if (serviceStatus == SERVICE_STATUS_NOT_HANDLED) {
+//              AJ_ResetArgs(msg);
+//          }
+//      }
     } else {
         if (serviceStatus == SERVICE_STATUS_NOT_HANDLED)
             serviceStatus = Application_MessageProcessor(&busAttachment, msg, status);
