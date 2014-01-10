@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -313,62 +313,80 @@ AJ_Status PropertyStore_ReadAll(AJ_Message* msg, property_store_filter_t filter,
 
     AJ_Printf("PropertyStore_ReadAll()\n");
 
-    do {
-        CHECK(AJ_MarshalContainer(msg, &array, AJ_ARG_ARRAY));
+    if (status = AJ_MarshalContainer(msg, &array, AJ_ARG_ARRAY) != AJ_OK)
+        return status;
 
-        enum_field_indecies_t fieldIndex = 0;
-        for (; fieldIndex < NUMBER_OF_KEYS; fieldIndex++) {
+    enum_field_indecies_t fieldIndex = 0;
+    for (; fieldIndex < NUMBER_OF_KEYS; fieldIndex++) {
 #ifdef CONFIG_SERVICE
-            if (theAboutConfigVar[fieldIndex].mode7Public && (filter.bit0About || (filter.bit1Config && theAboutConfigVar[fieldIndex].mode0Write) || (filter.bit2Announce && theAboutConfigVar[fieldIndex].mode1Announce))) {
+        if (theAboutConfigVar[fieldIndex].mode7Public && (filter.bit0About || (filter.bit1Config && theAboutConfigVar[fieldIndex].mode0Write) || (filter.bit2Announce && theAboutConfigVar[fieldIndex].mode1Announce))) {
 #else
-            if (theAboutConfigVar[fieldIndex].mode7Public && (filter.bit0About || (filter.bit2Announce && theAboutConfigVar[fieldIndex].mode1Announce))) {
+        if (theAboutConfigVar[fieldIndex].mode7Public && (filter.bit0About || (filter.bit2Announce && theAboutConfigVar[fieldIndex].mode1Announce))) {
 #endif
-                const char* value;
-                value = PropertyStore_GetValueForLang(fieldIndex, langIndex);
+            const char* value;
+            value = PropertyStore_GetValueForLang(fieldIndex, langIndex);
 
-                if (value == NULL) { // Non existing values are skipped!
-                    AJ_Printf("PropertyStore_ReadAll - Failed to get value for fieldIndex=%d langIndex=%d, skipping.\n", (int)fieldIndex, (int)langIndex);
-                } else {
-                    CHECK(AJ_MarshalContainer(msg, &dict, AJ_ARG_DICT_ENTRY));
-                    CHECK(AJ_MarshalArgs(msg, "s", theAboutConfigVar[fieldIndex].keyName));
+            if (value == NULL) {     // Non existing values are skipped!
+                AJ_Printf("PropertyStore_ReadAll - Failed to get value for fieldIndex=%d langIndex=%d, skipping.\n", (int)fieldIndex, (int)langIndex);
+            } else {
+                if (status = AJ_MarshalContainer(msg, &dict, AJ_ARG_DICT_ENTRY) != AJ_OK)
+                    return status;
+                if (status = AJ_MarshalArgs(msg, "s", theAboutConfigVar[fieldIndex].keyName) != AJ_OK)
+                    return status;
 
-                    if (fieldIndex == AppID) {              //Todo - replace it with generic solution
-                        CHECK(AJ_MarshalVariant(msg, "ay"));
-                        AJ_Arg arg;
-                        uint8_t rawValue[16];
-                        status = AJ_HexToRaw(value, 0, rawValue, (size_t)sizeof(rawValue));
-                        CHECK(AJ_MarshalArg(msg, AJ_InitArg(&arg, AJ_ARG_BYTE, AJ_ARRAY_FLAG, rawValue, sizeof(rawValue))));
-#ifdef CONFIG_SERVICE
-                    } else if (fieldIndex == MaxLength) {
-                        CHECK(AJ_MarshalVariant(msg, "q"));
-                        CHECK(AJ_MarshalArgs(msg, "q", DEVICE_NAME_VALUE_LENGTH));
-#endif
-                    } else {
-                        CHECK(AJ_MarshalVariant(msg, "s"));
-                        CHECK(AJ_MarshalArgs(msg, "s", value));
-                    }
-                    CHECK(AJ_MarshalCloseContainer(msg, &dict));
+                if (fieldIndex == AppID) {                  //Todo - replace it with generic solution
+                    if (status = AJ_MarshalVariant(msg, "ay") != AJ_OK)
+                        return status;
+                    AJ_Arg arg;
+                    uint8_t rawValue[16];
+                    status = AJ_HexToRaw(value, 0, rawValue, (size_t)sizeof(rawValue));
+                    if (status = AJ_MarshalArg(msg, AJ_InitArg(&arg, AJ_ARG_BYTE, AJ_ARRAY_FLAG, rawValue, sizeof(rawValue))) != AJ_OK)
+                        return status;
                 }
+#ifdef CONFIG_SERVICE
+                else if (fieldIndex == MaxLength) {
+                    if (status = AJ_MarshalVariant(msg, "q") != AJ_OK)
+                        return status;
+                    if (status = AJ_MarshalArgs(msg, "q", DEVICE_NAME_VALUE_LENGTH) != AJ_OK)
+                        return status;
+                }
+#endif
+                else {
+                    if (status = AJ_MarshalVariant(msg, "s") != AJ_OK)
+                        return status;
+                    if (status = AJ_MarshalArgs(msg, "s", value) != AJ_OK)
+                        return status;
+                }
+                if (status = AJ_MarshalCloseContainer(msg, &dict) != AJ_OK)
+                    return status;
             }
         }
+    }
 
-        if (filter.bit0About) {
-            // Add supported languages
-            CHECK(AJ_MarshalContainer(msg, &dict, AJ_ARG_DICT_ENTRY));
-            CHECK(AJ_MarshalArgs(msg, "s", defaultLanguagesKeyName));
-            CHECK(AJ_MarshalVariant(msg, "as"));
-            CHECK(AJ_MarshalContainer(msg, &array2, AJ_ARG_ARRAY));
+    if (filter.bit0About) {
+        // Add supported languages
+        if (status = AJ_MarshalContainer(msg, &dict, AJ_ARG_DICT_ENTRY) != AJ_OK)
+            return status;
+        if (status = AJ_MarshalArgs(msg, "s", defaultLanguagesKeyName) != AJ_OK)
+            return status;
+        if (status = AJ_MarshalVariant(msg, "as") != AJ_OK)
+            return status;
+        if (status = AJ_MarshalContainer(msg, &array2, AJ_ARG_ARRAY) != AJ_OK)
+            return status;
 
-            enum_lang_indecies_t index = NO_LANGUAGE_INDEX;
-            for (; index < NUMBER_OF_LANGUAGES; index++) {
-                CHECK(AJ_MarshalArgs(msg, "s", theDefaultLanguages[index]));
-            }
-
-            CHECK(AJ_MarshalCloseContainer(msg, &array2));
-            CHECK(AJ_MarshalCloseContainer(msg, &dict));
+        enum_lang_indecies_t index = NO_LANGUAGE_INDEX;
+        for (; index < NUMBER_OF_LANGUAGES; index++) {
+            if (status = AJ_MarshalArgs(msg, "s", theDefaultLanguages[index]) != AJ_OK)
+                return status;
         }
-        CHECK(AJ_MarshalCloseContainer(msg, &array));
-    } while (0);
+
+        if (status = AJ_MarshalCloseContainer(msg, &array2) != AJ_OK)
+            return status;
+        if (status = AJ_MarshalCloseContainer(msg, &dict) != AJ_OK)
+            return status;
+    }
+    if (status = AJ_MarshalCloseContainer(msg, &array) != AJ_OK)
+        return status;
 
     return status;
 }
