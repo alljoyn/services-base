@@ -17,7 +17,7 @@
 #include <NotificationProducerSample.h>
 #include <alljoyn/notification/NotificationProducer.h>
 
-#ifdef QCC_OS_LINUX
+#ifdef __linux
 #include <producer_sample_util.h>
 #else
 #define GetNotificationFromUser(x) do { } while (0)
