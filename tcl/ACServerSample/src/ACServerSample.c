@@ -68,13 +68,13 @@ int AJ_Main(void)
             isBusConnected = Daemon_Connect(daemonName);
             if (isBusConnected) {
                 status = Service_ConnectedHandler();
+            } else { // Failed to connect to daemon.
+                continue; // Retry establishing connection to daemon.
             }
         }
 
-        if (isBusConnected) {
-            if (status == AJ_OK) {
-                status = Application_ConnectedHandler();
-            }
+        if (status == AJ_OK) {
+            status = Application_ConnectedHandler();
         }
 
         if (status == AJ_OK) {
