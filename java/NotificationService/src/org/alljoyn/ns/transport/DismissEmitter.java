@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -33,8 +33,8 @@ import org.alljoyn.ns.transport.interfaces.NotificationDismisser;
 /**
  * The class provides a functionality of sending Dismiss session-less-signals
  */
-public class DismissSender implements NotificationDismisser {
-	private static final String TAG = "ioe" + DismissSender.class.getSimpleName();
+public class DismissEmitter implements NotificationDismisser {
+	private static final String TAG = "ioe" + DismissEmitter.class.getSimpleName();
 	
 	private static final String OBJ_PATH_PREFIX = "/notificationDismisser/";
 	
@@ -62,7 +62,7 @@ public class DismissSender implements NotificationDismisser {
 		}
 		
 		logger.debug(TAG, "Sending the Dismiss signal notifId: '" + msgId + "', appId: '" + appId + "'");
-		DismissSender dismissSenderBusObj = new DismissSender();
+		DismissEmitter dismissSenderBusObj = new DismissEmitter();
 		
 		String objPath = buildObjPath(msgId, appId);
 		Status status  = bus.registerBusObject(dismissSenderBusObj, objPath);
