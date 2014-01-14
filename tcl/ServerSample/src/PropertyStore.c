@@ -30,9 +30,9 @@
 static property_store_config_entry_t theConfigVar[NUMBER_OF_CONFIG_KEYS];
 
 static char MachineID[MACHINE_ID_LENGTH + 1] = { 0 };
+static char DeviceNameVar[DEVICE_NAME_VALUE_LENGTH + 1] = { 0 };
 #ifdef CONFIG_SERVICE
 static char DefaultLanguageVar[LANG_VALUE_LENGTH + 1] = { 0 };
-static char DeviceNameVar[DEVICE_NAME_VALUE_LENGTH + 1] = { 0 };
 static char PasscodeVar[PASSWORD_VALUE_LENGTH + 1] = { 0 };
 static char RealmNameVar[KEY_VALUE_LENGTH + 1] = { 0 };
 #endif
@@ -152,8 +152,8 @@ enum_lang_indecies_t PropertyStore_GetCurrentDefaultLanguageIndex()
 static void ClearPropertiesInRAM()
 {
     memset(MachineID, 0, sizeof(MachineID));
-    memset(DefaultLanguageVar, 0, sizeof(DefaultLanguageVar));
     memset(DeviceNameVar, 0, sizeof(DeviceNameVar));
+    memset(DefaultLanguageVar, 0, sizeof(DefaultLanguageVar));
     memset(PasscodeVar, 0, sizeof(PasscodeVar));
     memset(RealmNameVar, 0, sizeof(RealmNameVar));
 }
@@ -191,11 +191,11 @@ void PropertyStore_Init()
     theConfigVar[DeviceID].value[NO_LANGUAGE_INDEX] = MachineID;
     theConfigVar[AppID].size = sizeof(MachineID);
     theConfigVar[AppID].value[NO_LANGUAGE_INDEX] = MachineID;
+    theConfigVar[DeviceName].size = sizeof(DeviceNameVar);
+    theConfigVar[DeviceName].value[NO_LANGUAGE_INDEX] = DeviceNameVar;
 #ifdef CONFIG_SERVICE
     theConfigVar[DefaultLanguage].size = sizeof(DefaultLanguageVar);
     theConfigVar[DefaultLanguage].value[NO_LANGUAGE_INDEX] = DefaultLanguageVar;
-    theConfigVar[DeviceName].size = sizeof(DeviceNameVar);
-    theConfigVar[DeviceName].value[NO_LANGUAGE_INDEX] = DeviceNameVar;
     theConfigVar[Passcode].size = sizeof(PasscodeVar);
     theConfigVar[Passcode].value[NO_LANGUAGE_INDEX] = PasscodeVar;
     theConfigVar[RealmName].size = sizeof(RealmNameVar);

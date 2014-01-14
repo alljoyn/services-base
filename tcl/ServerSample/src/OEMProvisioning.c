@@ -38,11 +38,11 @@ const char* theDefaultLanguages[NUMBER_OF_LANGUAGES] = { "en", "de-AT" };
 const property_store_entry_t theAboutConfigVar[NUMBER_OF_KEYS] =
 {
 //  { "Key Name 19 + '\0'  ", W, A, M, I .. . . ., P,       { "Value for lang1 32/64 + '\0'    ", "Value for lang2 32/64 + '\0'    " } },
-    { "DeviceId",             0, 1, 0, 1, 0, 0, 0, 1,       { NULL,                               NULL } },
-    { "AppId",                0, 1, 0, 1, 0, 0, 0, 1,       { NULL,                               NULL } },
+    { "DeviceId",             0, 1, 0, 1, 0, 0, 0, 1,       { "",                                 NULL } },
+    { "AppId",                0, 1, 0, 1, 0, 0, 0, 1,       { "",                                 NULL } },
+    { "DeviceName",           1, 1, 0, 1, 0, 0, 0, 1,       { "",                                 NULL } },
 // Add other persisted keys above this line
     { "DefaultLanguage",      1, 1, 0, 0, 0, 0, 0, 1,       { "en",                               NULL } },
-    { "DeviceName",           1, 1, 0, 1, 0, 0, 0, 1,       { "",                                 NULL } },
     { "Passcode",             1, 0, 0, 0, 0, 0, 0, 0,       { "000000",                           NULL } },
     { "RealmName",            1, 0, 0, 0, 0, 0, 0, 0,       { "",                                 NULL } },
 // Add other configurable keys above this line
@@ -98,7 +98,7 @@ const size_t aboutIconContentSize = sizeof(aboutIconContent);
 const char* aboutIconUrl = { "https://www.alljoyn.org/sites/all/themes/at_alljoyn/images/img-alljoyn-logo.png" };
 
 #ifdef CONFIG_SERVICE
-AJ_Status App_FactoryReset()
+AJ_Status App_FactoryReset(AJSVC_ApplicationContext_t* applicationContext)
 {
     AJ_Printf("GOT FACTORY RESET\n");
     AJ_Status status = AJ_OK;
@@ -113,16 +113,16 @@ AJ_Status App_FactoryReset()
         return status;
 #endif // ONBOARDING_SERVICE
 
-    isRebootRequired = TRUE;
+    *(applicationContext->isRebootRequired) = TRUE;
     return AJ_ERR_RESTART;     // Force disconnect of AJ and services and reconnection of WiFi on restart
 }
 
-AJ_Status App_Restart()
+AJ_Status App_Restart(AJSVC_ApplicationContext_t* applicationContext)
 {
     AJ_Printf("GOT RESTART REQUEST\n");
     SetShouldAnnounce(TRUE); // Set flag for sending an updated Announcement
-    isRebootRequired = TRUE;
-    return AJ_ERR_RESTART; // Force disconnect of AJ and services and reconnection of WiFi on restart
+    *(applicationContext->isRebootRequired) = FALSE;
+    return AJ_ERR_READ; // Force disconnect of AJ and services and reconnection of WiFi on restart
 }
 
 AJ_Status App_SetPasscode(const char* daemonRealm, const char* newStringPasscode)

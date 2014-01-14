@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -34,6 +34,7 @@ typedef enum PropertyStoreFieldIndecies {
     //Start of keys
     DeviceID,
     AppID,
+    DeviceName,
     NUMBER_OF_PERSISTED_KEYS,
     //End of persisted keys that are not remotely configurable
 #ifndef CONFIG_SERVICE
@@ -41,7 +42,6 @@ typedef enum PropertyStoreFieldIndecies {
     //End of configurable keys
 #endif
     DefaultLanguage = NUMBER_OF_PERSISTED_KEYS,
-    DeviceName,
     Passcode,
     RealmName,
 #ifdef CONFIG_SERVICE
