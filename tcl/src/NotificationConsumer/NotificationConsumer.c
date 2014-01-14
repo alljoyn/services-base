@@ -58,7 +58,7 @@ struct keyValue textsRecd[NUMALLOWEDTEXTS], customAttributesRecd[NUMALLOWEDCUSTO
 
 AJ_Status ConsumerSetSignalRules(AJ_BusAttachment* bus, uint8_t superAgentMode, const char* senderBusName)
 {
-    AJ_Status status;
+    AJ_Status status = AJ_OK;
 
     AJ_Printf("In SetSignalRules()\n");
     AJ_Printf("Adding Dismisser interface match.\n");
@@ -80,7 +80,7 @@ AJ_Status ConsumerSetSignalRules(AJ_BusAttachment* bus, uint8_t superAgentMode, 
         if (currentSuperAgentBusName[0]) {
             AJ_Printf("Removing Superagent interface matched for specific sender bus name %s.\n", currentSuperAgentBusName);
 
-            char senderMatch[100];
+            char senderMatch[76];
             size_t availableLen = sizeof(senderMatch);
             availableLen -= strlen(strncpy(senderMatch, superAgentFilterMatch, availableLen));
             availableLen -= strlen(strncat(senderMatch, currentSuperAgentBusName, availableLen));
@@ -119,7 +119,7 @@ AJ_Status ConsumerSetSignalRules(AJ_BusAttachment* bus, uint8_t superAgentMode, 
             return status;
         }
 
-        char senderMatch[100];
+        char senderMatch[76];
         size_t availableLen = sizeof(senderMatch);
         availableLen -= strlen(strncpy(senderMatch, superAgentFilterMatch, availableLen));
         availableLen -= strlen(strncat(senderMatch, senderBusName, availableLen));
@@ -172,9 +172,10 @@ AJ_Status ConsumerNotifySignalHandler(AJ_Message* msg)
     Notification_t notification;
 
     char appId[UUID_LENGTH * 2 + 1];
+    AJ_Arg appIdArray;
+    size_t appIdLen;
 
     AJ_Arg attrbtArray;
-    AJ_Arg appIdArray;
     AJ_Arg customAttributeArray;
     AJ_Arg notTextArray;
     AJ_Arg richAudioArray;
@@ -206,7 +207,7 @@ AJ_Status ConsumerNotifySignalHandler(AJ_Message* msg)
     if (status = AJ_UnmarshalArg(msg, &appIdArray) != AJ_OK)
         goto Exit;
 
-    size_t appIdLen = ((appIdArray.len > UUID_LENGTH) ? UUID_LENGTH : appIdArray.len) * 2 + 1;
+    appIdLen = ((appIdArray.len > UUID_LENGTH) ? UUID_LENGTH : appIdArray.len) * 2 + 1;
 
     if (status = AJ_RawToHex(appIdArray.val.v_byte, appIdArray.len, appId, appIdLen, FALSE) != AJ_OK)
         goto Exit;

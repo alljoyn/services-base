@@ -24,7 +24,7 @@
  */
 
 /**
- * Initialize the Notification Service
+ * Initialize the Notification Service Producer
  */
 void Producer_Init();
 

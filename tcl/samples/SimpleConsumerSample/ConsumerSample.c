@@ -20,16 +20,13 @@
 #ifdef __linux
 #include <consumer_sample_util.h>
 #else
-#define Consumer_SetupEnv(x) do { } while (0)
+#define Consumer_SetupEnv(x, y) do { } while (0)
+#define Consumer_GetActionFromUser(x) do { } while (0)
 #endif
 
+static uint8_t inputMode = 0;
 static uint8_t superAgentMode = 1;
-
-static enum _action {
-    NOTHING = 0,
-    ACKNOWLEDGE,
-    DISMISS
-} nextAction = NOTHING;
+static uint8_t nextAction = CONSUMER_ACTION_NOTHING;
 
 static struct _NotificationReference {
     uint16_t version;
@@ -43,7 +40,7 @@ static uint32_t lastSessionRequestSerialNum = 0;
 
 void Consumer_Init()
 {
-    Consumer_SetupEnv(&superAgentMode);
+    Consumer_SetupEnv(&inputMode, &superAgentMode);
     AJ_Printf("Init(): Set Consumer to detect SuperAgent option is turned %s\n", superAgentMode ? "ON" : "off");
     ProxyObjects[NOTIFICATION_PROXYOBJECT_INDEX] = superAgentMode ? AllProxyObject : NotificationProxyObject;
 
@@ -71,40 +68,35 @@ Service_Status Consumer_HandleSessionStateChanged(AJ_BusAttachment* bus, uint32_
         }
         AJ_Status status;
         switch (nextAction) {
-        case ACKNOWLEDGE:
+        case CONSUMER_ACTION_ACKNOWLEDGE:
             status = ConsumerAcknowledgeNotification(bus, savedNotification.version, savedNotification.notificationId, savedNotification.originalSenderName, producerSessionId);
             AJ_Printf("HandleSessionStateChanged(): ConsumerAcknowledgeNotification returned status %s\n", AJ_StatusText(status));
             if (status == AJ_OK) {
                 serviceStatus = SERVICE_STATUS_HANDLED;
             }
-            if (producerSessionId != 0) {
-                AJ_Printf("HandleSessionStateChanged(): Leaving session %u\n", producerSessionId);
-                AJ_BusLeaveSession(bus, producerSessionId);
-                producerSessionId = 0;
-                lastSessionRequestSerialNum = 0;
+            if (!inputMode) { // default behaviour is to dimiss next notification
+                nextAction = CONSUMER_ACTION_DISMISS;
             }
-            nextAction = DISMISS;
             break;
 
-        case DISMISS:
+        case CONSUMER_ACTION_DISMISS:
             status = ConsumerDismissNotification(bus, savedNotification.version, savedNotification.notificationId, savedNotification.appId, savedNotification.originalSenderName, producerSessionId);
             AJ_Printf("HandleSessionStateChanged(): ConsumerDismissNotification returned status %s\n", AJ_StatusText(status));
             if (status == AJ_OK) {
                 serviceStatus = SERVICE_STATUS_HANDLED;
             }
-            if (producerSessionId != 0) {
-                AJ_Printf("HandleSessionStateChanged(): Leaving session %u\n", producerSessionId);
-                AJ_BusLeaveSession(bus, producerSessionId);
-                producerSessionId = 0;
-                lastSessionRequestSerialNum = 0;
+            if (!inputMode) { // default behaviour is to do no op on next notification
+                nextAction = CONSUMER_ACTION_NOTHING;
             }
-            nextAction = NOTHING;
             break;
 
         default:
             break;
         }
         savedNotification.version = 0;
+        lastSessionRequestSerialNum = 0;
+    } else if (!sessionJoined && producerSessionId != 0) {
+        producerSessionId = 0;
     }
     return serviceStatus;
 }
@@ -142,6 +134,18 @@ Service_Status Consumer_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg,
         }
         break;
 
+    case AJ_REPLY_ID(NOTIFICATION_PRODUCER_ACKNOWLEDGE_PROXY):
+    case AJ_REPLY_ID(NOTIFICATION_PRODUCER_DISMISS_PROXY):
+        if (producerSessionId != 0) {
+            AJ_Printf("NotificationProducer method replied. Leaving session %u\n", producerSessionId);
+            *msgStatus = AJ_BusLeaveSession(bus, producerSessionId);
+            if (AJ_OK != *msgStatus) {
+                AJ_Printf("Failed to leave session %u\n", producerSessionId);
+            }
+            producerSessionId = 0;
+        }
+        break;
+
     default:
         return SERVICE_STATUS_NOT_HANDLED;
     }
@@ -166,28 +170,41 @@ static AJ_Status Consumer_CreateSessionWithProducer(AJ_BusAttachment* bus, const
     return status;
 }
 
+/**
+ * Meant to simulate scenario where an Action is set when a new Notification is received.
+ */
+static void Consumer_DoAction(AJ_BusAttachment* bus)
+{
+    if (inputMode) {
+        Consumer_GetActionFromUser(&nextAction);
+        AJ_Printf("Action received is %u\n", nextAction);
+    }
+    switch (nextAction) {
+    case CONSUMER_ACTION_ACKNOWLEDGE:
+    case CONSUMER_ACTION_DISMISS:
+        Consumer_CreateSessionWithProducer(bus, savedNotification.originalSenderName);
+        AJ_Printf("DoAction(): session created for Action %u\n", nextAction);
+        break;
+
+    case CONSUMER_ACTION_NOTHING:
+        savedNotification.version = 0;
+        if (!inputMode) { // default behaviour is to acknowledge next notification
+            nextAction = CONSUMER_ACTION_ACKNOWLEDGE;
+        }
+        break;
+    }
+}
+
 void Consumer_IdleConnectedHandler(AJ_BusAttachment* bus)
 {
     if (savedNotification.version > 1 && producerSessionId == 0) {
-        switch (nextAction) {
-        case ACKNOWLEDGE:
-        case DISMISS:
-            Consumer_CreateSessionWithProducer(bus, savedNotification.originalSenderName);
-            AJ_Printf("IdleConnectedHandler(): session created for Action %u\n", (uint8_t)nextAction);
-            break;
-
-        case NOTHING:
-            savedNotification.version = 0;
-            nextAction = ACKNOWLEDGE;
-            break;
-        }
+        Consumer_DoAction(bus);
     }
     return;
 }
 
 void Consumer_Finish(AJ_BusAttachment* bus)
 {
-    //Service function stub
     return;
 }
 

@@ -20,16 +20,41 @@
 #include <alljoyn/notification/NotificationConsumer.h>
 #include <consumer_sample_util.h>
 
-/**
- * A function that allows us to enter InputMode
- */
-void Consumer_SetupEnv(uint8_t* superAgentMode)
+#define BUF_SIZE 500
+
+static char* NS_GetLine(char* str, size_t num, void* fp)
 {
-    uint8_t inputMode = 0;
+    char* p = fgets(str, num, fp);
+
+    if (p != NULL) {
+        size_t last = strlen(str) - 1;
+        if (str[last] == '\n') {
+            str[last] = '\0';
+        } else {
+            while (1) {
+                char tmp[num + 1];
+                char* t = fgets(tmp, num, fp);
+                if (t == NULL)
+                    return t;
+                size_t end = strlen(tmp) - 1;
+                if (tmp[end] == '\n')
+                    break;
+            }
+        }
+    }
+    fflush(stdin);
+    return p;
+}
+
+/**
+ * A function that allows us to enter QA InputMode
+ */
+void Consumer_SetupEnv(uint8_t* inputMode, uint8_t* superAgentMode)
+{
     char* value = getenv("INPUT_MODE");
     if (value)
-        inputMode = atoi(value);
-    if (inputMode) {
+        *inputMode = (uint8_t)atoi(value);
+    if (*inputMode) {
         char buf[1024];
         AJ_Printf("Please enter 1 if you want to run in SuperAgentMode. default is 0\n");
         if (AJ_GetLine(buf, 1024, stdin) != NULL) {
@@ -40,3 +65,22 @@ void Consumer_SetupEnv(uint8_t* superAgentMode)
     }
 }
 
+void Consumer_GetActionFromUser(uint8_t* action)
+{
+    char buf[BUF_SIZE];
+    memset(buf, 0, BUF_SIZE);
+
+    AJ_Printf("Please enter an action to perform on the recently received notification\n\t0=Nothing,\n\t1=Acknowledge,\n\t2=Dismiss.\n");
+    AJ_Printf("Empty string or invalid input will default to 0=Nothing\n");
+    if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
+        if (strlen(buf)) {
+            *action = (uint8_t)atoi(buf);
+            char stringType[8];
+            sprintf(stringType, "%d", *action);
+            if (!(strcmp(buf, stringType) == 0)) {             //they do not match, it is not int
+                AJ_Printf("Action is not an integer value. Defaulting to 0=Nothing\n");
+                *action = 0;
+            }
+        }
+    }
+}

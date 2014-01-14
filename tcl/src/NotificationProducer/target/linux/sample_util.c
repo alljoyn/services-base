@@ -31,12 +31,9 @@
 #define TTL_MAX 43200
 #define MAX_MSG 5
 
-/**
- * A function that allows us to enter QAMode
- */
-char*NS_GetLine(char*str, size_t num, void*fp)
+static char* NS_GetLine(char* str, size_t num, void* fp)
 {
-    char*p = fgets(str, num, fp);
+    char* p = fgets(str, num, fp);
 
     if (p != NULL) {
         size_t last = strlen(str) - 1;
@@ -45,7 +42,7 @@ char*NS_GetLine(char*str, size_t num, void*fp)
         } else {
             while (1) {
                 char tmp[num + 1];
-                char*t = fgets(tmp, num, fp);
+                char* t = fgets(tmp, num, fp);
                 if (t == NULL)
                     return t;
                 size_t end = strlen(tmp) - 1;
@@ -57,6 +54,9 @@ char*NS_GetLine(char*str, size_t num, void*fp)
     return p;
 }
 
+/**
+ * A function that allows us to enter QA InputMode
+ */
 void Producer_SetupEnv(uint8_t* inputMode)
 {
     char* value = getenv("INPUT_MODE");
@@ -64,7 +64,7 @@ void Producer_SetupEnv(uint8_t* inputMode)
         *inputMode = (uint8_t)atoi(value);
 }
 
-void GetNotificationFromUser()
+void Producer_GetNotificationFromUser()
 {
     uint16_t messageType = 0;
     uint16_t ttl = TTL_MIN;
@@ -266,7 +266,7 @@ void GetNotificationFromUser()
     }
 }
 
-void PossiblyDeleteNotification(uint16_t isMessageTime)
+void Producer_PossiblyDeleteNotification(uint16_t isMessageTime)
 {
     if (isMessageTime == 1) {
         uint16_t delMsgType;
