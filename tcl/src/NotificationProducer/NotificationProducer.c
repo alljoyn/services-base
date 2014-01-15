@@ -292,11 +292,6 @@ AJ_Status ProducerSendNotifications()
         return AJ_ERR_DISALLOWED;
     }
 
-    if (!isBusConnected) {
-        AJ_Printf("Could not Send Signal - Bus is not connected\n");
-        return AJ_ERR_DISALLOWED;
-    }
-
     uint32_t serialNum = msg.hdr->serialNum;
     status = AJ_DeliverMsg(&msg);
     if (status != AJ_OK) {

@@ -17,6 +17,7 @@
 #ifndef CONSUMER_SAMPLE_UTIL_H_
 #define CONSUMER_SAMPLE_UTIL_H_
 
-void Consumer_SetupEnv(uint8_t* superAgentMode);
+void Consumer_SetupEnv(uint8_t* inputMode, uint8_t* superAgentMode);
+void Consumer_GetActionFromUser(uint8_t* action);
 
 #endif /* CONSUMER_SAMPLE_UTIL_H_ */

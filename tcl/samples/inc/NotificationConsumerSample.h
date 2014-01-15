@@ -19,12 +19,16 @@
 
 #include <Apps_Common.h>
 
+#define CONSUMER_ACTION_NOTHING         0
+#define CONSUMER_ACTION_ACKNOWLEDGE     1
+#define CONSUMER_ACTION_DISMISS         2
+
 /*
  * Functions that the application needs to implement
  */
 
 /**
- * Initialize the Notification Service
+ * Initialize the Notification Service Consumer
  */
 void Consumer_Init();
 

@@ -18,9 +18,8 @@
 #define PRODUCER_SAMPLE_UTIL_H_
 
 void Producer_SetupEnv(uint8_t* inputMode);
-void GetNotificationFromUser();
-void PossiblyDeleteNotification(uint16_t isMessageTime);
-void FreeNotification();
+void Producer_GetNotificationFromUser();
+void Producer_PossiblyDeleteNotification(uint16_t isMessageTime);
 
 #endif /* PRODUCER_SAMPLE_UTIL_H_ */
 

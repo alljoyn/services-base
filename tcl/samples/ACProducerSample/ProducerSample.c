@@ -19,15 +19,6 @@
 
 #include "ControlPanelProvided.h"
 
-#ifdef __linux
-#include <producer_sample_util.h>
-#else
-#define GetNotificationFromUser(x) do { } while (0)
-#define Producer_SetupEnv(x) do { } while (0)
-#define PossiblyDeleteNotification(x) do { } while (0)
-#define FreeNotification() do { } while (0)
-#endif
-
 #define NUM_CUSTOMS 0
 #define NUM_TEXTS   1
 #define NUM_RICH_AUDIO 0
@@ -37,24 +28,9 @@
  * Static non consts - sample application specirfic
  */
 const static char* langEng  = "en";
-//const static char* langSpan = "es_SP";
 const static char* helloEng = "Hello AJL World";
-//const static char* helloSpan = "Hola AJL Munda";
-//const static char* onKey = "On";
-//const static char* offKey = "Off";
-//const static char* HelloVal = "Hello";
-//const static char* GoodbyeVal = "Goodbye";
-//const static char* Audio1URL = "http://www.getAudio1.org";
-//const static char* Audio2URL = "http://www.getAudio2.org";
-//const static char* Icon1URL = "http://www.getIcon1.org";
-//const static char* controlPanelServiceObjectPath = "/ControlPanel/MyDevice/areYouSure";
-//const static char* richIconObjectPath = "/icon/MyDevice";
-//const static char* richAudioObjectPath = "/audio/MyDevice";
-//static int8_t inputMode;
-//static uint16_t isMessageTime = 0;
 static NotificationContent_t notificationContent;
-struct keyValue textToSend[NUM_TEXTS]; //, customAttributesToSend[NUM_CUSTOMS], richAudioUrls[NUM_RICH_AUDIO];
-
+struct keyValue textToSend[NUM_TEXTS];
 
 /**
  * Initial the Notifications that will be used during this sample app
@@ -62,30 +38,14 @@ struct keyValue textToSend[NUM_TEXTS]; //, customAttributesToSend[NUM_CUSTOMS], 
 static void InitNotification()
 {
     notificationContent.numCustomAttributes = NUM_CUSTOMS;
-//    customAttributesToSend[0].key   = onKey;
-//    customAttributesToSend[0].value = HelloVal;
-//    customAttributesToSend[1].key   = offKey;
-//    customAttributesToSend[1].value = GoodbyeVal;
-//    notificationContent.customAttributes = customAttributesToSend;
 
     notificationContent.numTexts = NUM_TEXTS;
     textToSend[0].key   = langEng;
     textToSend[0].value = helloEng;
-//    textToSend[1].key   = langSpan;
-//    textToSend[1].value = helloSpan;
     notificationContent.texts = textToSend;
 
     notificationContent.numAudioUrls = NUM_RICH_AUDIO;
-//    richAudioUrls[0].key   = langEng;
-//    richAudioUrls[0].value = Audio1URL;
-//    richAudioUrls[1].key   = langSpan;
-//    richAudioUrls[1].value = Audio2URL;
-//    notificationContent.richAudioUrls = richAudioUrls;
 
-//    notificationContent.richIconUrl = Icon1URL;
-//    notificationContent.richIconObjectPath = richIconObjectPath;
-//    notificationContent.richAudioObjectPath = richAudioObjectPath;
-//    notificationContent.controlPanelServiceObjectPath = controlPanelServiceObjectPath;
 }
 
 /**
@@ -93,7 +53,6 @@ static void InitNotification()
  */
 void Producer_Init()
 {
-    Producer_SetupEnv(&inputMode);
     InitNotification();
 }
 
@@ -230,6 +189,5 @@ Service_Status Producer_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg,
 
 void Producer_Finish(AJ_BusAttachment* bus)
 {
-
     return;
 }

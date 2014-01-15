@@ -20,10 +20,9 @@
 #ifdef __linux
 #include <producer_sample_util.h>
 #else
-#define GetNotificationFromUser(x) do { } while (0)
+#define Producer_GetNotificationFromUser(x) do { } while (0)
 #define Producer_SetupEnv(x) do { } while (0)
-#define PossiblyDeleteNotification(x) do { } while (0)
-#define FreeNotification() do { } while (0)
+#define Producer_PossiblyDeleteNotification(x) do { } while (0)
 #endif
 
 #define NUM_CUSTOMS 2
@@ -48,7 +47,7 @@ const static char* Icon1URL = "http://www.getIcon1.org";
 const static char* controlPanelServiceObjectPath = "/ControlPanel/MyDevice/areYouSure";
 const static char* richIconObjectPath = "/icon/MyDevice";
 const static char* richAudioObjectPath = "/audio/MyDevice";
-static uint8_t inputMode;
+static uint8_t inputMode = 0;
 static uint16_t isMessageTime = 0;
 static NotificationContent_t notificationContent;
 struct keyValue textToSend[NUM_TEXTS], customAttributesToSend[NUM_CUSTOMS], richAudioUrls[NUM_RICH_AUDIO];
@@ -181,8 +180,9 @@ static void PossiblySetNotifications()
         if (!inputMode) {
             notificationContent.controlPanelServiceObjectPath = ((notificationContent.controlPanelServiceObjectPath == NULL) ? controlPanelServiceObjectPath : NULL); // Toggle notification with action ON/OFF
             ProducerSetNotification(&notificationContent, NOTIFICATION_MESSAGE_TYPE_INFO, 20000);
-        } else
-            GetNotificationFromUser();
+        } else {
+            Producer_GetNotificationFromUser();
+        }
     }
 
     if (++isMessageTime == MESSAGES_INTERVAL)
@@ -194,10 +194,10 @@ void Producer_DoWork(AJ_BusAttachment* bus)
     PossiblySetNotifications();
     ProducerSendNotifications();
     if (inputMode)
-        PossiblyDeleteNotification(isMessageTime);
+        Producer_PossiblyDeleteNotification(isMessageTime);
 }
 
-Service_Status Producer_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg, AJ_Status*msgStatus)
+Service_Status Producer_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg, AJ_Status* msgStatus)
 {
     Service_Status service_Status = SERVICE_STATUS_NOT_HANDLED;
 
@@ -236,6 +236,5 @@ Service_Status Producer_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg,
 
 void Producer_Finish(AJ_BusAttachment* bus)
 {
-    //Service function stub
     return;
 }
