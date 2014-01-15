@@ -28,7 +28,7 @@ import org.alljoyn.ns.NotificationMessageType;
 import org.alljoyn.ns.NotificationServiceException;
 import org.alljoyn.ns.commons.GenericLogger;
 import org.alljoyn.ns.commons.NativePlatform;
-import org.alljoyn.ns.transport.DismissSender;
+import org.alljoyn.ns.transport.DismissEmitter;
 import org.alljoyn.ns.transport.Transport;
 import org.alljoyn.ns.transport.TransportNotificationText;
 import org.alljoyn.ns.transport.interfaces.NotificationProducer;
@@ -251,7 +251,7 @@ public class SenderTransport {
 		//Sending dismiss signal
 		try {
 			UUID appId = transport.getAppId(transport.readAllProperties());
-			DismissSender.send(notifId, appId);
+			DismissEmitter.send(notifId, appId);
 		} catch (NotificationServiceException nse) {
 			logger.error(TAG, "Unable to send the Dismiss signal for notifId: '" + notifId + "', Error: '" + nse.getMessage() + "'");
 		}

@@ -642,7 +642,7 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 	/**
 	 *  Is invoked when the Consumer Action button is clicked <br>
 	 *  If only one {@link VisualNotification} is clicked and the {@link Notification} object has the responseObjPath, then <br>
-	 *  the method opens the ... activity to create and present the control panel
+	 *  the method opens the {@link ControlPanelActivity} activity to create and present the control panel
 	 */
 	private void onActionClicked() {
 		

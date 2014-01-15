@@ -531,19 +531,21 @@ public class Transport {
 			senderTransport = null;
 		}
 		
-		// clear the busAttachment only if the receiver is not running
+		// clear the resources that are generic between sender and receiver
 		if ( !isReceiverTransportCalled ) {
-			logger.debug(TAG, "Receiver not running, clearing busAttachment");
+			
+			logger.debug(TAG, "Receiver is not running, clearing common resources");
+			
+			if ( workerPool != null ) {
+				workerPool.shutdown();
+				workerPool = null;
+			}
+			
 			busAttachment = null;
 		}
 		
-		if ( workerPool != null ) {
-			workerPool.shutdown();
-			workerPool = null;
-		}
-		
-		propertyStore = null;
-		isSenderTransportCalled   = false;
+		propertyStore           = null;
+		isSenderTransportCalled = false;
 	}//cleanTransportProducerChannel
 	
 	
@@ -558,15 +560,17 @@ public class Transport {
 			receiverTransport = null;
 		}
 		
-		// clear the busAttachment only if the sender is not running
+		// clear the resources that are generic between sender and receiver
 		if ( !isSenderTransportCalled ) {
-			logger.debug(TAG, "Sender is not running, clearing busAttachment");
+			
+			logger.debug(TAG, "Sender is not running, clearing common resources");
+			
+			if ( workerPool != null ) {
+				workerPool.shutdown();
+				workerPool = null;
+			}
+			
 			busAttachment = null;
-		}
-		
-		if ( workerPool != null ) {
-			workerPool.shutdown();
-			workerPool = null;
 		}
 		
 		isReceiverTransportCalled = false;

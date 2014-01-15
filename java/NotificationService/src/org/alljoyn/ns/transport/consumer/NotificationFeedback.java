@@ -31,7 +31,7 @@ import org.alljoyn.bus.Status;
 import org.alljoyn.ns.Notification;
 import org.alljoyn.ns.NotificationServiceException;
 import org.alljoyn.ns.commons.GenericLogger;
-import org.alljoyn.ns.transport.DismissSender;
+import org.alljoyn.ns.transport.DismissEmitter;
 import org.alljoyn.ns.transport.Transport;
 import org.alljoyn.ns.transport.interfaces.NotificationProducer;
 import org.alljoyn.ns.transport.producer.SenderSessionListener;
@@ -46,7 +46,6 @@ import org.alljoyn.ns.transport.producer.SenderSessionListener;
  * 
  * If there is a failure in reaching the Notification Producer to dismiss the {@link Notification}, the dismiss 
  * session-less-signal is sent by {@link NotificationFeedback} 
- * 
  */
 public class NotificationFeedback extends OnJoinSessionListener {
 	private static final String TAG = "ioe" + NotificationFeedback.class.getSimpleName();
@@ -99,7 +98,7 @@ public class NotificationFeedback extends OnJoinSessionListener {
 	/**
 	 * Notification version
 	 */
-	private int version;
+	private final int version;
 	
 	/**
 	 * Constructor
@@ -148,7 +147,7 @@ public class NotificationFeedback extends OnJoinSessionListener {
 				//Version 1 doesn't support the NotificationProducer interface and the original sender 
 				if ( version < 2 || origSender == null ) {
 					logger.debug(TAG, "The notification sender version: '" + version + "', doesn't support the NotificationProducer interface, notifId: '" + notifId + "', can't call the Dismiss method, sending the Dismiss signal");
-					DismissSender.send(notifId, appId);
+					DismissEmitter.send(notifId, appId);
 					return;
 				}
 
@@ -172,13 +171,16 @@ public class NotificationFeedback extends OnJoinSessionListener {
 		
 		Mutable.IntegerValue sid = new Mutable.IntegerValue();
 		Status status            = establishSession(bus, sid);
+
+		//The status ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED here is returned if the 
+		//BusAttachment is trying to establish a session with itself (producer and consumer are sharing a BusAttachment)
 		if ( status != Status.OK && status != Status.ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED ) {
 			logger.error(TAG, "Failed to call Acknowledge for notifId: '" + notifId + "', session not established, Error: '" + status + "'");
 			return;
 		}
 		
 		logger.debug(TAG, "Handling Acknowledge method call for notifId: '" + notifId + "', session: '" + sid.value + "', SessionJoin status: '" + status + "'");
-		NotificationProducer notifProducer = getRemoteProxyObject(bus, sid.value);
+		NotificationProducer notifProducer = getProxyObject(bus, sid.value);
 					
 		try {
 			notifProducer.acknowledge(notifId);
@@ -211,25 +213,28 @@ public class NotificationFeedback extends OnJoinSessionListener {
 		
 		Mutable.IntegerValue sid = new Mutable.IntegerValue();
 		Status status            = establishSession(bus, sid);
+		
+		//The status ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED here is returned if the 
+		//BusAttachment is trying to establish a session with itself (producer and consumer are sharing a BusAttachment)
 		if ( status != Status.OK && status != Status.ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED ) {
 			logger.error(TAG, "Failed to call Dismiss method for notifId: '" + notifId + "', session is not established, Error: '" + status + "', Sending a Dismiss signal");
-			DismissSender.send(notifId, appId);
+			DismissEmitter.send(notifId, appId);
 			return;
 		}
 		
 		logger.debug(TAG, "Handling Dismiss method call for notifId: '" + notifId + "', session: '" + sid.value + "', SessionJoin status: '" + status + "'");
-		NotificationProducer notifProducer = getRemoteProxyObject(bus, sid.value);
+		NotificationProducer notifProducer = getProxyObject(bus, sid.value);
 					
 		try {
 			notifProducer.dismiss(notifId);
 		}
 		catch (ErrorReplyBusException erbe) {
 			logger.error(TAG, "Failed to call Dismiss for notifId: '" + notifId + "', ErrorName: '" + erbe.getErrorName() + "', ErrorMessage: '" + erbe.getErrorMessage() + "', sending Dismiss signal");
-			DismissSender.send(notifId, appId);
+			DismissEmitter.send(notifId, appId);
 		}
 		catch (BusException be) {
 			logger.error(TAG, "Failed to call Dismiss method for notifId: '" + notifId + "', Error: '" + be.getMessage() + "', Sending Dismiss signal");
-			DismissSender.send(notifId, appId);
+			DismissEmitter.send(notifId, appId);
 		}
 		finally {
 			if ( status != Status.ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED ) {
@@ -275,7 +280,7 @@ public class NotificationFeedback extends OnJoinSessionListener {
 	 * @param bus {@link BusAttachment}
 	 * @return Creates and returns the {@link ProxyBusObject}, casted to the {@link NotificationProducer} object
 	 */
-	private NotificationProducer getRemoteProxyObject(BusAttachment bus, int sid) {
+	private NotificationProducer getProxyObject(BusAttachment bus, int sid) {
 		logger.debug(TAG, "Creating ProxyBusObject with sender: '" + origSender + "', SID: '" + sid + "'");
 		ProxyBusObject proxyObj = bus.getProxyBusObject(origSender,
 														NotificationProducer.OBJ_PATH,
@@ -283,6 +288,6 @@ public class NotificationFeedback extends OnJoinSessionListener {
 														new Class<?>[]{NotificationProducer.class});
 		
 		return proxyObj.getInterface(NotificationProducer.class);
-	}//getRemoteProxyObject
+	}//getProxyObject
 	
 }
