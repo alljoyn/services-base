@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 
-  Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+  Copyright (c) 2014, AllSeen Alliance. All rights reserved.
 
      Permission to use, copy, modify, and/or distribute this software for any
      purpose with or without fee is hereby granted, provided that the above
@@ -188,6 +188,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/text_icon"
+            android:layout_marginLeft="10dp"
             android:textAppearance="?android:attr/textAppearanceMedium" />
         
         <CheckBox
@@ -213,25 +214,20 @@
         android:layout_marginLeft="2dp" 
         android:layout_marginRight="2dp" >
 		
-		<Button
+	    <Button
            android:id="@+id/b_send"
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"
            android:text="@string/send" />
 	
-		<Button
+	     <Button
             android:id="@+id/b_delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/delete" />
+	
 		
-		<CheckBox
-            android:id="@+id/chb_cpsPath"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/cps_obj" />
-		
-		</LinearLayout>
+	    </LinearLayout>
 		 
         <RelativeLayout
             android:id="@+id/lo_consumer"

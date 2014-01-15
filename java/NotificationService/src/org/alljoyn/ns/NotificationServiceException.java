@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -17,7 +17,7 @@
 package org.alljoyn.ns;
 
 /**
- * The exception that is thrown if a {@link NotificationService} malfunction occurred 
+ * The exception is thrown if a {@link NotificationService} failure has occurred 
  */
 public class NotificationServiceException extends Exception {
 	private static final long serialVersionUID = -4596126694105018269L;

@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -75,7 +75,10 @@ class WorkersPoolManager implements RejectedExecutionHandler {
 	 * @param task Execute the given runnable task if there is a free thread worker
 	 */
 	public void execute(Runnable task) {
-		nativePlatform.getNativeLogger().debug(TAG,"Executing task");
+		
+		nativePlatform.getNativeLogger().debug(TAG,"Executing task, Current Thread pool size: '" +
+												    threadPool.getPoolSize() + "', 'Number of currently working threads: '" +
+												    threadPool.getActiveCount() + "'");
 		threadPool.execute(task);
 	}//execute
 	

@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -20,7 +20,9 @@ import org.alljoyn.ns.commons.GenericLogger;
 
 import android.util.Log;
 
-
+/**
+ * Android implementation of the {@link GenericLogger} interface
+ */
 public class AndroidLogger implements GenericLogger {
 
 	/**

@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -120,21 +120,21 @@ public class Notification {
 	}//Notification
 
 	/**
-	 * @param The protocol version
+	 * @return The protocol version
 	 */
 	public int getVersion() {
 		return version;
 	}
 
 	/**
-	 * @param Notification message type
+	 * @return Notification message type
 	 */
 	public NotificationMessageType getMessageType() {
 		return messageType;
 	}
 
 	/**
-	 * @param Returns the application name
+	 * @return Returns the application name
 	 */
 	public String getAppName() {
 		return appName;
@@ -310,7 +310,7 @@ public class Notification {
 	//=======================================//
 	
 	/**
-	 * When the notification message is acknowledged, the notification sender stops its broadcasting
+	 * When the notification message is acknowledged, the notification sender stops broadcasting the notification.
 	 */
 	public void acknowledge() {
 		try {
@@ -321,8 +321,8 @@ public class Notification {
 	}//acknowledge
 	
 	/**
-	 * When the notification message is dismissed, it's first of all acknowledged and then a dismiss signal is sent
-	 * to update another Notification Consumers that the {@link Notification} has been dismissed   
+	 * When the notification message is dismissed, it is first of all acknowledged and then a dismiss signal is sent
+	 * to update other Notification Consumers that the {@link Notification} has been dismissed   
 	 */
 	public void dismiss() {
 		try {
@@ -340,7 +340,7 @@ public class Notification {
 		
 		StringBuilder sb = new StringBuilder("Notification: ");
 		sb.append("Id: '").append(messageId).append("'")
-		.append(",' MsgType: '").append(messageType).append("'")
+		.append(", MsgType: '").append(messageType).append("'")
 		.append(", DeviceId: '").append(deviceId).append("'")
 		.append(", DeviceName: '").append(deviceName).append("'")
 		.append(", Version: '").append(version).append("'")

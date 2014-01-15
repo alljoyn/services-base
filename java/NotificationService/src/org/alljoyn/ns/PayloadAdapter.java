@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -30,6 +30,7 @@ import org.alljoyn.ns.commons.NativePlatformFactoryException;
 import org.alljoyn.ns.transport.Transport;
 import org.alljoyn.ns.transport.TransportNotificationText;
 import org.alljoyn.ns.transport.TransportRichAudioUrl;
+import org.alljoyn.ns.transport.interfaces.NotificationTransport;
 
 
 /**
@@ -87,7 +88,7 @@ public class PayloadAdapter {
 	private static int msgId = (int)(Math.random()*10000);
 	
 	/**
-	 * Convert the sent data into the format of {@link NotificationTransport#notify(int, int, short, String, String, byte[], String, Map, Map, TransportNotificationText[])
+	 * Convert the sent data into the format of {@link NotificationTransport#notify(int, int, short, String, String, byte[], String, Map, Map, TransportNotificationText[])}  
 	 * @param deviceId device Id
 	 * @param deviceName device name
 	 * @param appId app Id
@@ -204,7 +205,7 @@ public class PayloadAdapter {
 	 * @param messageType Message type id
 	 * @param deviceId Device Id
 	 * @param deviceName Device Name
-	 * @param appId app id
+	 * @param bAppId app id
 	 * @param appName app Name
 	 * @param attributes Notification metadata 
 	 * @param customAttributes customAttributes

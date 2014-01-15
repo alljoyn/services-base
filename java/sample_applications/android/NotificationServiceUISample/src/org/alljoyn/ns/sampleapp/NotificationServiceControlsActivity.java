@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -26,8 +26,10 @@ import java.util.UUID;
 import org.alljoyn.ns.Notification;
 import org.alljoyn.ns.NotificationServiceException;
 import org.alljoyn.ns.NotificationText;
+import org.alljoyn.ns.sampleapp.controlpanel.ControlPanelActivity;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -137,11 +139,6 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 	 * Reference to audio ObjPath rich content check box
 	 */
 	private CheckBox audioObjPathRichCheck;
-	
-	/**
-	 * Reference to CPS object path check box
-	 */
-	private CheckBox cpsObjPath;
 	
 	/**
 	 * The {@link Notification} Acknowledge button
@@ -271,10 +268,6 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 		audioObjPathRichCheck.setOnClickListener(this);
 		iconObjPathRichCheck.setOnClickListener(this);
 		
-		//set the CPS obj path checkbox id's
-		cpsObjPath = (CheckBox) findViewById(R.id.chb_cpsPath);
-		cpsObjPath.setOnClickListener(this);
-		
 		//set the lstv_1 ListView id's
 		notifListView = (ListView) findViewById(R.id.lstv_1);
 		notifListView.setTranscriptMode(ListView.TRANSCRIPT_MODE_NORMAL);
@@ -296,6 +289,7 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 		dismissButton.setOnClickListener(this);
 		dismissButton.setEnabled(false);
 		actionButton.setEnabled(false);
+		actionButton.setOnClickListener(this);
 		
 		//Check persistence
 		Log.d(TAG, "Check UI persistense");
@@ -465,6 +459,10 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 				onAckDismissClicked(view.getId());
 				break;
 			}
+			case R.id.btn_action: {
+				onActionClicked();
+				break;
+			}
 		}//switch
 	}//onClick
 
@@ -495,7 +493,6 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 					audioRichCheck.setChecked(false);
 					iconObjPathRichCheck.setChecked(false);
 					audioObjPathRichCheck.setChecked(false);
-					cpsObjPath.setChecked(false);
 					myApp.stopSender();
 				}
 				break;
@@ -548,7 +545,6 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 		audioRichCheck.setChecked(false);
 		iconObjPathRichCheck.setChecked(false);
 		audioObjPathRichCheck.setChecked(false);
-		cpsObjPath.setChecked(false);
 		
 		shutdownButton.setEnabled(false);
 		
@@ -567,9 +563,10 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 	/**
 	 * @param enabled the Consumer Acknowledge | Dismiss | Action button  
 	 */
-	public void enableDeleteButtons(boolean enabled) {
+	public void enableReceiverControlButtons(boolean enabled) {
 		ackButton.setEnabled(enabled);
 		dismissButton.setEnabled(enabled);
+		actionButton.setEnabled(enabled);
 	}//enableDeleteButtons
 	
 	/**
@@ -619,7 +616,7 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 
 	/**
 	 * Is invoked when Consumer Acknowledge or Dismiss button is clicked
-	 * @param
+	 * @param The clicked button resource id
 	 */
 	private void onAckDismissClicked(int btnId) {
 		
@@ -634,13 +631,69 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 				}
 				
 				if ( !vn.isDismissed() ) {      // Check that this VisualNotification object hasn't previously marked as dismissed
-					vn.setDismissed(true);
+					vn.setDismissed(true);      // Mark the VisualNotification as dismissed
 					notificationAdapter.notifyDataSetChanged();
 				}
 			}//if :: checked
 		}//for
 		
 	}//onAcknowledgeClicked
+	
+	/**
+	 *  Is invoked when the Consumer Action button is clicked <br>
+	 *  If only one {@link VisualNotification} is clicked and the {@link Notification} object has the responseObjPath, then <br>
+	 *  the method opens the ... activity to create and present the control panel
+	 */
+	private void onActionClicked() {
+		
+		boolean moreThanOne = false; 
+		
+		if ( VisualNotification.getCheckedCounter() > 1 ) {
+			myApp.showToast("Select single notification to get Notification with Action");
+			moreThanOne = true;
+		}
+		
+		for (VisualNotification vn : notificationList) {
+				
+			if ( !vn.isChecked() ) {
+				continue;
+			}
+			
+			//Need to uncheck all the checked VisualNotification objects
+			vn.setChecked(false);
+			
+			//If more-than-one is checked nothing todo
+			if ( moreThanOne ) {
+				continue;
+			}
+			
+			Notification notif = vn.getNotification();
+			String respObjPath = notif.getResponseObjectPath();
+			String sender      = notif.getOriginalSenderBusName();
+			
+			if ( respObjPath == null || respObjPath.length() == 0 ) {
+				myApp.showToast("The selected notification doesn't have a Response Object Path");
+				break;
+			}
+			
+			if ( sender == null || sender.length() == 0 ) {
+				myApp.showToast("The selected notification doesn't have an Original Sender");
+				break;
+			}
+			
+			Log.d(TAG, "Opening Activity to bring control panel for ObjPath: '" + respObjPath + "'");
+			Intent intent = new Intent(this, ControlPanelActivity.class); 
+			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+			
+			intent.putExtra("OBJ_PATH", respObjPath);
+			intent.putExtra("SENDER", sender);
+			intent.putExtra("APP_ID", notif.getAppId().toString());
+			startActivity(intent);
+			break;
+		}//for :: VisualNotification
+		
+		notificationAdapter.notifyDataSetChanged();
+	}//onActionClicked
 	
 	/**
 	 * Grab send control area.
@@ -697,7 +750,6 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 		boolean isAudio          = false;
 		boolean isIconObjPath    = false;
 		boolean isAudioObjPath   = false;
-		boolean isCps            = false;
 		
 		//Check richContent
 		if ( audioRichCheck.isChecked() ) {
@@ -716,14 +768,9 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 			Log.d(TAG, "RichObjPathContent selected to be sent - ICON");
 			isIconObjPath = true;
 		}
-		
-		if ( cpsObjPath.isChecked() ){
-			Log.d(TAG, "CPS object path selected to be sent");
-			isCps = true;
-		}
-		
+				
 		//====  SEND A MESSAGE  ====//
-		myApp.send(msgType, text, customArgs, ttl, isIcon, isAudio, isIconObjPath, isAudioObjPath, isCps);
+		myApp.send(msgType, text, customArgs, ttl, isIcon, isAudio, isIconObjPath, isAudioObjPath);
 		
 		//clean text areas
 		msg1Id.setText(""); // content of message1
@@ -737,9 +784,6 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 		audioRichCheck.setChecked(false);
 		iconObjPathRichCheck.setChecked(false);
 		audioObjPathRichCheck.setChecked(false);
-		
-		//clear cps check box
-		cpsObjPath.setChecked(false);
 		
 	}//grabSendControl	
 	

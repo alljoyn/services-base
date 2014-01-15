@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -65,7 +65,7 @@ public class IoeNotificationApplication extends Application implements Notificat
       * The daemon should advertise itself "quietly" (directly to the calling port)
       * This is to reply directly to a TC looking for a daemon 
       */  
-     private static final String DAEMON_NAME                 = "org.alljoyn.BusNode.IoeService";
+     private static final String DAEMON_NAME_PREFIX          = "org.alljoyn.BusNode.IoeService";
      
      /** 
       * The daemon should advertise itself "quietly" (directly to the calling port)
@@ -109,12 +109,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 	 * Rich content audio Object Path
 	 */
 	private static final String AUDIO_OBJ_PATH 	 = "/OBJ/PATH/AUDIO";
-	
-	/**
-	 * controlPanalService object path
-	 */
-	private static final String RESP_OBJ_PATH    = "/CPS/OBJ/PATH";
-	
+		
 	/**
 	 * For testers who don't want the app to filter notifications on the app name
 	 */
@@ -191,6 +186,13 @@ public class IoeNotificationApplication extends Application implements Notificat
 		this.isBackground = isBackground;
 	}
 
+	/**
+	 * @return {@link BusAttachment}
+	 */
+	public BusAttachment getBusAttachment() {
+		return bus;
+	}//getBusAttachment
+	
 	/**
 	 * Returns App Name
 	 * @return
@@ -314,7 +316,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 	 * @param textList		    holds text and language
 	 * @param ttl               Notification message ttl
 	 */
-	public void send(String messageType, List<NotificationText> textList, Map<String, String> customAttributes, int ttl, boolean isIcon, boolean isAudio, boolean isIconObjPath, boolean isAudioObjPath, boolean isRespObjPath) {
+	public void send(String messageType, List<NotificationText> textList, Map<String, String> customAttributes, int ttl, boolean isIcon, boolean isAudio, boolean isIconObjPath, boolean isAudioObjPath) {
 		Log.d(TAG, "Received send, executing");
 		
 		if(notificationSender != null) {
@@ -344,13 +346,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 			if ( isAudioObjPath ) {
 				richAudioObjPath = AUDIO_OBJ_PATH;
 			}
-			
-			String respObjPathStr = null;
-			if (isRespObjPath) {
-				respObjPathStr = RESP_OBJ_PATH; 
-			}
-			
-			
+						
 			try {
 				    Notification notif = new Notification(NotificationMessageType.valueOf(messageType), textList);
 				    notif.setCustomAttributes(customAttributes);
@@ -358,7 +354,6 @@ public class IoeNotificationApplication extends Application implements Notificat
 				    notif.setRichAudioUrl(audioUrl);
 				    notif.setRichIconObjPath(richIconObjPath);
 				    notif.setRichAudioObjPath(richAudioObjPath);
-				    notif.setResponseObjectPath(respObjPathStr);
 				    
 					notificationSender.send(notif, ttl);
 					
@@ -495,9 +490,23 @@ public class IoeNotificationApplication extends Application implements Notificat
     * Show the Android toast message
     * @param msg
     */
-    public void showToast(String msg) {
-         Toast toast = Toast.makeText(this, msg, Toast.LENGTH_LONG);
-         toast.show();
+    public void showToast(final String msg) {
+         Log.d(TAG, "Showing Toast: '" + msg + "'");
+         
+         if ( myActiv != null ) {
+        	 
+	         myActiv.runOnUiThread( new Runnable() {             // Run the Toast on the Activity UI thread
+				@Override
+				public void run() {
+					Toast toast = Toast.makeText(IoeNotificationApplication.this, msg, Toast.LENGTH_LONG);
+					toast.show();
+				}
+			 }); 
+         }
+         else {
+     		Toast toast = Toast.makeText(this, msg, Toast.LENGTH_LONG);
+			toast.show();
+         }
     }//showToast
     
    /**
@@ -579,21 +588,32 @@ public class IoeNotificationApplication extends Application implements Notificat
      * @param logger
      */
    private void advertiseDaemon() throws NotificationServiceException {
-       //request the name   
        int flag = BusAttachment.ALLJOYN_REQUESTNAME_FLAG_DO_NOT_QUEUE;
-       Status reqStatus = bus.requestName(DAEMON_NAME, flag);
+       
+       String daemonName = DAEMON_NAME_PREFIX + ".G" + bus.getGlobalGUIDString();
+       
+       //request the name   
+       Status reqStatus = bus.requestName(daemonName, flag);
         if (reqStatus == Status.OK) {
+        	
             //advertise the name with a quite prefix for TC to find it
-            Status adStatus = bus.advertiseName(DAEMON_QUIET_PREFIX + DAEMON_NAME, SessionOpts.TRANSPORT_ANY);
+            Status adStatus = bus.advertiseName(DAEMON_QUIET_PREFIX + daemonName, SessionOpts.TRANSPORT_ANY);
+            
             if (adStatus != Status.OK){
-                bus.releaseName(DAEMON_NAME); 
-                Log.e(TAG, "Failed to advertise daemon name " + DAEMON_NAME + ", Error: '" + adStatus + "'"); 
-                throw new NotificationServiceException("Failed to advertise daemon name '" + DAEMON_NAME + "', Error: '" + adStatus + "'"); 
+            	
+                bus.releaseName(daemonName); 
+                Log.e(TAG, "Failed to advertise daemon name " + daemonName + ", Error: '" + adStatus + "'"); 
+                throw new NotificationServiceException("Failed to advertise daemon name '" + daemonName + "', Error: '" + adStatus + "'"); 
             } 
             else{ 
-                Log.d(TAG, "Succefully advertised daemon name " + DAEMON_NAME); 
+                Log.d(TAG, "Succefully advertised daemon name: '" + daemonName + "'"); 
             }
         }
+        else {
+        	Log.d(TAG, "Failed to request the daemon name: '" + daemonName + "', Error: '" + reqStatus + "'");
+        	throw new NotificationServiceException("Failed to request the DaemonName: '" + daemonName + "', Error: '" + reqStatus + "'");
+        }
+        
     }//advertiseDaemon
 
 }//IoeNotificationApplication

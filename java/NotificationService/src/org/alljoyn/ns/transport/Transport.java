@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -97,8 +97,7 @@ public class Transport {
 	private boolean isReceiverTransportCalled   = false;
 	
 	/**
-	 * Return the Transport object
-	 * @return
+	 * @return  Return the {@link Transport} object
 	 */
 	public static Transport getInstance() {
 		return transport;
@@ -111,8 +110,7 @@ public class Transport {
 	private Transport() {}//Constructor
 	
 	/**
-	 * Returns reference to the BusAttachment
-	 * @return
+	 * @return Reference to the {@link BusAttachment}
 	 */
 	public BusAttachment getBusAttachment() {
 		return busAttachment;
@@ -307,7 +305,7 @@ public class Transport {
 	
 	/**
 	 * Received notification, call the notification receiver callback to pass the notification
-	 * @param notificaion
+	 * @param notification
 	 */
 	public void onReceivedNotification(final Notification notification) {
 		
@@ -351,7 +349,7 @@ public class Transport {
 			logger = getLogger();
 		}
 		catch (NotificationServiceException nse) {
-		    System.out.println("Could not get logger in onReceivedFirstSuperAgentNotification error: " + nse.getMessage());
+		    System.out.println("Could not get logger in onReceivedFirstSuperAgentNotification error: '" + nse.getMessage() + "'");
 		    return;
 		}
 		
@@ -369,6 +367,17 @@ public class Transport {
 	 * @throws RejectedExecutionException Might be thrown when there was no a free thread to execute the task
 	 */
 	public void dispatchTask(Runnable task) {
+		
+		GenericLogger logger;
+		try {
+			logger = getLogger();
+		}
+		catch (NotificationServiceException nse) {
+		    System.out.println("Could not get logger in dispatchTask error: '" + nse.getMessage() + "'");
+		    return;
+		}
+		
+		logger.debug(TAG, "Dispatching a runnable task to WorkersPoolManager");
 		workerPool.execute(task);
 	}//dispatchTask
 	
@@ -376,7 +385,7 @@ public class Transport {
 	 * Stop Notification Service
 	 * @throws NotificationServiceException
 	 */
-	public void shutdown() throws NotificationServiceException {
+	public synchronized void shutdown() throws NotificationServiceException {
 		GenericLogger logger = getLogger();
 		
 		if ( busAttachment == null ) {
@@ -393,7 +402,7 @@ public class Transport {
 	 * Verifies that sender transport was started, then calls stopSenderTransport() 
 	 * @throws NotificationServiceException
 	 */
-	public void shutdownSender() throws NotificationServiceException {
+	public synchronized void shutdownSender() throws NotificationServiceException {
 		GenericLogger logger = getLogger();
 		
 		if ( !isSenderTransportCalled ) {
@@ -409,7 +418,7 @@ public class Transport {
 	 * Verifies that receiver transport was started, then calls stopReceiverTransport()
 	 * @throws NotificationServiceException
 	 */
-	public void shutdownReceiver() throws NotificationServiceException {
+	public synchronized void shutdownReceiver() throws NotificationServiceException {
 		GenericLogger logger = getLogger();
 		
 		if ( !isReceiverTransportCalled ) {
@@ -515,7 +524,7 @@ public class Transport {
 	 * Sender Transport cleanup
 	 * @param logger
 	 */
-	private synchronized void stopSenderTransport(GenericLogger logger) {
+	private void stopSenderTransport(GenericLogger logger) {
 		 
 		if ( senderTransport != null ) {
 			senderTransport.stopSenderTransport();
@@ -542,7 +551,7 @@ public class Transport {
 	 * Receiver Transport cleanup
 	 * @param logger
 	 */
-	private synchronized void stopReceiverTransport(GenericLogger logger) {
+	private void stopReceiverTransport(GenericLogger logger) {
 		
 		if ( receiverTransport != null ) {
 			receiverTransport.stopReceiverTransport();
