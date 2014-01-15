@@ -17,7 +17,7 @@
 #include <NotificationConsumerSample.h>
 #include <alljoyn/notification/NotificationConsumer.h>
 
-#ifdef QCC_OS_LINUX
+#ifdef __linux
 #include <consumer_sample_util.h>
 #else
 #define Consumer_SetupEnv(x) do { } while (0)
