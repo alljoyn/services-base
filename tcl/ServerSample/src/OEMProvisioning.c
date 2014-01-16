@@ -98,7 +98,7 @@ const size_t aboutIconContentSize = sizeof(aboutIconContent);
 const char* aboutIconUrl = { "https://www.alljoyn.org/sites/all/themes/at_alljoyn/images/img-alljoyn-logo.png" };
 
 #ifdef CONFIG_SERVICE
-AJ_Status App_FactoryReset(AJSVC_ApplicationContext_t* applicationContext)
+AJ_Status App_FactoryReset()
 {
     AJ_Printf("GOT FACTORY RESET\n");
     AJ_Status status = AJ_OK;
@@ -113,16 +113,16 @@ AJ_Status App_FactoryReset(AJSVC_ApplicationContext_t* applicationContext)
         return status;
 #endif // ONBOARDING_SERVICE
 
-    *(applicationContext->isRebootRequired) = TRUE;
+    isRebootRequired = TRUE;
     return AJ_ERR_RESTART;     // Force disconnect of AJ and services and reconnection of WiFi on restart
 }
 
-AJ_Status App_Restart(AJSVC_ApplicationContext_t* applicationContext)
+AJ_Status App_Restart()
 {
     AJ_Printf("GOT RESTART REQUEST\n");
     SetShouldAnnounce(TRUE); // Set flag for sending an updated Announcement
-    *(applicationContext->isRebootRequired) = FALSE;
-    return AJ_ERR_READ; // Force disconnect of AJ and services and reconnection of WiFi on restart
+    isRebootRequired = FALSE;
+    return AJ_ERR_RESTART; // Force disconnect of AJ and services and reconnection of WiFi on restart
 }
 
 AJ_Status App_SetPasscode(const char* daemonRealm, const char* newStringPasscode)
