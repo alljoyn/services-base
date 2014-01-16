@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -29,14 +29,9 @@ import android.util.Log;
  * If the {@link VisualNotification} hasn't dismissed previously and its notificationId and appId equals to the given
  * notificationId and appId, then mark the {@link VisualNotification} as dismissed and call {@link VisualNotificationAdapter#notifyDataSetChanged()}
  */
-public class DismissSignalHandler extends AsyncTask<Void, Void, Void> {
+public class DismissSignalHandler extends AsyncTask<Void, Void, VisualNotification> {
 	private static final String TAG = "ioe" + DismissSignalHandler.class.getSimpleName();
-	
-	/**
-	 * The activity
-	 */
-	private final NotificationServiceControlsActivity activity;
-	
+		
 	/**
 	 * Notification id
 	 */
@@ -59,15 +54,13 @@ public class DismissSignalHandler extends AsyncTask<Void, Void, Void> {
 	
 	/**
 	 * Constructor
-	 * @param context
 	 * @param notifId
 	 * @param appId
 	 * @param notificationList
 	 * @param notificationAdapter
 	 */
-	public DismissSignalHandler(NotificationServiceControlsActivity activity, int notifId, UUID appId, List<VisualNotification> notificationList, VisualNotificationAdapter notificationAdapter) {
+	public DismissSignalHandler(int notifId, UUID appId, List<VisualNotification> notificationList, VisualNotificationAdapter notificationAdapter) {
 		super();
-		this.activity            = activity;
 		this.notifId 			 = notifId;
 		this.appId 		         = appId;
 		this.notificationList    = notificationList;
@@ -78,9 +71,9 @@ public class DismissSignalHandler extends AsyncTask<Void, Void, Void> {
 	 * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
 	 */
 	@Override
-	protected Void doInBackground(Void... args) {
+	protected VisualNotification doInBackground(Void... args) {
 
-		boolean notifFound = false;
+		VisualNotification toDismiss = null;
 		
 		for ( VisualNotification vn : notificationList ) {
 			
@@ -90,25 +83,28 @@ public class DismissSignalHandler extends AsyncTask<Void, Void, Void> {
 			
 			Notification notif = vn.getNotification();
 			if ( notif.getAppId().equals(appId)  && notif.getMessageId() == notifId ) {
-				Log.d(TAG, "DismissHandler found the notification to be marked as Dismissed, appId: '" + appId + "', notifId: '" + notifId + "'");
-				notifFound = true;
-				vn.setDismissed(true);
+				toDismiss = vn;
+				break;
 			}
-		}//for
+		}
 		
-		if ( notifFound ) {
-			activity.runOnUiThread(  new Runnable() {
-				@Override
-				public void run() {
-					notificationAdapter.notifyDataSetChanged();
-				}
-			});
+		return toDismiss;
+	}//doInBackground
+	
+	/**
+	 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
+	 */
+	@Override
+	protected void onPostExecute(VisualNotification toDismiss) {
+		
+		if ( toDismiss != null && !toDismiss.isDismissed() ) {
+			Log.d(TAG, "DismissHandler has found the notification to be marked as Dismissed, appId: '" + appId + "', notifId: '" + notifId + "'");
+			toDismiss.setDismissed(true);
+			notificationAdapter.notifyDataSetChanged();
 		}
 		else {
 			Log.d(TAG, "DismissHandler HAS NOT found the notification to be marked as Dismissed, appId: '" + appId + "', notifId: '" + notifId + "'");
 		}
-		
-		return null;
-	}//doInBackground
-		
+	}//onPostExecute
+	
 }

@@ -356,8 +356,13 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 	 * @param notifId The notification id that should be dismissed
 	 * @param appId The application id that sent the dismissed notification 
 	 */
-	public void handleDismiss(int notifId, UUID appId) {
-		new DismissSignalHandler(this, notifId, appId, notificationList, notificationAdapter).execute();
+	public void handleDismiss(final int notifId, final UUID appId) {
+		runOnUiThread( new Runnable() {
+			@Override
+			public void run() {
+				new DismissSignalHandler(notifId, appId, notificationList, notificationAdapter).execute();
+			}
+		});
 	}//handleDismiss
 	
 	/**
