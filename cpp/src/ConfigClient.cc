@@ -327,12 +327,12 @@ GenericLogger* ConfigClient::getLogger()
 
 Log::LogLevel ConfigClient::setLogLevel(Log::LogLevel newLogLevel)
 {
-    return logger ? logger->setLogLevel(newLogLevel) : Log::LogLevel::LEVEL_INFO;
+    return logger ? logger->setLogLevel(newLogLevel) : Log::LEVEL_INFO;
 }
 
 Log::LogLevel ConfigClient::getLogLevel()
 {
-    return logger ? logger->getLogLevel() : Log::LogLevel::LEVEL_INFO;
+    return logger ? logger->getLogLevel() : Log::LEVEL_INFO;
 }
 
 void ConfigClient::GenericLoggerCallBack(DbgMsgType type, const char* module, const char* msg, void* context)

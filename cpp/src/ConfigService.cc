@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -353,12 +353,12 @@ GenericLogger* ConfigService::getLogger()
 
 Log::LogLevel ConfigService::setLogLevel(Log::LogLevel newLogLevel)
 {
-    return logger ? logger->setLogLevel(newLogLevel) : Log::LogLevel::LEVEL_INFO;
+    return logger ? logger->setLogLevel(newLogLevel) : Log::LEVEL_INFO;
 }
 
 Log::LogLevel ConfigService::getLogLevel()
 {
-    return logger ? logger->getLogLevel() : Log::LogLevel::LEVEL_INFO;
+    return logger ? logger->getLogLevel() : Log::LEVEL_INFO;
 }
 
 void ConfigService::GenericLoggerCallBack(DbgMsgType type, const char* module, const char* msg, void* context)
