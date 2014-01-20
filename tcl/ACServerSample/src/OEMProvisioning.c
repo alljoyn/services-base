@@ -73,13 +73,17 @@ AJ_Status App_FactoryReset()
     AJ_Status status = AJ_OK;
 
 
-    if (status = PropertyStore_ResetAll() != AJ_OK)
+    status = PropertyStore_ResetAll();
+    if (status != AJ_OK) {
         return status;
+    }
     AJ_ClearCredentials();
 #ifdef ONBOARDING_SERVICE
 
-    if (status = OBS_ClearInfo() != AJ_OK)
+    status = OBS_ClearInfo();
+    if (status != AJ_OK) {
         return status;
+    }
 #endif // ONBOARDING_SERVICE
 
     isRebootRequired = TRUE;
@@ -100,14 +104,18 @@ AJ_Status App_SetPasscode(const char* daemonRealm, const char* newStringPasscode
 
     if (PropertyStore_SetValue(RealmName, daemonRealm) && PropertyStore_SetValue(Passcode, newStringPasscode)) {
 
-        if (status = PropertyStore_SaveAll() != AJ_OK)
+        status = PropertyStore_SaveAll();
+        if (status != AJ_OK) {
             return status;
+        }
         AJ_ClearCredentials();
         status = AJ_ERR_READ;     //Force disconnect of AJ and services to refresh current sessions
     } else {
 
-        if (status = PropertyStore_LoadAll() != AJ_OK)
+        status = PropertyStore_LoadAll();
+        if (status != AJ_OK) {
             return status;
+        }
     }
 
     return status;

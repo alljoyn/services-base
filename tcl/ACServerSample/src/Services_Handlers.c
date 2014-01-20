@@ -120,32 +120,44 @@ AJ_Status Service_ConnectedHandler()
 
     AJ_Status status = AJ_OK;
 
-    if (status = About_ConnectedHandler(&busAttachment) != AJ_OK)
+    status = About_ConnectedHandler(&busAttachment);
+    if (status != AJ_OK) {
         goto ErrorExit;
+    }
 #ifdef CONFIG_SERVICE
 
-    if (status = Config_ConnectedHandler(&busAttachment) != AJ_OK)
+    status = Config_ConnectedHandler(&busAttachment);
+    if (status != AJ_OK) {
         goto ErrorExit;
+    }
 #endif
 #ifdef ONBOARDING_SERVICE
 
-    if (status = Onboarding_ConnectedHandler(&busAttachment) != AJ_OK)
+    status = Onboarding_ConnectedHandler(&busAttachment);
+    if (status != AJ_OK) {
         goto ErrorExit;
+    }
 #endif
 #ifdef NOTIFICATION_SERVICE_PRODUCER
 
-    if (status = Producer_ConnectedHandler(&busAttachment) != AJ_OK)
+    status = Producer_ConnectedHandler(&busAttachment);
+    if (status != AJ_OK) {
         goto ErrorExit;
+    }
 #endif
 #ifdef CONTROLPANEL_SERVICE
 
-    if (status = ControlPanel_ConnectedHandler(&busAttachment) != AJ_OK)
+    status = ControlPanel_ConnectedHandler(&busAttachment);
+    if (status != AJ_OK) {
         goto ErrorExit;
+    }
 #endif
 #ifdef NOTIFICATION_SERVICE_CONSUMER
 
-    if (status = Consumer_ConnectedHandler(&busAttachment) != AJ_OK)
+    status = Consumer_ConnectedHandler(&busAttachment);
+    if (status != AJ_OK) {
         goto ErrorExit;
+    }
 #endif
     return status;
 
@@ -166,33 +178,41 @@ AJ_Status Application_ConnectedHandler()
             switch (currentServicesInitializationState) {
             case INIT_SERVICES_PORT:
 
-                if (status = AJ_BusBindSessionPort(&busAttachment, App_ServicePort, NULL) != AJ_OK)
+                status = AJ_BusBindSessionPort(&busAttachment, App_ServicePort, NULL);
+                if (status != AJ_OK) {
                     goto Exit;
+                }
                 nextServicesInitializationState = INIT_ADVERTISE_NAME;
                 break;
 
             case INIT_ADVERTISE_NAME:
 
-                if (status = AJ_BusAdvertiseName(&busAttachment, AJ_GetUniqueName(&busAttachment), AJ_TRANSPORT_ANY, AJ_BUS_START_ADVERTISING) != AJ_OK)
+                status = AJ_BusAdvertiseName(&busAttachment, AJ_GetUniqueName(&busAttachment), AJ_TRANSPORT_ANY, AJ_BUS_START_ADVERTISING);
+                if (status != AJ_OK) {
                     goto Exit;
-                if (addSessionLessMatch)
+                }
+                if (addSessionLessMatch) {
                     nextServicesInitializationState = INIT_ADDSLMATCH;
-                else
+                } else {
                     nextServicesInitializationState = INIT_FINISHED;
+                }
                 break;
 
             case INIT_ADDSLMATCH:
 
-                if (status = AJ_BusSetSignalRule(&busAttachment, SESSIONLESS_MATCH, AJ_BUS_SIGNAL_ALLOW) != AJ_OK)
+                status = AJ_BusSetSignalRule(&busAttachment, SESSIONLESS_MATCH, AJ_BUS_SIGNAL_ALLOW);
+                if (status != AJ_OK) {
                     goto Exit;
+                }
                 nextServicesInitializationState = INIT_FINISHED;
                 break;
 
             case INIT_FINISHED:
                 if (IsShouldAnnounce()) {
-
-                    if (status = AboutAnnounce(&busAttachment) != AJ_OK)
+                    status = AboutAnnounce(&busAttachment);
+                    if (status != AJ_OK) {
                         goto Exit;
+                    }
                     SetShouldAnnounce(FALSE);
                 }
 #ifdef ONBOARDING_SERVICE
@@ -268,8 +288,9 @@ static Service_Status Services_HandleSessionStateChanged(AJ_BusAttachment* bus, 
     Service_Status serviceStatus = SERVICE_STATUS_NOT_HANDLED;
 
 #ifdef NOTIFICATION_SERVICE_CONSUMER
-    if (serviceStatus == SERVICE_STATUS_NOT_HANDLED)
+    if (serviceStatus == SERVICE_STATUS_NOT_HANDLED) {
         serviceStatus = Consumer_HandleSessionStateChanged(bus, sessionId, sessionJoined, replySerialNum);
+    }
 #endif
 
     return serviceStatus;
@@ -335,29 +356,36 @@ Service_Status Service_MessageProcessor(AJ_Message* msg, AJ_Status* status)
 //          }
 //      }
     } else {
-        if (serviceStatus == SERVICE_STATUS_NOT_HANDLED)
+        if (serviceStatus == SERVICE_STATUS_NOT_HANDLED) {
             serviceStatus = Application_MessageProcessor(&busAttachment, msg, status);
-        if (serviceStatus == SERVICE_STATUS_NOT_HANDLED)
+        }
+        if (serviceStatus == SERVICE_STATUS_NOT_HANDLED) {
             serviceStatus = About_MessageProcessor(&busAttachment, msg, status);
+        }
 #ifdef CONFIG_SERVICE
-        if (serviceStatus == SERVICE_STATUS_NOT_HANDLED)
+        if (serviceStatus == SERVICE_STATUS_NOT_HANDLED) {
             serviceStatus = Config_MessageProcessor(&busAttachment, msg, status);
+        }
 #endif
 #ifdef ONBOARDING_SERVICE
-        if (serviceStatus == SERVICE_STATUS_NOT_HANDLED)
+        if (serviceStatus == SERVICE_STATUS_NOT_HANDLED) {
             serviceStatus = Onboarding_MessageProcessor(&busAttachment, msg, status);
+        }
 #endif
 #ifdef NOTIFICATION_SERVICE_PRODUCER
-        if (serviceStatus == SERVICE_STATUS_NOT_HANDLED)
+        if (serviceStatus == SERVICE_STATUS_NOT_HANDLED) {
             serviceStatus = Producer_MessageProcessor(&busAttachment, msg, status);
+        }
 #endif
 #ifdef NOTIFICATION_SERVICE_CONSUMER
-        if (serviceStatus == SERVICE_STATUS_NOT_HANDLED)
+        if (serviceStatus == SERVICE_STATUS_NOT_HANDLED) {
             serviceStatus = Consumer_MessageProcessor(&busAttachment, msg, status);
+        }
 #endif
 #ifdef CONTROLPANEL_SERVICE
-        if (serviceStatus == SERVICE_STATUS_NOT_HANDLED)
+        if (serviceStatus == SERVICE_STATUS_NOT_HANDLED) {
             serviceStatus = CPS_MessageProcessor(&busAttachment, msg, status);
+        }
 #endif
     }
     return serviceStatus;
