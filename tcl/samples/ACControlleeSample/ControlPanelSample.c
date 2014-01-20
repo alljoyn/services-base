@@ -100,8 +100,9 @@ AJ_Status ControlPanel_ConnectedHandler(AJ_BusAttachment* bus)
 
 uint8_t CPS_CheckSessionAccepted(uint16_t port, uint32_t sessionId, char* joiner)
 {
-    if (port != CPSPort)
+    if (port != CPSPort) {
         return FALSE;
+    }
     CPSsessionId = sessionId;
     return TRUE;
 }
@@ -150,10 +151,11 @@ Service_Status CPS_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg, AJ_S
             if (*msgStatus == AJ_OK && context.numSignals != 0) {
                 uint16_t indx;
                 for (indx = 0; indx < context.numSignals; indx++) {
-                    if (context.signals[indx].signalType == SIGNAL_TYPE_DATA_CHANGED)
+                    if (context.signals[indx].signalType == SIGNAL_TYPE_DATA_CHANGED) {
                         *msgStatus = CpsSendPropertyChangedSignal(bus, context.signals[indx].signalId, CPSsessionId);
-                    else if (context.signals[indx].signalType == SIGNAL_TYPE_DISMISS)
+                    } else if (context.signals[indx].signalType == SIGNAL_TYPE_DISMISS) {
                         *msgStatus = CpsSendDismissSignal(bus, context.signals[indx].signalId, CPSsessionId);
+                    }
                 }
             }
         }

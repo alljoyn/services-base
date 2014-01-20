@@ -82,33 +82,42 @@ AJ_Status marshalPropertyOptParam(BaseWidget* widget, AJ_Message* reply, uint16_
     AJ_Status status;
     AJ_Arg propertyOptParams;
 
-    if (status = StartOptionalParams(reply, &propertyOptParams) != AJ_OK)
+    status = StartOptionalParams(reply, &propertyOptParams);
+    if (status != AJ_OK) {
         return status;
+    }
 
-    if (status = marshalBaseOptParam(widget, reply, language) != AJ_OK)
+    status = marshalBaseOptParam(widget, reply, language);
+    if (status != AJ_OK) {
         return status;
+    }
 
     if (optParams->getUnitOfMeasure) {
         const char* unitOfMeasure = optParams->getUnitOfMeasure(language);
-        if (status = AddBasicOptionalParam(reply, PROPERTY_UNIT_OF_MEASURE, PROPERTY_UNIT_OF_MEASURE_SIG,
-                                           &unitOfMeasure) != AJ_OK)
+        status = AddBasicOptionalParam(reply, PROPERTY_UNIT_OF_MEASURE, PROPERTY_UNIT_OF_MEASURE_SIG, &unitOfMeasure);
+        if (status != AJ_OK) {
             return status;
+        }
     } else if (optParams->unitOfMeasure) {
         const char* unitOfMeasure = optParams->unitOfMeasure[language];
-        if (status = AddBasicOptionalParam(reply, PROPERTY_UNIT_OF_MEASURE, PROPERTY_UNIT_OF_MEASURE_SIG,
-                                           &unitOfMeasure) != AJ_OK)
+        status = AddBasicOptionalParam(reply, PROPERTY_UNIT_OF_MEASURE, PROPERTY_UNIT_OF_MEASURE_SIG, &unitOfMeasure);
+        if (status != AJ_OK) {
             return status;
+        }
     }
 
     if (optParams->constraintList && optParams->numConstraints) {
-        if (status = marshalConstraintList(optParams->constraintList, reply, optParams->numConstraints,
-                                           ((PropertyWidget*)widget)->signature, language) != AJ_OK)
+        status = marshalConstraintList(optParams->constraintList, reply, optParams->numConstraints, ((PropertyWidget*)widget)->signature, language);
+        if (status != AJ_OK) {
             return status;
+        }
     }
 
     if (optParams->constraintRangeDefined) {
-        if (status = marshalConstraintRange(&optParams->constraintRange, reply) != AJ_OK)
+        status = marshalConstraintRange(&optParams->constraintRange, reply);
+        if (status != AJ_OK) {
             return status;
+        }
     }
 
     return AJ_MarshalCloseContainer(reply, &propertyOptParams);
@@ -119,19 +128,25 @@ AJ_Status marshalAllPropertyProperties(BaseWidget* widget, AJ_Message* reply, ui
     AJ_Status status;
     AJ_Arg propertyGetAllArray;
 
-    if (status = AJ_MarshalContainer(reply, &propertyGetAllArray, AJ_ARG_ARRAY) != AJ_OK)
+    status = AJ_MarshalContainer(reply, &propertyGetAllArray, AJ_ARG_ARRAY);
+    if (status != AJ_OK) {
         return status;
+    }
 
-    if (status = marshalAllBaseProperties(widget, reply, language) != AJ_OK)
+    status = marshalAllBaseProperties(widget, reply, language);
+    if (status != AJ_OK) {
         return status;
+    }
 
-    if (status = AddPropertyForGetAll(reply, PROPERTY_TYPE_OPTPARAMS_NAME, PROPERTY_TYPE_OPTPARAMS_SIG,
-                                      widget, language, marshalPropertyOptParam) != AJ_OK)
+    status = AddPropertyForGetAll(reply, PROPERTY_TYPE_OPTPARAMS_NAME, PROPERTY_TYPE_OPTPARAMS_SIG, widget, language, marshalPropertyOptParam);
+    if (status != AJ_OK) {
         return status;
+    }
 
-    if (status = AddPropertyForGetAll(reply, PROPERTY_TYPE_VALUE_NAME, PROPERTY_TYPE_VALUE_SIG,
-                                      widget, language, (MarshalWidgetFptr)marshalPropertyValue) != AJ_OK)
+    status = AddPropertyForGetAll(reply, PROPERTY_TYPE_VALUE_NAME, PROPERTY_TYPE_VALUE_SIG, widget, language, (MarshalWidgetFptr)marshalPropertyValue);
+    if (status != AJ_OK) {
         return status;
+    }
 
     return AJ_MarshalCloseContainer(reply, &propertyGetAllArray);
 }

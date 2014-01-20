@@ -24,12 +24,16 @@ AJ_Status AddHints(AJ_Message* reply, const uint16_t hints[], uint16_t numHints)
     AJ_Status status;
     AJ_Arg arrayArg;
 
-    if (status = AJ_MarshalContainer(reply, &arrayArg, AJ_ARG_ARRAY) != AJ_OK)
+    status = AJ_MarshalContainer(reply, &arrayArg, AJ_ARG_ARRAY);
+    if (status != AJ_OK) {
         return status;
+    }
     uint16_t cnt;
     for (cnt = 0; cnt < numHints; cnt++)
-        if (status = AJ_MarshalArgs(reply, "q", hints[cnt]) != AJ_OK)
-            return status;
+        status = AJ_MarshalArgs(reply, "q", hints[cnt]);
+    if (status != AJ_OK) {
+        return status;
+    }
 
     return AJ_MarshalCloseContainer(reply, &arrayArg);
 }
@@ -39,12 +43,18 @@ AJ_Status AddConstraintValue(AJ_Message* reply, const char* sig, const void* val
     AJ_Status status;
     AJ_Arg structArg;
 
-    if (status = AJ_MarshalContainer(reply, &structArg, AJ_ARG_STRUCT) != AJ_OK)
+    status = AJ_MarshalContainer(reply, &structArg, AJ_ARG_STRUCT);
+    if (status != AJ_OK) {
         return status;
-    if (status = MarshalVariant(reply, sig, value) != AJ_OK)
+    }
+    status = MarshalVariant(reply, sig, value);
+    if (status != AJ_OK) {
         return status;
-    if (status = AJ_MarshalArgs(reply, "s", displayValue) != AJ_OK)
+    }
+    status = AJ_MarshalArgs(reply, "s", displayValue);
+    if (status != AJ_OK) {
         return status;
+    }
 
     return AJ_MarshalCloseContainer(reply, &structArg);
 }
@@ -54,14 +64,22 @@ AJ_Status AddConstraintRange(AJ_Message* reply, const char* valueSig, const void
     AJ_Status status;
     AJ_Arg structArg;
 
-    if (status = AJ_MarshalContainer(reply, &structArg, AJ_ARG_STRUCT) != AJ_OK)
+    status = AJ_MarshalContainer(reply, &structArg, AJ_ARG_STRUCT);
+    if (status != AJ_OK) {
         return status;
-    if (status = MarshalVariant(reply, valueSig, min) != AJ_OK)
+    }
+    status = MarshalVariant(reply, valueSig, min);
+    if (status != AJ_OK) {
         return status;
-    if (status = MarshalVariant(reply, valueSig, max) != AJ_OK)
+    }
+    status = MarshalVariant(reply, valueSig, max);
+    if (status != AJ_OK) {
         return status;
-    if (status = MarshalVariant(reply, valueSig, increment) != AJ_OK)
+    }
+    status = MarshalVariant(reply, valueSig, increment);
+    if (status != AJ_OK) {
         return status;
+    }
 
     return AJ_MarshalCloseContainer(reply, &structArg);
 }
@@ -70,10 +88,14 @@ AJ_Status StartComplexOptionalParam(AJ_Message* reply, AJ_Arg* arg, uint16_t key
 {
     AJ_Status status;
 
-    if (status = AJ_MarshalContainer(reply, arg, AJ_ARG_DICT_ENTRY) != AJ_OK)
+    status = AJ_MarshalContainer(reply, arg, AJ_ARG_DICT_ENTRY);
+    if (status != AJ_OK) {
         return status;
-    if (status = AJ_MarshalArgs(reply, "q", key) != AJ_OK)
+    }
+    status = AJ_MarshalArgs(reply, "q", key);
+    if (status != AJ_OK) {
         return status;
+    }
 
     return AJ_MarshalVariant(reply, sig);
 }
@@ -83,12 +105,18 @@ AJ_Status AddBasicOptionalParam(AJ_Message* reply, uint16_t key, const char* sig
     AJ_Status status;
     AJ_Arg dictArg;
 
-    if (status = AJ_MarshalContainer(reply, &dictArg, AJ_ARG_DICT_ENTRY) != AJ_OK)
+    status = AJ_MarshalContainer(reply, &dictArg, AJ_ARG_DICT_ENTRY);
+    if (status != AJ_OK) {
         return status;
-    if (status = AJ_MarshalArgs(reply, "q", key) != AJ_OK)
+    }
+    status = AJ_MarshalArgs(reply, "q", key);
+    if (status != AJ_OK) {
         return status;
-    if (status = MarshalVariant(reply, sig, value) != AJ_OK)
+    }
+    status = MarshalVariant(reply, sig, value);
+    if (status != AJ_OK) {
         return status;
+    }
 
     return AJ_MarshalCloseContainer(reply, &dictArg);
 }
@@ -99,14 +127,22 @@ AJ_Status AddPropertyForGetAll(AJ_Message* reply, char* key, const char* sig,
     AJ_Status status;
     AJ_Arg dictArg;
 
-    if (status = AJ_MarshalContainer(reply, &dictArg, AJ_ARG_DICT_ENTRY) != AJ_OK)
+    status = AJ_MarshalContainer(reply, &dictArg, AJ_ARG_DICT_ENTRY);
+    if (status != AJ_OK) {
         return status;
-    if (status = AJ_MarshalArgs(reply, "s", key) != AJ_OK)
+    }
+    status = AJ_MarshalArgs(reply, "s", key);
+    if (status != AJ_OK) {
         return status;
-    if (status = AJ_MarshalVariant(reply, sig) != AJ_OK)
+    }
+    status = AJ_MarshalVariant(reply, sig);
+    if (status != AJ_OK) {
         return status;
-    if (status = functionPtr(widget, reply, lang) != AJ_OK)
+    }
+    status = functionPtr(widget, reply, lang);
+    if (status != AJ_OK) {
         return status;
+    }
 
     return AJ_MarshalCloseContainer(reply, &dictArg);
 }
@@ -114,39 +150,41 @@ AJ_Status AddPropertyForGetAll(AJ_Message* reply, char* key, const char* sig,
 AJ_Status MarshalVariant(AJ_Message* reply, const char* sig, const void* value)
 {
     AJ_Status status;
-    if (status = AJ_MarshalVariant(reply, sig) != AJ_OK)
+    status = AJ_MarshalVariant(reply, sig);
+    if (status != AJ_OK) {
         return status;
+    }
 
-    if (value == 0)
+    if (value == 0) {
         return AJ_ERR_UNEXPECTED;
-
-    if (strcmp(sig, "s") == 0)
+    }
+    if (strcmp(sig, "s") == 0) {
         return AJ_MarshalArgs(reply, sig, *((char**)value));
-    else if (strcmp(sig, "i") == 0)
+    } else if (strcmp(sig, "i") == 0) {
         return AJ_MarshalArgs(reply, sig, *((int*)value));
-    else if (strcmp(sig, "b") == 0)
+    } else if (strcmp(sig, "b") == 0) {
         return AJ_MarshalArgs(reply, sig, *((uint8_t*)value));
-    else if (strcmp(sig, "q") == 0)
+    } else if (strcmp(sig, "q") == 0) {
         return AJ_MarshalArgs(reply, sig, *((uint16_t*)value));
-    else if (strcmp(sig, "u") == 0)
+    } else if (strcmp(sig, "u") == 0) {
         return AJ_MarshalArgs(reply, sig, *((uint32_t*)value));
-    else if (strcmp(sig, "d") == 0)
+    } else if (strcmp(sig, "d") == 0) {
         return AJ_MarshalArgs(reply, sig, *((double*)value));
-    else if (strcmp(sig, "g") == 0)
+    } else if (strcmp(sig, "g") == 0) {
         return AJ_MarshalArgs(reply, sig, *((char**)value));
-    else if (strcmp(sig, "o") == 0)
+    } else if (strcmp(sig, "o") == 0) {
         return AJ_MarshalArgs(reply, sig, *((char**)value));
-    else if (strcmp(sig, "n") == 0)
+    } else if (strcmp(sig, "n") == 0) {
         return AJ_MarshalArgs(reply, sig, *((int16_t*)value));
-    else if (strcmp(sig, "t") == 0)
+    } else if (strcmp(sig, "t") == 0) {
         return AJ_MarshalArgs(reply, sig, *((uint64_t*)value));
-    else if (strcmp(sig, "x") == 0)
+    } else if (strcmp(sig, "x") == 0) {
         return AJ_MarshalArgs(reply, sig, *((int64_t*)value));
-    else if (strcmp(sig, "y") == 0)
+    } else if (strcmp(sig, "y") == 0) {
         return AJ_MarshalArgs(reply, sig, *((char*)value));
-    else if (strcmp(sig, "h") == 0)
+    } else if (strcmp(sig, "h") == 0) {
         return AJ_MarshalArgs(reply, sig, *((int*)value));
-
+    }
     return AJ_ERR_UNEXPECTED;
 }
 
@@ -156,18 +194,30 @@ AJ_Status MarshalAllRootProperties(AJ_Message* reply)
     AJ_Arg rootGetAllArray;
     AJ_Arg dictArg;
 
-    if (status = AJ_MarshalContainer(reply, &rootGetAllArray, AJ_ARG_ARRAY) != AJ_OK)
+    status = AJ_MarshalContainer(reply, &rootGetAllArray, AJ_ARG_ARRAY);
+    if (status != AJ_OK) {
         return status;
-    if (status = AJ_MarshalContainer(reply, &dictArg, AJ_ARG_DICT_ENTRY) != AJ_OK)
+    }
+    status = AJ_MarshalContainer(reply, &dictArg, AJ_ARG_DICT_ENTRY);
+    if (status != AJ_OK) {
         return status;
-    if (status = AJ_MarshalArgs(reply, "s", PROPERTY_TYPE_VERSION_NAME) != AJ_OK)
+    }
+    status = AJ_MarshalArgs(reply, "s", PROPERTY_TYPE_VERSION_NAME);
+    if (status != AJ_OK) {
         return status;
-    if (status = AJ_MarshalVariant(reply, PROPERTY_TYPE_VERSION_SIG) != AJ_OK)
+    }
+    status = AJ_MarshalVariant(reply, PROPERTY_TYPE_VERSION_SIG);
+    if (status != AJ_OK) {
         return status;
-    if (status = MarshalVersionRootProperties(reply) != AJ_OK)
+    }
+    status = MarshalVersionRootProperties(reply);
+    if (status != AJ_OK) {
         return status;
-    if (status = AJ_MarshalCloseContainer(reply, &dictArg) != AJ_OK)
+    }
+    status = AJ_MarshalCloseContainer(reply, &dictArg);
+    if (status != AJ_OK) {
         return status;
+    }
     return AJ_MarshalCloseContainer(reply, &rootGetAllArray);
 }
 

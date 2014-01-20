@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -605,8 +605,10 @@ AJ_Status SetValueProperty(AJ_Message* replyMsg, uint32_t propId, void* context)
     case DE_AT_MYDEVICE_HEATPROPERTY_VALUE_PROPERTY:
     {
         uint16_t newValue;
-        if ((status = unmarshalPropertyValue(&MyDeviceHeatProperty, replyMsg, &newValue, ((SetValueContext*)context)->sender)))
+        status = unmarshalPropertyValue(&MyDeviceHeatProperty, replyMsg, &newValue, ((SetValueContext*)context)->sender);
+        if (status != AJ_OK) {
             return status;
+        }
         setuint16Var(newValue);
         ((SetValueContext*)context)->numSignals = 2;
         ((SetValueContext*)context)->signals[0] = EN_MYDEVICE_HEATPROPERTY_SIGNAL_VALUE_CHANGED;

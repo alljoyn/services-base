@@ -23,25 +23,35 @@ AJ_Status marshalConstraintList(ConstraintList* constraints, AJ_Message* reply, 
     AJ_Status status;
     AJ_Arg arrayArg, opParams;
 
-    if (status = StartComplexOptionalParam(reply, &opParams, PROPERTY_CONSTRAINT_LIST, PROPERTY_CONSTRAINT_LIST_SIG) != AJ_OK)
+    status = StartComplexOptionalParam(reply, &opParams, PROPERTY_CONSTRAINT_LIST, PROPERTY_CONSTRAINT_LIST_SIG);
+    if (status != AJ_OK) {
         return status;
+    }
 
-    if (status = AJ_MarshalContainer(reply, &arrayArg, AJ_ARG_ARRAY) != AJ_OK)
+    status = AJ_MarshalContainer(reply, &arrayArg, AJ_ARG_ARRAY);
+    if (status != AJ_OK) {
         return status;
+    }
 
     uint16_t cnt;
     for (cnt = 0; cnt < numConstraints; cnt++) {
         if (constraints[cnt].getDisplay != 0) {
-            if (status = AddConstraintValue(reply, signature, constraints[cnt].value, constraints[cnt].getDisplay(language)) != AJ_OK)
+            status = AddConstraintValue(reply, signature, constraints[cnt].value, constraints[cnt].getDisplay(language));
+            if (status != AJ_OK) {
                 return status;
+            }
         } else {
-            if (status = AddConstraintValue(reply, signature, constraints[cnt].value, constraints[cnt].display[language]) != AJ_OK)
+            status = AddConstraintValue(reply, signature, constraints[cnt].value, constraints[cnt].display[language]);
+            if (status != AJ_OK) {
                 return status;
+            }
         }
     }
 
-    if (status = AJ_MarshalCloseContainer(reply, &arrayArg) != AJ_OK)
+    status = AJ_MarshalCloseContainer(reply, &arrayArg);
+    if (status != AJ_OK) {
         return status;
+    }
 
     return AJ_MarshalCloseContainer(reply, &opParams);
 }

@@ -29,12 +29,13 @@ void initializeLabelWidget(LabelWidget* widget)
 
 AJ_Status marshalLabelLabel(LabelWidget* widget, AJ_Message* reply, uint16_t language)
 {
-    if (language >= widget->base.numLanguages)
+    if (language >= widget->base.numLanguages) {
         return AJ_ERR_UNEXPECTED;
+    }
 
-    if (widget->getLabel)
+    if (widget->getLabel) {
         return AJ_MarshalArgs(reply, PROPERTY_TYPE_LABEL_SIG, widget->getLabel(language));
-
+    }
     return AJ_MarshalArgs(reply, PROPERTY_TYPE_LABEL_SIG, widget->label[language]);
 }
 
@@ -43,19 +44,25 @@ AJ_Status marshalAllLabelProperties(BaseWidget* widget, AJ_Message* reply, uint1
     AJ_Status status;
     AJ_Arg labelGetAllArray;
 
-    if (status = AJ_MarshalContainer(reply, &labelGetAllArray, AJ_ARG_ARRAY) != AJ_OK)
+    status = AJ_MarshalContainer(reply, &labelGetAllArray, AJ_ARG_ARRAY);
+    if (status != AJ_OK) {
         return status;
+    }
 
-    if (status = marshalAllBaseProperties(widget, reply, language) != AJ_OK)
+    status = marshalAllBaseProperties(widget, reply, language);
+    if (status != AJ_OK) {
         return status;
+    }
 
-    if (status = AddPropertyForGetAll(reply, PROPERTY_TYPE_LABEL_NAME, PROPERTY_TYPE_LABEL_SIG,
-                                      widget, language, (MarshalWidgetFptr)marshalLabelLabel) != AJ_OK)
+    status = AddPropertyForGetAll(reply, PROPERTY_TYPE_LABEL_NAME, PROPERTY_TYPE_LABEL_SIG, widget, language, (MarshalWidgetFptr)marshalLabelLabel);
+    if (status != AJ_OK) {
         return status;
+    }
 
-    if (status = AddPropertyForGetAll(reply, PROPERTY_TYPE_OPTPARAMS_NAME, PROPERTY_TYPE_OPTPARAMS_SIG,
-                                      widget, language, marshalOnlyBaseOptParam) != AJ_OK)
+    status = AddPropertyForGetAll(reply, PROPERTY_TYPE_OPTPARAMS_NAME, PROPERTY_TYPE_OPTPARAMS_SIG, widget, language, marshalOnlyBaseOptParam);
+    if (status != AJ_OK) {
         return status;
+    }
 
     return AJ_MarshalCloseContainer(reply, &labelGetAllArray);
 }

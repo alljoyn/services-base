@@ -57,34 +57,52 @@ uint8_t isControlPanelAnnounce(AJ_Message* msg)
     uint16_t uint1, uint2;
     char* buffer;
 
-    if (status = AJ_UnmarshalArgs(msg, "q", &uint1) != AJ_OK)
+    status = AJ_UnmarshalArgs(msg, "q", &uint1);
+    if (status != AJ_OK) {
         return FLASE;
-    if (status = AJ_UnmarshalArgs(msg, "q", &uint2) != AJ_OK)
+    }
+    status = AJ_UnmarshalArgs(msg, "q", &uint2);
+    if (status != AJ_OK) {
         return FLASE;
-    if (status = AJ_UnmarshalContainer(msg, &array1, AJ_ARG_ARRAY) != AJ_OK)
+    }
+    status = AJ_UnmarshalContainer(msg, &array1, AJ_ARG_ARRAY);
+    if (status != AJ_OK) {
         return FLASE;
+    }
     do {
-        if (status = AJ_UnmarshalContainer(msg, &struct1, AJ_ARG_STRUCT) != AJ_OK)
+        status = AJ_UnmarshalContainer(msg, &struct1, AJ_ARG_STRUCT);
+        if (status != AJ_OK) {
             return FLASE;
-        if (status = AJ_UnmarshalArgs(msg, "o", &buffer) != AJ_OK)
+        }
+        status = AJ_UnmarshalArgs(msg, "o", &buffer);
+        if (status != AJ_OK) {
             return FLASE;
+        }
 
-        if (status = AJ_UnmarshalContainer(msg, &array2, AJ_ARG_ARRAY) != AJ_OK)
+        status = AJ_UnmarshalContainer(msg, &array2, AJ_ARG_ARRAY);
+        if (status != AJ_OK) {
             return FLASE;
+        }
         do {
             if (status = AJ_UnmarshalArgs(msg, "s", &buffer) != AJ_OK) {
-                if (status == AJ_ERR_NO_MORE)
+                if (status == AJ_ERR_NO_MORE) {
                     break;
-                else
+                } else {
                     return FALSE;
+                }
             }
-            if (strcmp(buffer, "org.alljoyn.ControlPanel.ControlPanel") == 0)
+            if (strcmp(buffer, "org.alljoyn.ControlPanel.ControlPanel") == 0) {
                 return TRUE;
+            }
         } while (1);
-        if (status = AJ_UnmarshalCloseContainer(msg, &array2) != AJ_OK)
+        status = AJ_UnmarshalCloseContainer(msg, &array2);
+        if (status != AJ_OK) {
             break;
-        if (status = AJ_UnmarshalCloseContainer(msg, &struct1) != AJ_OK)
+        }
+        status = AJ_UnmarshalCloseContainer(msg, &struct1);
+        if (status != AJ_OK) {
             break;
+        }
     } while (1);
     return FALSE;
 }
@@ -165,8 +183,9 @@ AJ_Status CPS_StartService(AJ_BusAttachment* bus, const char* busAddress, uint32
 
 void CPS_IdleConnectedHandler(AJ_BusAttachment*bus)
 {
-    if (runningTestNum == lastTestRun || CPSsessionId == 0)
+    if (runningTestNum == lastTestRun || CPSsessionId == 0) {
         return;
+    }
 
     if (runningTestNum == numTests) {
         runningTestNum = 0;
@@ -222,8 +241,9 @@ Service_Status CPS_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg, AJ_S
     case CONTROL_ANNOUNCE_SIGNAL_RECEIVED:
         AJ_Printf("Received Announce Signal from %s.\n", msg->sender);
         if (CPSsessionId == 0) {
-            if (!isControlPanelAnnounce(msg))
+            if (!isControlPanelAnnounce(msg)) {
                 break;
+            }
             AJ_SessionOpts sessionOpts = {
                 AJ_SESSION_TRAFFIC_MESSAGES,
                 AJ_SESSION_PROXIMITY_ANY,
@@ -291,9 +311,9 @@ int AJ_Main(void)
 
         if (AJ_OK == status) {
             if  (msg.msgId == AJ_REPLY_ID(AJ_METHOD_JOIN_SESSION)) {
-                if (msg.hdr->msgType == AJ_MSG_ERROR)
+                if (msg.hdr->msgType == AJ_MSG_ERROR) {
                     AJ_Printf("Could not connect session.\n");
-                else {
+                } else {
                     uint32_t replyCode;
 
                     AJ_UnmarshalArgs(&msg, "uu", &replyCode, &sessionId);

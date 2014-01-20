@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -40,12 +40,12 @@ AJ_Status CpsSendRootUrl(AJ_Message* msg, uint32_t msgId)
     uint16_t language = 0;
 
     HttpControl* control = identifyMsgOrPropId(msgId, &widgetType, &propType, &language);
-    if (control == 0)
+    if (control == 0) {
         return ReturnErrorMessage(msg, AJ_ErrServiceUnknown);
-
-    if (marshalHttpControlUrl(control, &reply, language))
+    }
+    if (marshalHttpControlUrl(control, &reply, language)) {
         return ReturnErrorMessage(msg, AJ_ErrServiceUnknown);
-
+    }
     return AJ_DeliverMsg(&reply);
 }
 
@@ -58,23 +58,27 @@ AJ_Status CpsGetWidgetProperty(AJ_Message* replyMsg, uint32_t propId, void* cont
     uint16_t language = 0;
 
     BaseWidget* widget = identifyMsgOrPropId(propId, &widgetType, &propType, &language);
-    if (widget == 0)
+    if (widget == 0) {
         return status;
+    }
 
     switch (propType) {
     case PROPERTY_TYPE_VERSION:
-        if (widget->marshalVersion)
+        if (widget->marshalVersion) {
             return widget->marshalVersion(widget, replyMsg, language);
+        }
         break;
 
     case PROPERTY_TYPE_STATES:
-        if (widget->marshalStates)
+        if (widget->marshalStates) {
             return widget->marshalStates(widget, replyMsg, language);
+        }
         break;
 
     case PROPERTY_TYPE_OPTPARAMS:
-        if (widget->marshalOptParam)
+        if (widget->marshalOptParam) {
             return widget->marshalOptParam(widget, replyMsg, language);
+        }
         break;
 
     case PROPERTY_TYPE_VALUE:
@@ -97,9 +101,9 @@ AJ_Status CpsGetRootProperty(AJ_Message* replyMsg, uint32_t propId, void* contex
     AJ_Status status = AJ_ERR_UNEXPECTED;
 
     uint8_t found = identifyRootMsgOrPropId(propId);
-    if (!found)
+    if (!found) {
         return status;
-
+    }
     return MarshalVersionRootProperties(replyMsg);
 }
 
@@ -111,13 +115,13 @@ AJ_Status CpsGetAllRootProperties(AJ_Message* msg, uint32_t msgId)
     AJ_MarshalReplyMsg(msg, &reply);
 
     uint8_t found = identifyRootMsgOrPropId(msgId);
-    if (!found)
+    if (!found) {
         return ReturnErrorMessage(msg, AJ_ErrServiceUnknown);
-
+    }
     status = MarshalAllRootProperties(&reply);
-    if (status)
+    if (status) {
         return ReturnErrorMessage(msg, AJ_ErrServiceUnknown);
-
+    }
     return AJ_DeliverMsg(&reply);
 }
 
@@ -133,13 +137,13 @@ AJ_Status CpsGetAllWidgetProperties(AJ_Message* msg, uint32_t msgId)
     uint16_t language = 0;
 
     BaseWidget* widget = identifyMsgOrPropId(msgId, &widgetType, &propType, &language);
-    if (widget == 0)
+    if (widget == 0) {
         return ReturnErrorMessage(msg, AJ_ErrServiceUnknown);
-
+    }
     status = widget->marshalAllProp(widget, &reply, language);
-    if (status)
+    if (status) {
         return ReturnErrorMessage(msg, AJ_ErrServiceUnknown);
-
+    }
     return AJ_DeliverMsg(&reply);
 }
 
@@ -153,15 +157,20 @@ AJ_Status CpsSendPropertyChangedSignal(AJ_BusAttachment* bus, uint32_t propSigna
     uint8_t isProperty = FALSE;
 
     void* widget = identifyMsgOrPropIdForSignal(propSignal, &isProperty);
-    if (widget == 0)
+    if (widget == 0) {
         return AJ_ERR_UNEXPECTED;
+    }
 
-    if ((status = AJ_MarshalSignal(bus, &msg, propSignal, NULL, sessionId, 0, 0)))
+    status = AJ_MarshalSignal(bus, &msg, propSignal, NULL, sessionId, 0, 0);
+    if (status != AJ_OK) {
         return status;
+    }
 
     if (isProperty) {
-        if ((status = marshalPropertyValue(widget, &msg, 0)))
+        status = marshalPropertyValue(widget, &msg, 0);
+        if (status != AJ_OK) {
             return status;
+        }
     }
 
     return AJ_DeliverMsg(&msg);
@@ -175,11 +184,14 @@ AJ_Status CpsSendDismissSignal(AJ_BusAttachment* bus, uint32_t propSignal, uint3
     AJ_Printf("Sending Dismiss Signal.\n");
 
     uint8_t found = identifyRootMsgOrPropId(propSignal);
-    if (!found)
+    if (!found) {
         return AJ_ERR_UNEXPECTED;
+    }
 
-    if ((status = AJ_MarshalSignal(bus, &msg, propSignal, NULL, sessionId, 0, 0)))
+    status = AJ_MarshalSignal(bus, &msg, propSignal, NULL, sessionId, 0, 0);
+    if (status != AJ_OK) {
         return status;
+    }
 
     return AJ_DeliverMsg(&msg);
 }

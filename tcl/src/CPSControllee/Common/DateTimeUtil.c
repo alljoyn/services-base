@@ -22,21 +22,32 @@ AJ_Status marshalDatePropertyValue(DatePropertyValue* datePropertyValue, AJ_Mess
     AJ_Status status;
     AJ_Arg outerStructArg, innerStructArg;
 
-    if (status = AJ_MarshalVariant(reply, DATE_PROPERTY_SIG) != AJ_OK)
+    status = AJ_MarshalVariant(reply, DATE_PROPERTY_SIG);
+    if (status != AJ_OK) {
         return status;
-    if (status = AJ_MarshalContainer(reply, &outerStructArg, AJ_ARG_STRUCT) != AJ_OK)
+    }
+    status = AJ_MarshalContainer(reply, &outerStructArg, AJ_ARG_STRUCT);
+    if (status != AJ_OK) {
         return status;
-    if (status = AJ_MarshalArgs(reply, "q", DATE_PROPERTY) != AJ_OK)
+    }
+    status = AJ_MarshalArgs(reply, "q", DATE_PROPERTY);
+    if (status != AJ_OK) {
         return status;
-    if (status = AJ_MarshalContainer(reply, &innerStructArg, AJ_ARG_STRUCT) != AJ_OK)
+    }
+    status = AJ_MarshalContainer(reply, &innerStructArg, AJ_ARG_STRUCT);
+    if (status != AJ_OK) {
         return status;
+    }
 
-    if (status = AJ_MarshalArgs(reply, "qqq", datePropertyValue->mDay, datePropertyValue->month,
-                                datePropertyValue->fullYear) != AJ_OK)
+    status = AJ_MarshalArgs(reply, "qqq", datePropertyValue->mDay, datePropertyValue->month, datePropertyValue->fullYear);
+    if (status != AJ_OK) {
         return status;
+    }
 
-    if (status = AJ_MarshalCloseContainer(reply, &innerStructArg) != AJ_OK)
+    status = AJ_MarshalCloseContainer(reply, &innerStructArg);
+    if (status != AJ_OK) {
         return status;
+    }
     return AJ_MarshalCloseContainer(reply, &outerStructArg);
 }
 
@@ -45,20 +56,32 @@ AJ_Status marshalTimePropertyValue(TimePropertyValue* timePropertyValue, AJ_Mess
     AJ_Status status;
     AJ_Arg outerStructArg, innerStructArg;
 
-    if (status = AJ_MarshalVariant(reply, TIME_PROPERTY_SIG) != AJ_OK)
+    status = AJ_MarshalVariant(reply, TIME_PROPERTY_SIG);
+    if (status != AJ_OK) {
         return status;
-    if (status = AJ_MarshalContainer(reply, &outerStructArg, AJ_ARG_STRUCT) != AJ_OK)
+    }
+    status = AJ_MarshalContainer(reply, &outerStructArg, AJ_ARG_STRUCT);
+    if (status != AJ_OK) {
         return status;
-    if (status = AJ_MarshalArgs(reply, "q", TIME_PROPERTY) != AJ_OK)
+    }
+    status = AJ_MarshalArgs(reply, "q", TIME_PROPERTY);
+    if (status != AJ_OK) {
         return status;
-    if (status = AJ_MarshalContainer(reply, &innerStructArg, AJ_ARG_STRUCT) != AJ_OK)
+    }
+    status = AJ_MarshalContainer(reply, &innerStructArg, AJ_ARG_STRUCT);
+    if (status != AJ_OK) {
         return status;
+    }
 
-    if (status = AJ_MarshalArgs(reply, "qqq", timePropertyValue->hour, timePropertyValue->minute, timePropertyValue->second) != AJ_OK)
+    status = AJ_MarshalArgs(reply, "qqq", timePropertyValue->hour, timePropertyValue->minute, timePropertyValue->second);
+    if (status != AJ_OK) {
         return status;
+    }
 
-    if (status = AJ_MarshalCloseContainer(reply, &innerStructArg) != AJ_OK)
+    status = AJ_MarshalCloseContainer(reply, &innerStructArg);
+    if (status != AJ_OK) {
         return status;
+    }
     return AJ_MarshalCloseContainer(reply, &outerStructArg);
 }
 
@@ -68,21 +91,31 @@ AJ_Status unmarshalDatePropertyValue(DatePropertyValue* datePropertyValue, AJ_Me
     AJ_Arg outerStructArg, innerStructArg;
     uint16_t widgetType;
 
-    if (status = AJ_UnmarshalContainer(message, &outerStructArg, AJ_ARG_STRUCT) != AJ_OK)
+    status = AJ_UnmarshalContainer(message, &outerStructArg, AJ_ARG_STRUCT);
+    if (status != AJ_OK) {
         return status;
-    if (status = AJ_UnmarshalArgs(message, "q", &widgetType) != AJ_OK)
+    }
+    status = AJ_UnmarshalArgs(message, "q", &widgetType);
+    if (status != AJ_OK) {
         return status;
+    }
 
-    if (widgetType != DATE_PROPERTY)
+    if (widgetType != DATE_PROPERTY) {
         return AJ_ERR_UNEXPECTED;
+    }
+    status = AJ_UnmarshalContainer(message, &innerStructArg, AJ_ARG_STRUCT);
+    if (status != AJ_OK) {
+        return status;
+    }
+    status = AJ_UnmarshalArgs(message, "qqq", &datePropertyValue->mDay, &datePropertyValue->month, &datePropertyValue->fullYear);
+    if (status != AJ_OK) {
+        return status;
+    }
 
-    if (status = AJ_UnmarshalContainer(message, &innerStructArg, AJ_ARG_STRUCT) != AJ_OK)
+    status = AJ_UnmarshalCloseContainer(message, &innerStructArg);
+    if (status != AJ_OK) {
         return status;
-    if (status = AJ_UnmarshalArgs(message, "qqq", &datePropertyValue->mDay, &datePropertyValue->month, &datePropertyValue->fullYear) != AJ_OK)
-        return status;
-
-    if (status = AJ_UnmarshalCloseContainer(message, &innerStructArg) != AJ_OK)
-        return status;
+    }
     return AJ_UnmarshalCloseContainer(message, &outerStructArg);
 }
 
@@ -92,21 +125,31 @@ AJ_Status unmarshalTimePropertyValue(TimePropertyValue* timePropertyValue, AJ_Me
     AJ_Arg outerStructArg, innerStructArg;
     uint16_t widgetType;
 
-    if (status = AJ_UnmarshalContainer(message, &outerStructArg, AJ_ARG_STRUCT) != AJ_OK)
+    status = AJ_UnmarshalContainer(message, &outerStructArg, AJ_ARG_STRUCT);
+    if (status != AJ_OK) {
         return status;
-    if (status = AJ_UnmarshalArgs(message, "q", &widgetType) != AJ_OK)
+    }
+    status = AJ_UnmarshalArgs(message, "q", &widgetType);
+    if (status != AJ_OK) {
         return status;
+    }
 
-    if (widgetType != TIME_PROPERTY)
+    if (widgetType != TIME_PROPERTY) {
         return AJ_ERR_UNEXPECTED;
+    }
+    status = AJ_UnmarshalContainer(message, &innerStructArg, AJ_ARG_STRUCT);
+    if (status != AJ_OK) {
+        return status;
+    }
+    status = AJ_UnmarshalArgs(message, "qqq", &timePropertyValue->hour, &timePropertyValue->minute, &timePropertyValue->second);
+    if (status != AJ_OK) {
+        return status;
+    }
 
-    if (status = AJ_UnmarshalContainer(message, &innerStructArg, AJ_ARG_STRUCT) != AJ_OK)
+    status = AJ_UnmarshalCloseContainer(message, &innerStructArg);
+    if (status != AJ_OK) {
         return status;
-    if (status = AJ_UnmarshalArgs(message, "qqq", &timePropertyValue->hour, &timePropertyValue->minute, &timePropertyValue->second) != AJ_OK)
-        return status;
-
-    if (status = AJ_UnmarshalCloseContainer(message, &innerStructArg) != AJ_OK)
-        return status;
+    }
     return AJ_UnmarshalCloseContainer(message, &outerStructArg);
 }
 

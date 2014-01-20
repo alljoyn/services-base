@@ -29,11 +29,15 @@ AJ_Status marshalConstraintRange(ConstraintRange* constraints, AJ_Message* reply
     AJ_Status status;
     AJ_Arg constraintRange;
 
-    if (status = StartComplexOptionalParam(reply, &constraintRange, PROPERTY_CONSTRAINT_RANGE, PROPERTY_CONSTRAINT_RANGE_SIG) != AJ_OK)
+    status = StartComplexOptionalParam(reply, &constraintRange, PROPERTY_CONSTRAINT_RANGE, PROPERTY_CONSTRAINT_RANGE_SIG);
+    if (status != AJ_OK) {
         return status;
+    }
 
-    if (status = AddConstraintRange(reply, *constraints->signature, constraints->minValue, constraints->maxValue, constraints->increment) != AJ_OK)
+    status = AddConstraintRange(reply, *constraints->signature, constraints->minValue, constraints->maxValue, constraints->increment);
+    if (status != AJ_OK) {
         return status;
+    }
 
     return AJ_MarshalCloseContainer(reply, &constraintRange);
 }
