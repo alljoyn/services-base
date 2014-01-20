@@ -36,8 +36,9 @@ AJ_Status Common_MarshalAppId(AJ_Message*msg, const char* appId)
     AJ_Arg appIdArg;
     uint8_t binAppId[UUID_LENGTH];
     uint32_t sz = strlen(appId);
-    if (sz > UUID_LENGTH * 2) // Crop application id that is too long
+    if (sz > UUID_LENGTH * 2) { // Crop application id that is too long
         sz = UUID_LENGTH * 2;
+    }
     AJ_HexToRaw(appId, sz, binAppId, UUID_LENGTH);
 
     AJ_InitArg(&appIdArg, AJ_ARG_BYTE, AJ_ARRAY_FLAG, binAppId, UUID_LENGTH);
