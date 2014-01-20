@@ -18,6 +18,7 @@ package org.alljoyn.ns.transport.producer;
 
 import java.util.concurrent.RejectedExecutionException;
 
+import org.alljoyn.about.AboutServiceImpl;
 import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.BusObject;
 import org.alljoyn.bus.Status;
@@ -67,6 +68,9 @@ class NotificationProducerImpl implements NotificationProducer {
 		if ( status != Status.OK ) {
 			throw new NotificationServiceException("Failed to register BusObject: '" + OBJ_PATH + "', Error: '" + status + "'");
 		}
+		
+		//Add the object description to be sent in the Announce signal
+		AboutServiceImpl.getInstance().addObjectDescription(OBJ_PATH, new String[] {IFNAME});
 	}//init
 
 	/**
@@ -136,6 +140,10 @@ class NotificationProducerImpl implements NotificationProducer {
 		nativePlatform.getNativeLogger().debug(TAG, "Cleaning the NotificationProducerImpl");
 		
 		Transport.getInstance().getBusAttachment().unregisterBusObject(this);
+		
+		//Remove the object description from being sent in the Announce signal
+		AboutServiceImpl.getInstance().removeObjectDescription(OBJ_PATH, new String[] {IFNAME});
+		
 		senderTransport = null;
 		nativePlatform  = null;
 	}//clean

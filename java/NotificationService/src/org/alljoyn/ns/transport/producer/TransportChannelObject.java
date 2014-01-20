@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -19,6 +19,7 @@ package org.alljoyn.ns.transport.producer;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.alljoyn.about.AboutServiceImpl;
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.SignalEmitter;
 import org.alljoyn.bus.Status;
@@ -46,6 +47,11 @@ class TransportChannelObject {
 	 * Notification message type
 	 */
 	private NotificationMessageType messageType;
+	
+	/**
+	 * The object path of the BusObject that is used to send the Notification signals 
+	 */
+	private String servicePath;
 	
 	/**
 	 * Signal emitter that generated the transportChannel
@@ -87,15 +93,19 @@ class TransportChannelObject {
 		this.transportObj    = new NotificationTransportProducer();
 		this.lastMsgSerialId = null;
 		
-		// Perform registerBusObject with a given messageType 		
+		servicePath          = NotificationTransportProducer.getServicePath().get(messageType);
+		
+		//Perform registerBusObject with a given messageType 		
 		Status status = busAttachment.registerBusObject(transportObj, 
-				                                        NotificationTransportProducer.getServicePath().get(messageType)
-		);
+				                                        servicePath);
 		
 		if (status != Status.OK) {
 			logger.debug(TAG, "Failed to registerBusObject status: '" + status + "'");
 			throw new NotificationServiceException("Failed to prepare sending channel");
 		}
+		
+		//Add the object description to be sent in the Announce signal
+		AboutServiceImpl.getInstance().addObjectDescription(servicePath, new String[] {NotificationTransport.IF_NAME});
 		
 		//Initializing sessionless signal manager for sending signals later. 
 		logger.debug(TAG,"Initializing signal emitter for sessionless signal, MessageType: '" + messageType + "'");
@@ -200,6 +210,10 @@ class TransportChannelObject {
 	 */
 	public void clean(BusAttachment busAttachment) {
 		busAttachment.unregisterBusObject(transportObj);
+		
+		//Remove the object description from being sent in the Announce signal
+		AboutServiceImpl.getInstance().removeObjectDescription(servicePath, new String[] {NotificationTransport.IF_NAME});
+		
 		transportObj 		= null;
 		emitter             = null;
 		lastMsgSerialId     = null;

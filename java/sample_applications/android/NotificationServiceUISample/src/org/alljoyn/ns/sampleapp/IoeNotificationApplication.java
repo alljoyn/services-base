@@ -57,38 +57,38 @@ import android.widget.Toast;
 public class IoeNotificationApplication extends Application implements NotificationReceiver {
 	private static final String TAG = "ioe" + IoeNotificationApplication.class.getSimpleName();
 	
-     static {
+    static {
 	     System.loadLibrary("alljoyn_java");
-	 }   
+	}   
 	 	
-     /** 
-      * The daemon should advertise itself "quietly" (directly to the calling port)
-      * This is to reply directly to a TC looking for a daemon 
-      */  
-     private static final String DAEMON_NAME_PREFIX          = "org.alljoyn.BusNode.IoeService";
+    /** 
+     * The daemon should advertise itself "quietly" (directly to the calling port)
+     * This is to reply directly to a TC looking for a daemon 
+     */  
+    private static final String DAEMON_NAME_PREFIX          = "org.alljoyn.BusNode.IoeService";
      
-     /** 
-      * The daemon should advertise itself "quietly" (directly to the calling port)
-      * This is to reply directly to a TC looking for a daemon 
-      */  
-     private static final String DAEMON_QUIET_PREFIX         = "quiet@";
+    /** 
+     * The daemon should advertise itself "quietly" (directly to the calling port)
+     * This is to reply directly to a TC looking for a daemon 
+     */  
+    private static final String DAEMON_QUIET_PREFIX         = "quiet@";
  
-     /** 
-      * The daemon authentication method
-      */  
-     private static final String DAEMON_AUTH                 = "ALLJOYN_PIN_KEYX";
+    /** 
+     * The daemon authentication method
+     */  
+    private static final String DAEMON_AUTH                 = "ALLJOYN_PIN_KEYX";
  
-     private static final String DAEMON_PWD                  = "000000";
+    private static final String DAEMON_PWD                  = "000000";
 
-     /**
-      * The {@link BusAttachment} to be used by the {@link NotificationService}
-      */
-     private BusAttachment bus;
+    /**
+     * The {@link BusAttachment} to be used by the {@link NotificationService}
+     */
+    private BusAttachment bus;
      
-     /**
-      * About service
-      */
-     private AboutService aboutService;
+    /**
+     * About service
+     */
+    private AboutService aboutService;
      
 	/**
 	 * Device Name

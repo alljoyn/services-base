@@ -32,7 +32,6 @@ import org.alljoyn.ns.transport.DismissEmitter;
 import org.alljoyn.ns.transport.Transport;
 import org.alljoyn.ns.transport.TransportNotificationText;
 import org.alljoyn.ns.transport.interfaces.NotificationProducer;
-import org.alljoyn.ns.transport.interfaces.NotificationTransport;
 
 /**
  * The class manages NotificationProducer transport logic 
@@ -84,6 +83,13 @@ public class SenderTransport {
 		
 		logger.debug(TAG, "Starting a sender transport");
 		
+		//Announce the producer via the About service
+		AboutService aboutService = AboutServiceImpl.getInstance();
+		if ( !aboutService.isServerRunning() ) {
+			logger.error(TAG, "The AboutServer wasn't started, unable to send Announcement signals");
+	        throw new NotificationServiceException("The AboutServer wasn't started");
+		}
+		
 		//Creating transportChannel objects
 		transportSenderChannels = new EnumMap<NotificationMessageType, TransportChannelObject>(NotificationMessageType.class);
 		try {
@@ -93,7 +99,6 @@ public class SenderTransport {
 		}
 		catch (NotificationServiceException nse) {
 			logger.error(TAG, nse.getMessage());
-			stopSenderTransport();            // We failed to create a channel, stopSenderTransport to allow recovery
 			throw nse;
 		}
 		
@@ -104,20 +109,9 @@ public class SenderTransport {
 		//Create session listener to be ready to handle incoming connections
 		sessionListener = new SenderSessionListener(nativePlatform);
 		sessionListener.init();
-		
-		//announce the producer via the About service
-		AboutService aboutService = AboutServiceImpl.getInstance();
-		if ( !aboutService.isServerRunning() ) {
-			logger.error(TAG, "The AboutServer wasn't started, unable to send Announcement signals");
-			stopSenderTransport();
-	        throw new NotificationServiceException("The AboutServer wasn't started");
-		}
-		
-		for (String objPath : NotificationTransportProducer.getServicePath().values()) {
-			aboutService.addObjectDescription(objPath, new String[] {NotificationTransport.IF_NAME});
-		}	
-		
-	    aboutService.announce();              // Announce the NotificationSender related objects
+				
+        //Send the Announce signal with all the NotificationService related BusObjectDescription objects
+	    aboutService.announce();
 	}//startSenderTransport
 	
 	/**
@@ -137,11 +131,21 @@ public class SenderTransport {
 			transportSenderChannels = null;
 		}
 		
-		sessionListener.clean();
-		sessionListener = null;
+		if ( sessionListener != null ) {
+			sessionListener.clean();
+			sessionListener = null;
+		}
 		
-		notifProducerBusObj.clean();
-		notifProducerBusObj = null;
+		if ( notifProducerBusObj != null ) {
+			notifProducerBusObj.clean();
+			notifProducerBusObj = null;
+		}
+		
+		AboutService aboutService = AboutServiceImpl.getInstance();
+		if ( aboutService.isServerRunning() ) {
+			//Send the Announce signal after removing NotificationService related BusObjectDescription objects
+	    	aboutService.announce();
+		}
 	}//stopSenderTransport
 	
 	/**
