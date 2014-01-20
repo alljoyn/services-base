@@ -92,15 +92,22 @@ AJ_Status NotificationSendDismiss(int32_t msgId, const char* appId)
         return status;
     }
 
-
-    if (status = AJ_MarshalArgs(&msg, "i", msgId) != AJ_OK)
+    status = AJ_MarshalArgs(&msg, "i", msgId);
+    if (status != AJ_OK) {
         goto ErrorExit;
-    if (status = Common_MarshalAppId(&msg, appId) != AJ_OK)
+    }
+    status = Common_MarshalAppId(&msg, appId);
+    if (status != AJ_OK) {
         goto ErrorExit;
-    if (status = AJ_DeliverMsg(&msg) != AJ_OK)
+    }
+    status = AJ_DeliverMsg(&msg);
+    if (status != AJ_OK) {
         goto ErrorExit;
-    if (status = AJ_CloseMsg(&msg) != AJ_OK)
+    }
+    status = AJ_CloseMsg(&msg);
+    if (status != AJ_OK) {
         goto ErrorExit;
+    }
 
     // TODO: Remove resetting of temporary Dismisser ObjectPath when AJTCL adds the "DON'T COLLAPSE" flag
     NotificationDismisserObjectPath[NOTIFICATION_DISMISSER_OBJECT_PATH_PREFIX_LENGTH] = '\0';

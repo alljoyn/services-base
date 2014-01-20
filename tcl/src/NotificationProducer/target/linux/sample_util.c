@@ -43,11 +43,13 @@ static char* NS_GetLine(char* str, size_t num, void* fp)
             while (1) {
                 char tmp[num + 1];
                 char* t = fgets(tmp, num, fp);
-                if (t == NULL)
+                if (t == NULL) {
                     return t;
+                }
                 size_t end = strlen(tmp) - 1;
-                if (tmp[end] == '\n')
+                if (tmp[end] == '\n') {
                     break;
+                }
             }
         }
     }
@@ -60,8 +62,9 @@ static char* NS_GetLine(char* str, size_t num, void* fp)
 void Producer_SetupEnv(uint8_t* inputMode)
 {
     char* value = getenv("INPUT_MODE");
-    if (value)
+    if (value) {
         *inputMode = (uint8_t)atoi(value);
+    }
 }
 
 void Producer_GetNotificationFromUser()
@@ -104,8 +107,9 @@ void Producer_GetNotificationFromUser()
     if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
         if (strlen(buf)) {
             notificationContent.numTexts = atoi(buf);
-            if (notificationContent.numTexts < 1 || notificationContent.numTexts > MAX_MSG)
+            if (notificationContent.numTexts < 1 || notificationContent.numTexts > MAX_MSG) {
                 notificationContent.numTexts = 1;
+            }
         }
     }
 
@@ -116,20 +120,24 @@ void Producer_GetNotificationFromUser()
         AJ_Printf("Please enter the message's language %d. Max 499 characters, Empty string acceptable\n", i + 1);
 
         if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
-            if (strlen(buf))
+            if (strlen(buf)) {
                 strcpy(lang, buf);
+            }
         }
 
         AJ_Printf("Please enter the message's text in language %d. Max 499 characters, Empty string acceptable\n", i + 1);
 
         if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
-            if (strlen(buf))
+            if (strlen(buf)) {
                 strcpy(msg, buf);
+            }
         }
-        if (asprintf((char**)&texts[i].key, "%s", lang) == -1)
+        if (asprintf((char**)&texts[i].key, "%s", lang) == -1) {
             break;
-        if (asprintf((char**)&texts[i].value, "%s", msg) == -1)
+        }
+        if (asprintf((char**)&texts[i].value, "%s", msg) == -1) {
             break;
+        }
     }
     notificationContent.texts = texts;
 
@@ -139,8 +147,9 @@ void Producer_GetNotificationFromUser()
     if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
         if (strlen(buf)) {
             notificationContent.numCustomAttributes = atoi(buf);
-            if (notificationContent.numCustomAttributes > MAX_MSG)
+            if (notificationContent.numCustomAttributes > MAX_MSG) {
                 notificationContent.numCustomAttributes = 0;
+            }
         }
     }
 
@@ -151,20 +160,24 @@ void Producer_GetNotificationFromUser()
         AJ_Printf("Please enter the Custom Attribute key. Max 499 characters, Empty string acceptable\n");
 
         if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
-            if (strlen(buf))
+            if (strlen(buf)) {
                 strcpy(key, buf);
+            }
         }
 
         AJ_Printf("Please enter the Custom Attribute value. Max 499 characters, Empty string acceptable\n");
 
         if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
-            if (strlen(buf))
+            if (strlen(buf)) {
                 strcpy(val, buf);
+            }
         }
-        if (asprintf((char**)&customAttributes[i].key, "%s", key) == -1)
+        if (asprintf((char**)&customAttributes[i].key, "%s", key) == -1) {
             break;
-        if (asprintf((char**)&customAttributes[i].value, "%s", val) == -1)
+        }
+        if (asprintf((char**)&customAttributes[i].value, "%s", val) == -1) {
             break;
+        }
     }
     notificationContent.customAttributes = customAttributes;
 
@@ -181,8 +194,9 @@ void Producer_GetNotificationFromUser()
     AJ_Printf("Empty string will default to not setting this value\n");
 
     if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
-        if (strlen(buf))
+        if (strlen(buf)) {
             strcpy(richIconUrl, buf);
+        }
     }
     notificationContent.richIconUrl = richIconUrl;
 
@@ -192,8 +206,9 @@ void Producer_GetNotificationFromUser()
     if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
         if (strlen(buf)) {
             notificationContent.numAudioUrls = atoi(buf);
-            if (notificationContent.numAudioUrls > MAX_MSG)
+            if (notificationContent.numAudioUrls > MAX_MSG) {
                 notificationContent.numAudioUrls = 0;
+            }
         }
     }
 
@@ -204,20 +219,24 @@ void Producer_GetNotificationFromUser()
         AJ_Printf("Please enter the url's language %d. Max 499 characters, Empty string acceptable\n", i + 1);
 
         if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
-            if (strlen(buf))
+            if (strlen(buf)) {
                 strcpy(lang, buf);
+            }
         }
 
         AJ_Printf("Please enter the url in language %d. Max 499 characters, Empty string acceptable\n", i + 1);
 
         if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
-            if (strlen(buf))
+            if (strlen(buf)) {
                 strcpy(url, buf);
+            }
         }
-        if (asprintf((char**)&richAudioUrls[i].key, "%s", lang) == -1)
+        if (asprintf((char**)&richAudioUrls[i].key, "%s", lang) == -1) {
             break;
-        if (asprintf((char**)&richAudioUrls[i].value, "%s", url) == -1)
+        }
+        if (asprintf((char**)&richAudioUrls[i].value, "%s", url) == -1) {
             break;
+        }
     }
     notificationContent.richAudioUrls = richAudioUrls;
 
@@ -225,8 +244,9 @@ void Producer_GetNotificationFromUser()
     AJ_Printf("Empty string will default to not setting this value\n");
 
     if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
-        if (strlen(buf))
+        if (strlen(buf)) {
             strcpy(richIconObjectPath, buf);
+        }
     }
     notificationContent.richIconObjectPath = richIconObjectPath;
 
@@ -234,8 +254,9 @@ void Producer_GetNotificationFromUser()
     AJ_Printf("Empty string will default to not setting this value\n");
 
     if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
-        if (strlen(buf))
+        if (strlen(buf)) {
             strcpy(richAudioObjectPath, buf);
+        }
     }
     notificationContent.richAudioObjectPath = richAudioObjectPath;
 

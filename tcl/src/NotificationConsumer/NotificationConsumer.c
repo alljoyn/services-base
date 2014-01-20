@@ -184,42 +184,53 @@ AJ_Status ConsumerNotifySignalHandler(AJ_Message* msg)
 
     AJ_Printf("Received notification signal from sender %s\n", msg->sender);
 
-    if (status = AJ_UnmarshalArgs(msg, "q", &notification.header.version) != AJ_OK)
+    status = AJ_UnmarshalArgs(msg, "q", &notification.header.version);
+    if (status != AJ_OK) {
         goto Exit;
+    }
 
-
-    if (status = AJ_UnmarshalArgs(msg, "i", &notification.header.notificationId) != AJ_OK)
+    status = AJ_UnmarshalArgs(msg, "i", &notification.header.notificationId);
+    if (status != AJ_OK) {
         goto Exit;
+    }
 
-
-    if (status = AJ_UnmarshalArgs(msg, "q", &notification.header.messageType) != AJ_OK)
+    status = AJ_UnmarshalArgs(msg, "q", &notification.header.messageType);
+    if (status != AJ_OK) {
         goto Exit;
+    }
 
-
-    if (status = AJ_UnmarshalArgs(msg, "s", &notification.header.deviceId) != AJ_OK)
+    status = AJ_UnmarshalArgs(msg, "s", &notification.header.deviceId);
+    if (status != AJ_OK) {
         goto Exit;
+    }
 
-
-    if (status = AJ_UnmarshalArgs(msg, "s", &notification.header.deviceName) != AJ_OK)
+    status = AJ_UnmarshalArgs(msg, "s", &notification.header.deviceName);
+    if (status != AJ_OK) {
         goto Exit;
+    }
 
-
-    if (status = AJ_UnmarshalArg(msg, &appIdArray) != AJ_OK)
+    status = AJ_UnmarshalArg(msg, &appIdArray);
+    if (status != AJ_OK) {
         goto Exit;
+    }
 
     appIdLen = ((appIdArray.len > UUID_LENGTH) ? UUID_LENGTH : appIdArray.len) * 2 + 1;
 
-    if (status = AJ_RawToHex(appIdArray.val.v_byte, appIdArray.len, appId, appIdLen, FALSE) != AJ_OK)
+    status = AJ_RawToHex(appIdArray.val.v_byte, appIdArray.len, appId, appIdLen, FALSE);
+    if (status != AJ_OK) {
         goto Exit;
-    notification.header.appId = appId;
+        notification.header.appId = appId;
+    }
 
-
-    if (status = AJ_UnmarshalArgs(msg, "s", &notification.header.appName) != AJ_OK)
+    status = AJ_UnmarshalArgs(msg, "s", &notification.header.appName);
+    if (status != AJ_OK) {
         goto Exit;
+    }
 
-
-    if (status = AJ_UnmarshalContainer(msg, &attrbtArray, AJ_ARG_ARRAY) != AJ_OK)
+    status = AJ_UnmarshalContainer(msg, &attrbtArray, AJ_ARG_ARRAY);
+    if (status != AJ_OK) {
         goto Exit;
+    }
 
     while (1) {
         AJ_Arg dictArg;
@@ -228,69 +239,97 @@ AJ_Status ConsumerNotifySignalHandler(AJ_Message* msg)
 
         status = AJ_UnmarshalContainer(msg, &dictArg, AJ_ARG_DICT_ENTRY);
         if (status == AJ_ERR_NO_MORE) {
-            if (status = AJ_UnmarshalCloseContainer(msg, &attrbtArray) != AJ_OK)
+            status = AJ_UnmarshalCloseContainer(msg, &attrbtArray);
+            if (status != AJ_OK) {
                 goto Exit;
-            else
+            } else {
                 break;
+            }
         } else if (status) {
             goto Exit;
         }
 
-        if (status = AJ_UnmarshalArgs(msg, "i", &attrbtKey) != AJ_OK)
+        status = AJ_UnmarshalArgs(msg, "i", &attrbtKey);
+        if (status != AJ_OK) {
             goto Exit;
+        }
 
         switch (attrbtKey) {
         case RICH_CONTENT_ICON_URL_ATTRIBUTE_KEY:
         {
-            if (status = AJ_UnmarshalVariant(msg, &variantSig) != AJ_OK)
+            status = AJ_UnmarshalVariant(msg, &variantSig);
+            if (status != AJ_OK) {
                 goto Exit;
-            if (status = AJ_UnmarshalArgs(msg, "s", &notification.content.richIconUrl) != AJ_OK)
+            }
+            status = AJ_UnmarshalArgs(msg, "s", &notification.content.richIconUrl);
+            if (status != AJ_OK) {
                 goto Exit;
+            }
         }
         break;
 
         case RICH_CONTENT_ICON_OBJECT_PATH_ATTRIBUTE_KEY:
         {
-            if (status = AJ_UnmarshalVariant(msg, &variantSig) != AJ_OK)
+            status = AJ_UnmarshalVariant(msg, &variantSig);
+            if (status != AJ_OK) {
                 goto Exit;
-            if (status = AJ_UnmarshalArgs(msg, "s", &notification.content.richIconObjectPath) != AJ_OK)
+            }
+            status = AJ_UnmarshalArgs(msg, "s", &notification.content.richIconObjectPath);
+            if (status != AJ_OK) {
                 goto Exit;
+            }
         }
         break;
 
         case RICH_CONTENT_AUDIO_OBJECT_PATH_ATTRIBUTE_KEY:
         {
-            if (status = AJ_UnmarshalVariant(msg, &variantSig) != AJ_OK)
+            status = AJ_UnmarshalVariant(msg, &variantSig);
+            if (status != AJ_OK) {
                 goto Exit;
-            if (status = AJ_UnmarshalArgs(msg, "s", &notification.content.richAudioObjectPath) != AJ_OK)
+            }
+            status = AJ_UnmarshalArgs(msg, "s", &notification.content.richAudioObjectPath);
+            if (status != AJ_OK) {
                 goto Exit;
+            }
         }
         break;
 
         case CONTROLPANELSERVICE_OBJECT_PATH_ATTRIBUTE_KEY:
         {
-            if (status = AJ_UnmarshalVariant(msg, &variantSig) != AJ_OK)
+            status = AJ_UnmarshalVariant(msg, &variantSig);
+            if (status != AJ_OK) {
                 goto Exit;
-            if (status = AJ_UnmarshalArgs(msg, "s", &notification.content.controlPanelServiceObjectPath) != AJ_OK)
+            }
+            status = AJ_UnmarshalArgs(msg, "s", &notification.content.controlPanelServiceObjectPath);
+            if (status != AJ_OK) {
                 goto Exit;
+            }
         }
         break;
 
         case ORIGINAL_SENDER_NAME_ATTRIBUTE_KEY:
         {
-            if (status = AJ_UnmarshalVariant(msg, &variantSig) != AJ_OK)
+            status = AJ_UnmarshalVariant(msg, &variantSig);
+            if (status != AJ_OK) {
                 goto Exit;
-            if (status = AJ_UnmarshalArgs(msg, "s", &notification.header.originalSenderName) != AJ_OK)
+            }
+            status = AJ_UnmarshalArgs(msg, "s", &notification.header.originalSenderName);
+            if (status != AJ_OK) {
                 goto Exit;
+            }
         }
         break;
 
         case RICH_CONTENT_AUDIO_URL_ATTRIBUTE_KEY:
         {
-            if (status = AJ_UnmarshalVariant(msg, &variantSig) != AJ_OK)
+            status = AJ_UnmarshalVariant(msg, &variantSig);
+            if (status != AJ_OK) {
                 goto Exit;
-            if (status = AJ_UnmarshalContainer(msg, &richAudioArray, AJ_ARG_ARRAY) != AJ_OK)
+            }
+            status = AJ_UnmarshalContainer(msg, &richAudioArray, AJ_ARG_ARRAY);
+            if (status != AJ_OK) {
                 goto Exit;
+            }
 
             while (1) {
                 AJ_Arg structArg;
@@ -299,24 +338,30 @@ AJ_Status ConsumerNotifySignalHandler(AJ_Message* msg)
 
                 status = AJ_UnmarshalContainer(msg, &structArg, AJ_ARG_STRUCT);
                 if (status == AJ_ERR_NO_MORE) {
-                    if (status = AJ_UnmarshalCloseContainer(msg, &richAudioArray) != AJ_OK)
+                    status = AJ_UnmarshalCloseContainer(msg, &richAudioArray);
+                    if (status != AJ_OK) {
                         goto Exit;
-                    else
+                    } else {
                         break;
+                    }
                 } else if (status) {
                     goto Exit;
                 }
 
-                if (status = AJ_UnmarshalArgs(msg, "ss", &urlLanguage, &urlText) != AJ_OK)
+                status = AJ_UnmarshalArgs(msg, "ss", &urlLanguage, &urlText);
+                if (status != AJ_OK) {
                     goto Exit;
+                }
                 if (notification.content.numAudioUrls < NUMALLOWEDRICHNOTS) {             // if it doesn't fit we just skip
                     richAudiosRecd[notification.content.numAudioUrls].key   = urlLanguage;
                     richAudiosRecd[notification.content.numAudioUrls].value = urlText;
                     notification.content.numAudioUrls++;
                 }
 
-                if (status = AJ_UnmarshalCloseContainer(msg, &structArg) != AJ_OK)
+                status = AJ_UnmarshalCloseContainer(msg, &structArg);
+                if (status != AJ_OK) {
                     goto Exit;
+                }
             }
             notification.content.richAudioUrls = richAudiosRecd;
         }
@@ -330,12 +375,16 @@ AJ_Status ConsumerNotifySignalHandler(AJ_Message* msg)
                 return status;
             }
         }
-        if (status = AJ_UnmarshalCloseContainer(msg, &dictArg) != AJ_OK)
+        status = AJ_UnmarshalCloseContainer(msg, &dictArg);
+        if (status != AJ_OK) {
             goto Exit;
+        }
     }
 
-    if (status = AJ_UnmarshalContainer(msg, &customAttributeArray, AJ_ARG_ARRAY) != AJ_OK)
+    status = AJ_UnmarshalContainer(msg, &customAttributeArray, AJ_ARG_ARRAY);
+    if (status != AJ_OK) {
         goto Exit;
+    }
 
     while (1) {
         AJ_Arg customAttributeDictArg;
@@ -344,16 +393,20 @@ AJ_Status ConsumerNotifySignalHandler(AJ_Message* msg)
 
         status = AJ_UnmarshalContainer(msg, &customAttributeDictArg, AJ_ARG_DICT_ENTRY);
         if (status == AJ_ERR_NO_MORE) {
-            if (status = AJ_UnmarshalCloseContainer(msg, &customAttributeArray) != AJ_OK)
+            status = AJ_UnmarshalCloseContainer(msg, &customAttributeArray);
+            if (status != AJ_OK) {
                 goto Exit;
-            else
+            } else {
                 break;
+            }
         } else if (status) {
             goto Exit;
         }
 
-        if (status = AJ_UnmarshalArgs(msg, "ss", &customKey, &customVal) != AJ_OK)
+        status = AJ_UnmarshalArgs(msg, "ss", &customKey, &customVal);
+        if (status != AJ_OK) {
             goto Exit;
+        }
 
         if (notification.content.numCustomAttributes < NUMALLOWEDCUSTOMATTRIBUTES) {     // if it doesn't fit we just skip
             customAttributesRecd[notification.content.numCustomAttributes].key   = customKey;
@@ -361,13 +414,17 @@ AJ_Status ConsumerNotifySignalHandler(AJ_Message* msg)
             notification.content.numCustomAttributes++;
         }
 
-        if (status = AJ_UnmarshalCloseContainer(msg, &customAttributeDictArg) != AJ_OK)
+        status = AJ_UnmarshalCloseContainer(msg, &customAttributeDictArg);
+        if (status != AJ_OK) {
             goto Exit;
+        }
     }
     notification.content.customAttributes = customAttributesRecd;
 
-    if (status = AJ_UnmarshalContainer(msg, &notTextArray, AJ_ARG_ARRAY) != AJ_OK)
+    status = AJ_UnmarshalContainer(msg, &notTextArray, AJ_ARG_ARRAY);
+    if (status != AJ_OK) {
         goto Exit;
+    }
 
     while (1) {
         AJ_Arg structArg;
@@ -376,16 +433,20 @@ AJ_Status ConsumerNotifySignalHandler(AJ_Message* msg)
 
         status = AJ_UnmarshalContainer(msg, &structArg, AJ_ARG_STRUCT);
         if (status == AJ_ERR_NO_MORE) {
-            if (status = AJ_UnmarshalCloseContainer(msg, &notTextArray) != AJ_OK)
+            status = AJ_UnmarshalCloseContainer(msg, &notTextArray);
+            if (status != AJ_OK) {
                 goto Exit;
-            else
+            } else {
                 break;
+            }
         } else if (status) {
             goto Exit;
         }
 
-        if (status = AJ_UnmarshalArgs(msg, "ss", &notificationLanguage, &notificationText) != AJ_OK)
+        status = AJ_UnmarshalArgs(msg, "ss", &notificationLanguage, &notificationText);
+        if (status != AJ_OK) {
             goto Exit;
+        }
 
         if (notification.content.numTexts < NUMALLOWEDTEXTS) {     // if it doesn't fit we just skip
             textsRecd[notification.content.numTexts].key   = notificationLanguage;
@@ -393,8 +454,10 @@ AJ_Status ConsumerNotifySignalHandler(AJ_Message* msg)
             notification.content.numTexts++;
         }
 
-        if (status = AJ_UnmarshalCloseContainer(msg, &structArg) != AJ_OK)
+        status = AJ_UnmarshalCloseContainer(msg, &structArg);
+        if (status != AJ_OK) {
             goto Exit;
+        }
     }
     notification.content.texts = textsRecd;
 
@@ -418,16 +481,22 @@ AJ_Status ConsumerDismissSignalHandler(AJ_Message* msg)
     AJ_Arg appIdArray;
 
 
-    if (status = AJ_UnmarshalArgs(msg, "i", &notificationId) != AJ_OK)
+    status = AJ_UnmarshalArgs(msg, "i", &notificationId);
+    if (status != AJ_OK) {
         return status;
+    }
 
-    if (status = AJ_UnmarshalArg(msg, &appIdArray) != AJ_OK)
+    status = AJ_UnmarshalArg(msg, &appIdArray);
+    if (status != AJ_OK) {
         return status;
+    }
 
     size_t appIdLen = ((appIdArray.len > UUID_LENGTH) ? UUID_LENGTH : appIdArray.len) * 2 + 1;
 
-    if (status = AJ_RawToHex(appIdArray.val.v_byte, appIdArray.len, appId, appIdLen, FALSE) != AJ_OK)
+    status = AJ_RawToHex(appIdArray.val.v_byte, appIdArray.len, appId, appIdLen, FALSE);
+    if (status != AJ_OK) {
         return status;
+    }
 
     ApplicationHandleDismiss(notificationId, appId);
 

@@ -163,8 +163,9 @@ AJ_Status Producer_ConnectedHandler(AJ_BusAttachment* bus)
 
 uint8_t Producer_CheckSessionAccepted(uint16_t port, uint32_t sessionId, char* joiner)
 {
-    if (port != NotificationProducerPort)
+    if (port != NotificationProducerPort) {
         return FALSE;
+    }
     AJ_Printf("Producer: Accepted session on port %u from %s\n", port, joiner);
     return TRUE;
 }
@@ -185,16 +186,18 @@ static void PossiblySetNotifications()
         }
     }
 
-    if (++isMessageTime == MESSAGES_INTERVAL)
+    if (++isMessageTime == MESSAGES_INTERVAL) {
         isMessageTime = 0;
+    }
 }
 
 void Producer_DoWork(AJ_BusAttachment* bus)
 {
     PossiblySetNotifications();
     ProducerSendNotifications();
-    if (inputMode)
+    if (inputMode) {
         Producer_PossiblyDeleteNotification(isMessageTime);
+    }
 }
 
 Service_Status Producer_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg, AJ_Status* msgStatus)

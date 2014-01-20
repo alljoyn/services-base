@@ -34,11 +34,13 @@ static char* NS_GetLine(char* str, size_t num, void* fp)
             while (1) {
                 char tmp[num + 1];
                 char* t = fgets(tmp, num, fp);
-                if (t == NULL)
+                if (t == NULL) {
                     return t;
+                }
                 size_t end = strlen(tmp) - 1;
-                if (tmp[end] == '\n')
+                if (tmp[end] == '\n') {
                     break;
+                }
             }
         }
     }
@@ -52,8 +54,9 @@ static char* NS_GetLine(char* str, size_t num, void* fp)
 void Consumer_SetupEnv(uint8_t* inputMode, uint8_t* superAgentMode)
 {
     char* value = getenv("INPUT_MODE");
-    if (value)
+    if (value) {
         *inputMode = (uint8_t)atoi(value);
+    }
     if (*inputMode) {
         char buf[1024];
         AJ_Printf("Please enter 1 if you want to run in SuperAgentMode. default is 0\n");

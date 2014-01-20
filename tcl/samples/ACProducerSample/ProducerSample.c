@@ -126,8 +126,9 @@ AJ_Status Producer_ConnectedHandler(AJ_BusAttachment* bus)
 
 uint8_t Producer_CheckSessionAccepted(uint16_t port, uint32_t sessionId, char* joiner)
 {
-    if (port != NotificationProducerPort)
+    if (port != NotificationProducerPort) {
         return FALSE;
+    }
     AJ_Printf("Producer: Accepted session on port %u from %s\n", port, joiner);
     return TRUE;
 }
