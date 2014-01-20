@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -214,7 +214,7 @@ QStatus ConfigClient::UpdateConfigurations(const char* busName, const char* lang
         MsgArg args[2];
         CHECK_BREAK(args[0].Set("s", languageTag))
 
-        MsgArg tempconfigMapDictEntries[configs.size()];
+        std::vector<MsgArg> tempconfigMapDictEntries(configs.size());
         int i = 0;
         for (std::map<qcc::String, ajn::MsgArg>::const_iterator it = configs.begin(); it != configs.end(); ++it) {
             CHECK_BREAK(tempconfigMapDictEntries[i].Set("{sv}", it->first.c_str(), new MsgArg(it->second)))
@@ -223,7 +223,7 @@ QStatus ConfigClient::UpdateConfigurations(const char* busName, const char* lang
         if (status != ER_OK)
             break;
 
-        CHECK_BREAK(args[1].Set("a{sv}", i, tempconfigMapDictEntries))
+        CHECK_BREAK(args[1].Set("a{sv}", i, tempconfigMapDictEntries.data()))
         status = proxyBusObj->MethodCall(CONFIG_INTERFACE_NAME, "UpdateConfigurations", args, 2, replyMsg);
         if (status == ER_BUS_REPLY_IS_ERROR_MESSAGE) {
             qcc::String errorMessage;
