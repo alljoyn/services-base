@@ -58,11 +58,15 @@ void Onboarding_SwitchToRetry()
     AJ_Status status = AJ_OK;
 
     OBInfo obInfo;
-    if (status = OBS_ReadInfo(&obInfo) != AJ_OK)
+    status = OBS_ReadInfo(&obInfo);
+    if (status != AJ_OK) {
         return;
+    }
     obInfo.state = CONFIGURED_RETRY;
-    if (status = OBS_WriteInfo(&obInfo) != AJ_OK)
+    status = OBS_WriteInfo(&obInfo);
+    if (status != AJ_OK) {
         return;
+    }
 
     AJ_Printf("SwitchToRetry status: %s\n", AJ_StatusText(status));
 }
