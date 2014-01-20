@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -22,6 +22,7 @@
 /*
  * Common Macros
  */
+
 #define CHECK(x) if ((status = x))  { break; }
 
 namespace ajn {
@@ -36,6 +37,9 @@ static const uint16_t TTL_MAX = 43200;
 static const uint16_t UUID_LENGTH = 16;
 static const int16_t ANNOUNCMENT_PORT_NUMBER = 900;
 
+static const uint16_t NOTIFICATION_DISMISSER_VERSION = 1;
+static const uint16_t NOTIFICATION_PRODUCER_VERSION = 1;
+
 static const qcc::String TAG_NOTSERVICE = "NotificationService";
 static const qcc::String TAG_NOTSENDER = "NotificationSender";
 static const qcc::String TAG_TRANSPORT = "Transport";
@@ -45,6 +49,10 @@ static const qcc::String TAG_TRANSPORT_CONSUMER = "NotificationTransportConsumer
 static const qcc::String TAG_TRANSPORT_SUPERAGENT = "NotificationTransportSuperAgent";
 static const qcc::String TAG_NOTIFICATION_RECEIVER = "NotificationReceiver";
 static const qcc::String TAG_NOTIFICATION_ANNOUNCE_LISTENER = "NotificationAnnounceListener";
+static const qcc::String TAG_NOTIFICATION = "Notification";
+static const qcc::String TAG_NOTIFICATION_DISMISSER = "NotificationDismisser";
+static const qcc::String TAG_NOTIFICATION_PRODUCER = "NotificationProducer";
+static const qcc::String TAG_NOTIFICATION_PRODUCER_LISTENER =  "NotificationProducerListener";
 
 static const qcc::String AJPARAM_BOOL = "b";
 static const qcc::String AJPARAM_UINT16 = "q";
@@ -71,8 +79,10 @@ static const int32_t RICH_CONTENT_AUDIO_URL_ATTRIBUTE_KEY = 1;
 static const int32_t RICH_CONTENT_ICON_OBJECT_PATH_ATTRIBUTE_KEY = 2;
 static const int32_t RICH_CONTENT_AUDIO_OBJECT_PATH_ATTRIBUTE_KEY = 3;
 static const int32_t CPS_OBJECT_PATH_ATTRIBUTE_KEY = 4;
+static const int32_t ORIGINAL_SENDER_ATTRIBUTE_KEY = 5;
 
 static const qcc::String AJ_NOTIFICATION_INTERFACE_NAME = "org.alljoyn.Notification";
+static const uint16_t AJ_NOTIFICATION_PRODUCER_SERVICE_PORT = 1010;
 static const qcc::String AJ_PROPERTY_VERSION = "Version";
 static const qcc::String AJ_SIGNAL_METHOD = "notify";
 static const qcc::String AJ_CONSUMER_SERVICE_PATH = "/receiver";
@@ -82,6 +92,22 @@ static const qcc::String AJ_NOTIFY_PARAMS = AJPARAM_UINT16 + AJPARAM_INT + AJPAR
 static const qcc::String AJ_NOTIFY_PARAM_NAMES = "version, notificationId, messageType, deviceId, deviceName, appId, appName, attributes, customAttributes, notificationText";
 static const qcc::String AJ_SESSIONLESS_MATCH = "sessionless='t'";
 static const qcc::String AJ_SA_INTERFACE_NAME = "org.alljoyn.Notification.Superagent";
+
+static const qcc::String AJ_NOTIFICATION_PRODUCER_INTERFACE = "org.alljoyn.Notification.Producer";
+static const qcc::String AJ_NOTIFICATION_PRODUCER_PATH = "/notificationProducer";
+static const qcc::String AJ_ACKNOWLEDGE_METHOD_NAME = "Acknowledge";
+static const qcc::String AJ_ACKNOWLEDGE_METHOD_PARAMS = "i";
+static const qcc::String AJ_ACKNOWLEDGE_METHOD_PARAMS_NAMES = "msgId";
+static const qcc::String AJ_DISMISS_METHOD_NAME = "Dismiss";
+static const qcc::String AJ_DISMISS_METHOD_PARAMS = "i";
+static const qcc::String AJ_DISMISS_METHOD_PARAMS_NAMES = "msgId";
+
+static const qcc::String AJ_NOTIFICATION_DISMISSER_INTERFACE = "org.alljoyn.Notification.Dismisser";
+static const qcc::String AJ_DISMISS_SIGNAL_NAME = "Dismiss";
+static const qcc::String AJ_DISMISS_SIGNAL_PARAMS = AJPARAM_INT + AJPARAM_ARR_BYTE;
+static const qcc::String AJ_DISMISS_PARAM_NAMES = "msgId, appId";
+static const int32_t AJ_DISMISSER_NUM_PARAMS = 2;
+static const qcc::String AJ_NOTIFICATION_DISMISSER_PATH = "/notificationDismisser";
 
 }         //namespace nsConsts
 }     //namespace services

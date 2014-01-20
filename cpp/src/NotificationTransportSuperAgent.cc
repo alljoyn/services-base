@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -60,9 +60,10 @@ void NotificationTransportSuperAgent::handleSignal(const InterfaceDescription::M
         const char* messageSender = msg->GetSender();
         Transport* transport = Transport::getInstance();
 
-        if (transport->listenToSuperAgent(messageSender) != ER_OK) {
-            if (logger)
+        if (transport->FindSuperAgent(messageSender) != ER_OK) {
+            if (logger) {
                 logger->warn(TAG, "Could not listen to SuperAgent");
+            }
             m_IsFirstSuperAgent = true;     //so that we try again
             return;
         }
@@ -88,9 +89,3 @@ void NotificationTransportSuperAgent::setIsFirstSuperAgent(bool isFirstSuperAgen
 {
     m_IsFirstSuperAgent = isFirstSuperAgent;
 }
-
-
-
-
-
-

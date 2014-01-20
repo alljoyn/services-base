@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -42,6 +42,7 @@ SampleLogger* myLogger;
 
 void cleanup()
 {
+    std::cout << "cleanup() - start" << std::endl;
     if (conService)
         conService->shutdown();
     if (Receiver)
@@ -52,17 +53,16 @@ void cleanup()
     if (myLogger)
         delete myLogger;
 #endif
-    std::cout << "Goodbye!" << std::endl;
+    std::cout << "cleanup() - end" << std::endl;
 }
 
 void signal_callback_handler(int32_t signum)
 {
+    std::cout << "got signal_callback_handler" << std::endl;
     cleanup();
-    exit(signum);
-}
-
-static void SigIntHandler(int sig) {
     s_interrupt = true;
+    std::cout << "Goodbye!" << std::endl;
+    exit(signum);
 }
 
 bool WaitForSigInt(int32_t sleepTime) {
@@ -102,9 +102,9 @@ int main()
     conService->setLogger(myLogger);
 #endif
     // change loglevel to debug:
-    //conService->getLogger()->setLogLevel(Log::LEVEL_DEBUG);
+    conService->getLogger()->setLogLevel(Log::LEVEL_DEBUG);
 
-    Receiver = new NotificationReceiverTestImpl();
+    Receiver = new NotificationReceiverTestImpl(NotificationReceiverTestImpl::ACTION_NOTHING);
 
     // Set the list of applications this receiver should receive notifications from
     Receiver->setApplications(listOfApps.c_str());
@@ -132,9 +132,6 @@ int main()
     }
 
     std::cout << "Waiting for notifications." << std::endl;
-
-    /* Install SIGINT handler so Ctrl + C deallocates memory properly */
-    signal(SIGINT, SigIntHandler);
 
     int32_t sleepTime = 5;
     while (!WaitForSigInt(sleepTime)) ;

@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -42,7 +42,7 @@ QStatus PayloadAdapter::sendPayload(const char* deviceId, const char* deviceName
                                     uint16_t ttl,
                                     const char* richIconUrl, std::vector<RichAudioUrl> const&  richAudioUrl,
                                     const char* richIconObjectPath, const char* richAudioObjectPath,
-                                    const char* controlPanelServiceObjectPath, int32_t messageId)
+                                    const char* controlPanelServiceObjectPath, const char* originalSender, int32_t messageId)
 {
     GenericLogger* logger = NotificationService::getInstance()->getLogger();
 
@@ -58,11 +58,12 @@ QStatus PayloadAdapter::sendPayload(const char* deviceId, const char* deviceName
         CHECK(appIdArg.Set(AJPARAM_ARR_BYTE.c_str(), strlen(appId), appId));
         CHECK(appNameArg.Set(AJPARAM_STR.c_str(), appName));
 
-        return(sendPayload(deviceIdArg, deviceNameArg, appIdArg, appNameArg, messageType, notificationText, customAttributes, ttl, richIconUrl, richAudioUrl, richIconObjectPath, richAudioObjectPath, controlPanelServiceObjectPath, messageId));
+        return(sendPayload(deviceIdArg, deviceNameArg, appIdArg, appNameArg, messageType, notificationText, customAttributes, ttl, richIconUrl, richAudioUrl, richIconObjectPath, richAudioObjectPath, controlPanelServiceObjectPath, originalSender, messageId));
     } while (0);
 
-    if (logger)
+    if (logger) {
         logger->warn(TAG, "Error occurred.  Could not marshal parameters. Status: " + String(QCC_StatusText(status)));
+    }
 
     return status;
 }
@@ -74,7 +75,7 @@ QStatus PayloadAdapter::sendPayload(PropertyStore* propertyStore,
                                     uint16_t ttl,
                                     const char* richIconUrl, std::vector<RichAudioUrl> const&  richAudioUrl,
                                     const char* richIconObjectPath, const char* richAudioObjectPath,
-                                    const char* controlPanelServiceObjectPath)
+                                    const char* controlPanelServiceObjectPath, const char* originalSender)
 {
     GenericLogger* logger = NotificationService::getInstance()->getLogger();
 
@@ -97,7 +98,9 @@ QStatus PayloadAdapter::sendPayload(PropertyStore* propertyStore,
         return status;
 
     if ((status = configArgs[0].Get(AJPARAM_ARR_DICT_STR_VAR.c_str(), &configNum, &configEntries))) {
-        if (logger) logger->warn(TAG, "Error reading in about configuration data" + String(QCC_StatusText(status)));
+        if (logger) {
+            logger->warn(TAG, "Error reading in about configuration data" + String(QCC_StatusText(status)));
+        }
         return status;
     }
 
@@ -122,52 +125,61 @@ QStatus PayloadAdapter::sendPayload(PropertyStore* propertyStore,
     }
 
     if (status != ER_OK) {
-        logger->warn(TAG, "Something went wrong unmarshalling the propertystore.");
+        if (logger) {
+            logger->warn(TAG, "Something went wrong unmarshalling the propertystore.");
+        }
         return status;
     }
 
     /* Validate Arguments */
 
     if (deviceIdArg.typeId != ALLJOYN_STRING) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "DeviceId argument is not correct type.");
+        }
         return ER_BAD_ARG_1;
     }
     if (deviceIdArg.v_string.str == 0 || deviceIdArg.v_string.len == 0) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "DeviceId argument can not be NULL or an empty String.");
+        }
         return ER_BAD_ARG_1;
     }
 
     if (deviceNameArg.typeId != ALLJOYN_STRING) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "DeviceName argument is not correct type.");
+        }
         return ER_BAD_ARG_1;
     }
     if (deviceNameArg.v_string.str == 0 || deviceNameArg.v_string.len == 0) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "DeviceName argument can not be NULL or an empty String.");
+        }
         return ER_BAD_ARG_1;
     }
 
     if (appIdArg.typeId != ALLJOYN_BYTE_ARRAY) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "ApplicationId argument is not correct type.");
+        }
         return ER_BAD_ARG_1;
     }
 
     if (appNameArg.typeId != ALLJOYN_STRING) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "ApplicationName argument is not correct type.");
+        }
         return ER_BAD_ARG_1;
     }
     if (appNameArg.v_string.str == 0 || appNameArg.v_string.len == 0) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "ApplicationName argument can not be NULL or an empty String.");
+        }
         return ER_BAD_ARG_1;
     }
 
-    return (sendPayload(deviceIdArg, deviceNameArg, appIdArg, appNameArg, messageType, notificationText, customAttributes, ttl, richIconUrl, richAudioUrl, richIconObjectPath, richAudioObjectPath, controlPanelServiceObjectPath, ++m_MessageId));
+    return (sendPayload(deviceIdArg, deviceNameArg, appIdArg, appNameArg, messageType, notificationText, customAttributes, ttl, richIconUrl, richAudioUrl, richIconObjectPath, richAudioObjectPath, controlPanelServiceObjectPath, originalSender, ++m_MessageId));
 }
 
 QStatus PayloadAdapter::sendPayload(ajn::MsgArg deviceIdArg, ajn::MsgArg deviceNameArg,
@@ -178,7 +190,7 @@ QStatus PayloadAdapter::sendPayload(ajn::MsgArg deviceIdArg, ajn::MsgArg deviceN
                                     uint16_t ttl,
                                     const char* richIconUrl, std::vector<RichAudioUrl> const&  richAudioUrl,
                                     const char* richIconObjectPath, const char* richAudioObjectPath,
-                                    const char* controlPanelServiceObjectPath, int32_t messageId)
+                                    const char* controlPanelServiceObjectPath, const char* originalSender, int32_t messageId)
 {
     GenericLogger* logger = NotificationService::getInstance()->getLogger();
 
@@ -191,6 +203,7 @@ QStatus PayloadAdapter::sendPayload(ajn::MsgArg deviceIdArg, ajn::MsgArg deviceN
     MsgArg richIconObjectPathArg;
     MsgArg richAudioObjectPathArg;
     MsgArg controlPanelServiceObjectPathArg;
+    MsgArg originalSenderArg;
 
     do {
         CHECK(versionArg.Set(AJPARAM_UINT16.c_str(), NotificationService::getVersion()));
@@ -199,7 +212,8 @@ QStatus PayloadAdapter::sendPayload(ajn::MsgArg deviceIdArg, ajn::MsgArg deviceN
 
         CHECK(messageTypeArg.Set(AJPARAM_UINT16.c_str(), messageType));
 
-        int32_t attrSize = 0;
+        int32_t attrSize = 1;
+
         if (richIconUrl)
             attrSize++;
         if (!richAudioUrl.empty())
@@ -217,6 +231,9 @@ QStatus PayloadAdapter::sendPayload(ajn::MsgArg deviceIdArg, ajn::MsgArg deviceN
 
         int32_t attrIndx = 0;
 
+        CHECK(originalSenderArg.Set(AJPARAM_STR.c_str(), originalSender))
+        CHECK(attributes[attrIndx++].Set(AJPARAM_DICT_INT_VAR.c_str(), ORIGINAL_SENDER_ATTRIBUTE_KEY, &originalSenderArg));
+
         if (richIconUrl) {
             CHECK(richIconUrlArg.Set(AJPARAM_STR.c_str(), richIconUrl))
             CHECK(attributes[attrIndx++].Set(AJPARAM_DICT_INT_VAR.c_str(), RICH_CONTENT_ICON_URL_ATTRIBUTE_KEY, &richIconUrlArg));
@@ -229,8 +246,9 @@ QStatus PayloadAdapter::sendPayload(ajn::MsgArg deviceIdArg, ajn::MsgArg deviceN
             int32_t audioIndx = 0;
             for (contIter = richAudioUrl.begin(); contIter != richAudioUrl.end(); contIter++) {
                 if (!(contIter->getLanguage().size()) || !(contIter->getUrl().size())) {
-                    if (logger)
+                    if (logger) {
                         logger->warn(TAG, "Problem sending message. Cannot send a message with audio content with an empty language/url values.");
+                    }
                     return ER_BAD_ARG_7;
                 }
                 CHECK(audioContent[audioIndx++].Set(AJPARAM_STRUCT_STR_STR.c_str(), contIter->getLanguage().c_str(),
@@ -289,8 +307,9 @@ QStatus PayloadAdapter::sendPayload(ajn::MsgArg deviceIdArg, ajn::MsgArg deviceN
 
         for (notIter = notificationText.begin(); notIter != notificationText.end(); notIter++) {
             if (!(notIter->getLanguage().size()) || !(notIter->getText().size())) {
-                if (logger)
+                if (logger) {
                     logger->warn(TAG, "Problem sending message. Cannot send a message with an empty language/text values.");
+                }
                 return ER_BAD_ARG_6;
             }
             CHECK(notifications[notifIndx++].Set(AJPARAM_STRUCT_STR_STR.c_str(), notIter->getLanguage().c_str(),
@@ -317,15 +336,17 @@ QStatus PayloadAdapter::sendPayload(ajn::MsgArg deviceIdArg, ajn::MsgArg deviceN
         std::stringstream sMessageId;
         sMessageId << messageId;
         String messageIdStr = sMessageId.str().c_str();
-        if (logger)
+        if (logger) {
             logger->info(TAG, "Attempting to send messageId: " + messageIdStr);
+        }
 
         Transport* transport = Transport::getInstance();
         return transport->sendNotification(messageType, notificationArgs, ttl);
     } while (0);
 
-    if (logger)
+    if (logger) {
         logger->warn(TAG, "Error occurred.  Could not marshal parameters. Status: " + String(QCC_StatusText(status)));
+    }
 
     return status;
 }
@@ -351,8 +372,9 @@ void PayloadAdapter::receivePayload(Message& msg)
     do {
         //Unmarshal Version
         if (versionArg->typeId != ALLJOYN_UINT16) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Problem receiving message: Can not Unmarshal this Version argument.");
+            }
             return;
         }
 
@@ -361,8 +383,9 @@ void PayloadAdapter::receivePayload(Message& msg)
 
         //Unmarshal messageId
         if (messageIdArg->typeId != ALLJOYN_INT32) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Problem receiving message: Can not Unmarshal this messageId argument.");
+            }
             return;
         }
 
@@ -371,8 +394,9 @@ void PayloadAdapter::receivePayload(Message& msg)
 
         //Unmarshal messageType
         if (messageTypeArg->typeId != ALLJOYN_UINT16) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Problem receiving message: Can not Unmarshal this message type argument.");
+            }
             return;
         }
 
@@ -383,8 +407,9 @@ void PayloadAdapter::receivePayload(Message& msg)
 
         //Unmarshal deviceId
         if (deviceIdArg->typeId != ALLJOYN_STRING) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Problem receiving message: Can not Unmarshal this deviceId argument.");
+            }
             return;
         }
 
@@ -393,8 +418,9 @@ void PayloadAdapter::receivePayload(Message& msg)
 
         //Unmarshal deviceName
         if (deviceNameArg->typeId != ALLJOYN_STRING) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Problem receiving message: Can not Unmarshal this device Name argument.");
+            }
             return;
         }
 
@@ -403,8 +429,9 @@ void PayloadAdapter::receivePayload(Message& msg)
 
         //Unmarshal appId
         if (appIdArg->typeId != ALLJOYN_BYTE_ARRAY) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Problem receiving message: Can not Unmarshal this appId argument.");
+            }
             return;
         }
 
@@ -435,8 +462,9 @@ void PayloadAdapter::receivePayload(Message& msg)
 
         //Unmarshal appName
         if (appNameArg->typeId != ALLJOYN_STRING) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Problem receiving message: Can not Unmarshal this app Name argument.");
+            }
             return;
         }
 
@@ -445,8 +473,9 @@ void PayloadAdapter::receivePayload(Message& msg)
 
         //Unmarshal Attributes
         if (attributesArg->typeId != ALLJOYN_ARRAY) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Problem receiving message: Can not Unmarshal this Attributes argument.");
+            }
             return;
         }
 
@@ -456,6 +485,7 @@ void PayloadAdapter::receivePayload(Message& msg)
         char* richIconObjectPath = 0;
         char* richAudioObjectPath = 0;
         char* controlPanelServiceObjectPath = 0;
+        char* originalSender = 0;
         std::vector<RichAudioUrl> richAudioUrl;
 
 
@@ -487,8 +517,9 @@ void PayloadAdapter::receivePayload(Message& msg)
                     char*StringVal;
                     status = richAudioEntries[i].Get(AJPARAM_STRUCT_STR_STR.c_str(), &key, &StringVal);
                     if (status != ER_OK) {
-                        if (logger)
+                        if (logger) {
                             logger->warn(TAG, "Can not Unmarshal this NotificationText argument");
+                        }
                         break;
                     }
                     richAudioUrl.push_back(RichAudioUrl(key, StringVal));
@@ -514,16 +545,25 @@ void PayloadAdapter::receivePayload(Message& msg)
                 break;
             }
 
+            case ORIGINAL_SENDER_ATTRIBUTE_KEY:
+            {
+                CHECK(variant->Get(AJPARAM_STR.c_str(), &originalSender));
+                break;
+            }
+
             default:
-                if (logger)
+                if (logger) {
                     logger->warn(TAG, "Can not Unmarshal this attribute argument");
+                }
                 break;
             }
         } // for (size_t i = 0; i < attribNum; i++)
 
         //Unmarshal Custom Attributes
         if (customAttributesArg->typeId != ALLJOYN_ARRAY) {
-            if (logger) logger->warn(TAG, "Problem receiving message: Can not Unmarshal this custom Attributes argument.");
+            if (logger) {
+                logger->warn(TAG, "Problem receiving message: Can not Unmarshal this custom Attributes argument.");
+            }
             return;
         }
 
@@ -538,8 +578,9 @@ void PayloadAdapter::receivePayload(Message& msg)
             char*StringVal;
             status = customAttributesEntries[i].Get(AJPARAM_DICT_STR_STR.c_str(), &key, &StringVal);
             if (status != ER_OK) {
-                if (logger)
+                if (logger) {
                     logger->warn(TAG, "Can not Unmarshal this Custom Attribute argument");
+                }
                 break;
             }
             customAttributes.insert(std::pair<qcc::String, qcc::String>(key, StringVal));
@@ -550,8 +591,9 @@ void PayloadAdapter::receivePayload(Message& msg)
 
         //Unmarshal NotificationTexts
         if (notificationsArg->typeId != ALLJOYN_ARRAY) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Problem receiving message: Can not Unmarshal this NotificationsArg argument.");
+            }
             return;
         }
 
@@ -565,8 +607,9 @@ void PayloadAdapter::receivePayload(Message& msg)
             char*StringVal;
             status = notTextEntries[i].Get(AJPARAM_STRUCT_STR_STR.c_str(), &key, &StringVal);
             if (status != ER_OK) {
-                if (logger)
+                if (logger) {
                     logger->warn(TAG, "Can not Unmarshal this NotificationText argument");
+                }
                 break;
             }
             text.push_back(NotificationText(key, StringVal));
@@ -579,7 +622,7 @@ void PayloadAdapter::receivePayload(Message& msg)
         //Create notification and send it on
         Notification notification(messageId, messageType, deviceId, deviceName,
                                   appId.c_str(), appName, sender, customAttributes, text,
-                                  richIconUrl, richAudioUrl, richIconObjectPath, richAudioObjectPath, controlPanelServiceObjectPath);
+                                  richIconUrl, richAudioUrl, richIconObjectPath, richAudioObjectPath, controlPanelServiceObjectPath, originalSender);
 
         Transport* transport = Transport::getInstance();
         transport->onReceivedNotification(notification);
@@ -587,8 +630,9 @@ void PayloadAdapter::receivePayload(Message& msg)
 
     } while (0);
 
-    if (logger)
+    if (logger) {
         logger->warn(TAG, "Error occurred.  Could not unmarshal parameters. Status: " + String(QCC_StatusText(status)));
+    }
 
     return;
 }

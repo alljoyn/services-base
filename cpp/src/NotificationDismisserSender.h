@@ -14,22 +14,20 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#ifndef NOTIFICATIONTRANSPORTPRODUCER_H_
-#define NOTIFICATIONTRANSPORTPRODUCER_H_
+#ifndef NOTIFICATIONDISMISSERSENDER_H_
+#define NOTIFICATIONDISMISSERSENDER_H_
 
 #include <alljoyn/notification/NotificationEnums.h>
-
-#include "NotificationTransport.h"
+#include "NotificationDismisser.h"
 #include "NotificationConstants.h"
 
 namespace ajn {
 namespace services {
 
 /**
- * Notification Transport Producer. Used to Create the Notification Interface
- * on the producers side and send the notify signals
+ * Implementing the sender side of the dismiss signal in dismisser interface
  */
-class NotificationTransportProducer : public NotificationTransport {
+class NotificationDismisserSender : public NotificationDismisser {
 
   public:
 
@@ -37,18 +35,15 @@ class NotificationTransportProducer : public NotificationTransport {
      * Constructor for TransportProducer. Creates Interface and prepares
      * infrastructure to be able to send Signal
      * @param bus            - BusAttachment that is used
-     * @param servicePath    - servicePath of BusObject
+     * @param objectPath     - Object path name of the dismisser
      * @param status         - success/failure
-     * @param m_serialNumber - serial number of the last successful message on the bus
      */
-    NotificationTransportProducer(ajn::BusAttachment* bus,
-                                  qcc::String const& servicePath, QStatus& status,
-                                  qcc::String const& interfaceName = nsConsts::AJ_NOTIFICATION_INTERFACE_NAME, uint32_t serialNumber = 0);
+    NotificationDismisserSender(ajn::BusAttachment* bus, qcc::String const& objectPath, QStatus& status);
 
     /**
      * Destructor for TransportProducer
      */
-    ~NotificationTransportProducer() { };
+    ~NotificationDismisserSender() { };
 
     /**
      * Send Signal over Bus.
@@ -56,37 +51,12 @@ class NotificationTransportProducer : public NotificationTransport {
      * @param ttl
      * @return status
      */
-    QStatus sendSignal(ajn::MsgArg const notificationArgs[nsConsts::AJ_NOTIFY_NUM_PARAMS],
+    QStatus sendSignal(ajn::MsgArg const dismisserArgs[nsConsts::AJ_DISMISSER_NUM_PARAMS],
                        uint16_t ttl);
 
-    /**
-     * delete last message
-     * @param type of message to delete
-     * @return status
-     */
-    QStatus deleteLastMsg(NotificationMessageType messageType);
-
-    /**
-     * Delete Signal sent off for this messageType
-     * @param messageId
-     * @return status
-     */
-    QStatus deleteMsg(int32_t msgId);
-
-  private:
-
-    /**
-     * Serial Number of the last message sent with this message type
-     */
-    uint32_t m_SerialNumber;
-
-    /**
-     * message Id of the last message sent with this message type
-     */
-    int32_t m_MsgId;
 
 };
 } //namespace services
 } //namespace ajn
 
-#endif /* NOTIFICATIONTRANSPORTPRODUCER_H_ */
+#endif /* NOTIFICATIONDISMISSERSENDER_H_ */

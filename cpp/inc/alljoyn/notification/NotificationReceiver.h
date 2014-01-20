@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -45,7 +45,12 @@ class NotificationReceiver {
      * Consumer Application must override this method
      * @param notification the notification that is received
      */
-    virtual void receive(Notification const& notification) = 0;
+    virtual void Receive(Notification const& notification) = 0;
+
+    /**
+     *   Dismiss handler
+     */
+    virtual void Dismiss(const int32_t msgId, const qcc::String appId) = 0;
 };
 } //namespace services
 } //namespace ajn

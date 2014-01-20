@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -16,13 +16,12 @@
 
 #include <algorithm>
 #include <sstream>
-
 #include <alljoyn/notification/NotificationSender.h>
 #include <alljoyn/notification/NotificationService.h>
 #include <alljoyn/services_common/ServicesLoggerImpl.h>
-
 #include "NotificationConstants.h"
 #include "Transport.h"
+#include "NotificationProducerReceiver.h"
 
 using namespace ajn;
 using namespace services;
@@ -31,8 +30,8 @@ using namespace nsConsts;
 
 #define CALLBACKTAG "AllJoynInternal"
 
-NotificationService* NotificationService::s_Instance(0);
-uint16_t const NotificationService::NOTIFICATION_SERVICE_VERSION = 1;
+NotificationService* NotificationService::s_Instance(NULL);
+uint16_t const NotificationService::NOTIFICATION_SERVICE_VERSION = 2;
 
 NotificationService* NotificationService::getInstance()
 {
@@ -61,13 +60,21 @@ uint16_t NotificationService::getVersion()
 
 NotificationSender* NotificationService::initSend(BusAttachment* bus, PropertyStore* store)
 {
+    if (logger) {
+        logger->debug(TAG, "NotificationService::initSend");
+    }
+
     if (!bus) {
-        if (logger) logger->warn(TAG, "BusAttachment cannot be NULL");
+        if (logger) {
+            logger->warn(TAG, "BusAttachment cannot be NULL");
+        }
         return NULL;
     }
 
     if (!store) {
-        if (logger) logger->warn(TAG, "PropertyStore cannot be NULL");
+        if (logger) {
+            logger->warn(TAG, "PropertyStore cannot be NULL");
+        }
         return NULL;
     }
 
@@ -75,22 +82,80 @@ NotificationSender* NotificationService::initSend(BusAttachment* bus, PropertySt
     if (transport->startSenderTransport(bus) != ER_OK)
         return NULL;
 
+    MsgArg configArgs[1];
+    MsgArg* configEntries;
+    size_t configNum;
+    QStatus status;
+
+    if ((status = store->ReadAll(0, PropertyStore::READ, configArgs[0])))
+        if (logger) {
+            logger->warn(TAG, "Error reading all in configuration data" + String(QCC_StatusText(status)));
+        }
+
+    if ((status = configArgs[0].Get(AJPARAM_ARR_DICT_STR_VAR.c_str(), &configNum, &configEntries))) {
+        if (logger) {
+            logger->warn(TAG, "Error reading in configuration data" + String(QCC_StatusText(status)));
+        }
+    }
+
+    MsgArg appIdArg;
+    for (size_t i = 0; i < configNum; i++) {
+        char* keyChar;
+        String key;
+        MsgArg* variant;
+
+        status = configEntries[i].Get(AJPARAM_DICT_STR_VAR.c_str(), &keyChar, &variant);
+        if (status != ER_OK) {
+            if (logger) {
+                logger->warn(TAG, "Error reading in configuration data" + String(QCC_StatusText(status)));
+            }
+        }
+
+        key = keyChar;
+
+        if (key.compare("AppId") == 0) {
+            appIdArg = *variant;
+        }
+    }
+
+    if (status != ER_OK) {
+        if (logger) {
+            logger->warn(TAG, "Something went wrong unmarshalling the propertystore." + String(QCC_StatusText(status)));
+        }
+        return NULL;
+    }
+
+    if (appIdArg.typeId != ALLJOYN_BYTE_ARRAY) {
+        if (logger) {
+            logger->warn(TAG, "ApplicationId argument is not correct type.");
+        }
+        return NULL;
+    }
+
+    transport->getNotificationProducerReceiver()->SetAppIdArg(appIdArg);
+
     return new NotificationSender(store);
 }
 
 QStatus NotificationService::initReceive(ajn::BusAttachment* bus, NotificationReceiver* notificationReceiver)
 {
     if (!bus) {
-        if (logger) logger->warn(TAG, "BusAttachment cannot be NULL");
+        if (logger) {
+            logger->warn(TAG, "BusAttachment cannot be NULL");
+        }
         return ER_BAD_ARG_1;
     }
 
     if (!notificationReceiver) {
-        if (logger) logger->warn(TAG, "Could not set NotificationReceiver to null pointer");
+        if (logger) {
+            logger->warn(TAG, "Could not set NotificationReceiver to null pointer");
+        }
         return ER_BAD_ARG_2;
     }
 
-    if (logger) logger->debug(TAG, "Init receive");
+    if (logger) {
+        logger->debug(TAG, "Init receive");
+    }
 
     Transport* transport = Transport::getInstance();
     transport->setNotificationReceiver(notificationReceiver);
@@ -105,21 +170,27 @@ QStatus NotificationService::initReceive(ajn::BusAttachment* bus, NotificationRe
 
 void NotificationService::shutdownSender()
 {
-    if (logger) logger->debug(TAG, "Stop Sender");
+    if (logger) {
+        logger->debug(TAG, "Stop Sender");
+    }
     Transport* transport = Transport::getInstance();
     transport->cleanupSenderTransport();
 }
 
 void NotificationService::shutdownReceiver()
 {
-    if (logger) logger->debug(TAG, "Stop Receiver");
+    if (logger) {
+        logger->debug(TAG, "Stop Receiver");
+    }
     Transport* transport = Transport::getInstance();
     transport->cleanupReceiverTransport();
 }
 
 void NotificationService::shutdown()
 {
-    if (logger) logger->debug(TAG, "Shutdown");
+    if (logger) {
+        logger->debug(TAG, "Shutdown");
+    }
     Transport* transport = Transport::getInstance();
     transport->cleanup();
 
@@ -129,7 +200,9 @@ void NotificationService::shutdown()
 
 QStatus NotificationService::disableSuperAgent()
 {
-    if (logger) logger->debug(TAG, "Disabling SuperAgent");
+    if (logger) {
+        logger->debug(TAG, "Disabling SuperAgent");
+    }
     Transport* transport = Transport::getInstance();
     return transport->disableSuperAgent();
 }
@@ -137,7 +210,9 @@ QStatus NotificationService::disableSuperAgent()
 
 BusAttachment* NotificationService::getBusAttachment()
 {
-    if (logger) logger->debug(TAG, "In Get BusAttachment");
+    if (logger) {
+        logger->debug(TAG, "In Get BusAttachment");
+    }
     Transport* transport = Transport::getInstance();
     return transport->getBusAttachment();
 }

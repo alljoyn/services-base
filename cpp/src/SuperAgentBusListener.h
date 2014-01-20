@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -14,50 +14,47 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#ifndef NOTIFICATIONANNOUNCELISTENER_H_
-#define NOTIFICATIONANNOUNCELISTENER_H_
+#ifndef SUPER_AGENT_BUS_LISTENER_H_
+#define SUPER_AGENT_BUS_LISTENER_H_
 
-#include <alljoyn/about/AnnounceHandler.h>
-#include <alljoyn/about/AnnouncementRegistrar.h>
+#include <string.h>
+#include <alljoyn/BusAttachment.h>
 
 namespace ajn {
 namespace services {
 
-class SuperAgentBusListener;
-
 /**
- * Notification announce lisener. Receives announce signal from super agent.
+ * SuperAgentBusListener
  */
-class NotificationAnnounceListener : public ajn::services::AnnounceHandler {
+class SuperAgentBusListener : public BusListener {
 
   public:
-    /*
-     * Constructor of class NotificationAnnounceListener
-     */
-    NotificationAnnounceListener();
-    /*
-     * Destructor of class NotificationAnnounceListener
-     */
-    ~NotificationAnnounceListener();
-    /*
-     * a callback for getting announce message
-     * @param version
-     * @param port
-     * @param busNAme - the bus unique name of the announce sender
-     * @param object description related to the sender
-     * @param aboutData
-     */
-    void Announce(uint16_t version, uint16_t port, const char* busName, const ObjectDescriptions& objectDescs, const AboutData& aboutData);
 
+    SuperAgentBusListener(ajn::BusAttachment* bus);
+
+    virtual ~SuperAgentBusListener();
+
+    void FoundAdvertisedName(const char* name, TransportMask transport, const char* namePrefix);
+
+    void LostAdvertisedName(const char* name, TransportMask transport, const char* prefix);
+
+    void SetBusUniqueName(const char* superAgentBusUniqueName) { m_SuperAgentBusUniqueName = superAgentBusUniqueName; }
   private:
-
     /**
      * Tag used for logging
      */
     qcc::String TAG;
 
+    /**
+     * BusAttachment
+     */
+    BusAttachment* m_Bus;
+    /**
+     * Super agent bus unique name
+     */
+    qcc::String m_SuperAgentBusUniqueName;
 };
 } //namespace services
 } //namespace ajn
 
-#endif /* NOTIFICATIONANNOUNCELISTENER_H_ */
+#endif /* SUPER_AGENT_BUS_LISTENER_H_ */

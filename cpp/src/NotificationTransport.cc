@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -40,21 +40,24 @@ NotificationTransport::NotificationTransport(ajn::BusAttachment* bus,
     } else if (status == ER_BUS_IFACE_ALREADY_EXISTS) {
         intf = (InterfaceDescription*) bus->GetInterface(interfaceName.c_str());
         if (!intf) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Could not get interface");
+            }
             status = ER_BUS_UNKNOWN_INTERFACE;
             return;
         }
     } else {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not create interface");
+        }
         return;
     }
 
     status = AddInterface(*intf);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->debug(TAG, "Could not add interface");
+        }
         return;
     }
 
@@ -70,12 +73,14 @@ NotificationTransport::~NotificationTransport()
 QStatus NotificationTransport::Get(const char* ifcName, const char* propName, MsgArg& val)
 {
     GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "Get property was called :\n");
+    }
 
     if (0 != strcmp(AJ_PROPERTY_VERSION.c_str(), propName)) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Called for property different than version. Exiting :\n");
+        }
         return ER_BUS_NO_SUCH_PROPERTY;
     }
 

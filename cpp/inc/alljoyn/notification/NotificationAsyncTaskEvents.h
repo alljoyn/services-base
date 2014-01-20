@@ -14,50 +14,56 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#ifndef NOTIFICATIONANNOUNCELISTENER_H_
-#define NOTIFICATIONANNOUNCELISTENER_H_
 
-#include <alljoyn/about/AnnounceHandler.h>
-#include <alljoyn/about/AnnouncementRegistrar.h>
+#ifndef NOTIFICATION_ASYNCTASK_EVENTS_H_
+#define NOTIFICATION_ASYNCTASK_EVENTS_H_
+
+#include <pthread.h>
+#include <queue>
+#include <qcc/String.h>
+#include <iostream>
+#include <alljoyn/notification/NotificationService.h>
+#include <alljoyn/services_common/AsyncTask.h>
 
 namespace ajn {
 namespace services {
 
-class SuperAgentBusListener;
-
 /**
- * Notification announce lisener. Receives announce signal from super agent.
+ * Notification async task events.
+ * Class implementing callbacks fto handle messages.
  */
-class NotificationAnnounceListener : public ajn::services::AnnounceHandler {
-
+template <class TaskData>
+class NotificationAsyncTaskEvents : public AsyncTaskEvents<TaskData>{
   public:
-    /*
-     * Constructor of class NotificationAnnounceListener
-     */
-    NotificationAnnounceListener();
-    /*
-     * Destructor of class NotificationAnnounceListener
-     */
-    ~NotificationAnnounceListener();
-    /*
-     * a callback for getting announce message
-     * @param version
-     * @param port
-     * @param busNAme - the bus unique name of the announce sender
-     * @param object description related to the sender
-     * @param aboutData
-     */
-    void Announce(uint16_t version, uint16_t port, const char* busName, const ObjectDescriptions& objectDescs, const AboutData& aboutData);
-
-  private:
-
     /**
-     * Tag used for logging
+     * constructor of NotificationAsyncTaskEvents
      */
-    qcc::String TAG;
+    NotificationAsyncTaskEvents();
+    /**
+     * destructor of NotificationAsyncTaskEvents
+     */
+    virtual ~NotificationAsyncTaskEvents();
+    /**
+     * callback to handle the case of empty message queue.
+     */
+    virtual void OnEmptyQueue();
+    /**
+     * callback to handle the case of new message
+     * @param taskData - a template type of message
+     */
+    virtual void OnGotMessage(TaskData const& taskData);
+  private:
+    /**
+     * send dismiss signal
+     * @param taskData - a template type of message
+     */
+    void sendDismissSignal(TaskData const& taskData);
 
 };
+
 } //namespace services
 } //namespace ajn
 
-#endif /* NOTIFICATIONANNOUNCELISTENER_H_ */
+
+
+#endif /* NOTIFICATION_ASYNCTASK_EVENTS_H_ */

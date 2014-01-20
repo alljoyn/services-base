@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -17,6 +17,7 @@
 #include "NotificationReceiverTestImpl.h"
 #include <alljoyn/notification/NotificationText.h>
 #include <alljoyn/notification/RichAudioUrl.h>
+#include <alljoyn/Status.h>
 #include <iostream>
 #include <sstream>
 #include <algorithm>
@@ -25,15 +26,16 @@ using namespace ajn;
 using namespace services;
 using namespace qcc;
 
-NotificationReceiverTestImpl::NotificationReceiverTestImpl() {
-
+NotificationReceiverTestImpl::NotificationReceiverTestImpl(NotificationAction notificationAction) :
+    m_NotificationAction(notificationAction) {
+    std::cout << "NotificationAction:" << m_NotificationAction << std::endl;
 }
 
 NotificationReceiverTestImpl::~NotificationReceiverTestImpl() {
 
 }
 
-void NotificationReceiverTestImpl::receive(Notification const& notification) {
+void NotificationReceiverTestImpl::Receive(Notification const& notification) {
 
     qcc::String appName = notification.getAppName();
     // If applications list is empty or the name exists in the filter list then print the notification
@@ -86,8 +88,49 @@ void NotificationReceiverTestImpl::receive(Notification const& notification) {
         if (notification.getControlPanelServiceObjectPath())
             std::cout << "ControlPanelService object path: " << notification.getControlPanelServiceObjectPath() << std::endl;
 
+        if (notification.getOriginalSender())
+            std::cout << "OriginalSender: " << notification.getOriginalSender() << std::endl;
+
+
         std::cout << "******************** End New Message Received ********************" << std::endl << std::endl;
+
+        Notification& nonConstNotification = const_cast<Notification&>(notification);
+        switch (m_NotificationAction) {
+        case ACTION_NOTHING:
+            std::cout << "Nothing planed to do with the notification." << std::endl;
+            break;
+
+        case ACTION_ACKNOWLEDGE:
+        {
+            std::cout << "going to call acknowledge" << std::endl;
+            QStatus status = nonConstNotification.acknowledge();
+            if (status == ER_OK) {
+                std::cout << "acknowledge succeeded" << std::endl;
+            } else {
+                std::cout << "acknowledge not succeeded" << std::endl;
+            }
+        }
+        break;
+
+        case ACTION_DISMISS:
+        {
+            std::cout << "going to call dismiss" << std::endl;
+            QStatus status = nonConstNotification.dismiss();
+            if (status == ER_OK) {
+                std::cout << "dismiss succeeded" << std::endl;
+            } else {
+                std::cout << "dismiss not succeeded" << std::endl;
+            }
+        }
+        break;
+
+        default:
+            std::cout << "Got non valid action to do." << std::endl;
+            break;
+        }
+        ;
     }
+    std::cout << "End handling notification!!!" << std::endl;
 }
 
 void NotificationReceiverTestImpl::setApplications(qcc::String const& listOfApps) {
@@ -98,3 +141,7 @@ void NotificationReceiverTestImpl::setApplications(qcc::String const& listOfApps
     }
 }
 
+void NotificationReceiverTestImpl::Dismiss(const int32_t msgId, const qcc::String appId)
+{
+    std::cout << "Got NotificationReceiverTestImpl::DismissHandler with msgId=" << msgId << " appId=" << appId.c_str() << std::endl;
+}
