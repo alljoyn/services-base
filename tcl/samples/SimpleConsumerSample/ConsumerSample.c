@@ -258,10 +258,14 @@ AJ_Status ApplicationHandleNotify(Notification_t* notification)
         AJ_Printf("ControlPanelService object path: %s\n", notification->content.controlPanelServiceObjectPath);
     }
 
-    savedNotification.version = notification->header.version;
-    savedNotification.notificationId = notification->header.notificationId;
-    strcpy(savedNotification.appId, notification->header.appId);
-    strcpy(savedNotification.originalSenderName, notification->header.originalSenderName);
+    // Check if received notification is from a producer that supports acknowledge and dismiss methods
+    if (notification->header.version >= NotificationVersion && notification->header.originalSenderName != 0 && strlen(notification->header.originalSenderName) > 0) {
+        // Save notification reference so that it can be later acknowledged or dimissed
+        savedNotification.version = notification->header.version;
+        savedNotification.notificationId = notification->header.notificationId;
+        strcpy(savedNotification.appId, notification->header.appId);
+        strcpy(savedNotification.originalSenderName, notification->header.originalSenderName);
+    }
     AJ_Printf("******************** End New Message Received ********************\n");
 
     return AJ_OK;
