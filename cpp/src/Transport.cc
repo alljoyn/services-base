@@ -46,7 +46,7 @@ Transport::Transport() : m_Bus(0), m_Receiver(0), m_Consumer(0), m_SuperAgent(0)
     m_IsListeningToSuperAgent(false), TAG(TAG_TRANSPORT), m_NotificationProducerSender(0), m_NotificationProducerReceiver(0),
     m_NotificationProducerListener(0), m_NotificationDismisserSender(0), m_NotificationDismisserReceiver(0)
 {
-    Notification::m_feedbackAsyncTask.Start();
+    Notification::m_AsyncTaskQueue.Start();
 
     for (int32_t indx = 0; indx < MESSAGE_TYPE_CNT; indx++)
         m_Producers[indx] = 0;
@@ -171,7 +171,6 @@ QStatus Transport::deleteMsg(int32_t msgId)
             if (logger) {
                 logger->warn(TAG, "Could not delete message, Sender is not initialized");
             }
-            //return ER_BUS_OBJECT_NOT_REGISTERED;
             continue;
         } else {
             if (logger) {
@@ -182,6 +181,20 @@ QStatus Transport::deleteMsg(int32_t msgId)
         ret = m_Producers[i]->deleteMsg(msgId);
         if (ret == ER_OK)
             break;
+    }
+
+    if (ret == ER_OK) {
+        if (logger) {
+            String log("Transport::deleteMsg() - message successfully deleted. msgId=");
+            log.append(std::to_string(msgId).c_str());
+            logger->debug(TAG, log);
+        }
+    } else {
+        if (logger) {
+            String log("Transport::deleteMsg() - didn't find message to delete. msgId=");
+            log.append(std::to_string(msgId).c_str());
+            logger->debug(TAG, log);
+        }
     }
     return ret;
 }
@@ -794,7 +807,7 @@ void Transport::cleanup()
 {
     if (m_Bus == 0)
         return;
-    Notification::m_feedbackAsyncTask.Stop();
+    Notification::m_AsyncTaskQueue.Stop();
     cleanupSenderTransport();
     cleanupReceiverTransport();
 

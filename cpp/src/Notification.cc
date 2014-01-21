@@ -18,15 +18,15 @@
 #include <alljoyn/notification/NotificationService.h>
 #include "Transport.h"
 #include "NotificationConstants.h"
-#include <alljoyn/services_common/AsyncTask.h>
+#include <alljoyn/services_common/AsyncTaskQueue.h>
 #include <alljoyn/notification/NotificationAsyncTaskEvents.h>
 
 using namespace ajn;
 using namespace services;
 using namespace qcc;
 
-NotificationAsyncTaskEvents<NotificationMsg> Notification::m_NotificationAsyncTaskEvents;
-AsyncTask<NotificationMsg> Notification::m_feedbackAsyncTask(&Notification::m_NotificationAsyncTaskEvents);
+NotificationAsyncTaskEvents Notification::m_NotificationAsyncTaskEvents;
+AsyncTaskQueue Notification::m_AsyncTaskQueue(&Notification::m_NotificationAsyncTaskEvents);
 
 const char* TAG = "Notification";
 String Notification::TAG(nsConsts::TAG_NOTIFICATION);
@@ -196,8 +196,8 @@ QStatus Notification::acknowledge()
         logger->debug(TAG, "Notification::acknowledge() called");
     }
 
-    NotificationMsg notificationMsg(NotificationMsg::ACKNOWLEDGE, getOriginalSender(), getMessageId(), getAppId());
-    m_feedbackAsyncTask.HandleTask(notificationMsg);
+    NotificationMsg* notificationMsg = new NotificationMsg(NotificationMsg::ACKNOWLEDGE, getOriginalSender(), getMessageId(), getAppId());
+    m_AsyncTaskQueue.Enqueue(notificationMsg);
 
     return ER_OK;
 }
@@ -214,14 +214,12 @@ QStatus Notification::dismiss()
         log.append(" AppId:");
         log.append(const_cast<char*>(getAppId()));
 
-
         logger->debug(TAG, log);
     }
 
-    NotificationMsg notificationMsg(NotificationMsg::DISMISS, getOriginalSender(), getMessageId(), getAppId());
-    m_feedbackAsyncTask.HandleTask(notificationMsg);
+    NotificationMsg* notificationMsg = new NotificationMsg(NotificationMsg::DISMISS, getOriginalSender(), getMessageId(), getAppId());
+    m_AsyncTaskQueue.Enqueue(notificationMsg);
 
     return ER_OK;
 }
 
-template class AsyncTask<NotificationMsg>;

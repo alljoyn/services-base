@@ -104,7 +104,7 @@ int main()
     // change loglevel to debug:
     conService->getLogger()->setLogLevel(Log::LEVEL_DEBUG);
 
-    Receiver = new NotificationReceiverTestImpl(NotificationReceiverTestImpl::ACTION_NOTHING);
+    Receiver = new NotificationReceiverTestImpl(false);
 
     // Set the list of applications this receiver should receive notifications from
     Receiver->setApplications(listOfApps.c_str());

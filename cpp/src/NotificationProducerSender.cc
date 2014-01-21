@@ -95,7 +95,7 @@ QStatus NotificationProducerSender::Dismiss(const char* busName, ajn::SessionId 
         String log("NotificationProducerSender::Dismiss busName:");
         log.append(busName);
         log.append(" sessionId:");
-        log.append(sessionId);
+        log.append(std::to_string(sessionId).c_str());
         log.append(" mgsId:");
         log.append(std::to_string(mgsId).c_str());
         logger->debug(TAG, log);
