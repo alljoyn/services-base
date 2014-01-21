@@ -18,8 +18,6 @@
 #include <aj_link_timeout.h>
 #include <ControlPanelSample.h>
 
-#define UUID_LENGTH 16
-
 /**
  * Static non consts.
  */
