@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -33,7 +33,7 @@ ControllerNotificationReceiver::~ControllerNotificationReceiver()
 
 }
 
-void ControllerNotificationReceiver::receive(Notification const& notification)
+void ControllerNotificationReceiver::Receive(Notification const& notification)
 {
     if (m_Controller && notification.getControlPanelServiceObjectPath()) {
         std::cout << "Received ControlPanelService object path: " << notification.getControlPanelServiceObjectPath() << std::endl;
@@ -77,3 +77,7 @@ void ControllerNotificationReceiver::receive(Notification const& notification)
     }
 }
 
+void ControllerNotificationReceiver::Dismiss(const int32_t msgId, const qcc::String appId)
+{
+    std::cout << "Got ControllerNotificationReceiver::DismissHandler with msgId=" << msgId << " appId=" << appId.c_str() << std::endl;
+}

@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -44,8 +44,14 @@ class ControllerNotificationReceiver : public ajn::services::NotificationReceive
      * Receive - function that receives a notification
      * @param notification
      */
-    void receive(ajn::services::Notification const& notification);
+    void Receive(ajn::services::Notification const& notification);
 
+    /**
+     * receive Dismiss signal
+     * @param message id
+     * @param application id
+     */
+    void Dismiss(const int32_t msgId, const qcc::String appId);
   private:
 
     ajn::services::ControlPanelController* m_Controller;

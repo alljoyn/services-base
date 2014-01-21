@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -479,6 +479,9 @@ void ControllerUtil::printHints(ajn::services::Widget* widget, qcc::String const
                     std::cout << "UNKNOWN";
                 break;
 
+            case ERROR:
+                std::cout << "UNKNOWN";
+                break;
             }
             std::cout << (i == hints.size() - 1 ? "\n" : ", ");
         }
