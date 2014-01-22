@@ -23,7 +23,7 @@
 #include <alljoyn/notification/NotificationEnums.h>
 #include <alljoyn/notification/RichAudioUrl.h>
 #include <alljoyn/Status.h>
-#include <alljoyn/services_common/AsyncTask.h>
+#include <alljoyn/services_common/AsyncTaskQueue.h>
 #include "NotificationAsyncTaskEvents.h"
 
 namespace ajn {
@@ -33,7 +33,7 @@ namespace services {
  * NotificationMsg
  * This message will be sent when user uses interface NotificationProducer
  */
-class NotificationMsg {
+class NotificationMsg : public TaskData {
   public:
     /**
      * enum for type of message
@@ -47,7 +47,9 @@ class NotificationMsg {
         m_MethodCall(methodCall), m_OriginalSender(originalSender), m_MessageId(messageId), m_AppId(appId)
     {
     }
-
+    /**
+     * NotificationMsg destructor
+     */
     ~NotificationMsg()
     {
     }
@@ -58,7 +60,7 @@ class NotificationMsg {
      */
     const MethodCall m_MethodCall;
     /**
-     * The Notification's ControlPanelService object path
+     * The original sender of the notification
      */
     const qcc::String m_OriginalSender;
     /**
@@ -304,12 +306,12 @@ class Notification {
     /**
      * Responsible to get and handle events comming from the queue.
      */
-    static NotificationAsyncTaskEvents<NotificationMsg> m_NotificationAsyncTaskEvents;
+    static NotificationAsyncTaskEvents m_NotificationAsyncTaskEvents;
     /**
      * Purpose is to handle tasks asynchronously.
      * Handling user acknowledge and dismiss of the notification.
      */
-    static AsyncTask<NotificationMsg> m_feedbackAsyncTask;
+    static AsyncTaskQueue m_AsyncTaskQueue;
 
   private:
 

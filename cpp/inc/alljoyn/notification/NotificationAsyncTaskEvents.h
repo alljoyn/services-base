@@ -23,7 +23,7 @@
 #include <qcc/String.h>
 #include <iostream>
 #include <alljoyn/notification/NotificationService.h>
-#include <alljoyn/services_common/AsyncTask.h>
+#include <alljoyn/services_common/AsyncTaskQueue.h>
 
 namespace ajn {
 namespace services {
@@ -32,8 +32,7 @@ namespace services {
  * Notification async task events.
  * Class implementing callbacks fto handle messages.
  */
-template <class TaskData>
-class NotificationAsyncTaskEvents : public AsyncTaskEvents<TaskData>{
+class NotificationAsyncTaskEvents : public AsyncTask {
   public:
     /**
      * constructor of NotificationAsyncTaskEvents
@@ -49,15 +48,16 @@ class NotificationAsyncTaskEvents : public AsyncTaskEvents<TaskData>{
     virtual void OnEmptyQueue();
     /**
      * callback to handle the case of new message
-     * @param taskData - a template type of message
+     * @param taskdata - object to handle
      */
-    virtual void OnGotMessage(TaskData const& taskData);
+    virtual void OnTask(TaskData const* taskdata);
+
   private:
     /**
      * send dismiss signal
-     * @param taskData - a template type of message
+     * @param asyncTaskQueue - a template type of message
      */
-    void sendDismissSignal(TaskData const& taskData);
+    void sendDismissSignal(TaskData const* taskdata);
 
 };
 

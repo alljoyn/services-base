@@ -55,6 +55,7 @@ qcc::String richAudioObjectPath = "";
 qcc::String controlPanelServiceObjectPath = "";
 std::map<qcc::String, qcc::String> customAttributes;
 bool didInitSend = false;
+bool didInitReceive = false;
 uint16_t ttl = 0;
 int32_t sleepTime;
 
@@ -206,8 +207,7 @@ bool disableSuperAgent(std::map<qcc::String, qcc::String>& params)
 
 bool initReceive(std::map<qcc::String, qcc::String>& params)
 {
-    NotificationReceiverTestImpl::NotificationAction action = ((NotificationReceiverTestImpl::NotificationAction)atoi(params["action"].c_str()));
-    Receiver = new NotificationReceiverTestImpl(action);
+    Receiver = new NotificationReceiverTestImpl();
     if (Service->initReceive(testBus, Receiver) != ER_OK) {
         std::cout << "Could not initialize receiver." << std::endl;
         return false;
@@ -220,7 +220,16 @@ bool initReceive(std::map<qcc::String, qcc::String>& params)
         return false;
     }
 
+    didInitReceive = true;
+
     std::cout << "Receiver Initialized" << std::endl;
+    return true;
+}
+
+bool ResponseToNotification(std::map<qcc::String, qcc::String>& params)
+{
+    NotificationReceiverTestImpl::NotificationAction action = ((NotificationReceiverTestImpl::NotificationAction)atoi(params["action"].c_str()));
+    Receiver->SetNotificationAction(action);
     return true;
 }
 
@@ -267,6 +276,7 @@ bool setControlPanelServiceObjectPath(std::map<qcc::String, qcc::String>& params
 
 bool shutdownSender(std::map<qcc::String, qcc::String>& params)
 {
+    didInitSend = false;
     CommonSampleUtil::aboutServiceDestroy(testBus, notificationBusListener);
 
     Service->shutdownSender();
@@ -306,6 +316,7 @@ bool shutdown(std::map<qcc::String, qcc::String>& params)
     }
 
     didInitSend = false;
+    didInitReceive = false;
     resetParams();
     std::cout << "Service Shutdown!" << std::endl;
     return true;
@@ -313,6 +324,7 @@ bool shutdown(std::map<qcc::String, qcc::String>& params)
 
 bool shutdownReceiver(std::map<qcc::String, qcc::String>& params)
 {
+    didInitReceive = false;
     Service->shutdownReceiver();
     std::cout << "service receiver stopped" << std::endl;
     return true;
@@ -340,7 +352,7 @@ bool clearParams(std::map<qcc::String, qcc::String>& params)
 /*
  * Begin Utility Functions
  */
-#define NUM_OF_FUNCTIONS 18
+#define NUM_OF_FUNCTIONS 19
 
 void checkNumFunctions(int32_t*i)
 {
@@ -414,10 +426,20 @@ void createListOfFunctions(TestFunction*testFunctions)
     checkNumFunctions(&i);
     // initReceive
     testFunctions[i].functionName  = "initreceive";
-    testFunctions[i].usage = testFunctions[i].functionName + " action=<0,1,2>";
+    testFunctions[i].usage = testFunctions[i].functionName;
     testFunctions[i].activateTest = initReceive;
     testFunctions[i].requiredSteps.push_back("Service");
+
+    i++;
+    checkNumFunctions(&i);
+    // ResponseToNotification
+    testFunctions[i].functionName  = "responsetonotification";
+    testFunctions[i].usage = testFunctions[i].functionName + " action=<0,1,2>";
+    testFunctions[i].activateTest = ResponseToNotification;
+    testFunctions[i].requiredSteps.push_back("Service");
+    testFunctions[i].requiredSteps.push_back("Receiver");
     testFunctions[i].requiredParams.push_back("action");
+
 
     i++;
     checkNumFunctions(&i);
@@ -529,6 +551,7 @@ bool functionExists(qcc::String& funcName, TestFunction*testFunctions, int32_t*f
             return true;
         }
     }
+    std::cout << "functionExists - ERROR - not found funcName:" << funcName.c_str() << std::endl;
     return false;
 }
 
@@ -572,6 +595,12 @@ bool checkRequiredSteps(TestFunction& test, TestFunction*testFunctions, int32_t*
         } else if ((reqSteps_it->compare("Sender") == 0) && (!didInitSend)) {
             std::cout << "Action not allowed.  Cannot run '" << test.functionName.c_str() << "' without initializing a sender." << std::endl;
             qcc::String preReqApi = "initsend";
+            if (functionExists(preReqApi, testFunctions,  functionIndex))
+                Usage(testFunctions, preReqApi, functionIndex);
+            return false;
+        } else if ((reqSteps_it->compare("Receiver") == 0) && (!didInitReceive)) {
+            std::cout << "Action not allowed.  Cannot run '" << test.functionName.c_str() << "' without initializing a receiver." << std::endl;
+            qcc::String preReqApi = "initreceive";
             if (functionExists(preReqApi, testFunctions,  functionIndex))
                 Usage(testFunctions, preReqApi, functionIndex);
             return false;

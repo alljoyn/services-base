@@ -20,7 +20,7 @@
 #include <vector>
 #include <alljoyn/notification/NotificationReceiver.h>
 #include <alljoyn/notification/Notification.h>
-
+#include <pthread.h>
 
 
 /**
@@ -37,8 +37,9 @@ class NotificationReceiverTestImpl : public ajn::services::NotificationReceiver 
     };
     /**
      * Constructor
+     * @param wait to external notification action
      */
-    NotificationReceiverTestImpl(NotificationAction notificationAction);
+    NotificationReceiverTestImpl(bool waitForExternalNotificationAction = true);
 
     /**
      * Destructor
@@ -64,6 +65,20 @@ class NotificationReceiverTestImpl : public ajn::services::NotificationReceiver 
      */
     void Dismiss(const int32_t msgId, const qcc::String appId);
 
+    /**
+     * Get notification action
+     * @return NotificationAction
+     */
+    NotificationAction GetNotificationAction();
+
+    /**
+     * Set notification action
+     * This method is called from a free thread to set an action and to release the blocked thread (At NotificationReceiverTestImpl::Receive(...)),
+     * that received the notification and waiting to the action decision.
+     * @param NotificationAction
+     */
+    void SetNotificationAction(NotificationAction notificationAction);
+
   private:
 
     /**
@@ -74,6 +89,21 @@ class NotificationReceiverTestImpl : public ajn::services::NotificationReceiver 
      * action to do after getting notification
      */
     NotificationAction m_NotificationAction;
+    /**
+     * locks for the condition according to 'pthread_cond_t' declaration.
+     */
+    pthread_mutex_t m_Lock;
+    /**
+     * thread condition
+     * Blocking the notification receiving thread in case m_WaitForExternalNotificationAction is true, until SetNotificationAction() will be called.
+     */
+    pthread_cond_t m_Condition;
+    /**
+     * Wait to external notification action
+     * If true - external thread will need to call to SetNotificationAction() to unblock the thread that received the notification.
+     * If false - a normal standard input will block the thread that received the notification until the user will decide what to do with the notification.
+     */
+    bool m_WaitForExternalNotificationAction;
 };
 
 #endif /* NOTIFICATIONRECEIVERTESTIMPL_H_ */

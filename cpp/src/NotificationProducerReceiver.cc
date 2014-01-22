@@ -177,7 +177,7 @@ void NotificationProducerReceiver::Receiver()
             MsgQueueContent message = m_MessageQueue.front();
             m_MessageQueue.pop();
             if (logger) {
-                logger->debug(TAG, "ReceiverThread() - got a message.");
+                logger->debug(TAG, "NotificationProducerReceiver::ReceiverThread() - got a message.");
             }
             pthread_mutex_unlock(&m_Lock);
             Transport::getInstance()->deleteMsg(message.m_MsgId);
@@ -229,7 +229,7 @@ QStatus NotificationProducerReceiver::sendDismissSignal(int32_t msgId)
 
     Conversions::ArrayOfBytesToString(&appIdBin, len, &appId);
 
-    qcc::String objectPath = nsConsts::AJ_NOTIFICATION_DISMISSER_PATH + "/" + appId + "/" + std::to_string(msgId).c_str();
+    qcc::String objectPath = nsConsts::AJ_NOTIFICATION_DISMISSER_PATH + "/" + appId + "/" + std::to_string(abs(msgId)).c_str();
     NotificationDismisserSender notificationDismisserSender(Transport::getInstance()->getBusAttachment(), objectPath, status);
     if (status != ER_OK) {
         if (logger) {
