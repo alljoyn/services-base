@@ -60,9 +60,9 @@ static BusAttachment* msgBus = NULL;
 static SrpKeyXListener* keyListener = NULL;
 static AboutIconService* aboutIconService = NULL;
 static PropertyStoreImpl* propertyStoreImpl = NULL;
+static CommonBusListener* busListener = NULL;
 
 static SessionPort SERVICE_PORT;
-static CommonBusListener busListener;
 static qcc::String configFile;
 static volatile sig_atomic_t s_interrupt = false;
 
@@ -107,6 +107,12 @@ static void cleanup() {
     if (propertyStoreImpl) {
         delete propertyStoreImpl;
         propertyStoreImpl = NULL;
+    }
+
+    if (busListener) {
+        msgBus->UnregisterBusListener(*busListener);
+        delete busListener;
+        busListener = NULL;
     }
 
 #ifdef _CONFIG_
@@ -271,7 +277,6 @@ int main(int argc, char**argv, char**envArg) {
     }
 
     SERVICE_PORT = opts.GetPort();
-    busListener.setSessionPort(SERVICE_PORT);
     printf("using port %d\n", opts.GetPort());
 
     if (!opts.GetConfigFile().empty()) {
@@ -301,6 +306,9 @@ int main(int argc, char**argv, char**envArg) {
         return 1;
     }
 
+    busListener = new CommonBusListener(msgBus);
+    busListener->setSessionPort(SERVICE_PORT);
+
 #ifdef _CONTROLPANEL_
     status = ControlPanelGenerated::PrepareWidgets(controlPanelControllee);
     if (status != ER_OK) {
@@ -320,7 +328,7 @@ int main(int argc, char**argv, char**envArg) {
         return 1;
     }
 
-    status = CommonSampleUtil::prepareAboutService(msgBus, propertyStoreImpl, &busListener, SERVICE_PORT);
+    status = CommonSampleUtil::prepareAboutService(msgBus, propertyStoreImpl, busListener, SERVICE_PORT);
     if (status != ER_OK) {
         std::cout << "Could not set up the AboutService." << std::endl;
         cleanup();
@@ -415,9 +423,9 @@ int main(int argc, char**argv, char**envArg) {
     //ConfigService
 #ifdef _CONFIG_
 #ifdef _ONBOARDING_
-    configServiceListenerImpl = new ConfigServiceListenerImpl(*propertyStoreImpl, *msgBus, obController);
+    configServiceListenerImpl = new ConfigServiceListenerImpl(*propertyStoreImpl, *msgBus, *busListener, obController);
 #else
-    configServiceListenerImpl = new ConfigServiceListenerImpl(*propertyStoreImpl, *msgBus, NULL);
+    configServiceListenerImpl = new ConfigServiceListenerImpl(*propertyStoreImpl, *msgBus, *busListener, NULL);
 #endif
     configService = new ConfigService(*msgBus, *propertyStoreImpl, *configServiceListenerImpl);
     configFile = opts.GetConfigFile().c_str();

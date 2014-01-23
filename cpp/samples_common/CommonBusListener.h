@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -17,18 +17,20 @@
 #ifndef COMMONBUSLISTENER_H_
 #define COMMONBUSLISTENER_H_
 
+#include <alljoyn/BusAttachment.h>
 #include <alljoyn/BusListener.h>
 #include <alljoyn/SessionPortListener.h>
+#include <vector>
 
-class CommonBusListener : public ajn::BusListener, public ajn::SessionPortListener {
+class CommonBusListener : public ajn::BusListener, public ajn::SessionPortListener, public ajn::SessionListener {
 
   public:
 
     /**
      * Constructor of CommonBusListener
-     * @param sessionPort
+     * @param bus - optional. the bus to use if a SessionListener should be set
      */
-    CommonBusListener();
+    CommonBusListener(ajn::BusAttachment* bus = 0);
 
     /**
      * Destructor of CommonBusListener
@@ -51,10 +53,31 @@ class CommonBusListener : public ajn::BusListener, public ajn::SessionPortListen
     void setSessionPort(ajn::SessionPort sessionPort);
 
     /**
+     * Callback when Session is joined
+     * @param sessionPort - port of session
+     * @param id - sessionId of session
+     * @param joiner - name of joiner
+     */
+    void SessionJoined(ajn::SessionPort sessionPort, ajn::SessionId id, const char* joiner);
+
+    /**
+     * Callback for when Session is lost
+     * @param sessionId
+     * @param reason for session lost
+     */
+    void SessionLost(ajn::SessionId sessionId, SessionLostReason reason);
+
+    /**
      * Get the SessionPort of the listener
      * @return
      */
     ajn::SessionPort getSessionPort();
+
+    /**
+     * Get the SessionIds associated with this Listener
+     * @return vector of sessionIds
+     */
+    const std::vector<ajn::SessionId>& getSessionIds() const;
 
   private:
 
@@ -62,6 +85,16 @@ class CommonBusListener : public ajn::BusListener, public ajn::SessionPortListen
      * The port used as part of the join session request
      */
     ajn::SessionPort m_SessionPort;
+
+    /**
+     * The busAttachment to use
+     */
+    ajn::BusAttachment* m_Bus;
+
+    /**
+     * The sessionIds for the port
+     */
+    std::vector<ajn::SessionId> m_SessionIds;
 };
 
 #endif /* COMMONBUSLISTENER_H_ */

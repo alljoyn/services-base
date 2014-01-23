@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -16,11 +16,12 @@
 
 #include "CommonBusListener.h"
 #include <iostream>
+#include <algorithm>
 
 using namespace ajn;
 
-CommonBusListener::CommonBusListener() :
-    BusListener(), SessionPortListener(), m_SessionPort(0)
+CommonBusListener::CommonBusListener(ajn::BusAttachment* bus) :
+    BusListener(), SessionPortListener(), m_SessionPort(0), m_Bus(bus)
 {
 }
 
@@ -48,3 +49,24 @@ bool CommonBusListener::AcceptSessionJoiner(ajn::SessionPort sessionPort, const 
     return true;
 }
 
+void CommonBusListener::SessionJoined(SessionPort sessionPort, SessionId id, const char* joiner)
+{
+    std::cout << "Session has been joined successfully" << std::endl;
+    if (m_Bus) {
+        m_Bus->SetSessionListener(id, this);
+    }
+    m_SessionIds.push_back(id);
+}
+
+void CommonBusListener::SessionLost(SessionId sessionId, SessionLostReason reason)
+{
+    std::cout << "Session has been lost" << std::endl;
+    std::vector<SessionId>::iterator it = std::find(m_SessionIds.begin(), m_SessionIds.end(), sessionId);
+    if (it != m_SessionIds.end())
+        m_SessionIds.erase(it);
+}
+
+const std::vector<SessionId>& CommonBusListener::getSessionIds() const
+{
+    return m_SessionIds;
+}
