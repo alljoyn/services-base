@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -52,9 +52,10 @@ class ConfigService : public ajn::BusObject {
          * @param[in] daemonRealm to persist
          * @param[in] passcodeSize	size in bytes of the passcode
          * @param[in] passcode content
+         * @param[in] sessionId the session that made this request
          * @return status - success/failure
          */
-        virtual QStatus SetPassphrase(const char* daemonRealm, size_t passcodeSize, const char* passcode) = 0;
+        virtual QStatus SetPassphrase(const char* daemonRealm, size_t passcodeSize, const char* passcode, SessionId sessionId) = 0;
         /**
          *
          */

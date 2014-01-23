@@ -111,7 +111,7 @@ void ConfigService::SetPasscodeHandler(const InterfaceDescription::Member* membe
             return;
         }
 
-        m_Listener->SetPassphrase(args[0].v_string.str, newPasscodeNumElements, newPasscode);
+        m_Listener->SetPassphrase(args[0].v_string.str, newPasscodeNumElements, newPasscode, msg.unwrap()->GetSessionId());
         MethodReply(msg, args, 0);
         return;
     } while (0);

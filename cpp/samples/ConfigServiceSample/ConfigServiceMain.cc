@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -52,9 +52,9 @@ static PropertyStoreImpl* propertyStore = NULL;
 
 static ConfigServiceListenerImpl* configServiceListener = NULL;
 
-static SessionPort SERVICE_PORT;
+static CommonBusListener* busListener = NULL;
 
-static CommonBusListener busListener;
+static SessionPort SERVICE_PORT;
 
 static qcc::String configFile;
 
@@ -82,6 +82,12 @@ static void cleanup() {
     if (keyListener) {
         delete keyListener;
         keyListener = NULL;
+    }
+
+    if (busListener) {
+        msgBus->UnregisterBusListener(*busListener);
+        delete busListener;
+        busListener = NULL;
     }
 
     if (aboutIconService) {
@@ -153,7 +159,6 @@ int main(int argc, char**argv, char**envArg) {
     }
 
     SERVICE_PORT = opts.GetPort();
-    busListener.setSessionPort(SERVICE_PORT);
     std::cout << "using port " << opts.GetPort() << std::endl;
 
     if (!opts.GetConfigFile().empty()) {
@@ -187,6 +192,9 @@ int main(int argc, char**argv, char**envArg) {
         return 1;
     }
 
+    busListener = new CommonBusListener(msgBus);
+    busListener->setSessionPort(SERVICE_PORT);
+
     propertyStore = new PropertyStoreImpl(opts.GetConfigFile().c_str());
     status = CommonSampleUtil::fillPropertyStore(propertyStore, opts.GetAppId(), opts.GetAppName(), opts.GetDeviceId(),
                                                  opts.GetDeviceName(), opts.GetDefaultLanguage());
@@ -197,7 +205,7 @@ int main(int argc, char**argv, char**envArg) {
         return 1;
     }
 
-    status = CommonSampleUtil::prepareAboutService(msgBus, propertyStore, &busListener, SERVICE_PORT);
+    status = CommonSampleUtil::prepareAboutService(msgBus, propertyStore, busListener, SERVICE_PORT);
     if (status != ER_OK) {
         std::cout << "Could not set up the AboutService." << std::endl;
         cleanup();
@@ -246,7 +254,7 @@ int main(int argc, char**argv, char**envArg) {
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     //ConfigService
 
-    configServiceListener = new ConfigServiceListenerImpl(*propertyStore, *msgBus);
+    configServiceListener = new ConfigServiceListenerImpl(*propertyStore, *msgBus, *busListener);
     configService = new ConfigService(*msgBus, *propertyStore, *configServiceListener);
 
     interfaces.clear();
