@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -20,6 +20,7 @@
 #include <alljoyn/config/ConfigService.h>
 #include <PropertyStoreImpl.h>
 #include <OnboardingControllerImpl.h>
+#include <CommonBusListener.h>
 
 /*
  *
@@ -27,13 +28,13 @@
 class ConfigServiceListenerImpl : public ajn::services::ConfigService::Listener {
   public:
 
-    ConfigServiceListenerImpl(PropertyStoreImpl& store, ajn::BusAttachment& bus, OnboardingControllerImpl& obController);
+    ConfigServiceListenerImpl(PropertyStoreImpl& store, ajn::BusAttachment& bus, CommonBusListener& busListener, OnboardingControllerImpl& obController);
 
     virtual QStatus Restart();
 
     virtual QStatus FactoryReset();
 
-    virtual QStatus SetPassphrase(const char* daemonRealm, size_t passcodeSize, const char* passcode);
+    virtual QStatus SetPassphrase(const char* daemonRealm, size_t passcodeSize, const char* passcode, ajn::SessionId sessionId);
 
     virtual ~ConfigServiceListenerImpl();
 
@@ -42,6 +43,8 @@ class ConfigServiceListenerImpl : public ajn::services::ConfigService::Listener 
     PropertyStoreImpl* m_PropertyStore;
 
     ajn::BusAttachment* m_Bus;
+    
+    CommonBusListener* m_BusListener;
 
     OnboardingControllerImpl* m_OnboardingController;
 

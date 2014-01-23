@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -22,8 +22,8 @@ using namespace ajn;
 using namespace services;
 
 ConfigServiceListenerImpl::ConfigServiceListenerImpl(PropertyStoreImpl& store, BusAttachment& bus,
-                                                     OnboardingControllerImpl& obController) :
-    ConfigService::Listener(), m_PropertyStore(&store), m_Bus(&bus), m_OnboardingController(&obController)
+                                                     CommonBusListener& busListener, OnboardingControllerImpl& obController) :
+    ConfigService::Listener(), m_PropertyStore(&store), m_Bus(&bus), m_BusListener(&busListener), m_OnboardingController(&obController)
 {
 }
 
@@ -44,7 +44,7 @@ QStatus ConfigServiceListenerImpl::FactoryReset()
     return ER_OK;
 }
 
-QStatus ConfigServiceListenerImpl::SetPassphrase(const char* daemonRealm, size_t passcodeSize, const char* passcode)
+QStatus ConfigServiceListenerImpl::SetPassphrase(const char* daemonRealm, size_t passcodeSize, const char* passcode, SessionId sessionId)
 {
     qcc::String passCodeString(passcode, passcodeSize);
     std::cout << "SetPassphrase has been called daemonRealm=" << daemonRealm << " passcode="
@@ -53,7 +53,17 @@ QStatus ConfigServiceListenerImpl::SetPassphrase(const char* daemonRealm, size_t
 
     std::cout << "Clearing Key Store" << std::endl;
     m_Bus->ClearKeyStore();
+    m_Bus->EnableConcurrentCallbacks();
 
+    std::vector<SessionId> sessionIds = m_BusListener->getSessionIds();
+    for (size_t i = 0; i < sessionIds.size(); i++) {
+        if (sessionIds[i] == sessionId) {
+            continue;
+        }
+        m_Bus->LeaveSession(sessionIds[i]);
+        std::cout << "Leaving session with id: " << sessionIds[i];
+    }
+    
     return ER_OK;
 }
 
