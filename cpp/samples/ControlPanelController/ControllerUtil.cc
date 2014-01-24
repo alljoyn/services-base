@@ -38,8 +38,9 @@ ControllerUtil::~ControllerUtil()
 
 void ControllerUtil::printRootWidget(RootWidget* rootWidget)
 {
-    if (!rootWidget)
+    if (!rootWidget) {
         return;
+    }
 
     std::vector<Action*> actionsToExecute;
     std::vector<Property*> propertiesToChange;
@@ -129,8 +130,9 @@ void ControllerUtil::printProperty(Property* property, qcc::String const& indent
     printPropertyValue(property->getPropertyValue(), property->getPropertyType(), indent);
     std::cout << indent.c_str() << "Property is " << (property->getIsWritable() ? "writable" : "not writable") << std::endl;
 
-    if (property->getUnitOfMeasure().size())
+    if (property->getUnitOfMeasure().size()) {
         std::cout << indent.c_str() << "Property unitOfMeasure: " << property->getUnitOfMeasure().c_str() << std::endl;
+    }
     if (property->getConstraintRange()) {
         std::cout << indent.c_str() << "Property has ConstraintRange: " << std::endl;
         printConstraintRange(property->getConstraintRange(), property->getPropertyType(), indent + "  ");
@@ -146,12 +148,15 @@ void ControllerUtil::printDialog(Dialog* dialog, qcc::String const& indent)
     printBasicWidget(dialog, "Dialog", indent);
     std::cout << indent.c_str() << "Dialog message: " << dialog->getMessage().c_str() << std::endl;
     std::cout << indent.c_str() << "Dialog numActions: " << dialog->getNumActions() << std::endl;
-    if (dialog->getLabelAction1().size())
+    if (dialog->getLabelAction1().size()) {
         std::cout << indent.c_str() << "Dialog Label for Action1: " << dialog->getLabelAction1().c_str() << std::endl;
-    if (dialog->getLabelAction2().size())
+    }
+    if (dialog->getLabelAction2().size()) {
         std::cout << indent.c_str() << "Dialog Label for Action2: " << dialog->getLabelAction2().c_str() << std::endl;
-    if (dialog->getLabelAction3().size())
+    }
+    if (dialog->getLabelAction3().size()) {
         std::cout << indent.c_str() << "Dialog Label for Action3: " << dialog->getLabelAction3().c_str() << std::endl;
+    }
 }
 
 void ControllerUtil::printBasicWidget(Widget* widget, qcc::String const& widgetType, qcc::String const& indent)
@@ -160,18 +165,21 @@ void ControllerUtil::printBasicWidget(Widget* widget, qcc::String const& widgetT
     std::cout << indent.c_str() << widgetType.c_str() << " version: " << widget->getInterfaceVersion() << std::endl;
     std::cout << indent.c_str() << widgetType.c_str() << " is " << (widget->getIsSecured() ? "secured" : "not secured") << std::endl;
     std::cout << indent.c_str() << widgetType.c_str() << " is " << (widget->getIsEnabled() ? "enabled" : "not enabled") << std::endl;
-    if (widget->getLabel().size())
+    if (widget->getLabel().size()) {
         std::cout << indent.c_str() << widgetType.c_str() << " label: " << widget->getLabel().c_str() << std::endl;
-    if (widget->getBgColor() != UINT32_MAX)
+    }
+    if (widget->getBgColor() != UINT32_MAX) {
         std::cout << indent.c_str() << widgetType.c_str() << " bgColor: " << widget->getBgColor() << std::endl;
+    }
     printHints(widget, widgetType, indent);
 }
 
 void ControllerUtil::printErrorWidget(Widget* widget, qcc::String const& indent)
 {
     std::cout << indent.c_str() << "Received error widget with name: " << widget->getWidgetName().c_str() << std::endl;
-    if (widget->getLabel().size())
+    if (widget->getLabel().size()) {
         std::cout << indent.c_str() << "ErrorWidget label: " << widget->getLabel().c_str() << std::endl;
+    }
 }
 
 void ControllerUtil::printConstraintList(const std::vector<ConstraintList>& constraintList, PropertyType propertyType, qcc::String const& indent)
@@ -412,23 +420,23 @@ void ControllerUtil::setPropertyValues(std::vector<Property*>& propertiesToChang
             break;
 
         case DATE_PROPERTY: {
-            std::cout << "    Setting Value to 22/6/1892" << std::endl;
-            CPSDate date(22, 6, 1892);
-            status = propertiesToChange[i]->setValue(date);
-            break;
-        }
+                std::cout << "    Setting Value to 22/6/1892" << std::endl;
+                CPSDate date(22, 6, 1892);
+                status = propertiesToChange[i]->setValue(date);
+                break;
+            }
 
         case TIME_PROPERTY: {
-            std::cout << "    Setting Value to 12:10:30" << std::endl;
-            CPSTime time(12, 10, 30);
-            status = propertiesToChange[i]->setValue(time);
-            break;
-        }
+                std::cout << "    Setting Value to 12:10:30" << std::endl;
+                CPSTime time(12, 10, 30);
+                status = propertiesToChange[i]->setValue(time);
+                break;
+            }
 
         case UNDEFINED: {
-            status = ER_NOT_IMPLEMENTED;
-            break;
-        }
+                status = ER_NOT_IMPLEMENTED;
+                break;
+            }
         }
         std::cout << "    Set Value " << (status == ER_OK ? "succeeded" : "failed") << std::endl;
     }
@@ -443,40 +451,45 @@ void ControllerUtil::printHints(ajn::services::Widget* widget, qcc::String const
             switch (widget->getWidgetType()) {
             case ACTION:
             case ACTION_WITH_DIALOG:
-                if (hints[i] == ACTIONBUTTON)
+                if (hints[i] == ACTIONBUTTON) {
                     std::cout << "ACTIONBUTTON";
-                else
+                } else {
                     std::cout << "UNKNOWN";
+                }
                 break;
 
             case LABEL:
-                if (hints[i] == TEXTLABEL)
+                if (hints[i] == TEXTLABEL) {
                     std::cout << "TEXTLABEL";
-                else
+                } else {
                     std::cout << "UNKNOWN";
+                }
                 break;
 
             case PROPERTY:
-                if (hints[i] > 0 && hints[i] < PROPERTY_HINTS_SIZE)
+                if (hints[i] > 0 && hints[i] < PROPERTY_HINTS_SIZE) {
                     std::cout << PROPERTY_HINTS_STRINGS[hints[i]].c_str();
-                else
+                } else {
                     std::cout << "UNKNOWN";
+                }
                 break;
 
             case CONTAINER:
-                if (hints[i] == VERTICAL_LINEAR)
+                if (hints[i] == VERTICAL_LINEAR) {
                     std::cout << "VERTICAL_LINEAR";
-                else if (hints[i] == HORIZONTAL_LINEAR)
+                } else if (hints[i] == HORIZONTAL_LINEAR) {
                     std::cout << "HORIZONTAL_LINEAR";
-                else
+                } else {
                     std::cout << "UNKNOWN";
+                }
                 break;
 
             case DIALOG:
-                if (hints[i] == ALERTDIALOG)
+                if (hints[i] == ALERTDIALOG) {
                     std::cout << "ALERTDIALOG";
-                else
+                } else {
                     std::cout << "UNKNOWN";
+                }
                 break;
 
             case ERROR:

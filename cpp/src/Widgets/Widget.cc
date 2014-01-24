@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -79,8 +79,9 @@ ControlPanelDevice* Widget::getDevice() const
 
 const uint16_t Widget::getInterfaceVersion() const
 {
-    if (!m_BusObjects.size())
+    if (!m_BusObjects.size()) {
         return 1;
+    }
 
     return m_ControlPanelMode == CONTROLLEE_MODE ? m_BusObjects[0]->getInterfaceVersion() : m_Version;
 }
@@ -107,10 +108,11 @@ bool Widget::getIsWritable() const
 
 void Widget::setEnabled(bool enabled)
 {
-    if (enabled)
+    if (enabled) {
         m_States = m_States | STATE_ENABLED;
-    else
+    } else {
         m_States = m_States & ~STATE_ENABLED;
+    }
 }
 
 GetBoolFptr Widget::getGetEnabled() const
@@ -125,10 +127,11 @@ void Widget::setGetEnabled(GetBoolFptr getEnabled)
 
 void Widget::setWritable(bool writable)
 {
-    if (writable)
+    if (writable) {
         m_States = m_States | STATE_WRITABLE;
-    else
+    } else {
         m_States = m_States & ~STATE_WRITABLE;
+    }
 }
 
 void Widget::setGetWritable(GetBoolFptr getWritable)
@@ -212,14 +215,16 @@ QStatus Widget::registerObjects(BusAttachment* bus, LanguageSet const& languageS
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!bus) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not register Object. Bus is NULL");
+        }
         return ER_BAD_ARG_1;
     }
 
     if (!(bus->IsStarted() && bus->IsConnected())) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not register Object. Bus is not started or not connected");
+        }
         return ER_BAD_ARG_1;
     }
 
@@ -230,15 +235,17 @@ QStatus Widget::registerObjects(BusAttachment* bus, LanguageSet const& languageS
         qcc::String objectPath = objectPathPrefix + languages[indx] + newObjectPathSuffix;
         WidgetBusObject* busObject = createWidgetBusObject(bus, objectPath, indx, status);
         if (status != ER_OK) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Could not Create BusObject");
+            }
             delete busObject;
             return status;
         }
         status = bus->RegisterBusObject(*busObject);
         if (status != ER_OK) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Could not register BusObject");
+            }
             delete busObject;
             return status;
         }
@@ -251,28 +258,32 @@ QStatus Widget::registerObjects(BusAttachment* bus, qcc::String const& objectPat
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (m_BusObjects.size()) {
-        if (logger)
+        if (logger) {
             logger->debug(TAG, "BusObject already exists - refreshing widget");
+        }
         return refreshObjects(bus);
     }
 
     if (!bus) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not register Object. Bus is NULL");
+        }
         return ER_BAD_ARG_1;
     }
 
     if (!(bus->IsStarted() && bus->IsConnected())) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not register Object. Bus is not started or not connected");
+        }
         return ER_BAD_ARG_1;
     }
 
     QStatus status;
     WidgetBusObject* busObject = createWidgetBusObject(bus, objectPath, 0, status);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not Create BusObject");
+        }
         delete busObject;
         return status;
     }
@@ -280,29 +291,33 @@ QStatus Widget::registerObjects(BusAttachment* bus, qcc::String const& objectPat
     m_BusObjects.push_back(busObject);
     status = busObject->setRemoteController(bus, m_Device->getDeviceBusName(), m_Device->getSessionId());
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Call to SetRemoteController failed");
+        }
         return status;
     }
 
     status = checkVersions();
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Call to CheckVersions failed");
+        }
         return status;
     }
 
     status = fillProperties();
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Call to FillProperties failed");
+        }
         return status;
     }
 
     status = addChildren(bus);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Call to addChildren failed");
+        }
         return status;
     }
     return status;
@@ -312,48 +327,55 @@ QStatus Widget::refreshObjects(BusAttachment* bus)
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!m_BusObjects.size()) {
-        if (logger)
+        if (logger) {
             logger->info(TAG, "BusObject does not exist - exiting");
+        }
         return ER_BUS_OBJECT_NOT_REGISTERED;
     }
 
     if (!bus) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not register Object. Bus is NULL");
+        }
         return ER_BAD_ARG_1;
     }
 
     if (!(bus->IsStarted() && bus->IsConnected())) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not register Object. Bus is not started or not connected");
+        }
         return ER_BAD_ARG_1;
     }
 
     QStatus status = m_BusObjects[0]->setRemoteController(bus, m_Device->getDeviceBusName(), m_Device->getSessionId());
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Call to SetRemoteController failed");
+        }
         return status;
     }
 
     status = checkVersions();
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Call to CheckVersions failed");
+        }
         return status;
     }
 
     status = fillProperties();
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Call to FillProperties failed");
+        }
         return status;
     }
 
     status = refreshChildren(bus);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Call to refreshChildren failed");
+        }
         return status;
     }
     return status;
@@ -363,23 +385,26 @@ QStatus Widget::unregisterObjects(BusAttachment* bus)
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!bus) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not register Object. Bus is NULL");
+        }
         return ER_BAD_ARG_1;
     }
 
     if (!(bus->IsStarted() && bus->IsConnected())) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not register Object. Bus is not started or not connected");
+        }
         return ER_BAD_ARG_1;
     }
 
     std::vector<WidgetBusObject*>::iterator it;
     for (it = m_BusObjects.begin(); it != m_BusObjects.end();) {
-        if (m_ControlPanelMode == CONTROLLEE_MODE)
+        if (m_ControlPanelMode == CONTROLLEE_MODE) {
             bus->UnregisterBusObject(*(*it));
-        else
+        } else {
             (*it)->UnregisterSignalHandler(bus);
+        }
         delete *it;
         it = m_BusObjects.erase(it);
     }
@@ -388,10 +413,12 @@ QStatus Widget::unregisterObjects(BusAttachment* bus)
 
 QStatus Widget::fillStatesArg(MsgArg& val, uint16_t languageIndx)
 {
-    if (m_GetEnabled)
+    if (m_GetEnabled) {
         setEnabled(m_GetEnabled());
-    if (m_GetWritable)
+    }
+    if (m_GetWritable) {
         setWritable(m_GetWritable());
+    }
     return val.Set(AJPARAM_UINT32.c_str(), m_States);
 }
 
@@ -404,8 +431,9 @@ QStatus Widget::fillOptParamsArg(MsgArg& val, uint16_t languageIndx)
     status = fillOptParamsArg(optParams, languageIndx, optParamIndx);
     if (status != ER_OK) {
         GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not marshal optParams");
+        }
         delete[] optParams;
         return status;
     }
@@ -494,33 +522,33 @@ QStatus Widget::readOptParamsArg(uint16_t key, MsgArg* val)
     QStatus status = ER_BUS_NO_SUCH_PROPERTY;
     switch (key) {
     case OPT_PARAM_KEYS::LABEL_KEY:
-    {
-        char* label;
-        CHECK_AND_RETURN(val->Get(AJPARAM_STR.c_str(), &label))
-        m_Label = label;
-        break;
-    }
+        {
+            char* label;
+            CHECK_AND_RETURN(val->Get(AJPARAM_STR.c_str(), &label))
+            m_Label = label;
+            break;
+        }
 
     case OPT_PARAM_KEYS::BGCOLOR_KEY:
-    {
-        uint32_t bgColor;
-        CHECK_AND_RETURN(val->Get(AJPARAM_UINT32.c_str(), &bgColor))
-        m_BgColor = bgColor;
-        break;
-    }
+        {
+            uint32_t bgColor;
+            CHECK_AND_RETURN(val->Get(AJPARAM_UINT32.c_str(), &bgColor))
+            m_BgColor = bgColor;
+            break;
+        }
 
     case OPT_PARAM_KEYS::HINT_KEY:
-    {
-        std::vector<uint16_t> hints;
-        uint16_t* hintEntries;
-        size_t hintNum;
-        CHECK_AND_RETURN(val->Get(AJPARAM_ARRAY_UINT16.c_str(), &hintNum, &hintEntries));
-        for (size_t i = 0; i < hintNum; i++) {
-            hints.push_back(hintEntries[i]);
+        {
+            std::vector<uint16_t> hints;
+            uint16_t* hintEntries;
+            size_t hintNum;
+            CHECK_AND_RETURN(val->Get(AJPARAM_ARRAY_UINT16.c_str(), &hintNum, &hintEntries));
+            for (size_t i = 0; i < hintNum; i++) {
+                hints.push_back(hintEntries[i]);
+            }
+            m_Hints = hints;
+            break;
         }
-        m_Hints = hints;
-        break;
-    }
     }
 
     return status;
@@ -534,8 +562,9 @@ QStatus Widget::SendPropertyChangedSignal()
     for (size_t indx = 0; indx < m_BusObjects.size(); indx++) {
         status = m_BusObjects[indx]->SendPropertyChangedSignal();
         if (status != ER_OK) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Could not send Property Changed Signal");
+            }
             return status;
         }
     }
@@ -546,8 +575,9 @@ QStatus Widget::checkVersions()
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!m_BusObjects.size()) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "BusObject is not set");
+        }
         return ER_BUS_BUS_NOT_STARTED;
     }
     return m_BusObjects[0]->checkVersions();
@@ -567,8 +597,9 @@ QStatus Widget::fillProperties()
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!m_BusObjects.size()) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "BusObject is not set");
+        }
         return ER_BUS_BUS_NOT_STARTED;
     }
     return m_BusObjects[0]->fillProperties();
@@ -578,24 +609,29 @@ void Widget::PropertyChanged()
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     BusAttachment* busAttachment = ControlPanelService::getInstance()->getBusAttachment();
-    if (busAttachment)
+    if (busAttachment) {
         busAttachment->EnableConcurrentCallbacks();
+    }
 
     ControlPanelListener* listener = m_Device->getListener();
     if (!m_BusObjects.size()) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "BusObject is not set");
-        if (listener)
+        }
+        if (listener) {
             listener->errorOccured(m_Device, ER_BUS_NO_SUCH_OBJECT, REFRESH_PROPERTIES, "BusObjects are not set. Can't reload properties");
+        }
         return;
     }
 
     QStatus status = m_BusObjects[0]->refreshProperties();
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Something went wrong reloading properties");
-        if (listener)
+        }
+        if (listener) {
             listener->errorOccured(m_Device, status, REFRESH_PROPERTIES, "Something went wrong reloading properties");
+        }
         return;
     }
 }

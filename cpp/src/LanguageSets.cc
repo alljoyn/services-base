@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -38,8 +38,9 @@ void LanguageSets::add(String const& languageSetName, LanguageSet const& languag
 LanguageSet* LanguageSets::get(String const& languageSetName)
 {
     std::map<String, LanguageSet>::iterator it;
-    if ((it = languageSets.find(languageSetName)) != languageSets.end())
+    if ((it = languageSets.find(languageSetName)) != languageSets.end()) {
         return &it->second;
+    }
     return 0;
 }
 

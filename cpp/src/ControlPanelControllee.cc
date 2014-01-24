@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -41,8 +41,9 @@ QStatus ControlPanelControllee::registerObjects(BusAttachment* bus)
     for (size_t indx = 0; indx < m_Units.size(); indx++) {
         status = m_Units[indx]->registerObjects(bus);
         if (status != ER_OK) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Could not register Objects for the Units");
+            }
             return status;
         }
     }
@@ -57,8 +58,9 @@ QStatus ControlPanelControllee::unregisterObjects(BusAttachment* bus)
     for (size_t indx = 0; indx < m_Units.size(); indx++) {
         QStatus status = m_Units[indx]->unregisterObjects(bus);
         if (status != ER_OK) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Could not register Objects for the Units");
+            }
             returnStatus = status;
         }
     }
@@ -70,8 +72,9 @@ QStatus ControlPanelControllee::addControlPanelUnit(ControlPanelControlleeUnit* 
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!unit) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not add a NULL unit");
+        }
         return ER_BAD_ARG_1;
     }
 

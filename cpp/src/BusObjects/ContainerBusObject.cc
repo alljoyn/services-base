@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -29,8 +29,9 @@ ContainerBusObject::ContainerBusObject(BusAttachment* bus, String const& objectP
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not create the BusObject");
+        }
         return;
     }
 
@@ -44,15 +45,17 @@ ContainerBusObject::ContainerBusObject(BusAttachment* bus, String const& objectP
         } while (0);
     }
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not create interface");
+        }
         return;
     }
 
     status = AddInterface(*m_InterfaceDescription);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not add interface");
+        }
         return;
     }
 
@@ -62,8 +65,9 @@ ContainerBusObject::ContainerBusObject(BusAttachment* bus, String const& objectP
         status = addSignalHandler(bus);
     }
 
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "Created ContainerBusObject successfully");
+    }
 }
 
 ContainerBusObject::~ContainerBusObject() {
@@ -73,22 +77,25 @@ QStatus ContainerBusObject::Introspect(std::vector<IntrospectionNode>& childNode
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!m_Proxy) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Cannot Check Versions. ProxyBusObject is not set");
+        }
         return ER_BUS_PROPERTY_VALUE_NOT_SET;
     }
 
     QStatus status = m_Proxy->IntrospectRemoteObject();
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not introspect RemoteObject");
+        }
         return status;
     }
 
     size_t numChildren = m_Proxy->GetChildren();
     if (numChildren == 0) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Container does not have children");
+        }
         return ER_FAIL;
     }
 
@@ -98,27 +105,31 @@ QStatus ContainerBusObject::Introspect(std::vector<IntrospectionNode>& childNode
     for (size_t i = 0; i < numChildren; i++) {
 
         String const& objectPath = proxyBusObjectChildren[i]->GetPath();
-        if (logger)
+        if (logger) {
             logger->debug(TAG, "ObjectPath is: " + objectPath);
+        }
 
         status = proxyBusObjectChildren[i]->IntrospectRemoteObject();
         if (status != ER_OK) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Could not introspect RemoteObjectChild");
+            }
             delete[] proxyBusObjectChildren;
             return status;
         }
 
         size_t numInterfaces = proxyBusObjectChildren[i]->GetInterfaces();
 
-        if (numInterfaces == 0)
+        if (numInterfaces == 0) {
             continue;
+        }
 
         const InterfaceDescription** ifaces = new const InterfaceDescription *[numInterfaces];
         numInterfaces = proxyBusObjectChildren[i]->GetInterfaces(ifaces, numInterfaces);
         for (size_t j = 0; j < numInterfaces; j++) {
-            if (logger)
+            if (logger) {
                 logger->debug(TAG, "InterfaceName is : " + String(ifaces[j]->GetName()));
+            }
             if (strcmp(ifaces[j]->GetName(), AJ_CONTAINER_INTERFACE.c_str()) == 0) {
                 IntrospectionNode node(objectPath, CONTAINER, false);
                 childNodes.push_back(node);
@@ -151,8 +162,9 @@ QStatus ContainerBusObject::Introspect(std::vector<IntrospectionNode>& childNode
                     childNodes.push_back(node);
                 }
             } else {
-                if (logger)
+                if (logger) {
                     logger->debug(TAG, "Ignoring interfaceName: " + String(ifaces[j]->GetName()));
+                }
             }
         }
         delete[] ifaces;

@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -26,20 +26,22 @@ using namespace services;
 bool ControlPanelGenerated::languageSetsDone = false;
 //STATIC_DECLARATION_HERE
 
-#define CHECK(x) if ((status = x) != ER_OK) return status;
+#define CHECK(x) if ((status = x) != ER_OK) { return status; }
 
 void ControlPanelGenerated::PrepareLanguageSets()
 {
-    if (languageSetsDone)
+    if (languageSetsDone) {
         return;
+    }
 
 //LANGUAGESET_CODE_HERE    languageSetsDone = true;
 }
 
 QStatus ControlPanelGenerated::PrepareWidgets(ControlPanelControllee*& controlPanelControllee)
 {
-    if (controlPanelControllee)
+    if (controlPanelControllee) {
         return ER_BAD_ARG_1;
+    }
 
     PrepareLanguageSets();
 

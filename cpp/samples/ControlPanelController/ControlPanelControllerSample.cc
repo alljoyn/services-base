@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -49,27 +49,35 @@ void exitApp(int32_t signum)
 {
     std::cout << "Program Finished" << std::endl;
 
-    if (bus && announceHandler)
+    if (bus && announceHandler) {
         AnnouncementRegistrar::UnRegisterAnnounceHandler(*bus, *announceHandler);
+    }
 
     if (controlPanelService) {
         controlPanelService->shutdownController();
         delete controlPanelService;
     }
-    if (controlPanelController)
+    if (controlPanelController) {
         delete controlPanelController;
-    if (controlPanelListener)
+    }
+    if (controlPanelListener) {
         delete controlPanelListener;
-    if (announceHandler)
+    }
+    if (announceHandler) {
         delete announceHandler;
-    if (srpKeyXListener)
+    }
+    if (srpKeyXListener) {
         delete srpKeyXListener;
-    if (conService)
+    }
+    if (conService) {
         conService->shutdown();
-    if (receiver)
+    }
+    if (receiver) {
         delete receiver;
-    if (bus)
+    }
+    if (bus) {
         delete bus;
+    }
 
     std::cout << "Goodbye!" << std::endl;
     exit(signum);

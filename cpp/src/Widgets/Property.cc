@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -41,8 +41,9 @@ Property::Property(qcc::String name, Widget* rootWidget, ControlPanelDevice* dev
 
 Property::~Property()
 {
-    if (m_ConstraintRange)
+    if (m_ConstraintRange) {
         delete m_ConstraintRange;
+    }
 
     if (m_ControlPanelMode == CONTROLLER_MODE && m_PropertyType == DATE_PROPERTY && m_Value.dateValue != 0) {
         delete m_Value.dateValue;
@@ -116,8 +117,9 @@ bool Property::validateGetValue(PropertyType propertyType)
 {
     if (m_PropertyType != propertyType) {
         GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not set GetValue. Value Type is wrong");
+        }
         return false;
     }
     return true;
@@ -127,8 +129,9 @@ QStatus Property::validateValue(PropertyType propertyType)
 {
     if (m_PropertyType != UNDEFINED && m_PropertyType != propertyType) {
         GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not set Value. Value Type is wrong");
+        }
         return ER_BUS_SIGNATURE_MISMATCH;
     }
     m_PropertyType = propertyType;
@@ -137,8 +140,9 @@ QStatus Property::validateValue(PropertyType propertyType)
 
 QStatus Property::setGetValue(uint16_t (*getUint16Value)())
 {
-    if (!validateGetValue(UINT16_PROPERTY))
+    if (!validateGetValue(UINT16_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;
+    }
 
     m_GetValue.getUint16Value = getUint16Value;
     return ER_OK;
@@ -146,8 +150,9 @@ QStatus Property::setGetValue(uint16_t (*getUint16Value)())
 
 QStatus Property::setGetValue(int16_t (*getInt16Value)())
 {
-    if (!validateGetValue(INT16_PROPERTY))
+    if (!validateGetValue(INT16_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;
+    }
 
     m_GetValue.getInt16Value = getInt16Value;
     return ER_OK;
@@ -155,8 +160,9 @@ QStatus Property::setGetValue(int16_t (*getInt16Value)())
 
 QStatus Property::setGetValue(uint32_t (*getUint32Value)())
 {
-    if (!validateGetValue(UINT32_PROPERTY))
+    if (!validateGetValue(UINT32_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;
+    }
 
     m_GetValue.getUint32Value = getUint32Value;
     return ER_OK;
@@ -164,8 +170,9 @@ QStatus Property::setGetValue(uint32_t (*getUint32Value)())
 
 QStatus Property::setGetValue(int32_t (*getInt32Value)())
 {
-    if (!validateGetValue(INT32_PROPERTY))
+    if (!validateGetValue(INT32_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;
+    }
 
     m_GetValue.getInt32Value = getInt32Value;
     return ER_OK;
@@ -173,8 +180,9 @@ QStatus Property::setGetValue(int32_t (*getInt32Value)())
 
 QStatus Property::setGetValue(uint64_t (*getUint64Value)())
 {
-    if (!validateGetValue(UINT64_PROPERTY))
+    if (!validateGetValue(UINT64_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;
+    }
 
     m_GetValue.getUint64Value = getUint64Value;
     return ER_OK;
@@ -182,8 +190,9 @@ QStatus Property::setGetValue(uint64_t (*getUint64Value)())
 
 QStatus Property::setGetValue(int64_t (*getInt64Value)())
 {
-    if (!validateGetValue(INT64_PROPERTY))
+    if (!validateGetValue(INT64_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;
+    }
 
     m_GetValue.getInt64Value = getInt64Value;
     return ER_OK;
@@ -191,8 +200,9 @@ QStatus Property::setGetValue(int64_t (*getInt64Value)())
 
 QStatus Property::setGetValue(double (*getDoubleValue)())
 {
-    if (!validateGetValue(DOUBLE_PROPERTY))
+    if (!validateGetValue(DOUBLE_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;
+    }
 
     m_GetValue.getDoubleValue = getDoubleValue;
     return ER_OK;
@@ -200,8 +210,9 @@ QStatus Property::setGetValue(double (*getDoubleValue)())
 
 QStatus Property::setGetValue(const char* (*getCharValue)())
 {
-    if (!validateGetValue(STRING_PROPERTY))
+    if (!validateGetValue(STRING_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;
+    }
 
     m_GetValue.getCharValue = getCharValue;
     return ER_OK;
@@ -209,8 +220,9 @@ QStatus Property::setGetValue(const char* (*getCharValue)())
 
 QStatus Property::setGetValue(bool (*getBoolValue)())
 {
-    if (!validateGetValue(BOOL_PROPERTY))
+    if (!validateGetValue(BOOL_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;
+    }
 
     m_GetValue.getBoolValue = getBoolValue;
     return ER_OK;
@@ -218,8 +230,9 @@ QStatus Property::setGetValue(bool (*getBoolValue)())
 
 QStatus Property::setGetValue(const CPSDate& (*getDateValue)())
 {
-    if (!validateGetValue(DATE_PROPERTY))
+    if (!validateGetValue(DATE_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;
+    }
 
     m_GetValue.getDateValue = getDateValue;
     return ER_OK;
@@ -227,8 +240,9 @@ QStatus Property::setGetValue(const CPSDate& (*getDateValue)())
 
 QStatus Property::setGetValue(const CPSTime& (*getTimeValue)())
 {
-    if (!validateGetValue(TIME_PROPERTY))
+    if (!validateGetValue(TIME_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;
+    }
 
     m_GetValue.getTimeValue = getTimeValue;
     return ER_OK;
@@ -240,8 +254,9 @@ QStatus Property::fillPropertyValueArg(MsgArg& val, uint16_t languageIndx)
     QStatus status = ER_BUS_NO_SUCH_PROPERTY;
 
     if (!m_GetValue.getBoolValue) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "GetValue is not defined");
+        }
         return status;
     }
 
@@ -284,35 +299,38 @@ QStatus Property::fillPropertyValueArg(MsgArg& val, uint16_t languageIndx)
         break;
 
     case DATE_PROPERTY: {
-        CPSDate date = m_GetValue.getDateValue();
-        status = variantArg->Set(AJPARAM_DATE_OR_TIME.c_str(), DATE_PROPERTY_TYPE,
-                                 date.getDay(), date.getMonth(), date.getYear());
-        break;
-    }
+            CPSDate date = m_GetValue.getDateValue();
+            status = variantArg->Set(AJPARAM_DATE_OR_TIME.c_str(), DATE_PROPERTY_TYPE,
+                                     date.getDay(), date.getMonth(), date.getYear());
+            break;
+        }
 
     case TIME_PROPERTY: {
-        CPSTime time = m_GetValue.getTimeValue();
-        status = variantArg->Set(AJPARAM_DATE_OR_TIME.c_str(), TIME_PROPERTY_TYPE,
-                                 time.getHour(), time.getMinute(), time.getSecond());
-        break;
-    }
+            CPSTime time = m_GetValue.getTimeValue();
+            status = variantArg->Set(AJPARAM_DATE_OR_TIME.c_str(), TIME_PROPERTY_TYPE,
+                                     time.getHour(), time.getMinute(), time.getSecond());
+            break;
+        }
 
     case UNDEFINED:
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Property type is not defined");
+        }
         break;
     }
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not marshal VariantArg");
+        }
         delete variantArg;
         return status;
     }
 
     status = val.Set(AJPARAM_VAR.c_str(), variantArg);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not marshal ValueArg");
+        }
         delete variantArg;
         return status;
     }
@@ -330,8 +348,9 @@ QStatus Property::fillOptParamsArg(MsgArg& val, uint16_t languageIndx)
     status = Widget::fillOptParamsArg(optParams, languageIndx, optParamIndx);
     if (status != ER_OK) {
         GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not marshal optParams");
+        }
         delete[] optParams;
         return status;
     }
@@ -354,8 +373,9 @@ QStatus Property::fillOptParamsArg(MsgArg& val, uint16_t languageIndx)
         MsgArg* constraintListArrayArg = new MsgArg[m_ConstraintList.size()];
         for (uint16_t indx = 0; indx < m_ConstraintList.size(); indx++) {
             status = m_ConstraintList[indx].fillConstraintArg(constraintListArrayArg[indx], languageIndx, m_PropertyType);
-            if (status != ER_OK)
+            if (status != ER_OK) {
                 break;
+            }
         }
 
         if (status != ER_OK) {
@@ -407,114 +427,116 @@ QStatus Property::setPropertyValue(MsgArg& val, uint16_t languageIndx)
 
     switch (m_PropertyType) {
     case UINT16_PROPERTY:
-    {
-        uint16_t value;
-        CHECK_AND_RETURN(val.Get(AJPARAM_UINT16.c_str(), &value));
-        CHECK_AND_RETURN(setValue(value));
-        break;
-    }
+        {
+            uint16_t value;
+            CHECK_AND_RETURN(val.Get(AJPARAM_UINT16.c_str(), &value));
+            CHECK_AND_RETURN(setValue(value));
+            break;
+        }
 
     case INT16_PROPERTY:
-    {
-        int16_t value;
-        CHECK_AND_RETURN(val.Get(AJPARAM_INT16.c_str(), &value));
-        CHECK_AND_RETURN(setValue(value));
-        break;
-    }
+        {
+            int16_t value;
+            CHECK_AND_RETURN(val.Get(AJPARAM_INT16.c_str(), &value));
+            CHECK_AND_RETURN(setValue(value));
+            break;
+        }
 
     case UINT32_PROPERTY:
-    {
-        uint32_t value;
-        CHECK_AND_RETURN(val.Get(AJPARAM_UINT32.c_str(), &value));
-        CHECK_AND_RETURN(setValue(value));
-        break;
-    }
+        {
+            uint32_t value;
+            CHECK_AND_RETURN(val.Get(AJPARAM_UINT32.c_str(), &value));
+            CHECK_AND_RETURN(setValue(value));
+            break;
+        }
 
     case INT32_PROPERTY:
-    {
-        int32_t value;
-        CHECK_AND_RETURN(val.Get(AJPARAM_INT32.c_str(), &value));
-        CHECK_AND_RETURN(setValue(value));
-        break;
-    }
+        {
+            int32_t value;
+            CHECK_AND_RETURN(val.Get(AJPARAM_INT32.c_str(), &value));
+            CHECK_AND_RETURN(setValue(value));
+            break;
+        }
 
     case UINT64_PROPERTY:
-    {
-        uint64_t value;
-        CHECK_AND_RETURN(val.Get(AJPARAM_UINT64.c_str(), &value));
-        CHECK_AND_RETURN(setValue(value));
-        break;
-    }
+        {
+            uint64_t value;
+            CHECK_AND_RETURN(val.Get(AJPARAM_UINT64.c_str(), &value));
+            CHECK_AND_RETURN(setValue(value));
+            break;
+        }
 
     case INT64_PROPERTY:
-    {
-        int64_t value;
-        CHECK_AND_RETURN(val.Get(AJPARAM_INT64.c_str(), &value));
-        CHECK_AND_RETURN(setValue(value));
-        break;
-    }
+        {
+            int64_t value;
+            CHECK_AND_RETURN(val.Get(AJPARAM_INT64.c_str(), &value));
+            CHECK_AND_RETURN(setValue(value));
+            break;
+        }
 
     case DOUBLE_PROPERTY:
-    {
-        double value;
-        CHECK_AND_RETURN(val.Get(AJPARAM_DOUBLE.c_str(), &value));
-        CHECK_AND_RETURN(setValue(value));
-        break;
-    }
+        {
+            double value;
+            CHECK_AND_RETURN(val.Get(AJPARAM_DOUBLE.c_str(), &value));
+            CHECK_AND_RETURN(setValue(value));
+            break;
+        }
 
     case STRING_PROPERTY:
-    {
-        char* value;
-        CHECK_AND_RETURN(val.Get(AJPARAM_STR.c_str(), &value));
-        CHECK_AND_RETURN(setValue(value));
-        break;
-    }
+        {
+            char* value;
+            CHECK_AND_RETURN(val.Get(AJPARAM_STR.c_str(), &value));
+            CHECK_AND_RETURN(setValue(value));
+            break;
+        }
 
     case BOOL_PROPERTY:
-    {
-        bool value;
-        CHECK_AND_RETURN(val.Get(AJPARAM_BOOL.c_str(), &value));
-        CHECK_AND_RETURN(setValue(value));
-        break;
-    }
+        {
+            bool value;
+            CHECK_AND_RETURN(val.Get(AJPARAM_BOOL.c_str(), &value));
+            CHECK_AND_RETURN(setValue(value));
+            break;
+        }
 
     case DATE_PROPERTY:
-    {
-        uint16_t type;
-        uint16_t day;
-        uint16_t month;
-        uint16_t year;
-        CHECK_AND_RETURN(val.Get(AJPARAM_DATE_OR_TIME.c_str(), &type, &day, &month, &year));
+        {
+            uint16_t type;
+            uint16_t day;
+            uint16_t month;
+            uint16_t year;
+            CHECK_AND_RETURN(val.Get(AJPARAM_DATE_OR_TIME.c_str(), &type, &day, &month, &year));
 
-        if (type != DATE_PROPERTY_TYPE) {
-            if (logger)
-                logger->warn(TAG, "Did not receive the DateProperty type as expected");
-            return ER_BUS_SIGNATURE_MISMATCH;
+            if (type != DATE_PROPERTY_TYPE) {
+                if (logger) {
+                    logger->warn(TAG, "Did not receive the DateProperty type as expected");
+                }
+                return ER_BUS_SIGNATURE_MISMATCH;
+            }
+
+            CPSDate value(day, month, year);
+            CHECK_AND_RETURN(setValue(value));
+            break;
         }
-
-        CPSDate value(day, month, year);
-        CHECK_AND_RETURN(setValue(value));
-        break;
-    }
 
     case TIME_PROPERTY:
-    {
-        uint16_t type;
-        uint16_t hour;
-        uint16_t minute;
-        uint16_t second;
-        CHECK_AND_RETURN(val.Get(AJPARAM_DATE_OR_TIME.c_str(), &type, &hour, &minute, &second));
+        {
+            uint16_t type;
+            uint16_t hour;
+            uint16_t minute;
+            uint16_t second;
+            CHECK_AND_RETURN(val.Get(AJPARAM_DATE_OR_TIME.c_str(), &type, &hour, &minute, &second));
 
-        if (type != TIME_PROPERTY_TYPE) {
-            if (logger)
-                logger->warn(TAG, "Did not receive the TimeProperty type as expected");
-            return ER_BUS_SIGNATURE_MISMATCH;
+            if (type != TIME_PROPERTY_TYPE) {
+                if (logger) {
+                    logger->warn(TAG, "Did not receive the TimeProperty type as expected");
+                }
+                return ER_BUS_SIGNATURE_MISMATCH;
+            }
+
+            CPSTime value(hour, minute, second);
+            CHECK_AND_RETURN(setValue(value));
+            break;
         }
-
-        CPSTime value(hour, minute, second);
-        CHECK_AND_RETURN(setValue(value));
-        break;
-    }
 
     default:
         status = ER_BUS_NO_SUCH_PROPERTY;
@@ -534,35 +556,36 @@ QStatus Property::readOptParamsArg(uint16_t key, MsgArg* val)
     QStatus status = ER_BUS_NO_SUCH_PROPERTY;
     switch (key) {
     case OPT_PARAM_KEYS::UNIT_MEASURE:
-    {
-        char* unitOfMeasure;
-        CHECK_AND_RETURN(val->Get(AJPARAM_STR.c_str(), &unitOfMeasure))
-        m_UnitOfMeasure = unitOfMeasure;
-        break;
-    }
+        {
+            char* unitOfMeasure;
+            CHECK_AND_RETURN(val->Get(AJPARAM_STR.c_str(), &unitOfMeasure))
+            m_UnitOfMeasure = unitOfMeasure;
+            break;
+        }
 
     case OPT_PARAM_KEYS::CONSTRAINT_LIST:
-    {
-        m_ConstraintList.clear();
-        MsgArg* constraintEntries;
-        size_t constraintNum;
-        CHECK_AND_RETURN(val->Get(AJPARAM_ARRAY_STRUCT_VAR_STR.c_str(), &constraintNum, &constraintEntries));
-        for (size_t i = 0; i < constraintNum; i++) {
-            ConstraintList constraint;
-            CHECK_AND_RETURN(constraint.readConstraintArg(constraintEntries[i]))
-            m_ConstraintList.push_back(constraint);
+        {
+            m_ConstraintList.clear();
+            MsgArg* constraintEntries;
+            size_t constraintNum;
+            CHECK_AND_RETURN(val->Get(AJPARAM_ARRAY_STRUCT_VAR_STR.c_str(), &constraintNum, &constraintEntries));
+            for (size_t i = 0; i < constraintNum; i++) {
+                ConstraintList constraint;
+                CHECK_AND_RETURN(constraint.readConstraintArg(constraintEntries[i]))
+                m_ConstraintList.push_back(constraint);
+            }
+            break;
         }
-        break;
-    }
 
     case OPT_PARAM_KEYS::CONSTRAINT_RANGE:
-    {
-        if (!m_ConstraintRange)
-            m_ConstraintRange = new ConstraintRange();
+        {
+            if (!m_ConstraintRange) {
+                m_ConstraintRange = new ConstraintRange();
+            }
 
-        CHECK_AND_RETURN(m_ConstraintRange->readConstraintArg(val))
-        break;
-    }
+            CHECK_AND_RETURN(m_ConstraintRange->readConstraintArg(val))
+            break;
+        }
 
     default:
         status = Widget::readOptParamsArg(key, val);
@@ -577,102 +600,102 @@ QStatus Property::readValueArg(const MsgArg* val)
     switch (val->typeId) {
 
     case ALLJOYN_UINT16:
-    {
-        CHECK_AND_RETURN(validateValue(UINT16_PROPERTY))
-        CHECK_AND_RETURN(val->Get(AJPARAM_UINT16.c_str(), &m_Value.uint16Value))
-        break;
-    }
+        {
+            CHECK_AND_RETURN(validateValue(UINT16_PROPERTY))
+            CHECK_AND_RETURN(val->Get(AJPARAM_UINT16.c_str(), &m_Value.uint16Value))
+            break;
+        }
 
     case ALLJOYN_INT16:
-    {
-        CHECK_AND_RETURN(validateValue(INT16_PROPERTY))
-        CHECK_AND_RETURN(val->Get(AJPARAM_INT16.c_str(), &m_Value.int16Value))
-        break;
-    }
+        {
+            CHECK_AND_RETURN(validateValue(INT16_PROPERTY))
+            CHECK_AND_RETURN(val->Get(AJPARAM_INT16.c_str(), &m_Value.int16Value))
+            break;
+        }
 
     case ALLJOYN_UINT32:
-    {
-        CHECK_AND_RETURN(validateValue(UINT32_PROPERTY))
-        CHECK_AND_RETURN(val->Get(AJPARAM_UINT32.c_str(), &m_Value.uint32Value))
-        break;
-    }
+        {
+            CHECK_AND_RETURN(validateValue(UINT32_PROPERTY))
+            CHECK_AND_RETURN(val->Get(AJPARAM_UINT32.c_str(), &m_Value.uint32Value))
+            break;
+        }
 
     case ALLJOYN_INT32:
-    {
-        CHECK_AND_RETURN(validateValue(INT32_PROPERTY))
-        CHECK_AND_RETURN(val->Get(AJPARAM_INT32.c_str(), &m_Value.int32Value))
-        break;
-    }
+        {
+            CHECK_AND_RETURN(validateValue(INT32_PROPERTY))
+            CHECK_AND_RETURN(val->Get(AJPARAM_INT32.c_str(), &m_Value.int32Value))
+            break;
+        }
 
     case ALLJOYN_UINT64:
-    {
-        CHECK_AND_RETURN(validateValue(UINT64_PROPERTY))
-        CHECK_AND_RETURN(val->Get(AJPARAM_UINT64.c_str(), &m_Value.uint64Value))
-        break;
-    }
+        {
+            CHECK_AND_RETURN(validateValue(UINT64_PROPERTY))
+            CHECK_AND_RETURN(val->Get(AJPARAM_UINT64.c_str(), &m_Value.uint64Value))
+            break;
+        }
 
     case ALLJOYN_INT64:
-    {
-        CHECK_AND_RETURN(validateValue(INT64_PROPERTY))
-        CHECK_AND_RETURN(val->Get(AJPARAM_INT64.c_str(), &m_Value.int64Value))
-        break;
-    }
+        {
+            CHECK_AND_RETURN(validateValue(INT64_PROPERTY))
+            CHECK_AND_RETURN(val->Get(AJPARAM_INT64.c_str(), &m_Value.int64Value))
+            break;
+        }
 
     case ALLJOYN_DOUBLE:
-    {
-        CHECK_AND_RETURN(validateValue(DOUBLE_PROPERTY))
-        CHECK_AND_RETURN(val->Get(AJPARAM_DOUBLE.c_str(), &m_Value.doubleValue))
-        break;
-    }
+        {
+            CHECK_AND_RETURN(validateValue(DOUBLE_PROPERTY))
+            CHECK_AND_RETURN(val->Get(AJPARAM_DOUBLE.c_str(), &m_Value.doubleValue))
+            break;
+        }
 
     case ALLJOYN_STRING:
-    {
-        char* value;
-        CHECK_AND_RETURN(validateValue(STRING_PROPERTY))
-        CHECK_AND_RETURN(val->Get(AJPARAM_STR.c_str(), &value))
-        m_ValueString = value;
-        m_Value.charValue = m_ValueString.c_str();
-        break;
-    }
+        {
+            char* value;
+            CHECK_AND_RETURN(validateValue(STRING_PROPERTY))
+            CHECK_AND_RETURN(val->Get(AJPARAM_STR.c_str(), &value))
+            m_ValueString = value;
+            m_Value.charValue = m_ValueString.c_str();
+            break;
+        }
 
     case ALLJOYN_BOOLEAN:
-    {
-        CHECK_AND_RETURN(validateValue(BOOL_PROPERTY))
-        CHECK_AND_RETURN(val->Get(AJPARAM_BOOL.c_str(), &m_Value.boolValue))
-        break;
-    }
+        {
+            CHECK_AND_RETURN(validateValue(BOOL_PROPERTY))
+            CHECK_AND_RETURN(val->Get(AJPARAM_BOOL.c_str(), &m_Value.boolValue))
+            break;
+        }
 
     case ALLJOYN_STRUCT:
-    {
-        uint16_t dateOrTime;
-        uint16_t dateOrTimeVal1;
-        uint16_t dateOrTimeVal2;
-        uint16_t dateOrTimeVal3;
+        {
+            uint16_t dateOrTime;
+            uint16_t dateOrTimeVal1;
+            uint16_t dateOrTimeVal2;
+            uint16_t dateOrTimeVal3;
 
-        CHECK_AND_RETURN(val->Get(AJPARAM_DATE_OR_TIME.c_str(), &dateOrTime, &dateOrTimeVal1, &dateOrTimeVal2, &dateOrTimeVal3))
-        if (dateOrTime == DATE_PROPERTY_TYPE) {
-            CHECK_AND_RETURN(validateValue(DATE_PROPERTY))
-            if (m_Value.dateValue == 0)
-                m_Value.dateValue = new CPSDate(dateOrTimeVal1, dateOrTimeVal2, dateOrTimeVal3);
-            else {
-                m_Value.dateValue->setDay(dateOrTimeVal1);
-                m_Value.dateValue->setMonth(dateOrTimeVal2);
-                m_Value.dateValue->setYear(dateOrTimeVal3);
+            CHECK_AND_RETURN(val->Get(AJPARAM_DATE_OR_TIME.c_str(), &dateOrTime, &dateOrTimeVal1, &dateOrTimeVal2, &dateOrTimeVal3))
+            if (dateOrTime == DATE_PROPERTY_TYPE) {
+                CHECK_AND_RETURN(validateValue(DATE_PROPERTY))
+                if (m_Value.dateValue == 0) {
+                    m_Value.dateValue = new CPSDate(dateOrTimeVal1, dateOrTimeVal2, dateOrTimeVal3);
+                } else {
+                    m_Value.dateValue->setDay(dateOrTimeVal1);
+                    m_Value.dateValue->setMonth(dateOrTimeVal2);
+                    m_Value.dateValue->setYear(dateOrTimeVal3);
+                }
+            } else if (dateOrTime == TIME_PROPERTY_TYPE) {
+                CHECK_AND_RETURN(validateValue(TIME_PROPERTY))
+                if (m_Value.timeValue == 0) {
+                    m_Value.timeValue = new CPSTime(dateOrTimeVal1, dateOrTimeVal2, dateOrTimeVal3);
+                } else {
+                    m_Value.timeValue->setHour(dateOrTimeVal1);
+                    m_Value.timeValue->setMinute(dateOrTimeVal2);
+                    m_Value.timeValue->setSecond(dateOrTimeVal3);
+                }
+            } else {
+                status = ER_BUS_SIGNATURE_MISMATCH;
             }
-        } else if (dateOrTime == TIME_PROPERTY_TYPE) {
-            CHECK_AND_RETURN(validateValue(TIME_PROPERTY))
-            if (m_Value.timeValue == 0)
-                m_Value.timeValue = new CPSTime(dateOrTimeVal1, dateOrTimeVal2, dateOrTimeVal3);
-            else {
-                m_Value.timeValue->setHour(dateOrTimeVal1);
-                m_Value.timeValue->setMinute(dateOrTimeVal2);
-                m_Value.timeValue->setSecond(dateOrTimeVal3);
-            }
-        } else {
-            status = ER_BUS_SIGNATURE_MISMATCH;
+            break;
         }
-        break;
-    }
 
     default:
         status = ER_BUS_SIGNATURE_MISMATCH;
@@ -690,8 +713,9 @@ QStatus Property::SendValueChangedSignal()
     for (size_t indx = 0; indx < m_BusObjects.size(); indx++) {
         status = ((PropertyBusObject*)m_BusObjects[indx])->SendValueChangedSignal();
         if (status != ER_OK) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Could not send Value Changed Signal");
+            }
             return status;
         }
     }
@@ -703,50 +727,59 @@ void Property::ValueChanged(Message& msg)
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     ControlPanelListener* listener = m_Device->getListener();
     BusAttachment* busAttachment = ControlPanelService::getInstance()->getBusAttachment();
-    if (busAttachment)
+    if (busAttachment) {
         busAttachment->EnableConcurrentCallbacks();
+    }
 
     const ajn::MsgArg* returnArgs;
     size_t numArgs;
     msg->GetArgs(numArgs, returnArgs);
     if (numArgs != 1) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Received unexpected amount of returnArgs");
-        if (listener)
+        }
+        if (listener) {
             listener->errorOccured(m_Device, ER_BUS_UNEXPECTED_SIGNATURE, REFRESH_VALUE, "Received unexpected amount of returnArgs");
+        }
         return;
     }
 
     QStatus status = readValueArg(&returnArgs[0]);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Something went wrong reading the Value Argument");
-        if (listener)
+        }
+        if (listener) {
             listener->errorOccured(m_Device, status, REFRESH_VALUE, "Could not read Value Argument");
+        }
         return;
     }
 
-    if (listener)
+    if (listener) {
         listener->signalPropertyValueChanged(m_Device, this);
+    }
 }
 
 QStatus Property::defaultErrorSetValue()
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-    if (logger)
+    if (logger) {
         logger->warn(TAG, "setValue function not defined");
+    }
     return ER_NOT_IMPLEMENTED;
 }
 
 QStatus Property::setValue(bool value)
 {
-    if (m_ControlPanelMode == CONTROLLEE_MODE)
+    if (m_ControlPanelMode == CONTROLLEE_MODE) {
         return defaultErrorSetValue();
+    }
 
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!m_BusObjects.size()) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Cannot SetValue. BusObject is not set");
+        }
         return ER_BUS_BUS_NOT_STARTED;
     }
 
@@ -754,8 +787,9 @@ QStatus Property::setValue(bool value)
     MsgArg* variantArg = new MsgArg(AJPARAM_BOOL.c_str(), value);
     QStatus status = valueArg.Set(AJPARAM_VAR.c_str(), variantArg);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not SetValue of property");
+        }
         delete variantArg;
         return status;
     }
@@ -765,13 +799,15 @@ QStatus Property::setValue(bool value)
 
 QStatus Property::setValue(uint16_t value)
 {
-    if (m_ControlPanelMode == CONTROLLEE_MODE)
+    if (m_ControlPanelMode == CONTROLLEE_MODE) {
         return defaultErrorSetValue();
+    }
 
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!m_BusObjects.size()) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Cannot SetValue. BusObject is not set");
+        }
         return ER_BUS_BUS_NOT_STARTED;
     }
 
@@ -779,8 +815,9 @@ QStatus Property::setValue(uint16_t value)
     MsgArg* variantArg = new MsgArg(AJPARAM_UINT16.c_str(), value);
     QStatus status = valueArg.Set(AJPARAM_VAR.c_str(), variantArg);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not SetValue of property");
+        }
         delete variantArg;
         return status;
     }
@@ -790,13 +827,15 @@ QStatus Property::setValue(uint16_t value)
 
 QStatus Property::setValue(int16_t value)
 {
-    if (m_ControlPanelMode == CONTROLLEE_MODE)
+    if (m_ControlPanelMode == CONTROLLEE_MODE) {
         return defaultErrorSetValue();
+    }
 
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!m_BusObjects.size()) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Cannot SetValue. BusObject is not set");
+        }
         return ER_BUS_BUS_NOT_STARTED;
     }
 
@@ -804,8 +843,9 @@ QStatus Property::setValue(int16_t value)
     MsgArg* variantArg = new MsgArg(AJPARAM_INT16.c_str(), value);
     QStatus status = valueArg.Set(AJPARAM_VAR.c_str(), variantArg);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not SetValue of property");
+        }
         delete variantArg;
         return status;
     }
@@ -815,13 +855,15 @@ QStatus Property::setValue(int16_t value)
 
 QStatus Property::setValue(uint32_t value)
 {
-    if (m_ControlPanelMode == CONTROLLEE_MODE)
+    if (m_ControlPanelMode == CONTROLLEE_MODE) {
         return defaultErrorSetValue();
+    }
 
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!m_BusObjects.size()) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Cannot SetValue. BusObject is not set");
+        }
         return ER_BUS_BUS_NOT_STARTED;
     }
 
@@ -829,8 +871,9 @@ QStatus Property::setValue(uint32_t value)
     MsgArg* variantArg = new MsgArg(AJPARAM_UINT32.c_str(), value);
     QStatus status = valueArg.Set(AJPARAM_VAR.c_str(), variantArg);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not SetValue of property");
+        }
         delete variantArg;
         return status;
     }
@@ -840,13 +883,15 @@ QStatus Property::setValue(uint32_t value)
 
 QStatus Property::setValue(int32_t value)
 {
-    if (m_ControlPanelMode == CONTROLLEE_MODE)
+    if (m_ControlPanelMode == CONTROLLEE_MODE) {
         return defaultErrorSetValue();
+    }
 
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!m_BusObjects.size()) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Cannot SetValue. BusObject is not set");
+        }
         return ER_BUS_BUS_NOT_STARTED;
     }
 
@@ -854,8 +899,9 @@ QStatus Property::setValue(int32_t value)
     MsgArg* variantArg = new MsgArg(AJPARAM_INT32.c_str(), value);
     QStatus status = valueArg.Set(AJPARAM_VAR.c_str(), variantArg);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not SetValue of property");
+        }
         delete variantArg;
         return status;
     }
@@ -865,13 +911,15 @@ QStatus Property::setValue(int32_t value)
 
 QStatus Property::setValue(uint64_t value)
 {
-    if (m_ControlPanelMode == CONTROLLEE_MODE)
+    if (m_ControlPanelMode == CONTROLLEE_MODE) {
         return defaultErrorSetValue();
+    }
 
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!m_BusObjects.size()) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Cannot SetValue. BusObject is not set");
+        }
         return ER_BUS_BUS_NOT_STARTED;
     }
 
@@ -879,8 +927,9 @@ QStatus Property::setValue(uint64_t value)
     MsgArg* variantArg = new MsgArg(AJPARAM_UINT64.c_str(), value);
     QStatus status = valueArg.Set(AJPARAM_VAR.c_str(), variantArg);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not SetValue of property");
+        }
         delete variantArg;
         return status;
     }
@@ -890,13 +939,15 @@ QStatus Property::setValue(uint64_t value)
 
 QStatus Property::setValue(int64_t value)
 {
-    if (m_ControlPanelMode == CONTROLLEE_MODE)
+    if (m_ControlPanelMode == CONTROLLEE_MODE) {
         return defaultErrorSetValue();
+    }
 
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!m_BusObjects.size()) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Cannot SetValue. BusObject is not set");
+        }
         return ER_BUS_BUS_NOT_STARTED;
     }
 
@@ -904,8 +955,9 @@ QStatus Property::setValue(int64_t value)
     MsgArg* variantArg = new MsgArg(AJPARAM_INT64.c_str(), value);
     QStatus status = valueArg.Set(AJPARAM_VAR.c_str(), variantArg);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not SetValue of property");
+        }
         delete variantArg;
         return status;
     }
@@ -915,13 +967,15 @@ QStatus Property::setValue(int64_t value)
 
 QStatus Property::setValue(double value)
 {
-    if (m_ControlPanelMode == CONTROLLEE_MODE)
+    if (m_ControlPanelMode == CONTROLLEE_MODE) {
         return defaultErrorSetValue();
+    }
 
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!m_BusObjects.size()) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Cannot SetValue. BusObject is not set");
+        }
         return ER_BUS_BUS_NOT_STARTED;
     }
 
@@ -929,8 +983,9 @@ QStatus Property::setValue(double value)
     MsgArg* variantArg = new MsgArg(AJPARAM_DOUBLE.c_str(), value);
     QStatus status = valueArg.Set(AJPARAM_VAR.c_str(), variantArg);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not SetValue of property");
+        }
         delete variantArg;
         return status;
     }
@@ -940,13 +995,15 @@ QStatus Property::setValue(double value)
 
 QStatus Property::setValue(const char* value)
 {
-    if (m_ControlPanelMode == CONTROLLEE_MODE)
+    if (m_ControlPanelMode == CONTROLLEE_MODE) {
         return defaultErrorSetValue();
+    }
 
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!m_BusObjects.size()) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Cannot SetValue. BusObject is not set");
+        }
         return ER_BUS_BUS_NOT_STARTED;
     }
 
@@ -954,8 +1011,9 @@ QStatus Property::setValue(const char* value)
     MsgArg* variantArg = new MsgArg(AJPARAM_STR.c_str(), value);
     QStatus status = valueArg.Set(AJPARAM_VAR.c_str(), variantArg);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not SetValue of property");
+        }
         delete variantArg;
         return status;
     }
@@ -965,13 +1023,15 @@ QStatus Property::setValue(const char* value)
 
 QStatus Property::setValue(const CPSDate& value)
 {
-    if (m_ControlPanelMode == CONTROLLEE_MODE)
+    if (m_ControlPanelMode == CONTROLLEE_MODE) {
         return defaultErrorSetValue();
+    }
 
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!m_BusObjects.size()) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Cannot SetValue. BusObject is not set");
+        }
         return ER_BUS_BUS_NOT_STARTED;
     }
 
@@ -979,8 +1039,9 @@ QStatus Property::setValue(const CPSDate& value)
     MsgArg* variantArg = new MsgArg(AJPARAM_DATE_OR_TIME.c_str(), DATE_PROPERTY_TYPE, value.getDay(), value.getMonth(), value.getYear());
     QStatus status = valueArg.Set(AJPARAM_VAR.c_str(), variantArg);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not SetValue of property");
+        }
         delete variantArg;
         return status;
     }
@@ -990,13 +1051,15 @@ QStatus Property::setValue(const CPSDate& value)
 
 QStatus Property::setValue(const CPSTime& value)
 {
-    if (m_ControlPanelMode == CONTROLLEE_MODE)
+    if (m_ControlPanelMode == CONTROLLEE_MODE) {
         return defaultErrorSetValue();
+    }
 
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!m_BusObjects.size()) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Cannot SetValue. BusObject is not set");
+        }
         return ER_BUS_BUS_NOT_STARTED;
     }
 
@@ -1004,8 +1067,9 @@ QStatus Property::setValue(const CPSTime& value)
     MsgArg* variantArg = new MsgArg(AJPARAM_DATE_OR_TIME.c_str(), TIME_PROPERTY_TYPE, value.getHour(), value.getMinute(), value.getSecond());
     QStatus status = valueArg.Set(AJPARAM_VAR.c_str(), variantArg);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not SetValue of property");
+        }
         delete variantArg;
         return status;
     }

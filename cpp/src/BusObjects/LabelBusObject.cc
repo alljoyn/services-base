@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -30,8 +30,9 @@ LabelBusObject::LabelBusObject(BusAttachment* bus, String const& objectPath, uin
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not create the BusObject");
+        }
         return;
     }
 
@@ -45,15 +46,17 @@ LabelBusObject::LabelBusObject(BusAttachment* bus, String const& objectPath, uin
         } while (0);
     }
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not create interface");
+        }
         return;
     }
 
     status = AddInterface(*m_InterfaceDescription);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not add interface");
+        }
         return;
     }
 
@@ -62,8 +65,9 @@ LabelBusObject::LabelBusObject(BusAttachment* bus, String const& objectPath, uin
     if (widget->getControlPanelMode() == CONTROLLER_MODE) {
         status = addSignalHandler(bus);
     }
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "Created LabelBusObject successfully");
+    }
 }
 
 LabelBusObject::~LabelBusObject() {
@@ -72,8 +76,9 @@ LabelBusObject::~LabelBusObject() {
 QStatus LabelBusObject::Get(const char* interfaceName, const char* propName, MsgArg& val)
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "Get property was called - in LabelBusObject class:\n");
+    }
 
     if (0 == strcmp(AJ_PROPERTY_LABEL.c_str(), propName)) {
         return ((Label*)m_Widget)->fillLabelArg(val, m_LanguageIndx);

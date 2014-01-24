@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -121,14 +121,16 @@ QStatus ConstraintList::fillConstraintArg(MsgArg& val, uint16_t languageIndx, Pr
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
 
     if (m_PropertyType != propertyType) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not fill the Constraint Arg. PropertyTypes do not match");
+        }
         return ER_FAIL;
     }
 
     if (!m_Displays.size() > languageIndx && !m_GetDisplays) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not fill the Constraint Arg. Display is not set");
+        }
         return ER_FAIL;
     }
 
@@ -175,8 +177,9 @@ QStatus ConstraintList::fillConstraintArg(MsgArg& val, uint16_t languageIndx, Pr
 
     if (status != ER_OK) {
         GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not marshal Constraint Value");
+        }
         delete valueArg;
         return status;
     }
@@ -186,8 +189,9 @@ QStatus ConstraintList::fillConstraintArg(MsgArg& val, uint16_t languageIndx, Pr
 
     if (status != ER_OK) {
         GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not marshal Constraint Value");
+        }
         delete valueArg;
         return status;
     }
@@ -206,63 +210,63 @@ QStatus ConstraintList::readConstraintArg(MsgArg& val)
     switch (valueArg->typeId) {
 
     case ALLJOYN_UINT16:
-    {
-        CHECK_AND_RETURN(valueArg->Get(AJPARAM_UINT16.c_str(), &m_ConstraintValue.uint16Value))
-        m_PropertyType = UINT16_PROPERTY;
-        break;
-    }
+        {
+            CHECK_AND_RETURN(valueArg->Get(AJPARAM_UINT16.c_str(), &m_ConstraintValue.uint16Value))
+            m_PropertyType = UINT16_PROPERTY;
+            break;
+        }
 
     case ALLJOYN_INT16:
-    {
-        CHECK_AND_RETURN(valueArg->Get(AJPARAM_INT16.c_str(), &m_ConstraintValue.int16Value))
-        m_PropertyType = INT16_PROPERTY;
-        break;
-    }
+        {
+            CHECK_AND_RETURN(valueArg->Get(AJPARAM_INT16.c_str(), &m_ConstraintValue.int16Value))
+            m_PropertyType = INT16_PROPERTY;
+            break;
+        }
 
     case ALLJOYN_UINT32:
-    {
-        CHECK_AND_RETURN(valueArg->Get(AJPARAM_UINT32.c_str(), &m_ConstraintValue.uint32Value))
-        m_PropertyType = UINT32_PROPERTY;
-        break;
-    }
+        {
+            CHECK_AND_RETURN(valueArg->Get(AJPARAM_UINT32.c_str(), &m_ConstraintValue.uint32Value))
+            m_PropertyType = UINT32_PROPERTY;
+            break;
+        }
 
     case ALLJOYN_INT32:
-    {
-        CHECK_AND_RETURN(valueArg->Get(AJPARAM_INT32.c_str(), &m_ConstraintValue.int32Value))
-        m_PropertyType = INT32_PROPERTY;
-        break;
-    }
+        {
+            CHECK_AND_RETURN(valueArg->Get(AJPARAM_INT32.c_str(), &m_ConstraintValue.int32Value))
+            m_PropertyType = INT32_PROPERTY;
+            break;
+        }
 
     case ALLJOYN_UINT64:
-    {
-        CHECK_AND_RETURN(valueArg->Get(AJPARAM_UINT64.c_str(), &m_ConstraintValue.uint64Value))
-        m_PropertyType = UINT64_PROPERTY;
-        break;
-    }
+        {
+            CHECK_AND_RETURN(valueArg->Get(AJPARAM_UINT64.c_str(), &m_ConstraintValue.uint64Value))
+            m_PropertyType = UINT64_PROPERTY;
+            break;
+        }
 
     case ALLJOYN_INT64:
-    {
-        CHECK_AND_RETURN(valueArg->Get(AJPARAM_INT64.c_str(), &m_ConstraintValue.int64Value))
-        m_PropertyType = INT64_PROPERTY;
-        break;
-    }
+        {
+            CHECK_AND_RETURN(valueArg->Get(AJPARAM_INT64.c_str(), &m_ConstraintValue.int64Value))
+            m_PropertyType = INT64_PROPERTY;
+            break;
+        }
 
     case ALLJOYN_DOUBLE:
-    {
-        CHECK_AND_RETURN(valueArg->Get(AJPARAM_DOUBLE.c_str(), &m_ConstraintValue.doubleValue))
-        m_PropertyType = DOUBLE_PROPERTY;
-        break;
-    }
+        {
+            CHECK_AND_RETURN(valueArg->Get(AJPARAM_DOUBLE.c_str(), &m_ConstraintValue.doubleValue))
+            m_PropertyType = DOUBLE_PROPERTY;
+            break;
+        }
 
     case ALLJOYN_STRING:
-    {
-        char* constraintValue;
-        CHECK_AND_RETURN(valueArg->Get(AJPARAM_STR.c_str(), &constraintValue))
-        m_ConstraintValueString = constraintValue;
-        m_ConstraintValue.charValue = m_ConstraintValueString.c_str();
-        m_PropertyType = STRING_PROPERTY;
-        break;
-    }
+        {
+            char* constraintValue;
+            CHECK_AND_RETURN(valueArg->Get(AJPARAM_STR.c_str(), &constraintValue))
+            m_ConstraintValueString = constraintValue;
+            m_ConstraintValue.charValue = m_ConstraintValueString.c_str();
+            m_PropertyType = STRING_PROPERTY;
+            break;
+        }
 
     default:
         status = ER_BUS_SIGNATURE_MISMATCH;

@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -47,14 +47,16 @@ QStatus Action::executeAction()
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (m_ControlPanelMode == CONTROLLEE_MODE) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Cannot execute Action. Widget is a Controllee widget");
+        }
         return ER_NOT_IMPLEMENTED;
     }
 
     if (!m_BusObjects.size()) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Cannot execute Action. BusObject is not set");
+        }
         return ER_BUS_BUS_NOT_STARTED;
     }
 

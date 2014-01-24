@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -38,16 +38,18 @@ ControlPanelDevice* ControlPanelController::createControllableDevice(qcc::String
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (sender.length() == 0) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Sender cannot be empty");
+        }
         return NULL;
     }
 
     ControlPanelDevice* device = 0;
     std::map<qcc::String, ControlPanelDevice*>::iterator iter;
     if ((iter = m_ControllableDevices.find(sender)) != m_ControllableDevices.end()) {
-        if (logger)
+        if (logger) {
             logger->info(TAG, "ControlPanelDevice for this sender already exists");
+        }
         device = iter->second;
     }
 
@@ -59,18 +61,21 @@ ControlPanelDevice* ControlPanelController::createControllableDevice(qcc::String
         qcc::String key = it->first;
 
         if (key.compare(0, ControlPanelPrefix.size(), ControlPanelPrefix) == 0) {
-            if (!device)
+            if (!device) {
                 device = getControllableDevice(sender);
+            }
             if (device->addControlPanelUnit(key, it->second)) {
-                if (logger)
+                if (logger) {
                     logger->debug(TAG, "Adding ControlPanelUnit for objectPath: " + key);
+                }
                 hasControlPanel = true;
             }
         }
     }
     if (hasControlPanel) {
-        if (logger)
+        if (logger) {
             logger->debug(TAG, "Calling startSession for device " + sender);
+        }
         device->startSessionAsync();
     }
     return device;
@@ -81,15 +86,17 @@ ControlPanelDevice* ControlPanelController::getControllableDevice(qcc::String co
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
 
     if (sender.length() == 0) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Sender cannot be empty");
+        }
         return NULL;
     }
 
     std::map<qcc::String, ControlPanelDevice*>::iterator iter;
     if ((iter = m_ControllableDevices.find(sender)) != m_ControllableDevices.end()) {
-        if (logger)
+        if (logger) {
             logger->info(TAG, "ControlPanelDevice for this sender already exists");
+        }
         return iter->second;
     }
 
@@ -103,23 +110,26 @@ QStatus ControlPanelController::deleteControllableDevice(qcc::String const& send
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
 
     if (sender.length() == 0) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Sender cannot be empty");
+        }
         return ER_BAD_ARG_1;
     }
 
     std::map<qcc::String, ControlPanelDevice*>::iterator iter;
     if ((iter = m_ControllableDevices.find(sender)) == m_ControllableDevices.end()) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Sender does not exist");
+        }
         return ER_BAD_ARG_1;
     }
 
     ControlPanelDevice* device = iter->second;
     QStatus status = device->shutdownDevice();
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not end Session successfully");
+        }
     }
 
     m_ControllableDevices.erase(iter);
@@ -133,8 +143,9 @@ QStatus ControlPanelController::deleteAllControllableDevices()
     std::map<qcc::String, ControlPanelDevice*>::iterator iter;
     for (iter = m_ControllableDevices.begin(); iter != m_ControllableDevices.end(); iter++) {
         QStatus status = ER_OK;
-        if ((status = deleteControllableDevice(iter->first)) != ER_OK)
+        if ((status = deleteControllableDevice(iter->first)) != ER_OK) {
             returnStatus = status;
+        }
     }
     return returnStatus;
 }

@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -153,8 +153,9 @@ void Dialog::setLabelsAction3(const std::vector<qcc::String>& labelsAction3)
 
 QStatus Dialog::fillMessageArg(MsgArg& val, uint16_t languageIndx)
 {
-    if (!m_Messages.size() > languageIndx && !m_GetMessages)
+    if (!m_Messages.size() > languageIndx && !m_GetMessages) {
         return ER_BUS_PROPERTY_VALUE_NOT_SET;
+    }
 
     return val.Set(AJPARAM_STR.c_str(), m_GetMessages ? m_GetMessages(languageIndx) :
                    m_Messages[languageIndx].c_str());
@@ -162,8 +163,9 @@ QStatus Dialog::fillMessageArg(MsgArg& val, uint16_t languageIndx)
 
 QStatus Dialog::fillNumActionArg(MsgArg& val, uint16_t languageIndx)
 {
-    if (!m_NumActions)
+    if (!m_NumActions) {
         return ER_BUS_PROPERTY_VALUE_NOT_SET;
+    }
 
     return val.Set(AJPARAM_UINT16.c_str(), m_NumActions);
 }
@@ -188,8 +190,9 @@ QStatus Dialog::fillOptParamsArg(MsgArg& val, uint16_t languageIndx)
     status = Widget::fillOptParamsArg(optParams, languageIndx, optParamIndx);
     if (status != ER_OK) {
         GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not marshal optParams");
+        }
         delete[] optParams;
         return status;
     }
@@ -259,28 +262,28 @@ QStatus Dialog::readOptParamsArg(uint16_t key, MsgArg* val)
     QStatus status = ER_BUS_NO_SUCH_PROPERTY;
     switch (key) {
     case OPT_PARAM_KEYS::LABEL_ACTION1:
-    {
-        char* label;
-        CHECK_AND_RETURN(val->Get(AJPARAM_STR.c_str(), &label))
-        m_LabelAction1 = label;
-        break;
-    }
+        {
+            char* label;
+            CHECK_AND_RETURN(val->Get(AJPARAM_STR.c_str(), &label))
+            m_LabelAction1 = label;
+            break;
+        }
 
     case OPT_PARAM_KEYS::LABEL_ACTION2:
-    {
-        char* label;
-        CHECK_AND_RETURN(val->Get(AJPARAM_STR.c_str(), &label))
-        m_LabelAction2 = label;
-        break;
-    }
+        {
+            char* label;
+            CHECK_AND_RETURN(val->Get(AJPARAM_STR.c_str(), &label))
+            m_LabelAction2 = label;
+            break;
+        }
 
     case OPT_PARAM_KEYS::LABEL_ACTION3:
-    {
-        char* label;
-        CHECK_AND_RETURN(val->Get(AJPARAM_STR.c_str(), &label))
-        m_LabelAction3 = label;
-        break;
-    }
+        {
+            char* label;
+            CHECK_AND_RETURN(val->Get(AJPARAM_STR.c_str(), &label))
+            m_LabelAction3 = label;
+            break;
+        }
 
     default:
         status = Widget::readOptParamsArg(key, val);
@@ -292,8 +295,9 @@ QStatus Dialog::readOptParamsArg(uint16_t key, MsgArg* val)
 bool Dialog::executeActionNotDefined()
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-    if (logger)
+    if (logger) {
         logger->warn(TAG, "Could not execute this Action. It is not defined");
+    }
     return false;
 }
 
@@ -301,20 +305,23 @@ QStatus Dialog::executeAction1()
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (m_ControlPanelMode == CONTROLLEE_MODE) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Cannot execute Action 1. Widget is a Controllee widget");
+        }
         return ER_NOT_IMPLEMENTED;
     }
 
     if (!m_BusObjects.size()) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Cannot execute Action 1. BusObject is not set");
+        }
         return ER_BUS_BUS_NOT_STARTED;
     }
 
     if (m_NumActions < 1) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Cannot execute Action 1 - numActions is less than 1");
+        }
         return ER_NOT_IMPLEMENTED;
     }
 
@@ -325,20 +332,23 @@ QStatus Dialog::executeAction2()
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (m_ControlPanelMode == CONTROLLEE_MODE) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Cannot execute Action 2. Widget is a Controllee widget");
+        }
         return ER_NOT_IMPLEMENTED;
     }
 
     if (!m_BusObjects.size()) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Cannot execute Action 2. BusObject is not set");
+        }
         return ER_BUS_BUS_NOT_STARTED;
     }
 
     if (m_NumActions < 2) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Cannot execute Action2 - numActions is less than 2");
+        }
         return ER_NOT_IMPLEMENTED;
     }
 
@@ -349,20 +359,23 @@ QStatus Dialog::executeAction3()
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (m_ControlPanelMode == CONTROLLEE_MODE) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Cannot execute Action 3. Widget is a Controllee widget");
+        }
         return ER_NOT_IMPLEMENTED;
     }
 
     if (!m_BusObjects.size()) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Cannot execute Action 3. BusObject is not set");
+        }
         return ER_BUS_BUS_NOT_STARTED;
     }
 
     if (m_NumActions < 3) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Cannot execute Action3 - numActions is less than 3");
+        }
         return ER_NOT_IMPLEMENTED;
     }
 

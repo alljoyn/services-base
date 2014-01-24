@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -74,8 +74,9 @@ void ControlPanelListenerImpl::sessionLost(ControlPanelDevice* device)
 
     std::vector<qcc::String>::iterator iter;
     iter = find(m_ConnectedDevices.begin(), m_ConnectedDevices.end(), device->getDeviceBusName());
-    if (iter != m_ConnectedDevices.end())
+    if (iter != m_ConnectedDevices.end()) {
         m_ConnectedDevices.erase(iter);
+    }
 
     if (m_Controller) {
         QStatus status = m_Controller->deleteControllableDevice(device->getDeviceBusName());

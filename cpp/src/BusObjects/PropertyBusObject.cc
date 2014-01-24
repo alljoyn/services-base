@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -31,8 +31,9 @@ PropertyBusObject::PropertyBusObject(BusAttachment* bus, String const& objectPat
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not create the BusObject");
+        }
         return;
     }
 
@@ -48,15 +49,17 @@ PropertyBusObject::PropertyBusObject(BusAttachment* bus, String const& objectPat
         } while (0);
     }
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not create interface");
+        }
         return;
     }
 
     status = AddInterface(*m_InterfaceDescription);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not add interface");
+        }
         return;
     }
 
@@ -66,8 +69,9 @@ PropertyBusObject::PropertyBusObject(BusAttachment* bus, String const& objectPat
     if (widget->getControlPanelMode() == CONTROLLER_MODE) {
         status = addSignalHandler(bus);
     }
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "Created PropertyBusObject successfully");
+    }
 }
 
 PropertyBusObject::~PropertyBusObject()
@@ -82,8 +86,9 @@ QStatus PropertyBusObject::addSignalHandler(BusAttachment* bus)
     status = bus->RegisterSignalHandler(this, static_cast<MessageReceiver::SignalHandler>(&PropertyBusObject::ValueChanged),
                                         m_SignalValueChanged, m_ObjectPath.c_str());
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not register the SignalHandler");
+        }
     }
     return status;
 }
@@ -96,8 +101,9 @@ QStatus PropertyBusObject::UnregisterSignalHandler(BusAttachment* bus)
                                                   static_cast<MessageReceiver::SignalHandler>(&PropertyBusObject::ValueChanged),
                                                   m_SignalValueChanged, m_ObjectPath.c_str());
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not unregister the SignalHandler");
+        }
     }
     return status;
 }
@@ -105,8 +111,9 @@ QStatus PropertyBusObject::UnregisterSignalHandler(BusAttachment* bus)
 QStatus PropertyBusObject::Get(const char* interfaceName, const char* propName, MsgArg& val)
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "Get property was called - in PropertyBusObject class:");
+    }
 
     if (0 == strcmp(AJ_PROPERTY_VALUE.c_str(), propName)) {
         return ((Property*)m_Widget)->fillPropertyValueArg(val, m_LanguageIndx);
@@ -118,11 +125,13 @@ QStatus PropertyBusObject::Get(const char* interfaceName, const char* propName, 
 QStatus PropertyBusObject::Set(const char* interfaceName, const char* propName, MsgArg& val)
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "Set property was called - in PropertyBusObject class:");
+    }
 
-    if (0 != strcmp(AJ_PROPERTY_VALUE.c_str(), propName))
+    if (0 != strcmp(AJ_PROPERTY_VALUE.c_str(), propName)) {
         return ER_BUS_PROPERTY_ACCESS_DENIED;
+    }
 
     return ((Property*)m_Widget)->setPropertyValue(val, m_LanguageIndx);
 }
@@ -130,25 +139,29 @@ QStatus PropertyBusObject::Set(const char* interfaceName, const char* propName, 
 QStatus PropertyBusObject::SetValue(MsgArg& value)
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "Set Value was called");
+    }
 
     if (!m_Proxy) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Cannot set the Value. ProxyBusObject is not set");
+        }
         return ER_BUS_PROPERTY_VALUE_NOT_SET;
     }
 
     if (!m_InterfaceDescription) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Cannot set the Value. InterfaceDescription is not set");
+        }
         return ER_BUS_PROPERTY_VALUE_NOT_SET;
     }
 
     QStatus status = m_Proxy->SetProperty(m_InterfaceDescription->GetName(), AJ_PROPERTY_VALUE.c_str(), value);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Call to set Property failed");
+        }
     }
 
     return status;
@@ -160,14 +173,16 @@ QStatus PropertyBusObject::SendValueChangedSignal()
     ControlPanelBusListener* busListener = ControlPanelService::getInstance()->getBusListener();
 
     if (!m_SignalValueChanged) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Can't send valueChanged signal. Signal not set");
+        }
         return ER_BUS_PROPERTY_VALUE_NOT_SET;
     }
 
     if (!busListener) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Can't send valueChanged signal. SessionIds are unknown");
+        }
         return ER_BUS_PROPERTY_VALUE_NOT_SET;
     }
 
@@ -180,8 +195,9 @@ QStatus PropertyBusObject::SendValueChangedSignal()
     for (size_t indx = 0; indx < sessionIds.size(); indx++) {
         status = Signal(NULL, sessionIds[indx], *m_SignalValueChanged, &value, 1);
         if (status != ER_OK) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Could not send ValueChanged Signal for sessionId: " + sessionIds[indx]);
+            }
         }
     }
     return status;
@@ -191,13 +207,15 @@ void PropertyBusObject::ValueChanged(const InterfaceDescription::Member* member,
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (msg.unwrap()->GetSender() && strcmp(msg.unwrap()->GetSender(), m_Widget->getDevice()->getDeviceBusName().c_str()) != 0) {
-        if (logger)
+        if (logger) {
             logger->debug(TAG, "Received ValueChanged signal for someone else");
+        }
         return;
     }
 
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "Received ValueChanged signal");
+    }
 
     return ((Property*)m_Widget)->ValueChanged(msg);
 }
@@ -206,10 +224,11 @@ QStatus PropertyBusObject::fillProperty(char* key, MsgArg* variant)
 {
     QStatus status = ER_BUS_NO_SUCH_PROPERTY;
 
-    if (strcmp(key, AJ_PROPERTY_VALUE.c_str()) == 0)
+    if (strcmp(key, AJ_PROPERTY_VALUE.c_str()) == 0) {
         CHECK_AND_RETURN(((Property*)m_Widget)->readValueArg(variant))
 
         return status;
+    }
 }
 
 } /* namespace services */

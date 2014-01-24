@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -52,30 +52,34 @@ bool ControlPanelBusListener::AcceptSessionJoiner(ajn::SessionPort sessionPort, 
 
 void ControlPanelBusListener::SessionJoined(SessionPort sessionPort, SessionId sessionId, const char* joiner)
 {
-    if (std::find(m_SessionIds.begin(), m_SessionIds.end(), sessionId) != m_SessionIds.end())
+    if (std::find(m_SessionIds.begin(), m_SessionIds.end(), sessionId) != m_SessionIds.end()) {
         return;
+    }
     m_SessionIds.push_back(sessionId);
 }
 
 void ControlPanelBusListener::SessionMemberAdded(SessionId sessionId, const char* uniqueName)
 {
-    if (std::find(m_SessionIds.begin(), m_SessionIds.end(), sessionId) != m_SessionIds.end())
+    if (std::find(m_SessionIds.begin(), m_SessionIds.end(), sessionId) != m_SessionIds.end()) {
         return;
+    }
     m_SessionIds.push_back(sessionId);
 }
 
 void ControlPanelBusListener::SessionMemberRemoved(SessionId sessionId, const char* uniqueName)
 {
     std::vector<SessionId>::iterator it = std::find(m_SessionIds.begin(), m_SessionIds.end(), sessionId);
-    if (it != m_SessionIds.end())
+    if (it != m_SessionIds.end()) {
         m_SessionIds.erase(it);
+    }
 }
 
 void ControlPanelBusListener::SessionLost(SessionId sessionId, SessionLostReason reason)
 {
     std::vector<SessionId>::iterator it = std::find(m_SessionIds.begin(), m_SessionIds.end(), sessionId);
-    if (it != m_SessionIds.end())
+    if (it != m_SessionIds.end()) {
         m_SessionIds.erase(it);
+    }
 }
 
 const std::vector<SessionId>& ControlPanelBusListener::getSessionIds() const

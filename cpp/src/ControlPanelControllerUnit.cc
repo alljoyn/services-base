@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -44,14 +44,16 @@ QStatus ControlPanelControllerUnit::addHttpControl(qcc::String const& objectPath
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
 
     if (!busAttachment) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "BusAttachment is not set");
+        }
         return ER_BUS_BUS_NOT_STARTED;
     }
 
     if (m_HttpControl) {
-        if (logger)
+        if (logger) {
             logger->info(TAG, "HttpControl for this unit already exists");
+        }
         return ER_OK;
     }
 
@@ -70,8 +72,9 @@ QStatus ControlPanelControllerUnit::addControlPanel(qcc::String const& objectPat
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
 
     if (!busAttachment) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "BusAttachment is not set");
+        }
         return ER_BUS_BUS_NOT_STARTED;
     }
 
@@ -84,8 +87,9 @@ QStatus ControlPanelControllerUnit::addControlPanel(qcc::String const& objectPat
         controlPanel = new ControlPanel(*LanguageSets::get(myLanguages.getLanguageSetName()), objectPath, m_Device);
         m_ControlPanels[panelName] = controlPanel;
     } else {
-        if (logger)
+        if (logger) {
             logger->debug(TAG, "ControlPanel for " + panelName + " already exists");
+        }
         controlPanel = it->second;
     }
 
@@ -101,8 +105,9 @@ QStatus ControlPanelControllerUnit::addNotificationAction(qcc::String const& obj
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
 
     if (!busAttachment) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "BusAttachment is not set");
+        }
         return ER_BUS_BUS_NOT_STARTED;
     }
 
@@ -115,8 +120,9 @@ QStatus ControlPanelControllerUnit::addNotificationAction(qcc::String const& obj
         notificationAction = new NotificationAction(*LanguageSets::get(myLanguages.getLanguageSetName()), objectPath, m_Device);
         m_NotificationActions[actionName] = notificationAction;
     } else {
-        if (logger)
+        if (logger) {
             logger->debug(TAG, "NotificationAction for " + actionName + " already exists");
+        }
         notificationAction = it->second;
     }
 
@@ -147,8 +153,9 @@ QStatus ControlPanelControllerUnit::registerObjects()
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
 
     if (!busAttachment) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "BusAttachment is not set");
+        }
         return ER_BUS_BUS_NOT_STARTED;
     }
 
@@ -157,14 +164,16 @@ QStatus ControlPanelControllerUnit::registerObjects()
     QStatus status;
     QStatus returnStatus = ER_OK;
 
-    if (m_HttpControl)
+    if (m_HttpControl) {
         returnStatus = m_HttpControl->registerObjects(busAttachment);
+    }
 
     std::map<qcc::String, ControlPanel*>::iterator it;
     for (it = m_ControlPanels.begin(); it != m_ControlPanels.end(); it++) {
         if ((status = it->second->registerObjects(busAttachment)) != ER_OK) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Registering ControlPanel Objects failed");
+            }
             returnStatus = status;
         }
     }
@@ -174,8 +183,9 @@ QStatus ControlPanelControllerUnit::registerObjects()
 QStatus ControlPanelControllerUnit::shutdownUnit()
 {
     BusAttachment* busAttachment = ControlPanelService::getInstance()->getBusAttachment();
-    if (busAttachment)
+    if (busAttachment) {
         busAttachment->EnableConcurrentCallbacks();
+    }
 
     std::map<qcc::String, ControlPanel*>::iterator cpIter;
     std::map<qcc::String, ControlPanel*>::iterator cpDeliter;
@@ -231,16 +241,18 @@ const std::map<qcc::String, NotificationAction*>& ControlPanelControllerUnit::ge
 ControlPanel* ControlPanelControllerUnit::getControlPanel(qcc::String const& panelName) const
 {
     std::map<qcc::String, ControlPanel*>::const_iterator it;
-    if ((it = m_ControlPanels.find(panelName)) != m_ControlPanels.end())
+    if ((it = m_ControlPanels.find(panelName)) != m_ControlPanels.end()) {
         return it->second;
+    }
     return NULL;
 }
 
 NotificationAction* ControlPanelControllerUnit::getNotificationAction(qcc::String const& actionName) const
 {
     std::map<qcc::String, NotificationAction*>::const_iterator it;
-    if ((it = m_NotificationActions.find(actionName)) != m_NotificationActions.end())
+    if ((it = m_NotificationActions.find(actionName)) != m_NotificationActions.end()) {
         return it->second;
+    }
     return NULL;
 }
 

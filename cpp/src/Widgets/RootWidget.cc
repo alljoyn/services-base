@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -38,8 +38,9 @@ RootWidget::~RootWidget()
 
 QStatus RootWidget::SendDismissSignal()
 {
-    if (!m_NotificationActionBusObject)
+    if (!m_NotificationActionBusObject) {
         return ER_BUS_OBJECT_NOT_REGISTERED;
+    }
 
     return ((NotificationActionBusObject*)m_NotificationActionBusObject)->SendDismissSignal();
 }
@@ -49,14 +50,16 @@ QStatus RootWidget::setNotificationActionBusObject(BusObject* notificationAction
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
 
     if (!notificationActionBusObject) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not add a NULL notificationActionBusObject");
+        }
         return ER_BAD_ARG_1;
     }
 
     if (m_NotificationActionBusObject) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not set notificationActionBusObject. NotificationActionBusObject already set");
+        }
         return ER_BUS_PROPERTY_ALREADY_EXISTS;
     }
 
@@ -69,8 +72,9 @@ QStatus RootWidget::unregisterObjects(BusAttachment* bus)
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     QStatus status = Widget::unregisterObjects(bus);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not unregister BusObjects");
+        }
     }
 
     if (m_NotificationActionBusObject) {

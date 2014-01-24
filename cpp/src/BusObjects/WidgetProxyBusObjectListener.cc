@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -39,8 +39,9 @@ void WidgetProxyBusObjectListener::GetAllPropertiesCallBack(QStatus status, Prox
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!m_Widget || !m_BusObject) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "WidgetProxyBusObjectListener does not have widget or BusObject set");
+        }
         delete this;     //Finished using listener - needs to be deleted
         return;
     }
@@ -48,26 +49,31 @@ void WidgetProxyBusObjectListener::GetAllPropertiesCallBack(QStatus status, Prox
     ControlPanelDevice* device = m_Widget->getDevice();
     ControlPanelListener* listener = device ? device->getListener() : NULL;
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Something went wrong reloading properties");
-        if (listener)
+        }
+        if (listener) {
             listener->errorOccured(device, status, REFRESH_PROPERTIES, "Something went wrong reloading properties");
+        }
         delete this;     //Finished using listener - needs to be deleted
         return;
     }
 
     status = m_BusObject->fillAllProperties(values);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Something went wrong reloading properties");
-        if (listener)
+        }
+        if (listener) {
             listener->errorOccured(device, status, REFRESH_PROPERTIES, "Something went wrong reloading properties");
+        }
         delete this;     //Finished using listener - needs to be deleted
         return;
     }
 
-    if (listener)
+    if (listener) {
         listener->signalPropertiesChanged(device, m_Widget);
+    }
 
     delete this;     //Finished using listener - needs to be deleted
 }

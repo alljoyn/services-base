@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -43,21 +43,28 @@ void exitApp(int32_t signum)
     std::cout << "Program Finished" << std::endl;
 
     CommonSampleUtil::aboutServiceDestroy(bus, controlpanelBusListener);
-    if (controlPanelService)
+    if (controlPanelService) {
         controlPanelService->shutdownControllee();
+    }
     ControlPanelGenerated::Shutdown();
-    if (controlPanelControllee)
+    if (controlPanelControllee) {
         delete controlPanelControllee;
-    if (controlpanelBusListener)
+    }
+    if (controlpanelBusListener) {
         delete controlpanelBusListener;
-    if (propertyStoreImpl)
+    }
+    if (propertyStoreImpl) {
         delete (propertyStoreImpl);
-    if (controlPanelService)
+    }
+    if (controlPanelService) {
         delete controlPanelService;
-    if (srpKeyXListener)
+    }
+    if (srpKeyXListener) {
         delete srpKeyXListener;
-    if (bus)
+    }
+    if (bus) {
         delete bus;
+    }
 
     std::cout << "Goodbye!" << std::endl;
     exit(signum);

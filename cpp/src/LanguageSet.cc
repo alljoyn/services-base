@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -41,8 +41,9 @@ const size_t LanguageSet::getNumLanguages() const
 
 void LanguageSet::addLanguage(qcc::String const& language)
 {
-    if (std::find(m_Languages.begin(), m_Languages.end(), language) == m_Languages.end())
+    if (std::find(m_Languages.begin(), m_Languages.end(), language) == m_Languages.end()) {
         m_Languages.push_back(language);
+    }
 }
 
 const std::vector<qcc::String>& LanguageSet::getLanguages() const

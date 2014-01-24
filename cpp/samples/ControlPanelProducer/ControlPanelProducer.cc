@@ -49,25 +49,34 @@ void exitApp(int32_t signum)
     std::cout << "Program Finished" << std::endl;
 
     CommonSampleUtil::aboutServiceDestroy(bus, controlpanelBusListener);
-    if (controlPanelService)
+    if (controlPanelService) {
         controlPanelService->shutdownControllee();
-    if (prodService)
+    }
+    if (prodService) {
         prodService->shutdown();
+    }
     ControlPanelGenerated::Shutdown();
-    if (sender)
+    if (sender) {
         delete sender;
-    if (controlPanelControllee)
+    }
+    if (controlPanelControllee) {
         delete controlPanelControllee;
-    if (controlpanelBusListener)
+    }
+    if (controlpanelBusListener) {
         delete controlpanelBusListener;
-    if (propertyStoreImpl)
+    }
+    if (propertyStoreImpl) {
         delete (propertyStoreImpl);
-    if (controlPanelService)
+    }
+    if (controlPanelService) {
         delete controlPanelService;
-    if (srpKeyXListener)
+    }
+    if (srpKeyXListener) {
         delete srpKeyXListener;
-    if (bus)
+    }
+    if (bus) {
         delete bus;
+    }
 
     std::cout << "Goodbye!" << std::endl;
     exit(signum);

@@ -99,8 +99,9 @@ AJ_Status ControlPanel_ConnectedHandler(AJ_BusAttachment* bus)
 
 uint8_t CPS_CheckSessionAccepted(uint16_t port, uint32_t sessionId, char* joiner)
 {
-    if (port != CPSPort)
+    if (port != CPSPort) {
         return FALSE;
+    }
     CPSsessionId = sessionId;
     return TRUE;
 }

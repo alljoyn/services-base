@@ -603,18 +603,18 @@ AJ_Status SetValueProperty(AJ_Message* replyMsg, uint32_t propId, void* context)
     switch (propId) {
     case EN_MYDEVICE_HEATPROPERTY_VALUE_PROPERTY:
     case DE_AT_MYDEVICE_HEATPROPERTY_VALUE_PROPERTY:
-    {
-        uint16_t newValue;
-        status = unmarshalPropertyValue(&MyDeviceHeatProperty, replyMsg, &newValue, ((SetValueContext*)context)->sender);
-        if (status != AJ_OK) {
-            return status;
+        {
+            uint16_t newValue;
+            status = unmarshalPropertyValue(&MyDeviceHeatProperty, replyMsg, &newValue, ((SetValueContext*)context)->sender);
+            if (status != AJ_OK) {
+                return status;
+            }
+            setuint16Var(newValue);
+            ((SetValueContext*)context)->numSignals = 2;
+            ((SetValueContext*)context)->signals[0] = EN_MYDEVICE_HEATPROPERTY_SIGNAL_VALUE_CHANGED;
+            ((SetValueContext*)context)->signals[1] = DE_AT_MYDEVICE_HEATPROPERTY_SIGNAL_VALUE_CHANGED;
         }
-        setuint16Var(newValue);
-        ((SetValueContext*)context)->numSignals = 2;
-        ((SetValueContext*)context)->signals[0] = EN_MYDEVICE_HEATPROPERTY_SIGNAL_VALUE_CHANGED;
-        ((SetValueContext*)context)->signals[1] = DE_AT_MYDEVICE_HEATPROPERTY_SIGNAL_VALUE_CHANGED;
-    }
-    break;
+        break;
 
 
     }
@@ -630,52 +630,52 @@ AJ_Status ExecuteAction(AJ_Message* msg, uint32_t msgId, ExecuteActionContext* c
     switch (msgId) {
     case EN_MYDEVICE_OVENACTION_EXEC:
     case DE_AT_MYDEVICE_OVENACTION_EXEC:
-    {
-        AJ_Printf("Starting the Oven. Execute was called\n");
-    }
-    break;
+        {
+            AJ_Printf("Starting the Oven. Execute was called\n");
+        }
+        break;
 
     case EN_MYDEVICE_LIGHTCONFIRM_EXEC_ACTION1:
     case DE_AT_MYDEVICE_LIGHTCONFIRM_EXEC_ACTION1:
-    {
-        AJ_Printf("Execute Action1 was called\n");
-    }
-    break;
+        {
+            AJ_Printf("Execute Action1 was called\n");
+        }
+        break;
 
     case EN_MYDEVICE_LIGHTCONFIRM_EXEC_ACTION2:
     case DE_AT_MYDEVICE_LIGHTCONFIRM_EXEC_ACTION2:
-    {
-        AJ_Printf("Execute Action2 was called\n");
-    }
-    break;
+        {
+            AJ_Printf("Execute Action2 was called\n");
+        }
+        break;
 
     case EN_MYDEVICE_LIGHTCONFIRM_EXEC_ACTION3:
     case DE_AT_MYDEVICE_LIGHTCONFIRM_EXEC_ACTION3:
-    {
-        AJ_Printf("Execute Action3 was called\n");
-    }
-    break;
+        {
+            AJ_Printf("Execute Action3 was called\n");
+        }
+        break;
 
     case EN_MYDEVICE_AREYOUSURE_EXEC_ACTION1:
     case DE_AT_MYDEVICE_AREYOUSURE_EXEC_ACTION1:
-    {
-        AJ_Printf("Execute Action1 was called\n"); addDismissSignal(context, MYDEVICE_NOTIFICATION_ACTION_AREYOUSURE_SIGNAL_DISMISS);
-    }
-    break;
+        {
+            AJ_Printf("Execute Action1 was called\n"); addDismissSignal(context, MYDEVICE_NOTIFICATION_ACTION_AREYOUSURE_SIGNAL_DISMISS);
+        }
+        break;
 
     case EN_MYDEVICE_AREYOUSURE_EXEC_ACTION2:
     case DE_AT_MYDEVICE_AREYOUSURE_EXEC_ACTION2:
-    {
-        AJ_MarshalErrorMsg(msg, &reply, AJ_ErrServiceUnknown);
-    }
-    break;
+        {
+            AJ_MarshalErrorMsg(msg, &reply, AJ_ErrServiceUnknown);
+        }
+        break;
 
     case EN_MYDEVICE_AREYOUSURE_EXEC_ACTION3:
     case DE_AT_MYDEVICE_AREYOUSURE_EXEC_ACTION3:
-    {
-        AJ_MarshalErrorMsg(msg, &reply, AJ_ErrServiceUnknown);
-    }
-    break;
+        {
+            AJ_MarshalErrorMsg(msg, &reply, AJ_ErrServiceUnknown);
+        }
+        break;
 
 
     }

@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -35,8 +35,9 @@ ActionWithDialog::ActionWithDialog(qcc::String const& name, Widget* rootWidget, 
 
 ActionWithDialog::~ActionWithDialog()
 {
-    if (m_ControlPanelMode == CONTROLLER_MODE && m_Dialog)
+    if (m_ControlPanelMode == CONTROLLER_MODE && m_Dialog) {
         delete m_Dialog;
+    }
 }
 
 WidgetBusObject* ActionWithDialog::createWidgetBusObject(BusAttachment* bus, qcc::String const& objectPath,
@@ -54,15 +55,17 @@ QStatus ActionWithDialog::addChildDialog(Dialog* childDialog)
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!childDialog) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Cannot add a childDialog that is NULL");
+        }
         return ER_BAD_ARG_1;
     }
 
     m_Dialog = childDialog;
 
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "Adding childDialog named: " + childDialog->getWidgetName());
+    }
     return ER_OK;
 }
 
@@ -72,21 +75,24 @@ QStatus ActionWithDialog::registerObjects(BusAttachment* bus, LanguageSet const&
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
 
     QStatus status = Widget::registerObjects(bus, languageSet, objectPathPrefix, objectPathSuffix, isRoot);
-    if (status != ER_OK)
+    if (status != ER_OK) {
         return status;
+    }
 
     qcc::String newObjectPathSuffix = isRoot ? objectPathSuffix : objectPathSuffix + "/" + m_Name;
 
     if (!m_Dialog) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not register. ActionWithDialog is missing the child Dialog");
+        }
         return ER_FAIL;
     }
 
     status = m_Dialog->registerObjects(bus, languageSet, objectPathPrefix, newObjectPathSuffix);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not register childDialog objects");
+        }
         return status;
     }
     return status;
@@ -99,16 +105,18 @@ QStatus ActionWithDialog::unregisterObjects(BusAttachment* bus)
 
     QStatus status = Widget::unregisterObjects(bus);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not unregister BusObjects");
+        }
         returnStatus = status;
     }
 
     if (m_Dialog) {
         status = m_Dialog->unregisterObjects(bus);
         if (status != ER_OK) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Could not unregister Objects for the childDialog");
+            }
             returnStatus = status;
         }
     }
@@ -119,16 +127,18 @@ QStatus ActionWithDialog::addChildren(BusAttachment* bus)
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!m_BusObjects.size()) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "BusObject is not set");
+        }
         return ER_BUS_BUS_NOT_STARTED;
     }
 
     std::vector<IntrospectionNode> childNodes;
     QStatus status = m_BusObjects[0]->Introspect(childNodes);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Introspection failed");
+        }
         return status;
     }
 
@@ -148,15 +158,17 @@ QStatus ActionWithDialog::refreshChildren(BusAttachment* bus)
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!m_Dialog) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not refresh. ActionWithDialog is missing the child Dialog");
+        }
         return ER_FAIL;
     }
 
     QStatus status = m_Dialog->refreshObjects(bus);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Error refreshing Child: " + m_Dialog->getWidgetName());
+        }
     }
 
     return status;

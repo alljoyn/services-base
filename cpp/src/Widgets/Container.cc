@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -65,8 +65,9 @@ QStatus Container::registerObjects(BusAttachment* bus, LanguageSet const& langua
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
 
     QStatus status = Widget::registerObjects(bus, languageSet, objectPathPrefix, objectPathSuffix, isRoot);
-    if (status != ER_OK)
+    if (status != ER_OK) {
         return status;
+    }
 
     qcc::String newObjectPathSuffix = isRoot ? objectPathSuffix : objectPathSuffix + "/" + m_Name;
 
@@ -74,16 +75,18 @@ QStatus Container::registerObjects(BusAttachment* bus, LanguageSet const& langua
         NotificationActionBusObject* NaBusObject = new NotificationActionBusObject(bus, newObjectPathSuffix, status);
 
         if (status != ER_OK) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Could not create NotificationActionBusObjects");
+            }
             delete NaBusObject;
             return status;
         }
 
         status = setNotificationActionBusObject(NaBusObject);
         if (status != ER_OK) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Could not set NotificationActionBusObjects");
+            }
             delete NaBusObject;
             return status;
         }
@@ -92,8 +95,9 @@ QStatus Container::registerObjects(BusAttachment* bus, LanguageSet const& langua
     for (size_t indx = 0; indx < m_ChildWidgets.size(); indx++) {
         status = m_ChildWidgets[indx]->registerObjects(bus, languageSet, objectPathPrefix, newObjectPathSuffix);
         if (status != ER_OK) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Could not register childWidgets objects");
+            }
             return status;
         }
     }
@@ -106,16 +110,18 @@ QStatus Container::unregisterObjects(BusAttachment* bus)
     QStatus returnStatus = ER_OK;
     QStatus status = RootWidget::unregisterObjects(bus);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not unregister BusObjects");
+        }
         returnStatus = status;
     }
 
     for (size_t indx = 0; indx < m_ChildWidgets.size(); indx++) {
         status = m_ChildWidgets[indx]->unregisterObjects(bus);
         if (status != ER_OK) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Could not unregister Objects for the childWidget");
+            }
             returnStatus = status;
         }
     }
@@ -131,16 +137,18 @@ QStatus Container::addChildren(BusAttachment* bus)
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!m_BusObjects.size()) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "BusObject is not set");
+        }
         return ER_BUS_BUS_NOT_STARTED;
     }
 
     std::vector<IntrospectionNode> childNodes;
     QStatus status = m_BusObjects[0]->Introspect(childNodes);
     if (status != ER_OK) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Introspection failed");
+        }
         return status;
     }
 
@@ -151,15 +159,17 @@ QStatus Container::addChildren(BusAttachment* bus)
         Widget* widget = createWidget(name, this, m_Device, childNodes[i].getWidgetType());
         widget->setIsSecured(childNodes[i].isSecured());
         QStatus childStatus = widget->registerObjects(bus, objectPath);
-        if (childStatus == ER_OK)
+        if (childStatus == ER_OK) {
             addChildWidget(widget);
-        else {
-            if (logger)
+        } else {
+            if (logger) {
                 logger->warn(TAG, "Failed creating childWidget " + name);
+            }
 
             ControlPanelListener* listener = m_Device->getListener();
-            if (listener)
+            if (listener) {
                 listener->errorOccured(m_Device, status, REGISTER_OBJECTS, "Could not register Objects for Widget: " + name);
+            }
 
             Widget* errorWidget = new ErrorWidget(name, this, widget, m_Device);
             addChildWidget(errorWidget);
@@ -175,8 +185,9 @@ QStatus Container::refreshChildren(BusAttachment* bus)
     for (size_t i = 0; i < m_ChildWidgets.size(); i++) {
         status = m_ChildWidgets[i]->refreshObjects(bus);
         if (status != ER_OK) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Error refreshing Child: " + m_ChildWidgets[i]->getWidgetName());
+            }
             return status;
         }
     }
@@ -185,12 +196,14 @@ QStatus Container::refreshChildren(BusAttachment* bus)
 
 QStatus Container::addChildWidget(Widget* childWidget)
 {
-    if (!childWidget)
+    if (!childWidget) {
         return ER_BAD_ARG_1;
+    }
 
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-    if (logger)
+    if (logger) {
         logger->info(TAG, "Adding childWidget named: " + childWidget->getWidgetName());
+    }
     m_ChildWidgets.push_back(childWidget);
     return ER_OK;
 }

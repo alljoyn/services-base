@@ -560,82 +560,82 @@ AJ_Status SetValueProperty(AJ_Message* replyMsg, uint32_t propId, void* context)
 
     switch (propId) {
     case EN_MYDEVICE_CURRENTTEMPSTRINGPROPERTY_VALUE_PROPERTY:
-    {
-        const char* newValue;
-        status = unmarshalPropertyValue(&MyDeviceCurrentTempStringProperty, replyMsg, &newValue, ((SetValueContext*)context)->sender);
-        if (status != AJ_OK) {
-            return status;
+        {
+            const char* newValue;
+            status = unmarshalPropertyValue(&MyDeviceCurrentTempStringProperty, replyMsg, &newValue, ((SetValueContext*)context)->sender);
+            if (status != AJ_OK) {
+                return status;
+            }
+            setCurrentTemperatureString(newValue);
+            ((SetValueContext*)context)->numSignals = 1;
+            ((SetValueContext*)context)->signals[0] = EN_MYDEVICE_CURRENTTEMPSTRINGPROPERTY_SIGNAL_VALUE_CHANGED;
         }
-        setCurrentTemperatureString(newValue);
-        ((SetValueContext*)context)->numSignals = 1;
-        ((SetValueContext*)context)->signals[0] = EN_MYDEVICE_CURRENTTEMPSTRINGPROPERTY_SIGNAL_VALUE_CHANGED;
-    }
-    break;
+        break;
 
     case EN_MYDEVICE_CURRENTHUMIDITYSTRINGPROPERTY_VALUE_PROPERTY:
-    {
-        const char* newValue;
-        status = unmarshalPropertyValue(&MyDeviceCurrentHumidityStringProperty, replyMsg, &newValue, ((SetValueContext*)context)->sender);
-        if (status != AJ_OK) {
-            return status;
+        {
+            const char* newValue;
+            status = unmarshalPropertyValue(&MyDeviceCurrentHumidityStringProperty, replyMsg, &newValue, ((SetValueContext*)context)->sender);
+            if (status != AJ_OK) {
+                return status;
+            }
+            setCurrentHumidityString(newValue);
+            ((SetValueContext*)context)->numSignals = 1;
+            ((SetValueContext*)context)->signals[0] = EN_MYDEVICE_CURRENTHUMIDITYSTRINGPROPERTY_SIGNAL_VALUE_CHANGED;
         }
-        setCurrentHumidityString(newValue);
-        ((SetValueContext*)context)->numSignals = 1;
-        ((SetValueContext*)context)->signals[0] = EN_MYDEVICE_CURRENTHUMIDITYSTRINGPROPERTY_SIGNAL_VALUE_CHANGED;
-    }
-    break;
+        break;
 
     case EN_MYDEVICE_AC_MODE_VALUE_PROPERTY:
-    {
-        uint16_t newValue;
-        status = unmarshalPropertyValue(&MyDeviceAc_mode, replyMsg, &newValue, ((SetValueContext*)context)->sender);
-        if (status != AJ_OK) {
-            return status;
+        {
+            uint16_t newValue;
+            status = unmarshalPropertyValue(&MyDeviceAc_mode, replyMsg, &newValue, ((SetValueContext*)context)->sender);
+            if (status != AJ_OK) {
+                return status;
+            }
+            setCurrentMode(newValue);
+            ((SetValueContext*)context)->numSignals = 1;
+            ((SetValueContext*)context)->signals[0] = EN_MYDEVICE_AC_MODE_SIGNAL_VALUE_CHANGED;
         }
-        setCurrentMode(newValue);
-        ((SetValueContext*)context)->numSignals = 1;
-        ((SetValueContext*)context)->signals[0] = EN_MYDEVICE_AC_MODE_SIGNAL_VALUE_CHANGED;
-    }
-    break;
+        break;
 
     case EN_MYDEVICE_STATUSSTRINGPROPERTY_VALUE_PROPERTY:
-    {
-        const char* newValue;
-        status = unmarshalPropertyValue(&MyDeviceStatusStringProperty, replyMsg, &newValue, ((SetValueContext*)context)->sender);
-        if (status != AJ_OK) {
-            return status;
+        {
+            const char* newValue;
+            status = unmarshalPropertyValue(&MyDeviceStatusStringProperty, replyMsg, &newValue, ((SetValueContext*)context)->sender);
+            if (status != AJ_OK) {
+                return status;
+            }
+            setStatusString(newValue);
+            ((SetValueContext*)context)->numSignals = 1;
+            ((SetValueContext*)context)->signals[0] = EN_MYDEVICE_STATUSSTRINGPROPERTY_SIGNAL_VALUE_CHANGED;
         }
-        setStatusString(newValue);
-        ((SetValueContext*)context)->numSignals = 1;
-        ((SetValueContext*)context)->signals[0] = EN_MYDEVICE_STATUSSTRINGPROPERTY_SIGNAL_VALUE_CHANGED;
-    }
-    break;
+        break;
 
     case EN_MYDEVICE_SET_TEMPERATURE_VALUE_PROPERTY:
-    {
-        uint16_t newValue;
-        status = unmarshalPropertyValue(&MyDeviceSet_temperature, replyMsg, &newValue, ((SetValueContext*)context)->sender);
-        if (status != AJ_OK) {
-            return status;
+        {
+            uint16_t newValue;
+            status = unmarshalPropertyValue(&MyDeviceSet_temperature, replyMsg, &newValue, ((SetValueContext*)context)->sender);
+            if (status != AJ_OK) {
+                return status;
+            }
+            setTargetTemperature(newValue);
+            ((SetValueContext*)context)->numSignals = 1;
+            ((SetValueContext*)context)->signals[0] = EN_MYDEVICE_SET_TEMPERATURE_SIGNAL_VALUE_CHANGED;
         }
-        setTargetTemperature(newValue);
-        ((SetValueContext*)context)->numSignals = 1;
-        ((SetValueContext*)context)->signals[0] = EN_MYDEVICE_SET_TEMPERATURE_SIGNAL_VALUE_CHANGED;
-    }
-    break;
+        break;
 
     case EN_MYDEVICE_FAN_SPEED_VALUE_PROPERTY:
-    {
-        uint16_t newValue;
-        status = unmarshalPropertyValue(&MyDeviceFan_speed, replyMsg, &newValue, ((SetValueContext*)context)->sender);
-        if (status != AJ_OK) {
-            return status;
+        {
+            uint16_t newValue;
+            status = unmarshalPropertyValue(&MyDeviceFan_speed, replyMsg, &newValue, ((SetValueContext*)context)->sender);
+            if (status != AJ_OK) {
+                return status;
+            }
+            setFanSpeed(newValue);
+            ((SetValueContext*)context)->numSignals = 1;
+            ((SetValueContext*)context)->signals[0] = EN_MYDEVICE_FAN_SPEED_SIGNAL_VALUE_CHANGED;
         }
-        setFanSpeed(newValue);
-        ((SetValueContext*)context)->numSignals = 1;
-        ((SetValueContext*)context)->signals[0] = EN_MYDEVICE_FAN_SPEED_SIGNAL_VALUE_CHANGED;
-    }
-    break;
+        break;
 
 
     }

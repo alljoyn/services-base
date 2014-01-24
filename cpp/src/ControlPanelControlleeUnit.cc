@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -48,8 +48,9 @@ QStatus ControlPanelControlleeUnit::addControlPanel(ControlPanel* controlPanel)
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
 
     if (!controlPanel) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not add a NULL controlPanel");
+        }
         return ER_BAD_ARG_1;
     }
 
@@ -67,8 +68,9 @@ QStatus ControlPanelControlleeUnit::addNotificationAction(NotificationAction* no
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
 
     if (!notificationAction) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not add a NULL notificationAction");
+        }
         return ER_BAD_ARG_1;
     }
 
@@ -86,14 +88,16 @@ QStatus ControlPanelControlleeUnit::setHttpControl(HttpControl* httpControl)
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
 
     if (!httpControl) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not add a NULL httpControl");
+        }
         return ER_BAD_ARG_1;
     }
 
     if (m_HttpControl) {
-        if (logger)
+        if (logger) {
             logger->warn(TAG, "Could not set httpControl. HttpControl already set");
+        }
         return ER_BUS_PROPERTY_ALREADY_EXISTS;
     }
 
@@ -114,8 +118,9 @@ QStatus ControlPanelControlleeUnit::registerObjects(BusAttachment* bus)
     if (m_HttpControl) {
         status = m_HttpControl->registerObjects(bus, m_UnitName);
         if (status != ER_OK) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Could not register the HttpControl");
+            }
             return status;
         }
     }
@@ -123,8 +128,9 @@ QStatus ControlPanelControlleeUnit::registerObjects(BusAttachment* bus)
     for (size_t indx = 0; indx < m_ControlPanels.size(); indx++) {
         status = m_ControlPanels[indx]->registerObjects(bus, m_UnitName);
         if (status != ER_OK) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Could not register Objects for the ControlPanels");
+            }
             return status;
         }
     }
@@ -132,8 +138,9 @@ QStatus ControlPanelControlleeUnit::registerObjects(BusAttachment* bus)
     for (size_t indx = 0; indx < m_NotificationActions.size(); indx++) {
         status = m_NotificationActions[indx]->registerObjects(bus, m_UnitName);
         if (status != ER_OK) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Could not register Objects for the ControlPanels");
+            }
             return status;
         }
     }
@@ -148,8 +155,9 @@ QStatus ControlPanelControlleeUnit::unregisterObjects(BusAttachment* bus)
     if (m_HttpControl) {
         QStatus status = m_HttpControl->unregisterObjects(bus);
         if (status != ER_OK) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Could not unregister the HttpControl");
+            }
             returnStatus = status;
         }
     }
@@ -157,8 +165,9 @@ QStatus ControlPanelControlleeUnit::unregisterObjects(BusAttachment* bus)
     for (size_t indx = 0; indx < m_ControlPanels.size(); indx++) {
         QStatus status = m_ControlPanels[indx]->unregisterObjects(bus);
         if (status != ER_OK) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Could not register Objects for the ControlPanels");
+            }
             returnStatus = status;
         }
     }
@@ -166,8 +175,9 @@ QStatus ControlPanelControlleeUnit::unregisterObjects(BusAttachment* bus)
     for (size_t indx = 0; indx < m_NotificationActions.size(); indx++) {
         QStatus status = m_NotificationActions[indx]->unregisterObjects(bus);
         if (status != ER_OK) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Could not register Objects for the ControlPanels");
+            }
             returnStatus = status;
         }
     }
