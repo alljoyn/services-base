@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -72,31 +72,36 @@ Log::LogLevel ServicesLoggerImpl::getDefaultLogLevel()
 
 void ServicesLoggerImpl::debug(const char* Tag, const char* logText)
 {
-    if (m_logLevel >= Log::LEVEL_DEBUG)
+    if (m_logLevel >= Log::LEVEL_DEBUG) {
         QCC_DbgTrace(("[DEBUG] %s: %s", Tag, logText));
+    }
 }
 
 void ServicesLoggerImpl::info(const char* Tag, const char* logText)
 {
-    if (m_logLevel >= Log::LEVEL_INFO)
+    if (m_logLevel >= Log::LEVEL_INFO) {
         QCC_DbgPrintf(("[INFO] %s: %s", Tag, logText));
+    }
 }
 void ServicesLoggerImpl::warn(const char* Tag, const char* logText)
 {
-    if (m_logLevel >= Log::LEVEL_WARN)
+    if (m_logLevel >= Log::LEVEL_WARN) {
         QCC_DbgHLPrintf(("[WARN] %s: %s", Tag, logText));
+    }
 }
 
 void ServicesLoggerImpl::error(const char* Tag, const char* logText)
 {
-    if (m_logLevel >= Log::LEVEL_ERROR)
+    if (m_logLevel >= Log::LEVEL_ERROR) {
         QCC_LogError(ER_FAIL, ("[ERROR] %s: %s", Tag, logText));
+    }
 }
 
 void ServicesLoggerImpl::fatal(const char* Tag, const char* logText)
 {
-    if (m_logLevel >= Log::LEVEL_FATAL)
+    if (m_logLevel >= Log::LEVEL_FATAL) {
         QCC_LogError(ER_FAIL, ("[FATAL] %s: %s", Tag, logText));
+    }
 }
 
 void ServicesLoggerImpl::RegisterCallBack(GenericLogger* newLogger, QCC_DbgMsgCallback cb, void* context)

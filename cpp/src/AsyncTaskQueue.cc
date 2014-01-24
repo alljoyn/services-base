@@ -49,8 +49,9 @@ void AsyncTaskQueue::Enqueue(TaskData const* taskdata)
 
 void AsyncTaskQueue::Start()
 {
-    if (!m_IsStopping)
+    if (!m_IsStopping) {
         return;
+    }
 
     m_IsStopping = false;
 
@@ -61,8 +62,9 @@ void AsyncTaskQueue::Start()
 
 void AsyncTaskQueue::Stop()
 {
-    if (m_IsStopping)
+    if (m_IsStopping) {
         return;
+    }
 
     pthread_mutex_lock(&m_Lock);
     while (!m_MessageQueue.empty()) {
@@ -91,12 +93,16 @@ void AsyncTaskQueue::Receiver()
 {
     pthread_mutex_lock(&m_Lock);
     while (true) {
-        if (m_IsStopping) break;
+        if (m_IsStopping) {
+            break;
+        }
 
         if (m_MessageQueue.empty()) {
             m_AsyncTask->OnEmptyQueue();
             pthread_cond_wait(&m_QueueChanged, &m_Lock);
-            if (m_IsStopping) break;
+            if (m_IsStopping) {
+                break;
+            }
         }
 
         TaskData const* taskData = m_MessageQueue.front();
