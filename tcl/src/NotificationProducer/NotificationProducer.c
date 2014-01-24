@@ -102,8 +102,9 @@ AJ_Status ProducerSetNotification(NotificationContent_t* notificationContent, ui
     }
 
     ///////////////////    MessgeId    /////////////////////
-    if (!nextNotificationId)
+    if (!nextNotificationId) {
         AJ_RandBytes((uint8_t*)&nextNotificationId, 4);
+    }
 
     status = AJ_MarshalArgs(&msg, "i", nextNotificationId);
     if (status != AJ_OK) {

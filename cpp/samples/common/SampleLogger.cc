@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -43,29 +43,34 @@ Log::LogLevel SampleLogger::getLogLevel()
 
 void SampleLogger::debug(const char* Tag, const char* logText)
 {
-    if (m_logLevel >= Log::LEVEL_DEBUG)
+    if (m_logLevel >= Log::LEVEL_DEBUG) {
         fprintf(stderr, "[DEBUG]: %s: %s\n", Tag, logText);
+    }
 }
 
 void SampleLogger::info(const char* Tag, const char* logText)
 {
-    if (m_logLevel >= Log::LEVEL_INFO)
+    if (m_logLevel >= Log::LEVEL_INFO) {
         fprintf(stderr, "[INFO] : %s: %s\n", Tag, logText);
+    }
 }
 void SampleLogger::warn(const char* Tag, const char* logText)
 {
-    if (m_logLevel >= Log::LEVEL_WARN)
+    if (m_logLevel >= Log::LEVEL_WARN) {
         fprintf(stderr, "[WARN] : %s: %s\n", Tag, logText);
+    }
 }
 
 void SampleLogger::error(const char* Tag, const char* logText)
 {
-    if (m_logLevel >= Log::LEVEL_ERROR)
+    if (m_logLevel >= Log::LEVEL_ERROR) {
         fprintf(stderr, "[ERROR]: %s: %s\n", Tag, logText);
+    }
 }
 
 void SampleLogger::fatal(const char* Tag, const char* logText)
 {
-    if (m_logLevel >= Log::LEVEL_FATAL)
+    if (m_logLevel >= Log::LEVEL_FATAL) {
         fprintf(stderr, "[FATAL]: %s: %s\n", Tag, logText);
+    }
 }

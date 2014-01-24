@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -29,8 +29,9 @@ TestFunction::~TestFunction()
 
 bool TestFunction::checkRequiredParams(std::map<qcc::String, qcc::String>& params)
 {
-    if (requiredParams.size() == 0)
+    if (requiredParams.size() == 0) {
         return true;
+    }
 
     for (std::vector<qcc::String>::const_iterator reqParams_it = requiredParams.begin(); reqParams_it != requiredParams.end(); ++reqParams_it) {
         if (params.find(*reqParams_it) == params.end()) {

@@ -39,8 +39,9 @@ NotificationDismisserReceiver::NotificationDismisserReceiver(BusAttachment* bus,
     /**
      * Do not add code until the status that returned from the base class is verified.
      */
-    if (status != ER_OK)
+    if (status != ER_OK) {
         return;
+    }
 
     pthread_mutex_init(&m_Lock, NULL);
     pthread_cond_init(&m_QueueChanged, NULL);
@@ -50,10 +51,11 @@ NotificationDismisserReceiver::NotificationDismisserReceiver(BusAttachment* bus,
                                          m_SignalMethod,
                                          NULL);
     if (logger) {
-        if (status != ER_OK)
+        if (status != ER_OK) {
             logger->warn(TAG, "Could not register the SignalHandler");
-        else
+        } else {
             logger->debug(TAG, "Registered the SignalHandler successfully");
+        }
     }
     pthread_create(&m_ReceiverThread, NULL, ReceiverThreadWrapper, this);
 }
@@ -94,8 +96,9 @@ void NotificationDismisserReceiver::unregisterHandler(BusAttachment* bus)
 void* NotificationDismisserReceiver::ReceiverThreadWrapper(void* context)
 {
     NotificationDismisserReceiver* consumer = reinterpret_cast<NotificationDismisserReceiver*>(context);
-    if (consumer == NULL) // should not happen
+    if (consumer == NULL) { // should not happen
         return NULL;
+    }
     consumer->ReceiverThread();
     return NULL;
 }
@@ -115,8 +118,9 @@ void NotificationDismisserReceiver::ReceiverThread()
             int32_t msgId;
             qcc::String appId;
             QStatus status = UnmarshalMessage(message, msgId, appId);
-            if (status == ER_OK)
+            if (status == ER_OK) {
                 Transport::getInstance()->getNotificationReceiver()->Dismiss(msgId, appId);
+            }
             pthread_mutex_lock(&m_Lock);
         }
         pthread_cond_wait(&m_QueueChanged, &m_Lock);

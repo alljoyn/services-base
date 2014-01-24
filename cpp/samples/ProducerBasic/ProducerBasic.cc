@@ -69,20 +69,26 @@ CommonBusListener*  busListener = 0;
 void cleanup()
 {
     // Clean up
-    if (prodService)
+    if (prodService) {
         prodService->shutdown();
+    }
 #ifdef USE_SAMPLE_LOGGER
-    if (myLogger)
+    if (myLogger) {
         delete myLogger;
+    }
 #endif
-    if (bus && busListener)
+    if (bus && busListener) {
         CommonSampleUtil::aboutServiceDestroy(bus, busListener);
-    if (busListener)
+    }
+    if (busListener) {
         delete busListener;
-    if (propertyStoreImpl)
+    }
+    if (propertyStoreImpl) {
         delete (propertyStoreImpl);
-    if (bus)
+    }
+    if (bus) {
         delete bus;
+    }
     std::cout << "Goodbye!" << std::endl;
 }
 

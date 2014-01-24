@@ -79,18 +79,20 @@ NotificationSender* NotificationService::initSend(BusAttachment* bus, PropertySt
     }
 
     Transport* transport = Transport::getInstance();
-    if (transport->startSenderTransport(bus) != ER_OK)
+    if (transport->startSenderTransport(bus) != ER_OK) {
         return NULL;
+    }
 
     MsgArg configArgs[1];
     MsgArg* configEntries;
     size_t configNum;
     QStatus status;
 
-    if ((status = store->ReadAll(0, PropertyStore::READ, configArgs[0])))
+    if ((status = store->ReadAll(0, PropertyStore::READ, configArgs[0]))) {
         if (logger) {
             logger->warn(TAG, "Error reading all in configuration data" + String(QCC_StatusText(status)));
         }
+    }
 
     if ((status = configArgs[0].Get(AJPARAM_ARR_DICT_STR_VAR.c_str(), &configNum, &configEntries))) {
         if (logger) {
@@ -253,34 +255,40 @@ void NotificationService::GenericLoggerCallBack(DbgMsgType type, const char* mod
         switch (type) {
         case DBG_LOCAL_ERROR:
         case DBG_REMOTE_ERROR:
-            if (currLogLevel >= Log::LEVEL_ERROR)
+            if (currLogLevel >= Log::LEVEL_ERROR) {
                 logger->error(CALLBACKTAG, msg);
+            }
             break;
 
         case DBG_GEN_MESSAGE:
-            if (currLogLevel >= Log::LEVEL_INFO)
+            if (currLogLevel >= Log::LEVEL_INFO) {
                 logger->info(CALLBACKTAG, msg);
+            }
             break;
 
         case DBG_API_TRACE:
-            if (currLogLevel >= Log::LEVEL_DEBUG)
+            if (currLogLevel >= Log::LEVEL_DEBUG) {
                 logger->debug(CALLBACKTAG, msg);
+            }
             break;
 
         case DBG_HIGH_LEVEL:
-            if (currLogLevel >= Log::LEVEL_WARN)
+            if (currLogLevel >= Log::LEVEL_WARN) {
                 logger->warn(CALLBACKTAG, msg);
+            }
             break;
 
         case DBG_REMOTE_DATA:
         case DBG_LOCAL_DATA:
-            if (currLogLevel >= Log::LEVEL_DEBUG)
+            if (currLogLevel >= Log::LEVEL_DEBUG) {
                 logger->debug(CALLBACKTAG, msg);
+            }
             break;
 
         default:
-            if (currLogLevel >= Log::LEVEL_DEBUG)
+            if (currLogLevel >= Log::LEVEL_DEBUG) {
                 logger->debug(CALLBACKTAG, msg);
+            }
         }
     }
 }

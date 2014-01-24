@@ -157,17 +157,17 @@ bool getInput(qcc::String& device_id, qcc::String& device_name, qcc::String& app
             break;
 
         case SetMsgText:
-        {
-            tempText = input.length() ? input.c_str() : defaultText;
-            // It is possible for both the language and text to be empty
-            NotificationText textToSend(tempLang.c_str(), tempText.c_str());
-            vecMessages.push_back(textToSend);
-            tempLang = "";
-            tempText = "";
-            std::cout << "Do you want to enter a new message? (press 'y' for yes or anything else for no)" << std::endl;
-            state = CheckForNewMsg;
-            break;
-        }
+            {
+                tempText = input.length() ? input.c_str() : defaultText;
+                // It is possible for both the language and text to be empty
+                NotificationText textToSend(tempLang.c_str(), tempText.c_str());
+                vecMessages.push_back(textToSend);
+                tempLang = "";
+                tempText = "";
+                std::cout << "Do you want to enter a new message? (press 'y' for yes or anything else for no)" << std::endl;
+                state = CheckForNewMsg;
+                break;
+            }
 
         case CheckForCustomAttributes:
             if (input.compare("y") == 0) {
@@ -226,17 +226,17 @@ bool getInput(qcc::String& device_id, qcc::String& device_name, qcc::String& app
             break;
 
         case SetRichAudioUrlUrl:
-        {
-            tempUrl = input.length() ? input.c_str() : defaultRichAudioUrl;
-            // It is possible for both the language and text to be empty
-            RichAudioUrl audioContent(tempLang.c_str(), tempUrl.c_str());
-            richAudioUrl.push_back(audioContent);
-            tempLang = "";
-            tempText = "";
-            std::cout << "Do you want to enter another rich audio content? (press 'y' for yes or anything else for no)" << std::endl;
-            state = CheckForNewRichAudioUrl;
-            break;
-        }
+            {
+                tempUrl = input.length() ? input.c_str() : defaultRichAudioUrl;
+                // It is possible for both the language and text to be empty
+                RichAudioUrl audioContent(tempLang.c_str(), tempUrl.c_str());
+                richAudioUrl.push_back(audioContent);
+                tempLang = "";
+                tempText = "";
+                std::cout << "Do you want to enter another rich audio content? (press 'y' for yes or anything else for no)" << std::endl;
+                state = CheckForNewRichAudioUrl;
+                break;
+            }
 
         case CheckForRichIconObjectPath:
             if (input.compare("y") == 0) {
@@ -289,10 +289,11 @@ bool getInput(qcc::String& device_id, qcc::String& device_name, qcc::String& app
             break;
 
         case SetTTL:
-            if (input.length())
+            if (input.length()) {
                 ttl = atoi(input.c_str());
-            else
+            } else {
                 ttl = defaultTTL;
+            }
             std::cout << "Enter in sleep time between messages (in milliseconds) or press 'enter' to end notification:" << std::endl;
             state = SetSleepTime;
             break;
@@ -312,22 +313,29 @@ bool getInput(qcc::String& device_id, qcc::String& device_name, qcc::String& app
 
 void cleanup()
 {
-    if (prodService)
+    if (prodService) {
         prodService->shutdown();
+    }
 #ifdef USE_SAMPLE_LOGGER
-    if (myLogger)
+    if (myLogger) {
         delete myLogger;
+    }
 #endif
-    if (Sender)
+    if (Sender) {
         delete Sender;
-    if (bus && notificationBusListener)
+    }
+    if (bus && notificationBusListener) {
         CommonSampleUtil::aboutServiceDestroy(bus, notificationBusListener);
-    if (notificationBusListener)
+    }
+    if (notificationBusListener) {
         delete notificationBusListener;
-    if (propertyStoreImpl)
+    }
+    if (propertyStoreImpl) {
         delete (propertyStoreImpl);
-    if (bus)
+    }
+    if (bus) {
         delete bus;
+    }
     std::cout << "Goodbye!" << std::endl;
 }
 
@@ -388,8 +396,9 @@ int main()
         QStatus status;
 
         if (!getInput(device_id, device_name, app_id, app_name, messageType, vecMessages, customAttributes,
-                      richIconUrl, richAudioUrl, richIconObjectPath, richAudioObjectPath, controlPanelServiceObjectPath, ttl, sleepTime))
+                      richIconUrl, richAudioUrl, richIconObjectPath, richAudioObjectPath, controlPanelServiceObjectPath, ttl, sleepTime)) {
             break;
+        }
 
         status = CommonSampleUtil::fillPropertyStore(propertyStoreImpl, app_id, app_name, device_id, device_name);
         if (status != ER_OK) {
@@ -422,14 +431,18 @@ int main()
         Notification notification(messageType, vecMessages);
         notification.setCustomAttributes(customAttributes);
         notification.setRichAudioUrl(richAudioUrl);
-        if (richIconUrl.length())
+        if (richIconUrl.length()) {
             notification.setRichIconUrl(richIconUrl.c_str());
-        if (richIconObjectPath.length())
+        }
+        if (richIconObjectPath.length()) {
             notification.setRichIconObjectPath(richIconObjectPath.c_str());
-        if (richAudioObjectPath.length())
+        }
+        if (richAudioObjectPath.length()) {
             notification.setRichAudioObjectPath(richAudioObjectPath.c_str());
-        if (controlPanelServiceObjectPath.length())
+        }
+        if (controlPanelServiceObjectPath.length()) {
             notification.setControlPanelServiceObjectPath(controlPanelServiceObjectPath.c_str());
+        }
 
         if (Sender->send(notification, ttl) != ER_OK) {
             std::cout << "Could not send the message successfully" << std::endl;

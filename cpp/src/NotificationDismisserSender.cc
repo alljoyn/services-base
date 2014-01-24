@@ -33,8 +33,9 @@ NotificationDismisserSender::NotificationDismisserSender(BusAttachment* bus, Str
     /**
      * Do not add code until the status that returned from the base class is verified.
      */
-    if (status != ER_OK)
+    if (status != ER_OK) {
         return;
+    }
 
     //Add code here
     GenericLogger* logger = NotificationService::getInstance()->getLogger();

@@ -54,14 +54,16 @@ Transport::Transport() : m_Bus(0), m_Receiver(0), m_Consumer(0), m_SuperAgent(0)
 
 Transport::~Transport()
 {
-    if (m_Bus)
+    if (m_Bus) {
         cleanup();
+    }
 }
 
 Transport* Transport::getInstance()
 {
-    if (!s_Instance)
+    if (!s_Instance) {
         s_Instance = new Transport();
+    }
     return s_Instance;
 }
 
@@ -88,9 +90,10 @@ QStatus Transport::setBusAttachment(ajn::BusAttachment* bus)
 
 QStatus Transport::disableSuperAgent()
 {
-    if (m_Consumer || m_SuperAgent)
+    if (m_Consumer || m_SuperAgent) {
         return ER_BUS_ALREADY_CONNECTED;         // Receiver already started
 
+    }
     m_IsSuperAgentDisabled = true;
     return ER_OK;
 }
@@ -179,8 +182,9 @@ QStatus Transport::deleteMsg(int32_t msgId)
         }
 
         ret = m_Producers[i]->deleteMsg(msgId);
-        if (ret == ER_OK)
+        if (ret == ER_OK) {
             break;
+        }
     }
 
     if (ret == ER_OK) {
@@ -239,11 +243,13 @@ QStatus Transport::startSenderTransport(BusAttachment* bus, bool startSuperAgent
                 m_Producers[messageTypeIndx] = new NotificationTransportProducer(m_Bus,
                                                                                  AJ_PRODUCER_SERVICE_PATH_PREFIX + MessageTypeUtil::getMessageTypeString(messageTypeIndx),
                                                                                  status, AJ_SA_INTERFACE_NAME);
-                if (status != ER_OK)
+                if (status != ER_OK) {
                     goto exit;
+                }
 
-                if (!interfaces.size())
+                if (!interfaces.size()) {
                     interfaces.push_back(AJ_SA_INTERFACE_NAME);
+                }
 
                 status = aboutService->AddObjectDescription(AJ_PRODUCER_SERVICE_PATH_PREFIX +
                                                             MessageTypeUtil::getMessageTypeString(messageTypeIndx), interfaces);
@@ -251,11 +257,13 @@ QStatus Transport::startSenderTransport(BusAttachment* bus, bool startSuperAgent
                 m_Producers[messageTypeIndx] = new NotificationTransportProducer(m_Bus,
                                                                                  AJ_PRODUCER_SERVICE_PATH_PREFIX + MessageTypeUtil::getMessageTypeString(messageTypeIndx), status);
 
-                if (status != ER_OK)
+                if (status != ER_OK) {
                     goto exit;
+                }
 
-                if (!interfaces.size())
+                if (!interfaces.size()) {
                     interfaces.push_back(AJ_NOTIFICATION_INTERFACE_NAME);
+                }
 
                 status = aboutService->AddObjectDescription(AJ_PRODUCER_SERVICE_PATH_PREFIX +
                                                             MessageTypeUtil::getMessageTypeString(messageTypeIndx), interfaces);
@@ -280,8 +288,9 @@ QStatus Transport::startSenderTransport(BusAttachment* bus, bool startSuperAgent
 
     //Code handles NotificationProducerReceiver - Start
     m_NotificationProducerReceiver = new NotificationProducerReceiver(m_Bus, status);
-    if (status != ER_OK)
+    if (status != ER_OK) {
         goto exit;
+    }
     status = m_Bus->RegisterBusObject(*m_NotificationProducerReceiver);
     if (status != ER_OK) {
         if (logger) {
@@ -669,10 +678,12 @@ void Transport::cleanupTransportProducer(int32_t messageTypeIndx, bool unregiste
         logger->debug(TAG, "Transport::cleanupTransportProducer - Start");
     }
     for  (; messageTypeIndx >= 0; messageTypeIndx--) {
-        if (!m_Producers[messageTypeIndx])
+        if (!m_Producers[messageTypeIndx]) {
             continue;
-        if (unregister)
+        }
+        if (unregister) {
             m_Bus->UnregisterBusObject(*m_Producers[messageTypeIndx]);
+        }
         delete m_Producers[messageTypeIndx];
         m_Producers[messageTypeIndx] = 0;
     }
@@ -714,8 +725,9 @@ void Transport::cleanupNotificationProducerReceiver()
 
 void Transport::cleanupNotificationDismisserSender()
 {
-    if (!m_NotificationDismisserSender)
+    if (!m_NotificationDismisserSender) {
         return;
+    }
 
     m_Bus->UnregisterBusObject(*m_NotificationDismisserSender);
 
@@ -725,8 +737,9 @@ void Transport::cleanupNotificationDismisserSender()
 
 void Transport::cleanupNotificationDismisserReceiver()
 {
-    if (!m_NotificationDismisserReceiver)
+    if (!m_NotificationDismisserReceiver) {
         return;
+    }
 
     m_NotificationDismisserReceiver->unregisterHandler(m_Bus);
     m_Bus->UnregisterBusObject(*m_NotificationDismisserReceiver);
@@ -755,8 +768,9 @@ void Transport::cleanupReceiverTransport()
 
 void Transport::cleanupTransportConsumer(bool unregister)
 {
-    if (!m_Consumer)
+    if (!m_Consumer) {
         return;
+    }
 
     if (unregister) {
         m_Consumer->unregisterHandler(m_Bus);
@@ -769,8 +783,9 @@ void Transport::cleanupTransportConsumer(bool unregister)
 
 void Transport::cleanupTransportSuperAgent(bool unregister)
 {
-    if (!m_SuperAgent)
+    if (!m_SuperAgent) {
         return;
+    }
 
     if (unregister) {
         m_SuperAgent->unregisterHandler(m_Bus);
@@ -782,8 +797,9 @@ void Transport::cleanupTransportSuperAgent(bool unregister)
 
 void Transport::cleanupAnnouncementListener(bool unregister)
 {
-    if (!m_AnnounceListener)
+    if (!m_AnnounceListener) {
         return;
+    }
 
     if (unregister) {
         AnnouncementRegistrar::UnRegisterAnnounceHandler(*m_Bus, *m_AnnounceListener);
@@ -794,8 +810,9 @@ void Transport::cleanupAnnouncementListener(bool unregister)
 
 void Transport::cleanupNotificationProducerSender()
 {
-    if (!m_NotificationProducerSender)
+    if (!m_NotificationProducerSender) {
         return;
+    }
 
     m_Bus->UnregisterBusObject(*m_NotificationProducerSender);
 
@@ -805,8 +822,9 @@ void Transport::cleanupNotificationProducerSender()
 
 void Transport::cleanup()
 {
-    if (m_Bus == 0)
+    if (m_Bus == 0) {
         return;
+    }
     Notification::m_AsyncTaskQueue.Stop();
     cleanupSenderTransport();
     cleanupReceiverTransport();

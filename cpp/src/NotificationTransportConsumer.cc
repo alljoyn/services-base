@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -30,8 +30,9 @@ NotificationTransportConsumer::NotificationTransportConsumer(
     NotificationTransport(bus, servicePath, status, AJ_NOTIFICATION_INTERFACE_NAME, TAG_TRANSPORT_CONSUMER),
     m_IsStopping(false)
 {
-    if (status != ER_OK)
+    if (status != ER_OK) {
         return;
+    }
 
     pthread_mutex_init(&m_Lock, NULL);
     pthread_cond_init(&m_QueueChanged, NULL);
@@ -42,10 +43,11 @@ NotificationTransportConsumer::NotificationTransportConsumer(
                                          NULL);
     GenericLogger* logger = NotificationService::getInstance()->getLogger();
     if (logger) {
-        if (status != ER_OK)
+        if (status != ER_OK) {
             logger->warn(TAG, "Could not register the SignalHandler");
-        else
+        } else {
             logger->debug(TAG, "Registered the SignalHandler successfully");
+        }
     }
     pthread_create(&m_ReceiverThread, NULL, ReceiverThreadWrapper, this);
 }
@@ -86,8 +88,9 @@ void NotificationTransportConsumer::unregisterHandler(BusAttachment* bus)
 void* NotificationTransportConsumer::ReceiverThreadWrapper(void* context)
 {
     NotificationTransportConsumer* consumer = reinterpret_cast<NotificationTransportConsumer*>(context);
-    if (consumer == NULL) // should not happen
+    if (consumer == NULL) { // should not happen
         return NULL;
+    }
     consumer->ReceiverThread();
     return NULL;
 }

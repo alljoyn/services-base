@@ -266,8 +266,9 @@ void Producer_GetNotificationFromUser()
     if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL && strlen(buf)) {
         strcpy(controlPanelServiceObjectPath, buf);
         notificationContent.controlPanelServiceObjectPath = controlPanelServiceObjectPath;
-    } else
+    } else {
         notificationContent.controlPanelServiceObjectPath = NULL;
+    }
 
     ProducerSetNotification(&notificationContent, messageType, ttl);
 

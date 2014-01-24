@@ -77,8 +77,9 @@ void NotificationReceiverTestImpl::Receive(Notification const& notification) {
             std::cout << "Custom Attribute Key: " << customAttributes_it->first.c_str() << "  Custom Attribute Value: " << customAttributes_it->second.c_str() << std::endl;
         }
 
-        if (notification.getRichIconUrl())
+        if (notification.getRichIconUrl()) {
             std::cout << "Rich Content Icon Url: " << notification.getRichIconUrl() << std::endl;
+        }
 
         // get vector of audio content and iterate through it
         std::vector<RichAudioUrl> richAudioUrl = notification.getRichAudioUrl();
@@ -92,17 +93,21 @@ void NotificationReceiverTestImpl::Receive(Notification const& notification) {
 
         }
 
-        if (notification.getRichIconObjectPath())
+        if (notification.getRichIconObjectPath()) {
             std::cout << "Rich Content Icon Object Path: " << notification.getRichIconObjectPath() << std::endl;
+        }
 
-        if (notification.getRichAudioObjectPath())
+        if (notification.getRichAudioObjectPath()) {
             std::cout << "Rich Content Audio Object Path: " << notification.getRichAudioObjectPath() << std::endl;
+        }
 
-        if (notification.getControlPanelServiceObjectPath())
+        if (notification.getControlPanelServiceObjectPath()) {
             std::cout << "ControlPanelService object path: " << notification.getControlPanelServiceObjectPath() << std::endl;
+        }
 
-        if (notification.getOriginalSender())
+        if (notification.getOriginalSender()) {
             std::cout << "OriginalSender: " << notification.getOriginalSender() << std::endl;
+        }
 
 
         std::cout << "******************** End New Message Received ********************" << std::endl << std::endl;
@@ -124,18 +129,18 @@ void NotificationReceiverTestImpl::Receive(Notification const& notification) {
             break;
 
         case ACTION_ACKNOWLEDGE:
-        {
-            std::cout << "going to call acknowledge" << std::endl;
-            nonConstNotification.acknowledge();
-        }
-        break;
+            {
+                std::cout << "going to call acknowledge" << std::endl;
+                nonConstNotification.acknowledge();
+            }
+            break;
 
         case ACTION_DISMISS:
-        {
-            std::cout << "going to call dismiss" << std::endl;
-            nonConstNotification.dismiss();
-        }
-        break;
+            {
+                std::cout << "going to call dismiss" << std::endl;
+                nonConstNotification.dismiss();
+            }
+            break;
 
         default:
             std::cout << "Got non valid action to do:" << GetNotificationAction() << std::endl;

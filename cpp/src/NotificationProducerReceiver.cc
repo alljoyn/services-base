@@ -35,8 +35,9 @@ NotificationProducerReceiver::NotificationProducerReceiver(ajn::BusAttachment* b
     /**
      * Do not add code until the status that returned from the base class is verified.
      */
-    if (status != ER_OK)
+    if (status != ER_OK) {
         return;
+    }
 
     GenericLogger* logger = NotificationService::getInstance()->getLogger();
 
@@ -105,8 +106,9 @@ void* NotificationProducerReceiver::ReceiverThreadWrapper(void* context)
         logger->debug(TAG, "NotificationProducerReceiver::ReceiverThreadWrapper()");
     }
     NotificationProducerReceiver* pNotificationProducerReceiver = reinterpret_cast<NotificationProducerReceiver*>(context);
-    if (pNotificationProducerReceiver == NULL) // should not happen
+    if (pNotificationProducerReceiver == NULL) { // should not happen
         return NULL;
+    }
     pNotificationProducerReceiver->Receiver();
     return NULL;
 }
@@ -162,8 +164,9 @@ void NotificationProducerReceiver::HandleMethodCall(const ajn::InterfaceDescript
 exit:
     if (status != ER_OK) {
         MethodReply(msg, ER_INVALID_DATA);
-        if (logger)
+        if (logger) {
             logger->debug(TAG, "ER_INVALID_DATA");
+        }
     }
 }
 

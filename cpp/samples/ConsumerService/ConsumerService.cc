@@ -43,15 +43,19 @@ SampleLogger* myLogger;
 void cleanup()
 {
     std::cout << "cleanup() - start" << std::endl;
-    if (conService)
+    if (conService) {
         conService->shutdown();
-    if (Receiver)
+    }
+    if (Receiver) {
         delete Receiver;
-    if (busAttachment)
+    }
+    if (busAttachment) {
         delete busAttachment;
+    }
 #ifdef USE_SAMPLE_LOGGER
-    if (myLogger)
+    if (myLogger) {
         delete myLogger;
+    }
 #endif
     std::cout << "cleanup() - end" << std::endl;
 }

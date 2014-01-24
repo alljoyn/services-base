@@ -34,8 +34,9 @@ NotificationDismisser::NotificationDismisser(ajn::BusAttachment* bus, qcc::Strin
 
     m_InterfaceDescription = const_cast<InterfaceDescription*>(bus->GetInterface(AJ_NOTIFICATION_DISMISSER_INTERFACE.c_str()));
     if (!m_InterfaceDescription) {
-        if ((status = bus->CreateInterface(nsConsts::AJ_NOTIFICATION_DISMISSER_INTERFACE.c_str(), m_InterfaceDescription, false)) != ER_OK)
+        if ((status = bus->CreateInterface(nsConsts::AJ_NOTIFICATION_DISMISSER_INTERFACE.c_str(), m_InterfaceDescription, false)) != ER_OK) {
             return;
+        }
 
         if (!m_InterfaceDescription) {
             if (logger) {

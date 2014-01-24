@@ -31,8 +31,9 @@ NotificationTransportSuperAgent::NotificationTransportSuperAgent(
     NotificationTransport(bus, servicePath, status, AJ_SA_INTERFACE_NAME, TAG_TRANSPORT_SUPERAGENT),
     m_IsFirstSuperAgent(isFirstSuperAgent)
 {
-    if (status != ER_OK)
+    if (status != ER_OK) {
         return;
+    }
 
     status =  bus->RegisterSignalHandler(this,
                                          static_cast<MessageReceiver::SignalHandler>(&NotificationTransportSuperAgent::handleSignal),
@@ -40,10 +41,11 @@ NotificationTransportSuperAgent::NotificationTransportSuperAgent(
                                          NULL);
     GenericLogger* logger = NotificationService::getInstance()->getLogger();
     if (logger) {
-        if (status != ER_OK)
+        if (status != ER_OK) {
             logger->warn(TAG, "Could not register the SignalHandler");
-        else
+        } else {
             logger->debug(TAG, "Registered the SignalHandler successfully");
+        }
     }
 }
 

@@ -98,11 +98,13 @@ bool createService(std::map<qcc::String, qcc::String>& params)
 
 bool initSend(std::map<qcc::String, qcc::String>& params)
 {
-    if (!notificationBusListener)
+    if (!notificationBusListener) {
         notificationBusListener = new CommonBusListener();
+    }
 
-    if (!propertyStoreImpl)
+    if (!propertyStoreImpl) {
         propertyStoreImpl = new AboutPropertyStoreImpl();
+    }
 
     QStatus status;
     status = CommonSampleUtil::fillPropertyStore(propertyStoreImpl, params["app_id"].c_str(), params["app_name"].c_str(),
@@ -151,14 +153,18 @@ bool send(std::map<qcc::String, qcc::String>& params)
     Notification notification(messageType, vecMessages);
     notification.setCustomAttributes(customAttributes);
     notification.setRichAudioUrl(richAudioUrl);
-    if (richIconUrl.length())
+    if (richIconUrl.length()) {
         notification.setRichIconUrl(richIconUrl.c_str());
-    if (richIconObjectPath.length())
+    }
+    if (richIconObjectPath.length()) {
         notification.setRichIconObjectPath(richIconObjectPath.c_str());
-    if (richAudioObjectPath.length())
+    }
+    if (richAudioObjectPath.length()) {
         notification.setRichAudioObjectPath(richAudioObjectPath.c_str());
-    if (controlPanelServiceObjectPath.length())
+    }
+    if (controlPanelServiceObjectPath.length()) {
         notification.setControlPanelServiceObjectPath(controlPanelServiceObjectPath.c_str());
+    }
     QStatus status = Sender->send(notification, ttl);
     if (status != ER_OK) {
         std::cout << "Could not send the message successfully.";
@@ -595,20 +601,23 @@ bool checkRequiredSteps(TestFunction& test, TestFunction*testFunctions, int32_t*
         } else if ((reqSteps_it->compare("Sender") == 0) && (!didInitSend)) {
             std::cout << "Action not allowed.  Cannot run '" << test.functionName.c_str() << "' without initializing a sender." << std::endl;
             qcc::String preReqApi = "initsend";
-            if (functionExists(preReqApi, testFunctions,  functionIndex))
+            if (functionExists(preReqApi, testFunctions,  functionIndex)) {
                 Usage(testFunctions, preReqApi, functionIndex);
+            }
             return false;
         } else if ((reqSteps_it->compare("Receiver") == 0) && (!didInitReceive)) {
             std::cout << "Action not allowed.  Cannot run '" << test.functionName.c_str() << "' without initializing a receiver." << std::endl;
             qcc::String preReqApi = "initreceive";
-            if (functionExists(preReqApi, testFunctions,  functionIndex))
+            if (functionExists(preReqApi, testFunctions,  functionIndex)) {
                 Usage(testFunctions, preReqApi, functionIndex);
+            }
             return false;
         } else if ((reqSteps_it->compare("vecMessages") == 0) && (!vecMessages.size())) {
             std::cout << "Cannot send message.  Missing mandatory parameter message text." << std::endl;
             qcc::String preReqApi = "setmsg";
-            if (functionExists(preReqApi, testFunctions, functionIndex))
+            if (functionExists(preReqApi, testFunctions, functionIndex)) {
                 Usage(testFunctions, preReqApi, functionIndex);
+            }
             return false;
         }
     }
@@ -663,8 +672,9 @@ bool processInput(const qcc::String& input, qcc::String& funcName, std::map<qcc:
 
     // Now parse the parameters sent in and put them into a std::map
     qcc::String paramString = input.substr(spacePos + 1).c_str();
-    if (input.size() == paramString.size())  // no parameters sent in so return early
+    if (input.size() == paramString.size()) { // no parameters sent in so return early
         return true;
+    }
     trim(paramString, " ");
 
     std::stringstream iss(paramString.c_str());
@@ -711,8 +721,9 @@ int main(int argc, char* argv[])
                     }
                 }
             }
-        } else
+        } else {
             Usage(testFunctions, funcName, &functionIndex);
+        }
     }
     return 0;
 }

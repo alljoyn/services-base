@@ -256,116 +256,116 @@ AJ_Status ConsumerNotifySignalHandler(AJ_Message* msg)
 
         switch (attrbtKey) {
         case RICH_CONTENT_ICON_URL_ATTRIBUTE_KEY:
-        {
-            status = AJ_UnmarshalVariant(msg, &variantSig);
-            if (status != AJ_OK) {
-                goto Exit;
+            {
+                status = AJ_UnmarshalVariant(msg, &variantSig);
+                if (status != AJ_OK) {
+                    goto Exit;
+                }
+                status = AJ_UnmarshalArgs(msg, "s", &notification.content.richIconUrl);
+                if (status != AJ_OK) {
+                    goto Exit;
+                }
             }
-            status = AJ_UnmarshalArgs(msg, "s", &notification.content.richIconUrl);
-            if (status != AJ_OK) {
-                goto Exit;
-            }
-        }
-        break;
+            break;
 
         case RICH_CONTENT_ICON_OBJECT_PATH_ATTRIBUTE_KEY:
-        {
-            status = AJ_UnmarshalVariant(msg, &variantSig);
-            if (status != AJ_OK) {
-                goto Exit;
+            {
+                status = AJ_UnmarshalVariant(msg, &variantSig);
+                if (status != AJ_OK) {
+                    goto Exit;
+                }
+                status = AJ_UnmarshalArgs(msg, "s", &notification.content.richIconObjectPath);
+                if (status != AJ_OK) {
+                    goto Exit;
+                }
             }
-            status = AJ_UnmarshalArgs(msg, "s", &notification.content.richIconObjectPath);
-            if (status != AJ_OK) {
-                goto Exit;
-            }
-        }
-        break;
+            break;
 
         case RICH_CONTENT_AUDIO_OBJECT_PATH_ATTRIBUTE_KEY:
-        {
-            status = AJ_UnmarshalVariant(msg, &variantSig);
-            if (status != AJ_OK) {
-                goto Exit;
+            {
+                status = AJ_UnmarshalVariant(msg, &variantSig);
+                if (status != AJ_OK) {
+                    goto Exit;
+                }
+                status = AJ_UnmarshalArgs(msg, "s", &notification.content.richAudioObjectPath);
+                if (status != AJ_OK) {
+                    goto Exit;
+                }
             }
-            status = AJ_UnmarshalArgs(msg, "s", &notification.content.richAudioObjectPath);
-            if (status != AJ_OK) {
-                goto Exit;
-            }
-        }
-        break;
+            break;
 
         case CONTROLPANELSERVICE_OBJECT_PATH_ATTRIBUTE_KEY:
-        {
-            status = AJ_UnmarshalVariant(msg, &variantSig);
-            if (status != AJ_OK) {
-                goto Exit;
+            {
+                status = AJ_UnmarshalVariant(msg, &variantSig);
+                if (status != AJ_OK) {
+                    goto Exit;
+                }
+                status = AJ_UnmarshalArgs(msg, "s", &notification.content.controlPanelServiceObjectPath);
+                if (status != AJ_OK) {
+                    goto Exit;
+                }
             }
-            status = AJ_UnmarshalArgs(msg, "s", &notification.content.controlPanelServiceObjectPath);
-            if (status != AJ_OK) {
-                goto Exit;
-            }
-        }
-        break;
+            break;
 
         case ORIGINAL_SENDER_NAME_ATTRIBUTE_KEY:
-        {
-            status = AJ_UnmarshalVariant(msg, &variantSig);
-            if (status != AJ_OK) {
-                goto Exit;
+            {
+                status = AJ_UnmarshalVariant(msg, &variantSig);
+                if (status != AJ_OK) {
+                    goto Exit;
+                }
+                status = AJ_UnmarshalArgs(msg, "s", &notification.header.originalSenderName);
+                if (status != AJ_OK) {
+                    goto Exit;
+                }
             }
-            status = AJ_UnmarshalArgs(msg, "s", &notification.header.originalSenderName);
-            if (status != AJ_OK) {
-                goto Exit;
-            }
-        }
-        break;
+            break;
 
         case RICH_CONTENT_AUDIO_URL_ATTRIBUTE_KEY:
-        {
-            status = AJ_UnmarshalVariant(msg, &variantSig);
-            if (status != AJ_OK) {
-                goto Exit;
-            }
-            status = AJ_UnmarshalContainer(msg, &richAudioArray, AJ_ARG_ARRAY);
-            if (status != AJ_OK) {
-                goto Exit;
-            }
+            {
+                status = AJ_UnmarshalVariant(msg, &variantSig);
+                if (status != AJ_OK) {
+                    goto Exit;
+                }
+                status = AJ_UnmarshalContainer(msg, &richAudioArray, AJ_ARG_ARRAY);
+                if (status != AJ_OK) {
+                    goto Exit;
+                }
 
-            while (1) {
-                AJ_Arg structArg;
-                char* urlLanguage;
-                char* urlText;
+                while (1) {
+                    AJ_Arg structArg;
+                    char* urlLanguage;
+                    char* urlText;
 
-                status = AJ_UnmarshalContainer(msg, &structArg, AJ_ARG_STRUCT);
-                if (status == AJ_ERR_NO_MORE) {
-                    status = AJ_UnmarshalCloseContainer(msg, &richAudioArray);
+                    status = AJ_UnmarshalContainer(msg, &structArg, AJ_ARG_STRUCT);
+                    if (status == AJ_ERR_NO_MORE) {
+                        status = AJ_UnmarshalCloseContainer(msg, &richAudioArray);
+                        if (status != AJ_OK) {
+                            goto Exit;
+                        } else {
+                            break;
+                        }
+                    } else if (status) {
+                        goto Exit;
+                    }
+
+                    status = AJ_UnmarshalArgs(msg, "ss", &urlLanguage, &urlText);
                     if (status != AJ_OK) {
                         goto Exit;
-                    } else {
-                        break;
                     }
-                } else if (status) {
-                    goto Exit;
-                }
+                    if (notification.content.numAudioUrls < NUMALLOWEDRICHNOTS) {         // if it doesn't fit we just skip
+                        richAudiosRecd[notification.content.numAudioUrls].key   = urlLanguage;
+                        richAudiosRecd[notification.content.numAudioUrls].value = urlText;
+                        notification.content.numAudioUrls++;
+                    }
 
-                status = AJ_UnmarshalArgs(msg, "ss", &urlLanguage, &urlText);
-                if (status != AJ_OK) {
-                    goto Exit;
+                    status = AJ_UnmarshalCloseContainer(msg, &structArg);
+                    if (status != AJ_OK) {
+                        goto Exit;
+                    }
                 }
-                if (notification.content.numAudioUrls < NUMALLOWEDRICHNOTS) {             // if it doesn't fit we just skip
-                    richAudiosRecd[notification.content.numAudioUrls].key   = urlLanguage;
-                    richAudiosRecd[notification.content.numAudioUrls].value = urlText;
-                    notification.content.numAudioUrls++;
-                }
-
-                status = AJ_UnmarshalCloseContainer(msg, &structArg);
-                if (status != AJ_OK) {
-                    goto Exit;
-                }
+                notification.content.richAudioUrls = richAudiosRecd;
             }
-            notification.content.richAudioUrls = richAudiosRecd;
-        }
-        break;
+            break;
 
         default:
             AJ_Printf("Unknown argument - skipping\n");
