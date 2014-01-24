@@ -62,8 +62,9 @@ void CommonBusListener::SessionLost(SessionId sessionId, SessionLostReason reaso
 {
     std::cout << "Session has been lost" << std::endl;
     std::vector<SessionId>::iterator it = std::find(m_SessionIds.begin(), m_SessionIds.end(), sessionId);
-    if (it != m_SessionIds.end())
+    if (it != m_SessionIds.end()) {
         m_SessionIds.erase(it);
+    }
 }
 
 const std::vector<SessionId>& CommonBusListener::getSessionIds() const

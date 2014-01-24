@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -38,12 +38,13 @@ MyDeviceSet_temperature* ControlPanelGenerated::myDeviceSet_temperature = 0;
 MyDeviceFan_speed* ControlPanelGenerated::myDeviceFan_speed = 0;
 
 
-#define CHECK(x) if ((status = x) != ER_OK) return status;
+#define CHECK(x) if ((status = x) != ER_OK) { return status; }
 
 void ControlPanelGenerated::PrepareLanguageSets()
 {
-    if (languageSetsDone)
+    if (languageSetsDone) {
         return;
+    }
 
     LanguageSet myDeviceMyLanguages("myDeviceMyLanguages");
     myDeviceMyLanguages.addLanguage("en");
@@ -54,8 +55,9 @@ void ControlPanelGenerated::PrepareLanguageSets()
 
 QStatus ControlPanelGenerated::PrepareWidgets(ControlPanelControllee*& controlPanelControllee)
 {
-    if (controlPanelControllee)
+    if (controlPanelControllee) {
         return ER_BAD_ARG_1;
+    }
 
     PrepareLanguageSets();
 
@@ -66,8 +68,9 @@ QStatus ControlPanelGenerated::PrepareWidgets(ControlPanelControllee*& controlPa
     CHECK(controlPanelControllee->addControlPanelUnit(myDeviceUnit));
 
     myDeviceRootContainerControlPanel = ControlPanel::createControlPanel(LanguageSets::get("myDeviceMyLanguages"));
-    if (!myDeviceRootContainerControlPanel)
+    if (!myDeviceRootContainerControlPanel) {
         return ER_FAIL;
+    }
     CHECK(myDeviceUnit->addControlPanel(myDeviceRootContainerControlPanel));
 
     myDeviceRootContainer = new Container("rootContainer", NULL);

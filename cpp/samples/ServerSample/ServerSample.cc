@@ -91,8 +91,9 @@ static void SigIntHandler(int sig) {
 
 static void cleanup() {
 
-    if (AboutServiceApi::getInstance())
+    if (AboutServiceApi::getInstance()) {
         AboutServiceApi::DestroyInstance();
+    }
 
     if (keyListener) {
         delete keyListener;
@@ -128,20 +129,25 @@ static void cleanup() {
 #endif
 
 #ifdef _NOTIFICATION_
-    if (prodService)
+    if (prodService) {
         prodService->shutdown();
-    if (sender)
+    }
+    if (sender) {
         delete sender;
+    }
 #endif
 
 #ifdef _CONTROLPANEL_
-    if (controlPanelService)
+    if (controlPanelService) {
         controlPanelService->shutdownControllee();
+    }
     ControlPanelGenerated::Shutdown();
-    if (controlPanelControllee)
+    if (controlPanelControllee) {
         delete controlPanelControllee;
-    if (controlPanelService)
+    }
+    if (controlPanelService) {
         delete controlPanelService;
+    }
 #endif
 
 #ifdef _ONBOARDING_
@@ -158,12 +164,14 @@ static void cleanup() {
 
 const char* readPassword() {
     std::map<std::string, std::string> data;
-    if (!IniParser::ParseFile(configFile.c_str(), data))
+    if (!IniParser::ParseFile(configFile.c_str(), data)) {
         return NULL;
+    }
 
     std::map<std::string, std::string>::iterator iter = data.find("passcode");
-    if (iter == data.end())
+    if (iter == data.end()) {
         return NULL;
+    }
 
     return iter->second.c_str();
 }
@@ -201,13 +209,14 @@ void FillNotification(NotificationMessageType& messageType, std::vector<Notifica
 }
 #endif
 
-#define CHECK_RETURN(x) if ((status = x) != ER_OK) return status;
+#define CHECK_RETURN(x) if ((status = x) != ER_OK) { return status; }
 QStatus fillPropertyStore(AboutPropertyStoreImpl* propertyStore, qcc::String const& appIdHex,
                           qcc::String const& appName, qcc::String const& deviceId, qcc::String const& deviceName,
                           qcc::String const& defaultLanguage)
 {
-    if (!propertyStore)
+    if (!propertyStore) {
         return ER_BAD_ARG_1;
+    }
 
     QStatus status = ER_OK;
 
@@ -281,8 +290,9 @@ int main(int argc, char**argv, char**envArg) {
 
     if (!opts.GetConfigFile().empty()) {
         printf("using Config-file %s\n", opts.GetConfigFile().c_str());
-        if (!opts.ParseExternalXML())
+        if (!opts.ParseExternalXML()) {
             return 1;
+        }
     }
 
     if (!opts.GetAppId().empty()) {

@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -19,8 +19,8 @@
 #include <fstream>
 #include <iostream>
 
-#define CHECK(x) if ((status = x) != ER_OK) break;
-#define CHECK_RETURN(x) if ((status = x) != ER_OK) return status;
+#define CHECK(x) if ((status = x) != ER_OK) { break; }
+#define CHECK_RETURN(x) if ((status = x) != ER_OK) { return status; }
 
 using namespace ajn;
 using namespace services;
@@ -61,22 +61,26 @@ PropertyStoreImpl::~PropertyStoreImpl()
 
 QStatus PropertyStoreImpl::ReadAll(const char* languageTag, Filter filter, ajn::MsgArg& all)
 {
-    if (!m_IsInitialized)
+    if (!m_IsInitialized) {
         return ER_FAIL;
+    }
 
-    if (filter == ANNOUNCE || filter == READ)
+    if (filter == ANNOUNCE || filter == READ) {
         return AboutPropertyStoreImpl::ReadAll(languageTag, filter, all);
+    }
 
-    if (filter != WRITE)
+    if (filter != WRITE) {
         return ER_FAIL;
+    }
 
     QStatus status = ER_OK;
     if (languageTag != NULL && languageTag[0] != 0) { // check that the language is in the supported languages;
         CHECK_RETURN(isLanguageSupported(languageTag))
     } else {
         PropertyMap::iterator it = m_Properties.find(DEFAULT_LANG);
-        if (it == m_Properties.end())
+        if (it == m_Properties.end()) {
             return ER_LANGUAGE_NOT_SUPPORTED;
+        }
         CHECK_RETURN(it->second.getPropertyValue().Get("s", &languageTag))
     }
 
@@ -86,12 +90,14 @@ QStatus PropertyStoreImpl::ReadAll(const char* languageTag, Filter filter, ajn::
         for (PropertyMap::const_iterator it = m_Properties.begin(); it != m_Properties.end(); ++it) {
             const PropertyStoreProperty& property = it->second;
 
-            if (!property.getIsWritable())
+            if (!property.getIsWritable()) {
                 continue;
+            }
 
             // check that it is from the defaultLanguage or empty.
-            if (!(property.getLanguage().empty() || property.getLanguage().compare(languageTag) == 0))
+            if (!(property.getLanguage().empty() || property.getLanguage().compare(languageTag) == 0)) {
                 continue;
+            }
 
             CHECK(argsWriteData[writeArgCount].Set("{sv}", property.getPropertyName().c_str(),
                                                    new MsgArg(property.getPropertyValue())))
@@ -111,12 +117,14 @@ QStatus PropertyStoreImpl::ReadAll(const char* languageTag, Filter filter, ajn::
 
 QStatus PropertyStoreImpl::Update(const char* name, const char* languageTag, const ajn::MsgArg* value)
 {
-    if (!m_IsInitialized)
+    if (!m_IsInitialized) {
         return ER_FAIL;
+    }
 
     PropertyStoreKey propertyKey = getPropertyStoreKeyFromName(name);
-    if (propertyKey >= NUMBER_OF_KEYS)
+    if (propertyKey >= NUMBER_OF_KEYS) {
         return ER_FEATURE_NOT_AVAILABLE;
+    }
 
     if (propertyKey == DEFAULT_LANG || propertyKey == DEVICE_NAME) {
         languageTag = NULL;
@@ -145,16 +153,18 @@ QStatus PropertyStoreImpl::Update(const char* name, const char* languageTag, con
                 (languageTag != NULL && property.getLanguage().compare(languageTag) == 0)) {
                 temp = new PropertyStoreProperty(property.getPropertyName(), *value, property.getIsPublic(),
                                                  property.getIsWritable(), property.getIsAnnouncable());
-                if (languageTag)
+                if (languageTag) {
                     temp->setLanguage(languageTag);
+                }
                 m_Properties.erase(it);
                 break;
             }
         }
     }
 
-    if (temp == NULL)
+    if (temp == NULL) {
         return ER_INVALID_VALUE;
+    }
 
     m_Properties.insert(PropertyPair(propertyKey, *temp));
 
@@ -174,12 +184,14 @@ QStatus PropertyStoreImpl::Update(const char* name, const char* languageTag, con
 
 QStatus PropertyStoreImpl::Delete(const char* name, const char* languageTag)
 {
-    if (!m_IsInitialized)
+    if (!m_IsInitialized) {
         return ER_FAIL;
+    }
 
     PropertyStoreKey propertyKey = getPropertyStoreKeyFromName(name);
-    if (propertyKey >= NUMBER_OF_KEYS)
+    if (propertyKey >= NUMBER_OF_KEYS) {
         return ER_FEATURE_NOT_AVAILABLE;
+    }
 
     if (propertyKey == DEFAULT_LANG || propertyKey == DEVICE_NAME) {
         languageTag = NULL;
@@ -249,8 +261,9 @@ bool PropertyStoreImpl::persistUpdate(const char* key, const char* value)
 PropertyStoreKey PropertyStoreImpl::getPropertyStoreKeyFromName(qcc::String const& propertyStoreName)
 {
     for (int indx = 0; indx < NUMBER_OF_KEYS; indx++) {
-        if (PropertyStoreName[indx].compare(propertyStoreName) == 0)
+        if (PropertyStoreName[indx].compare(propertyStoreName) == 0) {
             return (PropertyStoreKey)indx;
+        }
     }
     return NUMBER_OF_KEYS;
 }

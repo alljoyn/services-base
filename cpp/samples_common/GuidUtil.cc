@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -77,8 +77,9 @@ const char* GuidUtil::GetDeviceIdFileName()
         }
         sFileName += buf;
         unsigned found = sFileName.find_last_of("/");
-        if (found !=  string::npos)
+        if (found !=  string::npos) {
             sFileName.erase(found + 1);
+        }
         //Add file name
         sFileName += DEVICE_ID_FILE_NAME;
     }

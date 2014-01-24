@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -29,9 +29,10 @@ std::string IniParser::trim(const std::string& str,
                             const std::string& whitespace)
 {
     const auto strBegin = str.find_first_not_of(whitespace);
-    if (strBegin == std::string::npos)
+    if (strBegin == std::string::npos) {
         return "";  // no content
 
+    }
     const auto strEnd = str.find_last_not_of(whitespace);
     const auto strRange = strEnd - strBegin + 1;
 
@@ -52,12 +53,14 @@ bool IniParser::ParseFile(std::string const& fileName, std::map<std::string, std
         lineNum++;
         line = trim(line); // remove leading and trailing whitespaces
 
-        if (!line.length())
+        if (!line.length()) {
             continue;      // empty line skip
 
-        if (line[0] == '#')
+        }
+        if (line[0] == '#') {
             continue;      // commented line skip
 
+        }
         std::size_t found = line.find('=');
         if (found == std::string::npos) {
             std::cout << "Problem reading line: " << lineNum << std::endl;

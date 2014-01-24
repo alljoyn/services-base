@@ -45,8 +45,9 @@ QStatus ConfigServiceListenerImpl::FactoryReset()
 
 #ifdef _ONBOARDING_
     printf("Calling Offboard\n");
-    if (m_OnboardingController)
+    if (m_OnboardingController) {
         m_OnboardingController->Offboard();
+    }
 #endif
 
     return ER_OK;

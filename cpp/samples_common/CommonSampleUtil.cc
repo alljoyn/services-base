@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -22,7 +22,7 @@
 using namespace ajn;
 using namespace services;
 
-#define CHECK_RETURN(x) if ((status = x) != ER_OK) return status;
+#define CHECK_RETURN(x) if ((status = x) != ER_OK) { return status; }
 qcc::String CommonSampleUtil::TAG = "CommonSampleUtil";
 
 BusAttachment* CommonSampleUtil::prepareBusAttachment(ajn::AuthListener* authListener)
@@ -58,8 +58,9 @@ QStatus CommonSampleUtil::fillPropertyStore(AboutPropertyStoreImpl* propertyStor
                                             qcc::String const& appName, qcc::String const& deviceId, qcc::String const& deviceName,
                                             qcc::String const& defaultLanguage)
 {
-    if (!propertyStore)
+    if (!propertyStore) {
         return ER_BAD_ARG_1;
+    }
 
     QStatus status = ER_OK;
 
@@ -97,19 +98,23 @@ QStatus CommonSampleUtil::fillPropertyStore(AboutPropertyStoreImpl* propertyStor
 QStatus CommonSampleUtil::prepareAboutService(BusAttachment* bus, AboutPropertyStoreImpl* propertyStore,
                                               CommonBusListener* busListener, uint16_t port)
 {
-    if (!bus)
+    if (!bus) {
         return ER_BAD_ARG_1;
+    }
 
-    if (!propertyStore)
+    if (!propertyStore) {
         return ER_BAD_ARG_2;
+    }
 
-    if (!busListener)
+    if (!busListener) {
         return ER_BAD_ARG_3;
+    }
 
     AboutServiceApi::Init(*bus, *propertyStore);
     AboutServiceApi* aboutService = AboutServiceApi::getInstance();
-    if (!aboutService)
+    if (!aboutService) {
         return ER_BUS_NOT_ALLOWED;
+    }
 
     busListener->setSessionPort(port);
     bus->RegisterBusListener(*busListener);
@@ -119,12 +124,14 @@ QStatus CommonSampleUtil::prepareAboutService(BusAttachment* bus, AboutPropertyS
     SessionOpts opts(SessionOpts::TRAFFIC_MESSAGES, false, SessionOpts::PROXIMITY_ANY, transportMask);
 
     QStatus status = bus->BindSessionPort(sp, opts, *busListener);
-    if (status != ER_OK)
+    if (status != ER_OK) {
         return status;
+    }
 
     status = aboutService->Register(port);
-    if (status != ER_OK)
+    if (status != ER_OK) {
         return status;
+    }
 
     return (bus->RegisterBusObject(*aboutService));
 }
@@ -132,8 +139,9 @@ QStatus CommonSampleUtil::prepareAboutService(BusAttachment* bus, AboutPropertyS
 QStatus CommonSampleUtil::aboutServiceAnnounce()
 {
     AboutServiceApi* aboutService = AboutServiceApi::getInstance();
-    if (!aboutService)
+    if (!aboutService) {
         return ER_BUS_NOT_ALLOWED;
+    }
 
     return (aboutService->Announce());
 }
@@ -152,8 +160,9 @@ void CommonSampleUtil::aboutServiceDestroy(BusAttachment* bus,
 
 QStatus CommonSampleUtil::addSessionlessMatch(BusAttachment*bus)
 {
-    if (!bus)
+    if (!bus) {
         return ER_BAD_ARG_1;
+    }
 
     return bus->AddMatch("sessionless='t',type='error'");
 }
