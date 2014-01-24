@@ -82,8 +82,9 @@ static void SigIntHandler(int sig) {
 
 static void cleanup() {
 
-    if (AboutServiceApi::getInstance())
+    if (AboutServiceApi::getInstance()) {
         AboutServiceApi::DestroyInstance();
+    }
 
     if (configService) {
         delete configService;
@@ -116,9 +117,9 @@ static void cleanup() {
     }
 
     if (busListener) {
-    	msgBus->UnregisterBusListener(*busListener);
-    	delete busListener;
-    	busListener = NULL;
+        msgBus->UnregisterBusListener(*busListener);
+        delete busListener;
+        busListener = NULL;
     }
 
     /* Clean up msg bus */
@@ -129,12 +130,14 @@ static void cleanup() {
 
 const char* readPassword() {
     std::map<std::string, std::string> data;
-    if (!IniParser::ParseFile(configFile.c_str(), data))
+    if (!IniParser::ParseFile(configFile.c_str(), data)) {
         return NULL;
+    }
 
     std::map<std::string, std::string>::iterator iter = data.find("passcode");
-    if (iter == data.end())
+    if (iter == data.end()) {
         return NULL;
+    }
 
     return iter->second.c_str();
 }
@@ -184,8 +187,9 @@ int main(int argc, char**argv, char**envArg) {
 
     if (!opts.GetConfigFile().empty()) {
         std::cout << "using Config-file " << configFile.c_str() << std::endl;
-        if (!opts.ParseExternalXML())
+        if (!opts.ParseExternalXML()) {
             return 1;
+        }
     }
 
     if (!opts.GetAppId().empty()) {

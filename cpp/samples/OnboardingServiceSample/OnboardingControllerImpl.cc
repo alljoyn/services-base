@@ -145,17 +145,23 @@ void OnboardingControllerImpl::ConfigureWiFi(qcc::String SSID, qcc::String passp
                     case WPA_CCMP:
                     case WPA2_TKIP:
                     case WPA2_CCMP:
-                    {
-                        if (!isValidWPAKey(passphrase)) continue;
-                    }
+                        {
+                            if (!isValidWPAKey(passphrase)) {
+                                continue;
+                            }
+                        }
 
                     case WEP:
-                    {
-                        if (!isValidWEPKey(passphrase)) continue;
-                    }
+                        {
+                            if (!isValidWEPKey(passphrase)) {
+                                continue;
+                            }
+                        }
                     }
 
-                    if (!execute_configure(("'" + SSID + "'").c_str(), AuthText(authType), passphrase.c_str())) return;
+                    if (!execute_configure(("'" + SSID + "'").c_str(), AuthText(authType), passphrase.c_str())) {
+                        return;
+                    }
                 }
                 // Done trying applicable methods
                 return;
@@ -246,7 +252,9 @@ void OnboardingControllerImpl::ParseScanInfo()
     std::string scanString((std::istreambuf_iterator<char>(scanFile)), std::istreambuf_iterator<char>());
     scanFile.close();
     json_object*jroot = json_tokener_parse(scanString.c_str());
-    if (NULL == jroot) return;
+    if (NULL == jroot) {
+        return;
+    }
 
     // Parse complete, now clear out the map and delete array
     m_ScanList.clear();
@@ -425,7 +433,9 @@ static int execute_system(const char*cmd)
 {
     std::cout << "entered " << __FUNCTION__ << std::endl;
 #ifdef _OPEN_WRT_
-    if (!cmd) return -1;
+    if (!cmd) {
+        return -1;
+    }
     std::cout << "executing " << cmd << std::endl;
     int result = system(cmd);
     result = WEXITSTATUS(result);

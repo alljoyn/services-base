@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -110,48 +110,59 @@ bool OptParser::ParseExternalXML() {
     std::map<std::string, std::string>::iterator iter;
 
     iter = data.find(AboutPropertyStoreImpl::getPropertyStoreName(DEVICE_ID).c_str());
-    if (iter != data.end())
+    if (iter != data.end()) {
         deviceId = iter->second.c_str();
+    }
 
     iter = data.find(AboutPropertyStoreImpl::getPropertyStoreName(DEVICE_NAME).c_str());
-    if (iter != data.end())
+    if (iter != data.end()) {
         deviceName = iter->second.c_str();
+    }
 
     iter = data.find(AboutPropertyStoreImpl::getPropertyStoreName(APP_ID).c_str());
-    if (iter != data.end())
+    if (iter != data.end()) {
         appGUID = iter->second.c_str();
+    }
 
     iter = data.find(AboutPropertyStoreImpl::getPropertyStoreName(APP_NAME).c_str());
-    if (iter != data.end())
+    if (iter != data.end()) {
         appName = iter->second.c_str();
+    }
 
     iter = data.find(AboutPropertyStoreImpl::getPropertyStoreName(DEFAULT_LANG).c_str());
-    if (iter != data.end())
+    if (iter != data.end()) {
         defaultLanguage = iter->second.c_str();
+    }
 
     iter = data.find("scan_file");
-    if (iter != data.end())
+    if (iter != data.end()) {
         scanFile = iter->second.c_str();
+    }
 
     iter = data.find("state_file");
-    if (iter != data.end())
+    if (iter != data.end()) {
         stateFile = iter->second.c_str();
+    }
 
     iter = data.find("error_file");
-    if (iter != data.end())
+    if (iter != data.end()) {
         errorFile = iter->second.c_str();
+    }
 
     iter = data.find("configure_cmd");
-    if (iter != data.end())
+    if (iter != data.end()) {
         configureCmd = iter->second.c_str();
+    }
 
     iter = data.find("connect_cmd");
-    if (iter != data.end())
+    if (iter != data.end()) {
         connectCmd = iter->second.c_str();
+    }
 
     iter = data.find("offboard_cmd");
-    if (iter != data.end())
+    if (iter != data.end()) {
         offboardCmd = iter->second.c_str();
+    }
 
     return true;
 }
@@ -182,8 +193,9 @@ void OptParser::PrintUsage() {
 bool OptParser::IsAllHex(const char* data) {
 
     for (size_t index = 0; index < strlen(data); ++index) {
-        if (!isxdigit(data[index]))
+        if (!isxdigit(data[index])) {
             return false;
+        }
 
     }
     return true;

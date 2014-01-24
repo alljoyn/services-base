@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -21,8 +21,8 @@
 
 #define CALLBACKTAG "AllJoynInternal"
 #define TAG "ALLJOYN_ONBOARDING_SERVICE"
-#define CHECK_RETURN(x) if ((status = x) != ER_OK) return status;
-#define CHECK_BREAK(x) if ((status = x) != ER_OK) break;
+#define CHECK_RETURN(x) if ((status = x) != ER_OK) { return status; }
+#define CHECK_BREAK(x) if ((status = x) != ER_OK) { break; }
 
 using namespace ajn;
 using namespace services;
@@ -43,22 +43,25 @@ OnboardingService::OnboardingService(ajn::BusAttachment& bus, OnboardingControll
     BusObject("/Onboarding"), m_BusAttachment(&bus), m_OnboardingController(pOnboardingControllerAPI), logger(0)
 {
     setLogger(&onboardingLogger);
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "In OnboardingService Constructor");
+    }
 }
 
 QStatus OnboardingService::Register()
 {
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "In OnboardingService Register");
+    }
     QStatus status = ER_OK;
 
     InterfaceDescription* intf = NULL;
     intf = const_cast<InterfaceDescription*>(m_BusAttachment->GetInterface(ONBOARDING_INTERFACE_NAME));
     if (!intf) {
         CHECK_RETURN(m_BusAttachment->CreateInterface(ONBOARDING_INTERFACE_NAME, intf, AJ_IFC_SECURITY_REQUIRED));
-        if (!intf)
+        if (!intf) {
             return ER_FAIL;
+        }
 
         CHECK_RETURN(intf->AddMethod("ConfigureWiFi", "ssn", "n", "SSID,passphrase,authType,status", 0));
         CHECK_RETURN(intf->AddMethod("Connect", NULL, NULL, NULL, 0));
@@ -128,15 +131,17 @@ QStatus HexToRaw(const char* hex, size_t hexLen, char* raw, size_t rawLen)
 
 void OnboardingService::ConfigureWiFiHandler(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
 {
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "In OnboardingService ConfigureWiFiHandler");
+    }
     const ajn::MsgArg* args;
     size_t numArgs;
     QStatus status = ER_OK;
     msg->GetArgs(numArgs, args);
     do {
-        if (numArgs != 3)
+        if (numArgs != 3) {
             break;
+        }
 
         char* SSID;
         char*passphrase;
@@ -225,8 +230,9 @@ void OnboardingService::Check_MethodReply(const Message& msg, const MsgArg* args
     if (!(msg->GetFlags() & ALLJOYN_FLAG_NO_REPLY_EXPECTED)) {
         status = MethodReply(msg, args, numArgs);
         if (status != ER_OK) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Method did not execute successfully. Status: " + qcc::String(QCC_StatusText(status)));
+            }
         }
     }
 }
@@ -237,22 +243,25 @@ void OnboardingService::Check_MethodReply(const Message& msg, QStatus status)
     if (!(msg->GetFlags() & ALLJOYN_FLAG_NO_REPLY_EXPECTED)) {
         status = MethodReply(msg, status);
         if (status != ER_OK) {
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "Method did not execute successfully. Status: " + qcc::String(QCC_StatusText(status)));
+            }
         }
     }
 }
 
 void OnboardingService::ConnectHandler(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
 {
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "In OnboardingService ConnectHandler");
+    }
     const ajn::MsgArg* args = 0;
     size_t numArgs = 0;
     msg->GetArgs(numArgs, args);
     do {
-        if (numArgs != 0)
+        if (numArgs != 0) {
             break;
+        }
         MsgArg args[0];
         Check_MethodReply(msg, args, 0);
         m_OnboardingController.Connect();
@@ -264,14 +273,16 @@ void OnboardingService::ConnectHandler(const ajn::InterfaceDescription::Member* 
 
 void OnboardingService::OffboardHandler(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
 {
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "In OnboardingService OffboardHandler");
+    }
     const ajn::MsgArg* args = 0;
     size_t numArgs = 0;
     do {
         msg->GetArgs(numArgs, args);
-        if (numArgs != 0)
+        if (numArgs != 0) {
             break;
+        }
         MsgArg args[0];
         Check_MethodReply(msg, args, 0);
         m_OnboardingController.Offboard();
@@ -283,15 +294,17 @@ void OnboardingService::OffboardHandler(const ajn::InterfaceDescription::Member*
 
 void OnboardingService::GetScanInfoHandler(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
 {
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "In OnboardingService GetScanInfoHandler");
+    }
     const ajn::MsgArg* args = NULL;
     size_t numArgs = 0;
     QStatus status = ER_OK;
     msg->GetArgs(numArgs, args);
     do {
-        if (numArgs != 0)
+        if (numArgs != 0) {
             break;
+        }
         unsigned short age = 0;
         size_t numberOfElements = 0;
         OBScanInfo* scanInfoList = NULL; // no need to delete scanInfoList it will be delete by the MsgArgs
@@ -318,8 +331,9 @@ void OnboardingService::GetScanInfoHandler(const ajn::InterfaceDescription::Memb
 
 QStatus OnboardingService::Get(const char* ifcName, const char* propName, MsgArg& val)
 {
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "In OnboardingService GetProperty");
+    }
     QStatus status = ER_OK;
 // Check the requested property and return the value if it exists
     if (0 == strcmp(ifcName, ONBOARDING_INTERFACE_NAME)) {
@@ -380,34 +394,40 @@ void OnboardingService::GenericLoggerCallBack(DbgMsgType type, const char* modul
         switch (type) {
         case DBG_LOCAL_ERROR:
         case DBG_REMOTE_ERROR:
-            if (currLogLevel >= Log::LEVEL_ERROR)
+            if (currLogLevel >= Log::LEVEL_ERROR) {
                 logger->error(CALLBACKTAG, msg);
+            }
             break;
 
         case DBG_GEN_MESSAGE:
-            if (currLogLevel >= Log::LEVEL_INFO)
+            if (currLogLevel >= Log::LEVEL_INFO) {
                 logger->info(CALLBACKTAG, msg);
+            }
             break;
 
         case DBG_API_TRACE:
-            if (currLogLevel >= Log::LEVEL_DEBUG)
+            if (currLogLevel >= Log::LEVEL_DEBUG) {
                 logger->debug(CALLBACKTAG, msg);
+            }
             break;
 
         case DBG_HIGH_LEVEL:
-            if (currLogLevel >= Log::LEVEL_WARN)
+            if (currLogLevel >= Log::LEVEL_WARN) {
                 logger->warn(CALLBACKTAG, msg);
+            }
             break;
 
         case DBG_REMOTE_DATA:
         case DBG_LOCAL_DATA:
-            if (currLogLevel >= Log::LEVEL_DEBUG)
+            if (currLogLevel >= Log::LEVEL_DEBUG) {
                 logger->debug(CALLBACKTAG, msg);
+            }
             break;
 
         default:
-            if (currLogLevel >= Log::LEVEL_DEBUG)
+            if (currLogLevel >= Log::LEVEL_DEBUG) {
                 logger->debug(CALLBACKTAG, msg);
+            }
         }
     }
 }

@@ -43,7 +43,7 @@ class ConfigServiceListenerImpl : public ajn::services::ConfigService::Listener 
     PropertyStoreImpl* m_PropertyStore;
 
     ajn::BusAttachment* m_Bus;
-    
+
     CommonBusListener* m_BusListener;
 
     OnboardingControllerImpl* m_OnboardingController;

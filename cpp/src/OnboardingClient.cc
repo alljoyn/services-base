@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -20,9 +20,9 @@
 
 #define CALLBACKTAG "AllJoynInternal"
 #define TAG "ALLJOYN_ONBOARDING_CLIENT"
-#define CHECK_RETURN_STATUS(x) if ((status = x) != ER_OK) return status;
-#define CHECK_RETURN(x) if ((status = x) != ER_OK) return;
-#define CHECK_BREAK(x) if ((status = x) != ER_OK) break;
+#define CHECK_RETURN_STATUS(x) if ((status = x) != ER_OK) { return status; }
+#define CHECK_RETURN(x) if ((status = x) != ER_OK) { return; }
+#define CHECK_BREAK(x) if ((status = x) != ER_OK) { break; }
 
 using namespace ajn;
 using namespace services;
@@ -34,8 +34,9 @@ OnboardingClient::OnboardingClient(BusAttachment& bus) :
     m_BusAttachment(&bus), logger(0)
 {
     setLogger(&onboardingLogger);
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "In OnboardingClient Constructor");
+    }
 
     QStatus status = ER_OK;
 
@@ -63,15 +64,17 @@ OnboardingClient::OnboardingClient(BusAttachment& bus) :
 
 OnboardingClient::~OnboardingClient()
 {
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "In OnboardingClient Destructor");
+    }
 }
 
 QStatus OnboardingClient::GetScanInfo(const char* busName, unsigned short& age, ScanInfos& scanInfos,
                                       ajn::SessionId sessionId)
 {
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "In OnboardingClient GetScanInfo");
+    }
     QStatus status = ER_OK;
 
     const InterfaceDescription* ifc = m_BusAttachment->GetInterface(ONBOARDING_INTERFACE_NAME);
@@ -97,8 +100,9 @@ QStatus OnboardingClient::GetScanInfo(const char* busName, unsigned short& age, 
         if (status == ER_BUS_REPLY_IS_ERROR_MESSAGE) {
             qcc::String errorMessage;
             const char* errorName = replyMsg->GetErrorName(&errorMessage);
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "GetScanInfo errorName: " + qcc::String(errorName) + " errorMessage: " + errorMessage);
+            }
         }
         return status;
     }
@@ -116,8 +120,9 @@ QStatus OnboardingClient::GetScanInfo(const char* busName, unsigned short& age, 
                 char* SSID;
                 short authType;
                 status = scanInfoEntries[i].Get("(sn)", &SSID, &authType);
-                if (status != ER_OK)
+                if (status != ER_OK) {
                     break;
+                }
                 OBScanInfo info;
                 info.authType = (OBAuthType) authType;
                 info.SSID.assign(SSID);
@@ -135,8 +140,9 @@ QStatus OnboardingClient::GetScanInfo(const char* busName, unsigned short& age, 
 QStatus OnboardingClient::ConfigureWiFi(const char* busName, const OBInfo& oBInfo, short& resultStatus,
                                         ajn::SessionId sessionId)
 {
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "In OnboardingClient ConfigureWiFi");
+    }
 
     QStatus status = ER_OK;
 
@@ -170,8 +176,9 @@ QStatus OnboardingClient::ConfigureWiFi(const char* busName, const OBInfo& oBInf
         if (status == ER_BUS_REPLY_IS_ERROR_MESSAGE) {
             qcc::String errorMessage;
             const char* errorName = replyMsg->GetErrorName(&errorMessage);
-            if (logger)
+            if (logger) {
                 logger->warn(TAG, "ConfigureWiFi errorName: " + qcc::String(errorName) + " errorMessage: " + errorMessage);
+            }
 
         }
         return status;
@@ -192,8 +199,9 @@ QStatus OnboardingClient::ConfigureWiFi(const char* busName, const OBInfo& oBInf
 
 QStatus OnboardingClient::ConnectTo(const char* busName, ajn::SessionId sessionId)
 {
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "In OnboardingClient ConnectTo");
+    }
 
     QStatus status = ER_OK;
 
@@ -218,8 +226,9 @@ QStatus OnboardingClient::ConnectTo(const char* busName, ajn::SessionId sessionI
 
 QStatus OnboardingClient::OffboardFrom(const char* busName, ajn::SessionId sessionId)
 {
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "In OnboardingClient OffboardFrom");
+    }
     QStatus status = ER_OK;
 
     const InterfaceDescription* ifc = m_BusAttachment->GetInterface(ONBOARDING_INTERFACE_NAME);
@@ -244,8 +253,9 @@ QStatus OnboardingClient::OffboardFrom(const char* busName, ajn::SessionId sessi
 
 QStatus OnboardingClient::GetVersion(const char* busName, int& version, ajn::SessionId sessionId)
 {
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "In OnboardingClient GetVersion");
+    }
 
     QStatus status = ER_OK;
 
@@ -272,8 +282,9 @@ QStatus OnboardingClient::GetVersion(const char* busName, int& version, ajn::Ses
 
 QStatus OnboardingClient::GetState(const char* busName, short& state, ajn::SessionId sessionId)
 {
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "In OnboardingClient GetState");
+    }
 
     QStatus status = ER_OK;
 
@@ -300,8 +311,9 @@ QStatus OnboardingClient::GetState(const char* busName, short& state, ajn::Sessi
 
 QStatus OnboardingClient::GetLastError(const char* busName, OBLastError& lastError, ajn::SessionId sessionId)
 {
-    if (logger)
+    if (logger) {
         logger->debug(TAG, "In OnboardingClient GetLastError");
+    }
 
     QStatus status = ER_OK;
 
@@ -370,34 +382,40 @@ void OnboardingClient::GenericLoggerCallBack(DbgMsgType type, const char* module
         switch (type) {
         case DBG_LOCAL_ERROR:
         case DBG_REMOTE_ERROR:
-            if (currLogLevel >= Log::LEVEL_ERROR)
+            if (currLogLevel >= Log::LEVEL_ERROR) {
                 logger->error(CALLBACKTAG, msg);
+            }
             break;
 
         case DBG_GEN_MESSAGE:
-            if (currLogLevel >= Log::LEVEL_INFO)
+            if (currLogLevel >= Log::LEVEL_INFO) {
                 logger->info(CALLBACKTAG, msg);
+            }
             break;
 
         case DBG_API_TRACE:
-            if (currLogLevel >= Log::LEVEL_DEBUG)
+            if (currLogLevel >= Log::LEVEL_DEBUG) {
                 logger->debug(CALLBACKTAG, msg);
+            }
             break;
 
         case DBG_HIGH_LEVEL:
-            if (currLogLevel >= Log::LEVEL_WARN)
+            if (currLogLevel >= Log::LEVEL_WARN) {
                 logger->warn(CALLBACKTAG, msg);
+            }
             break;
 
         case DBG_REMOTE_DATA:
         case DBG_LOCAL_DATA:
-            if (currLogLevel >= Log::LEVEL_DEBUG)
+            if (currLogLevel >= Log::LEVEL_DEBUG) {
                 logger->debug(CALLBACKTAG, msg);
+            }
             break;
 
         default:
-            if (currLogLevel >= Log::LEVEL_DEBUG)
+            if (currLogLevel >= Log::LEVEL_DEBUG) {
                 logger->debug(CALLBACKTAG, msg);
+            }
         }
     }
 }

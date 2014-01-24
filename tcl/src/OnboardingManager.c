@@ -248,10 +248,14 @@ AJ_Status OBS_ReadInfo(OBInfo* info)
     AJ_Status status = AJ_OK;
     size_t size = sizeof(OBInfo);
 
-    if (NULL == info) return AJ_ERR_NULL;
+    if (NULL == info) {
+        return AJ_ERR_NULL;
+    }
     memset(info, 0, size);
 
-    if (!AJ_NVRAM_Exist(AJ_OBS_OBINFO_NV_ID)) return AJ_ERR_INVALID;
+    if (!AJ_NVRAM_Exist(AJ_OBS_OBINFO_NV_ID)) {
+        return AJ_ERR_INVALID;
+    }
 
     AJ_NV_DATASET* nvramHandle = AJ_NVRAM_Open(AJ_OBS_OBINFO_NV_ID, "r", 0);
     if (nvramHandle != NULL) {
@@ -272,7 +276,9 @@ AJ_Status OBS_WriteInfo(OBInfo* info)
     AJ_Status status = AJ_OK;
     size_t size = sizeof(OBInfo);
 
-    if (NULL == info) return AJ_ERR_NULL;
+    if (NULL == info) {
+        return AJ_ERR_NULL;
+    }
 
     AJ_Printf("Going to write Info values: state=%d, ssid=%s authType=%d pc=%s\n", info->state, info->ssid, info->authType, info->pc);
 
@@ -455,7 +461,9 @@ static AJ_Status OBCAPI_DoConnectWifi(OBInfo* connectInfo)
                 AJ_Printf(".");
                 AJ_Sleep(500);
                 wifiConnectState = AJ_GetWifiConnectState();
-                if (++counter >= 60) break;
+                if (++counter >= 60) {
+                    break;
+                }
             }
             AJ_Printf("\n");
 

@@ -63,7 +63,7 @@ QStatus ConfigServiceListenerImpl::SetPassphrase(const char* daemonRealm, size_t
         m_Bus->LeaveSession(sessionIds[i]);
         std::cout << "Leaving session with id: " << sessionIds[i];
     }
-    
+
     return ER_OK;
 }
 
