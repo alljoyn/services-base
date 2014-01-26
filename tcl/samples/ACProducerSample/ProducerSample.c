@@ -30,7 +30,7 @@
 const static char* langEng  = "en";
 const static char* helloEng = "Hello AJL World";
 static NotificationContent_t notificationContent;
-struct keyValue textToSend[NUM_TEXTS];
+AJNS_DictionaryEntry textToSend[NUM_TEXTS];
 
 /**
  * Initial the Notifications that will be used during this sample app

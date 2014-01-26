@@ -14,8 +14,8 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#ifndef COMMON_H_
-#define COMMON_H_
+#ifndef _NOTIFICATIONCOMMON_H_
+#define _NOTIFICATIONCOMMON_H_
 
 #include <alljoyn.h>
 
@@ -34,10 +34,10 @@
 /**
  * Generic structure for key=value
  */
-struct keyValue {
+typedef struct _AJNS_DictionaryEntry {
     const char* key;
     const char* value;
-};
+} AJNS_DictionaryEntry;
 
 /*!
    \brief struct that holds the notification header
@@ -58,11 +58,11 @@ typedef struct _NotificationHeader {
  */
 typedef struct _NotificationContent {
     int8_t numCustomAttributes;                 /**< numCustomAttributes number of custom Attributs */
-    struct keyValue* customAttributes;           /**< customAttributes Custom attributs */
+    AJNS_DictionaryEntry* customAttributes;     /**< customAttributes Custom attributs */
     int8_t numTexts;                            /**< numTexts number of versions of the notification text */
-    struct keyValue* texts;                      /**< texts The text of the notification, one entry per language */
+    AJNS_DictionaryEntry* texts;                /**< texts The text of the notification, one entry per language */
     int8_t numAudioUrls;                        /**< numAudioUrls The number of audio URLs sent */
-    struct keyValue* richAudioUrls;              /**< richAudioUrls The audio URLs, one per language */
+    AJNS_DictionaryEntry* richAudioUrls;        /**< richAudioUrls The audio URLs, one per language */
     const char* richIconUrl;                    /**< richIconUrl A URL for an icon to be displayed along with the notification */
     const char* richIconObjectPath;             /**< richIconObjectPath The AllJoyn object path of an accompanying icons object */
     const char* richAudioObjectPath;            /**< richAudioObjectPath The AllJoyn object path of an accompanying audio object */
@@ -179,4 +179,4 @@ extern const char NotificationProducerObjectPath[];
  * The Notification service Producer port
  */
 extern const uint16_t NotificationProducerPort;
-#endif /* COMMON_H_ */
+#endif /* _NOTIFICATIONCOMMON_H_ */
