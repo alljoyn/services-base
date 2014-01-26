@@ -87,7 +87,7 @@ extern const AJ_Object NotificationProxyObject;
  * @param senderBusName
  * @return status
  */
-extern AJ_Status ConsumerSetSignalRules(AJ_BusAttachment* bus, uint8_t superAgentMode, const char* senderBusName);
+extern AJ_Status ConsumerSetSignalRules(AJ_BusAttachment* busAttachment, uint8_t superAgentMode, const char* senderBusName);
 
 /**
  * ConsumerIsSuperAgentLost, checks whether the lost device/app is the SuperAgent
@@ -112,18 +112,18 @@ extern AJ_Status ConsumerDismissSignalHandler(AJ_Message* msg);
 
 /**
  * ConsumerAcknowledgeNotification - send an acknowledment request to the producer of the given message, marshals the methodcall and delivers it
- * @param bus
+ * @param busAttachment
  * @param version       the message version
  * @param msdId         the message id
  * @param senderName    the bus unique name of the message sender
  * @param sessionId     the session id for the proxy object
  * @return status
  */
-extern AJ_Status ConsumerAcknowledgeNotification(AJ_BusAttachment* bus, uint16_t version, int32_t msgId, const char* senderName, uint32_t sessionId);
+extern AJ_Status ConsumerAcknowledgeNotification(AJ_BusAttachment* busAttachment, uint16_t version, int32_t msgId, const char* senderName, uint32_t sessionId);
 
 /**
  * ConsumerDismissNotification - send a dismissal request to the producer of the given message, marshals the methodcall and delivers it
- * @param bus
+ * @param busAttachment
  * @param version       the message version
  * @param msdId         the message id
  * @param appId         the application id of the message sender application
@@ -131,7 +131,7 @@ extern AJ_Status ConsumerAcknowledgeNotification(AJ_BusAttachment* bus, uint16_t
  * @param sessionId     the session id for the proxy object
  * @return status
  */
-extern AJ_Status ConsumerDismissNotification(AJ_BusAttachment* bus, uint16_t version, int32_t msgId, const char* appId, const char* senderName, uint32_t sessionId);
+extern AJ_Status ConsumerDismissNotification(AJ_BusAttachment* busAttachment, uint16_t version, int32_t msgId, const char* appId, const char* senderName, uint32_t sessionId);
 
 /**
  * ConsumerPropGetHandler - handle get property call

@@ -133,7 +133,7 @@ extern const uint16_t NotificationDismisserVersion;
 /*
  * Notification Dismisser interface signal emitter
  */
-extern AJ_Status NotificationSendDismiss(int32_t msgId, const char* appId);
+extern AJ_Status NotificationSendDismiss(AJ_BusAttachment* busAttachment, int32_t msgId, const char* appId);
 /**
  * A NULL terminated collection of all NotificationDismisser interfaces.
  */

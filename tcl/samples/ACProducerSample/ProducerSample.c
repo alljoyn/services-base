@@ -121,20 +121,20 @@ uint8_t Producer_CheckSessionAccepted(uint16_t port, uint32_t sessionId, char* j
  * Send Notification is called and sometimes not.
  * Sets the notification every MESSAGES_INTERVAL time
  */
-void Producer_DoWork(AJ_BusAttachment* bus)
+void Producer_DoWork(AJ_BusAttachment* busAttachment)
 {
     if (isThereANotificationToSend() > 0) {
         notificationContent.numTexts = NUM_TEXTS;
         textToSend[0].key   = langEng;
         textToSend[0].value = getNotificationString();
 
-        ProducerSetNotification(&notificationContent, NOTIFICATION_MESSAGE_TYPE_INFO, 20000);
+        ProducerSetNotification(busAttachment, &notificationContent, NOTIFICATION_MESSAGE_TYPE_INFO, 20000);
         AJ_Printf("About to send Notification ==> %s \n", textToSend[0].value);
-        ProducerSendNotifications();
+        ProducerSendNotifications(busAttachment);
     }
 }
 
-Service_Status Producer_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg, AJ_Status* msgStatus)
+Service_Status Producer_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* msgStatus)
 {
     Service_Status service_Status = SERVICE_STATUS_NOT_HANDLED;
 
@@ -156,12 +156,12 @@ Service_Status Producer_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg,
         break;
 
     case NOTIFICATION_PRODUCER_ACKNOWLEDGE:
-        *msgStatus = ProducerAcknowledgeMsg(msg);
+        *msgStatus = ProducerAcknowledgeMsg(busAttachment, msg);
         service_Status = SERVICE_STATUS_HANDLED;
         break;
 
     case NOTIFICATION_PRODUCER_DISMISS:
-        *msgStatus = ProducerDismissMsg(msg);
+        *msgStatus = ProducerDismissMsg(busAttachment, msg);
         service_Status = SERVICE_STATUS_HANDLED;
         break;
 

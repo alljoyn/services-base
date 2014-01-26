@@ -175,7 +175,7 @@ extern const char NotificationObjectPathInfo[];
    \param notificationContent The content of the notification to be set
    \return AJ_Status
  */
-extern AJ_Status ProducerSetNotification(NotificationContent_t* notificationContent, uint16_t messageType, uint16_t ttl);
+extern AJ_Status ProducerSetNotification(AJ_BusAttachment* busAttachment, NotificationContent_t* notificationContent, uint16_t messageType, uint16_t ttl);
 
 /*!
    \brief Send the notifications previously set with \ref SetNotification
@@ -190,7 +190,7 @@ extern AJ_Status ProducerSendNotifications();
    \param messageType One of \ref NOTIFICATION_MESSAGE_TYPE_INFO, \ref NOTIFICATION_MESSAGE_TYPE_WARNING, or \ref NOTIFICATION_MESSAGE_TYPE_EMERGENCY
    \return AJ_Status
  */
-extern AJ_Status ProducerDeleteLastMsg(uint16_t messageType);
+extern AJ_Status ProducerDeleteLastMsg(AJ_BusAttachment* busAttachment, uint16_t messageType);
 
 /*!
    \brief Implementation of Acknowledge functionality removing given message from the bus
@@ -199,7 +199,7 @@ extern AJ_Status ProducerDeleteLastMsg(uint16_t messageType);
    \param msg The received Acknowledge request message to process
    \return AJ_Status
  */
-extern AJ_Status ProducerAcknowledgeMsg(AJ_Message*msg);
+extern AJ_Status ProducerAcknowledgeMsg(AJ_BusAttachment* busAttachment, AJ_Message* msg);
 
 /*!
    \brief Implementation of Dismiss functionality acknowledging and sending a Dismiss SSL to recall received message
@@ -208,7 +208,7 @@ extern AJ_Status ProducerAcknowledgeMsg(AJ_Message*msg);
    \param msg The received Dismiss request message to process
    \return AJ_Status
  */
-extern AJ_Status ProducerDismissMsg(AJ_Message*msg);
+extern AJ_Status ProducerDismissMsg(AJ_BusAttachment* busAttachment, AJ_Message* msg);
 
 /*!
    \brief Implementation of GetProperty functionality for the notification objects

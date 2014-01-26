@@ -47,12 +47,12 @@ void Consumer_Init()
     memset(&savedNotification, 0, sizeof(struct _NotificationReference));
 }
 
-AJ_Status Consumer_ConnectedHandler(AJ_BusAttachment* bus)
+AJ_Status Consumer_ConnectedHandler(AJ_BusAttachment* busAttachment)
 {
-    return ConsumerSetSignalRules(bus, superAgentMode, 0);
+    return ConsumerSetSignalRules(busAttachment, superAgentMode, 0);
 }
 
-Service_Status Consumer_HandleSessionStateChanged(AJ_BusAttachment* bus, uint32_t sessionId, uint8_t sessionJoined, uint32_t replySerialNum)
+Service_Status Consumer_HandleSessionStateChanged(AJ_BusAttachment* busAttachment, uint32_t sessionId, uint8_t sessionJoined, uint32_t replySerialNum)
 {
     Service_Status serviceStatus = SERVICE_STATUS_NOT_HANDLED;
     AJ_Printf("Inside HandleSessionStateChanged()\n");
@@ -70,7 +70,7 @@ Service_Status Consumer_HandleSessionStateChanged(AJ_BusAttachment* bus, uint32_
         AJ_Status status;
         switch (nextAction) {
         case CONSUMER_ACTION_ACKNOWLEDGE:
-            status = ConsumerAcknowledgeNotification(bus, savedNotification.version, savedNotification.notificationId, savedNotification.originalSenderName, producerSessionId);
+            status = ConsumerAcknowledgeNotification(busAttachment, savedNotification.version, savedNotification.notificationId, savedNotification.originalSenderName, producerSessionId);
             AJ_Printf("HandleSessionStateChanged(): ConsumerAcknowledgeNotification returned status %s\n", AJ_StatusText(status));
             if (status == AJ_OK) {
                 serviceStatus = SERVICE_STATUS_HANDLED;
@@ -81,7 +81,7 @@ Service_Status Consumer_HandleSessionStateChanged(AJ_BusAttachment* bus, uint32_
             break;
 
         case CONSUMER_ACTION_DISMISS:
-            status = ConsumerDismissNotification(bus, savedNotification.version, savedNotification.notificationId, savedNotification.appId, savedNotification.originalSenderName, producerSessionId);
+            status = ConsumerDismissNotification(busAttachment, savedNotification.version, savedNotification.notificationId, savedNotification.appId, savedNotification.originalSenderName, producerSessionId);
             AJ_Printf("HandleSessionStateChanged(): ConsumerDismissNotification returned status %s\n", AJ_StatusText(status));
             if (status == AJ_OK) {
                 serviceStatus = SERVICE_STATUS_HANDLED;
@@ -101,7 +101,7 @@ Service_Status Consumer_HandleSessionStateChanged(AJ_BusAttachment* bus, uint32_
     return serviceStatus;
 }
 
-Service_Status Consumer_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg, AJ_Status* msgStatus)
+Service_Status Consumer_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* msgStatus)
 {
     switch (msg->msgId) {
     case NOTIFICATION_SIGNAL_RECEIVED:
@@ -111,7 +111,7 @@ Service_Status Consumer_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg,
 
     case SUPERAGENT_SIGNAL:
         AJ_Printf("Received Superagent Signal.\n");
-        *msgStatus = ConsumerSetSignalRules(bus, superAgentMode, msg->sender);
+        *msgStatus = ConsumerSetSignalRules(busAttachment, superAgentMode, msg->sender);
         if (AJ_OK == *msgStatus) {
             ProxyObjects[NOTIFICATION_PROXYOBJECT_INDEX] = SuperAgentProxyObject;
         }
@@ -125,7 +125,7 @@ Service_Status Consumer_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg,
 
     case AJ_SIGNAL_LOST_ADV_NAME:
         if (superAgentMode && ConsumerIsSuperAgentLost(msg)) {
-            *msgStatus = ConsumerSetSignalRules(bus, superAgentMode, NULL);
+            *msgStatus = ConsumerSetSignalRules(busAttachment, superAgentMode, NULL);
             if (AJ_OK == *msgStatus) {
                 ProxyObjects[NOTIFICATION_PROXYOBJECT_INDEX] = AllProxyObject;
             }
@@ -138,7 +138,7 @@ Service_Status Consumer_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg,
     case AJ_REPLY_ID(NOTIFICATION_PRODUCER_DISMISS_PROXY):
         if (producerSessionId != 0) {
             AJ_Printf("NotificationProducer method replied. Leaving session %u\n", producerSessionId);
-            *msgStatus = AJ_BusLeaveSession(bus, producerSessionId);
+            *msgStatus = AJ_BusLeaveSession(busAttachment, producerSessionId);
             if (AJ_OK != *msgStatus) {
                 AJ_Printf("Failed to leave session %u\n", producerSessionId);
             }
@@ -154,7 +154,7 @@ Service_Status Consumer_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg,
     return SERVICE_STATUS_HANDLED;
 }
 
-static AJ_Status Consumer_CreateSessionWithProducer(AJ_BusAttachment* bus, const char* senderName)
+static AJ_Status Consumer_CreateSessionWithProducer(AJ_BusAttachment* busAttachment, const char* senderName)
 {
     AJ_Status status = AJ_OK;
     AJ_SessionOpts sessionOpts = {
@@ -165,9 +165,9 @@ static AJ_Status Consumer_CreateSessionWithProducer(AJ_BusAttachment* bus, const
     };
 
     AJ_Printf("Inside CreateSessionWithProducer()\n");
-    lastSessionRequestSerialNum = bus->serial;
+    lastSessionRequestSerialNum = busAttachment->serial;
     AJ_Printf("CreateSessionWithProducer(): Joining session with %s on port %u with serial number %u\n", senderName, NotificationProducerPort, lastSessionRequestSerialNum);
-    status = AJ_BusJoinSession(bus, senderName, NotificationProducerPort, &sessionOpts);
+    status = AJ_BusJoinSession(busAttachment, senderName, NotificationProducerPort, &sessionOpts);
     AJ_Printf("CreateSessionWithProducer(): AJ_BusJoinSession() returned with status %s\n", AJ_StatusText(status));
     return status;
 }
@@ -175,7 +175,7 @@ static AJ_Status Consumer_CreateSessionWithProducer(AJ_BusAttachment* bus, const
 /**
  * Meant to simulate scenario where an Action is set when a new Notification is received.
  */
-static void Consumer_DoAction(AJ_BusAttachment* bus)
+static void Consumer_DoAction(AJ_BusAttachment* busAttachment)
 {
     if (inputMode) {
         Consumer_GetActionFromUser(&nextAction);
@@ -184,7 +184,7 @@ static void Consumer_DoAction(AJ_BusAttachment* bus)
     switch (nextAction) {
     case CONSUMER_ACTION_ACKNOWLEDGE:
     case CONSUMER_ACTION_DISMISS:
-        Consumer_CreateSessionWithProducer(bus, savedNotification.originalSenderName);
+        Consumer_CreateSessionWithProducer(busAttachment, savedNotification.originalSenderName);
         AJ_Printf("DoAction(): session created for Action %u\n", nextAction);
         break;
 
@@ -196,15 +196,15 @@ static void Consumer_DoAction(AJ_BusAttachment* bus)
     }
 }
 
-void Consumer_IdleConnectedHandler(AJ_BusAttachment* bus)
+void Consumer_IdleConnectedHandler(AJ_BusAttachment* busAttachment)
 {
     if (savedNotification.version > 1 && producerSessionId == 0 && lastSessionRequestSerialNum == 0) {
-        Consumer_DoAction(bus);
+        Consumer_DoAction(busAttachment);
     }
     return;
 }
 
-void Consumer_Finish(AJ_BusAttachment* bus)
+void Consumer_Finish(AJ_BusAttachment* busAttachment)
 {
     return;
 }

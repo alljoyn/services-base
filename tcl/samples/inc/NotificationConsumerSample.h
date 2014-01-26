@@ -34,42 +34,42 @@ void Consumer_Init();
 
 /**
  * Function called after service connects
- * @param bus
+ * @param busAttachment
  * @return status success/failure
  */
-AJ_Status Consumer_ConnectedHandler(AJ_BusAttachment* bus);
+AJ_Status Consumer_ConnectedHandler(AJ_BusAttachment* busAttachment);
 
 
 /**
  * If idle, do work
- * @param bus
+ * @param busAttachment
  */
-void Consumer_IdleConnectedHandler(AJ_BusAttachment* bus);
+void Consumer_IdleConnectedHandler(AJ_BusAttachment* busAttachment);
 
 /**
  * Process the message received
- * @param bus
+ * @param busAttachment
  * @param msg
  * @param msgStatus
  * @return status - was message handled
  */
-Service_Status Consumer_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg, AJ_Status*msgStatus);
+Service_Status Consumer_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* msgStatus);
 
 /**
  * Handle Session state changed
- * @param bus
+ * @param busAttachment
  * @param sessionId
  * @param sessionJoined
  * @param replySerialNum
  * @return status - was message handled
  */
-Service_Status Consumer_HandleSessionStateChanged(AJ_BusAttachment* bus, uint32_t sessionId, uint8_t sessionJoined, uint32_t replySerialNum);
+Service_Status Consumer_HandleSessionStateChanged(AJ_BusAttachment* busAttachment, uint32_t sessionId, uint8_t sessionJoined, uint32_t replySerialNum);
 
 /**
  * Finish Consumer - called when bus disconnects
- * @param bus
+ * @param busAttachment
  */
-void Consumer_Finish(AJ_BusAttachment* bus);
+void Consumer_Finish(AJ_BusAttachment* busAttachment);
 
 #endif /* CONSUMERSAMPLE_H_ */
 

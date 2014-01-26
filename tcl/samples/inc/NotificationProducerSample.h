@@ -30,32 +30,32 @@ void Producer_Init();
 
 /**
  * Function called after service connects
- * @param bus
+ * @param busAttachment
  * @return status - was message handled
  */
-AJ_Status Producer_ConnectedHandler(AJ_BusAttachment* bus);
+AJ_Status Producer_ConnectedHandler(AJ_BusAttachment* busAttachment);
 
 uint8_t Producer_CheckSessionAccepted(uint16_t port, uint32_t sessionId, char* joiner);
 
 /**
  * If idle, do work
- * @param bus
+ * @param busAttachment
  */
-void Producer_DoWork(AJ_BusAttachment* bus);
+void Producer_DoWork(AJ_BusAttachment* busAttachment);
 
 /**
  * MessageProcessor function for the producer
- * @param bus
+ * @param busAttachment
  * @param msg
  * @param msgStatus
  * @return status - was message handled
  */
-Service_Status Producer_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg, AJ_Status*msgStatus);
+Service_Status Producer_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status*msgStatus);
 
 /**
  * Finish Producer - called when bus disconnects
- * @param bus
+ * @param busAttachment
  */
-void Producer_Finish(AJ_BusAttachment* bus);
+void Producer_Finish(AJ_BusAttachment* busAttachment);
 
 #endif /* PRODUCERSAMPLE_H_ */

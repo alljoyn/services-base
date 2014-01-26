@@ -32,7 +32,7 @@ typedef struct _NotificationMessageTracking {
     uint32_t msgSerialNum;
 } NotificationMessageTracking_t;
 
-static NotificationMessageTracking_t LastSentNotifications[NUM_MESSAGE_TYPES] = { { 0, 0 }, { 0, 0 }, { 0, 0 } };
+static NotificationMessageTracking_t lastSentNotifications[NUM_MESSAGE_TYPES] = { { 0, 0 }, { 0, 0 }, { 0, 0 } };
 
 /**
  * Static constants.
@@ -44,7 +44,7 @@ const char NotificationObjectPathInfo[]        = "/info";
 /**
  * Set Notification - see notes in h file
  */
-AJ_Status ProducerSetNotification(NotificationContent_t* notificationContent, uint16_t messageType, uint16_t ttl)
+AJ_Status ProducerSetNotification(AJ_BusAttachment* busAttachment, NotificationContent_t* notificationContent, uint16_t messageType, uint16_t ttl)
 {
     AJ_Printf("In SetNotification\n");
     AJ_Status status;
@@ -53,7 +53,7 @@ AJ_Status ProducerSetNotification(NotificationContent_t* notificationContent, ui
     const char* deviceName = PropertyStore_GetValue(DeviceName);
     const char* appId = PropertyStore_GetValue(AppID);
     const char* appName = PropertyStore_GetValue(AppName);
-    const char* originalSenderName = AJ_GetUniqueName(&busAttachment);
+    const char* originalSenderName = AJ_GetUniqueName(busAttachment);
 
     if ((deviceId == 0) || (deviceName == 0) ||
         (appId == 0) || (appName == 0) ||
@@ -79,7 +79,7 @@ AJ_Status ProducerSetNotification(NotificationContent_t* notificationContent, ui
         return AJ_ERR_DISALLOWED;
     }
 
-    status = AJ_MarshalSignal(&busAttachment, &msg, AJ_APP_MESSAGE_ID(messageType + NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS, 1, 0), NULL, 0, ALLJOYN_FLAG_SESSIONLESS, ttl);
+    status = AJ_MarshalSignal(busAttachment, &msg, AJ_APP_MESSAGE_ID(messageType + NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS, 1, 0), NULL, 0, ALLJOYN_FLAG_SESSIONLESS, ttl);
     if (status != AJ_OK) {
         AJ_Printf("Could not Marshal Signal\n");
         return status;
@@ -406,8 +406,8 @@ AJ_Status ProducerSendNotifications()
     }
 
     AJ_Printf("***************** Notification id %u delivered successfully *****************\n", nextNotificationId);
-    LastSentNotifications[lastMessageType].msgId = nextNotificationId;
-    LastSentNotifications[lastMessageType].msgSerialNum = serialNum;
+    lastSentNotifications[lastMessageType].msgId = nextNotificationId;
+    lastSentNotifications[lastMessageType].msgSerialNum = serialNum;
     nextNotificationId++;
 
     AJ_CloseMsg(&msg);
@@ -415,7 +415,7 @@ AJ_Status ProducerSendNotifications()
     return status;
 }
 
-AJ_Status ProducerDeleteLastMsg(uint16_t messageType)
+AJ_Status ProducerDeleteLastMsg(AJ_BusAttachment* busAttachment, uint16_t messageType)
 {
     AJ_Printf("In DeleteLastMsg\n");
     AJ_Status status;
@@ -425,27 +425,27 @@ AJ_Status ProducerDeleteLastMsg(uint16_t messageType)
         return AJ_ERR_DISALLOWED;
     }
 
-    uint32_t lastSentSerialNumber = LastSentNotifications[messageType].msgSerialNum;
+    uint32_t lastSentSerialNumber = lastSentNotifications[messageType].msgSerialNum;
     if (lastSentSerialNumber == 0) {
         AJ_Printf("Could not Delete Message - no message to delete\n");
         return AJ_OK;
     }
 
-    status = AJ_BusCancelSessionless(&busAttachment, lastSentSerialNumber);
+    status = AJ_BusCancelSessionless(busAttachment, lastSentSerialNumber);
 
     if (status != AJ_OK) {
         AJ_Printf("Could not Delete Message\n");
         return status;
     }
 
-    LastSentNotifications[messageType].msgId = 0;
-    LastSentNotifications[messageType].msgSerialNum = 0;
+    lastSentNotifications[messageType].msgId = 0;
+    lastSentNotifications[messageType].msgSerialNum = 0;
 
     AJ_Printf("***************** Message deleted successfully *****************\n");
     return status;
 }
 
-static AJ_Status ProducerCancelMessage(int32_t msgId)
+static AJ_Status ProducerCancelMessage(AJ_BusAttachment* busAttachment, int32_t msgId)
 {
     AJ_Status status;
     uint16_t messageType = 0;
@@ -457,7 +457,7 @@ static AJ_Status ProducerCancelMessage(int32_t msgId)
         return AJ_OK;
     }
     for (; messageType < NUM_MESSAGE_TYPES; messageType++) {
-        if (LastSentNotifications[messageType].msgId == msgId) {
+        if (lastSentNotifications[messageType].msgId == msgId) {
             break;
         }
     }
@@ -466,20 +466,20 @@ static AJ_Status ProducerCancelMessage(int32_t msgId)
         return AJ_OK;
     }
 
-    status = AJ_BusCancelSessionless(&busAttachment, LastSentNotifications[messageType].msgSerialNum);
+    status = AJ_BusCancelSessionless(busAttachment, lastSentNotifications[messageType].msgSerialNum);
 
     if (status != AJ_OK) {
         AJ_Printf("Failed to send cancelation\n");
         return status;
     }
 
-    LastSentNotifications[messageType].msgId = 0;
-    LastSentNotifications[messageType].msgSerialNum = 0;
+    lastSentNotifications[messageType].msgId = 0;
+    lastSentNotifications[messageType].msgSerialNum = 0;
 
     return status;
 }
 
-AJ_Status ProducerAcknowledgeMsg(AJ_Message*msg)
+AJ_Status ProducerAcknowledgeMsg(AJ_BusAttachment* busAttachment, AJ_Message*msg)
 {
     AJ_Printf("In AcknowledgeMsg\n");
     AJ_Status status;
@@ -491,7 +491,7 @@ AJ_Status ProducerAcknowledgeMsg(AJ_Message*msg)
         return status;
     }
 
-    status = ProducerCancelMessage(msgId);
+    status = ProducerCancelMessage(busAttachment, msgId);
     if (status != AJ_OK) {
         return status;
     }
@@ -500,7 +500,7 @@ AJ_Status ProducerAcknowledgeMsg(AJ_Message*msg)
     return status;
 }
 
-AJ_Status ProducerDismissMsg(AJ_Message* msg)
+AJ_Status ProducerDismissMsg(AJ_BusAttachment* busAttachment, AJ_Message* msg)
 {
     AJ_Printf("In DismissMsg\n");
     AJ_Status status;
@@ -512,13 +512,13 @@ AJ_Status ProducerDismissMsg(AJ_Message* msg)
         return status;
     }
 
-    status = ProducerCancelMessage(msgId);
+    status = ProducerCancelMessage(busAttachment, msgId);
     if (status != AJ_OK) {
         return status;
     }
 
     const char* appId = PropertyStore_GetValue(AppID);
-    status = NotificationSendDismiss(msgId, appId);
+    status = NotificationSendDismiss(busAttachment, msgId, appId);
     if (status != AJ_OK) {
         return status;
     }

@@ -22,7 +22,7 @@
 #else
 #define Producer_GetNotificationFromUser(x) do { } while (0)
 #define Producer_SetupEnv(x) do { } while (0)
-#define Producer_PossiblyDeleteNotification(x) do { } while (0)
+#define Producer_PossiblyDeleteNotification(x, y) do { } while (0)
 #endif
 
 #define NUM_CUSTOMS 2
@@ -93,7 +93,7 @@ void Producer_Init()
     InitNotification();
 }
 
-AJ_Status Producer_ConnectedHandler(AJ_BusAttachment* bus)
+AJ_Status Producer_ConnectedHandler(AJ_BusAttachment* busAttachment)
 {
     AJ_SessionOpts sessionOpts = {
         AJ_SESSION_TRAFFIC_MESSAGES,
@@ -104,7 +104,7 @@ AJ_Status Producer_ConnectedHandler(AJ_BusAttachment* bus)
 
     AJ_Status status;
 
-    status = AJ_BusBindSessionPort(bus, NotificationProducerPort, &sessionOpts);
+    status = AJ_BusBindSessionPort(busAttachment, NotificationProducerPort, &sessionOpts);
     if (status != AJ_OK) {
         AJ_Printf("Failed to send bind session port message\n");
     }
@@ -113,7 +113,7 @@ AJ_Status Producer_ConnectedHandler(AJ_BusAttachment* bus)
     while (!serviceStarted && (status == AJ_OK)) {
         AJ_Message msg;
 
-        status = AJ_UnmarshalMsg(bus, &msg, AJAPP_UNMARSHAL_TIMEOUT);
+        status = AJ_UnmarshalMsg(busAttachment, &msg, AJAPP_UNMARSHAL_TIMEOUT);
         if (status != AJ_OK) {
             break;
         }
@@ -158,12 +158,12 @@ uint8_t Producer_CheckSessionAccepted(uint16_t port, uint32_t sessionId, char* j
  * Send Notification is called and sometimes not.
  * Sets the notification every MESSAGES_INTERVAL time
  */
-static void PossiblySetNotifications()
+static void PossiblySetNotifications(AJ_BusAttachment* busAttachment)
 {
     if (isMessageTime == 0) {
         if (!inputMode) {
             notificationContent.controlPanelServiceObjectPath = ((notificationContent.controlPanelServiceObjectPath == NULL) ? controlPanelServiceObjectPath : NULL); // Toggle notification with action ON/OFF
-            ProducerSetNotification(&notificationContent, NOTIFICATION_MESSAGE_TYPE_INFO, 20000);
+            ProducerSetNotification(busAttachment, &notificationContent, NOTIFICATION_MESSAGE_TYPE_INFO, 20000);
         } else {
             Producer_GetNotificationFromUser();
         }
@@ -174,16 +174,16 @@ static void PossiblySetNotifications()
     }
 }
 
-void Producer_DoWork(AJ_BusAttachment* bus)
+void Producer_DoWork(AJ_BusAttachment* busAttachment)
 {
-    PossiblySetNotifications();
-    ProducerSendNotifications();
+    PossiblySetNotifications(busAttachment);
+    ProducerSendNotifications(busAttachment);
     if (inputMode) {
-        Producer_PossiblyDeleteNotification(isMessageTime);
+        Producer_PossiblyDeleteNotification(busAttachment, isMessageTime);
     }
 }
 
-Service_Status Producer_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg, AJ_Status* msgStatus)
+Service_Status Producer_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* msgStatus)
 {
     Service_Status service_Status = SERVICE_STATUS_NOT_HANDLED;
 
@@ -220,7 +220,7 @@ Service_Status Producer_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg,
     return service_Status;
 }
 
-void Producer_Finish(AJ_BusAttachment* bus)
+void Producer_Finish(AJ_BusAttachment* busAttachment)
 {
     return;
 }

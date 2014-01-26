@@ -288,7 +288,7 @@ void Producer_GetNotificationFromUser()
     }
 }
 
-void Producer_PossiblyDeleteNotification(uint16_t isMessageTime)
+void Producer_PossiblyDeleteNotification(AJ_BusAttachment* busAttachment, uint16_t isMessageTime)
 {
     if (isMessageTime == 1) {
         uint16_t delMsgType;
@@ -300,7 +300,7 @@ void Producer_PossiblyDeleteNotification(uint16_t isMessageTime)
             if (strlen(buf)) {
                 AJ_Status status = AJ_OK;
                 delMsgType = atoi(buf);
-                status = ProducerDeleteLastMsg(delMsgType);
+                status = ProducerDeleteLastMsg(busAttachment, delMsgType);
                 AJ_Printf("Delete Last Message Type: %d returned: '%s'\n\n", delMsgType, AJ_StatusText(status));
             }
         }

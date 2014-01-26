@@ -71,7 +71,7 @@ const AJ_InterfaceDescription NotificationDismisserInterfaces[] = {
     NULL
 };
 
-AJ_Status NotificationSendDismiss(int32_t msgId, const char* appId)
+AJ_Status NotificationSendDismiss(AJ_BusAttachment* busAttachment, int32_t msgId, const char* appId)
 {
     AJ_Status status;
     AJ_Message msg;
@@ -86,7 +86,7 @@ AJ_Status NotificationSendDismiss(int32_t msgId, const char* appId)
     // TODO: Remove setting of temporary Dismisser ObjectPath when AJTCL adds the "DON'T COLLAPSE" flag
     NotificationDismisserObjectPath[snprintf(NotificationDismisserObjectPath, NOTIFICATION_DISMISSER_OBJECT_PATH_LENGTH, "%s/%s/%d", NotificationDismisserObjectPath, appId, msgId)] = '\0';
 
-    status = AJ_MarshalSignal(&busAttachment, &msg, NOTIFICATION_DISMISSER_DISMISS_EMITTER, NULL, 0, ALLJOYN_FLAG_SESSIONLESS, NOTIFICATION_TTL_MAX); // TODO: Add the "DON'T COLLAPSE" flag
+    status = AJ_MarshalSignal(busAttachment, &msg, NOTIFICATION_DISMISSER_DISMISS_EMITTER, NULL, 0, ALLJOYN_FLAG_SESSIONLESS, NOTIFICATION_TTL_MAX); // TODO: Add the "DON'T COLLAPSE" flag
     if (status != AJ_OK) {
         AJ_Printf("Could not Marshal Signal\n");
         return status;

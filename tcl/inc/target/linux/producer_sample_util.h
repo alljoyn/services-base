@@ -17,9 +17,11 @@
 #ifndef PRODUCER_SAMPLE_UTIL_H_
 #define PRODUCER_SAMPLE_UTIL_H_
 
+#include <alljoyn.h>
+
 void Producer_SetupEnv(uint8_t* inputMode);
 void Producer_GetNotificationFromUser();
-void Producer_PossiblyDeleteNotification(uint16_t isMessageTime);
+void Producer_PossiblyDeleteNotification(AJ_BusAttachment* busAttachment, uint16_t isMessageTime);
 
 #endif /* PRODUCER_SAMPLE_UTIL_H_ */
 
