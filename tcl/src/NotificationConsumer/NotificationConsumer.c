@@ -531,6 +531,7 @@ AJ_Status ConsumerAcknowledgeNotification(AJ_BusAttachment* bus, uint16_t versio
         }
         AJ_CloseMsg(&ackMsg);
     }
+
     return status;
 }
 

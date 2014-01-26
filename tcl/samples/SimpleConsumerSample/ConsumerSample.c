@@ -57,12 +57,13 @@ Service_Status Consumer_HandleSessionStateChanged(AJ_BusAttachment* bus, uint32_
     Service_Status serviceStatus = SERVICE_STATUS_NOT_HANDLED;
     AJ_Printf("Inside HandleSessionStateChanged()\n");
     AJ_Printf("HandleSessionStateChanged(): Got reply that session with id %u was %s\n", sessionId, sessionJoined ? "joined" : "dropped");
-    if (savedNotification.version > 0 && lastSessionRequestSerialNum == replySerialNum) {
+    if (lastSessionRequestSerialNum != 0 && lastSessionRequestSerialNum == replySerialNum) {
         AJ_Printf("HandleSessionStateChanged(): Got reply serial number %u that matches last request serial number %u\n", replySerialNum, lastSessionRequestSerialNum);
-        if (sessionJoined && producerSessionId == 0) {
+        if (sessionJoined && producerSessionId == 0) { // Successful session join
             producerSessionId = sessionId;
-        } else if (!sessionJoined && producerSessionId != 0) {
+        } else if (!sessionJoined && producerSessionId != 0) { // Failed session join
             producerSessionId = 0;
+            lastSessionRequestSerialNum = 0;
         } else {
             return SERVICE_STATUS_NOT_HANDLED;
         }
@@ -93,10 +94,9 @@ Service_Status Consumer_HandleSessionStateChanged(AJ_BusAttachment* bus, uint32_
         default:
             break;
         }
-        savedNotification.version = 0;
-        lastSessionRequestSerialNum = 0;
-    } else if (!sessionJoined && producerSessionId != 0) {
+    } else if (!sessionJoined && producerSessionId != 0) { // Session lost
         producerSessionId = 0;
+        lastSessionRequestSerialNum = 0;
     }
     return serviceStatus;
 }
@@ -143,6 +143,8 @@ Service_Status Consumer_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg,
                 AJ_Printf("Failed to leave session %u\n", producerSessionId);
             }
             producerSessionId = 0;
+            savedNotification.version = 0;
+            lastSessionRequestSerialNum = 0;
         }
         break;
 
@@ -187,7 +189,6 @@ static void Consumer_DoAction(AJ_BusAttachment* bus)
         break;
 
     case CONSUMER_ACTION_NOTHING:
-        savedNotification.version = 0;
         if (!inputMode) { // default behaviour is to acknowledge next notification
             nextAction = CONSUMER_ACTION_ACKNOWLEDGE;
         }
@@ -197,7 +198,7 @@ static void Consumer_DoAction(AJ_BusAttachment* bus)
 
 void Consumer_IdleConnectedHandler(AJ_BusAttachment* bus)
 {
-    if (savedNotification.version > 1 && producerSessionId == 0) {
+    if (savedNotification.version > 1 && producerSessionId == 0 && lastSessionRequestSerialNum == 0) {
         Consumer_DoAction(bus);
     }
     return;
@@ -259,7 +260,7 @@ AJ_Status ApplicationHandleNotify(Notification_t* notification)
     }
 
     // Check if received notification is from a producer that supports acknowledge and dismiss methods
-    if (notification->header.version >= NotificationVersion && notification->header.originalSenderName != 0 && strlen(notification->header.originalSenderName) > 0) {
+    if (notification->header.version >= NotificationVersion && notification->header.originalSenderName != 0 && strlen(notification->header.originalSenderName) > 0 && lastSessionRequestSerialNum == 0) {
         // Save notification reference so that it can be later acknowledged or dimissed
         savedNotification.version = notification->header.version;
         savedNotification.notificationId = notification->header.notificationId;
