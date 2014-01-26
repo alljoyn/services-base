@@ -40,8 +40,6 @@ AJ_Status ControlPanel_ConnectedHandler(AJ_BusAttachment* bus)
     };
 
     AJ_Status status;
-    AJ_Time timer = { 0, 0 };
-    AJ_InitTimer(&timer);
 
     status = AJ_BusBindSessionPort(bus, CPSPort, &sessionOpts);
     if (status != AJ_OK) {
@@ -52,22 +50,7 @@ AJ_Status ControlPanel_ConnectedHandler(AJ_BusAttachment* bus)
     while (!serviceStarted && (status == AJ_OK)) {
         AJ_Message msg;
 
-        AJ_GetElapsedTime(&timer, TRUE);
-
         status = AJ_UnmarshalMsg(bus, &msg, AJAPP_UNMARSHAL_TIMEOUT);
-
-        /*
-         * TODO This is a temporary hack to work around buggy select implementations
-         */
-        if (status == AJ_ERR_TIMEOUT) {
-            uint32_t elapsed = AJ_GetElapsedTime(&timer, TRUE);
-            if (elapsed < AJAPP_UNMARSHAL_TIMEOUT) {
-                AJ_Printf("Spurious timeout error (elapsed=%d < AJAPP_UNMARSHAL_TIMEOUT=%d) - continuing\n", elapsed, AJAPP_UNMARSHAL_TIMEOUT);
-                status = AJ_OK;
-                continue;
-            }
-        }
-
         if (status != AJ_OK) {
             break;
         }
