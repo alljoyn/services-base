@@ -77,6 +77,7 @@ class PayloadAdapter {
      * @param deviceId
      * @param deviceName
      * @param appId
+     * @param appIdlen
      * @param appName
      * @param messageType
      * @param notificationText
@@ -88,11 +89,11 @@ class PayloadAdapter {
      * @param richAudioObjectPath
      * @param controlPanelServiceObjectPath
      * @param originalSender
-     * @param messageId     *
+     * @param messageId
      * @return status - success/failure
      */
     static QStatus sendPayload(const char* deviceId, const char* deviceName,
-                               const char* appId, const char* appName,
+                               const uint8_t* appId, size_t appIdlen, const char* appName,
                                NotificationMessageType messageType,
                                std::vector<NotificationText> const&  notificationText,
                                std::map<qcc::String, qcc::String> const& customAttributes,

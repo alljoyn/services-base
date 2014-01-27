@@ -521,20 +521,21 @@ QStatus Transport::startReceiverTransport(BusAttachment* bus)
         }
     }
     //Handling NotificationDismisserSender - End
-
-    status = listenForAnnouncements();
-    if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not listen for announcements.");
-        }
-        goto exit;
-    } else {
-        if (logger) {
-            logger->warn(TAG, "successfully listens announcements.");
+    if (!m_IsSuperAgentDisabled) {
+        status = listenForAnnouncements();
+        if (status != ER_OK) {
+            if (logger) {
+                logger->warn(TAG, "Could not listen for announcements.");
+            }
+            goto exit;
+        } else {
+            if (logger) {
+                logger->warn(TAG, "successfully listens announcements.");
+            }
         }
     }
 
-    if (!m_SuperAgentBusListener) {
+    if (!m_IsSuperAgentDisabled && !m_SuperAgentBusListener) {
         m_SuperAgentBusListener = new SuperAgentBusListener(m_Bus);
         m_Bus->RegisterBusListener(*m_SuperAgentBusListener);
     }
@@ -666,7 +667,9 @@ QStatus Transport::cancelListenToSuperAgent(const char* senderId)
         return status;
     }
 
-    m_SuperAgent->setIsFirstSuperAgent(true);
+    if (m_SuperAgent) {
+        m_SuperAgent->setIsFirstSuperAgent(true);
+    }
 
     return status;
 }
@@ -700,7 +703,7 @@ void Transport::cleanupNotificationProducerReceiver()
     QStatus status = m_Bus->UnbindSessionPort(sp);
     if (status != ER_OK) {
         if (logger) {
-            logger->warn(TAG, "Could not unbind the SessionPort" + String(QCC_StatusText(status)));
+            logger->warn(TAG, "Could not unbind the SessionPort " + String(QCC_StatusText(status)));
         }
     }
 
