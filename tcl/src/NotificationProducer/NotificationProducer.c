@@ -53,20 +53,30 @@ AJ_Status ProducerSetNotification(AJ_BusAttachment* busAttachment, NotificationC
     const char* deviceName = PropertyStore_GetValue(DeviceName);
     const char* appId = PropertyStore_GetValue(AppID);
     const char* appName = PropertyStore_GetValue(AppName);
-    const char* originalSenderName = AJ_GetUniqueName(busAttachment);
+    const char* originalSenderName = NULL;
 
     if ((deviceId == 0) || (deviceName == 0) ||
-        (appId == 0) || (appName == 0) ||
-        (originalSenderName == 0)) {
-        AJ_Printf("DeviceId/DeviceName/AppId/AppName/OriginalSender can not be NULL\n");
+        (appId == 0) || (appName == 0)) {
+        AJ_Printf("DeviceId/DeviceName/AppId/AppName can not be NULL\n");
         return AJ_ERR_DISALLOWED;
     }
 
     if ((strlen(deviceId) == 0) || (strlen(deviceName) == 0) ||
-        (strlen(appId) == 0) || (strlen(appName) == 0) ||
-        (strlen(originalSenderName) == 0)) {
-        AJ_Printf("DeviceId/DeviceName/AppId/AppName/OriginalSender can not be empty\n");
+        (strlen(appId) == 0) || (strlen(appName) == 0)) {
+        AJ_Printf("DeviceId/DeviceName/AppId/AppName can not be empty\n");
         return AJ_ERR_DISALLOWED;
+    }
+
+    if (NotificationVersion > 1) {
+        originalSenderName = AJ_GetUniqueName(busAttachment);
+        if (originalSenderName == 0) {
+            AJ_Printf("OriginalSender can not be NULL\n");
+            return AJ_ERR_DISALLOWED;
+        }
+        if (strlen(originalSenderName) == 0) {
+            AJ_Printf("OriginalSender can not be empty\n");
+            return AJ_ERR_DISALLOWED;
+        }
     }
 
     if (messageType >= NUM_MESSAGE_TYPES) {
@@ -289,25 +299,27 @@ AJ_Status ProducerSetNotification(AJ_BusAttachment* busAttachment, NotificationC
         }
     }
 
-    status = AJ_MarshalContainer(&msg, &dictArg, AJ_ARG_DICT_ENTRY);
-    if (status != AJ_OK) {
-        goto ErrorExit;
-    }
-    status = AJ_MarshalArgs(&msg, "i", ORIGINAL_SENDER_NAME_ATTRIBUTE_KEY);
-    if (status != AJ_OK) {
-        goto ErrorExit;
-    }
-    status = AJ_MarshalVariant(&msg, "s");
-    if (status != AJ_OK) {
-        goto ErrorExit;
-    }
-    status = AJ_MarshalArgs(&msg, "s", originalSenderName);
-    if (status != AJ_OK) {
-        goto ErrorExit;
-    }
-    status = AJ_MarshalCloseContainer(&msg, &dictArg);
-    if (status != AJ_OK) {
-        goto ErrorExit;
+    if (NotificationVersion > 1) {
+        status = AJ_MarshalContainer(&msg, &dictArg, AJ_ARG_DICT_ENTRY);
+        if (status != AJ_OK) {
+            goto ErrorExit;
+        }
+        status = AJ_MarshalArgs(&msg, "i", ORIGINAL_SENDER_NAME_ATTRIBUTE_KEY);
+        if (status != AJ_OK) {
+            goto ErrorExit;
+        }
+        status = AJ_MarshalVariant(&msg, "s");
+        if (status != AJ_OK) {
+            goto ErrorExit;
+        }
+        status = AJ_MarshalArgs(&msg, "s", originalSenderName);
+        if (status != AJ_OK) {
+            goto ErrorExit;
+        }
+        status = AJ_MarshalCloseContainer(&msg, &dictArg);
+        if (status != AJ_OK) {
+            goto ErrorExit;
+        }
     }
 
     status = AJ_MarshalCloseContainer(&msg, &attrbtArray);
