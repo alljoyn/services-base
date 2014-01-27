@@ -72,7 +72,6 @@ class ControlPanelManager implements ControlPanelExceptionHandler, ControlPanelE
 		this.panelActivity   = panelActivity;
 		isObjValid           = true;
 		myApp                = (IoeNotificationApplication) panelActivity.getApplication();
-		rootElementRequester = new RootElementRequest(this); 
 		panelAdapter         = new ControlPanelAdapter(panelActivity, this);
 	}
 	
@@ -96,6 +95,7 @@ class ControlPanelManager implements ControlPanelExceptionHandler, ControlPanelE
 	 * Retrieves the Control Panel {@link UIElement} and use {@link ControlPanelAdapter} to build the UI  
 	 */
 	public void buildPanel(DeviceControlPanel panel) {
+		rootElementRequester = new RootElementRequest(this);
 		rootElementRequester.execute(panel);
 	}//buildPanel
 	
