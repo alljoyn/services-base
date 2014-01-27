@@ -109,7 +109,7 @@ public class DismissEmitter implements NotificationDismisser {
 	 */
 	private static String buildObjPath(int msgId, UUID appId) {
 		String appIdStr = appId.toString().replace("-", "");
-		return OBJ_PATH_PREFIX + appIdStr + "/" + msgId;
+		return OBJ_PATH_PREFIX + appIdStr + "/" + Math.abs(msgId);
 	}//buildObjPath
 	
 }
