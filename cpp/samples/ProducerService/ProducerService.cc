@@ -27,6 +27,7 @@
 #include <alljoyn/services_common/GenericLogger.h>
 #include "CommonSampleUtil.h"
 #include <alljoyn/notification/Notification.h>
+#include <GuidUtil.h>
 
 #ifdef USE_SAMPLE_LOGGER
 #include "../common/SampleLogger.h"
@@ -47,9 +48,7 @@ NotificationSender* Sender = 0;
 
 enum states {
     BeginNewNotification,
-    SetDeviceId,
     SetDeviceName,
-    SetAppId,
     SetAppName,
     SetMsgType,
     CheckForNewMsg,
@@ -74,7 +73,7 @@ enum states {
     EndNotification,
 };
 
-bool getInput(qcc::String& device_id, qcc::String& device_name, qcc::String& app_id, qcc::String& app_name, NotificationMessageType& messageType,
+bool getInput(qcc::String& device_name, qcc::String& app_name, NotificationMessageType& messageType,
               std::vector<NotificationText>& vecMessages, std::map<qcc::String, qcc::String>& customAttributes, qcc::String& richIconUrl,
               std::vector<RichAudioUrl>& richAudioUrl, qcc::String& richIconObjectPath, qcc::String& richAudioObjectPath, qcc::String& controlPanelServiceObjectPath,
               uint16_t& ttl, int32_t& sleepTime)
@@ -85,9 +84,7 @@ bool getInput(qcc::String& device_id, qcc::String& device_name, qcc::String& app
     qcc::String tempText = "";
     qcc::String tempUrl = "";
     qcc::String tempKey;
-    qcc::String defaultDeviceId = "defaultDeviceId";
     qcc::String defaultDeviceName = "defaultDeviceName";
-    qcc::String defaultAppId = "2826752ae35c416a82bcef272c55eace";
     qcc::String defaultAppName = "defaultAppName";
     qcc::String defaultLang = "en";
     qcc::String defaultText = "Using the default text.";
@@ -99,28 +96,16 @@ bool getInput(qcc::String& device_id, qcc::String& device_name, qcc::String& app
     qcc::String defaultControlPanelServiceObjectPath = "/ControlPanel/MyDevice/areYouSure";
 
     std::cout << "Enter in new notification info:" << std::endl;
-    std::cout << "Enter in device id or press 'enter' to use default:" << std::endl;
-    state = SetDeviceId;
+    std::cout << "Enter in device name or press 'enter' to use default:" << std::endl;
+    state = SetDeviceName;
 
     getline(std::cin, input);
 
     while (!std::cin.eof()) {
         switch (state) {
 
-        case SetDeviceId:
-            device_id = input.length() ? input.c_str() : defaultDeviceId;
-            std::cout << "Enter in device name or press 'enter' to use default:" << std::endl;
-            state = SetDeviceName;
-            break;
-
         case SetDeviceName:
             device_name = input.length() ? input.c_str() : defaultDeviceName;
-            std::cout << "Enter in application id or press 'enter' to use default:" << std::endl;
-            state = SetAppId;
-            break;
-
-        case SetAppId:
-            app_id = input.length() ? input.c_str() : defaultAppId;
             std::cout << "Enter in application name or press 'enter' to use default:" << std::endl;
             state = SetAppName;
             break;
@@ -378,10 +363,19 @@ int main()
         return 1;
     }
 
+    char deviceid[GUID_STRING_MAX_LENGTH + END_OF_STRING_LENGTH];
+    GuidUtil::GetInstance()->GetDeviceIdString(deviceid);
+    char appid[GUID_STRING_MAX_LENGTH + END_OF_STRING_LENGTH];
+    GuidUtil::GetInstance()->GenerateGUID(appid);
+
+    qcc::String device_id;
+    device_id.assign(deviceid);
+    qcc::String app_id;
+    app_id.assign(appid);
+
     //Run in loop until press enter
     while (1) {
-        qcc::String device_id, device_name;
-        qcc::String app_id, app_name;
+        qcc::String device_name, app_name;
         qcc::String richIconUrl = "";
         qcc::String richIconObjectPath = "";
         qcc::String richAudioObjectPath = "";
@@ -395,7 +389,7 @@ int main()
         int32_t sleepTime;
         QStatus status;
 
-        if (!getInput(device_id, device_name, app_id, app_name, messageType, vecMessages, customAttributes,
+        if (!getInput(device_name, app_name, messageType, vecMessages, customAttributes,
                       richIconUrl, richAudioUrl, richIconObjectPath, richAudioObjectPath, controlPanelServiceObjectPath, ttl, sleepTime)) {
             break;
         }

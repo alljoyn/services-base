@@ -29,6 +29,7 @@
 #include "CommonSampleUtil.h"
 #include "../common/SampleLogger.h"
 #include "TestFunction.h"
+#include "GuidUtil.h"
 
 #define SERVICE_PORT 900
 
@@ -106,9 +107,14 @@ bool initSend(std::map<qcc::String, qcc::String>& params)
         propertyStoreImpl = new AboutPropertyStoreImpl();
     }
 
+    char deviceid[GUID_STRING_MAX_LENGTH + END_OF_STRING_LENGTH];
+    GuidUtil::GetInstance()->GetDeviceIdString(deviceid);
+    char appid[GUID_STRING_MAX_LENGTH + END_OF_STRING_LENGTH];
+    GuidUtil::GetInstance()->GenerateGUID(appid);
+
     QStatus status;
-    status = CommonSampleUtil::fillPropertyStore(propertyStoreImpl, params["app_id"].c_str(), params["app_name"].c_str(),
-                                                 params["device_id"].c_str(), params["device_name"].c_str());
+    status = CommonSampleUtil::fillPropertyStore(propertyStoreImpl, appid, params["app_name"].c_str(),
+                                                 deviceid, params["device_name"].c_str());
     if (status != ER_OK) {
         std::cout << "Could not fill PropertyStore." << std::endl;
         return false;
@@ -381,11 +387,9 @@ void createListOfFunctions(TestFunction*testFunctions)
     checkNumFunctions(&i);
     // initSend
     testFunctions[i].functionName  = "initsend";
-    testFunctions[i].usage = testFunctions[i].functionName + " device_id=<id>&device_name=<name>&app_id=<id>&app_name=<app>";
+    testFunctions[i].usage = testFunctions[i].functionName + " device_name=<name>&app_name=<app>";
     testFunctions[i].activateTest = initSend;
-    testFunctions[i].requiredParams.push_back("device_id");
     testFunctions[i].requiredParams.push_back("device_name");
-    testFunctions[i].requiredParams.push_back("app_id");
     testFunctions[i].requiredParams.push_back("app_name");
     testFunctions[i].requiredSteps.push_back("Service");
 

@@ -27,6 +27,7 @@
 #include "CommonSampleUtil.h"
 #include <alljoyn/about/AboutServiceApi.h>
 #include <alljoyn/notification/Notification.h>
+#include "GuidUtil.h"
 
 #ifdef USE_SAMPLE_LOGGER
 #include "../common/SampleLogger.h"
@@ -37,9 +38,7 @@ using namespace ajn;
 
 // Set application constants
 #define DEVICE_NAME "testdeviceName"
-#define DEVICE_ID "123456"
 #define APP_NAME "testappName"
-#define APP_ID "2826752ae35c416a82bcef272c55eace"
 #define LANG1  "en"
 #define TEXT1 "Hello World"
 #define LANG2  "es_SP"
@@ -126,8 +125,13 @@ int main()
         return 1;
     }
 
+    char deviceid[GUID_STRING_MAX_LENGTH + END_OF_STRING_LENGTH];
+    GuidUtil::GetInstance()->GetDeviceIdString(deviceid);
+    char appid[GUID_STRING_MAX_LENGTH + END_OF_STRING_LENGTH];
+    GuidUtil::GetInstance()->GenerateGUID(appid);
+
     propertyStoreImpl = new AboutPropertyStoreImpl();
-    status = CommonSampleUtil::fillPropertyStore(propertyStoreImpl, APP_ID, APP_NAME, "ProducerBasic", "ProducerBasicDeviceName");
+    status = CommonSampleUtil::fillPropertyStore(propertyStoreImpl, appid, APP_NAME, deviceid, "ProducerBasicDeviceName");
     if (status != ER_OK) {
         std::cout << "Could not fill PropertyStore." << std::endl;
         cleanup();
