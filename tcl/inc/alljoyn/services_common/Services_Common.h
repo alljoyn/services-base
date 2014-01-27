@@ -17,8 +17,7 @@
 #ifndef _SERVICES_COMMON_H_
 #define _SERVICES_COMMON_H_
 
-#include <alljoyn/services_common/Services_Registration.h>
-
+#include <alljoyn/services_common/PropertyStore.h>
 #define CHECK(x) if ((status = (x)) != AJ_OK) { break; }
 
 /**
@@ -86,5 +85,8 @@ uint8_t Common_IsLanguageSupported(AJ_Message* msg, AJ_Message* reply, const cha
  * @return status
  */
 AJ_Status Common_MarshalAppId(AJ_Message* msg, const char* appId);
+
+// The following is to be included in all services
+#include <alljoyn/services_common/Services_Registration.h>
 
 #endif /* _SERVICES_COMMON_H_ */
