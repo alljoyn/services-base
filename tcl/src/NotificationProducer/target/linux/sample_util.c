@@ -27,9 +27,11 @@
 #include <producer_sample_util.h>
 
 #define BUF_SIZE 500
-#define TTL_MIN 30
-#define TTL_MAX 43200
 #define MAX_MSG 5
+
+AJNS_DictionaryEntry richAudioUrls[100];
+AJNS_DictionaryEntry texts[100];
+AJNS_DictionaryEntry customAttributes[100];
 
 static char* NS_GetLine(char* str, size_t num, void* fp)
 {
@@ -67,36 +69,33 @@ void Producer_SetupEnv(uint8_t* inputMode)
     }
 }
 
-void Producer_GetNotificationFromUser()
+void Producer_GetNotificationFromUser(AJNS_NotificationContent* notificationContent, uint16_t* messageType, uint32_t* ttl)
 {
-    uint16_t messageType = 0;
-    uint16_t ttl = TTL_MIN;
-    NotificationContent_t notificationContent;
-    struct keyValue richAudioUrls[100];
-    struct keyValue texts[100];
-    struct keyValue customAttributes[100];
     char richIconUrl[BUF_SIZE] = "/richIconUrl";
     char richIconObjectPath[BUF_SIZE] = "/richIconObjectPath";
     char richAudioObjectPath[BUF_SIZE] = "/richAudioObjectPath";
     char controlPanelServiceObjectPath[BUF_SIZE];
 
     char buf[BUF_SIZE];
-    int8_t i;
+    uint8_t i;
 
-    notificationContent.numCustomAttributes = 0;
-    notificationContent.numTexts = 1;
-    notificationContent.numAudioUrls = 0;
+    notificationContent->numCustomAttributes = 0;
+    notificationContent->numTexts = 1;
+    notificationContent->numAudioUrls = 0;
 
-    AJ_Printf("Please enter the messageType.\n");
-    AJ_Printf("Empty string or invalid input will default to 0\n");
+    AJ_Printf("Please enter the messageType 0=EMERGENCY, 1=WARNING, 2=INFO.\n");
+    AJ_Printf("Empty string or invalid input will default to %u\n", NOTIFICATION_MESSAGE_TYPE_EMERGENCY);
     if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
         if (strlen(buf)) {
-            messageType = (uint8_t)atoi(buf);
+            *messageType = (uint8_t)atoi(buf);
             char stringType[8];
-            sprintf(stringType, "%d", messageType);
+            sprintf(stringType, "%d", *messageType);
             if (!(strcmp(buf, stringType) == 0)) {             //they do not match, it is not int
-                AJ_Printf("Message Type is not an integer value. Defaulting to 0\n");
-                messageType = 0;
+                AJ_Printf("Message Type is not an integer value. Defaulting to %u\n", NOTIFICATION_MESSAGE_TYPE_EMERGENCY);
+                *messageType = NOTIFICATION_MESSAGE_TYPE_EMERGENCY;
+            } else if (*messageType != NOTIFICATION_MESSAGE_TYPE_EMERGENCY || *messageType != NOTIFICATION_MESSAGE_TYPE_WARNING || *messageType != NOTIFICATION_MESSAGE_TYPE_INFO) {
+                AJ_Printf("Message Type is not one of 0, 1 or 2. Defaulting to %u\n", NOTIFICATION_MESSAGE_TYPE_EMERGENCY);
+                *messageType = NOTIFICATION_MESSAGE_TYPE_EMERGENCY;
             }
         }
     }
@@ -106,14 +105,14 @@ void Producer_GetNotificationFromUser()
 
     if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
         if (strlen(buf)) {
-            notificationContent.numTexts = atoi(buf);
-            if (notificationContent.numTexts < 1 || notificationContent.numTexts > MAX_MSG) {
-                notificationContent.numTexts = 1;
+            notificationContent->numTexts = atoi(buf);
+            if (notificationContent->numTexts < 1 || notificationContent->numTexts > MAX_MSG) {
+                notificationContent->numTexts = 1;
             }
         }
     }
 
-    for (i = 0; i < notificationContent.numTexts; i++) {
+    for (i = 0; i < notificationContent->numTexts; i++) {
         char lang[BUF_SIZE] = "en";
         char msg[BUF_SIZE] = "Hello World";
 
@@ -139,21 +138,21 @@ void Producer_GetNotificationFromUser()
             break;
         }
     }
-    notificationContent.texts = texts;
+    notificationContent->texts = texts;
 
     AJ_Printf("Please enter the number of Custom Attributes you wish to send. Maximum %d\n", MAX_MSG);
     AJ_Printf("Empty string or invalid data will default to 0\n");
 
     if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
         if (strlen(buf)) {
-            notificationContent.numCustomAttributes = atoi(buf);
-            if (notificationContent.numCustomAttributes > MAX_MSG) {
-                notificationContent.numCustomAttributes = 0;
+            notificationContent->numCustomAttributes = atoi(buf);
+            if (notificationContent->numCustomAttributes < 0 || notificationContent->numCustomAttributes > MAX_MSG) {
+                notificationContent->numCustomAttributes = 0;
             }
         }
     }
 
-    for (i = 0; i < notificationContent.numCustomAttributes; i++) {
+    for (i = 0; i < notificationContent->numCustomAttributes; i++) {
         char key[BUF_SIZE] = "key";
         char val[BUF_SIZE] = "val";
 
@@ -179,14 +178,23 @@ void Producer_GetNotificationFromUser()
             break;
         }
     }
-    notificationContent.customAttributes = customAttributes;
+    notificationContent->customAttributes = customAttributes;
 
-    AJ_Printf("Please enter the ttl.\n");
-    AJ_Printf("Empty string input will default to 30\n");
+    AJ_Printf("Please enter the ttl in the range %u - %u seconds.\n", NOTIFICATION_TTL_MIN, NOTIFICATION_TTL_MAX);
+    AJ_Printf("Empty string input will default to %u\n", NOTIFICATION_TTL_MIN);
 
     if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
         if (strlen(buf)) {
-            ttl = (uint8_t)atoi(buf);
+            *ttl = (uint8_t)atoi(buf);
+            char stringType[8];
+            sprintf(stringType, "%d", *ttl);
+            if (!(strcmp(buf, stringType) == 0)) {             //they do not match, it is not int
+                AJ_Printf("Ttl is not an integer value. Defaulting to %u\n", NOTIFICATION_TTL_MIN);
+                *ttl = NOTIFICATION_TTL_MIN;
+            } else if (*ttl > NOTIFICATION_TTL_MAX) {
+                AJ_Printf("Ttl is greater than MAX %u. Defaulting to %u\n", NOTIFICATION_TTL_MAX, NOTIFICATION_TTL_MAX);
+                *ttl = NOTIFICATION_TTL_MAX;
+            }
         }
     }
 
@@ -198,21 +206,21 @@ void Producer_GetNotificationFromUser()
             strcpy(richIconUrl, buf);
         }
     }
-    notificationContent.richIconUrl = richIconUrl;
+    notificationContent->richIconUrl = richIconUrl;
 
     AJ_Printf("Please enter the number of rich audio urls you wish to send. Maximum %d\n", MAX_MSG);
     AJ_Printf("Empty string or invalid data will default to 0\n");
 
     if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
         if (strlen(buf)) {
-            notificationContent.numAudioUrls = atoi(buf);
-            if (notificationContent.numAudioUrls > MAX_MSG) {
-                notificationContent.numAudioUrls = 0;
+            notificationContent->numAudioUrls = atoi(buf);
+            if (notificationContent->numAudioUrls > MAX_MSG) {
+                notificationContent->numAudioUrls = 0;
             }
         }
     }
 
-    for (i = 0; i < notificationContent.numAudioUrls; i++) {
+    for (i = 0; i < notificationContent->numAudioUrls; i++) {
         char lang[1024] = "en";
         char url[1024] = "http://myAudioUrl.wv";
 
@@ -238,7 +246,7 @@ void Producer_GetNotificationFromUser()
             break;
         }
     }
-    notificationContent.richAudioUrls = richAudioUrls;
+    notificationContent->richAudioUrls = richAudioUrls;
 
     AJ_Printf("Please enter an optional icon object path. Max 499 characters.\n");
     AJ_Printf("Empty string will default to not setting this value\n");
@@ -248,7 +256,7 @@ void Producer_GetNotificationFromUser()
             strcpy(richIconObjectPath, buf);
         }
     }
-    notificationContent.richIconObjectPath = richIconObjectPath;
+    notificationContent->richIconObjectPath = richIconObjectPath;
 
     AJ_Printf("Please enter an optional audio object path. Max 499 characters.\n");
     AJ_Printf("Empty string will default to not setting this value\n");
@@ -258,31 +266,34 @@ void Producer_GetNotificationFromUser()
             strcpy(richAudioObjectPath, buf);
         }
     }
-    notificationContent.richAudioObjectPath = richAudioObjectPath;
+    notificationContent->richAudioObjectPath = richAudioObjectPath;
 
     AJ_Printf("Please enter an optional control panel service object path. Max 499 characters.\n");
     AJ_Printf("Empty string will default to not setting this value\n");
 
     if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL && strlen(buf)) {
         strcpy(controlPanelServiceObjectPath, buf);
-        notificationContent.controlPanelServiceObjectPath = controlPanelServiceObjectPath;
+        notificationContent->controlPanelServiceObjectPath = controlPanelServiceObjectPath;
     } else {
-        notificationContent.controlPanelServiceObjectPath = NULL;
+        notificationContent->controlPanelServiceObjectPath = NULL;
     }
+}
 
-    ProducerSetNotification(&notificationContent, messageType, ttl);
+void Producer_FreeNotification(AJNS_NotificationContent* notificationContent)
+{
+    uint8_t i;
 
-    for (i = 0; i < notificationContent.numTexts; i++) {
+    for (i = 0; i < notificationContent->numTexts; i++) {
         free((char*)texts[i].key);
         free((char*)texts[i].value);
     }
 
-    for (i = 0; i < notificationContent.numCustomAttributes; i++) {
+    for (i = 0; i < notificationContent->numCustomAttributes; i++) {
         free((char*)customAttributes[i].key);
         free((char*)customAttributes[i].value);
     }
 
-    for (i = 0; i < notificationContent.numAudioUrls; i++) {
+    for (i = 0; i < notificationContent->numAudioUrls; i++) {
         free((char*)richAudioUrls[i].key);
         free((char*)richAudioUrls[i].value);
     }

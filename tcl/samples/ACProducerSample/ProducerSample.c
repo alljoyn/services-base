@@ -29,8 +29,8 @@
  */
 const static char* langEng  = "en";
 const static char* helloEng = "Hello AJL World";
-static NotificationContent_t notificationContent;
-AJNS_DictionaryEntry textToSend[NUM_TEXTS];
+static AJNS_DictionaryEntry textToSend[NUM_TEXTS];
+static AJNS_NotificationContent notificationContent;
 
 /**
  * Initial the Notifications that will be used during this sample app
@@ -56,7 +56,7 @@ void Producer_Init()
     InitNotification();
 }
 
-AJ_Status Producer_ConnectedHandler(AJ_BusAttachment* bus)
+AJ_Status Producer_ConnectedHandler(AJ_BusAttachment* busAttachment)
 {
     AJ_SessionOpts sessionOpts = {
         AJ_SESSION_TRAFFIC_MESSAGES,
@@ -67,7 +67,7 @@ AJ_Status Producer_ConnectedHandler(AJ_BusAttachment* bus)
 
     AJ_Status status;
 
-    status = AJ_BusBindSessionPort(bus, NotificationProducerPort, &sessionOpts);
+    status = AJ_BusBindSessionPort(busAttachment, NotificationProducerPort, &sessionOpts);
     if (status != AJ_OK) {
         AJ_Printf("Failed to send bind session port message\n");
     }
@@ -76,7 +76,7 @@ AJ_Status Producer_ConnectedHandler(AJ_BusAttachment* bus)
     while (!serviceStarted && (status == AJ_OK)) {
         AJ_Message msg;
 
-        status = AJ_UnmarshalMsg(bus, &msg, AJAPP_UNMARSHAL_TIMEOUT);
+        status = AJ_UnmarshalMsg(busAttachment, &msg, AJAPP_UNMARSHAL_TIMEOUT);
         if (status != AJ_OK) {
             break;
         }
@@ -128,9 +128,8 @@ void Producer_DoWork(AJ_BusAttachment* busAttachment)
         textToSend[0].key   = langEng;
         textToSend[0].value = getNotificationString();
 
-        ProducerSetNotification(busAttachment, &notificationContent, NOTIFICATION_MESSAGE_TYPE_INFO, 20000);
         AJ_Printf("About to send Notification ==> %s \n", textToSend[0].value);
-        ProducerSendNotifications(busAttachment);
+        ProducerSendNotification(busAttachment, &notificationContent, NOTIFICATION_MESSAGE_TYPE_INFO, 20000, NULL);
     }
 }
 
@@ -171,7 +170,7 @@ Service_Status Producer_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Mes
     return service_Status;
 }
 
-void Producer_Finish(AJ_BusAttachment* bus)
+void Producer_Finish(AJ_BusAttachment* busAttachment)
 {
     return;
 }

@@ -171,17 +171,10 @@ extern const char NotificationObjectPathInfo[];
     { NotificationProducerObjectPath,   NotificationProducerInterfaces },
 
 /*!
-   \brief Prepare a notification for sending. Call \ref SendNotifications to actually send the notification after calling this function
-   \param notificationContent The content of the notification to be set
-   \return AJ_Status
- */
-extern AJ_Status ProducerSetNotification(AJ_BusAttachment* busAttachment, NotificationContent_t* notificationContent, uint16_t messageType, uint16_t ttl);
-
-/*!
    \brief Send the notifications previously set with \ref SetNotification
    \return AJ_Status
  */
-extern AJ_Status ProducerSendNotifications();
+extern AJ_Status ProducerSendNotification(AJ_BusAttachment* busAttachment, AJNS_NotificationContent* notificationContent, uint16_t messageType, uint32_t ttl, uint32_t* messageSerialNumber);
 
 /*!
    \brief Instruct the AllJoyn bus to remove last message of the specified message type from the bus

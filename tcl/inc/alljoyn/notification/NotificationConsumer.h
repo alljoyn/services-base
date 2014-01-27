@@ -17,8 +17,8 @@
 #ifndef NOTIFICATIONCONSUMER_H_
 #define NOTIFICATIONCONSUMER_H_
 
-#include <alljoyn/notification/NotificationCommon.h>
 #include <alljoyn/services_common/Services_Common.h>
+#include <alljoyn/notification/NotificationCommon.h>
 
 /* Allowed limits on message content */
 #define NUMALLOWEDCUSTOMATTRIBUTES 10
@@ -79,6 +79,13 @@ extern const AJ_InterfaceDescription AllInterfaces[];
 extern const AJ_Object AllProxyObject;
 extern const AJ_Object SuperAgentProxyObject;
 extern const AJ_Object NotificationProxyObject;
+
+typedef struct _AJNS_Consumer_NotificationReference {
+    uint16_t version;
+    int32_t notificationId;
+    char appId[UUID_LENGTH * 2 + 1];
+    char originalSenderName[16];
+} AJNS_Consumer_NotificationReference;
 
 /**
  * ConsumerSetSignalRules, to add the correct filter for the required interface
@@ -156,7 +163,7 @@ extern AJ_Status ConsumerPropSetHandler(AJ_Message* replyMsg, uint32_t propId, v
  * @param notification header and content
  * @return status success/failure
  */
-extern AJ_Status ApplicationHandleNotify(Notification_t* notification);
+extern AJ_Status ApplicationHandleNotify(AJNS_Notification* notification);
 
 /**
  * ApplicationHandleDismiss implemented by the application

@@ -40,23 +40,9 @@ typedef struct _AJNS_DictionaryEntry {
 } AJNS_DictionaryEntry;
 
 /*!
-   \brief struct that holds the notification header
- */
-typedef struct _NotificationHeader {
-    uint16_t version;                           /**< version of notification */
-    uint16_t messageType;                       /**< messageType One of \ref NOTIFICATION_MESSAGE_TYPE_INFO, \ref NOTIFICATION_MESSAGE_TYPE_WARNING, or \ref NOTIFICATION_MESSAGE_TYPE_EMERGENCY */
-    int32_t notificationId;                     /**< notification message id */
-    const char* originalSenderName;             /**< originalSenderName The AllJoyn bus unique name of the originating producer application */
-    const char* deviceId;                       /**< device id of originating producer application */
-    const char* deviceName;                     /**< device name of originating producer application */
-    const char* appId;                          /**< application id of originating producer application */
-    const char* appName;                        /**< application name of originating producer application */
-} NotificationHeader_t;
-
-/*!
    \brief struct that holds the notification content
  */
-typedef struct _NotificationContent {
+typedef struct _AJNS_NotificationContent {
     int8_t numCustomAttributes;                 /**< numCustomAttributes number of custom Attributs */
     AJNS_DictionaryEntry* customAttributes;     /**< customAttributes Custom attributs */
     int8_t numTexts;                            /**< numTexts number of versions of the notification text */
@@ -68,15 +54,22 @@ typedef struct _NotificationContent {
     const char* richAudioObjectPath;            /**< richAudioObjectPath The AllJoyn object path of an accompanying audio object */
     const char* controlPanelServiceObjectPath;  /**< controlPanelServiceObjectPath The AllJoyn object path of an accompanying Control Panel Service object */
     const char* originalSenderName;             /**< originalSenderName The AllJoyn bus unique name of the originating producer application */
-} NotificationContent_t;
+} AJNS_NotificationContent;
 
 /*!
-   \brief struct that holds the notification (header + content)
+   \brief struct that holds the notification (header fields + content)
  */
-typedef struct _Notification {
-    NotificationHeader_t header;
-    NotificationContent_t content;
-} Notification_t;
+typedef struct _AJNS_Notification {
+    uint16_t version;                           /**< version of notification */
+    uint16_t messageType;                       /**< messageType One of \ref NOTIFICATION_MESSAGE_TYPE_INFO, \ref NOTIFICATION_MESSAGE_TYPE_WARNING, or \ref NOTIFICATION_MESSAGE_TYPE_EMERGENCY */
+    int32_t notificationId;                     /**< notification message id */
+    const char* originalSenderName;             /**< originalSenderName The AllJoyn bus unique name of the originating producer application */
+    const char* deviceId;                       /**< device id of originating producer application */
+    const char* deviceName;                     /**< device name of originating producer application */
+    const char* appId;                          /**< application id of originating producer application */
+    const char* appName;                        /**< application name of originating producer application */
+    AJNS_NotificationContent* content;
+} AJNS_Notification;
 
 /**
  * Notification interface name

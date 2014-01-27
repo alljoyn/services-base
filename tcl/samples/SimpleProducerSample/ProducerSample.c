@@ -15,14 +15,16 @@
  ******************************************************************************/
 
 #include <NotificationProducerSample.h>
+#include <alljoyn/notification/NotificationCommon.h>
 #include <alljoyn/notification/NotificationProducer.h>
 
 #ifdef __linux
 #include <producer_sample_util.h>
 #else
-#define Producer_GetNotificationFromUser(x) do { } while (0)
-#define Producer_SetupEnv(x) do { } while (0)
-#define Producer_PossiblyDeleteNotification(x, y) do { } while (0)
+#define Producer_GetNotificationFromUser(...) do { } while (0)
+#define Producer_SetupEnv(...) do { } while (0)
+#define Producer_PossiblyDeleteNotification(...) do { } while (0)
+#define Producer_FreeNotification(...) do { } while (0)
 #endif
 
 #define NUM_CUSTOMS 2
@@ -49,12 +51,12 @@ const static char* richIconObjectPath = "/icon/MyDevice";
 const static char* richAudioObjectPath = "/audio/MyDevice";
 static uint8_t inputMode = 0;
 static uint16_t isMessageTime = 0;
-static NotificationContent_t notificationContent;
-struct keyValue textToSend[NUM_TEXTS], customAttributesToSend[NUM_CUSTOMS], richAudioUrls[NUM_RICH_AUDIO];
+AJNS_DictionaryEntry textToSend[NUM_TEXTS], customAttributesToSend[NUM_CUSTOMS], richAudioUrls[NUM_RICH_AUDIO];
 
 /**
  * Initial the Notifications that will be used during this sample app
  */
+static AJNS_NotificationContent notificationContent;
 static void InitNotification()
 {
     notificationContent.numCustomAttributes = NUM_CUSTOMS;
@@ -158,14 +160,20 @@ uint8_t Producer_CheckSessionAccepted(uint16_t port, uint32_t sessionId, char* j
  * Send Notification is called and sometimes not.
  * Sets the notification every MESSAGES_INTERVAL time
  */
-static void PossiblySetNotifications(AJ_BusAttachment* busAttachment)
+static void PossiblySendNotification(AJ_BusAttachment* busAttachment)
 {
+    uint16_t messageType = NOTIFICATION_MESSAGE_TYPE_INFO;
+    uint32_t ttl = 20000;
+    uint32_t serialNum;
     if (isMessageTime == 0) {
         if (!inputMode) {
             notificationContent.controlPanelServiceObjectPath = ((notificationContent.controlPanelServiceObjectPath == NULL) ? controlPanelServiceObjectPath : NULL); // Toggle notification with action ON/OFF
-            ProducerSetNotification(busAttachment, &notificationContent, NOTIFICATION_MESSAGE_TYPE_INFO, 20000);
         } else {
-            Producer_GetNotificationFromUser();
+            Producer_GetNotificationFromUser(&notificationContent, &messageType, &ttl);
+        }
+        ProducerSendNotification(busAttachment, &notificationContent, messageType, ttl, &serialNum);
+        if (inputMode) {
+            Producer_FreeNotification(&notificationContent);
         }
     }
 
@@ -176,8 +184,7 @@ static void PossiblySetNotifications(AJ_BusAttachment* busAttachment)
 
 void Producer_DoWork(AJ_BusAttachment* busAttachment)
 {
-    PossiblySetNotifications(busAttachment);
-    ProducerSendNotifications(busAttachment);
+    PossiblySendNotification(busAttachment);
     if (inputMode) {
         Producer_PossiblyDeleteNotification(busAttachment, isMessageTime);
     }
@@ -205,12 +212,12 @@ Service_Status Producer_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Mes
         break;
 
     case NOTIFICATION_PRODUCER_ACKNOWLEDGE:
-        *msgStatus = ProducerAcknowledgeMsg(msg);
+        *msgStatus = ProducerAcknowledgeMsg(busAttachment, msg);
         service_Status = SERVICE_STATUS_HANDLED;
         break;
 
     case NOTIFICATION_PRODUCER_DISMISS:
-        *msgStatus = ProducerDismissMsg(msg);
+        *msgStatus = ProducerDismissMsg(busAttachment, msg);
         service_Status = SERVICE_STATUS_HANDLED;
         break;
 

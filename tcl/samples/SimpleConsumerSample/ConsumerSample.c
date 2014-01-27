@@ -28,12 +28,7 @@ static uint8_t inputMode = 0;
 static uint8_t superAgentMode = 1;
 static uint8_t nextAction = CONSUMER_ACTION_NOTHING;
 
-static struct _NotificationReference {
-    uint16_t version;
-    int32_t notificationId;
-    char appId[UUID_LENGTH * 2 + 1];
-    char originalSenderName[16];
-} savedNotification;
+static AJNS_Consumer_NotificationReference savedNotification;
 
 static uint32_t producerSessionId = 0;
 static uint32_t lastSessionRequestSerialNum = 0;
@@ -44,7 +39,7 @@ void Consumer_Init()
     AJ_Printf("Init(): Set Consumer to detect SuperAgent option is turned %s\n", superAgentMode ? "ON" : "off");
     ProxyObjects[NOTIFICATION_PROXYOBJECT_INDEX] = superAgentMode ? AllProxyObject : NotificationProxyObject;
 
-    memset(&savedNotification, 0, sizeof(struct _NotificationReference));
+    memset(&savedNotification, 0, sizeof(AJNS_Consumer_NotificationReference));
 }
 
 AJ_Status Consumer_ConnectedHandler(AJ_BusAttachment* busAttachment)
@@ -209,7 +204,7 @@ void Consumer_Finish(AJ_BusAttachment* busAttachment)
     return;
 }
 
-AJ_Status ApplicationHandleNotify(Notification_t* notification)
+AJ_Status ApplicationHandleNotify(AJNS_Notification* notification)
 {
     AJ_Printf("******************** Begin New Message Received ********************\n");
 
@@ -218,54 +213,54 @@ AJ_Status ApplicationHandleNotify(Notification_t* notification)
         return AJ_OK;
     }
 
-    AJ_Printf("Message Id: %ld\nVersion: %u\nDevice Id: %s\nDevice Name: %s\nApp Id: %s\nApp Name: %s\nMessage Type: %d\n",
-              notification->header.notificationId, notification->header.version, notification->header.deviceId, notification->header.deviceName, notification->header.appId, notification->header.appName, notification->header.messageType);
+    AJ_Printf("Message Id: %d\nVersion: %u\nDevice Id: %s\nDevice Name: %s\nApp Id: %s\nApp Name: %s\nMessage Type: %d\n",
+              notification->notificationId, notification->version, notification->deviceId, notification->deviceName, notification->appId, notification->appName, notification->messageType);
     int8_t indx;
 
-    if (notification->header.originalSenderName != 0 && strlen(notification->header.originalSenderName) > 0) {
-        AJ_Printf("OriginalSender bus unique name: %s\n", notification->header.originalSenderName);
+    if (notification->originalSenderName != 0 && strlen(notification->originalSenderName) > 0) {
+        AJ_Printf("OriginalSender bus unique name: %s\n", notification->originalSenderName);
     }
 
-    for (indx = 0; indx < notification->content.numTexts; indx++) {
-        AJ_Printf("Language: %s  Message: %s.\n", notification->content.texts[indx].key, notification->content.texts[indx].value);
+    for (indx = 0; indx < notification->content->numTexts; indx++) {
+        AJ_Printf("Language: %s  Message: %s.\n", notification->content->texts[indx].key, notification->content->texts[indx].value);
     }
 
     AJ_Printf("Other parameters included:\n");
-    for (indx = 0; indx < notification->content.numCustomAttributes; indx++) {
-        AJ_Printf("Custom Attribute Key: %s  Custom Attribute Value: %s\n", notification->content.customAttributes[indx].key, notification->content.customAttributes[indx].value);
+    for (indx = 0; indx < notification->content->numCustomAttributes; indx++) {
+        AJ_Printf("Custom Attribute Key: %s  Custom Attribute Value: %s\n", notification->content->customAttributes[indx].key, notification->content->customAttributes[indx].value);
     }
 
-    if (notification->content.richIconUrl != 0 && strlen(notification->content.richIconUrl) > 0) {
-        AJ_Printf("Rich Content Icon Url: %s\n", notification->content.richIconUrl);
+    if (notification->content->richIconUrl != 0 && strlen(notification->content->richIconUrl) > 0) {
+        AJ_Printf("Rich Content Icon Url: %s\n", notification->content->richIconUrl);
     }
 
-    if (notification->content.numAudioUrls) {
+    if (notification->content->numAudioUrls) {
         AJ_Printf("******************** Begin Rich Audio Content ********************\n");
-        for (indx = 0; indx < notification->content.numAudioUrls; indx++) {
-            AJ_Printf("Language: %s  Audio URL %s\n", notification->content.richAudioUrls[indx].key, notification->content.richAudioUrls[indx].value);
+        for (indx = 0; indx < notification->content->numAudioUrls; indx++) {
+            AJ_Printf("Language: %s  Audio URL %s\n", notification->content->richAudioUrls[indx].key, notification->content->richAudioUrls[indx].value);
         }
         AJ_Printf("******************** End Rich Audio Content ********************\n");
     }
 
-    if (notification->content.richIconObjectPath != 0 && strlen(notification->content.richIconObjectPath) > 0) {
-        AJ_Printf("Rich Content Icon Object Path: %s\n", notification->content.richIconObjectPath);
+    if (notification->content->richIconObjectPath != 0 && strlen(notification->content->richIconObjectPath) > 0) {
+        AJ_Printf("Rich Content Icon Object Path: %s\n", notification->content->richIconObjectPath);
     }
 
-    if (notification->content.richAudioObjectPath != 0 && strlen(notification->content.richAudioObjectPath) > 0) {
-        AJ_Printf("Rich Content Audio Object Path: %s\n", notification->content.richAudioObjectPath);
+    if (notification->content->richAudioObjectPath != 0 && strlen(notification->content->richAudioObjectPath) > 0) {
+        AJ_Printf("Rich Content Audio Object Path: %s\n", notification->content->richAudioObjectPath);
     }
 
-    if (notification->content.controlPanelServiceObjectPath != 0 && strlen(notification->content.controlPanelServiceObjectPath) > 0) {
-        AJ_Printf("ControlPanelService object path: %s\n", notification->content.controlPanelServiceObjectPath);
+    if (notification->content->controlPanelServiceObjectPath != 0 && strlen(notification->content->controlPanelServiceObjectPath) > 0) {
+        AJ_Printf("ControlPanelService object path: %s\n", notification->content->controlPanelServiceObjectPath);
     }
 
     // Check if received notification is from a producer that supports acknowledge and dismiss methods
-    if (notification->header.version >= NotificationVersion && notification->header.originalSenderName != 0 && strlen(notification->header.originalSenderName) > 0 && lastSessionRequestSerialNum == 0) {
+    if (notification->version >= NotificationVersion && notification->originalSenderName != 0 && strlen(notification->originalSenderName) > 0 && lastSessionRequestSerialNum == 0) {
         // Save notification reference so that it can be later acknowledged or dimissed
-        savedNotification.version = notification->header.version;
-        savedNotification.notificationId = notification->header.notificationId;
-        strcpy(savedNotification.appId, notification->header.appId);
-        strcpy(savedNotification.originalSenderName, notification->header.originalSenderName);
+        savedNotification.version = notification->version;
+        savedNotification.notificationId = notification->notificationId;
+        strcpy(savedNotification.appId, notification->appId);
+        strcpy(savedNotification.originalSenderName, notification->originalSenderName);
     }
     AJ_Printf("******************** End New Message Received ********************\n");
 
@@ -275,7 +270,7 @@ AJ_Status ApplicationHandleNotify(Notification_t* notification)
 AJ_Status ApplicationHandleDismiss(int32_t notificationId, const char* appId)
 {
     AJ_Printf("******************** Begin New Dismiss Received ********************\n");
-    AJ_Printf("Notification Id: %ld\nApp Id: %s\n", notificationId, appId);
+    AJ_Printf("Notification Id: %d\nApp Id: %s\n", notificationId, appId);
     if (savedNotification.version > 0 && !strcmp(appId, savedNotification.appId) && notificationId == savedNotification.notificationId) {
         AJ_Printf("Notification dimissed: Version %u sent from OriginalSender %s\n", savedNotification.version, savedNotification.originalSenderName);
         savedNotification.version = 0;
