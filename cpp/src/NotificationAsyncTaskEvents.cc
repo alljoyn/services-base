@@ -24,6 +24,7 @@
 #include <alljoyn/notification/Notification.h>
 #include <alljoyn/notification/NotificationService.h>
 #include <alljoyn/services_common/Conversions.h>
+#include <sstream>
 
 using namespace ajn;
 using namespace services;
@@ -71,7 +72,9 @@ void NotificationAsyncTaskEvents::OnTask(TaskData const* taskData)
         return;
     } else {
         if (logger) {
-            logger->debug("NotificationAsyncTaskEvents", String("JoinSession to ") + notificationMsg->m_OriginalSender +  String("SUCCEEDED (Session id=") + String(std::to_string(sessionId).c_str()));
+            std::ostringstream stm;
+            stm << sessionId;
+            logger->debug("NotificationAsyncTaskEvents", String("JoinSession to ") + notificationMsg->m_OriginalSender +  String("SUCCEEDED (Session id=") + String(std::string(stm.str()).c_str()));
         }
     }
 
@@ -148,7 +151,9 @@ void NotificationAsyncTaskEvents::sendDismissSignal(TaskData const* taskData)
         /*
          * Paragraph to be disabled in case dismiss signal will not need to be sent via different object path each time
          */
-        qcc::String objectPath = nsConsts::AJ_NOTIFICATION_DISMISSER_PATH + "/" + notificationMsg->m_AppId + "/" + std::to_string(abs(notificationMsg->m_MessageId)).c_str();
+        std::ostringstream stm;
+        stm << abs(notificationMsg->m_MessageId);
+        qcc::String objectPath = nsConsts::AJ_NOTIFICATION_DISMISSER_PATH + "/" + notificationMsg->m_AppId + "/" + std::string(stm.str()).c_str();
         NotificationDismisserSender notificationDismisserSender(Transport::getInstance()->getBusAttachment(), objectPath, status);
         status = Transport::getInstance()->getBusAttachment()->RegisterBusObject(notificationDismisserSender);
         if (status != ER_OK) {

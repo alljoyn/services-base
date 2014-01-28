@@ -19,6 +19,7 @@
 #include "NotificationConstants.h"
 #include <alljoyn/notification/NotificationService.h>
 #include <iostream>
+#include <sstream>
 
 using namespace ajn;
 using namespace services;
@@ -93,13 +94,13 @@ QStatus NotificationProducerSender::Dismiss(const char* busName, ajn::SessionId 
 {
     GenericLogger* logger = NotificationService::getInstance()->getLogger();
     if (logger) {
-        String log("NotificationProducerSender::Dismiss busName:");
-        log.append(busName);
-        log.append(" sessionId:");
-        log.append(std::to_string(sessionId).c_str());
-        log.append(" mgsId:");
-        log.append(std::to_string(mgsId).c_str());
-        logger->debug(TAG, log);
+        std::ostringstream stm;
+        stm << "NotificationProducerSender::Dismiss ";
+        stm << "busName:" << busName << " ";
+        stm << "sessionId:" << sessionId << " ";
+        stm << "mgsId:" << mgsId;
+
+        logger->debug(TAG, String(std::string(stm.str()).c_str()));
     }
 
     QStatus status = ER_OK;

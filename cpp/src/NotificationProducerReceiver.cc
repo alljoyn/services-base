@@ -22,6 +22,7 @@
 #include <iostream>
 #include "NotificationDismisserSender.h"
 #include <alljoyn/services_common/Conversions.h>
+#include <sstream>
 
 using namespace ajn;
 using namespace services;
@@ -145,9 +146,10 @@ void NotificationProducerReceiver::HandleMethodCall(const ajn::InterfaceDescript
         goto exit;
     }
     if (logger) {
-        qcc::String log("msgId:");
-        log.append(std::to_string(msgId).c_str());
-        logger->debug(TAG, log);
+        std::ostringstream stm;
+        stm << "msgId:";
+        stm << msgId;
+        logger->debug(TAG, String(std::string(stm.str()).c_str()));
     }
     MethodReply(msg, args, 0);
     pthread_mutex_lock(&m_Lock);
@@ -234,7 +236,9 @@ QStatus NotificationProducerReceiver::sendDismissSignal(int32_t msgId)
 
     Conversions::ArrayOfBytesToString(&appIdBin, len, &appId);
 
-    qcc::String objectPath = nsConsts::AJ_NOTIFICATION_DISMISSER_PATH + "/" + appId + "/" + std::to_string(abs(msgId)).c_str();
+    std::ostringstream stm;
+    stm << abs(msgId);
+    qcc::String objectPath = nsConsts::AJ_NOTIFICATION_DISMISSER_PATH + "/" + appId + "/" + std::string(stm.str()).c_str();
     NotificationDismisserSender notificationDismisserSender(Transport::getInstance()->getBusAttachment(), objectPath, status);
     if (status != ER_OK) {
         if (logger) {

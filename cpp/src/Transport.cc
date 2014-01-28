@@ -33,6 +33,7 @@
 #include "NotificationTransportConsumer.h"
 #include "NotificationTransportProducer.h"
 #include "NotificationTransportSuperAgent.h"
+#include <sstream>
 
 using namespace ajn;
 using namespace services;
@@ -189,15 +190,17 @@ QStatus Transport::deleteMsg(int32_t msgId)
 
     if (ret == ER_OK) {
         if (logger) {
-            String log("Transport::deleteMsg() - message successfully deleted. msgId=");
-            log.append(std::to_string(msgId).c_str());
-            logger->debug(TAG, log);
+            std::ostringstream stm;
+            stm << "Transport::deleteMsg() - message successfully deleted. ";
+            stm << "msgId=" << msgId;
+            logger->debug(TAG, String(std::string(stm.str()).c_str()));
         }
     } else {
         if (logger) {
-            String log("Transport::deleteMsg() - didn't find message to delete. msgId=");
-            log.append(std::to_string(msgId).c_str());
-            logger->debug(TAG, log);
+            std::ostringstream stm;
+            stm << "Transport::deleteMsg() - didn't find message to delete. ";
+            stm << "msgId=" << msgId;
+            logger->debug(TAG, String(std::string(stm.str()).c_str()));
         }
     }
     return ret;

@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <alljoyn/notification/NotificationService.h>
 #include "NotificationConstants.h"
+#include <sstream>
 
 using namespace ajn;
 using namespace services;
@@ -54,11 +55,11 @@ bool NotificationProducerListener::AcceptSessionJoiner(ajn::SessionPort sessionP
 
     GenericLogger* logger = NotificationService::getInstance()->getLogger();
     if (logger) {
-        String log("NotificationProducerListener::AcceptSessionJoiner() sessionPort=");
-        log.append(std::to_string(sessionPort).c_str());
-        log.append(" joiner:");
-        log.append(joiner);
-        logger->debug(TAG, log);
+        std::ostringstream stm;
+        stm << "NotificationProducerListener::AcceptSessionJoiner() ";
+        stm << "sessionPort=" << sessionPort << " ";
+        stm << "joiner:" << joiner;
+        logger->debug(TAG, String(std::string(stm.str()).c_str()));
     }
 
     return true;
