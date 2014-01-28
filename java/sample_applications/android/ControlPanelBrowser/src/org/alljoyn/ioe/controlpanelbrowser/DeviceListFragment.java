@@ -1,6 +1,6 @@
 package org.alljoyn.ioe.controlpanelbrowser;
 /******************************************************************************
-* Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+* Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
 *
 *    Permission to use, copy, modify, and/or distribute this software for any
 *    purpose with or without fee is hereby granted, provided that the above
@@ -394,22 +394,26 @@ public class DeviceListFragment extends ListFragment {
 			if (Status.OK == status)
 			{
 				Log.d(TAG, "BusAttachment.connect(): ok. BusUniqueName: " + bus.getUniqueName());
+				
 				//request the name	
+				String daemonName = DAEMON_NAME_PREFIX + ".ControlPanelBrowser.G" + bus.getGlobalGUIDString();
 				int flag = BusAttachment.ALLJOYN_REQUESTNAME_FLAG_DO_NOT_QUEUE;
-				String daemonName = DAEMON_NAME_PREFIX + "." + DeviceListActivity.class.getSimpleName();
 				Status reqStatus = bus.requestName(daemonName, flag);
 				if (reqStatus == Status.OK) {
-					//advertise the name
+					
 					//advertise the name with a quite prefix for thin clients to find it
 					Status adStatus = bus.advertiseName(DAEMON_QUIET_PREFIX + daemonName, SessionOpts.TRANSPORT_ANY);
 					if (adStatus != Status.OK){
 						bus.releaseName(daemonName);
-						Log.w(TAG, "failed to advertise daemon name " + daemonName);
+						Log.e(TAG, "Failed to advertise daemon name: '" + daemonName + "', Error: '" + status + "'");
 					}
 					else{
-						Log.d(TAG, "Succefully advertised daemon name " + daemonName);
+						Log.d(TAG, "Succefully advertised daemon name: '" + daemonName + "'");
 					}
-				}	
+				}
+				else {
+					Log.e(TAG, "Failed to request daemon name: '" + daemonName + "', Error: '" + status + "'");
+				}
 			}
 		
 			// Initialize AboutService

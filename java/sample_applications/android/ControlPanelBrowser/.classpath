@@ -8,7 +8,6 @@
 	<classpathentry exported="true" kind="lib" path="libs/android-support-v4.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/alljoyn.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/alljoyn_about.jar"/>
-	<classpathentry exported="true" kind="lib" path="libs/alljoyn_services_common.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/ControlPanelService.jar" sourcepath="libs/ControlPanelService_src.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/ControlPanelAdapter.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
