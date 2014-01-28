@@ -66,7 +66,7 @@
         android:id="@+id/tv_nitem_rich_icon_ObjPath"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-         android:layout_alignParentLeft="true"
+        android:layout_alignParentLeft="true"
         android:layout_below="@+id/tv_nitem_rich_icon"
         android:text="tv_nitem_rich_icon_ObjPath"
         android:textSize="8sp" />
@@ -77,8 +77,7 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="16dp" 
-        android:layout_centerInParent="true"
-        />
+        android:layout_centerVertical="true"
+        android:layout_marginRight="16dp"/>
     
 </RelativeLayout>
