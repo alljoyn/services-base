@@ -139,13 +139,24 @@ QStatus ControlPanelController::deleteControllableDevice(qcc::String const& send
 
 QStatus ControlPanelController::deleteAllControllableDevices()
 {
+    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     QStatus returnStatus = ER_OK;
     std::map<qcc::String, ControlPanelDevice*>::iterator iter;
-    for (iter = m_ControllableDevices.begin(); iter != m_ControllableDevices.end(); iter++) {
-        QStatus status = ER_OK;
-        if ((status = deleteControllableDevice(iter->first)) != ER_OK) {
+    std::map<qcc::String, ControlPanelDevice*>::iterator deliter;
+    for (iter = m_ControllableDevices.begin(); iter != m_ControllableDevices.end();) {
+
+        ControlPanelDevice* device = iter->second;
+        deliter = iter++;
+        QStatus status = device->shutdownDevice();
+        if (status != ER_OK) {
+            if (logger) {
+                logger->warn(TAG, "Could not shutdown Device successfully");
+            }
             returnStatus = status;
         }
+
+        m_ControllableDevices.erase(deliter);
+        delete device;
     }
     return returnStatus;
 }
