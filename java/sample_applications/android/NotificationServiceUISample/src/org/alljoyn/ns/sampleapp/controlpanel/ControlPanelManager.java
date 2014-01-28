@@ -53,47 +53,79 @@ class ControlPanelManager implements ControlPanelExceptionHandler, ControlPanelE
 	private ControlPanelAdapter panelAdapter;
 
 	/**
+	 * The asynchronous task that is called to retrieve the root element container  
+	 */
+	private RootElementRequest rootElementRequester;
+	
+	/**
+	 * Gets TRUE when the object is initialized and FALSE when the object is cleaned.
+	 * This should prevent usage of this object after it was cleaned by the clear method
+	 */
+	private volatile boolean isObjValid;
+	
+	/**
 	 * Constructor
 	 * @param panelActivity Control Panel Activity
 	 */
 	public ControlPanelManager(ControlPanelActivity panelActivity) {
 		
-		this.panelActivity = panelActivity;
-		this.myApp         = (IoeNotificationApplication) panelActivity.getApplication();
-		panelAdapter       = new ControlPanelAdapter(panelActivity, this);
+		this.panelActivity   = panelActivity;
+		isObjValid           = true;
+		myApp                = (IoeNotificationApplication) panelActivity.getApplication();
+		rootElementRequester = new RootElementRequest(this); 
+		panelAdapter         = new ControlPanelAdapter(panelActivity, this);
 	}
 	
 	/**
 	 * Cleans this object
 	 */
 	public void clear() {
-		
+
+		isObjValid    = false;
 		myApp         = null;
 		panelActivity = null;
 		panelAdapter  = null;
+		
+		if ( rootElementRequester != null && !rootElementRequester.isCancelled() ) {
+			rootElementRequester.cancel(true);
+			rootElementRequester = null;
+		}
 	}//clean
 	
 	/**
 	 * Retrieves the Control Panel {@link UIElement} and use {@link ControlPanelAdapter} to build the UI  
 	 */
 	public void buildPanel(DeviceControlPanel panel) {
-		new RootElementRequest(this).execute(panel);
+		rootElementRequester.execute(panel);
 	}//buildPanel
+	
 	
 	/**
 	 * @see org.alljoyn.ioe.controlpaneladapter.ControlPanelExceptionHandler#handleControlPanelException(org.alljoyn.ioe.controlpanelservice.ControlPanelException)
 	 */
 	@Override
 	public void handleControlPanelException(ControlPanelException cpe) {
+		
+		if ( !isObjValid ) {
+			Log.w(TAG, "The object has already been cleaned, not valid to be used anymore, returning");
+			return;
+		}
+		
 		Log.d(TAG, "A fail has happened in ControlPanelAgapter: '" + cpe.getMessage() + "'");
 		myApp.showToast("Oops, failed to execute an action");
 	}//handleControlPanelException
+	
 
 	/**
 	 * Is called by the {@link RootElementRequest} when the request is completed
 	 * @param result May be either {@link ControlPanelException} or {@link UIElement}
 	 */
 	void onReadyRootElementRequest(Object result) {
+		
+		if ( !isObjValid ) {
+			Log.w(TAG, "The object has already been cleaned, not valid to be used anymore, returning");
+			return;
+		}
 		
 		if ( result instanceof ControlPanelException ) {
 			
@@ -116,6 +148,7 @@ class ControlPanelManager implements ControlPanelExceptionHandler, ControlPanelE
 		}
 	}//onRootElementRequestReady
 	
+	
 	//=================================================//
 	//            CONTROL PANEL EVENTS LISTENER        //
 	//=================================================//	
@@ -125,6 +158,12 @@ class ControlPanelManager implements ControlPanelExceptionHandler, ControlPanelE
 	 */
 	@Override
 	public void errorOccurred(DeviceControlPanel panel, String reason) {
+		
+		if ( !isObjValid ) {
+			Log.w(TAG, "The object has already been cleaned, not valid to be used anymore, returning");
+			return;
+		}
+		
 		Log.d(TAG, "Control panel error has occurred, Error: '" + reason + "'");
 		myApp.showToast("Oops, Control Panel error has occurred");
 	}//errorOccurred
@@ -135,6 +174,12 @@ class ControlPanelManager implements ControlPanelExceptionHandler, ControlPanelE
 	 */
 	@Override
 	public void metadataChanged(DeviceControlPanel panel, final UIElement uiElement) {
+		
+		if ( !isObjValid ) {
+			Log.w(TAG, "The object has already been cleaned, not valid to be used anymore, returning");
+			return;
+		}
+		
 		panelActivity.runOnUiThread( new Runnable() {
 			@Override
 			public void run() {
@@ -148,6 +193,12 @@ class ControlPanelManager implements ControlPanelExceptionHandler, ControlPanelE
 	 */
 	@Override
 	public void notificationActionDismiss(DeviceControlPanel device) {
+		
+		if ( !isObjValid ) {
+			Log.w(TAG, "The object has already been cleaned, not valid to be used anymore, returning");
+			return;
+		}
+		
 		panelActivity.runOnUiThread( new Runnable() {
 			@Override
 			public void run() {
@@ -161,6 +212,12 @@ class ControlPanelManager implements ControlPanelExceptionHandler, ControlPanelE
 	 */
 	@Override
 	public void valueChanged(DeviceControlPanel panel, final UIElement uiElement, final Object value) {
+		
+		if ( !isObjValid ) {
+			Log.w(TAG, "The object has already been cleaned, not valid to be used anymore, returning");
+			return;
+		}
+		
 		panelActivity.runOnUiThread( new Runnable() {
 			@Override
 			public void run() {
