@@ -509,57 +509,57 @@ void PayloadAdapter::receivePayload(Message& msg)
 
             switch (key) {
             case RICH_CONTENT_ICON_URL_ATTRIBUTE_KEY:
-            {
-                CHECK(variant->Get(AJPARAM_STR.c_str(), &richIconUrl));
-                break;
-            }
+                {
+                    CHECK(variant->Get(AJPARAM_STR.c_str(), &richIconUrl));
+                    break;
+                }
 
             case RICH_CONTENT_AUDIO_URL_ATTRIBUTE_KEY:
-            {
+                {
 
-                MsgArg*richAudioEntries;
-                size_t richAudioNum;
+                    MsgArg*richAudioEntries;
+                    size_t richAudioNum;
 
-                CHECK(variant->Get(AJPARAM_ARR_STRUCT_STR_STR.c_str(), &richAudioNum, &richAudioEntries));
+                    CHECK(variant->Get(AJPARAM_ARR_STRUCT_STR_STR.c_str(), &richAudioNum, &richAudioEntries));
 
-                for (size_t i = 0; i < richAudioNum; i++) {
-                    char*key;
-                    char*StringVal;
-                    status = richAudioEntries[i].Get(AJPARAM_STRUCT_STR_STR.c_str(), &key, &StringVal);
-                    if (status != ER_OK) {
-                        if (logger) {
-                            logger->warn(TAG, "Can not Unmarshal this NotificationText argument");
+                    for (size_t i = 0; i < richAudioNum; i++) {
+                        char*key;
+                        char*StringVal;
+                        status = richAudioEntries[i].Get(AJPARAM_STRUCT_STR_STR.c_str(), &key, &StringVal);
+                        if (status != ER_OK) {
+                            if (logger) {
+                                logger->warn(TAG, "Can not Unmarshal this NotificationText argument");
+                            }
+                            break;
                         }
-                        break;
+                        richAudioUrl.push_back(RichAudioUrl(key, StringVal));
                     }
-                    richAudioUrl.push_back(RichAudioUrl(key, StringVal));
+                    break;
                 }
-                break;
-            }
 
             case RICH_CONTENT_ICON_OBJECT_PATH_ATTRIBUTE_KEY:
-            {
-                CHECK(variant->Get(AJPARAM_STR.c_str(), &richIconObjectPath));
-                break;
-            }
+                {
+                    CHECK(variant->Get(AJPARAM_STR.c_str(), &richIconObjectPath));
+                    break;
+                }
 
             case RICH_CONTENT_AUDIO_OBJECT_PATH_ATTRIBUTE_KEY:
-            {
-                CHECK(variant->Get(AJPARAM_STR.c_str(), &richAudioObjectPath));
-                break;
-            }
+                {
+                    CHECK(variant->Get(AJPARAM_STR.c_str(), &richAudioObjectPath));
+                    break;
+                }
 
             case CPS_OBJECT_PATH_ATTRIBUTE_KEY:
-            {
-                CHECK(variant->Get(AJPARAM_STR.c_str(), &controlPanelServiceObjectPath));
-                break;
-            }
+                {
+                    CHECK(variant->Get(AJPARAM_STR.c_str(), &controlPanelServiceObjectPath));
+                    break;
+                }
 
             case ORIGINAL_SENDER_ATTRIBUTE_KEY:
-            {
-                CHECK(variant->Get(AJPARAM_STR.c_str(), &originalSender));
-                break;
-            }
+                {
+                    CHECK(variant->Get(AJPARAM_STR.c_str(), &originalSender));
+                    break;
+                }
 
             default:
                 if (logger) {

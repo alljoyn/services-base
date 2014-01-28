@@ -129,18 +129,18 @@ void NotificationReceiverTestImpl::Receive(Notification const& notification) {
             break;
 
         case ACTION_ACKNOWLEDGE:
-        {
-            std::cout << "going to call acknowledge" << std::endl;
-            nonConstNotification.acknowledge();
-        }
-        break;
+            {
+                std::cout << "going to call acknowledge" << std::endl;
+                nonConstNotification.acknowledge();
+            }
+            break;
 
         case ACTION_DISMISS:
-        {
-            std::cout << "going to call dismiss" << std::endl;
-            nonConstNotification.dismiss();
-        }
-        break;
+            {
+                std::cout << "going to call dismiss" << std::endl;
+                nonConstNotification.dismiss();
+            }
+            break;
 
         default:
             std::cout << "Got non valid action to do:" << GetNotificationAction() << std::endl;
