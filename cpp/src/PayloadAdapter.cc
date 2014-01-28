@@ -35,7 +35,7 @@ int32_t PayloadAdapter::m_MessageId(0);
 String PayloadAdapter::TAG = TAG_PAYLOADADAPTER;
 
 QStatus PayloadAdapter::sendPayload(const char* deviceId, const char* deviceName,
-                                    const char* appId, const char* appName,
+                                    const uint8_t* appId, size_t appIdlen, const char* appName,
                                     NotificationMessageType messageType,
                                     std::vector<NotificationText> const&  notificationText,
                                     std::map<qcc::String, qcc::String> const& customAttributes,
@@ -55,7 +55,7 @@ QStatus PayloadAdapter::sendPayload(const char* deviceId, const char* deviceName
     do {
         CHECK(deviceIdArg.Set(AJPARAM_STR.c_str(), deviceId));
         CHECK(deviceNameArg.Set(AJPARAM_STR.c_str(), deviceName));
-        CHECK(appIdArg.Set(AJPARAM_ARR_BYTE.c_str(), strlen(appId), appId));
+        CHECK(appIdArg.Set(AJPARAM_ARR_BYTE.c_str(), appIdlen, appId));
         CHECK(appNameArg.Set(AJPARAM_STR.c_str(), appName));
 
         return(sendPayload(deviceIdArg, deviceNameArg, appIdArg, appNameArg, messageType, notificationText, customAttributes, ttl, richIconUrl, richAudioUrl, richIconObjectPath, richAudioObjectPath, controlPanelServiceObjectPath, originalSender, messageId));
@@ -509,57 +509,57 @@ void PayloadAdapter::receivePayload(Message& msg)
 
             switch (key) {
             case RICH_CONTENT_ICON_URL_ATTRIBUTE_KEY:
-                {
-                    CHECK(variant->Get(AJPARAM_STR.c_str(), &richIconUrl));
-                    break;
-                }
+            {
+                CHECK(variant->Get(AJPARAM_STR.c_str(), &richIconUrl));
+                break;
+            }
 
             case RICH_CONTENT_AUDIO_URL_ATTRIBUTE_KEY:
-                {
+            {
 
-                    MsgArg*richAudioEntries;
-                    size_t richAudioNum;
+                MsgArg*richAudioEntries;
+                size_t richAudioNum;
 
-                    CHECK(variant->Get(AJPARAM_ARR_STRUCT_STR_STR.c_str(), &richAudioNum, &richAudioEntries));
+                CHECK(variant->Get(AJPARAM_ARR_STRUCT_STR_STR.c_str(), &richAudioNum, &richAudioEntries));
 
-                    for (size_t i = 0; i < richAudioNum; i++) {
-                        char*key;
-                        char*StringVal;
-                        status = richAudioEntries[i].Get(AJPARAM_STRUCT_STR_STR.c_str(), &key, &StringVal);
-                        if (status != ER_OK) {
-                            if (logger) {
-                                logger->warn(TAG, "Can not Unmarshal this NotificationText argument");
-                            }
-                            break;
+                for (size_t i = 0; i < richAudioNum; i++) {
+                    char*key;
+                    char*StringVal;
+                    status = richAudioEntries[i].Get(AJPARAM_STRUCT_STR_STR.c_str(), &key, &StringVal);
+                    if (status != ER_OK) {
+                        if (logger) {
+                            logger->warn(TAG, "Can not Unmarshal this NotificationText argument");
                         }
-                        richAudioUrl.push_back(RichAudioUrl(key, StringVal));
+                        break;
                     }
-                    break;
+                    richAudioUrl.push_back(RichAudioUrl(key, StringVal));
                 }
+                break;
+            }
 
             case RICH_CONTENT_ICON_OBJECT_PATH_ATTRIBUTE_KEY:
-                {
-                    CHECK(variant->Get(AJPARAM_STR.c_str(), &richIconObjectPath));
-                    break;
-                }
+            {
+                CHECK(variant->Get(AJPARAM_STR.c_str(), &richIconObjectPath));
+                break;
+            }
 
             case RICH_CONTENT_AUDIO_OBJECT_PATH_ATTRIBUTE_KEY:
-                {
-                    CHECK(variant->Get(AJPARAM_STR.c_str(), &richAudioObjectPath));
-                    break;
-                }
+            {
+                CHECK(variant->Get(AJPARAM_STR.c_str(), &richAudioObjectPath));
+                break;
+            }
 
             case CPS_OBJECT_PATH_ATTRIBUTE_KEY:
-                {
-                    CHECK(variant->Get(AJPARAM_STR.c_str(), &controlPanelServiceObjectPath));
-                    break;
-                }
+            {
+                CHECK(variant->Get(AJPARAM_STR.c_str(), &controlPanelServiceObjectPath));
+                break;
+            }
 
             case ORIGINAL_SENDER_ATTRIBUTE_KEY:
-                {
-                    CHECK(variant->Get(AJPARAM_STR.c_str(), &originalSender));
-                    break;
-                }
+            {
+                CHECK(variant->Get(AJPARAM_STR.c_str(), &originalSender));
+                break;
+            }
 
             default:
                 if (logger) {

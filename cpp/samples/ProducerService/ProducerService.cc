@@ -157,17 +157,17 @@ bool getInput(qcc::String& device_id, qcc::String& device_name, qcc::String& app
             break;
 
         case SetMsgText:
-            {
-                tempText = input.length() ? input.c_str() : defaultText;
-                // It is possible for both the language and text to be empty
-                NotificationText textToSend(tempLang.c_str(), tempText.c_str());
-                vecMessages.push_back(textToSend);
-                tempLang = "";
-                tempText = "";
-                std::cout << "Do you want to enter a new message? (press 'y' for yes or anything else for no)" << std::endl;
-                state = CheckForNewMsg;
-                break;
-            }
+        {
+            tempText = input.length() ? input.c_str() : defaultText;
+            // It is possible for both the language and text to be empty
+            NotificationText textToSend(tempLang.c_str(), tempText.c_str());
+            vecMessages.push_back(textToSend);
+            tempLang = "";
+            tempText = "";
+            std::cout << "Do you want to enter a new message? (press 'y' for yes or anything else for no)" << std::endl;
+            state = CheckForNewMsg;
+            break;
+        }
 
         case CheckForCustomAttributes:
             if (input.compare("y") == 0) {
@@ -226,17 +226,17 @@ bool getInput(qcc::String& device_id, qcc::String& device_name, qcc::String& app
             break;
 
         case SetRichAudioUrlUrl:
-            {
-                tempUrl = input.length() ? input.c_str() : defaultRichAudioUrl;
-                // It is possible for both the language and text to be empty
-                RichAudioUrl audioContent(tempLang.c_str(), tempUrl.c_str());
-                richAudioUrl.push_back(audioContent);
-                tempLang = "";
-                tempText = "";
-                std::cout << "Do you want to enter another rich audio content? (press 'y' for yes or anything else for no)" << std::endl;
-                state = CheckForNewRichAudioUrl;
-                break;
-            }
+        {
+            tempUrl = input.length() ? input.c_str() : defaultRichAudioUrl;
+            // It is possible for both the language and text to be empty
+            RichAudioUrl audioContent(tempLang.c_str(), tempUrl.c_str());
+            richAudioUrl.push_back(audioContent);
+            tempLang = "";
+            tempText = "";
+            std::cout << "Do you want to enter another rich audio content? (press 'y' for yes or anything else for no)" << std::endl;
+            state = CheckForNewRichAudioUrl;
+            break;
+        }
 
         case CheckForRichIconObjectPath:
             if (input.compare("y") == 0) {

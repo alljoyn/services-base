@@ -135,6 +135,11 @@ QStatus NotificationDismisserReceiver::UnmarshalMessage(Message& in_message, int
     const MsgArg* messageIdArg = in_message.unwrap()->GetArg(0);
     const MsgArg* appIdArg = in_message.unwrap()->GetArg(1);
 
+    if ((messageIdArg == NULL) || (appIdArg == NULL)) {
+        status = ER_BAD_ARG_COUNT;
+        return status;
+    }
+
     //unmarshal messageid
     if (messageIdArg->typeId != ALLJOYN_INT32) {
         status = ER_BUS_BAD_VALUE_TYPE;

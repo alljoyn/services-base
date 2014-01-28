@@ -59,6 +59,8 @@ NotificationProducerReceiver::NotificationProducerReceiver(ajn::BusAttachment* b
         return;
     }
 
+    pthread_mutex_init(&m_Lock, NULL);
+    pthread_cond_init(&m_QueueChanged, NULL);
     pthread_create(&m_ReceiverThread, NULL, ReceiverThreadWrapper, this);
 }
 
