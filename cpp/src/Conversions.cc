@@ -24,10 +24,12 @@
 #include <alljoyn/Status.h>
 #include "alljoyn/services_common/ServicesCommonConstants.h"
 #include <iostream>
+#include <sstream>
 
 using namespace ajn;
 using namespace services;
 using namespace commonConsts;
+using namespace qcc;
 
 static const qcc::String TAG = "Conversions: ";
 
@@ -46,12 +48,14 @@ QStatus Conversions::MsgArgToArrayOfBytes(const MsgArg* msgArg, uint8_t** byteAr
 
     status = msgArg->Get(AJPARAM_ARR_BYTE.c_str(), len, byteArray);
     if (*len != UUID_LENGTH) {
-        qcc::String str("ERROR- Array of bytes length is not equal to ");
-        str.append(std::to_string(UUID_LENGTH * 2).c_str());
-        str.append(" but to ");
-        str.append(std::to_string(*len).c_str());
+        std::ostringstream stm;
+        stm << "ERROR- Array of bytes length is not equal to ";
+        stm << UUID_LENGTH * 2;
+        stm << " but to ";
+        stm << *len;
+
         if (logger) {
-            logger->error(TAG, str);
+            logger->error(TAG, String(std::string(stm.str()).c_str()));
         }
         status = ER_BUS_BAD_VALUE;
         return status;
