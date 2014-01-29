@@ -125,10 +125,10 @@ int main()
         return 1;
     }
 
-    char deviceid[GUID_STRING_MAX_LENGTH + END_OF_STRING_LENGTH];
-    GuidUtil::GetInstance()->GetDeviceIdString(deviceid);
-    char appid[GUID_STRING_MAX_LENGTH + END_OF_STRING_LENGTH];
-    GuidUtil::GetInstance()->GenerateGUID(appid);
+    qcc::String deviceid;
+    GuidUtil::GetInstance()->GetDeviceIdString(&deviceid);
+    qcc::String appid;
+    GuidUtil::GetInstance()->GenerateGUID(&appid);
 
     propertyStoreImpl = new AboutPropertyStoreImpl();
     status = CommonSampleUtil::fillPropertyStore(propertyStoreImpl, appid, APP_NAME, deviceid, "ProducerBasicDeviceName");

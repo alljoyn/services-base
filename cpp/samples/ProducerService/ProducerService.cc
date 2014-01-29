@@ -363,15 +363,10 @@ int main()
         return 1;
     }
 
-    char deviceid[GUID_STRING_MAX_LENGTH + END_OF_STRING_LENGTH];
-    GuidUtil::GetInstance()->GetDeviceIdString(deviceid);
-    char appid[GUID_STRING_MAX_LENGTH + END_OF_STRING_LENGTH];
-    GuidUtil::GetInstance()->GenerateGUID(appid);
-
     qcc::String device_id;
-    device_id.assign(deviceid);
+    GuidUtil::GetInstance()->GetDeviceIdString(&device_id);
     qcc::String app_id;
-    app_id.assign(appid);
+    GuidUtil::GetInstance()->GenerateGUID(&app_id);
 
     //Run in loop until press enter
     while (1) {

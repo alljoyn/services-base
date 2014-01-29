@@ -107,10 +107,10 @@ bool initSend(std::map<qcc::String, qcc::String>& params)
         propertyStoreImpl = new AboutPropertyStoreImpl();
     }
 
-    char deviceid[GUID_STRING_MAX_LENGTH + END_OF_STRING_LENGTH];
-    GuidUtil::GetInstance()->GetDeviceIdString(deviceid);
-    char appid[GUID_STRING_MAX_LENGTH + END_OF_STRING_LENGTH];
-    GuidUtil::GetInstance()->GenerateGUID(appid);
+    qcc::String deviceid;
+    GuidUtil::GetInstance()->GetDeviceIdString(&deviceid);
+    qcc::String appid;
+    GuidUtil::GetInstance()->GenerateGUID(&appid);
 
     QStatus status;
     status = CommonSampleUtil::fillPropertyStore(propertyStoreImpl, appid, params["app_name"].c_str(),
