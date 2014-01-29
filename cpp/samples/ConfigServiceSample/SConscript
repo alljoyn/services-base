@@ -1,4 +1,4 @@
-# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+# Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
@@ -19,6 +19,7 @@ objs = env.Object(srcs)
 objs.extend(cobjs)
 
 env.Install('$CONFIG_DISTDIR/bin', 'ConfigService.conf')
+env.Install('$CONFIG_DISTDIR/bin', 'FactoryConfigService.conf')
 
 prog = env.Program('ConfigService', objs)
 
