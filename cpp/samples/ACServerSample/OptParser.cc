@@ -28,12 +28,8 @@ OptParser::OptParser(int argc, char** argv) :
     argc(argc), argv(argv) {
     port = 900;
     concurrency = 0;
-    char deviceid[GUID_STRING_MAX_LENGTH];
-    GuidUtil::GetInstance()->GetDeviceIdString(deviceid);
-    char appid[GUID_STRING_MAX_LENGTH];
-    GuidUtil::GetInstance()->GenerateGUID(appid);
-    appGUID.assign(appid);
-    deviceId.assign(deviceid);
+    GuidUtil::GetInstance()->GetDeviceIdString(&deviceId);
+    GuidUtil::GetInstance()->GenerateGUID(&appGUID);
     deviceName.assign("MyDeviceName");
     defaultLanguage.assign("en");
     configFile.assign("ACServerSample.conf");

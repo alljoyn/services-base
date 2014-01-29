@@ -19,6 +19,7 @@
 
 
 #include <qcc/Debug.h>
+#include <qcc/String.h>
 
 static const unsigned int GUID_STRING_MAX_LENGTH = 32;
 static const unsigned int GUID_HYPHEN_MAX_LENGTH = 4;
@@ -40,15 +41,15 @@ class GuidUtil  {
     static GuidUtil* GetInstance();
     /**
      * GetDeviceIdString
-     * @param strGUID
+     * @param deviceId
      */
-    void GetDeviceIdString(char* strGUID);
+    void GetDeviceIdString(qcc::String* deviceId);
 
     /**
      * GenerateGUID
-     * @param strGUID
+     * @param guid
      */
-    void GenerateGUID(char* strGUID);
+    void GenerateGUID(qcc::String* guid);
 
   private:
     /**
@@ -84,6 +85,11 @@ class GuidUtil  {
      */
     void WriteGUIDToFile(char* strGUID);
 
+    /**
+     * GenerateGUIDUtil
+     * @param strGUID
+     */
+    void GenerateGUIDUtil(char* strGUID);
     /**
      * a pointer to singleton GuidUtil
      */

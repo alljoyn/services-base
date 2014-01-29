@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <linux/limits.h>
-using namespace std;
+
 
 
 static const char DEVICE_ID_FILE_NAME[] = "alljoyn-deviceId.txt";
@@ -66,7 +66,7 @@ void GuidUtil::NormalizeString(char* strGUID)
 
 const char* GuidUtil::GetDeviceIdFileName()
 {
-    static string sFileName;
+    static std::string sFileName;
     if (sFileName.length() == 0) {
         //Get the path of the binary
         char buf[PATH_MAX] = { 0 };
@@ -77,7 +77,7 @@ const char* GuidUtil::GetDeviceIdFileName()
         }
         sFileName += buf;
         unsigned found = sFileName.find_last_of("/");
-        if (found !=  string::npos) {
+        if (found !=  std::string::npos) {
             sFileName.erase(found + 1);
         }
         //Add file name
@@ -98,16 +98,6 @@ bool GuidUtil::ReadGuidOfDeviceID(char* strGUID)
     return success;
 }
 
-void GuidUtil::GenerateGUID(char* strGUID)
-{
-    std::ifstream ifs("/proc/sys/kernel/random/uuid", std::ifstream::in);
-    ifs.getline(strGUID, GUID_STRING_MAX_LENGTH + GUID_HYPHEN_MAX_LENGTH + END_OF_STRING_LENGTH);
-    ifs.close();
-    NormalizeString(strGUID);
-}
-
-
-
 void GuidUtil::WriteGUIDToFile(char* strGUID)
 {
     std::ofstream ofs(GetDeviceIdFileName(), std::ofstream::out);
@@ -115,11 +105,36 @@ void GuidUtil::WriteGUIDToFile(char* strGUID)
     ofs.close();
 }
 
-void GuidUtil::GetDeviceIdString(char* strGUID)
+void GuidUtil::GenerateGUIDUtil(char* strGUID)
 {
-    if (!ReadGuidOfDeviceID(strGUID)) {
-        GenerateGUID(strGUID);
-        WriteGUIDToFile(strGUID);
+    std::ifstream ifs("/proc/sys/kernel/random/uuid", std::ifstream::in);
+    ifs.getline(strGUID, GUID_STRING_MAX_LENGTH + GUID_HYPHEN_MAX_LENGTH + END_OF_STRING_LENGTH);
+    ifs.close();
+    NormalizeString(strGUID);
+}
+
+void GuidUtil::GenerateGUID(qcc::String* guid)
+{
+    if (guid == NULL) {
+        return;
     }
+
+    char tempstrGUID[GUID_STRING_MAX_LENGTH + GUID_HYPHEN_MAX_LENGTH + END_OF_STRING_LENGTH];
+    GenerateGUIDUtil(tempstrGUID);
+    guid->assign(tempstrGUID);
+}
+
+void GuidUtil::GetDeviceIdString(qcc::String* deviceId)
+{
+    if (deviceId == NULL) {
+        return;
+    }
+
+    char tempstrGUID[GUID_STRING_MAX_LENGTH + GUID_HYPHEN_MAX_LENGTH + END_OF_STRING_LENGTH];
+    if (!ReadGuidOfDeviceID(tempstrGUID)) {
+        GenerateGUIDUtil(tempstrGUID);
+        WriteGUIDToFile(tempstrGUID);
+    }
+    deviceId->assign(tempstrGUID);
 }
 
