@@ -41,7 +41,7 @@ AJ_Status ControlPanel_ConnectedHandler(AJ_BusAttachment* bus)
 
     AJ_Status status;
 
-    status = AJ_BusBindSessionPort(bus, CPSPort, &sessionOpts);
+    status = AJ_BusBindSessionPort(bus, CPSPort, &sessionOpts, 0);
     if (status != AJ_OK) {
         AJ_Printf("Failed to send bind session port message\n");
     }
