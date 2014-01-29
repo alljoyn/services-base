@@ -178,7 +178,7 @@ AJ_Status Application_ConnectedHandler()
             switch (currentServicesInitializationState) {
             case INIT_SERVICES_PORT:
 
-                status = AJ_BusBindSessionPort(&busAttachment, App_ServicePort, NULL);
+                status = AJ_BusBindSessionPort(&busAttachment, App_ServicePort, NULL, 0);
                 if (status != AJ_OK) {
                     goto Exit;
                 }
@@ -187,7 +187,7 @@ AJ_Status Application_ConnectedHandler()
 
             case INIT_ADVERTISE_NAME:
 
-                status = AJ_BusAdvertiseName(&busAttachment, AJ_GetUniqueName(&busAttachment), AJ_TRANSPORT_ANY, AJ_BUS_START_ADVERTISING);
+                status = AJ_BusAdvertiseName(&busAttachment, AJ_GetUniqueName(&busAttachment), AJ_TRANSPORT_ANY, AJ_BUS_START_ADVERTISING, 0);
                 if (status != AJ_OK) {
                     goto Exit;
                 }
@@ -416,7 +416,7 @@ AJ_Status Application_DisconnectHandler(uint8_t restart)
     AJ_Status status = AJ_OK;
 
     if (restart) {
-        AJ_BusAdvertiseName(&busAttachment, AJ_GetUniqueName(&busAttachment), AJ_TRANSPORT_ANY, AJ_BUS_STOP_ADVERTISING);
+        AJ_BusAdvertiseName(&busAttachment, AJ_GetUniqueName(&busAttachment), AJ_TRANSPORT_ANY, AJ_BUS_STOP_ADVERTISING, 0);
         AJ_BusUnbindSession(&busAttachment, App_ServicePort);
     }
 
