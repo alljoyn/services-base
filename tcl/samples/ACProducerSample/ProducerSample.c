@@ -67,7 +67,7 @@ AJ_Status Producer_ConnectedHandler(AJ_BusAttachment* busAttachment)
 
     AJ_Status status;
 
-    status = AJ_BusBindSessionPort(busAttachment, NotificationProducerPort, &sessionOpts);
+    status = AJ_BusBindSessionPort(busAttachment, NotificationProducerPort, &sessionOpts, 0);
     if (status != AJ_OK) {
         AJ_Printf("Failed to send bind session port message\n");
     }
