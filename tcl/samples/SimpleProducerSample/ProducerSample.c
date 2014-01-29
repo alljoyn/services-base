@@ -21,6 +21,7 @@
 #ifdef __linux
 #include <producer_sample_util.h>
 #else
+#define MESSAGES_INTERVAL 16
 #define Producer_GetNotificationFromUser(...) do { } while (0)
 #define Producer_SetupEnv(...) do { } while (0)
 #define Producer_PossiblyDeleteNotification(...) do { } while (0)
@@ -30,10 +31,9 @@
 #define NUM_CUSTOMS 2
 #define NUM_TEXTS   2
 #define NUM_RICH_AUDIO 2
-#define MESSAGES_INTERVAL 16
 
 /**
- * Static non consts - sample application specirfic
+ * Static non consts - sample application specific
  */
 const static char* lang1  = "en";
 const static char* lang2 = "de-AT";
@@ -51,6 +51,7 @@ const static char* richIconObjectPath = "/icon/MyDevice";
 const static char* richAudioObjectPath = "/audio/MyDevice";
 static uint8_t inputMode = 0;
 static uint16_t isMessageTime = 0;
+static uint16_t nextMessageTime = MESSAGES_INTERVAL;
 AJNS_DictionaryEntry textToSend[NUM_TEXTS], customAttributesToSend[NUM_CUSTOMS], richAudioUrls[NUM_RICH_AUDIO];
 
 /**
@@ -165,11 +166,12 @@ static void PossiblySendNotification(AJ_BusAttachment* busAttachment)
     uint16_t messageType = NOTIFICATION_MESSAGE_TYPE_INFO;
     uint32_t ttl = 20000;
     uint32_t serialNum;
+
     if (isMessageTime == 0) {
         if (!inputMode) {
             notificationContent.controlPanelServiceObjectPath = ((notificationContent.controlPanelServiceObjectPath == NULL) ? controlPanelServiceObjectPath : NULL); // Toggle notification with action ON/OFF
         } else {
-            Producer_GetNotificationFromUser(&notificationContent, &messageType, &ttl);
+            Producer_GetNotificationFromUser(&notificationContent, &messageType, &ttl, &nextMessageTime);
         }
         ProducerSendNotification(busAttachment, &notificationContent, messageType, ttl, &serialNum);
         if (inputMode) {
@@ -177,7 +179,7 @@ static void PossiblySendNotification(AJ_BusAttachment* busAttachment)
         }
     }
 
-    if (++isMessageTime == MESSAGES_INTERVAL) {
+    if (++isMessageTime == nextMessageTime) {
         isMessageTime = 0;
     }
 }

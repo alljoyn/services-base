@@ -119,7 +119,6 @@ uint8_t Producer_CheckSessionAccepted(uint16_t port, uint32_t sessionId, char* j
 /**
  * Meant to simulate scenario where sometimes Notifications are set when
  * Send Notification is called and sometimes not.
- * Sets the notification every MESSAGES_INTERVAL time
  */
 void Producer_DoWork(AJ_BusAttachment* busAttachment)
 {

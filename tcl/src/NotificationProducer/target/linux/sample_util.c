@@ -69,7 +69,7 @@ void Producer_SetupEnv(uint8_t* inputMode)
     }
 }
 
-void Producer_GetNotificationFromUser(AJNS_NotificationContent* notificationContent, uint16_t* messageType, uint32_t* ttl)
+void Producer_GetNotificationFromUser(AJNS_NotificationContent* notificationContent, uint16_t* messageType, uint32_t* ttl, uint16_t* nextMessageTime)
 {
     char richIconUrl[BUF_SIZE] = "/richIconUrl";
     char richIconObjectPath[BUF_SIZE] = "/richIconObjectPath";
@@ -83,31 +83,33 @@ void Producer_GetNotificationFromUser(AJNS_NotificationContent* notificationCont
     notificationContent->numTexts = 1;
     notificationContent->numAudioUrls = 0;
 
+    uint8_t defaultMessageType = *messageType;
     AJ_Printf("Please enter the messageType 0=EMERGENCY, 1=WARNING, 2=INFO.\n");
-    AJ_Printf("Empty string or invalid input will default to %u\n", NOTIFICATION_MESSAGE_TYPE_EMERGENCY);
+    AJ_Printf("Empty string or invalid input will default to %u\n", defaultMessageType);
     if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
         if (strlen(buf)) {
             *messageType = (uint8_t)atoi(buf);
             char stringType[8];
-            sprintf(stringType, "%d", *messageType);
+            sprintf(stringType, "%u", *messageType);
             if (!(strcmp(buf, stringType) == 0)) {             //they do not match, it is not int
-                AJ_Printf("Message Type is not an integer value. Defaulting to %u\n", NOTIFICATION_MESSAGE_TYPE_EMERGENCY);
-                *messageType = NOTIFICATION_MESSAGE_TYPE_EMERGENCY;
-            } else if (*messageType != NOTIFICATION_MESSAGE_TYPE_EMERGENCY || *messageType != NOTIFICATION_MESSAGE_TYPE_WARNING || *messageType != NOTIFICATION_MESSAGE_TYPE_INFO) {
-                AJ_Printf("Message Type is not one of 0, 1 or 2. Defaulting to %u\n", NOTIFICATION_MESSAGE_TYPE_EMERGENCY);
-                *messageType = NOTIFICATION_MESSAGE_TYPE_EMERGENCY;
+                AJ_Printf("Message Type is not an integer value. Defaulting to %u\n", defaultMessageType);
+                *messageType = defaultMessageType;
+            } else if (*messageType != NOTIFICATION_MESSAGE_TYPE_EMERGENCY && *messageType != NOTIFICATION_MESSAGE_TYPE_WARNING && *messageType != NOTIFICATION_MESSAGE_TYPE_INFO) {
+                AJ_Printf("Message Type is not one of 0, 1 or 2. Defaulting to %u\n", defaultMessageType);
+                *messageType = defaultMessageType;
             }
         }
     }
 
+    uint8_t defaultNumTexts = notificationContent->numTexts = 1;
     AJ_Printf("Please enter the number of languages you wish to send the message in. Maximum %d\n", MAX_MSG);
-    AJ_Printf("Empty string or invalid data will default to 1\n");
+    AJ_Printf("Empty string or invalid data will default to %u\n", defaultNumTexts);
 
     if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
         if (strlen(buf)) {
             notificationContent->numTexts = atoi(buf);
             if (notificationContent->numTexts < 1 || notificationContent->numTexts > MAX_MSG) {
-                notificationContent->numTexts = 1;
+                notificationContent->numTexts = defaultNumTexts;
             }
         }
     }
@@ -116,7 +118,7 @@ void Producer_GetNotificationFromUser(AJNS_NotificationContent* notificationCont
         char lang[BUF_SIZE] = "en";
         char msg[BUF_SIZE] = "Hello World";
 
-        AJ_Printf("Please enter the message's language %d. Max 499 characters, Empty string acceptable\n", i + 1);
+        AJ_Printf("Please enter the message's language %u. Max 499 characters, Empty string acceptable\n", i + 1);
 
         if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
             if (strlen(buf)) {
@@ -124,7 +126,7 @@ void Producer_GetNotificationFromUser(AJNS_NotificationContent* notificationCont
             }
         }
 
-        AJ_Printf("Please enter the message's text in language %d. Max 499 characters, Empty string acceptable\n", i + 1);
+        AJ_Printf("Please enter the message's text in language %u. Max 499 characters, Empty string acceptable\n", i + 1);
 
         if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
             if (strlen(buf)) {
@@ -140,14 +142,15 @@ void Producer_GetNotificationFromUser(AJNS_NotificationContent* notificationCont
     }
     notificationContent->texts = texts;
 
+    uint8_t defaultNumCustomAttributes = notificationContent->numCustomAttributes = 0;
     AJ_Printf("Please enter the number of Custom Attributes you wish to send. Maximum %d\n", MAX_MSG);
-    AJ_Printf("Empty string or invalid data will default to 0\n");
+    AJ_Printf("Empty string or invalid data will default to %u\n", defaultNumCustomAttributes);
 
     if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
         if (strlen(buf)) {
             notificationContent->numCustomAttributes = atoi(buf);
             if (notificationContent->numCustomAttributes < 0 || notificationContent->numCustomAttributes > MAX_MSG) {
-                notificationContent->numCustomAttributes = 0;
+                notificationContent->numCustomAttributes = defaultNumCustomAttributes;
             }
         }
     }
@@ -180,20 +183,21 @@ void Producer_GetNotificationFromUser(AJNS_NotificationContent* notificationCont
     }
     notificationContent->customAttributes = customAttributes;
 
+    uint16_t defaultTtl = *ttl;
     AJ_Printf("Please enter the ttl in the range %u - %u seconds.\n", NOTIFICATION_TTL_MIN, NOTIFICATION_TTL_MAX);
-    AJ_Printf("Empty string input will default to %u\n", NOTIFICATION_TTL_MIN);
+    AJ_Printf("Empty string input will default to %u\n", defaultTtl);
 
     if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
         if (strlen(buf)) {
             *ttl = (uint8_t)atoi(buf);
             char stringType[8];
-            sprintf(stringType, "%d", *ttl);
+            sprintf(stringType, "%u", *ttl);
             if (!(strcmp(buf, stringType) == 0)) {             //they do not match, it is not int
-                AJ_Printf("Ttl is not an integer value. Defaulting to %u\n", NOTIFICATION_TTL_MIN);
-                *ttl = NOTIFICATION_TTL_MIN;
-            } else if (*ttl > NOTIFICATION_TTL_MAX) {
-                AJ_Printf("Ttl is greater than MAX %u. Defaulting to %u\n", NOTIFICATION_TTL_MAX, NOTIFICATION_TTL_MAX);
-                *ttl = NOTIFICATION_TTL_MAX;
+                AJ_Printf("Ttl is not an integer value. Defaulting to %u\n", defaultTtl);
+                *ttl = defaultTtl;
+            } else if (*ttl < NOTIFICATION_TTL_MIN || NOTIFICATION_TTL_MAX < *ttl) {
+                AJ_Printf("Ttl is not in the range %u - %u. Defaulting to %u\n", NOTIFICATION_TTL_MIN, NOTIFICATION_TTL_MAX, defaultTtl);
+                *ttl = defaultTtl;
             }
         }
     }
@@ -221,10 +225,10 @@ void Producer_GetNotificationFromUser(AJNS_NotificationContent* notificationCont
     }
 
     for (i = 0; i < notificationContent->numAudioUrls; i++) {
-        char lang[1024] = "en";
-        char url[1024] = "http://myAudioUrl.wv";
+        char lang[BUF_SIZE] = "en";
+        char url[BUF_SIZE] = "http://myAudioUrl.wv";
 
-        AJ_Printf("Please enter the url's language %d. Max 499 characters, Empty string acceptable\n", i + 1);
+        AJ_Printf("Please enter the url's language %u. Max 499 characters, Empty string acceptable\n", i + 1);
 
         if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
             if (strlen(buf)) {
@@ -232,7 +236,7 @@ void Producer_GetNotificationFromUser(AJNS_NotificationContent* notificationCont
             }
         }
 
-        AJ_Printf("Please enter the url in language %d. Max 499 characters, Empty string acceptable\n", i + 1);
+        AJ_Printf("Please enter the url in language %u. Max 499 characters, Empty string acceptable\n", i + 1);
 
         if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
             if (strlen(buf)) {
@@ -276,6 +280,22 @@ void Producer_GetNotificationFromUser(AJNS_NotificationContent* notificationCont
         notificationContent->controlPanelServiceObjectPath = controlPanelServiceObjectPath;
     } else {
         notificationContent->controlPanelServiceObjectPath = NULL;
+    }
+
+    uint16_t defaultNextMessageTime = *nextMessageTime;
+    AJ_Printf("Please enter the interval for the next message. Default %u.\n", *nextMessageTime);
+    AJ_Printf("Empty string will keep default value\n");
+
+    if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
+        if (strlen(buf)) {
+            *nextMessageTime = (uint8_t)atoi(buf);
+            char stringType[8];
+            sprintf(stringType, "%u", *nextMessageTime);
+            if (!(strcmp(buf, stringType) == 0)) {             //they do not match, it is not int
+                AJ_Printf("Next message interval is not an integer value. Defaulting to %u\n", defaultNextMessageTime);
+                *nextMessageTime = defaultNextMessageTime;
+            }
+        }
     }
 }
 
