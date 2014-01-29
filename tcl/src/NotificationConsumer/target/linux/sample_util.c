@@ -58,9 +58,9 @@ void Consumer_SetupEnv(uint8_t* inputMode, uint8_t* superAgentMode)
         *inputMode = (uint8_t)atoi(value);
     }
     if (*inputMode) {
-        char buf[1024];
+        char buf[BUF_SIZE];
         AJ_Printf("Please enter 1 if you want to run in SuperAgentMode. default is 0\n");
-        if (AJ_GetLine(buf, 1024, stdin) != NULL) {
+        if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
             if (strlen(buf)) {
                 *superAgentMode = (uint8_t)atoi(buf);
             }
@@ -75,11 +75,12 @@ void Consumer_GetActionFromUser(uint8_t* action)
 
     AJ_Printf("Please enter an action to perform on the recently received notification\n\t0=Nothing,\n\t1=Acknowledge,\n\t2=Dismiss.\n");
     AJ_Printf("Empty string or invalid input will default to 0=Nothing\n");
+    *action = 0;
     if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
         if (strlen(buf)) {
             *action = (uint8_t)atoi(buf);
             char stringType[8];
-            sprintf(stringType, "%d", *action);
+            sprintf(stringType, "%u", *action);
             if (!(strcmp(buf, stringType) == 0)) {             //they do not match, it is not int
                 AJ_Printf("Action is not an integer value. Defaulting to 0=Nothing\n");
                 *action = 0;

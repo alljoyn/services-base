@@ -24,9 +24,10 @@
 #define Consumer_GetActionFromUser(x) do { } while (0)
 #endif
 
-static uint8_t inputMode = 0;
-static uint8_t superAgentMode = 1;
+static uint8_t inputMode = FALSE;
+static uint8_t superAgentMode = TRUE;
 static uint8_t nextAction = CONSUMER_ACTION_NOTHING;
+static uint8_t processingAction = FALSE;
 
 static AJNS_Consumer_NotificationReference savedNotification;
 
@@ -47,52 +48,103 @@ AJ_Status Consumer_ConnectedHandler(AJ_BusAttachment* busAttachment)
     return ConsumerSetSignalRules(busAttachment, superAgentMode, 0);
 }
 
+static void OnActionFinished()
+{
+    processingAction = FALSE;
+    savedNotification.version = 0;
+    producerSessionId = 0;
+    lastSessionRequestSerialNum = 0;
+    AJ_Printf("Action finished!\n");
+}
+
+static Service_Status Consumer_HandleSessionJoined(AJ_BusAttachment* busAttachment, uint32_t sessionId)
+{
+    AJ_Status status;
+    Service_Status serviceStatus = SERVICE_STATUS_NOT_HANDLED;
+
+    producerSessionId = sessionId;
+    switch (nextAction) {
+    case CONSUMER_ACTION_ACKNOWLEDGE:
+        status = ConsumerAcknowledgeNotification(busAttachment, savedNotification.version, savedNotification.notificationId, savedNotification.originalSenderName, producerSessionId);
+        AJ_Printf("HandleSessionJoined(): ConsumerAcknowledgeNotification returned status %s\n", AJ_StatusText(status));
+        if (status == AJ_OK) {
+            serviceStatus = SERVICE_STATUS_HANDLED;
+        } else {
+            OnActionFinished();
+        }
+        if (!inputMode) { // default behaviour is to dimiss next notification
+            nextAction = CONSUMER_ACTION_DISMISS;
+        }
+        break;
+
+    case CONSUMER_ACTION_DISMISS:
+        status = ConsumerDismissNotification(busAttachment, savedNotification.version, savedNotification.notificationId, savedNotification.appId, savedNotification.originalSenderName, producerSessionId);
+        AJ_Printf("HandleSessionJoined(): ConsumerDismissNotification returned status %s\n", AJ_StatusText(status));
+        if (status == AJ_OK) {
+            serviceStatus = SERVICE_STATUS_HANDLED;
+        } else {
+            OnActionFinished();
+        }
+        if (!inputMode) { // default behaviour is to do no op on next notification
+            nextAction = CONSUMER_ACTION_NOTHING;
+        }
+        break;
+
+    default:
+        break;
+    }
+
+    return serviceStatus;
+}
+
+static Service_Status Consumer_HandleSessionRejected(AJ_BusAttachment* busAttachment)
+{
+    AJ_Status status;
+    Service_Status serviceStatus = SERVICE_STATUS_NOT_HANDLED;
+
+    producerSessionId = 0;
+    switch (nextAction) {
+    case CONSUMER_ACTION_ACKNOWLEDGE:
+        serviceStatus = SERVICE_STATUS_HANDLED;
+        OnActionFinished();
+        if (!inputMode) { // default behaviour is to dimiss next notification
+            nextAction = CONSUMER_ACTION_DISMISS;
+        }
+        break;
+
+    case CONSUMER_ACTION_DISMISS:
+        // We've failed to create a session with the originating Producer but we can tell all other Consumers to dismiss an already received notification
+        status = ConsumerDismissNotification(busAttachment, savedNotification.version, savedNotification.notificationId, savedNotification.appId, savedNotification.originalSenderName, producerSessionId);
+        AJ_Printf("HandleSessionRejected(): ConsumerDismissNotification returned status %s\n", AJ_StatusText(status));
+        serviceStatus = SERVICE_STATUS_HANDLED;
+        OnActionFinished();
+        if (!inputMode) { // default behaviour is to do no op on next notification
+            nextAction = CONSUMER_ACTION_NOTHING;
+        }
+        break;
+
+    default:
+        break;
+    }
+
+    return serviceStatus;
+}
+
 Service_Status Consumer_HandleSessionStateChanged(AJ_BusAttachment* busAttachment, uint32_t sessionId, uint8_t sessionJoined, uint32_t replySerialNum)
 {
     Service_Status serviceStatus = SERVICE_STATUS_NOT_HANDLED;
+
     AJ_Printf("Inside HandleSessionStateChanged()\n");
     AJ_Printf("HandleSessionStateChanged(): Got reply that session with id %u was %s\n", sessionId, sessionJoined ? "joined" : "dropped");
-    if (lastSessionRequestSerialNum != 0 && lastSessionRequestSerialNum == replySerialNum) {
+    if (lastSessionRequestSerialNum != 0 && lastSessionRequestSerialNum == replySerialNum) { // Check if this is a reply to our request
         AJ_Printf("HandleSessionStateChanged(): Got reply serial number %u that matches last request serial number %u\n", replySerialNum, lastSessionRequestSerialNum);
-        if (sessionJoined && producerSessionId == 0) { // Successful session join
-            producerSessionId = sessionId;
-        } else if (!sessionJoined && producerSessionId != 0) { // Failed session join
-            producerSessionId = 0;
-            lastSessionRequestSerialNum = 0;
-        } else {
-            return SERVICE_STATUS_NOT_HANDLED;
+        if (sessionJoined) { // Successful session join
+            serviceStatus = Consumer_HandleSessionJoined(busAttachment, sessionId);
+        } else { // Failed session join
+            serviceStatus = Consumer_HandleSessionRejected(busAttachment);
         }
-        AJ_Status status;
-        switch (nextAction) {
-        case CONSUMER_ACTION_ACKNOWLEDGE:
-            status = ConsumerAcknowledgeNotification(busAttachment, savedNotification.version, savedNotification.notificationId, savedNotification.originalSenderName, producerSessionId);
-            AJ_Printf("HandleSessionStateChanged(): ConsumerAcknowledgeNotification returned status %s\n", AJ_StatusText(status));
-            if (status == AJ_OK) {
-                serviceStatus = SERVICE_STATUS_HANDLED;
-            }
-            if (!inputMode) { // default behaviour is to dimiss next notification
-                nextAction = CONSUMER_ACTION_DISMISS;
-            }
-            break;
-
-        case CONSUMER_ACTION_DISMISS:
-            status = ConsumerDismissNotification(busAttachment, savedNotification.version, savedNotification.notificationId, savedNotification.appId, savedNotification.originalSenderName, producerSessionId);
-            AJ_Printf("HandleSessionStateChanged(): ConsumerDismissNotification returned status %s\n", AJ_StatusText(status));
-            if (status == AJ_OK) {
-                serviceStatus = SERVICE_STATUS_HANDLED;
-            }
-            if (!inputMode) { // default behaviour is to do no op on next notification
-                nextAction = CONSUMER_ACTION_NOTHING;
-            }
-            break;
-
-        default:
-            break;
-        }
-    } else if (!sessionJoined && producerSessionId != 0) { // Session lost
-        producerSessionId = 0;
-        lastSessionRequestSerialNum = 0;
     }
+
     return serviceStatus;
 }
 
@@ -137,9 +189,7 @@ Service_Status Consumer_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Mes
             if (AJ_OK != *msgStatus) {
                 AJ_Printf("Failed to leave session %u\n", producerSessionId);
             }
-            producerSessionId = 0;
-            savedNotification.version = 0;
-            lastSessionRequestSerialNum = 0;
+            OnActionFinished();
         }
         break;
 
@@ -172,28 +222,52 @@ static AJ_Status Consumer_CreateSessionWithProducer(AJ_BusAttachment* busAttachm
  */
 static void Consumer_DoAction(AJ_BusAttachment* busAttachment)
 {
+    AJ_Status status;
     if (inputMode) {
         Consumer_GetActionFromUser(&nextAction);
         AJ_Printf("Action received is %u\n", nextAction);
     }
+    processingAction = TRUE;
     switch (nextAction) {
     case CONSUMER_ACTION_ACKNOWLEDGE:
+        status = Consumer_CreateSessionWithProducer(busAttachment, savedNotification.originalSenderName);
+        if (AJ_OK != status) {
+            AJ_Printf("DoAction(): session failed to create for Action %u\n", nextAction);
+            OnActionFinished();
+        } else {
+            AJ_Printf("DoAction(): session created for Action %u\n", nextAction);
+        }
+        break;
+
     case CONSUMER_ACTION_DISMISS:
-        Consumer_CreateSessionWithProducer(busAttachment, savedNotification.originalSenderName);
-        AJ_Printf("DoAction(): session created for Action %u\n", nextAction);
+        status = Consumer_CreateSessionWithProducer(busAttachment, savedNotification.originalSenderName);
+        if (AJ_OK != status) {
+            AJ_Printf("DoAction(): session failed to create for Action %u\n", nextAction);
+            status = ConsumerDismissNotification(busAttachment, savedNotification.version, savedNotification.notificationId, savedNotification.appId, savedNotification.originalSenderName, producerSessionId);
+            if (AJ_OK != status) {
+                AJ_Printf("DoAction(): Action Dismiss failed with status %s\n", AJ_StatusText(status));
+            }
+            if (!inputMode) { // default behaviour is to do no op on next notification
+                nextAction = CONSUMER_ACTION_NOTHING;
+            }
+            OnActionFinished();
+        } else {
+            AJ_Printf("DoAction(): session created for Action %u\n", nextAction);
+        }
         break;
 
     case CONSUMER_ACTION_NOTHING:
         if (!inputMode) { // default behaviour is to acknowledge next notification
             nextAction = CONSUMER_ACTION_ACKNOWLEDGE;
         }
+        OnActionFinished();
         break;
     }
 }
 
 void Consumer_IdleConnectedHandler(AJ_BusAttachment* busAttachment)
 {
-    if (savedNotification.version > 1 && producerSessionId == 0 && lastSessionRequestSerialNum == 0) {
+    if (savedNotification.version > 1 && !processingAction) {
         Consumer_DoAction(busAttachment);
     }
     return;
@@ -255,7 +329,7 @@ AJ_Status ApplicationHandleNotify(AJNS_Notification* notification)
     }
 
     // Check if received notification is from a producer that supports acknowledge and dismiss methods
-    if (notification->version >= NotificationVersion && notification->originalSenderName != 0 && strlen(notification->originalSenderName) > 0 && lastSessionRequestSerialNum == 0) {
+    if (notification->version >= NotificationVersion && notification->originalSenderName != 0 && strlen(notification->originalSenderName) > 0 && processingAction == FALSE) {
         // Save notification reference so that it can be later acknowledged or dimissed
         savedNotification.version = notification->version;
         savedNotification.notificationId = notification->notificationId;
