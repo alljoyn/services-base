@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -31,6 +31,8 @@ class OptParser {
     OptParser(int argc, char** argv);
 
     ParseResultCode ParseResult();
+
+    qcc::String const& GetFactoryConfigFile() const;
 
     qcc::String const& GetConfigFile() const;
 
@@ -70,6 +72,7 @@ class OptParser {
 
     void PrintUsage();
 
+    qcc::String factoryConfigFile;
     qcc::String configFile;
     qcc::String appGUID;
     qcc::String appName;
