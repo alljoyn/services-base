@@ -61,6 +61,8 @@ void NotificationReceiverTestImpl::Receive(Notification const& notification) {
         std::cout << "App Name: " << notification.getAppName() << std::endl;
         std::cout << "Sender BusName: " << notification.getSenderBusName() << std::endl;
         std::cout << "Message Type " << notification.getMessageType() << " " << MessageTypeUtil::getMessageTypeString(notification.getMessageType()).c_str() << std::endl;
+        std::cout << "Notification version: " << notification.getVersion() << std::endl;
+
 
         // get vector of text messages and iterate through it
         std::vector<NotificationText> vecMessages = notification.getText();
@@ -125,19 +127,19 @@ void NotificationReceiverTestImpl::Receive(Notification const& notification) {
         }
         switch (GetNotificationAction()) {
         case ACTION_NOTHING:
-            std::cout << "Nothing planed to do with the notification." << std::endl;
+            std::cout << "Nothing planed to do with the notification message id:" << nonConstNotification.getMessageId() << std::endl;
             break;
 
         case ACTION_ACKNOWLEDGE:
             {
-                std::cout << "going to call acknowledge" << std::endl;
+                std::cout << "going to call acknowledge for message id:" << nonConstNotification.getMessageId() << std::endl;
                 nonConstNotification.acknowledge();
             }
             break;
 
         case ACTION_DISMISS:
             {
-                std::cout << "going to call dismiss" << std::endl;
+                std::cout << "going to call dismiss for message id:" << nonConstNotification.getMessageId() << std::endl;
                 nonConstNotification.dismiss();
             }
             break;

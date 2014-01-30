@@ -28,6 +28,7 @@
 #include "CommonSampleUtil.h"
 #include <alljoyn/notification/Notification.h>
 #include <GuidUtil.h>
+#include <stdio.h>
 
 #ifdef USE_SAMPLE_LOGGER
 #include "../common/SampleLogger.h"
@@ -439,6 +440,13 @@ int main()
             std::cout << "Notification sent with ttl of " << ttl << std::endl;
         }
 
+        int c;
+        do {
+            std::cout << "To delete the bus connection and start again please push 'c' character:" << std::endl;
+            c = getchar();
+            putchar(c);
+        } while (c != 'c');
+
         prodService->shutdownSender();
         if (Sender) {
             delete Sender;
@@ -450,8 +458,6 @@ int main()
     }
 
     std::cout << "Exiting the application deletes the bus connection." << std::endl;
-    std::cout << "Waiting 10 seconds before exiting to allow the client to receive messages." << std::endl;
-    sleep(10);
 
     cleanup();
     return 0;
