@@ -770,8 +770,9 @@ public class ControlPanelAdapter
 				int index = group.indexOfChild(group.findViewById(checkedId));
 				if (index > -1)
 				{
-					// avoid fast consecutive selections. the problem is with rebounds: the valueChange events that the board sends.
-					// If a user selects Hot,Cold,Hot,Cold very fast enough, the rebounds start toggling the group automatically :)
+					//Avoid fast consecutive selections. The problem is with the valueChange events that a controllable device sends 
+					//following each selection of the RadioButton.
+					//If a user selects different RadioButton(s) from the group very fast, the valueChange events start toggling the RadioGroup automatically
 					for (int i=0;i<group.getChildCount();i++) {
 						group.getChildAt(i).setEnabled(false);
 					} 
@@ -846,8 +847,9 @@ public class ControlPanelAdapter
 			@Override
 			public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
 
-				//Avoid fast consecutive selections. The problem is with rebounds: the valueChange events that a controllable device sends.
-				//If a user selects/unselects checkbox fast, the rebounds start changing the checkbox state automatically
+				//Avoid fast consecutive selections. The problem is with the valueChange events that a controllable device sends
+				//following each change of the Checkbox state.
+				//If a user selects/unselects checkbox fast, these valueChange events start toggle the Checkbox state automatically
 				buttonView.setEnabled(false);
 				buttonView.postDelayed(new Runnable() {
 					@Override
