@@ -132,10 +132,6 @@ QStatus PropertyStoreImpl::Update(const char* name, const char* languageTag, con
         return ER_FEATURE_NOT_AVAILABLE;
     }
 
-    if (propertyKey == DEFAULT_LANG || propertyKey == DEVICE_NAME) {
-        languageTag = NULL;
-    }
-
     QStatus status = ER_OK;
     if (languageTag != NULL) {         // check that the language is in the supported languages;
         CHECK_RETURN(isLanguageSupported(languageTag))
