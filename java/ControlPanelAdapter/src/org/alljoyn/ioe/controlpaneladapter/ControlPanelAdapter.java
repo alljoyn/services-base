@@ -703,15 +703,33 @@ public class ControlPanelAdapter
 			Log.e(TAG, "property.getCurrentValue() failed, initializing property without current value", e);
 		}
 
+		//Create external widget layout
 		final LinearLayout layout = new LinearLayout(uiContext);
 		layout.setOrientation(LinearLayout.VERTICAL);
+		LinearLayout.LayoutParams vLinearLayoutParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		
+		//Create internal label/unit of measure layout
+		final LinearLayout innerLayout = new LinearLayout(uiContext);
+		innerLayout.setOrientation(LinearLayout.HORIZONTAL);
+		LinearLayout.LayoutParams hLinearLayoutParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		hLinearLayoutParams.setMargins(10, 0, 0, 0);
+		layout.addView(innerLayout, vLinearLayoutParams);
+		
 		final TextView nameTextView = new TextView(uiContext);
 		nameTextView.setPadding(10, 0, 0, 0);
 		nameTextView.setText(propertyWidget.getLabel());
-		RadioGroup radioGroup = new RadioGroup(uiContext);
+		innerLayout.addView(nameTextView, hLinearLayoutParams);
 		
-		LinearLayout.LayoutParams vLinearLayoutParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-		layout.addView(nameTextView, vLinearLayoutParams);
+		//Add unit of measure
+		String unitOfMeasure = propertyWidget.getUnitOfMeasure();
+		if ( unitOfMeasure != null && unitOfMeasure.length() > 0 ) {
+			
+			final TextView unitsOfMeasureTextView = new TextView(uiContext);
+			unitsOfMeasureTextView.setText(unitOfMeasure);
+			innerLayout.addView(unitsOfMeasureTextView, hLinearLayoutParams);
+		}
+		
+		RadioGroup radioGroup = new RadioGroup(uiContext);
 		layout.addView(radioGroup, vLinearLayoutParams);
 		radioGroup.setTag(PROPERTY_VALUE);
 		
