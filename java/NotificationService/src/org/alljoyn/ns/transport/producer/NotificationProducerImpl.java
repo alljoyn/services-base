@@ -16,8 +16,6 @@
 
 package org.alljoyn.ns.transport.producer;
 
-import java.util.concurrent.RejectedExecutionException;
-
 import org.alljoyn.about.AboutServiceImpl;
 import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.BusObject;
@@ -25,6 +23,7 @@ import org.alljoyn.bus.Status;
 import org.alljoyn.ns.NotificationServiceException;
 import org.alljoyn.ns.commons.GenericLogger;
 import org.alljoyn.ns.commons.NativePlatform;
+import org.alljoyn.ns.transport.TaskManager;
 import org.alljoyn.ns.transport.Transport;
 import org.alljoyn.ns.transport.interfaces.NotificationProducer;
 
@@ -83,19 +82,12 @@ class NotificationProducerImpl implements NotificationProducer {
 		
 		Transport.getInstance().getBusAttachment().enableConcurrentCallbacks();
 		
-		try {
-			
-			Transport.getInstance().dispatchTask(new Runnable() {
-				@Override
-				public void run() {
-					senderTransport.acknowledge(msgId);
-				}
-			});
-			
-		}
-		catch (RejectedExecutionException ree) {
-			logger.error(TAG, "Failed to execute the Acknowledgement task for: '" + msgId + "', no available workers were found, Error: '" + ree.getMessage() + "'");
-		}
+		TaskManager.getInstance().enqueue(new Runnable() {
+			@Override
+			public void run() {
+				senderTransport.acknowledge(msgId);
+			}
+		});
 	}//acknowledge
 
 	/**
@@ -108,19 +100,14 @@ class NotificationProducerImpl implements NotificationProducer {
 		
 		Transport.getInstance().getBusAttachment().enableConcurrentCallbacks();
 		
-		try {
 		
-			Transport.getInstance().dispatchTask(new Runnable() {
-				@Override
-				public void run() {
-					senderTransport.dismiss(msgId);
-				}
-			});
+		TaskManager.getInstance().enqueue(new Runnable() {
+			@Override
+			public void run() {
+				senderTransport.dismiss(msgId);
+			}
+		});
 			
-		}
-		catch (RejectedExecutionException ree) {
-			logger.error(TAG, "Failed to execute the Dismiss task for: '" + msgId + "', no available workers were found, Error: '" + ree.getMessage() + "'");
-		}
 	}//dismiss
 
 	/**
