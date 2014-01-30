@@ -1,6 +1,6 @@
 package org.alljoyn.ioe.controlpaneladapter;
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -14,6 +14,7 @@ package org.alljoyn.ioe.controlpaneladapter;
  *    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
+
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -827,6 +828,16 @@ public class ControlPanelAdapter
 			@Override
 			public void onCheckedChanged(final CompoundButton buttonView, final boolean isChecked) {
 
+				//Avoid fast consecutive selections. The problem is with rebounds: the valueChange events that a controllable device sends.
+				//If a user selects/unselects checkbox fast, the rebounds start changing the checkbox state automatically
+				buttonView.setEnabled(false);
+				buttonView.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						buttonView.setEnabled(true);
+					}
+				}, 1000);
+				
 				// set the property in a background task
 				SetPropertyAsyncTask asyncTask = new SetPropertyAsyncTask() {
 
