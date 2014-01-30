@@ -1,4 +1,4 @@
-# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+# Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
@@ -16,10 +16,10 @@ Import('cpsenv')
 
 if not cpsenv.has_key('_ALLJOYNCORE_'):
     cpsenv.Append(LIBS = ['alljoyn'])
-    if cpsenv['BD'] == 'on' :
-        bdFile = cpsenv.subst('$DISTDIR') + '/cpp/lib/BundledDaemon.o'
-        cpsenv['bdobj'] = File(bdFile)
-        cpsenv['bdlib'] = 'ajdaemon'
+    if cpsenv['BR'] == 'on' :
+        brFile = cpsenv.subst('$DISTDIR') + '/cpp/lib/BundledRouter.o'
+        cpsenv['brobj'] = File(brFile)
+        cpsenv['ajrlib'] = 'ajrouter'
     if cpsenv['OS'] == 'openwrt':
         cpsenv.AppendUnique(LIBS = [ 'stdc++', 'pthread' ])
 
