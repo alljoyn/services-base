@@ -1,4 +1,4 @@
-# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+# Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
@@ -16,10 +16,10 @@ Import('nsenv')
  
 if not nsenv.has_key('_ALLJOYNCORE_'):
     nsenv.Append(LIBS = ['alljoyn'])
-    if nsenv['BD'] == 'on' :
-        bdFile = nsenv.subst('$DISTDIR') + '/cpp/lib/BundledDaemon.o'
-        nsenv['bdobj'] = File(bdFile)
-        nsenv['bdlib'] = 'ajdaemon'
+    if nsenv['BR'] == 'on' :
+        brFile = nsenv.subst('$DISTDIR') + '/cpp/lib/BundledRouter.o'
+        nsenv['brobj'] = File(brFile)
+        nsenv['ajrlib'] = 'ajrouter'
     if nsenv['OS'] == 'openwrt':
         nsenv.AppendUnique(LIBS = [ 'stdc++', 'pthread' ])
 
