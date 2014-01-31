@@ -1,4 +1,4 @@
-# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+# Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
@@ -39,6 +39,7 @@ if '_ONBOARDING_' in local_env["CPPDEFINES"] :
     onboardingObjs = local_env.Object(onboardingSrcs)                      
     objs.extend(onboardingObjs)
 
+local_env.Install('$SAMPLE_APPS_DISTDIR/bin', 'FactoryServerSample.conf')
 local_env.Install('$SAMPLE_APPS_DISTDIR/bin', 'ServerSample.conf')
 prog = local_env.Program('ServerSample', objs)
 

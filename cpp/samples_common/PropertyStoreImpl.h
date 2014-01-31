@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -13,7 +13,6 @@
  *    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
-
 #ifndef PROPERTYSTOREIMPL_H_
 #define PROPERTYSTOREIMPL_H_
 
@@ -27,11 +26,11 @@
 class PropertyStoreImpl : public ajn::services::AboutPropertyStoreImpl {
 
   public:
-    PropertyStoreImpl(const char* configFile);
+    PropertyStoreImpl(const char* factoryConfigFile, const char* configFile);
 
     void FactoryReset();
 
-    const qcc::String& GetConfigFile();
+    const qcc::String& GetConfigFileName();
 
     virtual ~PropertyStoreImpl();
 
@@ -49,9 +48,9 @@ class PropertyStoreImpl : public ajn::services::AboutPropertyStoreImpl {
 
     bool m_IsInitialized;
 
-    qcc::String m_ConfigFile;
+    qcc::String m_configFileName;
 
-    std::string m_OriginalContent;
+    qcc::String m_factoryConfigFileName;
 
     bool persistUpdate(const char* key, const char* value);
 

@@ -32,6 +32,7 @@ OptParser::OptParser(int argc, char** argv) :
     GuidUtil::GetInstance()->GenerateGUID(&appGUID);
     deviceName.assign("MyDeviceName");
     defaultLanguage.assign("en");
+    factoryConfigFile.assign("FactoryServerSample.conf");
     configFile.assign("ServerSample.conf");
     appName.assign("ServerSample");
 
@@ -51,6 +52,9 @@ qcc::String const& OptParser::GetAppName() const {
     return appName;
 }
 
+qcc::String const& OptParser::GetFactoryConfigFile() const {
+    return configFile;
+}
 qcc::String const& OptParser::GetConfigFile() const {
     return configFile;
 }
@@ -175,8 +179,10 @@ void OptParser::PrintUsage() {
 
             "    --port=\n"
             "        used to bind the service.\n\n"
+            "    --factory-config-file=FILE\n"
+            "        Configuration file with factory settings.\n\n"
             "    --config-file=FILE\n"
-            "        Use the specified configuration file.\n\n"
+            "        Active configuration file that persists user's updates\n\n"
             "    --deviceId\n"
             "        Use the specified DeviceID.\n\n"
             "    --deviceName\n"
@@ -229,6 +235,8 @@ OptParser::ParseResultCode OptParser::ParseResult() {
                 fprintf(stderr, "Invalid appId: \"%s\"\n", argv[indx]);
                 break;
             }
+        } else if (arg.compare(0, sizeof("--factory-config-file") - 1, "--factory-config-file") == 0) {
+            factoryConfigFile = arg.substr(sizeof("--factory-config-file"));
         } else if (arg.compare(0, sizeof("--config-file") - 1, "--config-file") == 0) {
             configFile = arg.substr(sizeof("--config-file"));
         } else if (arg.compare(0, sizeof("--language") - 1, "--language") == 0) {

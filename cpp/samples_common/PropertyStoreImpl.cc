@@ -13,11 +13,11 @@
  *    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
-
 #include "PropertyStoreImpl.h"
 #include "IniParser.h"
 #include <fstream>
 #include <iostream>
+#include <sys/stat.h>
 
 #define CHECK(x) if ((status = x) != ER_OK) { break; }
 #define CHECK_RETURN(x) if ((status = x) != ER_OK) { return status; }
@@ -25,13 +25,10 @@
 using namespace ajn;
 using namespace services;
 
-PropertyStoreImpl::PropertyStoreImpl(const char* configFile) : m_IsInitialized(false)
+PropertyStoreImpl::PropertyStoreImpl(const char* factoryConfigFile, const char* configFile) : m_IsInitialized(false)
 {
-    m_ConfigFile.assign(configFile);
-    std::ifstream ifs(configFile);
-    m_OriginalContent.assign((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
-    ifs.clear();
-    ifs.close();
+    m_configFileName.assign(configFile);
+    m_factoryConfigFileName.assign(factoryConfigFile);
 }
 
 void PropertyStoreImpl::Initialize()
@@ -43,16 +40,25 @@ void PropertyStoreImpl::Initialize()
 
 void PropertyStoreImpl::FactoryReset()
 {
-    std::ofstream outfile(m_ConfigFile.c_str());
-    outfile.write(m_OriginalContent.c_str(), m_OriginalContent.length());
-    outfile.close();
+    std::ifstream factoryConfigFile(m_factoryConfigFileName.c_str(), std::ios::binary);
+    std::ofstream configFile(m_configFileName.c_str(), std::ios::binary);
+
+    if (factoryConfigFile && configFile) {
+        configFile << factoryConfigFile.rdbuf();
+
+        configFile.close();
+        factoryConfigFile.close();
+    } else {
+        std::cout << "Factory reset failed" << std::endl;
+    }
+
     m_Properties.clear();
     m_Properties.insert(m_PropertiesReadOnly.begin(), m_PropertiesReadOnly.end());
 }
 
-const qcc::String& PropertyStoreImpl::GetConfigFile()
+const qcc::String& PropertyStoreImpl::GetConfigFileName()
 {
-    return m_ConfigFile;
+    return m_configFileName;
 }
 
 PropertyStoreImpl::~PropertyStoreImpl()
@@ -255,7 +261,7 @@ bool PropertyStoreImpl::persistUpdate(const char* key, const char* value)
 {
     std::map<std::string, std::string> data;
     data[key] = value;
-    return IniParser::UpdateFile(m_ConfigFile.c_str(), data);
+    return IniParser::UpdateFile(m_configFileName.c_str(), data);
 }
 
 PropertyStoreKey PropertyStoreImpl::getPropertyStoreKeyFromName(qcc::String const& propertyStoreName)
