@@ -117,7 +117,7 @@ int main()
     prodService->setLogger(myLogger);
 #endif
     // change loglevel to debug:
-    // prodService->getLogger()->setLogLevel(Log::LEVEL_DEBUG);
+    prodService->getLogger()->setLogLevel(Log::LEVEL_DEBUG);
 
     bus = CommonSampleUtil::prepareBusAttachment();
     if (bus == NULL) {
@@ -206,10 +206,15 @@ int main()
     }
 
     std::cout << "Notification sent! " << std::endl;
-    std::cout << "Exiting the application deletes the bus connection." << std::endl;
-    std::cout << "Waiting 10 seconds before exiting to allow the client to receive the message." << std::endl;
-    sleep(10);
 
+    int c;
+    do {
+        std::cout << "To exit please push 'c' character:" << std::endl;
+        c = getchar();
+        putchar(c);
+    } while (c != 'c');
+
+    std::cout << "Exiting the application deletes the bus connection." << std::endl;
     cleanup();
     return 0;
 }
