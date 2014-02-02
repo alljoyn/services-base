@@ -85,5 +85,5 @@ void ConfigServiceListenerImpl::PersistPassword(const char* daemonRealm, const c
     std::map<std::string, std::string> data;
     data["daemonrealm"] = daemonRealm;
     data["passcode"] = passcode;
-    IniParser::UpdateFile(m_PropertyStore->GetConfigFile().c_str(), data);
+    IniParser::UpdateFile(m_PropertyStore->GetConfigFileName().c_str(), data);
 }
