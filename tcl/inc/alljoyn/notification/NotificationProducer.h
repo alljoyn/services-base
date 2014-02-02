@@ -148,9 +148,8 @@ extern const char NotificationObjectPathInfo[];
 #define NOTIFICATION_PRODUCER_GET_PROPERTY AJ_APP_PROPERTY_ID(NOTIFICATION_PRODUCER_OBJECT_INDEX, 0, AJ_PROP_GET)
 #define NOTIFICATION_PRODUCER_SET_PROPERTY AJ_APP_PROPERTY_ID(NOTIFICATION_PRODUCER_OBJECT_INDEX, 0, AJ_PROP_SET)
 
-#define NOTIFICATION_PRODUCER_ACKNOWLEDGE               AJ_APP_MESSAGE_ID(NOTIFICATION_PRODUCER_OBJECT_INDEX, 1, 0)
-#define NOTIFICATION_PRODUCER_DISMISS                   AJ_APP_MESSAGE_ID(NOTIFICATION_PRODUCER_OBJECT_INDEX, 1, 1)
-#define GET_NOTIFICATION_PRODUCER_VERSION_PROPERTY      AJ_APP_PROPERTY_ID(NOTIFICATION_PRODUCER_OBJECT_INDEX, 1, 2)
+#define NOTIFICATION_PRODUCER_DISMISS                   AJ_APP_MESSAGE_ID(NOTIFICATION_PRODUCER_OBJECT_INDEX, 1, 0)
+#define GET_NOTIFICATION_PRODUCER_VERSION_PROPERTY      AJ_APP_PROPERTY_ID(NOTIFICATION_PRODUCER_OBJECT_INDEX, 1, 1)
 
 /*!
    \brief AllJoyn objects exposed by the NotificationProducer
@@ -184,15 +183,6 @@ extern AJ_Status ProducerSendNotification(AJ_BusAttachment* busAttachment, AJNS_
    \return AJ_Status
  */
 extern AJ_Status ProducerDeleteLastMsg(AJ_BusAttachment* busAttachment, uint16_t messageType);
-
-/*!
-   \brief Implementation of Acknowledge functionality removing given message from the bus
-   \details
-   Effectively, this overrides the ttl parameter in the \ref SetNotification function
-   \param msg The received Acknowledge request message to process
-   \return AJ_Status
- */
-extern AJ_Status ProducerAcknowledgeMsg(AJ_BusAttachment* busAttachment, AJ_Message* msg);
 
 /*!
    \brief Implementation of Dismiss functionality acknowledging and sending a Dismiss SSL to recall received message

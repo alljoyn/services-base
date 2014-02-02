@@ -213,11 +213,6 @@ Service_Status Producer_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Mes
         service_Status = SERVICE_STATUS_HANDLED;
         break;
 
-    case NOTIFICATION_PRODUCER_ACKNOWLEDGE:
-        *msgStatus = ProducerAcknowledgeMsg(busAttachment, msg);
-        service_Status = SERVICE_STATUS_HANDLED;
-        break;
-
     case NOTIFICATION_PRODUCER_DISMISS:
         *msgStatus = ProducerDismissMsg(busAttachment, msg);
         service_Status = SERVICE_STATUS_HANDLED;

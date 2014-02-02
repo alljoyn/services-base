@@ -511,38 +511,6 @@ Exit:
     return status;
 }
 
-AJ_Status ConsumerAcknowledgeNotification(AJ_BusAttachment* busAttachment, uint16_t version, int32_t msgId, const char* senderName, uint32_t sessionId)
-{
-    AJ_Printf("Inside AcknowledgeNotification()\n");
-    AJ_Status status = AJ_OK;
-
-    if (version < 2) { // Producer does not support acknowledgement
-        return AJ_ERR_INVALID;
-    }
-
-    if (status == AJ_OK && sessionId != 0) {
-        AJ_Message ackMsg;
-        status = AJ_MarshalMethodCall(busAttachment, &ackMsg, NOTIFICATION_PRODUCER_ACKNOWLEDGE_PROXY, senderName, sessionId, AJ_NO_FLAGS, AJ_CALL_TIMEOUT);
-        if (status != AJ_OK) {
-            AJ_Printf("Could not marshal method call\n");
-            return status;
-        }
-        status = AJ_MarshalArgs(&ackMsg, "i", msgId);
-        if (status != AJ_OK) {
-            AJ_Printf("Could not marshal arguments\n");
-            return status;
-        }
-        status = AJ_DeliverMsg(&ackMsg);
-        if (status != AJ_OK) {
-            AJ_Printf("Could not deliver message\n");
-            return status;
-        }
-        AJ_CloseMsg(&ackMsg);
-    }
-
-    return status;
-}
-
 AJ_Status ConsumerDismissNotification(AJ_BusAttachment* busAttachment, uint16_t version, int32_t msgId, const char* appId, const char* senderName, uint32_t sessionId)
 {
     AJ_Printf("Inside DismissNotification()\n");
