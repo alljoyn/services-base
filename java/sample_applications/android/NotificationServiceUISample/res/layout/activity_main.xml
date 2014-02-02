@@ -251,16 +251,6 @@
                 android:layout_below="@+id/language_spinnerConsumer"
                 android:layout_marginTop="5dp">
             </ListView>
-
-            <Button
-                android:id="@+id/btn_ack"
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_alignParentTop="true"
-                android:layout_toRightOf="@+id/language_spinnerConsumer"
-                android:text="@string/ack_btn_label" />
-            
             
             <Button
                 android:id="@+id/btn_dismiss"
@@ -269,7 +259,7 @@
                 android:layout_height="40dp"
                 android:layout_alignParentTop="true"
                 android:layout_marginLeft="18dp"
-                android:layout_toRightOf="@+id/btn_ack"
+                android:layout_toRightOf="@+id/language_spinnerConsumer"
                 android:text="@string/dismiss_btn_label" />
 
             <Button

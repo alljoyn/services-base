@@ -37,15 +37,14 @@ import org.alljoyn.ns.transport.interfaces.NotificationProducer;
 import org.alljoyn.ns.transport.producer.SenderSessionListener;
 
 /**
- * The class implements the functionality of sending feedback about the received {@link Notification}
- * There are two feedback types: <br>
- * 		1) acknowledge - To tell the Notification Producer to stop broadcasting the notification <br>
- * 		2) dismiss     - Dismiss includes the functionality of "acknowledge" and additionally tells the Notification
- * 					 	 Producer to send a Dismiss session-less-signal to update other Notification Consumers that 
+ * The class implements the functionality of sending feedback about the received {@link Notification}. <br>
+ * Feedback types: <br>
+ * 		1) dismiss     - Notification Producer deletes the {@link Notification} message and then sends 
+ * 						 a Dismiss session-less-signal to update Notification Consumers that 
  * 						 this {@link Notification} message has been dismissed. <br>
  * 
  * If there is a failure in reaching the Notification Producer to dismiss the {@link Notification}, the dismiss 
- * session-less-signal is sent by {@link NotificationFeedback} 
+ * session-less-signal is sent by the {@link NotificationFeedback}.
  */
 public class NotificationFeedback extends OnJoinSessionListener {
 	private static final String TAG = "ioe" + NotificationFeedback.class.getSimpleName();
@@ -117,25 +116,6 @@ public class NotificationFeedback extends OnJoinSessionListener {
 	}
 	
 	/**
-	 * Call the acknowledge
-	 */
-	public void acknowledge() {
-		
-		//Version 1 doesn't support the NotificationProducer interface and the original sender
-		if ( version < 2 || origSender == null ) {
-			logger.debug(TAG, "The notification sender version: '" + version + "', doesn't support the NotificationProducer interface, notifId: '" + notifId + "' can't be acknowledged");
-			return;
-		}
-		
-		taskDispatcher.execute( new Runnable() {
-			@Override
-			public void run() {
-				invokeAck();
-			}
-		});
-	}//acknowledge
-	
-	/**
 	 * Call the dismiss
 	 */
 	public void dismiss() {
@@ -155,48 +135,6 @@ public class NotificationFeedback extends OnJoinSessionListener {
 			}//run
 		});
 	}//dismiss
-	
-	
-	/**
-	 * Calls the remote Acknowledge method
-	 * @param status Session establishment status   
-	 */
-	private void invokeAck() {
-		
-	    BusAttachment bus = transport.getBusAttachment();
-		if ( bus == null ) {
-			logger.error(TAG, "Failed to call Acknowledge for notifId: '" + notifId + "', BusAttachment is not defined, returning...");
-			return;
-		}
-		
-		Mutable.IntegerValue sid = new Mutable.IntegerValue();
-		Status status            = establishSession(bus, sid);
-
-		//The status ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED here is returned if the 
-		//BusAttachment is trying to establish a session with itself (producer and consumer are sharing a BusAttachment)
-		if ( status != Status.OK && status != Status.ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED ) {
-			logger.error(TAG, "Failed to call Acknowledge for notifId: '" + notifId + "', session not established, Error: '" + status + "'");
-			return;
-		}
-		
-		logger.debug(TAG, "Handling Acknowledge method call for notifId: '" + notifId + "', session: '" + sid.value + "', SessionJoin status: '" + status + "'");
-		NotificationProducer notifProducer = getProxyObject(bus, sid.value);
-					
-		try {
-			notifProducer.acknowledge(notifId);
-		}
-		catch (ErrorReplyBusException erbe) {
-			logger.error(TAG, "Failed to call Acknowledge for notifId: '" + notifId + "', ErrorName: '" + erbe.getErrorName() + "', ErrorMessage: '" + erbe.getErrorMessage() + "'");
-		}
-		catch (BusException be) {
-			logger.error(TAG, "Failed to call Acknowledge for notifId: '" + notifId + "', Error: '" + be.getMessage() + "'");
-		}
-		finally {
-			if ( status != Status.ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED ) {
-				leaveSession(bus, sid.value);
-			}
-		}
-    }//invokeAck
 	
 	/**
 	 * Calls the remote dismiss method. <br>

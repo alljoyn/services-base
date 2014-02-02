@@ -141,11 +141,6 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 	private CheckBox audioObjPathRichCheck;
 	
 	/**
-	 * The {@link Notification} Acknowledge button
-	 */
-	private Button ackButton;
-	
-	/**
 	 * The {@link Notification} Dismiss button
 	 */
 	private Button dismissButton;
@@ -208,7 +203,6 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 		actCache.put("PROD_CHK_BTN", producerChbId.isChecked());
 		actCache.put("CONS_CHK_BTN", consumerChbId.isChecked());
 		actCache.put("SRVC_CNTRL_BTN", shutdownButton.isEnabled());
-		actCache.put("ACK_BTN", ackButton.isEnabled());
 		actCache.put("DISMISS_BTN", dismissButton.isEnabled());
 		actCache.put("APP_NAME", appName.getText().toString());
 	}//onPause
@@ -280,12 +274,9 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 		setProducerLayout(false);
 		setConsumerLayout(false);
 		
-		ackButton      = (Button) findViewById(R.id.btn_ack);
 		dismissButton  = (Button) findViewById(R.id.btn_dismiss);
 		actionButton   = (Button) findViewById(R.id.btn_action);
 		
-		ackButton.setOnClickListener(this);
-		ackButton.setEnabled(false);
 		dismissButton.setOnClickListener(this);
 		dismissButton.setEnabled(false);
 		actionButton.setEnabled(false);
@@ -296,7 +287,6 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 		Boolean prodChkBoxState = (Boolean)actCache.get("PROD_CHK_BTN");
 		Boolean consChkBoxState = (Boolean)actCache.get("CONS_CHK_BTN");
 		Boolean shutdownBtn     = (Boolean)actCache.get("SRVC_CNTRL_BTN");
-		Boolean ackBtn          = (Boolean)actCache.get("ACK_BTN");
 		Boolean dismissBtn      = (Boolean)actCache.get("DISMISS_BTN");
 		String  appNameStr      = (String)actCache.get("APP_NAME");
 		
@@ -317,11 +307,6 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 		if ( consChkBoxState != null ) {
 			consumerChbId.setChecked(consChkBoxState);
 			setConsumerLayout(consChkBoxState); 
-		}
-		
-		//acknowledge button
-		if ( ackBtn != null ) {
-			ackButton.setEnabled(ackBtn);
 		}
 		
 		//dismiss button
@@ -459,9 +444,8 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 				Log.d(TAG, "Rich Audio obj path was clicked");
 				break;
 			}
-			case R.id.btn_ack: 
 			case R.id.btn_dismiss: {
-				onAckDismissClicked(view.getId());
+				onDismissClicked(view.getId());
 				break;
 			}
 			case R.id.btn_action: {
@@ -566,10 +550,9 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 	}//shutdownToStart	
 
 	/**
-	 * @param enabled the Consumer Acknowledge | Dismiss | Action button  
+	 * @param enabled the Consumer Dismiss | Action button  
 	 */
 	public void enableReceiverControlButtons(boolean enabled) {
-		ackButton.setEnabled(enabled);
 		dismissButton.setEnabled(enabled);
 		actionButton.setEnabled(enabled);
 	}//enableDeleteButtons
@@ -620,18 +603,16 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 	}//setConsProdChbChecked
 
 	/**
-	 * Is invoked when Consumer Acknowledge or Dismiss button is clicked
+	 * Is invoked when Consumer Dismiss button is clicked
 	 * @param The clicked button resource id
 	 */
-	private void onAckDismissClicked(int btnId) {
+	private void onDismissClicked(int btnId) {
 		
 		for (VisualNotification vn : notificationList) {
 			
 			if ( vn.isChecked() ) {
-				if ( btnId == R.id.btn_ack ) {
-					vn.getNotification().acknowledge();
-				}
-				else if ( btnId == R.id.btn_dismiss ) {
+				
+				if ( btnId == R.id.btn_dismiss ) {
 					vn.getNotification().dismiss();
 				}
 				
@@ -642,7 +623,7 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 			}//if :: checked
 		}//for
 		
-	}//onAcknowledgeClicked
+	}//onDismissClicked
 	
 	/**
 	 *  Is invoked when the Consumer Action button is clicked <br>

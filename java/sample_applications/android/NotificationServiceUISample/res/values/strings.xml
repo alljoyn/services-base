@@ -39,7 +39,6 @@
     <string name="rich_audio_objPath">obj</string>
     <string name="url_rich">URL</string>
     <string name="content_rich">Content</string>
-    <string name="ack_btn_label">Ack</string>
     <string name="dismiss_btn_label">Dismiss</string>
     <string name="action_btn_label">Action</string>
     <string name="title_activity_display_message">DisplayMessageActivity</string>

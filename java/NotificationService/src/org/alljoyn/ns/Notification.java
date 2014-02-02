@@ -310,19 +310,9 @@ public class Notification {
 	//=======================================//
 	
 	/**
-	 * When the notification message is acknowledged, the notification sender stops broadcasting the notification.
-	 */
-	public void acknowledge() {
-		try {
-			new NotificationFeedback(this).acknowledge();
-		} catch (NotificationServiceException nse) {
-			System.out.println("Failed to call the acknowledge method, Error: '" + nse.getMessage() + "'");
-		}
-	}//acknowledge
-	
-	/**
-	 * When the notification message is dismissed, it is first of all acknowledged and then a dismiss signal is sent
-	 * to update other Notification Consumers that the {@link Notification} has been dismissed   
+	 * When the notification message is dismissed, it is first of all deleted by the Notification Producer
+	 * and then a dismiss signal is sent to update other Notification Consumers that the {@link Notification} 
+	 * has been dismissed   
 	 */
 	public void dismiss() {
 		try {

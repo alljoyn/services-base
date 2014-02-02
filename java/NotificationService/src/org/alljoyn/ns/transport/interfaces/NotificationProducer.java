@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -25,7 +25,7 @@ import org.alljoyn.bus.annotation.BusProperty;
 import org.alljoyn.ns.Notification;
 
 /**
- * The interface provides to a notification receiver the functionality to acknowledge and dismiss 
+ * The interface provides to a notification receiver the functionality to dismiss 
  * the received {@link Notification}.  
  */
 @BusInterface(name = NotificationProducer.IFNAME)
@@ -45,17 +45,9 @@ public interface NotificationProducer extends BusObject {
 	 * The interface version
 	 */
 	public static final short VERSION = 1;
-	
+		
 	/**
-	 * When the notification message is acknowledged, the notification sender stops its broadcasting 
-	 * @param msgId The notification message identifier
-	 * @throws BusException
-	 */
-	@BusMethod(name="Acknowledge", signature="i")
-	public void acknowledge(int msgId) throws BusException;
-	
-	/**
-	 * When the notification message is dismissed, it's first of all acknowledged and then a dismiss signal is sent
+	 * When the notification message is dismissed, it's first of all deleted and then a dismiss signal is sent
 	 * to all notification consumers to update them that the {@link Notification} has been dismissed   
 	 * @param msgId The notification message identifier
 	 * @throws BusException
