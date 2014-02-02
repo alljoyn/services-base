@@ -357,6 +357,7 @@ static AJ_Status Producer_SendNotifySignal(AJ_BusAttachment* busAttachment, AJNS
 {
     AJ_Status status;
     AJ_Message msg;
+    uint32_t serialNum;
 
     AJ_Printf("In SendNotifySignal\n");
     status = Producer_MarshalNotificationMsg(busAttachment, &msg, notification, ttl);
@@ -364,17 +365,17 @@ static AJ_Status Producer_SendNotifySignal(AJ_BusAttachment* busAttachment, AJNS
         AJ_Printf("Could not Marshal Message\n");
         return status;
     }
-
-    if (messageSerialNumber != NULL) {
-        *messageSerialNumber = msg.hdr->serialNum;
-    }
+    serialNum = msg.hdr->serialNum;
     status = AJ_DeliverMsg(&msg);
     if (status != AJ_OK) {
         AJ_Printf("Could not Deliver Message\n");
         return status;
     }
+    AJ_Printf("***************** Notification id %d delivered successfully with serial number %u *****************\n", notification->notificationId, serialNum);
+    if (messageSerialNumber != NULL) {
+        *messageSerialNumber = serialNum;
+    }
 
-    AJ_Printf("***************** Notification id %d delivered successfully with serial number %lu *****************\n", notification->notificationId, *messageSerialNumber);
     AJ_CloseMsg(&msg);
 
     return status;
@@ -399,7 +400,7 @@ AJ_Status ProducerSendNotification(AJ_BusAttachment* busAttachment, AJNS_Notific
     notification.messageType = messageType;
 
     if ((ttl < NOTIFICATION_TTL_MIN) || (ttl > NOTIFICATION_TTL_MAX)) {      //ttl is mandatory and must be in range
-        AJ_Printf("TTL '%lu' is not a valid TTL value\n", ttl);
+        AJ_Printf("TTL '%u' is not a valid TTL value\n", ttl);
         return AJ_ERR_DISALLOWED;
     }
 

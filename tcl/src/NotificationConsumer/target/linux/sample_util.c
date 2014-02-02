@@ -77,17 +77,17 @@ void Consumer_GetActionFromUser(uint8_t* action)
     char buf[BUF_SIZE];
     memset(buf, 0, BUF_SIZE);
 
+    uint8_t defaultAction = *action;
     AJ_Printf("Please enter an action to perform on the recently received notification\n\t0=Nothing,\n\t1=Acknowledge,\n\t2=Dismiss.\n");
-    AJ_Printf("Empty string or invalid input will default to 0=Nothing\n");
-    *action = 0;
+    AJ_Printf("Empty string or invalid input will default to %u\n", defaultAction);
     if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
         if (strlen(buf)) {
             *action = (uint8_t)atoi(buf);
-            char stringType[8];
+            char stringType[10];
             sprintf(stringType, "%u", *action);
             if (!(strcmp(buf, stringType) == 0)) {             //they do not match, it is not int
-                AJ_Printf("Action is not an integer value. Defaulting to 0=Nothing\n");
-                *action = 0;
+                AJ_Printf("Action is not an integer value. Defaulting to %u\n", defaultAction);
+                *action = defaultAction;
             }
         }
     }

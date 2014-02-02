@@ -333,8 +333,8 @@ AJ_Status ApplicationHandleNotify(AJNS_Notification* notification)
         // Save notification reference so that it can be later acknowledged or dimissed
         savedNotification.version = notification->version;
         savedNotification.notificationId = notification->notificationId;
-        strcpy(savedNotification.appId, notification->appId);
-        strcpy(savedNotification.originalSenderName, notification->originalSenderName);
+        strncpy(savedNotification.appId, notification->appId, sizeof(savedNotification.appId) - 1);
+        strncpy(savedNotification.originalSenderName, notification->originalSenderName, sizeof(savedNotification.originalSenderName) - 1);
     }
     AJ_Printf("******************** End New Message Received ********************\n");
 
@@ -347,7 +347,9 @@ AJ_Status ApplicationHandleDismiss(int32_t notificationId, const char* appId)
     AJ_Printf("Notification Id: %d\nApp Id: %s\n", notificationId, appId);
     if (savedNotification.version > 0 && !strcmp(appId, savedNotification.appId) && notificationId == savedNotification.notificationId) {
         AJ_Printf("Notification dimissed: Version %u sent from OriginalSender %s\n", savedNotification.version, savedNotification.originalSenderName);
-        savedNotification.version = 0;
+        if (processingAction == FALSE) {
+            savedNotification.version = 0;
+        }
     }
     AJ_Printf("******************** End New Dismiss Received ********************\n");
 
