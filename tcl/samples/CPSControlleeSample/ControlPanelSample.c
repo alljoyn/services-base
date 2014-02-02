@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2014, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -39,10 +39,8 @@ AJ_Status ControlPanel_ConnectedHandler(AJ_BusAttachment* bus)
     };
 
     AJ_Status status;
-    AJ_Time timer = { 0, 0 };
-    AJ_InitTimer(&timer);
 
-    status = AJ_BusBindSessionPort(bus, CPSPort, &sessionOpts);
+    status = AJ_BusBindSessionPort(bus, CPSPort, &sessionOpts, 0);
     if (status != AJ_OK) {
         AJ_Printf("Failed to send bind session port message\n");
     }
@@ -51,22 +49,7 @@ AJ_Status ControlPanel_ConnectedHandler(AJ_BusAttachment* bus)
     while (!serviceStarted && (status == AJ_OK)) {
         AJ_Message msg;
 
-        AJ_GetElapsedTime(&timer, TRUE);
-
         status = AJ_UnmarshalMsg(bus, &msg, AJAPP_UNMARSHAL_TIMEOUT);
-
-        /*
-         * TODO This is a temporary hack to work around buggy select implementations
-         */
-        if (status == AJ_ERR_TIMEOUT) {
-            uint32_t elapsed = AJ_GetElapsedTime(&timer, TRUE);
-            if (elapsed < AJAPP_UNMARSHAL_TIMEOUT) {
-                AJ_Printf("Spurious timeout error (elapsed=%d < AJAPP_UNMARSHAL_TIMEOUT=%d) - continuing\n", elapsed, AJAPP_UNMARSHAL_TIMEOUT);
-                status = AJ_OK;
-                continue;
-            }
-        }
-
         if (status != AJ_OK) {
             break;
         }
