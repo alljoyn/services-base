@@ -59,10 +59,14 @@ void Consumer_SetupEnv(uint8_t* inputMode, uint8_t* superAgentMode)
     }
     if (*inputMode) {
         char buf[BUF_SIZE];
-        AJ_Printf("Please enter 1 if you want to run in SuperAgentMode. default is 0\n");
+        uint8_t defaultSuperAgentMode = *superAgentMode;
+        AJ_Printf("Please enter 0=OFF or 1=ON to disable/enable SuperAgentMode. Default is %u\n", defaultSuperAgentMode);
         if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
             if (strlen(buf)) {
                 *superAgentMode = (uint8_t)atoi(buf);
+                if (*superAgentMode < 0 || 1 < *superAgentMode) {
+                    *superAgentMode = defaultSuperAgentMode;
+                }
             }
         }
     }
