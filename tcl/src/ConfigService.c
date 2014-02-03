@@ -75,7 +75,7 @@ AJ_Status ConfigGetConfigurations(AJ_Message* msg)
     AJ_Status status = AJ_OK;
     AJ_Message reply;
     char* language;
-    enum_lang_indecies_t langIndex = ERROR_LANGUAGE_INDEX;
+    int8_t langIndex = ERROR_LANGUAGE_INDEX;
 
     AJ_Printf("GetConfigurations()\n");
 
@@ -139,7 +139,7 @@ AJ_Status ConfigUpdateConfigurations(AJ_Message* msg)
     char* sig;
     char* value;
     char* language;
-    enum_lang_indecies_t langIndex = ERROR_LANGUAGE_INDEX;
+    int8_t langIndex = ERROR_LANGUAGE_INDEX;
     uint8_t numOfUpdatedItems = 0;
 
     AJ_Printf("UpdateConfigurations()\n");
@@ -218,7 +218,7 @@ AJ_Status ConfigResetConfigurations(AJ_Message* msg)
     AJ_Message reply;
     char* key;
     char* language;
-    enum_lang_indecies_t langIndex = ERROR_LANGUAGE_INDEX;
+    int8_t langIndex = ERROR_LANGUAGE_INDEX;
     uint8_t numOfDeletedItems = 0;
 
     AJ_Printf("ResetConfigurations()\n");
