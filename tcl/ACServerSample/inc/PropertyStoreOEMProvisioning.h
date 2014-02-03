@@ -27,9 +27,9 @@
 #include <aj_config.h>
 
 /**
- * field indecies
+ * field indices
  */
-typedef enum PropertyStoreFieldIndecies {
+typedef enum PropertyStoreFieldIndices {
     ERROR_FIELD_INDEX = -1,
     //Start of keys
     DeviceID,
@@ -64,21 +64,15 @@ typedef enum PropertyStoreFieldIndecies {
 #endif
     NUMBER_OF_KEYS,
     //End of About keys
-} enum_field_indecies_t;
+} enum_field_indices_t;
 
 /**
- * language indecies
+ * language indices
  */
-typedef enum PropertyStoreLangIndecies {
-    ERROR_LANGUAGE_INDEX = -1,
-    //Start of language keys
-    NO_LANGUAGE_INDEX,
-    LANG_1 = NO_LANGUAGE_INDEX,
-    NUMBER_OF_LANGUAGES
-    //End of language keys
-} enum_lang_indecies_t;
-
-extern const char* theDefaultLanguages[NUMBER_OF_LANGUAGES];
+#define ERROR_LANGUAGE_INDEX   -1
+#define NO_LANGUAGE_INDEX       0
+extern const uint_8 NUMBER_OF_LANGUAGES;
+extern const char** theDefaultLanguages;
 
 #define KEY_NAME_LENGTH  20
 #define LANG_VALUE_LENGTH 7
@@ -91,7 +85,7 @@ extern const char* theDefaultLanguages[NUMBER_OF_LANGUAGES];
  * property container for non-default parameters
  */
 typedef struct ConfigVar {
-    char* value[NUMBER_OF_LANGUAGES];
+    const char** value; // Array of size NUMBER_OF_LANGUAGES
     size_t size;
 } property_store_config_entry_t;
 
@@ -111,7 +105,7 @@ typedef struct AboutConfigVar {
     uint8_t mode6 : 1;
     uint8_t mode7Public : 1;
 
-    char* value[NUMBER_OF_LANGUAGES];
+    const char** value; // Array of size NUMBER_OF_LANGUAGES
 } property_store_entry_t;
 
 /**

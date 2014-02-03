@@ -39,14 +39,14 @@ static char RealmNameVar[KEY_VALUE_LENGTH + 1] = { 0 };
 
 static const char* defaultLanguagesKeyName = { "SupportedLanguages" };
 
-const char* PropertyStore_GetFieldNameForIndex(enum_field_indecies_t index)
+const char* PropertyStore_GetFieldNameForIndex(enum_field_indices_t index)
 {
     return theAboutConfigVar[index].keyName;
 }
 
-enum_field_indecies_t PropertyStore_GetIndexOfField(const char* fieldName)
+enum_field_indices_t PropertyStore_GetIndexOfField(const char* fieldName)
 {
-    enum_field_indecies_t fieldIndex = 0;
+    enum_field_indices_t fieldIndex = 0;
     for (; fieldIndex < NUMBER_OF_KEYS; fieldIndex++) {
         if (!strcmp(theAboutConfigVar[fieldIndex].keyName, fieldName)) {
             return fieldIndex;
@@ -55,7 +55,7 @@ enum_field_indecies_t PropertyStore_GetIndexOfField(const char* fieldName)
     return ERROR_FIELD_INDEX;
 }
 
-static enum_lang_indecies_t GetLanguageIndexForProperty(enum_lang_indecies_t langIndex, enum_field_indecies_t fieldIndex)
+static int8_t GetLanguageIndexForProperty(int8_t langIndex, enum_field_indices_t fieldIndex)
 {
     if (theAboutConfigVar[fieldIndex].mode2MultiLng) {
         return langIndex;
@@ -63,14 +63,14 @@ static enum_lang_indecies_t GetLanguageIndexForProperty(enum_lang_indecies_t lan
     return NO_LANGUAGE_INDEX;
 }
 
-const char* PropertyStore_GetValueForLang(enum_field_indecies_t fieldIndex, enum_lang_indecies_t langIndex)
+const char* PropertyStore_GetValueForLang(enum_field_indices_t fieldIndex, int8_t langIndex)
 {
-    if ((int8_t)fieldIndex <= (int8_t)ERROR_FIELD_INDEX || (int8_t)fieldIndex >= (int8_t)NUMBER_OF_KEYS || (int8_t)langIndex <= (int8_t)ERROR_LANGUAGE_INDEX || (int8_t)langIndex >= (int8_t)NUMBER_OF_LANGUAGES) {
+    if ((int8_t)fieldIndex <= (int8_t)ERROR_FIELD_INDEX || (int8_t)fieldIndex >= (int8_t)NUMBER_OF_KEYS || langIndex <= ERROR_LANGUAGE_INDEX || langIndex >= NUMBER_OF_LANGUAGES) {
         return NULL;
     }
 
     langIndex = GetLanguageIndexForProperty(langIndex, fieldIndex);
-    if (fieldIndex < NUMBER_OF_CONFIG_KEYS && (theAboutConfigVar[fieldIndex].mode0Write || theAboutConfigVar[fieldIndex].mode3Init) && theConfigVar[fieldIndex].value[langIndex][0]) {
+    if (fieldIndex < NUMBER_OF_CONFIG_KEYS && (theAboutConfigVar[fieldIndex].mode0Write || theAboutConfigVar[fieldIndex].mode3Init) && theConfigVar[fieldIndex].value[langIndex]) {
         AJ_Printf("Has key [%s] value [%s]\n", theAboutConfigVar[fieldIndex].keyName, theConfigVar[fieldIndex].value[langIndex]);
         return theConfigVar[fieldIndex].value[langIndex];
     } else {
@@ -79,37 +79,33 @@ const char* PropertyStore_GetValueForLang(enum_field_indecies_t fieldIndex, enum
     }
 }
 
-const char* PropertyStore_GetValue(enum_field_indecies_t fieldIndex)
+const char* PropertyStore_GetValue(enum_field_indices_t fieldIndex)
 {
     return PropertyStore_GetValueForLang(fieldIndex, NO_LANGUAGE_INDEX);
 }
 
-enum_lang_indecies_t PropertyStore_GetLanguageIndex(const char* const language)
+int8_t PropertyStore_GetLanguageIndex(const char* const language)
 {
     if (language != NULL) {
-        enum_lang_indecies_t langIndex = NO_LANGUAGE_INDEX;
-        if (language[0] == '\0') { // Check for empty language, if yes then search for current default language index
+        uint8_t langIndex = NO_LANGUAGE_INDEX;
+        for (; langIndex < NUMBER_OF_LANGUAGES; langIndex++) {
+            if (language[0] == '\0') { // Check for empty language, if yes then search for current default language index
 #ifdef CONFIG_SERVICE
-            if (theConfigVar[DefaultLanguage].value[NO_LANGUAGE_INDEX][0]) {
-                for (; langIndex < NUMBER_OF_LANGUAGES; langIndex++) {
-                    if (!strcmp(theConfigVar[DefaultLanguage].value[NO_LANGUAGE_INDEX], theDefaultLanguages[langIndex])) {
-                        return langIndex;
+                if (theConfigVar[DefaultLanguage].value[NO_LANGUAGE_INDEX]) {
+                    if (!strcmp(&theConfigVar[DefaultLanguage].value[NO_LANGUAGE_INDEX], &theDefaultLanguages[langIndex])) {
+                        return (int8_t)langIndex;
                     }
-                }
-            } else {
+                } else {
 #endif
-            for (; langIndex < NUMBER_OF_LANGUAGES; langIndex++) {
-                if (!strcmp(theAboutConfigVar[DefaultLanguage].value[NO_LANGUAGE_INDEX], theDefaultLanguages[langIndex])) {
-                    return langIndex;
+                if (!strcmp(&theAboutConfigVar[DefaultLanguage].value[NO_LANGUAGE_INDEX], &theDefaultLanguages[langIndex])) {
+                    return (int8_t)langIndex;
                 }
-            }
 #ifdef CONFIG_SERVICE
-        }
+                }
 #endif
-        } else {
-            for (; langIndex < NUMBER_OF_LANGUAGES; langIndex++) {
-                if (!strcmp(language, theDefaultLanguages[langIndex])) {
-                    return langIndex;
+            } else {
+                if (!strcmp(language, &theDefaultLanguages[langIndex])) {
+                    return (int8_t)langIndex;
                 }
             }
         }
@@ -117,33 +113,33 @@ enum_lang_indecies_t PropertyStore_GetLanguageIndex(const char* const language)
     return ERROR_LANGUAGE_INDEX;
 }
 
-uint8_t PropertyStore_SetValueForLang(enum_field_indecies_t fieldIndex, enum_lang_indecies_t langIndex, const char* value)
+uint8_t PropertyStore_SetValueForLang(enum_field_indices_t fieldIndex, int8_t langIndex, const char* value)
 {
-    if ((int8_t)fieldIndex <= (int8_t)ERROR_FIELD_INDEX || (int8_t)fieldIndex >= (int8_t)NUMBER_OF_CONFIG_KEYS || (int8_t)langIndex <= (int8_t)ERROR_LANGUAGE_INDEX || (int8_t)langIndex >= (int8_t)NUMBER_OF_LANGUAGES) {
+    if ((int8_t)fieldIndex <= (int8_t)ERROR_FIELD_INDEX || (int8_t)fieldIndex >= (int8_t)NUMBER_OF_CONFIG_KEYS || langIndex <= ERROR_LANGUAGE_INDEX || langIndex >= NUMBER_OF_LANGUAGES) {
         return FALSE;
     }
 
     langIndex = GetLanguageIndexForProperty(langIndex, fieldIndex);
     AJ_Printf("Set key [%s] defaultValue [%s]\n", theAboutConfigVar[fieldIndex].keyName, value);
     size_t var_size = theConfigVar[fieldIndex].size;
-    memset(theConfigVar[fieldIndex].value[langIndex], 0, var_size);
-    strncpy(theConfigVar[fieldIndex].value[langIndex], value, var_size - 1);
+    memset(&theConfigVar[fieldIndex].value[langIndex], 0, var_size);
+    strncpy(&theConfigVar[fieldIndex].value[langIndex], value, var_size - 1);
 
     return TRUE;
 }
 
-uint8_t PropertyStore_SetValue(enum_field_indecies_t fieldIndex, const char* value)
+uint8_t PropertyStore_SetValue(enum_field_indices_t fieldIndex, const char* value)
 {
     return PropertyStore_SetValueForLang(fieldIndex, NO_LANGUAGE_INDEX, value);
 }
 
-enum_lang_indecies_t PropertyStore_GetCurrentDefaultLanguageIndex()
+int8_t PropertyStore_GetCurrentDefaultLanguageIndex()
 {
     const char* currentDefaultLanguage = PropertyStore_GetValue(DefaultLanguage);
-    enum_lang_indecies_t currentDefaultLanguageIndex = PropertyStore_GetLanguageIndex(currentDefaultLanguage);
-    if ((int8_t)currentDefaultLanguageIndex == (int8_t)ERROR_LANGUAGE_INDEX) {
+    int8_t currentDefaultLanguageIndex = PropertyStore_GetLanguageIndex(currentDefaultLanguage);
+    if (currentDefaultLanguageIndex == ERROR_LANGUAGE_INDEX) {
         currentDefaultLanguageIndex = NO_LANGUAGE_INDEX;
-        AJ_Printf("Failed to find default language %s defaulting to %s", (currentDefaultLanguage != NULL ? currentDefaultLanguage : "NULL"), theDefaultLanguages[currentDefaultLanguageIndex]);
+        AJ_Printf("Failed to find default language %s defaulting to %s", (currentDefaultLanguage != NULL ? currentDefaultLanguage : "NULL"), theDefaultLanguages[NO_LANGUAGE_INDEX]);
     }
     return currentDefaultLanguageIndex;
 }
@@ -246,11 +242,11 @@ AJ_Status PropertyStore_LoadAll()
 {
     AJ_Status status = AJ_OK;
 
-    enum_lang_indecies_t langIndex = NO_LANGUAGE_INDEX;
+    int8_t langIndex = NO_LANGUAGE_INDEX;
     for (langIndex = 0; langIndex < NUMBER_OF_LANGUAGES; langIndex++) {
-        enum_field_indecies_t fieldIndex = 0;
+        enum_field_indices_t fieldIndex = 0;
         for (; fieldIndex < NUMBER_OF_CONFIG_KEYS; fieldIndex++) {
-            void* buf = theConfigVar[fieldIndex].value[langIndex];
+            void* buf = &theConfigVar[fieldIndex].value[langIndex];
             if (buf) {
                 size_t size = theConfigVar[fieldIndex].size;
                 uint16_t entry = (int)fieldIndex + (int)langIndex * (int)NUMBER_OF_CONFIG_KEYS;
@@ -267,11 +263,11 @@ AJ_Status PropertyStore_SaveAll()
 {
     AJ_Status status = AJ_OK;
 
-    enum_lang_indecies_t langIndex = NO_LANGUAGE_INDEX;
+    int8_t langIndex = NO_LANGUAGE_INDEX;
     for (; langIndex < NUMBER_OF_LANGUAGES; langIndex++) {
-        enum_field_indecies_t fieldIndex = 0;
+        enum_field_indices_t fieldIndex = 0;
         for (; fieldIndex < NUMBER_OF_CONFIG_KEYS; fieldIndex++) {
-            void* buf = theConfigVar[fieldIndex].value[langIndex];
+            void* buf = &theConfigVar[fieldIndex].value[langIndex];
             if (buf) {
                 size_t size = theConfigVar[fieldIndex].size;
                 uint16_t entry = (int)fieldIndex + (int)langIndex * (int)NUMBER_OF_CONFIG_KEYS;
@@ -285,7 +281,7 @@ AJ_Status PropertyStore_SaveAll()
     return status;
 }
 
-static uint8_t UpdateFieldInRAM(enum_field_indecies_t fieldIndex, enum_lang_indecies_t langIndex, const char* fieldValue)
+static uint8_t UpdateFieldInRAM(enum_field_indices_t fieldIndex, int8_t langIndex, const char* fieldValue)
 {
     uint8_t ret = FALSE;
 
@@ -298,13 +294,13 @@ static uint8_t UpdateFieldInRAM(enum_field_indecies_t fieldIndex, enum_lang_inde
     return ret;
 }
 
-static uint8_t DeleteFieldFromRAM(enum_field_indecies_t fieldIndex, enum_lang_indecies_t langIndex)
+static uint8_t DeleteFieldFromRAM(enum_field_indices_t fieldIndex, int8_t langIndex)
 {
     return UpdateFieldInRAM(fieldIndex, langIndex, "");
 }
 #endif
 
-AJ_Status PropertyStore_ReadAll(AJ_Message* msg, property_store_filter_t filter, enum_lang_indecies_t langIndex)
+AJ_Status PropertyStore_ReadAll(AJ_Message* msg, property_store_filter_t filter, int8_t langIndex)
 {
     AJ_Status status = AJ_OK;
     AJ_Arg array;
@@ -318,7 +314,7 @@ AJ_Status PropertyStore_ReadAll(AJ_Message* msg, property_store_filter_t filter,
         return status;
     }
 
-    enum_field_indecies_t fieldIndex = 0;
+    enum_field_indices_t fieldIndex = 0;
     for (; fieldIndex < NUMBER_OF_KEYS; fieldIndex++) {
 #ifdef CONFIG_SERVICE
         if (theAboutConfigVar[fieldIndex].mode7Public && (filter.bit0About || (filter.bit1Config && theAboutConfigVar[fieldIndex].mode0Write) || (filter.bit2Announce && theAboutConfigVar[fieldIndex].mode1Announce))) {
@@ -402,7 +398,7 @@ AJ_Status PropertyStore_ReadAll(AJ_Message* msg, property_store_filter_t filter,
             return status;
         }
 
-        enum_lang_indecies_t index = NO_LANGUAGE_INDEX;
+        uint8_t index = NO_LANGUAGE_INDEX;
         for (; index < NUMBER_OF_LANGUAGES; index++) {
             status = AJ_MarshalArgs(msg, "s", theDefaultLanguages[index]);
             if (status != AJ_OK) {
@@ -428,7 +424,7 @@ AJ_Status PropertyStore_ReadAll(AJ_Message* msg, property_store_filter_t filter,
 }
 
 #ifdef CONFIG_SERVICE
-AJ_Status PropertyStore_Update(const char* key, enum_lang_indecies_t langIndex, const char* value)
+AJ_Status PropertyStore_Update(const char* key, int8_t langIndex, const char* value)
 {
     if (UpdateFieldInRAM(PropertyStore_GetIndexOfField(key), langIndex, value)) {
         return AJ_OK;
@@ -437,7 +433,7 @@ AJ_Status PropertyStore_Update(const char* key, enum_lang_indecies_t langIndex, 
     return AJ_ERR_FAILURE;
 }
 
-AJ_Status PropertyStore_Reset(const char* key, enum_lang_indecies_t langIndex)
+AJ_Status PropertyStore_Reset(const char* key, int8_t langIndex)
 {
     if (DeleteFieldFromRAM(PropertyStore_GetIndexOfField(key), langIndex)) {
         InitMandatoryPropertiesInRAM();

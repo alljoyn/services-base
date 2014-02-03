@@ -30,33 +30,46 @@
 const char* deviceManufactureName = "QCA";
 const char* deviceProductName = "AC";
 
-const char* theDefaultLanguages[NUMBER_OF_LANGUAGES] = { "en" };
+static const char* DEFAULT_LANGUAGE = "en";
+
+const uint8_t NUMBER_OF_LANGUAGES = 1;
+const char** theDefaultLanguages = { &DEFAULT_LANGUAGE };
 
 /**
  * property array of structure with defaults
  */
+static const char* EMPTY = { "" };
+static const char* DEFAULT_PASSCODE = "000000";
+static const char* DEFAULT_APP_NAME = "Controlee";
+static const char* DEFAULT_DESCRIPTION = "AC IOE device";
+static const char* DEFAULT_DEVICE_MODEL = "0.0.1";
+static const char* DEFAULT_DATE_OF_MANUFACTURE = "2014-02-01";
+static const char* DEFAULT_SOFTWARE_VERSION = "0.0.1";
+static const char* DEFAULT_HARDWARE_VERSION = "0.0.1";
+static const char* DEFAULT_SUPPORT_URL = "www.company_a.com";
+
 const property_store_entry_t theAboutConfigVar[NUMBER_OF_KEYS] =
 {
 //  { "Key Name 19 + '\0'  ", W, A, M, I .. . . ., P,       { "Value for lang1 32/64 + '\0'    "} },
-    { "DeviceId",             0, 1, 0, 1, 0, 0, 0, 1,       { "" } },
-    { "AppId",                0, 1, 0, 1, 0, 0, 0, 1,       { "" } },
-    { "DeviceName",           1, 1, 0, 1, 0, 0, 0, 1,       { "" } },
+    { "DeviceId",             0, 1, 0, 1, 0, 0, 0, 1,       { NULL } },
+    { "AppId",                0, 1, 0, 1, 0, 0, 0, 1,       { NULL } },
+    { "DeviceName",           1, 1, 0, 1, 0, 0, 0, 1,       { NULL } },
 // Add other persisted keys above this line
-    { "DefaultLanguage",      1, 1, 0, 0, 0, 0, 0, 1,       { "en" } },
-    { "Passcode",             1, 0, 0, 0, 0, 0, 0, 0,       { "000000" } },
-    { "RealmName",            1, 0, 0, 0, 0, 0, 0, 0,       { "" } },
+    { "DefaultLanguage",      1, 1, 0, 0, 0, 0, 0, 1,       { &DEFAULT_LANGUAGE} },
+    { "Passcode",             1, 0, 0, 0, 0, 0, 0, 0,       { &DEFAULT_PASSCODE } },
+    { "RealmName",            1, 0, 0, 0, 0, 0, 0, 0,       { NULL } },
 // Add other configurable keys above this line
-    { "AppName",              0, 1, 0, 0, 0, 0, 0, 1,       { "Controlee" } },
-    { "Description",          0, 0, 1, 0, 0, 0, 0, 1,       { "AC IOE device" } },
-    { "Manufacturer",         0, 1, 1, 0, 0, 0, 0, 1,       { "Company A(EN)" } },
-    { "ModelNumber",          0, 1, 0, 0, 0, 0, 0, 1,       { "0.0.1" } },
-    { "DateOfManufacture",    0, 0, 0, 0, 0, 0, 0, 1,       { "2013-05-01" } },
-    { "SoftwareVersion",      0, 0, 0, 0, 0, 0, 0, 1,       { "0.0.1" } },
-    { "AJSoftwareVersion",    0, 0, 0, 0, 0, 0, 0, 1,       { "3.4.0" } },
-    { "HardwareVersion",      0, 0, 0, 0, 0, 0, 0, 1,       { "0.0.1" } },
-    { "SupportUrl",           0, 0, 1, 0, 0, 0, 0, 1,       { "www.company_a.com" } },
+    { "AppName",              0, 1, 0, 0, 0, 0, 0, 1,       { &DEFAULT_APP_NAME } },
+    { "Description",          0, 0, 1, 0, 0, 0, 0, 1,       { &DEFAULT_DESCRIPTION } },
+    { "Manufacturer",         0, 1, 1, 0, 0, 0, 0, 1,       { &deviceManufactureName } },
+    { "ModelNumber",          0, 1, 0, 0, 0, 0, 0, 1,       { &DEFAULT_DEVICE_MODEL } },
+    { "DateOfManufacture",    0, 0, 0, 0, 0, 0, 0, 1,       { &DEFAULT_DATE_OF_MANUFACTURE } },
+    { "SoftwareVersion",      0, 0, 0, 0, 0, 0, 0, 1,       { &DEFAULT_SOFTWARE_VERSION } },
+    { "AJSoftwareVersion",    0, 0, 0, 0, 0, 0, 0, 1,       { NULL } },
+    { "HardwareVersion",      0, 0, 0, 0, 0, 0, 0, 1,       { &DEFAULT_HARDWARE_VERSION } },
+    { "SupportUrl",           0, 0, 1, 0, 0, 0, 0, 1,       { &DEFAULT_SUPPORT_URL } },
 #if     defined CONFIG_SERVICE
-    { "MaxLength",            0, 0, 1, 0, 0, 0, 0, 1,       { "" } }
+    { "MaxLength",            0, 0, 1, 0, 0, 0, 0, 1,       { NULL } }
 #endif
 // Add other about keys above this line
 };
