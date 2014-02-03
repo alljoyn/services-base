@@ -208,12 +208,32 @@ public class SenderTransport {
 	}//deleteLastMessage
 	
 	/**
+	 * Try to find and delete the notification by the given notifId, and then send dismiss session-less-signal 
+	 * @param notifId
+	 */
+	public void dismiss(int notifId) {
+		GenericLogger logger = nativePlatform.getNativeLogger();
+		Transport transport  = Transport.getInstance();
+		
+		logger.debug(TAG, "Dismiss method has been called, trying to find and delete the notification by its id: '" + notifId + "'");
+		deleteNotificationById(notifId);
+		
+		//Sending dismiss signal
+		try {
+			UUID appId = transport.getAppId(transport.readAllProperties());
+			DismissEmitter.send(notifId, appId);
+		} catch (NotificationServiceException nse) {
+			logger.error(TAG, "Unable to send the Dismiss signal for notifId: '" + notifId + "', Error: '" + nse.getMessage() + "'");
+		}
+	}//dismiss
+
+	/**
 	 * @param notifId The notification id of the notification message to be deleted
 	 */
-	public void acknowledge(int notifId) {
+	private void deleteNotificationById(int notifId) {
 		
 		GenericLogger logger = nativePlatform.getNativeLogger();
-		logger.debug(TAG, "Acknowledgement method has been called for notifId: '" + notifId + "', searching for the relevant object");
+		logger.debug(TAG, "Trying to delete the notification by id: '" + notifId + "', searching for the relevant object");
 		
 		boolean isObjFound = false;
 		
@@ -234,30 +254,10 @@ public class SenderTransport {
 				channelObj.releaseLock();   // release the lock and continue iterating
 			}
 			
-		}//for
+		}
 		
 		if ( !isObjFound ) {
-			logger.debug(TAG, "Failed to find the object with the notifId: '" + notifId + "'");
+			logger.debug(TAG, "Failed to find the Notification with Id: '" + notifId + "'");
 		}
-	}//acknowledge
-	
-	/**
-	 * Acknowledge the notification and then send the dismiss session-less-signal 
-	 * @param notifId
-	 */
-	public void dismiss(int notifId) {
-		GenericLogger logger = nativePlatform.getNativeLogger();
-		Transport transport  = Transport.getInstance();
-		
-		logger.debug(TAG, "Dismiss method has been called, first call for Acknowledgement for notifId: '" + notifId + "'");
-		acknowledge(notifId);
-		
-		//Sending dismiss signal
-		try {
-			UUID appId = transport.getAppId(transport.readAllProperties());
-			DismissEmitter.send(notifId, appId);
-		} catch (NotificationServiceException nse) {
-			logger.error(TAG, "Unable to send the Dismiss signal for notifId: '" + notifId + "', Error: '" + nse.getMessage() + "'");
-		}
-	}//dismiss
+	}
 }

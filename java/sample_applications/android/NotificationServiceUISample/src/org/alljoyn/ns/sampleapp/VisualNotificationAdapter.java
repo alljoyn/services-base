@@ -218,22 +218,22 @@ public class VisualNotificationAdapter extends ArrayAdapter<VisualNotification> 
 			row.setBackgroundColor(Color.rgb(255, 248, 177));
 		}
 		
-		//Decide what is the UI state of the Ack|Dismiss|Action buttons
+		//Decide what is the UI state of the Dismiss|Action buttons
 		updateReceiverControlButtonsState();
 
 		return row;
 	}//getView
 	
 	/**
-	 * Update the state of the Ack|Dismiss|Action buttons in depend on the {@link VisualNotification#getCheckedCounter()}
+	 * Update the state of the Dismiss|Action buttons in depend on the {@link VisualNotification#getCheckedCounter()}
 	 */
 	private void updateReceiverControlButtonsState() {
 		
 		int checkedCounter = VisualNotification.getCheckedCounter();
-		if ( checkedCounter == 0 ) {        // Call to disable the Ack|Dismiss|Action button
+		if ( checkedCounter == 0 ) {        // Call to disable the Dismiss|Action button
 			((NotificationServiceControlsActivity) activityContext).enableReceiverControlButtons(false);
 		}
-		else if ( checkedCounter == 1 ) {   // Call to enable the Ack|Dismiss|Action button
+		else if ( checkedCounter == 1 ) {   // Call to enable the Dismiss|Action button
 			((NotificationServiceControlsActivity) activityContext).enableReceiverControlButtons(true);
 		}
 	}//updateDeleteButtonsState

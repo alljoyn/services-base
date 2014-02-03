@@ -73,24 +73,6 @@ class NotificationProducerImpl implements NotificationProducer {
 	}//init
 
 	/**
-	 * @see org.alljoyn.ns.transport.interfaces.NotificationProducer#acknowledge(int)
-	 */
-	@Override
-	public void acknowledge(final int msgId) throws BusException {
-		GenericLogger logger = nativePlatform.getNativeLogger();
-		logger.debug(TAG, "Received Acknowledgement for: '" + msgId + "', delegating to be executed");
-		
-		Transport.getInstance().getBusAttachment().enableConcurrentCallbacks();
-		
-		TaskManager.getInstance().enqueue(new Runnable() {
-			@Override
-			public void run() {
-				senderTransport.acknowledge(msgId);
-			}
-		});
-	}//acknowledge
-
-	/**
 	 * @see org.alljoyn.ns.transport.interfaces.NotificationProducer#dismiss(int)
 	 */
 	@Override
