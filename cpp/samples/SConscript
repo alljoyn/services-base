@@ -1,4 +1,4 @@
-# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+# Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
@@ -21,9 +21,9 @@ samples_env.Append(CPPPATH = samples_env.Dir('$APP_COMMON_DIR/cpp/samples_common
 samples_env.Append(CPPDEFINES = 'USE_SAMPLE_LOGGER')
 samples_env.Prepend(LIBS = ['alljoyn_notification', 'alljoyn_about', 'alljoyn_services_common'])
 
-if samples_env['BD'] == 'on' and samples_env.has_key('bdobj') and samples_env.has_key('bdlib'):
+if samples_env['BR'] == 'on' and samples_env.has_key('brobj') and samples_env.has_key('ajrlib'):
     # Build apps with bundled daemon support
-    samples_env.Prepend(LIBS = [samples_env['bdobj'], samples_env['bdlib']])
+    samples_env.Prepend(LIBS = [samples_env['brobj'], samples_env['ajrlib']])
     samples_env.Append(CPPDEFINES='QCC_USING_BD')
 
 
