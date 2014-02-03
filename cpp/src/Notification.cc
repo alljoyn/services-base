@@ -190,19 +190,6 @@ void Notification::setSender(const char* sender) {
     m_Sender = sender;
 }
 
-QStatus Notification::acknowledge()
-{
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug(TAG, "Notification::acknowledge() called");
-    }
-
-    NotificationMsg* notificationMsg = new NotificationMsg(NotificationMsg::ACKNOWLEDGE, getOriginalSender(), getMessageId(), getAppId());
-    m_AsyncTaskQueue.Enqueue(notificationMsg);
-
-    return ER_OK;
-}
-
 QStatus Notification::dismiss()
 {
     GenericLogger* logger = NotificationService::getInstance()->getLogger();
@@ -216,7 +203,7 @@ QStatus Notification::dismiss()
         logger->debug(TAG, String(std::string(stm.str()).c_str()));
     }
 
-    NotificationMsg* notificationMsg = new NotificationMsg(NotificationMsg::DISMISS, getOriginalSender(), getMessageId(), getAppId());
+    NotificationMsg* notificationMsg = new NotificationMsg(getOriginalSender(), getMessageId(), getAppId());
     m_AsyncTaskQueue.Enqueue(notificationMsg);
 
     return ER_OK;

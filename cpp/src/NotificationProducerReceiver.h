@@ -29,10 +29,9 @@ namespace services {
  */
 class MsgQueueContent {
   public:
-    MsgQueueContent(uint32_t msgId, bool toDismiss = false) : m_MsgId(msgId), m_ToDismiss(toDismiss) { }
+    MsgQueueContent(uint32_t msgId) : m_MsgId(msgId) { }
 
     uint32_t m_MsgId;
-    bool m_ToDismiss;
 };
 
 /**
@@ -53,13 +52,6 @@ class NotificationProducerReceiver : public ajn::services::NotificationProducer 
      * destructor of NotificationProducerReceiver
      */
     ~NotificationProducerReceiver();
-
-    /**
-     * Handles  Acknowledge method
-     * @param[in]  member
-     * @param[in]  msg reference of AllJoyn Message
-     */
-    void Acknowledge(const ajn::InterfaceDescription::Member* member, ajn::Message& msg);
 
     /**
      *  Handles  Dismiss method
@@ -84,7 +76,7 @@ class NotificationProducerReceiver : public ajn::services::NotificationProducer 
     /**
      * implement method calls from notification producer interface
      */
-    void HandleMethodCall(const ajn::InterfaceDescription::Member* member, ajn::Message& msg, bool sendDismissSignal = false);
+    void HandleMethodCall(const ajn::InterfaceDescription::Member* member, ajn::Message& msg);
 
     /**
      * The thread responsible for receiving the notification

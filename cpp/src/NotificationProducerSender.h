@@ -40,14 +40,7 @@ class NotificationProducerSender : public ajn::services::NotificationProducer {
      * destructor of NotificationProducerSender
      */
     ~NotificationProducerSender();
-    /*
-     * calls method Acknowledge at the producer side
-     * @param bus attachment
-     * @param relevant session id
-     * @param elevant message id
-     * @return status
-     */
-    QStatus Acknowledge(const char* busName, ajn::SessionId sessionId, int32_t mgsId);
+
     /*
      * calls method Dismiss at the producer side
      * @param bus attachment

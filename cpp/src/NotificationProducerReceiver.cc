@@ -42,15 +42,6 @@ NotificationProducerReceiver::NotificationProducerReceiver(ajn::BusAttachment* b
 
     GenericLogger* logger = NotificationService::getInstance()->getLogger();
 
-    status = AddMethodHandler(m_InterfaceDescription->GetMember(AJ_ACKNOWLEDGE_METHOD_NAME.c_str()),
-                              static_cast<MessageReceiver::MethodHandler>(&NotificationProducerReceiver::Acknowledge));
-    if (status != ER_OK) {
-        if (logger) {
-            logger->error(TAG, "AddMethodHandler failed.");
-        }
-        return;
-    }
-
     status = AddMethodHandler(m_InterfaceDescription->GetMember(AJ_DISMISS_METHOD_NAME.c_str()),
                               static_cast<MessageReceiver::MethodHandler>(&NotificationProducerReceiver::Dismiss));
     if (status != ER_OK) {
@@ -93,15 +84,6 @@ void NotificationProducerReceiver::unregisterHandler(BusAttachment* bus)
     pthread_mutex_destroy(&m_Lock);
 }
 
-void NotificationProducerReceiver::Acknowledge(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
-{
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug(TAG, "NotificationProducerReceiver::Acknowledge()");
-    }
-    HandleMethodCall(member, msg);
-}
-
 void* NotificationProducerReceiver::ReceiverThreadWrapper(void* context)
 {
     GenericLogger* logger = NotificationService::getInstance()->getLogger();
@@ -122,10 +104,10 @@ void NotificationProducerReceiver::Dismiss(const ajn::InterfaceDescription::Memb
     if (logger) {
         logger->debug(TAG, "NotificationProducerReceiver::Dismiss()");
     }
-    HandleMethodCall(member, msg, true);
+    HandleMethodCall(member, msg);
 }
 
-void NotificationProducerReceiver::HandleMethodCall(const ajn::InterfaceDescription::Member* member, ajn::Message& msg, bool sendDismissSignal)
+void NotificationProducerReceiver::HandleMethodCall(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
 {
     GenericLogger* logger = NotificationService::getInstance()->getLogger();
     if (logger) {
@@ -154,7 +136,7 @@ void NotificationProducerReceiver::HandleMethodCall(const ajn::InterfaceDescript
     MethodReply(msg, args, 0);
     pthread_mutex_lock(&m_Lock);
     {
-        MsgQueueContent msgQueueContent(msgId, sendDismissSignal);
+        MsgQueueContent msgQueueContent(msgId);
         m_MessageQueue.push(msgQueueContent);
         if (logger) {
             logger->debug(TAG, "HandleMethodCall() - message pushed");
@@ -188,9 +170,7 @@ void NotificationProducerReceiver::Receiver()
             }
             pthread_mutex_unlock(&m_Lock);
             Transport::getInstance()->deleteMsg(message.m_MsgId);
-            if (message.m_ToDismiss) {
-                sendDismissSignal(message.m_MsgId);
-            }
+            sendDismissSignal(message.m_MsgId);
             pthread_mutex_lock(&m_Lock);
         }
         pthread_cond_wait(&m_QueueChanged, &m_Lock);

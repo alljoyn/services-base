@@ -95,9 +95,6 @@ static const qcc::String AJ_SA_INTERFACE_NAME = "org.alljoyn.Notification.Supera
 
 static const qcc::String AJ_NOTIFICATION_PRODUCER_INTERFACE = "org.alljoyn.Notification.Producer";
 static const qcc::String AJ_NOTIFICATION_PRODUCER_PATH = "/notificationProducer";
-static const qcc::String AJ_ACKNOWLEDGE_METHOD_NAME = "Acknowledge";
-static const qcc::String AJ_ACKNOWLEDGE_METHOD_PARAMS = "i";
-static const qcc::String AJ_ACKNOWLEDGE_METHOD_PARAMS_NAMES = "msgId";
 static const qcc::String AJ_DISMISS_METHOD_NAME = "Dismiss";
 static const qcc::String AJ_DISMISS_METHOD_PARAMS = "i";
 static const qcc::String AJ_DISMISS_METHOD_PARAMS_NAMES = "msgId";

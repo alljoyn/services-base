@@ -47,7 +47,7 @@ NotificationDismisserReceiver::NotificationDismisserReceiver(BusAttachment* bus,
     pthread_cond_init(&m_QueueChanged, NULL);
 
     status =  bus->RegisterSignalHandler(this,
-                                         static_cast<MessageReceiver::SignalHandler>(&NotificationDismisserReceiver::handleSignal),
+                                         static_cast<MessageReceiver::SignalHandler>(&NotificationDismisserReceiver::Signal),
                                          m_SignalMethod,
                                          NULL);
     if (logger) {
@@ -61,7 +61,7 @@ NotificationDismisserReceiver::NotificationDismisserReceiver(BusAttachment* bus,
 }
 
 
-void NotificationDismisserReceiver::handleSignal(const InterfaceDescription::Member* member, const char* srcPath, Message& msg)
+void NotificationDismisserReceiver::Signal(const InterfaceDescription::Member* member, const char* srcPath, Message& msg)
 {
     GenericLogger* logger = NotificationService::getInstance()->getLogger();
     if (logger) {
@@ -85,7 +85,7 @@ void NotificationDismisserReceiver::unregisterHandler(BusAttachment* bus)
     pthread_join(m_ReceiverThread, NULL);
 
     bus->UnregisterSignalHandler(this,
-                                 static_cast<MessageReceiver::SignalHandler>(&NotificationDismisserReceiver::handleSignal),
+                                 static_cast<MessageReceiver::SignalHandler>(&NotificationDismisserReceiver::Signal),
                                  m_SignalMethod,
                                  NULL);
 

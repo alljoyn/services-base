@@ -50,14 +50,6 @@ NotificationProducer::NotificationProducer(ajn::BusAttachment* bus, QStatus& sta
             return;
         }
 
-        status = m_InterfaceDescription->AddMethod(AJ_ACKNOWLEDGE_METHOD_NAME.c_str(), AJ_ACKNOWLEDGE_METHOD_PARAMS.c_str(), NULL, AJ_ACKNOWLEDGE_METHOD_PARAMS_NAMES.c_str());
-        if (status != ER_OK) {
-            if (logger) {
-                logger->debug(TAG, "AddMethod failed:" + String(QCC_StatusText(status)));
-            }
-            return;
-        }
-
         status = m_InterfaceDescription->AddMethod(AJ_DISMISS_METHOD_NAME.c_str(), AJ_DISMISS_METHOD_PARAMS.c_str(), NULL, AJ_DISMISS_METHOD_PARAMS_NAMES.c_str());
         if (status != ER_OK) {
             if (logger) {
