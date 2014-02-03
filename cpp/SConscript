@@ -1,4 +1,4 @@
-# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+# Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
@@ -17,10 +17,10 @@ Import('onb_env')
 
 if not onb_env.has_key('_ALLJOYNCORE_'):
     onb_env.Append(LIBS = ['alljoyn'])
-    if onb_env['BD'] == 'on' :
-        bdFile = onb_env.subst('$DISTDIR') + '/cpp/lib/BundledDaemon.o'
-        onb_env['bdobj'] = File(bdFile)
-        onb_env['bdlib'] = 'ajdaemon'
+    if onb_env['BR'] == 'on' :
+        brFile = onb_env.subst('$DISTDIR') + '/cpp/lib/BundledRouter.o'
+        onb_env['brobj'] = File(brFile)
+        onb_env['ajrlib'] = 'ajrouter'
     if onb_env['OS'] == 'openwrt':
         onb_env.AppendUnique(LIBS = [ 'stdc++', 'pthread' ])
 
