@@ -1,0 +1,182 @@
+#    Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
+# 
+#    Permission to use, copy, modify, and/or distribute this software for any
+#    purpose with or without fee is hereby granted, provided that the above
+#    copyright notice and this permission notice appear in all copies.
+#
+#    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+#    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+#    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+#    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+#    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+#    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+#    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+import os
+import shutil
+import urllib2
+
+#test
+vars = Variables()
+
+vars.Add('ANDROID_SDK_PATH', 'Andorid sdk path to be used','')
+
+env = Environment()
+vars.Update(env)
+Help(vars.GenerateHelpText(env))
+
+
+if env['ANDROID_SDK_PATH']=='': 
+    if os.environ.has_key('ANDROID_SDK_PATH'):    	
+	env.Append(ANDROID_SDK_PATH=os.environ['ANDROID_SDK_PATH'])
+    else:	   	 
+    	print "didn't find ANDROID_SDK_PATH"
+	exit(1)	
+
+
+print 'ANDROID_SDK_PATH='+env['ANDROID_SDK_PATH']
+
+
+if os.path.exists('java/jar/alljoyn.jar'):
+ 
+   if not os.path.exists('services/about/java/build.xml'):  	
+	  print "didn't find services/about/java/build.xml terminate"
+	  exit(1)
+
+   if not os.path.exists('applications/sample_apps/android/common_utils/build.xml'):
+	 print "didn't find applications/sample_apps/android/common_utils/build.xml terminate"
+	 exit(1)
+
+   if not os.path.exists('services/config/java/build.xml'):  	
+	  print "didn't find services/config/java/build.xml terminate"
+	  exit(1)
+
+
+   if not os.path.exists('services/onboarding/java/OnboardingService/build.xml'):  	
+   	  print "didn't find services/onboarding/java/OnboardingService/build.xml terminate"
+   	  exit(1)
+ 
+
+
+   if not os.path.exists('services/about/java/libs'):
+	os.makedirs('services/about/java/libs')
+
+   if not os.path.exists('applications/sample_apps/android/common_utils/libs'):
+	os.makedirs('applications/sample_apps/android/common_utils/libs')
+   
+   if not os.path.exists('services/config/java/libs'):
+	os.makedirs('services/config/java/libs')
+
+   if not os.path.exists('services/onboarding/java/OnboardingService/libs'):
+	os.makedirs('services/onboarding/java/OnboardingService/libs')
+
+   if not os.path.exists('services/onboarding/java/OnboardingSDK/android/libs'):
+    	os.makedirs('services/onboarding/java/OnboardingSDK/android/libs')
+
+   if not os.path.exists('services/onboarding/java/OnboardingSDK/android/libs/armeabi'):
+   	os.makedirs('services/onboarding/java/OnboardingSDK/android/libs/armeabi')	 	 
+   
+  
+   	
+
+   #########################################################################################################################	
+   ### copy  alljoyn jar to all needed places.  
+   shutil.copyfile('java/jar/alljoyn.jar','services/about/java/libs/alljoyn.jar') 
+   shutil.copyfile('java/jar/alljoyn.jar','applications/sample_apps/android/common_utils/libs/alljoyn.jar') 
+
+   shutil.copyfile('java/jar/alljoyn.jar','services/config/java/libs/alljoyn.jar') 
+   shutil.copyfile('java/jar/alljoyn.jar','services/onboarding/java/OnboardingService/libs/alljoyn.jar')    
+ 
+   shutil.copyfile('java/jar/alljoyn.jar','services/onboarding/java/OnboardingSDK/android/libs/alljoyn.jar')
+   shutil.copyfile('java/lib/liballjoyn_java.so','services/onboarding/java/OnboardingSDK/android/libs/armeabi/liballjoyn_java.so') 
+
+   ######################################################################################################################################################################
+
+
+   #######################################################################################################################################################################
+   #### build About Service
+   about_ret=os.system(' ant -buildfile services/about/java/build.xml jar')
+   
+   if (about_ret<>0):
+   	print "erro generating About jars terminate"
+   	exit(1) 
+   #######################################################################################################################################################################
+
+  
+	
+   #######################################################################################################################################################################
+   #### build Android common utils
+   shutil.copyfile('services/about/java/build/deploy/'+'alljoyn_about.jar', 		'applications/sample_apps/android/common_utils/libs/'+ 'alljoyn_about.jar') 
+   shutil.copyfile('services/about/java/build/deploy/'+'alljoyn_services_common.jar',   'applications/sample_apps/android/common_utils/libs/'+ 'alljoyn_services_common.jar')
+
+   andrid_common_utils =os.system(' ant -Dsdk.dir='+env['ANDROID_SDK_PATH']+'  -buildfile applications/sample_apps/android/common_utils/build.xml  jar')
+   
+   if (andrid_common_utils<>0):
+   	print "erro generating Android common utils jars terminate"
+   	exit(1) 
+   #######################################################################################################################################################################
+
+
+
+   #######################################################################################################################################################################
+   #### build Config service
+
+   shutil.copyfile('services/about/java/build/deploy/'+'alljoyn_about.jar', 		'services/config/java/libs/'+ 'alljoyn_about.jar') 
+   shutil.copyfile('services/about/java/build/deploy/'+'alljoyn_services_common.jar',   'services/config/java/libs/'+ 'alljoyn_services_common.jar')
+
+   config_ret=os.system(' ant -buildfile services/config/java/build.xml jar')
+   
+   if (config_ret<>0):
+   	print "erro generating Config jars terminate"
+   	exit(1) 
+   #######################################################################################################################################################################
+  
+
+
+   #######################################################################################################################################################################
+   #### build Onboarding service
+
+   shutil.copyfile('services/about/java/build/deploy/'+  	'alljoyn_about.jar', 			'services/onboarding/java/OnboardingService/libs/'+ 'alljoyn_about.jar') 
+   shutil.copyfile('services/about/java/build/deploy/'+		'alljoyn_services_common.jar',  	'services/onboarding/java/OnboardingService/libs/'+ 'alljoyn_services_common.jar')
+   shutil.copyfile('services/config/java/build/deploy/'+	'alljoyn_config.jar',   		'services/onboarding/java/OnboardingService/libs/'+ 'alljoyn_config.jar')
+  	   
+   onboarding_ret=os.system(' ant -buildfile services/onboarding/java/OnboardingService/build.xml jar')
+   
+   if (onboarding_ret<>0):
+   	print "erro generating Onboardig jars terminate"
+   	exit(1) 
+   #######################################################################################################################################################################
+
+
+   
+
+   	
+   
+   ######################################################################################################################################################
+   ### Prepare Android for eclipse
+   dest_path='services/onboarding/java/OnboardingSDK/android/libs/'			 
+   
+   shutil.copyfile('services/about/java/build/deploy/'+  	'alljoyn_about.jar', 		dest_path+ 'alljoyn_about.jar') 
+   shutil.copyfile('services/about/java/build/deploy/'+		'alljoyn_services_common.jar',  dest_path+ 'alljoyn_services_common.jar')
+   shutil.copyfile('services/config/java/build/deploy/'+	'alljoyn_config.jar',   	dest_path+ 'alljoyn_config.jar')
+   shutil.copyfile('services/onboarding/java/OnboardingService/build/deploy/'+	'alljoyn_onboarding.jar',   	dest_path+ 'alljoyn_onboarding.jar')
+   
+   shutil.copyfile('applications/sample_apps/android/common_utils/build/deploy/'+'alljoyn_apps_android_utils.jar',	dest_path+'alljoyn_apps_android_utils.jar')  
+   
+  
+   	    
+   #os.system(' ant -Dsdk.dir='+env['ANDROID_SDK_PATH']+' -buildfile alljoyn_on/android/IoTHub/iot/IskDashboard/build.xml release')
+else:
+   print "didn't find alljoyn.jar terminate"
+   exit(1)
+	
+
+   print "found about"
+
+
+
+#if ('java' in bindings) and os.path.exists('alljoyn_java/SConscript'):
+#    installedFiles += env.SConscript(['alljoyn_java/SConscript'])
+
+
+
