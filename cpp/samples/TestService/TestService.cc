@@ -444,12 +444,11 @@ void createListOfFunctions(TestFunction*testFunctions)
     checkNumFunctions(&i);
     // ResponseToNotification
     testFunctions[i].functionName  = "responsetonotification";
-    testFunctions[i].usage = testFunctions[i].functionName + " action=<0,1,2>";
+    testFunctions[i].usage = testFunctions[i].functionName + " action=<0-Nothing,1-Dismiss>";
     testFunctions[i].activateTest = ResponseToNotification;
     testFunctions[i].requiredSteps.push_back("Service");
     testFunctions[i].requiredSteps.push_back("Receiver");
     testFunctions[i].requiredParams.push_back("action");
-
 
     i++;
     checkNumFunctions(&i);

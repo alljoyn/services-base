@@ -36,15 +36,10 @@ namespace services {
 class NotificationMsg : public TaskData {
   public:
     /**
-     * enum for type of message
-     */
-    enum MethodCall { ACKNOWLEDGE, DISMISS };
-
-    /**
      * NotificationMsg constructor
      */
-    NotificationMsg(MethodCall methodCall, const char* originalSender, int32_t messageId, const char* appId) :
-        m_MethodCall(methodCall), m_OriginalSender(originalSender), m_MessageId(messageId), m_AppId(appId)
+    NotificationMsg(const char* originalSender, int32_t messageId, const char* appId) :
+        m_OriginalSender(originalSender), m_MessageId(messageId), m_AppId(appId)
     {
     }
     /**
@@ -55,10 +50,6 @@ class NotificationMsg : public TaskData {
     }
 
   public:
-    /**
-     * The method call
-     */
-    const MethodCall m_MethodCall;
     /**
      * The original sender of the notification
      */
@@ -291,17 +282,9 @@ class Notification {
      */
     void setSender(const char* sender);
     /**
-     * acknowledge
-     */
-    QStatus acknowledge();
-    /**
      * dismiss
      */
     QStatus dismiss();
-    /**
-     * sendDismissSignal
-     */
-    QStatus sendDismissSignal();
 
     /**
      * Responsible to get and handle events comming from the queue.
@@ -309,7 +292,7 @@ class Notification {
     static NotificationAsyncTaskEvents m_NotificationAsyncTaskEvents;
     /**
      * Purpose is to handle tasks asynchronously.
-     * Handling user acknowledge and dismiss of the notification.
+     * Handling user dismiss of the notification.
      */
     static AsyncTaskQueue m_AsyncTaskQueue;
 

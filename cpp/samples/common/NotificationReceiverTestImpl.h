@@ -32,7 +32,6 @@ class NotificationReceiverTestImpl : public ajn::services::NotificationReceiver 
   public:
     enum NotificationAction {
         ACTION_NOTHING,
-        ACTION_ACKNOWLEDGE,
         ACTION_DISMISS
     };
     /**

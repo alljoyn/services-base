@@ -120,7 +120,7 @@ void NotificationReceiverTestImpl::Receive(Notification const& notification) {
             pthread_mutex_lock(&m_Lock);
             pthread_cond_wait(&m_Condition, &m_Lock);
         } else {
-            std::cout << "Notification action (0-Nothing 1-Acknowledge 2-Dismiss):" << std::endl;
+            std::cout << "Notification action (0-Nothing 1-Dismiss):" << std::endl;
             int32_t notificationAction(NotificationAction::ACTION_NOTHING);
             scanf("%d", &notificationAction);
             m_NotificationAction = static_cast<NotificationAction>(notificationAction);
@@ -128,13 +128,6 @@ void NotificationReceiverTestImpl::Receive(Notification const& notification) {
         switch (GetNotificationAction()) {
         case ACTION_NOTHING:
             std::cout << "Nothing planed to do with the notification message id:" << nonConstNotification.getMessageId() << std::endl;
-            break;
-
-        case ACTION_ACKNOWLEDGE:
-            {
-                std::cout << "going to call acknowledge for message id:" << nonConstNotification.getMessageId() << std::endl;
-                nonConstNotification.acknowledge();
-            }
             break;
 
         case ACTION_DISMISS:

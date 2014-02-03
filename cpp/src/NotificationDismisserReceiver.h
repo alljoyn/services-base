@@ -50,8 +50,8 @@ class NotificationDismisserReceiver : public NotificationDismisser {
      * @param srcPath   Object path of signal emitter.
      * @param message   The received message.
      */
-    void handleSignal(const ajn::InterfaceDescription::Member* member,
-                      const char* srcPath, ajn::Message& msg);
+    void Signal(const ajn::InterfaceDescription::Member* member,
+                const char* srcPath, ajn::Message& msg);
 
     /**
      * To stop thread processing of messages

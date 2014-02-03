@@ -24,8 +24,8 @@ namespace services {
 
 /**
  * NotificationProducer
- * This class has methods to acknowledge a notification and make the producer to stop the signal
- * or to dismiss the notification and in addition to acknowledge implementation - the producer will send dismiss signal to notify other entities.
+ * This class has method to dismiss the notification.
+ * The producer will send dismiss signal to notify other entities.
  */
 class NotificationProducer : public ajn::BusObject {
 

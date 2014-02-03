@@ -66,9 +66,8 @@ void NotificationAsyncTaskEvents::OnTask(TaskData const* taskData)
         if (logger) {
             logger->warn("NotificationAsyncTaskEvents", String("JoinSession to ") + notificationMsg->m_OriginalSender + String("failed (status=") + String(QCC_StatusText(status)) + String(")"));
         }
-        if (notificationMsg->m_MethodCall == NotificationMsg::DISMISS) {
-            sendDismissSignal(notificationMsg);
-        }
+
+        sendDismissSignal(notificationMsg);
         return;
     } else {
         if (logger) {
@@ -84,24 +83,19 @@ void NotificationAsyncTaskEvents::OnTask(TaskData const* taskData)
         return;
     }
 
-    if (notificationMsg->m_MethodCall == NotificationMsg::ACKNOWLEDGE) {
-        status = pNotificationProducerSender->Acknowledge(notificationMsg->m_OriginalSender.c_str(), sessionId, notificationMsg->m_MessageId);
-    } else if (notificationMsg->m_MethodCall == NotificationMsg::DISMISS) {
-        status = pNotificationProducerSender->Dismiss(notificationMsg->m_OriginalSender.c_str(), sessionId, notificationMsg->m_MessageId);
-        if (status != ER_OK) {
-            if (logger) {
-                logger->debug("NotificationAsyncTaskEvents", "Dismiss failed" + String(QCC_StatusText(status)));
-            }
-            sendDismissSignal(taskData);
-        } else {
-            if (logger) {
-                logger->debug("NotificationAsyncTaskEvents", "Dismiss succeeded");
-            }
+    status = pNotificationProducerSender->Dismiss(notificationMsg->m_OriginalSender.c_str(), sessionId, notificationMsg->m_MessageId);
+    if (status != ER_OK) {
+        if (logger) {
+            logger->debug("NotificationAsyncTaskEvents", "Dismiss failed" + String(QCC_StatusText(status)));
+        }
+        sendDismissSignal(taskData);
+    } else {
+        if (logger) {
+            logger->debug("NotificationAsyncTaskEvents", "Dismiss succeeded");
         }
     }
 
     status = Transport::getInstance()->getBusAttachment()->LeaveSession(sessionId);
-
 }
 
 void NotificationAsyncTaskEvents::sendDismissSignal(TaskData const* taskData)
