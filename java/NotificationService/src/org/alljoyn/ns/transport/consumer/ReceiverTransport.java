@@ -33,6 +33,7 @@ import org.alljoyn.ns.NotificationReceiver;
 import org.alljoyn.ns.NotificationServiceException;
 import org.alljoyn.ns.commons.GenericLogger;
 import org.alljoyn.ns.commons.NativePlatform;
+import org.alljoyn.ns.transport.TaskManager;
 import org.alljoyn.ns.transport.Transport;
 import org.alljoyn.ns.transport.TransportNotificationText;
 import org.alljoyn.ns.transport.interfaces.NotificationDismisser;
@@ -284,7 +285,7 @@ public class ReceiverTransport implements AnnouncementHandler {
 		}
 
 		try {
-			Transport.getInstance().dispatchTask(
+			 TaskManager.getInstance().execute (
 					new Runnable() {
 						@Override
 						public void run() {
@@ -309,7 +310,7 @@ public class ReceiverTransport implements AnnouncementHandler {
 		logger.debug(TAG, "Received the Dismiss signal notifId: '" + msgId + "', from the appId: '" + appId + "', delivering to the NotificationReceiver");
 		
 		try {
-			Transport.getInstance().dispatchTask(
+			TaskManager.getInstance().execute(
 					new Runnable() {
 						@Override
 						public void run() {

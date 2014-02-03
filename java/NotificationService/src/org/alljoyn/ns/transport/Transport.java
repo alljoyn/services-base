@@ -21,7 +21,6 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.RejectedExecutionException;
 
 import org.alljoyn.about.AboutKeys;
 import org.alljoyn.bus.BusAttachment;
@@ -40,8 +39,8 @@ import org.alljoyn.ns.transport.consumer.ReceiverTransport;
 import org.alljoyn.ns.transport.producer.SenderTransport;
 import org.alljoyn.services.android.storage.Property;
 import org.alljoyn.services.common.PropertyStore;
-import org.alljoyn.services.common.PropertyStoreException;
 import org.alljoyn.services.common.PropertyStore.Filter;
+import org.alljoyn.services.common.PropertyStoreException;
 
 /**
  * The main transport controller class 
@@ -80,11 +79,6 @@ public class Transport {
 	 * Reference to BusAttachment object
 	 */
 	private BusAttachment busAttachment;
-	
-	/**
-	 * The thread pool that is used to execute a variety of service tasks to release AllJoyn thread as soon as possible
-	 */
-	private WorkersPoolManager workerPool;
 	
 	/**
 	 * Received TRUE if sender transport was already called
@@ -180,8 +174,9 @@ public class Transport {
 		//Store the received busAttachment or verify if already exists
 		saveBus(bus);
 		
-		if ( workerPool == null ) {
-			workerPool = new WorkersPoolManager(nativePlatform);
+		TaskManager taskManager = TaskManager.getInstance();
+		if ( !taskManager.isRunning() ) {
+			taskManager.initPool(nativePlatform);
 		}
 		
 		this.propertyStore = propertyStore;
@@ -217,8 +212,9 @@ public class Transport {
 		
 		saveBus(bus);
 		
-		if ( workerPool == null ) {
-			workerPool = new WorkersPoolManager(nativePlatform);
+		TaskManager taskManager = TaskManager.getInstance();
+		if ( !taskManager.isRunning() ) {
+			taskManager.initPool(nativePlatform);
 		}
 		
 		receiverTransport = new ReceiverTransport(nativePlatform, receiver);
@@ -360,26 +356,6 @@ public class Transport {
 		
 		receiverTransport.onReceivedFirstSuperAgentNotification(superAgentUniqueName);
 	}//onReceivedFirstSuperAgentNotification
-	
-	/**
-	 * Executed task the given {@link Runnable} task on the {@link WorkersPoolManager} 
-	 * @param task
-	 * @throws RejectedExecutionException Might be thrown when there was no a free thread to execute the task
-	 */
-	public void dispatchTask(Runnable task) {
-		
-		GenericLogger logger;
-		try {
-			logger = getLogger();
-		}
-		catch (NotificationServiceException nse) {
-		    System.out.println("Could not get logger in dispatchTask error: '" + nse.getMessage() + "'");
-		    return;
-		}
-		
-		logger.debug(TAG, "Dispatching a runnable task to WorkersPoolManager");
-		workerPool.execute(task);
-	}//dispatchTask
 	
 	/**
 	 * Stop Notification Service
@@ -536,9 +512,9 @@ public class Transport {
 			
 			logger.debug(TAG, "Receiver is not running, clearing common resources");
 			
-			if ( workerPool != null ) {
-				workerPool.shutdown();
-				workerPool = null;
+			TaskManager taskManager = TaskManager.getInstance();
+			if ( taskManager.isRunning() ) {
+				taskManager.shutdown();
 			}
 			
 			busAttachment = null;
@@ -565,9 +541,9 @@ public class Transport {
 			
 			logger.debug(TAG, "Sender is not running, clearing common resources");
 			
-			if ( workerPool != null ) {
-				workerPool.shutdown();
-				workerPool = null;
+			TaskManager taskManager = TaskManager.getInstance();
+			if ( taskManager.isRunning() ) {
+				taskManager.shutdown();
 			}
 			
 			busAttachment = null;
