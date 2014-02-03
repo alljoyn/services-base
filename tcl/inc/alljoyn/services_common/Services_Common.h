@@ -71,7 +71,7 @@ extern uint8_t isRebootRequired;
  * @param langIndex
  * @return success
  */
-uint8_t Common_IsLanguageSupported(AJ_Message* msg, AJ_Message* reply, const char* language, enum_lang_indecies_t* langIndex);
+uint8_t Common_IsLanguageSupported(AJ_Message* msg, AJ_Message* reply, const char* language, int8_t* langIndex);
 
 /*!
    \brief Length of the AppID field

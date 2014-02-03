@@ -17,11 +17,11 @@
 #include <alljoyn/services_common/PropertyStore.h>
 #include <alljoyn/services_common/Services_Common.h>
 
-uint8_t Common_IsLanguageSupported(AJ_Message* msg, AJ_Message* reply, const char* language, enum_lang_indecies_t* langIndex)
+uint8_t Common_IsLanguageSupported(AJ_Message* msg, AJ_Message* reply, const char* language, int8_t* langIndex)
 {
     uint8_t supported = TRUE;
-    enum_lang_indecies_t foundLangIndex = PropertyStore_GetLanguageIndex(language);
-    if ((int8_t)foundLangIndex == (int8_t)ERROR_LANGUAGE_INDEX) {
+    int8_t foundLangIndex = PropertyStore_GetLanguageIndex(language);
+    if (foundLangIndex == AJSVC_PROPERTY_STORE_ERROR_LANGUAGE_INDEX) {
         AJ_MarshalErrorMsg(msg, reply, AJSVC_ERROR_LANGUAGE_NOT_SUPPORTED);
         supported = FALSE;
     }
