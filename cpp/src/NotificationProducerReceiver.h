@@ -19,6 +19,7 @@
 
 #include "NotificationProducer.h"
 #include <queue>
+#include <pthread.h>
 
 namespace ajn {
 namespace services {

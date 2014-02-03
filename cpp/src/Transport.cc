@@ -170,7 +170,7 @@ QStatus Transport::deleteMsg(int32_t msgId)
     }
     QStatus ret = ER_OK;
 
-    for (size_t i  = 0; i < NotificationMessageType::MESSAGE_TYPE_CNT; i++) {
+    for (size_t i  = 0; i < ajn::services::MESSAGE_TYPE_CNT; i++) {
         if (m_Producers[i] == 0) {
             if (logger) {
                 logger->warn(TAG, "Could not delete message, Sender is not initialized");
