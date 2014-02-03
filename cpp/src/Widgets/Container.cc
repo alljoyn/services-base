@@ -157,6 +157,9 @@ QStatus Container::addChildren(BusAttachment* bus)
         std::vector<qcc::String> splitObjectPath = ControlPanelService::SplitObjectPath(objectPath.c_str());
         qcc::String name = splitObjectPath.back();
         Widget* widget = createWidget(name, this, m_Device, childNodes[i].getWidgetType());
+        if (widget == NULL) {
+            continue;
+        }
         widget->setIsSecured(childNodes[i].isSecured());
         QStatus childStatus = widget->registerObjects(bus, objectPath);
         if (childStatus == ER_OK) {
