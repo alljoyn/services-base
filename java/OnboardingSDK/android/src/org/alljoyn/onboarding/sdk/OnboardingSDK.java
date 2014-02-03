@@ -33,7 +33,7 @@ import org.alljoyn.bus.Variant;
 import org.alljoyn.onboarding.OnboardingService.AuthType;
 import org.alljoyn.onboarding.client.OnboardingClient;
 import org.alljoyn.onboarding.client.OnboardingClientImpl;
-import org.alljoyn.onboarding.sdk.DeviceResponse.ResponseCode;
+import org.alljoyn.onboarding.sdk.OnboardingSDK.DeviceResponse.ResponseCode;
 import org.alljoyn.onboarding.transport.OnboardingTransport;
 import org.alljoyn.services.common.AnnouncementHandler;
 import org.alljoyn.services.common.BusObjectDescription;
@@ -92,12 +92,10 @@ import android.util.Pair;
  *      <li> {@link #STATE_CHANGE_ACTION} action with extra
  *         <ul>
  *            <li>{@link #EXTRA_ONBOARDING_STATE} extra information of enum  {@link OnboardingState}
- *            <li>{@link #EXTRA_WIFI_AP_TYPE} extra information if enum  {@link WifiApType}
  *         </ul>
  *      <li>{@link #ERROR} action with extra
  *          <ul>
  *            <li>{@link #EXTRA_ERROR_DETAILS} extra information of enum {@link OnboardingErrorType}
- *            <li>{@link #EXTRA_WIFI_AP_TYPE}  extra information of enum {@link WifiApType}
  *         </ul>
  *    </ul>
  *
@@ -129,22 +127,22 @@ public class OnboardingSDK {
     /**
      * The lookup key for list of onboardee access points
      */
-    public static final String EXTRA_ONBOARDEES = "org.alljoyn.onboardingsdk.intent_keys.ONBOARDEES";
+    public static final String EXTRA_ONBOARDEES_AP = "org.alljoyn.onboardingsdk.intent_keys.onboardeesAP";
 
     /**
      * The lookup key for list of target access points
      */
-    public static final String EXTRA_TARGETS = "org.alljoyn.onboardingsdk.intent_keys.TARGETS";
+    public static final String EXTRA_TARGETS_AP = "org.alljoyn.onboardingsdk.intent_keys.targetsAP";
+
+    /**
+     * The lookup key for list of all access points
+     */
+    public static final String EXTRA_ALL_AP = "org.alljoyn.onboardingsdk.intent_keys.allAP";
 
     /**
      * The lookup key for Onboarding state reported by the SDK
      */
     public static final String EXTRA_ONBOARDING_STATE = "org.alljoyn.onboardingsdk.intent_keys.onboardingState";
-
-    /**
-     * The lookup key for WIFI details reported by the SDK
-     */
-    public static final String EXTRA_WIFI_AP_TYPE = "org.alljoyn.onboardingsdk.intent_keys.wifiApType";
 
     /**
      * The lookup key for ERROR details reported by the SDK
@@ -180,61 +178,93 @@ public class OnboardingSDK {
     public static enum OnboardingErrorType {
 
         /**
-         * WIFI authentication error
+         * Wi-Fi is disabled.
          */
-        WIFI_AUTH(0),
+        WIFI_DISABLED(0),
 
         /**
-         * WIFI connection request timed out
+         * Onboardee Wi-Fi authentication error.
          */
-        WIFI_TIMEOUT(1),
+        ONBOARDEE_WIFI_AUTH(10),
 
         /**
-         * Announcement failed to arrive in due time from onboardee while
-         * connected to onboardee WIFI
+         *Target Wi-Fi authentication error.
          */
-        FIND_ONBOARDEE_TIMEOUT(2),
+        TARGET_WIFI_AUTH(11),
 
         /**
-         * Failed to establish connection
+         * Onboardee Wi-Fi connection timeout.
          */
-        CONNECTION_FAILED(3),
+        ONBOARDEE_WIFI_TIMEOUT(12),
 
         /**
-         * Failed to send WIFI credentials to onboardee
+         * Target Wi-Fi connection timeout.
          */
-        CONFIGURATION_FAILED(4),
+        TARGET_WIFI_TIMEOUT(13),
 
         /**
-         * Announcement failed to arrive in due time from onboardee while
-         * connected to target WIFI
+         * Timeout while searching for onboardee.
          */
-        VERIFICATION_TIMEOUT(5),
+        FIND_ONBOARDEE_TIMEOUT(14),
 
         /**
-         * Device doesn't support onboarding interface
+         * Error while establishing AllJoyn session.
          */
-        ONBOARDING_NOT_SUPPORTED(6),
+        JOIN_SESSION_ERROR(15),
 
         /**
-         * Failed to offboard the device
+         * Timeout while establishing AllJoyn session.
          */
-        OFFBOARDING_FAILED(7),
+        JOIN_SESSION_TIMEOUT(16),
 
         /**
-         * Announce data is invald.
+         * Error while configuring onboardee with target credentials.
          */
-        INVALID_ANNOUNCE_DATA(8),
+        ERROR_CONFIGURING_ONBOARDEE(17),
 
         /**
-         * SDK has encountered interanl error
+         * Timeout while waiting to receive announcement from onboardee on target network.
          */
-        INTERNAL_ERROR(9);
+        VERIFICATION_TIMEOUT(18),
+
+        /**
+         *Failed ot offboard a device from target.
+         */
+        OFFBOARDING_FAILED(20),
+
+        /**
+         *Announce data is inavalid.
+         */
+        INVALID_ANNOUNCE_DATA(21),
+
+        /**
+         *Wi-Fi connection timeout {@link OnboardingSDK#connectToNetwork(WiFiNetworkConfiguration, long)}
+         */
+        OTHER_WIFI_TIMEOUT(30),
+
+        /**
+         *Wi-Fi authentication error {@link OnboardingSDK#connectToNetwork(WiFiNetworkConfiguration, long)}
+         */
+        OTHER_WIFI_AUTH(31),
+
+        /**
+         *Wi-Fi connection timeout {@link OnboardingSDK#abortOnboarding()}
+         */
+        ORIGINAL_WIFI_TIMEOUT(32),
+
+        /**
+         *Wi-Fi authentication error {@link OnboardingSDK#abortOnboarding()}
+         */
+        ORIGINAL_WIFI_AUTH(33),
+
+        /**
+         *SDK internal error
+         */
+        INTERNAL_ERROR(40);
 
         private int value;
 
-        private static String strings[] = { "WIFI_AUTH", "WIFI_TIMEOUT", "FIND_ONBOARDEE_TIMEOUT", "CONNECTION_FAILED", "CONFIGURATION_FAILED", "VERIFICATION_TIMEOUT", "ONBOARDING_NOT_SUPPORTED",
-                "OFFBOARDING_FAILED", "INVALID_ANNOUNCE_DATA", "INTERNAL_ERROR" };
+
 
         private OnboardingErrorType(int value) {
             this.value = value;
@@ -257,79 +287,9 @@ public class OnboardingSDK {
 
         public static OnboardingErrorType getOnboardingErrorTypeByString(String str) {
             OnboardingErrorType retType = null;
-            for (int i = 0; i < strings.length; i++) {
-                if (str.equals(strings[i])) {
-                    return OnboardingErrorType.values()[i];
-                }
-            }
-            return retType;
-        }
-
-        @Override
-        public String toString() {
-            return strings[value];
-        }
-
-    };
-
-
-    /**
-     * These enumeration values are used to indicate the type of the access
-     * point used
-     *
-     * see also
-     * {@link #EXTRA_WIFI_AP_TYPE}
-     */
-    public static enum WifiApType {
-
-        /**
-         * Onboardee device
-         */
-        ONBOARDEE(0),
-
-        /**
-         * Target device
-         */
-        TARGET(1),
-
-        /**
-         * Original device
-         */
-        ORIGINAL(2),
-
-        /**
-         * Other
-         */
-        OTHER(3);
-
-        private int value;
-
-        private static String strings[] = { "ONBOARDEE", "TARGET", "ORIGINAL", "OTHER", };
-
-        private WifiApType(int value) {
-            this.value = value;
-        }
-
-        public int getValue() {
-            return value;
-        }
-
-        public static WifiApType getWifiApTypeByValue(int value) {
-            WifiApType retType = null;
-            for (WifiApType type : WifiApType.values()) {
-                if (value == type.getValue()) {
+            for (OnboardingErrorType type : OnboardingErrorType.values()) {
+                if (type.name().equals(str)) {
                     retType = type;
-                    break;
-                }
-            }
-            return retType;
-        }
-
-        public static WifiApType getWifiApTypeByString(String str) {
-            WifiApType retType = null;
-            for (int i = 0; i < strings.length; i++) {
-                if (str.equals(strings[i])) {
-                    return WifiApType.values()[i];
                 }
             }
             return retType;
@@ -337,7 +297,7 @@ public class OnboardingSDK {
 
         @Override
         public String toString() {
-            return strings[value];
+            return this.name();
         }
 
     };
@@ -356,12 +316,12 @@ public class OnboardingSDK {
         /**
          * Connecting to onboardee Wi-Fi
          */
-        CONNECTING_WIFI(0),
+        CONNECTING_ONBOARDEE_WIFI(0),
 
         /**
          * Connected to onboardee Wi-Fi
          */
-        CONNECTED_WIFI(1),
+        CONNECTED_ONBOARDEE_WIFI(1),
 
         /**
          * Waiting for announcement from onboardee
@@ -376,12 +336,12 @@ public class OnboardingSDK {
         /**
          * Creating AllJoyn session with onboardee
          */
-        CONNECTING_ONBOARDEE(4),
+        JOINING_SESSION(4),
 
         /**
          * AllJoyn session established with onboardee
          */
-        CONNECTED_ONBOARDEE(5),
+        SESSION_JOINED(5),
 
         /**
          * Sending target credentials to onboardee
@@ -396,12 +356,12 @@ public class OnboardingSDK {
         /**
          * Connecting to WIFI target
          */
-        CONNECTING_TARGET(8),
+        CONNECTING_TARGET_WIFI(8),
 
         /**
          * Wi-Fi connection with target established
          */
-        CONNECTED_TARGET(9),
+        CONNECTED_TARGET_WIFI(9),
 
         /**
          * Wait for announcement from onboardee over target WIFI
@@ -414,14 +374,38 @@ public class OnboardingSDK {
         VERIFIED_ONBOARDED(11),
 
         /**
-         * Abort has been completed
+         *Connecting  to the original network before calling {@link OnboardingSDK#runOnboarding(OnboardingConfiguration)}.
          */
-        ABORT_COMPLETED(12);
+        CONNECTING_ORIGINAL_WIFI(12),
+
+        /**
+         *Connected  to the original network before calling {@link OnboardingSDK#runOnboarding(OnboardingConfiguration)}.
+         */
+        CONNECTED_ORIGINAL_WIFI(13),
+
+        /**
+         *Connecting  to the selected network {@link  OnboardingSDK#connectToNetwork(WiFiNetworkConfiguration, long)}.
+         */
+        CONNECTING_OTHER_WIFI(14),
+
+        /**
+         * Connected to the selected network {@link  OnboardingSDK#connectToNetwork(WiFiNetworkConfiguration, long)}.
+         */
+        CONNECTED_OTHER_WIFI(15),
+
+        /**
+         * Aborting has been started.
+         */
+        ABORTING(20),
+
+        /**
+         * Aborting has been completed.
+         */
+        ABORTED(21);
+
+
 
         private int value;
-
-        private static String strings[] = { "CONNECTING_WIFI", "CONNECTED_WIFI", "FINDING_ONBOARDEE", "FOUND_ONBOARDEE", "CONNECTING_ONBOARDEE", "CONNECTED_ONBOARDEE", "CONFIGURING_ONBOARDEE",
-                "CONFIGURED_ONBOARDEE", "CONNECTING_TARGET", "CONNECTED_TARGET", "VERIFYING_ONBOARDED", "VERIFIED_ONBOARDED", "ABORT_COMPLETED" };
 
         private OnboardingState(int value) {
             this.value = value;
@@ -444,9 +428,10 @@ public class OnboardingSDK {
 
         public static OnboardingState getOnboardingStateByString(String str) {
             OnboardingState retType = null;
-            for (int i = 0; i < strings.length; i++) {
-                if (str.equals(strings[i])) {
-                    return OnboardingState.values()[i];
+            for (OnboardingState type : OnboardingState.values()) {
+                if (type.name().equals(str)) {
+                    retType = type;
+                    break;
                 }
             }
             return retType;
@@ -454,15 +439,117 @@ public class OnboardingSDK {
 
         @Override
         public String toString() {
-            return strings[value];
+            return this.name();
         }
+    }
+
+
+    /**
+     * These enumeration values are used to filter Wi-Fi scan result {@link OnboardingSDK#scanWiFi()}
+     */
+    public static enum WifiFilter{
+
+        /**
+         * Wi-Fi access point name that contains the following prefix {@link OnboardingSDKWifiManager#ONBOARDABLE_PREFIX} or suffix  {@link OnboardingSDKWifiManager#ONBOARDABLE_SUFFIX}
+         */
+        ONBOARDABLE,
+
+        /**
+         * Wi-Fi access point name that doesn't contain the following prefix {@link OnboardingSDKWifiManager#ONBOARDABLE_PREFIX} or suffix  {@link OnboardingSDKWifiManager#ONBOARDABLE_SUFFIX}
+         */
+        TARGET,
+
+        /**
+         * Wi-Fi access point name .
+         */
+        ALL
+    }
+
+
+    /**
+     * DeviceResponse is a class used internally to encapsulate possible errors that
+     * may occur during AllJoyn transactions carried by the SDK
+     */
+    static class DeviceResponse {
+
+        /**
+         * enumeration of possible ResponseCodes
+         */
+        public enum ResponseCode {
+            /**
+             * AllJoyn transaction successful
+             */
+            Status_OK,
+            /**
+             * AllJoyn transaction general error
+             */
+            Status_ERROR,
+            /**
+             * AllJoyn session creation error
+             */
+            Status_ERROR_CANT_ESTABLISH_SESSION
+        }
+
+        /**
+         * holds the response code.
+         */
+        private final ResponseCode status;
+
+        /**
+         * holds the description of the error.
+         */
+        private String description = null;
+
+        /**
+         * DeviceResponse Constructor
+         *
+         * @param status
+         *            {@link #status}
+         *
+         */
+        public DeviceResponse(ResponseCode status) {
+            this.status = status;
+        }
+
+        /**
+         * DeviceResponse Constructor
+         *
+         * @param status
+         *            {@link #status}
+         * @param description
+         *            {@link #description}
+         *
+         */
+        public DeviceResponse(ResponseCode status, String description) {
+            this.status = status;
+            this.description = description;
+        }
+
+        /**
+         * Get {@link #status}
+         *
+         * @return the status code {@link #status}
+         */
+        public ResponseCode getStatus() {
+            return status;
+        }
+
+        /**
+         * Get {@link #description}
+         *
+         * @return the error description {@link #description}
+         */
+        public String getDescription() {
+            return description;
+        }
+
     }
 
 
     /**
      * TAG for debug information
      */
-    private final static String TAG = "OnBoardingSDK";
+    private final static String TAG = "OnboardingSDK";
 
     /**
      * Default timeout for Wi-Fi connection {@value #DEFAULT_WIFI_CONNECTION_TIMEOUT} msec
@@ -471,7 +558,7 @@ public class OnboardingSDK {
 
     /**
      * Default timeout for waiting for
-     * {@link AboutTransport#Announce(short, short, org.alljoyn.services.common.BusObjectDescription[], java.util.Map)}
+     * {@link AboutTransport#Announce(short, short, org.alljoyn.services.common.BusObjectDescription[], java.util.Map)} {@value #DEFAULT_ANNOUNCEMENT_TIMEOUT} msec
      */
     public static final int DEFAULT_ANNOUNCEMENT_TIMEOUT = 25000;
 
@@ -524,7 +611,7 @@ public class OnboardingSDK {
 
     /**
      * BroadcastReceiver for intents from OnboardingsdkWifiManager while running
-     * {@link #connectToNetwork(WiFiNetworkConfiguration, int)}.
+     * {@link #connectToNetwork(WiFiNetworkConfiguration, long)}
      */
     private BroadcastReceiver connectToNetworkWifiBroadcastReceiver = null;
 
@@ -555,6 +642,11 @@ public class OnboardingSDK {
     private AboutService aboutService=null;
 
     /**
+     * Stores the original network name before starting onboarding process.
+     */
+    private String originalNetwork;
+
+    /**
      *  Handles About Service announcements
      */
     private final AnnouncementHandler announcementHandler=new AnnouncementHandler() {
@@ -580,13 +672,17 @@ public class OnboardingSDK {
                 Log.e(TAG, "onAnnouncement: received null device uuid!! ignoring.");
                 return;
             } else {
-                Log.e(TAG, "onAnnouncement: received UUID " + uniqueId);
+                Log.d(TAG, "onAnnouncement: received UUID " + uniqueId);
             }
 
             switch (currentState) {
 
             case WAITING_FOR_ONBOARDEE_ANNOUNCEMENT:
-                setState(State.ONBOARDEE_ANNOUNCEMENT_RECEIVED, new AnnounceData(serviceName, port, objectDescriptions, serviceMetadata));
+                if (isSeviceSupported(objectDescriptions, OnboardingTransport.INTERFACE_NAME)) {
+                    setState(State.ONBOARDEE_ANNOUNCEMENT_RECEIVED, new AnnounceData(serviceName, port, objectDescriptions, serviceMetadata));
+                }else{
+                    Log.e(TAG, "onAnnouncement: for device UUID "+deviceData.getAppUUID()+ " doesn't support onboarding interface");
+                }
                 break;
 
             case WAITING_FOR_TARGET_ANNOUNCE:
@@ -825,21 +921,39 @@ public class OnboardingSDK {
      *            The application context
      * @param allJoynManagmentCallback
      *            a callback for invoking BusAttachment recycling.
-     * @throws IllegalArgumentException
+     * @throws OnboardingIllegalArgumentException
      *             if either of the parameters is null.
-     * @throws IllegalStateException
+     * @throws OnboardingIllegalStateException
      *             if already initialized.
      */
-    public void init(Context context, AllJoynManagmentCallback allJoynManagmentCallback) throws IllegalArgumentException, IllegalStateException {
+    public void init(Context context, AllJoynManagmentCallback allJoynManagmentCallback) throws OnboardingIllegalArgumentException, OnboardingIllegalStateException {
         if (context == null || allJoynManagmentCallback == null) {
-            throw new IllegalArgumentException();
+            throw new OnboardingIllegalArgumentException();
         }
         if (this.context != null || this.onboardingSDKWifiManager != null) {
-            throw new IllegalStateException();
+            throw new OnboardingIllegalStateException();
         }
         this.context = context;
         this.onboardingSDKWifiManager = new OnboardingSDKWifiManager(context);
         this.alljoynManagmentCallback = allJoynManagmentCallback;
+    }
+
+
+    /**
+     * Terminate the SDK .
+     * @throws OnboardingIllegalStateException if not in IDLE state ,need to abort first.
+     */
+    public void shutDown() throws OnboardingIllegalStateException {
+        if (currentState==State.IDLE){
+            this.context=null;
+            this.alljoynManagmentCallback=null;
+            this.onboardingSDKWifiManager=null;
+            if (aboutService!=null){
+                aboutService.removeAnnouncementHandler(announcementHandler);
+            }
+        }else{
+            throw new OnboardingIllegalStateException("Not in IDLE state ,please Abort first");
+        }
     }
 
 
@@ -850,16 +964,17 @@ public class OnboardingSDK {
      * @param bus
      *            The AllJoyn BusAttachment
      *
-     * @throws IllegalArgumentException
+     * @throws OnboardingIllegalArgumentException
      *             if any of the parameters is null
      *
      */
-    public void update(AboutService aboutService, BusAttachment bus) throws IllegalArgumentException {
+    public void update(AboutService aboutService, BusAttachment bus) throws OnboardingIllegalArgumentException {
         if (aboutService == null || bus == null) {
-            throw new IllegalArgumentException();
+            throw new OnboardingIllegalArgumentException();
         }
         this.bus = bus;
         this.aboutService=aboutService;
+        aboutService.addAnnouncementHandler(announcementHandler);
     }
 
 
@@ -885,8 +1000,7 @@ public class OnboardingSDK {
                 if (WIFI_CONNECTED_BY_REQUEST_ACTION.equals(action)) {
                     context.unregisterReceiver(onboardingWifiBroadcastReceiver);
                     extras.clear();
-                    extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTED_WIFI.toString());
-                    extras.putString(EXTRA_WIFI_AP_TYPE, WifiApType.ONBOARDEE.toString());
+                    extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTED_ONBOARDEE_WIFI.toString());
                     sendBroadcast(STATE_CHANGE_ACTION, extras);
                     setState(State.WAITING_FOR_ONBOARDEE_ANNOUNCEMENT);
                 }
@@ -894,16 +1008,14 @@ public class OnboardingSDK {
                 if (WIFI_TIMEOUT_ACTION.equals(action)) {
                     context.unregisterReceiver(onboardingWifiBroadcastReceiver);
                     extras.clear();
-                    extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.WIFI_TIMEOUT.toString());
-                    extras.putString(EXTRA_WIFI_AP_TYPE, WifiApType.ONBOARDEE.toString());
+                    extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.ONBOARDEE_WIFI_TIMEOUT.toString());
                     sendBroadcast(ERROR, extras);
                     setState(State.ERROR_CONNECTING_TO_ONBOARDEE);
                 }
 
                 if (WIFI_AUTHENTICATION_ERROR.equals(action)) {
                     extras.clear();
-                    extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.WIFI_AUTH.toString());
-                    extras.putString(EXTRA_WIFI_AP_TYPE, WifiApType.ONBOARDEE.toString());
+                    extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.ONBOARDEE_WIFI_AUTH.toString());
                     sendBroadcast(ERROR, extras);
                     context.unregisterReceiver(onboardingWifiBroadcastReceiver);
                     setState(State.ERROR_CONNECTING_TO_ONBOARDEE);
@@ -912,8 +1024,7 @@ public class OnboardingSDK {
         };
         context.registerReceiver(onboardingWifiBroadcastReceiver, wifiIntentFilter);
         extras.clear();
-        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTING_WIFI.toString());
-        extras.putString(EXTRA_WIFI_AP_TYPE, WifiApType.ONBOARDEE.toString());
+        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTING_ONBOARDEE_WIFI.toString());
         sendBroadcast(STATE_CHANGE_ACTION, extras);
         onboardingSDKWifiManager.connectToWifiAP(onboardingConfiguration.getOnboardee().getSSID(), onboardingConfiguration.getOnboardee().getAuthType(), onboardingConfiguration.getOnboardee()
                 .getPassword(), onboardingConfiguration.getOnboardeeConnectionTimeout());
@@ -928,10 +1039,14 @@ public class OnboardingSDK {
      */
     private void handleWaitForOnboardeeAnnounceState() {
         Bundle extras = new Bundle();
+        //this is a temporery fix (see AllJoynManagmentCallback) before alljoynManagmentCallback.reconnectToBus() need to release the onboardingClient.
+        if (onboardingClient!=null){
+            onboardingClient.disconnect();
+            onboardingClient=null;
+        }
         alljoynManagmentCallback.reconnectToBus();
         extras.clear();
         extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.FINDING_ONBOARDEE.toString());
-        extras.putString(EXTRA_WIFI_AP_TYPE, WifiApType.ONBOARDEE.toString());
         sendBroadcast(STATE_CHANGE_ACTION, extras);
         if (!startAnnouncementTimeout()) {
             extras.clear();
@@ -957,25 +1072,16 @@ public class OnboardingSDK {
         Bundle extras = new Bundle();
         extras.clear();
         extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.FOUND_ONBOARDEE.toString());
-        extras.putString(EXTRA_WIFI_AP_TYPE, WifiApType.ONBOARDEE.toString());
         sendBroadcast(STATE_CHANGE_ACTION, extras);
 
-        if (isSeviceSupported(announceData.getObjectDescriptions(), OnboardingTransport.INTERFACE_NAME)) {
-            Log.d(TAG, "handleOnboardeeAnnouncementReceivedState ONBOARDEE_ANNOUNCEMENT_RECEIVED supporting  org.alljoyn.Onboarding");
-            deviceData = new DeviceData();
-            try {
-                deviceData.setAnnounceData(announceData);
-                setState(State.JOINING_SESSION, announceData);
-            } catch (BusException e) {
-                Log.e(TAG, "handleOnboardeeAnnouncementReceivedState DeviceData.setAnnounceObject failed with BusException. ", e);
-                extras.clear();
-                extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.INVALID_ANNOUNCE_DATA.toString());
-                sendBroadcast(ERROR, extras);
-                setState(State.ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED);
-            }
-        } else {
+        deviceData = new DeviceData();
+        try {
+            deviceData.setAnnounceData(announceData);
+            setState(State.JOINING_SESSION, announceData);
+        } catch (BusException e) {
+            Log.e(TAG, "handleOnboardeeAnnouncementReceivedState DeviceData.setAnnounceObject failed with BusException. ", e);
             extras.clear();
-            extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.ONBOARDING_NOT_SUPPORTED.toString());
+            extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.INVALID_ANNOUNCE_DATA.toString());
             sendBroadcast(ERROR, extras);
             setState(State.ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED);
         }
@@ -991,18 +1097,18 @@ public class OnboardingSDK {
     private void handleJoiningSessionState(AnnounceData announceData) {
         Bundle extras = new Bundle();
         extras.clear();
-        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTING_ONBOARDEE.toString());
+        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.JOINING_SESSION.toString());
         sendBroadcast(STATE_CHANGE_ACTION, extras);
 
         ResponseCode response = establishSessionWithDevice(announceData).getStatus();
         if (response == ResponseCode.Status_OK) {
             extras.clear();
-            extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTED_ONBOARDEE.toString());
+            extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.SESSION_JOINED.toString());
             sendBroadcast(STATE_CHANGE_ACTION, extras);
             setState(State.CONFIGURING_ONBOARDEE);
         } else {
             extras.clear();
-            extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.CONNECTION_FAILED.toString());
+            extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.JOIN_SESSION_ERROR.toString());
             sendBroadcast(ERROR, extras);
             setState(State.ERROR_JOINING_SESSION);
         }
@@ -1023,7 +1129,7 @@ public class OnboardingSDK {
             setState(State.CONNECTING_TO_TARGET_WIFI_AP);
         } else {
             extras.clear();
-            extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.CONFIGURATION_FAILED.toString());
+            extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.ERROR_CONFIGURING_ONBOARDEE.toString());
             sendBroadcast(ERROR, extras);
             setState(State.ERROR_CONFIGURING_ONBOARDEE);
         }
@@ -1048,12 +1154,7 @@ public class OnboardingSDK {
 
                     if (WIFI_CONNECTED_BY_REQUEST_ACTION.equals(action)) {
                         context.unregisterReceiver(onboardingWifiBroadcastReceiver);
-                        extras.clear();
-                        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTED_WIFI.toString());
-                        extras.putString(EXTRA_WIFI_AP_TYPE, WifiApType.TARGET.toString());
-                        sendBroadcast(STATE_CHANGE_ACTION, extras);
-                        extras.clear();
-                        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTED_TARGET.toString());
+                        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTED_TARGET_WIFI.toString());
                         sendBroadcast(STATE_CHANGE_ACTION, extras);
                         setState(State.WAITING_FOR_TARGET_ANNOUNCE);
                     }
@@ -1061,16 +1162,14 @@ public class OnboardingSDK {
                     if (WIFI_TIMEOUT_ACTION.equals(action)) {
                         context.unregisterReceiver(onboardingWifiBroadcastReceiver);
                         extras.clear();
-                        extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.WIFI_TIMEOUT.toString());
-                        extras.putString(EXTRA_WIFI_AP_TYPE, WifiApType.TARGET.toString());
+                        extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.TARGET_WIFI_TIMEOUT.toString());
                         sendBroadcast(ERROR, extras);
                         setState(State.ERROR_CONNECTING_TO_TARGET_WIFI_AP);
                     }
                     if (WIFI_AUTHENTICATION_ERROR.equals(action)) {
                         context.unregisterReceiver(onboardingWifiBroadcastReceiver);
                         extras.clear();
-                        extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.WIFI_AUTH.toString());
-                        extras.putString(EXTRA_WIFI_AP_TYPE, WifiApType.TARGET.toString());
+                        extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.TARGET_WIFI_AUTH.toString());
                         sendBroadcast(ERROR, extras);
                         setState(State.ERROR_CONNECTING_TO_TARGET_WIFI_AP);
                     }
@@ -1079,11 +1178,10 @@ public class OnboardingSDK {
         };// receiver
         context.registerReceiver(onboardingWifiBroadcastReceiver, wifiIntentFilter);
         extras.clear();
-        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTING_WIFI.toString());
-        extras.putString(EXTRA_WIFI_AP_TYPE, WifiApType.TARGET.toString());
+        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTING_ONBOARDEE_WIFI.toString());
         sendBroadcast(STATE_CHANGE_ACTION, extras);
         extras.clear();
-        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTING_TARGET.toString());
+        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTING_TARGET_WIFI.toString());
         sendBroadcast(STATE_CHANGE_ACTION, extras);
         onboardingSDKWifiManager.connectToWifiAP(onboardingConfiguration.getTarget().getSSID(), onboardingConfiguration.getTarget().getAuthType(), onboardingConfiguration.getTarget().getPassword(),
                 onboardingConfiguration.getTargetConnectionTimeout());
@@ -1099,7 +1197,6 @@ public class OnboardingSDK {
         Bundle extras = new Bundle();
         extras.clear();
         extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.VERIFYING_ONBOARDED.toString());
-        extras.putString(EXTRA_WIFI_AP_TYPE, WifiApType.TARGET.toString());
         sendBroadcast(STATE_CHANGE_ACTION, extras);
         if (!startAnnouncementTimeout()) {
             extras.clear();
@@ -1128,7 +1225,6 @@ public class OnboardingSDK {
         Bundle extras = new Bundle();
         extras.clear();
         extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.VERIFIED_ONBOARDED.toString());
-        extras.putString(EXTRA_WIFI_AP_TYPE, WifiApType.TARGET.toString());
         sendBroadcast(STATE_CHANGE_ACTION, extras);
 
         setState(State.IDLE);
@@ -1235,6 +1331,11 @@ public class OnboardingSDK {
 
         case WAITING_FOR_TARGET_ANNOUNCE:
             currentState = State.WAITING_FOR_TARGET_ANNOUNCE;
+            //this is a temporery fix (see AllJoynManagmentCallback) before calling  alljoynManagmentCallback.reconnectToBus() need to release the onboardingClient.
+            if (onboardingClient!=null){
+                onboardingClient.disconnect();
+                onboardingClient=null;
+            }
             alljoynManagmentCallback.reconnectToBus();
             handleWaitForTargetAnnounceState();
             break;
@@ -1314,27 +1415,27 @@ public class OnboardingSDK {
      * @return status of operation.
      */
     private DeviceResponse establishSessionWithDevice(final AnnounceData announceData) {
-        if (onboardingClient == null) {
-            try {
-                if (announceData.serviceName == null) {
-                    return new DeviceResponse(ResponseCode.Status_ERROR, "announceData.serviceName == null");
-                }
-                if (announceData.getPort() == 0) {
-                    return new DeviceResponse(ResponseCode.Status_ERROR, "announceData.getPort() == 0");
-                }
-                onboardingClient = new OnboardingClientImpl(announceData.getServiceName(), bus, new ServiceAvailabilityListener() {
-                    @Override
-                    public void connectionLost() {
-                        // expected. we are onboarding the device, hence sending
-                        // it the another network.
-                        Log.d(TAG, "establishSessionWithDevice connectionLost");
-                    }
-                }, announceData.getPort());
-            } catch (Exception e) {
-                Log.e(TAG, "establishSessionWithDevice Exception: ", e);
-                return new DeviceResponse(ResponseCode.Status_ERROR);
+
+        try {
+            if (announceData.serviceName == null) {
+                return new DeviceResponse(ResponseCode.Status_ERROR, "announceData.serviceName == null");
             }
+            if (announceData.getPort() == 0) {
+                return new DeviceResponse(ResponseCode.Status_ERROR, "announceData.getPort() == 0");
+            }
+            onboardingClient = new OnboardingClientImpl(announceData.getServiceName(), bus, new ServiceAvailabilityListener() {
+                @Override
+                public void connectionLost() {
+                    // expected. we are onboarding the device, hence sending
+                    // it the another network.
+                    Log.d(TAG, "establishSessionWithDevice connectionLost");
+                }
+            }, announceData.getPort());
+        } catch (Exception e) {
+            Log.e(TAG, "establishSessionWithDevice Exception: ", e);
+            return new DeviceResponse(ResponseCode.Status_ERROR);
         }
+
         try {
             ResponseCode connectToDeviceStatus = connectToDevice(onboardingClient).getStatus();
             if (connectToDeviceStatus != ResponseCode.Status_OK) {
@@ -1395,27 +1496,27 @@ public class OnboardingSDK {
     private DeviceResponse offboardDevice(String serviceName, short port) {
         Bundle extras = new Bundle();
         extras.putString(EXTRA_DEVICE_INFORMATION, serviceName);
-        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTING_ONBOARDEE.toString());
+        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.JOINING_SESSION.toString());
         sendBroadcast(STATE_CHANGE_ACTION, extras);
 
-        if (onboardingClient == null) {
-            try {
-                onboardingClient = new OnboardingClientImpl(serviceName, bus, new ServiceAvailabilityListener() {
-                    @Override
-                    public void connectionLost() {
-                        // expected. we are offboarding the device...
-                        Log.d(TAG, "offboardDevice connectionLost");
-                    }
-                }, port);
-            } catch (Exception e) {
-                Log.e(TAG, "offboardDevice Exception: ", e);
-                return new DeviceResponse(ResponseCode.Status_ERROR);
-            }
+
+        try {
+            onboardingClient = new OnboardingClientImpl(serviceName, bus, new ServiceAvailabilityListener() {
+                @Override
+                public void connectionLost() {
+                    // expected. we are offboarding the device...
+                    Log.d(TAG, "offboardDevice connectionLost");
+                }
+            }, port);
+        } catch (Exception e) {
+            Log.e(TAG, "offboardDevice Exception: ", e);
+            return new DeviceResponse(ResponseCode.Status_ERROR);
         }
+
 
         extras.clear();
         extras.putString(EXTRA_DEVICE_INFORMATION, serviceName);
-        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTED_ONBOARDEE.toString());
+        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.SESSION_JOINED.toString());
         sendBroadcast(STATE_CHANGE_ACTION, extras);
 
         try {
@@ -1511,36 +1612,46 @@ public class OnboardingSDK {
      *   <ul>
      *      <li>{@link #WIFI_SCAN_RESULTS_AVAILABLE_ACTION} action with this extra
      *         <ul>
-     *            <li>{@link #EXTRA_ONBOARDEES} extra information containg ArrayList of {@link WiFiNetwork}
-     *            <li>{@link #EXTRA_TARGETS} extra information containg ArrayList of {@link WiFiNetwork}
+     *            <li>{@link #EXTRA_ONBOARDEES_AP} extra information containg ArrayList of {@link WiFiNetwork}
+     *            <li>{@link #EXTRA_TARGETS_AP} extra information containg ArrayList of {@link WiFiNetwork}
+     *            <li>{@link #EXTRA_ALL_AP} extra information containg ArrayList of {@link WiFiNetwork}
      *         </ul>
      *    <ul>
+     *
+     *@throws WifiDisabledException if Wi-Fi is not enabled.
      */
-    public void scanWiFi() {
+    public void scanWiFi() throws WifiDisabledException{
+        if (!onboardingSDKWifiManager.isWifiEnabled()){
+            throw new WifiDisabledException();
+        }
         onboardingSDKWifiManager.scan();
     }
 
 
-    /**
-     * @return a list of Wi-Fi networks to which the SDK can onboard a device.
-     */
-    public List<WiFiNetwork> getCandidateTargetNetworks() {
-        return onboardingSDKWifiManager.getNonOnboardableAccessPoints();
-    }
-
-
-    /**
-     * @return a list of networks that the SDK can onboard .
-     */
-    public List<WiFiNetwork> getOnboardableDevices() {
-        return onboardingSDKWifiManager.getOnboardableAccessPoints();
+/**
+ *  Retrieves list of access points after scan was complete.
+ * @param filter of Wi-Fi list type {@link WifiFilter}
+ * @return list of Wi-Fi access points {@link #scanWiFi()}
+ */
+    public List<WiFiNetwork> getWifiScanResults(WifiFilter filter){
+        if (filter == WifiFilter.ALL) {
+            return onboardingSDKWifiManager.getAllAccessPoints();
+        } else if (filter == WifiFilter.TARGET) {
+            return onboardingSDKWifiManager.getNonOnboardableAccessPoints();
+        } else {
+            return onboardingSDKWifiManager.getOnboardableAccessPoints();
+        }
     }
 
 
     /**
      * @return the current Wi-Fi network that the Android device is connected to.
+     * @throws WifiDisabledException in case Wi-Fi is disabled.
      */
-    public WiFiNetwork getCurrentNetwork() {
+    public WiFiNetwork getCurrentNetwork() throws WifiDisabledException {
+        if (!onboardingSDKWifiManager.isWifiEnabled()) {
+            throw new WifiDisabledException();
+        }
         return onboardingSDKWifiManager.getCurrentConnectedAP();
     }
 
@@ -1563,8 +1674,20 @@ public class OnboardingSDK {
      * @param connectionTimeout
      *            timeout in Msec to complete the task of connecting to a Wi-Fi
      *            network
+     * @throws WifiDisabledException in case Wi-Fi is disabled
+     * @throws OnboardingIllegalArgumentException in case WiFiNetworkConfiguration is invalid or connectionTimeout is invalid
      */
-    public void connectToNetwork(final WiFiNetworkConfiguration network, int connectionTimeout) {
+    public void connectToNetwork(final WiFiNetworkConfiguration network, long connectionTimeout) throws WifiDisabledException,OnboardingIllegalArgumentException{
+
+        if (!onboardingSDKWifiManager.isWifiEnabled()) {
+            throw new WifiDisabledException();
+        }
+
+        if (network==null || network.getSSID()==null || network.getSSID().isEmpty() ||
+           (network.getAuthType()!=AuthType.OPEN && (network.getPassword()==null || network.getPassword().isEmpty()))){
+            throw new OnboardingIllegalArgumentException();
+        }
+
         connectToNetworkWifiBroadcastReceiver = new BroadcastReceiver() {
 
             @Override
@@ -1580,12 +1703,12 @@ public class OnboardingSDK {
 
                         if (OnboardingSDKWifiManager.normalizeSSID(network.getSSID()).equals(OnboardingSDKWifiManager.normalizeSSID(config.SSID))) {
                             extras.clear();
-                            extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTED_WIFI.toString());
+                            extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTING_OTHER_WIFI.toString());
                             sendBroadcast(STATE_CHANGE_ACTION, extras);
                             return;
                         }
                         extras.clear();
-                        extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.WIFI_TIMEOUT.toString());
+                        extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.OTHER_WIFI_TIMEOUT.toString());
                         sendBroadcast(ERROR, extras);
                     }
                 }
@@ -1593,13 +1716,13 @@ public class OnboardingSDK {
                 if (WIFI_TIMEOUT_ACTION.equals(action)) {
                     context.unregisterReceiver(connectToNetworkWifiBroadcastReceiver);
                     extras.clear();
-                    extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.WIFI_TIMEOUT.toString());
+                    extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.OTHER_WIFI_TIMEOUT.toString());
                     sendBroadcast(ERROR, extras);
                 }
                 if (WIFI_AUTHENTICATION_ERROR.equals(action)) {
                     context.unregisterReceiver(connectToNetworkWifiBroadcastReceiver);
                     extras.clear();
-                    extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.WIFI_AUTH.toString());
+                    extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.OTHER_WIFI_AUTH.toString());
                     sendBroadcast(ERROR, extras);
                 }
 
@@ -1609,14 +1732,48 @@ public class OnboardingSDK {
         context.registerReceiver(connectToNetworkWifiBroadcastReceiver, wifiIntentFilter);
         Bundle extras = new Bundle();
 
-        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTING_WIFI.toString());
+        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTING_OTHER_WIFI.toString());
         sendBroadcast(STATE_CHANGE_ACTION, extras);
 
-        if (connectionTimeout < 0) {
+        if (connectionTimeout <= 0) {
             connectionTimeout = DEFAULT_WIFI_CONNECTION_TIMEOUT;
         }
 
         onboardingSDKWifiManager.connectToWifiAP(network.getSSID(), network.getAuthType(), network.getPassword(), connectionTimeout);
+    }
+
+
+    /**
+     * Validate OnboardingConfiguration .
+     *
+     * @param config information for onboarding process.
+     * @return true if OnboardingConfiguration is valid else false.
+     */
+    private boolean validateOnboardingConfiguration(OnboardingConfiguration config) {
+
+        if (config == null || config.getOnboardee() == null || config.getTarget() == null) {
+            return false;
+        }
+
+        if (config.getOnboardeeAnnoucementTimeout() <= 0 || config.getOnboardeeConnectionTimeout() <= 0 || config.getTargetAnnoucementTimeout() <= 0 || config.getTargetConnectionTimeout() <= 0) {
+            return false;
+        }
+
+        // in case authtype isn't OPEN verify that a password exists.
+        if (config.getOnboardee().getAuthType() != AuthType.OPEN && (config.getOnboardee().getPassword() == null || config.getOnboardee().getPassword().isEmpty())) {
+            return false;
+        }
+
+        // in case authtype isn't OPEN verify that a password exists.
+        if (config.getTarget().getAuthType() != AuthType.OPEN && (config.getTarget().getPassword() == null || config.getTarget().getPassword().isEmpty())) {
+            return false;
+        }
+
+        if (config.getTarget().getSSID() == null || config.getTarget().getSSID().isEmpty() || config.getOnboardee().getSSID() == null || config.getOnboardee().getSSID().isEmpty()) {
+            return false;
+        }
+
+        return true;
     }
 
 
@@ -1627,12 +1784,10 @@ public class OnboardingSDK {
      *      <li>{@link #STATE_CHANGE_ACTION}  action with this extra
      *         <ul>
      *          <li>{@link #EXTRA_ONBOARDING_STATE} extra information of enum  {@link OnboardingState}
-     *          <li>{@link #EXTRA_WIFI_AP_TYPE} extra information of  enum  {@link WifiApType}
      *        </ul>
      *      <li> {@link #ERROR} action with this extra
      *        <ul>
      *           <li>{@link #EXTRA_ERROR_DETAILS}  extra information of enum {@link OnboardingErrorType}
-     *           <li>{@link #EXTRA_WIFI_AP_TYPE}   extra information of enum  {@link WifiApType}
      *        </ul>
      *    </ul>
      *
@@ -1648,12 +1803,25 @@ public class OnboardingSDK {
      *    </ul>
      *
      * @param config containing information about onboardee and target networks.
-     * @throws IllegalStateException in case onboarding is arleady running or trying to resume from internal state ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED.
+     * @throws OnboardingIllegalStateException in case onboarding is arleady running or trying to resume from internal state ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED.
+     * @throws OnboardingIllegalArgumentException in case OnboardingConfiguration is invalid.
+     * @throws WifiDisabledException in case Wi-Fi is disabled.
      */
-    public void runOnboarding(OnboardingConfiguration config) throws IllegalStateException {
+    public void runOnboarding(OnboardingConfiguration config) throws OnboardingIllegalStateException,OnboardingIllegalArgumentException,WifiDisabledException {
+        if (!onboardingSDKWifiManager.isWifiEnabled()) {
+            throw new WifiDisabledException();
+        }
+        if (!validateOnboardingConfiguration(config)){
+            throw new OnboardingIllegalArgumentException();
+        }
         onboardingConfiguration = config;
         if (currentState == State.IDLE) {
-            aboutService.addAnnouncementHandler(announcementHandler);
+
+            if (onboardingSDKWifiManager.getCurrentConnectedAP()!=null){
+                originalNetwork=onboardingSDKWifiManager.getCurrentConnectedAP().getSSID();
+            }
+
+
             setState(State.CONNECTING_TO_ONBOARDEE);
         } else if (currentState.getValue() >= State.ERROR_CONNECTING_TO_ONBOARDEE.getValue()) {
 
@@ -1668,7 +1836,7 @@ public class OnboardingSDK {
                 break;
 
             case ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED:
-                throw new IllegalStateException("The device doesn't comply with onboarding service");
+                throw new OnboardingIllegalStateException("The device doesn't comply with onboarding service");
 
             case ERROR_JOINING_SESSION:
                 setState(State.JOINING_SESSION, deviceData.getAnnounceData());
@@ -1690,61 +1858,143 @@ public class OnboardingSDK {
                 break;
             }
         } else {
-            throw new IllegalStateException("onboarding process is already running");
+            throw new OnboardingIllegalStateException("onboarding process is already running");
         }
     }
 
 
   /**
    * Abort the onboarding process.
-   * Send the following possible intents
-     *   <ul>
-     *      <li>{@link #STATE_CHANGE_ACTION} action with this extra
-     *         <ul>
-     *            <li>{@link #EXTRA_ONBOARDING_STATE} extra information {@link OnboardingState#ABORT_COMPLETED}
-     *         </ul>
-     *    </ul>
-     *
-   * @throws IllegalStateException in case the state machine is in state IDLE,ABORTING (No need to Abort)
+   *
+   * <ul>
+   *    <li>Send the following intents.
+   *    <li>{@link #STATE_CHANGE_ACTION} action with this extra
+   *          <ul>
+   *            <li> {@link OnboardingState#ABORTING} when starting the abort process.
+   *          </ul>
+   * </ul>
+   * <p>see also {@link #abortStateCleanUp()}
+   * @throws OnboardingIllegalStateException in case the state machine is in state IDLE,ABORTING (No need to Abort)
    *    in case the state machine is in state CONNECTING_TO_TARGET_WIFI_AP,WAITING_FOR_TARGET_ANNOUNCE,TARGET_ANNOUNCEMENT_RECEIVED (can't abort ,in final stages of onboarding)
    */
-    public void abortOnboarding() throws IllegalStateException {
+    public void abortOnboarding() throws OnboardingIllegalStateException {
         if (currentState == State.IDLE ||
             currentState == State.ABORTING ){
-            throw new IllegalStateException("Can't abort ,already ABORTED");
+            throw new OnboardingIllegalStateException("Can't abort ,already ABORTED");
         }
 
         if (currentState == State.CONNECTING_TO_TARGET_WIFI_AP ||
             currentState == State.WAITING_FOR_TARGET_ANNOUNCE ||
             currentState ==State.TARGET_ANNOUNCEMENT_RECEIVED){
-            throw new IllegalStateException("Can't abort");
+            throw new OnboardingIllegalStateException("Can't abort");
         }
+        Bundle extras =new Bundle();
+        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.ABORTING.toString());
+        sendBroadcast(STATE_CHANGE_ACTION, extras);
+
         setState(State.ABORTING);
     }
 
 
     /**
      * Prepare the state machine for the onboarding process after abort has beeen requested.
+     *
+     * Try restoring the connection to the original Wi-Fi access point prior to calling {@link OnboardingSDK#runOnboarding(OnboardingConfiguration)}
+     * <p>
      * Does the following :
      *  <ul>
      *      <li> Stop listening to About Service announcements.
      *      <li> Remove onboardee Wi-Fi access point from Android's Wi-Fi configured netwroks.
      *      <li> Enable  Android's Wi-Fi manager to select a suitable  Wi-Fi access point.
      *      <li> Move state maching to IDLE state.
-     *      <li> Send intent that abort reqest has beeen completed
-     *  <ul>
-     *
+     *      <li> Send the following intents.
+     *           <ul>
+     *                <li>{@link #STATE_CHANGE_ACTION} action with this extra
+     *                    <ul>
+     *                        <li> {@link OnboardingState#CONNECTING_ORIGINAL_WIFI} when trying to connect to orignal network if exists.
+     *                        <li> {@link OnboardingState#CONNECTING_ORIGINAL_WIFI} when connected to orignal network if exists.
+     *                        <li> {@link OnboardingState#ABORTED} when abort process complete.
+     *                    </ul>
+     *                <li>{@link #ERROR} action with this extra
+     *                     <ul>
+     *                        <li> {@link OnboardingErrorType#ORIGINAL_WIFI_TIMEOUT} when trying to connect to orignal and get timeout.
+     *                        <li> {@link OnboardingErrorType#ORIGINAL_WIFI_AUTH} when trying to connect to orignal and get authentication error.
+     *                    </ul>
+     *           </ul>
+     *  </ul>
      */
     private void abortStateCleanUp(){
-        aboutService.removeAnnouncementHandler(announcementHandler);
+
         if (onboardingConfiguration!=null && onboardingConfiguration.getOnboardee()!=null && onboardingConfiguration.getOnboardee().getSSID()!=null){
             onboardingSDKWifiManager.removeWifiAP(onboardingConfiguration.getOnboardee().getSSID());
         }
-        onboardingSDKWifiManager.enableAllWifiNetworks();
-        setState(State.IDLE);
-        Bundle extras =new Bundle();
-        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.ABORT_COMPLETED.toString());
-        sendBroadcast(STATE_CHANGE_ACTION, extras);
+        final Bundle extras =new Bundle();
+
+        //Try to connect to orginal access point if existed.
+        if (originalNetwork!=null)
+        {
+            sendBroadcast(STATE_CHANGE_ACTION, extras);
+            try{
+                onboardingSDKWifiManager.connectToWifiBySSID(originalNetwork,DEFAULT_WIFI_CONNECTION_TIMEOUT);
+            }
+            catch (OnboardingIllegalArgumentException e){
+                Log.e(TAG, "abortStateCleanUp "+e.getMessage());
+
+                onboardingSDKWifiManager.enableAllWifiNetworks();
+                setState(State.IDLE);
+
+                extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.ABORTED.toString());
+                sendBroadcast(STATE_CHANGE_ACTION, extras);
+                return;
+            }
+
+            extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTING_ORIGINAL_WIFI.toString());
+
+            onboardingWifiBroadcastReceiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+
+                    String action = intent.getAction();
+                    Log.d(TAG, "onReceive action=" + action);
+                    if (action != null) {
+
+                        context.unregisterReceiver(onboardingWifiBroadcastReceiver);
+                        onboardingSDKWifiManager.enableAllWifiNetworks();
+                        setState(State.IDLE);
+
+                        if (WIFI_CONNECTED_BY_REQUEST_ACTION.equals(action)) {
+                            extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTED_ORIGINAL_WIFI.toString());
+                            sendBroadcast(STATE_CHANGE_ACTION, extras);
+                        }
+
+                        if (WIFI_TIMEOUT_ACTION.equals(action)) {
+                            extras.putString(EXTRA_ERROR_DETAILS,OnboardingErrorType.ORIGINAL_WIFI_TIMEOUT.toString());
+                            sendBroadcast(ERROR,extras);
+                        }
+
+                        if (WIFI_AUTHENTICATION_ERROR.equals(action)) {
+                            extras.putString(EXTRA_ERROR_DETAILS,OnboardingErrorType.ORIGINAL_WIFI_AUTH.toString());
+                            sendBroadcast(ERROR,extras);
+                        }
+
+                        extras.clear();
+                        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.ABORTED.toString());
+                        sendBroadcast(STATE_CHANGE_ACTION, extras);
+                    }
+                }
+            };// receiver
+            context.registerReceiver(onboardingWifiBroadcastReceiver, wifiIntentFilter);
+
+        }else{
+            // Probably onboarding started when the device wasn't connected to a  Wi-Fi. So nothing to restore.
+            // Just return to IDLE and enable all the networks that were disabled by the onboarding process.
+            onboardingSDKWifiManager.enableAllWifiNetworks();
+            setState(State.IDLE);
+
+            extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.ABORTED.toString());
+            sendBroadcast(STATE_CHANGE_ACTION, extras);
+        }
+
     }
 
 
@@ -1753,24 +2003,34 @@ public class OnboardingSDK {
      * Offboard a device that is on the current Wi-Fi network.
      *
      * @param config contains the offboarding information needed to complete the task.
-     * @throws IllegalStateException is thrown when config is not valid
-     * @throws IllegalArgumentException is thrown when not in internal IDLE state.
+     * @throws OnboardingIllegalStateException is thrown when not in internal IDLE state.
+     * @throws OnboardingIllegalArgumentException is thrown when config is not valid
+     * @throws WifiDisabledException in case Wi-Fi is disabled.
      */
-    public void runOffboarding(OffboardingConfiguration config) throws IllegalStateException, IllegalArgumentException {
+    public void runOffboarding(OffboardingConfiguration config) throws OnboardingIllegalStateException, OnboardingIllegalArgumentException,WifiDisabledException {
+
+        if (!onboardingSDKWifiManager.isWifiEnabled()) {
+            throw new WifiDisabledException();
+        }
         // verify that the OffboardingConfiguration has valid data
         if (config == null || config.getServiceName() == null || config.getServiceName().isEmpty() || config.getPort() == 0) {
-            throw new IllegalArgumentException();
+            throw new OnboardingIllegalArgumentException();
         }
         // in case the SDK is in onboarding mode the runOffboarding can't
         // continue
         if (currentState != State.IDLE) {
-            throw new IllegalStateException("onboarding process is already running");
+            throw new OnboardingIllegalStateException("onboarding process is already running");
         }
         DeviceResponse deviceResponse = offboardDevice(config.getServiceName(), config.getPort());
         if (deviceResponse.getStatus() != ResponseCode.Status_OK) {
             Bundle extras = new Bundle();
-            extras.putString(EXTRA_DEVICE_INFORMATION, config.getServiceName());
-            extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.OFFBOARDING_FAILED.toString());
+            if (deviceResponse.getStatus()==ResponseCode.Status_ERROR_CANT_ESTABLISH_SESSION){
+                extras.putString(EXTRA_DEVICE_INFORMATION, config.getServiceName());
+                extras.putString(EXTRA_ERROR_DETAILS,OnboardingErrorType.JOIN_SESSION_ERROR.toString());
+            }else{
+                extras.putString(EXTRA_DEVICE_INFORMATION, config.getServiceName());
+                extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.ERROR_CONFIGURING_ONBOARDEE.toString());
+            }
             sendBroadcast(ERROR, extras);
         }
     }

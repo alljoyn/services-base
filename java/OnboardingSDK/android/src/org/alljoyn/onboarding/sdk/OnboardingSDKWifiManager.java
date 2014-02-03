@@ -80,6 +80,11 @@ class OnboardingSDKWifiManager {
     private final ArrayList<WiFiNetwork> onboardableAPlist = new ArrayList<WiFiNetwork>();
 
     /**
+     * Stores all Wi-Fi access points that were found in the scan
+     */
+    private final ArrayList<WiFiNetwork> allAPlist = new ArrayList<WiFiNetwork>();
+
+    /**
      * SSID prefix for onboardable devices.
      */
     static final private String ONBOARDABLE_PREFIX = "AJ_";
@@ -232,6 +237,7 @@ class OnboardingSDKWifiManager {
                 } else {
                     nonOnboardableAPlist.add(wiFiNetwork);
                 }
+                allAPlist.add(wiFiNetwork);
                 buff.append(scan.SSID).append(",");
             }
 
@@ -239,8 +245,9 @@ class OnboardingSDKWifiManager {
 
             // broadcast a WIFI_SCAN_RESULTS_AVAILABLE_ACTION intent
             Bundle extras = new Bundle();
-            extras.putParcelableArrayList(OnboardingSDK.EXTRA_ONBOARDEES, onboardableAPlist);
-            extras.putParcelableArrayList(OnboardingSDK.EXTRA_TARGETS, nonOnboardableAPlist);
+            extras.putParcelableArrayList(OnboardingSDK.EXTRA_ONBOARDEES_AP, onboardableAPlist);
+            extras.putParcelableArrayList(OnboardingSDK.EXTRA_TARGETS_AP, nonOnboardableAPlist);
+            extras.putParcelableArrayList(OnboardingSDK.EXTRA_ALL_AP,allAPlist);
             sendBroadcast(OnboardingSDK.WIFI_SCAN_RESULTS_AVAILABLE_ACTION, extras);
         }
     }
@@ -304,7 +311,6 @@ class OnboardingSDKWifiManager {
      *         with "_AJ"
      */
     List<WiFiNetwork> getOnboardableAccessPoints() {
-        Log.d(TAG, "getOnboardableAccessPoints");
         return onboardableAPlist;
     }
 
@@ -314,8 +320,14 @@ class OnboardingSDKWifiManager {
      *         and doesn't end with "_AJ".
      */
     List<WiFiNetwork> getNonOnboardableAccessPoints() {
-        Log.d(TAG, "getNonOnboardableAccessPoints");
         return nonOnboardableAPlist;
+    }
+
+    /**
+     * @return list of all the access points found by the Wi-Fi scan.
+     */
+    List<WiFiNetwork> getAllAccessPoints() {
+        return allAPlist;
     }
 
 
@@ -551,6 +563,32 @@ class OnboardingSDKWifiManager {
 
 
     /**
+     * Connect to an already configured Wi-Fi access point.
+     * @param SSID
+     * @param timeout
+     * @throws OnboardingIllegalArgumentException in case SSID not found in configured access points.
+     */
+     void connectToWifiBySSID(String SSID,long timeout) throws OnboardingIllegalArgumentException{
+
+         final List<WifiConfiguration> wifiConfigs = wifi.getConfiguredNetworks();
+
+         WifiConfiguration wifiConfig=null;
+
+         for (WifiConfiguration w : wifiConfigs) {
+             if (w.SSID != null && isSsidEquals(w.SSID, SSID)) {
+                 wifiConfig=w;
+                 break;
+             }
+         }
+         if (wifiConfig!=null){
+             connect(wifiConfig,wifiConfig.networkId,timeout);
+         }else{
+             throw new OnboardingIllegalArgumentException("unable to find "+ SSID +" in list of configured networks");
+         }
+    }
+
+
+    /**
      * Make the actual connection to the requested Wi-Fi target.
      *
      * @param wifiConfig
@@ -710,6 +748,15 @@ class OnboardingSDKWifiManager {
             intent.putExtras(extras);
         }
         context.sendBroadcast(intent);
+    }
+
+
+    /**
+     * A utility method for retrieving Android's Wi-Fi status.
+     * @return  true if enabled else false
+     */
+    boolean isWifiEnabled(){
+        return wifi.isWifiEnabled();
     }
 
 
