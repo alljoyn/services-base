@@ -41,9 +41,8 @@
 #define NOTIFICATION_PRODUCER_GET_PROPERTY_PROXY              AJ_PRX_MESSAGE_ID(NOTIFICATION_PRODUCER_PROXYOBJECT_INDEX, 0, AJ_PROP_GET)
 #define NOTIFICATION_PRODUCER_SET_PROPERTY_PROXY              AJ_PRX_MESSAGE_ID(NOTIFICATION_PRODUCER_PROXYOBJECT_INDEX, 0, AJ_PROP_SET)
 
-#define NOTIFICATION_PRODUCER_ACKNOWLEDGE_PROXY               AJ_PRX_MESSAGE_ID(NOTIFICATION_PRODUCER_PROXYOBJECT_INDEX, 1, 0)
-#define NOTIFICATION_PRODUCER_DISMISS_PROXY                   AJ_PRX_MESSAGE_ID(NOTIFICATION_PRODUCER_PROXYOBJECT_INDEX, 1, 1)
-#define GET_NOTIFICATION_PRODUCER_VERSION_PROPERTY_PROXY      AJ_PRX_PROPERTY_ID(NOTIFICATION_PRODUCER_PROXYOBJECT_INDEX, 1, 2)
+#define NOTIFICATION_PRODUCER_DISMISS_PROXY                   AJ_PRX_MESSAGE_ID(NOTIFICATION_PRODUCER_PROXYOBJECT_INDEX, 1, 0)
+#define GET_NOTIFICATION_PRODUCER_VERSION_PROPERTY_PROXY      AJ_PRX_PROPERTY_ID(NOTIFICATION_PRODUCER_PROXYOBJECT_INDEX, 1, 1)
 
 /* Dismisser ProxyObject bus registration */
 #define NOTIFICATION_DISMISSER_PROXYOBJECT_INDEX 2 + NUM_PRE_NOTIFICATION_CONSUMER_PROXYOBJECTS
@@ -116,17 +115,6 @@ extern AJ_Status ConsumerNotifySignalHandler(AJ_Message* msg);
  * @return status
  */
 extern AJ_Status ConsumerDismissSignalHandler(AJ_Message* msg);
-
-/**
- * ConsumerAcknowledgeNotification - send an acknowledment request to the producer of the given message, marshals the methodcall and delivers it
- * @param busAttachment
- * @param version       the message version
- * @param msdId         the message id
- * @param senderName    the bus unique name of the message sender
- * @param sessionId     the session id for the proxy object
- * @return status
- */
-extern AJ_Status ConsumerAcknowledgeNotification(AJ_BusAttachment* busAttachment, uint16_t version, int32_t msgId, const char* senderName, uint32_t sessionId);
 
 /**
  * ConsumerDismissNotification - send a dismissal request to the producer of the given message, marshals the methodcall and delivers it

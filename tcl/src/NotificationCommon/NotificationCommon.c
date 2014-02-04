@@ -124,7 +124,6 @@ const char NotificationProducerObjectPath[] = "/notificationProducer";
 
 const char* const NotificationProducerInterface[] = {
     "org.alljoyn.Notification.Producer",
-    "?Acknowledge <i",
     "?Dismiss <i",
     "@Version>q",
     NULL

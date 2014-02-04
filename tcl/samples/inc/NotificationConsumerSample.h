@@ -20,8 +20,7 @@
 #include <Apps_Common.h>
 
 #define CONSUMER_ACTION_NOTHING         0
-#define CONSUMER_ACTION_ACKNOWLEDGE     1
-#define CONSUMER_ACTION_DISMISS         2
+#define CONSUMER_ACTION_DISMISS         1
 
 /*
  * Functions that the application needs to implement

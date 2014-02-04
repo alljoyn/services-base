@@ -522,27 +522,6 @@ static AJ_Status ProducerCancelMessage(AJ_BusAttachment* busAttachment, int32_t 
     return status;
 }
 
-AJ_Status ProducerAcknowledgeMsg(AJ_BusAttachment* busAttachment, AJ_Message* msg)
-{
-    AJ_Printf("In AcknowledgeMsg\n");
-    AJ_Status status;
-    int32_t msgId;
-
-    status = AJ_UnmarshalArgs(msg, "i", &msgId);
-    if (status != AJ_OK) {
-        AJ_Printf("Could not unmarshal message\n");
-        return status;
-    }
-
-    status = ProducerCancelMessage(busAttachment, msgId);
-    if (status != AJ_OK) {
-        return status;
-    }
-
-    AJ_Printf("***************** Message acknowledged successfully *****************\n");
-    return status;
-}
-
 AJ_Status ProducerDismissMsg(AJ_BusAttachment* busAttachment, AJ_Message* msg)
 {
     AJ_Printf("In DismissMsg\n");

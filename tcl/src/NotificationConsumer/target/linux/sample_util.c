@@ -78,7 +78,7 @@ void Consumer_GetActionFromUser(uint8_t* action)
     memset(buf, 0, BUF_SIZE);
 
     uint8_t defaultAction = *action;
-    AJ_Printf("Please enter an action to perform on the recently received notification\n\t0=Nothing,\n\t1=Acknowledge,\n\t2=Dismiss.\n");
+    AJ_Printf("Please enter an action to perform on the recently received notification\n\t0=Nothing,\n\t1=Dismiss.\n");
     AJ_Printf("Empty string or invalid input will default to %u\n", defaultAction);
     if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
         if (strlen(buf)) {
