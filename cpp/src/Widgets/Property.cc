@@ -702,7 +702,7 @@ QStatus Property::readValueArg(const MsgArg* val)
         break;
     }
 
-    return ER_OK;
+    return status;
 }
 
 QStatus Property::SendValueChangedSignal()
@@ -744,7 +744,13 @@ void Property::ValueChanged(Message& msg)
         return;
     }
 
-    QStatus status = readValueArg(&returnArgs[0]);
+    QStatus status = ER_OK;
+    if (returnArgs[0].typeId == ALLJOYN_VARIANT) {
+        status = readValueArg(returnArgs[0].v_variant.val);
+    } else {
+        status = readValueArg(&returnArgs[0]);
+    }
+
     if (status != ER_OK) {
         if (logger) {
             logger->warn(TAG, "Something went wrong reading the Value Argument");
