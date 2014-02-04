@@ -404,10 +404,10 @@ AJ_Status ProducerSendNotification(AJ_BusAttachment* busAttachment, AJNS_Notific
         return AJ_ERR_DISALLOWED;
     }
 
-    notification.deviceId = PropertyStore_GetValue(DeviceID);
-    notification.deviceName = PropertyStore_GetValue(DeviceName);
-    notification.appId = PropertyStore_GetValue(AppID);
-    notification.appName = PropertyStore_GetValue(AppName);
+    notification.deviceId = PropertyStore_GetValue(AJSVC_PropertyStoreDeviceID);
+    notification.deviceName = PropertyStore_GetValue(AJSVC_PropertyStoreDeviceName);
+    notification.appId = PropertyStore_GetValue(AJSVC_PropertyStoreAppID);
+    notification.appName = PropertyStore_GetValue(AJSVC_PropertyStoreAppName);
 
     if ((notification.deviceId == 0) || (notification.deviceName == 0) ||
         (notification.appId == 0) || (notification.appName == 0)) {
@@ -534,7 +534,7 @@ AJ_Status ProducerDismissMsg(AJ_BusAttachment* busAttachment, AJ_Message* msg)
         return status;
     }
 
-    const char* appId = PropertyStore_GetValue(AppID);
+    const char* appId = PropertyStore_GetValue(AJSVC_PropertyStoreAppID);
     status = NotificationSendDismiss(busAttachment, msgId, appId);
     if (status != AJ_OK) {
         return status;

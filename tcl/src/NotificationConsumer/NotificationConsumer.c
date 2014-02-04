@@ -15,6 +15,7 @@
  ******************************************************************************/
 
 #include <alljoyn/notification/NotificationConsumer.h>
+#include <aj_config.h>
 
 /**
  * Static constants.
