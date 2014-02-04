@@ -1648,16 +1648,9 @@ public class ControlPanelAdapter
 	// =====================================================================================================================
 
 	private void onContainerMetaDataChange(ContainerWidget container) {
+		
 		if ( container == null ) {
 			Log.e(TAG, "onContainerMetaDataChange");
-			return;
-		}
-		// refresh the container properties
-		try {
-			container.refreshProperties();
-		} catch (ControlPanelException e) {
-			Log.e(TAG, "container.refreshProperties() failed", e);
-			// ====
 			return;
 		}
 
@@ -1688,15 +1681,6 @@ public class ControlPanelAdapter
 
 	private void onActionMetaDataChange(final ActionWidget actionWidget) {
 
-		// refresh the action properties
-		try {
-			actionWidget.refreshProperties();
-		} catch (ControlPanelException e) {
-			Log.e(TAG, "action.refreshProperties() failed", e);
-			// ====
-			return;
-		}
-
 		// get a handle to the corresponding view
 		Button actionButton = (Button) uiElementToView.get(actionWidget.getObjectPath());
 		if (actionButton == null) 
@@ -1725,15 +1709,6 @@ public class ControlPanelAdapter
 
 	private void onAlertDialogMetaDataChange(final AlertDialogWidget alertDialogWidget) {
 
-		// refresh the widget properties
-		try {
-			alertDialogWidget.refreshProperties();
-		} catch (ControlPanelException e) {
-			Log.e(TAG, "alertDialogWidget.refreshProperties() failed", e);
-			// ====
-			return;
-		}
-
 		// get a handle to the corresponding AlertDialog
 		AlertDialog alertDialog = (AlertDialog) alertWidgetToDialog.get(alertDialogWidget.getObjectPath());
 		if (alertDialog == null) 
@@ -1752,15 +1727,6 @@ public class ControlPanelAdapter
 	// =====================================================================================================================
 
 	private void onPropertyMetaDataChange(PropertyWidget propertyWidget) {
-
-		// refresh the property
-		try {
-			propertyWidget.refreshProperties();
-		} catch (ControlPanelException e) {
-			Log.e(TAG, "property.refreshProperties() failed", e);
-			// ====
-			return;
-		}
 
 		// get a handle to the corresponding view
 		View propertyView = (View) uiElementToView.get(propertyWidget.getObjectPath());
