@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -28,6 +28,7 @@ import org.alljoyn.ioe.controlpanelservice.communication.CommunicationUtil;
 import org.alljoyn.ioe.controlpanelservice.communication.ConnManagerEventType;
 import org.alljoyn.ioe.controlpanelservice.communication.ConnManagerEventsListener;
 import org.alljoyn.ioe.controlpanelservice.communication.ConnectionManager;
+import org.alljoyn.ioe.controlpanelservice.communication.TaskManager;
 import org.alljoyn.ioe.controlpanelservice.communication.interfaces.ControlPanel;
 import org.alljoyn.ioe.controlpanelservice.communication.interfaces.HTTPControl;
 import org.alljoyn.ioe.controlpanelservice.ui.DeviceControlPanel;
@@ -94,8 +95,11 @@ public class ControlPanelService  implements ConnManagerEventsListener {
 			throw new ControlPanelException("The AboutService is not running, impossible to receive Announcement signals");
 		}	
 		
+		//Perform the basic service initialization
+		init(bus);
+		
 		this.deviceRegistry = deviceRegistry;
-		connMgr.setBusAttachment(bus);
+		
 		Log.d(TAG, "Start listening for Announcement signals");
 		connMgr.registerEventListener(ConnManagerEventType.ANNOUNCEMENT_RECEIVED, this);
 		
@@ -110,6 +114,7 @@ public class ControlPanelService  implements ConnManagerEventsListener {
 	 */
 	public void init(BusAttachment bus) throws ControlPanelException {
 		connMgr.setBusAttachment(bus);
+		TaskManager.getInstance().initPool();
 	}//init
 
 	/**
@@ -164,6 +169,11 @@ public class ControlPanelService  implements ConnManagerEventsListener {
 				stopControllableDevice(device);
 			}
 			deviceRegistry = null;
+		}
+		
+		TaskManager taskManager = TaskManager.getInstance();
+		if ( taskManager.isRunning() ) {
+			taskManager.shutdown();
 		}
 		
 		connMgr.shutdown();
