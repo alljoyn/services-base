@@ -33,7 +33,7 @@ public class UIWidgetSignalHandler implements InvocationHandler {
 	private static final String TAG = "cpan" + UIWidgetSignalHandler.class.getSimpleName();
 	
 	/**
-	  * MetadataChanged signal refreshes {@link UIElement} object properties which it was sent for.
+	  * MetadataChanged signal refreshes the {@link UIElement} object properties which it was sent for.
 	  * This is done by executing {@link org.alljoyn.bus.ifaces.Properties#GetAll(String)} method.
 	  * To avoid load on the AJ daemon when it receives multiple METADATA_CHANGED signals, we handle them
 	  * sequentially on a separate thread by invoking {@link TaskManager#enqueue(Runnable)}.
@@ -53,8 +53,8 @@ public class UIWidgetSignalHandler implements InvocationHandler {
 	 private Object signalReceiver;
 	 
 	 /**
-	  * The proxy object signal handler is created on the base of {@link Proxy}
-	  * This object is actually receives signals from daemon and its {@link InvocationHandler} dispatches 
+	  * The proxy object signal handler is created based on the {@link Proxy}
+	  * This is the object that actually receives signals from the daemon and its {@link InvocationHandler} dispatches 
 	  * the signal to be handled on the separate thread from AllJoyn.
 	  * Signal handling logic is executed in the signalReceiver object 
 	  */
@@ -122,7 +122,7 @@ public class UIWidgetSignalHandler implements InvocationHandler {
 	}//unregister
 
 	/**
-	 * Create {@link Proxy} object object base of the given interface class <br>
+	 * Create {@link Proxy} object based on the given array of interface classes
 	 * @return Created object
 	 */
 	private Object createProxySignalReceiver(Class<?>[] ifaceClassList) {
@@ -149,7 +149,7 @@ public class UIWidgetSignalHandler implements InvocationHandler {
 		//Received METADATA_CHANGED signal enqueue it to be executed 
 		if ( METADATA_CHANGED.equals(method.getName()) ) {
 			
-			Log.d(TAG, "Received '" + METADATA_CHANGED + "' signal storing it in the queue for the later execution");
+			Log.d(TAG, "Received '" + METADATA_CHANGED + "' signal storing it in the queue for later execution");
 			TaskManager.getInstance().enqueue(task) ;
 		}
 		else {
