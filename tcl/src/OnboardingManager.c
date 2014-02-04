@@ -39,7 +39,7 @@ static char obSoftAPssid[SSID_MAX_LENGTH + 1] = { 0 };
 static const char* OB_GetSoftAPSSID()
 {
     if (obSoftAPssid[0] == '\0') {
-        const char* deviceId = PropertyStore_GetValue(DeviceID);
+        const char* deviceId = PropertyStore_GetValue(AJSVC_PropertyStoreDeviceID);
         size_t deviceIdLen = strlen(deviceId);
         char manufacture[DEVICE_MANUFACTURE_NAME_LEN + 1] = { 0 };
         size_t manufacureLen = min(strlen(deviceManufactureName), DEVICE_MANUFACTURE_NAME_LEN);
