@@ -16,7 +16,9 @@
 
 #include <alljoyn.h>
 #include <aj_creds.h>
+#include <aj_nvram.h>
 
+#include <PropertyStoreOEMProvisioning.h>
 #include <alljoyn/about/AboutOEMProvisioning.h>
 #ifdef CONFIG_SERVICE
     #include <alljoyn/config/ConfigOEMProvisioning.h>
@@ -32,46 +34,74 @@ const char* deviceProductName = "AC";
 
 static const char* DEFAULT_LANGUAGE = "en";
 
-const uint8_t NUMBER_OF_LANGUAGES = 1;
-const char** theDefaultLanguages = { &DEFAULT_LANGUAGE };
+const char** ajsvc_propertyStoreDefaultLanguages = { &DEFAULT_LANGUAGE };
+const uint8_t AJSVC_PROPERTY_STORE_NUMBER_OF_LANGUAGES = 1;
 
 /**
- * property array of structure with defaults
+ * properties array of default values
  */
-static const char* EMPTY = { "" };
 static const char* DEFAULT_PASSCODE = "000000";
 static const char* DEFAULT_APP_NAME = "Controlee";
 static const char* DEFAULT_DESCRIPTION = "AC IOE device";
+static const char* DEFAULT_MANUFACTURER = "Company A(EN)";
 static const char* DEFAULT_DEVICE_MODEL = "0.0.1";
 static const char* DEFAULT_DATE_OF_MANUFACTURE = "2014-02-01";
 static const char* DEFAULT_SOFTWARE_VERSION = "0.0.1";
 static const char* DEFAULT_HARDWARE_VERSION = "0.0.1";
 static const char* DEFAULT_SUPPORT_URL = "www.company_a.com";
 
-const property_store_entry_t theAboutConfigVar[NUMBER_OF_KEYS] =
+const char** ajapps_propertyStoreDefaultValues[AJSVC_PROPERTY_STORE_NUMBER_OF_KEYS] =
 {
-//  { "Key Name 19 + '\0'  ", W, A, M, I .. . . ., P,       { "Value for lang1 32/64 + '\0'    "} },
-    { "DeviceId",             0, 1, 0, 1, 0, 0, 0, 1,       { NULL } },
-    { "AppId",                0, 1, 0, 1, 0, 0, 0, 1,       { NULL } },
-    { "DeviceName",           1, 1, 0, 1, 0, 0, 0, 1,       { NULL } },
+//  {"Default Values per language"},     "Key Name"
+    { NULL },                           /*DeviceId*/
+    { NULL },                           /*AppId*/
+    { NULL },                           /*DeviceName*/
 // Add other persisted keys above this line
-    { "DefaultLanguage",      1, 1, 0, 0, 0, 0, 0, 1,       { &DEFAULT_LANGUAGE} },
-    { "Passcode",             1, 0, 0, 0, 0, 0, 0, 0,       { &DEFAULT_PASSCODE } },
-    { "RealmName",            1, 0, 0, 0, 0, 0, 0, 0,       { NULL } },
+    { (&DEFAULT_LANGUAGE) },            /*DefaultLanguage*/
+    { (&DEFAULT_PASSCODE) },            /*Passcode*/
+    { NULL },                           /*RealmName*/
 // Add other configurable keys above this line
-    { "AppName",              0, 1, 0, 0, 0, 0, 0, 1,       { &DEFAULT_APP_NAME } },
-    { "Description",          0, 0, 1, 0, 0, 0, 0, 1,       { &DEFAULT_DESCRIPTION } },
-    { "Manufacturer",         0, 1, 1, 0, 0, 0, 0, 1,       { &deviceManufactureName } },
-    { "ModelNumber",          0, 1, 0, 0, 0, 0, 0, 1,       { &DEFAULT_DEVICE_MODEL } },
-    { "DateOfManufacture",    0, 0, 0, 0, 0, 0, 0, 1,       { &DEFAULT_DATE_OF_MANUFACTURE } },
-    { "SoftwareVersion",      0, 0, 0, 0, 0, 0, 0, 1,       { &DEFAULT_SOFTWARE_VERSION } },
-    { "AJSoftwareVersion",    0, 0, 0, 0, 0, 0, 0, 1,       { NULL } },
-    { "HardwareVersion",      0, 0, 0, 0, 0, 0, 0, 1,       { &DEFAULT_HARDWARE_VERSION } },
-    { "SupportUrl",           0, 0, 1, 0, 0, 0, 0, 1,       { &DEFAULT_SUPPORT_URL } },
-#if     defined CONFIG_SERVICE
-    { "MaxLength",            0, 0, 1, 0, 0, 0, 0, 1,       { NULL } }
+    { (&DEFAULT_APP_NAME) },            /*AppName*/
+    { (&DEFAULT_DESCRIPTION) },         /*Description*/
+    { (&DEFAULT_MANUFACTURER) },        /*Manufacturer*/
+    { (&DEFAULT_DEVICE_MODEL) },        /*ModelNumber*/
+    { (&DEFAULT_DATE_OF_MANUFACTURE) }, /*DateOfManufacture*/
+    { (&DEFAULT_SOFTWARE_VERSION) },    /*SoftwareVersion*/
+    { NULL },                           /*AJSoftwareVersion*/
+    { (&DEFAULT_HARDWARE_VERSION) },    /*HardwareVersion*/
+    { (&DEFAULT_SUPPORT_URL) },         /*SupportUrl*/
+#if defined CONFIG_SERVICE
+    { NULL },                           /*MaxLength*/
 #endif
 // Add other about keys above this line
+};
+
+/**
+ * properties array of runtime values' buffers
+ */
+static char machineIdVar[MACHINE_ID_LENGTH + 1] = { 0 };
+static char* machineIdVars[] = { machineIdVar };
+static char deviceNameVar[DEVICE_NAME_VALUE_LENGTH + 1] = { 0 };
+static char* deviceNameVars[] = { deviceNameVar };
+#ifdef CONFIG_SERVICE
+static char defaultLanguageVar[LANG_VALUE_LENGTH + 1] = { 0 };
+static char* defaultLanguageVars[] = { defaultLanguageVar };
+static char passcodeVar[PASSWORD_VALUE_LENGTH + 1] = { 0 };
+static char* passcodeVars[] = { passcodeVar };
+static char realmNameVar[KEY_VALUE_LENGTH + 1] = { 0 };
+static char* realmNameVars[] = { realmNameVar };
+#endif
+
+AJAPPS_PropertyStoreConfigEntry ajapps_propertyStoreRuntimeValues[AJSVC_PROPERTY_STORE_NUMBER_OF_CONFIG_KEYS] =
+{
+//  {"Buffers for Values per language", "Buffer Size"},                  "Key Name"
+    { machineIdVars,                 MACHINE_ID_LENGTH + 1 },           /*DeviceId*/
+    { machineIdVars,                    MACHINE_ID_LENGTH + 1 },        /*AppId*/
+    { deviceNameVars,              DEVICE_NAME_VALUE_LENGTH + 1 },      /*DeviceName*/
+// Add other persisted keys above this line
+    { defaultLanguageVars,            LANG_VALUE_LENGTH + 1 },          /*AppName*/
+    { passcodeVars,               PASSWORD_VALUE_LENGTH + 1 },          /*Description*/
+    { realmNameVars,             KEY_VALUE_LENGTH + 1 },                /*Manufacturer*/
 };
 
 const char* aboutIconMimetype = { "image/png" };
@@ -92,7 +122,6 @@ AJ_Status App_FactoryReset()
     }
     AJ_ClearCredentials();
 #ifdef ONBOARDING_SERVICE
-
     status = OBS_ClearInfo();
     if (status != AJ_OK) {
         return status;
@@ -115,7 +144,7 @@ AJ_Status App_SetPasscode(const char* daemonRealm, const char* newStringPasscode
 {
     AJ_Status status = AJ_OK;
 
-    if (PropertyStore_SetValue(RealmName, daemonRealm) && PropertyStore_SetValue(Passcode, newStringPasscode)) {
+    if (PropertyStore_SetValue(AJSVC_PropertyStoreRealmName, daemonRealm) && PropertyStore_SetValue(AJSVC_PropertyStorePasscode, newStringPasscode)) {
 
         status = PropertyStore_SaveAll();
         if (status != AJ_OK) {
@@ -157,5 +186,57 @@ const uint8_t OBS_MAX_RETRIES = 2;
  * Wait time between retries (ms)
  */
 const uint32_t OBS_WAIT_BETWEEN_RETRIES  = 180000;
+
+AJ_Status OBS_ReadInfo(OBInfo* info)
+{
+    AJ_Status status = AJ_OK;
+    size_t size = sizeof(OBInfo);
+
+    if (NULL == info) {
+        return AJ_ERR_NULL;
+    }
+    memset(info, 0, size);
+
+    if (!AJ_NVRAM_Exist(AJ_OBS_OBINFO_NV_ID)) {
+        return AJ_ERR_INVALID;
+    }
+
+    AJ_NV_DATASET* nvramHandle = AJ_NVRAM_Open(AJ_OBS_OBINFO_NV_ID, "r", 0);
+    if (nvramHandle != NULL) {
+        int sizeRead = AJ_NVRAM_Read(info, size, nvramHandle);
+        status = AJ_NVRAM_Close(nvramHandle);
+        if (sizeRead != sizeRead) {
+            status = AJ_ERR_WRITE;
+        } else {
+            AJ_Printf("Readed Info values: state=%d, ssid=%s authType=%d pc=%s\n", info->state, info->ssid, info->authType, info->pc);
+        }
+    }
+
+    return status;
+}
+
+AJ_Status OBS_WriteInfo(OBInfo* info)
+{
+    AJ_Status status = AJ_OK;
+    size_t size = sizeof(OBInfo);
+
+    if (NULL == info) {
+        return AJ_ERR_NULL;
+    }
+
+    AJ_Printf("Going to write Info values: state=%d, ssid=%s authType=%d pc=%s\n", info->state, info->ssid, info->authType, info->pc);
+
+    AJ_NV_DATASET* nvramHandle = AJ_NVRAM_Open(AJ_OBS_OBINFO_NV_ID, "w", size);
+    if (nvramHandle != NULL) {
+        int sizeWritten = AJ_NVRAM_Write(info, size, nvramHandle);
+        status = AJ_NVRAM_Close(nvramHandle);
+        if (sizeWritten != size) {
+            status = AJ_ERR_WRITE;
+        }
+    }
+
+    return status;
+}
+
 #endif // ONBOARDING_SERVICE
 

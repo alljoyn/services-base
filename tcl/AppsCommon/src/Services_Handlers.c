@@ -460,7 +460,7 @@ uint8_t Daemon_Disconnect(uint8_t disconnectWiFi)
 
 uint32_t PasswordCallback(uint8_t* buffer, uint32_t bufLen)
 {
-    const char* password = PropertyStore_GetValue(Passcode);
+    const char* password = PropertyStore_GetValue(AJSVC_PropertyStorePasscode);
     if (password == NULL) {
         AJ_Printf("Password is NULL!\n");
         return 0;
