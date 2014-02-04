@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -22,15 +22,19 @@
 namespace ajn {
 namespace services {
 
+/**
+ * ErrorWidget class - used when there's an in error retrieving widget information
+ */
 class ErrorWidget : public Widget {
 
   public:
 
     /**
+     * Constructor for Error Eisget
      * @param name - name of Widget
      * @param rootWidget - the RootWidget of the widget
+     * @param originalWidget - pointer to original widget that received the error
      * @param device - the device containing this Widget
-     *
      */
     ErrorWidget(qcc::String const& name, Widget* rootWidget, Widget* originalWidget, ControlPanelDevice* device);
 

@@ -229,6 +229,7 @@ QStatus PropertyBusObject::fillProperty(char* key, MsgArg* variant)
 
         return status;
     }
+    return status;
 }
 
 } /* namespace services */
