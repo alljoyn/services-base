@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -50,13 +50,13 @@ class ControlPanelService {
      * Initialize the controllee to be used
      * @param bus - bus used for Controllee
      * @param controlPanelControllee - controllee to initialize
-     * @return
+     * @return status - success/failure
      */
     QStatus initControllee(BusAttachment* bus, ControlPanelControllee* controlPanelControllee);
 
     /**
      * Remove locally stored controllee. Allows a new call to initControllee to be made
-     * @return status
+     * @return status - success/failure
      */
     QStatus shutdownControllee();
 
@@ -65,16 +65,22 @@ class ControlPanelService {
      * @param bus - bus used for Controller
      * @param controlPanelController - controller to initialize
      * @param controlPanelListener
-     * @return
+     * @return status - success/failure
      */
     QStatus initController(BusAttachment* bus, ControlPanelController* controlPanelController,
                            ControlPanelListener* controlPanelListener);
 
     /**
      * Remove locally stored controller. Allows a new call to initController to be made
-     * @return status
+     * @return status - success/failure
      */
     QStatus shutdownController();
+
+    /**
+     * Full shutdown - includes removing the current BusAttachment
+     * @return status - success/failure
+     */
+    QStatus shutdown();
 
     /**
      * Receive GenericLogger* to use for logging

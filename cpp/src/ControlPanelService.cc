@@ -304,6 +304,30 @@ QStatus ControlPanelService::shutdownController()
     return status;
 }
 
+QStatus ControlPanelService::shutdown()
+{
+    QStatus returnStatus = ER_OK;
+
+    QStatus status = shutdownController();
+    if (status != ER_OK) {
+        returnStatus = status;
+        if (logger) {
+            logger->warn(TAG, "Could not shutdown Controller successfully");
+        }
+    }
+
+    status = shutdownControllee();
+    if (status != ER_OK) {
+        returnStatus = status;
+        if (logger) {
+            logger->warn(TAG, "Could not shutdown Controllee successfully");
+        }
+    }
+
+    m_Bus = 0;
+    return returnStatus;
+}
+
 void ControlPanelService::GenericLoggerCallBack(DbgMsgType type, const char* module, const char* msg, void* context)
 {
     GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
