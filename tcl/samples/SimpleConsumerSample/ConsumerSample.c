@@ -200,7 +200,8 @@ static AJ_Status Consumer_CreateSessionWithProducer(AJ_BusAttachment* busAttachm
  */
 static void Consumer_DoAction(AJ_BusAttachment* busAttachment)
 {
-    AJ_Status status;
+    AJ_Status status = AJ_OK;
+    uint8_t needSession = FALSE;
     if (inputMode) {
         Consumer_GetActionFromUser(&nextAction);
         AJ_Printf("Action received is %u\n", nextAction);
@@ -208,9 +209,15 @@ static void Consumer_DoAction(AJ_BusAttachment* busAttachment)
     processingAction = TRUE;
     switch (nextAction) {
     case CONSUMER_ACTION_DISMISS:
-        status = Consumer_CreateSessionWithProducer(busAttachment, savedNotification.originalSenderName);
-        if (AJ_OK != status) {
-            AJ_Printf("DoAction(): session failed to create for Action %u\n", nextAction);
+        // Check if the notification producer supports dimissal
+        if (savedNotification.version >= NotificationVersion && savedNotification.originalSenderName[0] != '\0') {
+            needSession = TRUE;
+            status = Consumer_CreateSessionWithProducer(busAttachment, savedNotification.originalSenderName);
+            if (AJ_OK != status) {
+                AJ_Printf("DoAction(): session failed to create for Action %u\n", nextAction);
+            }
+        }
+        if (AJ_OK != status || !needSession) {
             status = ConsumerDismissNotification(busAttachment, savedNotification.version, savedNotification.notificationId, savedNotification.appId, savedNotification.originalSenderName, producerSessionId);
             if (AJ_OK != status) {
                 AJ_Printf("DoAction(): Action Dismiss failed with status %s\n", AJ_StatusText(status));
@@ -235,7 +242,7 @@ static void Consumer_DoAction(AJ_BusAttachment* busAttachment)
 
 void Consumer_IdleConnectedHandler(AJ_BusAttachment* busAttachment)
 {
-    if (savedNotification.version > 1 && !processingAction) {
+    if (savedNotification.version > 0 && !processingAction) {
         Consumer_DoAction(busAttachment);
     }
     return;
@@ -296,13 +303,15 @@ AJ_Status ApplicationHandleNotify(AJNS_Notification* notification)
         AJ_Printf("ControlPanelService object path: %s\n", notification->content->controlPanelServiceObjectPath);
     }
 
-    // Check if received notification is from a producer that supports the dismiss method
-    if (notification->version >= NotificationVersion && notification->originalSenderName != 0 && strlen(notification->originalSenderName) > 0 && processingAction == FALSE) {
+    if (processingAction == FALSE) {
         // Save notification reference so that it can be later dimissed
         savedNotification.version = notification->version;
         savedNotification.notificationId = notification->notificationId;
         strncpy(savedNotification.appId, notification->appId, sizeof(savedNotification.appId) - 1);
-        strncpy(savedNotification.originalSenderName, notification->originalSenderName, sizeof(savedNotification.originalSenderName) - 1);
+        savedNotification.originalSenderName[0] = '\0';
+        if (notification->originalSenderName != 0 && strlen(notification->originalSenderName) > 0) {
+            strncpy(savedNotification.originalSenderName, notification->originalSenderName, sizeof(savedNotification.originalSenderName) - 1);
+        }
     }
     AJ_Printf("******************** End New Message Received ********************\n");
 
