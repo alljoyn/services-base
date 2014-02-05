@@ -214,13 +214,17 @@ const uint8_t OBS_SoftAPIsHidden = FALSE;
  */
 const char* OBS_SoftAPPassphrase = NULL;
 /**
+ * Wait time for clients to connect to SoftAP station (ms)
+ */
+const uint32_t OBS_WAIT_FOR_SOFTAP_CONNECTION = 600000;
+/**
  * retry parameters after failed connection of already validated configuration.
  */
 const uint8_t OBS_MAX_RETRIES = 2;
 /**
  * Wait time between retries (ms)
  */
-const uint32_t OBS_WAIT_BETWEEN_RETRIES  = 180000;
+const uint32_t OBS_WAIT_BETWEEN_RETRIES = 180000;
 
 AJ_Status OBS_ReadInfo(OBInfo* info)
 {
