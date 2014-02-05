@@ -16,7 +16,6 @@
 
 #include <alljoyn.h>
 #include <alljoyn/onboarding/OnboardingControllerAPI.h>
-#include <aj_nvram.h>
 #include <aj_wifi_ctrl.h>
 #include <alljoyn/services_common/PropertyStore.h>
 #include <alljoyn/about/AboutOEMProvisioning.h>
@@ -39,7 +38,7 @@ static char obSoftAPssid[SSID_MAX_LENGTH + 1] = { 0 };
 static const char* OB_GetSoftAPSSID()
 {
     if (obSoftAPssid[0] == '\0') {
-        const char* deviceId = PropertyStore_GetValue(DeviceID);
+        const char* deviceId = PropertyStore_GetValue(AJSVC_PropertyStoreDeviceID);
         size_t deviceIdLen = strlen(deviceId);
         char manufacture[DEVICE_MANUFACTURE_NAME_LEN + 1] = { 0 };
         size_t manufacureLen = min(strlen(deviceManufactureName), DEVICE_MANUFACTURE_NAME_LEN);
@@ -241,57 +240,6 @@ static AJ_WiFiCipherType OBM_GetCipherType(OBAuthType authType)
     }
 
     return cipherType;
-}
-
-AJ_Status OBS_ReadInfo(OBInfo* info)
-{
-    AJ_Status status = AJ_OK;
-    size_t size = sizeof(OBInfo);
-
-    if (NULL == info) {
-        return AJ_ERR_NULL;
-    }
-    memset(info, 0, size);
-
-    if (!AJ_NVRAM_Exist(AJ_OBS_OBINFO_NV_ID)) {
-        return AJ_ERR_INVALID;
-    }
-
-    AJ_NV_DATASET* nvramHandle = AJ_NVRAM_Open(AJ_OBS_OBINFO_NV_ID, "r", 0);
-    if (nvramHandle != NULL) {
-        int sizeRead = AJ_NVRAM_Read(info, size, nvramHandle);
-        status = AJ_NVRAM_Close(nvramHandle);
-        if (sizeRead != sizeRead) {
-            status = AJ_ERR_WRITE;
-        } else {
-            AJ_Printf("Readed Info values: state=%d, ssid=%s authType=%d pc=%s\n", info->state, info->ssid, info->authType, info->pc);
-        }
-    }
-
-    return status;
-}
-
-AJ_Status OBS_WriteInfo(OBInfo* info)
-{
-    AJ_Status status = AJ_OK;
-    size_t size = sizeof(OBInfo);
-
-    if (NULL == info) {
-        return AJ_ERR_NULL;
-    }
-
-    AJ_Printf("Going to write Info values: state=%d, ssid=%s authType=%d pc=%s\n", info->state, info->ssid, info->authType, info->pc);
-
-    AJ_NV_DATASET* nvramHandle = AJ_NVRAM_Open(AJ_OBS_OBINFO_NV_ID, "w", size);
-    if (nvramHandle != NULL) {
-        int sizeWritten = AJ_NVRAM_Write(info, size, nvramHandle);
-        status = AJ_NVRAM_Close(nvramHandle);
-        if (sizeWritten != size) {
-            status = AJ_ERR_WRITE;
-        }
-    }
-
-    return status;
 }
 
 static void OBM_GotScanInfo(const char* ssid, const uint8_t bssid[6], uint8_t rssi, OBAuthType authType)
