@@ -19,7 +19,7 @@
 #include <algorithm>
 #include <alljoyn/notification/NotificationService.h>
 #include "NotificationConstants.h"
-#include <sstream>
+#include <alljoyn/notification/LogModule.h>
 
 using namespace ajn;
 using namespace services;
@@ -53,15 +53,7 @@ bool NotificationProducerListener::AcceptSessionJoiner(ajn::SessionPort sessionP
         return false;
     }
 
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        std::ostringstream stm;
-        stm << "NotificationProducerListener::AcceptSessionJoiner() ";
-        stm << "sessionPort=" << sessionPort << " ";
-        stm << "joiner:" << joiner;
-        logger->debug(TAG, String(std::string(stm.str()).c_str()));
-    }
-
+    QCC_DbgPrintf(("NotificationProducerListener::AcceptSessionJoiner() sessionPort=%hu joiner:%s", sessionPort, joiner));
     return true;
 }
 

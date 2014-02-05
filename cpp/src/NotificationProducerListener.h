@@ -19,7 +19,6 @@
 
 #include <alljoyn/BusListener.h>
 #include <alljoyn/SessionPortListener.h>
-#include <alljoyn/services_common/GenericLogger.h>
 #include <vector>
 
 namespace ajn {

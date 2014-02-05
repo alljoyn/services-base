@@ -17,19 +17,17 @@
 #include <signal.h>
 #include <iostream>
 #include <sstream>
-
 #include <alljoyn/PasswordManager.h>
 #include <alljoyn/notification/NotificationService.h>
 #include <alljoyn/notification/NotificationSender.h>
 #include <alljoyn/notification/NotificationEnums.h>
 #include <alljoyn/notification/NotificationText.h>
 #include <alljoyn/notification/RichAudioUrl.h>
-#include <alljoyn/services_common/GenericLogger.h>
 #include "../common/NotificationReceiverTestImpl.h"
 #include "CommonSampleUtil.h"
-#include "../common/SampleLogger.h"
 #include "TestFunction.h"
 #include "GuidUtil.h"
+#include <alljoyn/notification/LogModule.h>
 
 #define SERVICE_PORT 900
 
@@ -42,8 +40,6 @@ NotificationService* Service = 0;
 NotificationSender* Sender = 0;
 NotificationReceiverTestImpl* Receiver = 0;
 
-SampleLogger* myLogger = 0;
-GenericLogger* origLogger = 0;
 BusAttachment* testBus = 0;
 AboutPropertyStoreImpl* propertyStoreImpl = 0;
 CommonBusListener* notificationBusListener = 0;
@@ -92,7 +88,6 @@ bool createService(std::map<qcc::String, qcc::String>& params)
 #ifdef QCC_USING_BD
     PasswordManager::SetCredentials("ALLJOYN_PIN_KEYX", "000000");
 #endif
-    origLogger = Service->getLogger();
     std::cout << "Service Created" << std::endl;
     return true;
 }
@@ -200,10 +195,7 @@ bool setCustomAttributes(std::map<qcc::String, qcc::String>& params)
 
 bool setLogger(std::map<qcc::String, qcc::String>& params)
 {
-    Service->getLogger()->setLogLevel(Log::LEVEL_DEBUG);
-    myLogger = new SampleLogger();
-    Service->setLogger(myLogger);
-    std::cout << "Logger Set" << std::endl;
+    QCC_SetDebugLevel(QCC_MODULE, ALL_LOG_LEVELS);
     return true;
 }
 
@@ -317,10 +309,6 @@ bool shutdown(std::map<qcc::String, qcc::String>& params)
     if (Receiver) {
         delete Receiver;
         Receiver = 0;
-    }
-    if (myLogger) {
-        delete myLogger;
-        myLogger = 0;
     }
     if (testBus) {
         delete testBus;

@@ -19,6 +19,7 @@
 #include "NotificationTransportConsumer.h"
 #include "NotificationConstants.h"
 #include "PayloadAdapter.h"
+#include <alljoyn/notification/LogModule.h>
 
 using namespace ajn;
 using namespace services;
@@ -41,24 +42,20 @@ NotificationTransportConsumer::NotificationTransportConsumer(
                                          static_cast<MessageReceiver::SignalHandler>(&NotificationTransportConsumer::handleSignal),
                                          m_SignalMethod,
                                          NULL);
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        if (status != ER_OK) {
-            logger->warn(TAG, "Could not register the SignalHandler");
-        } else {
-            logger->debug(TAG, "Registered the SignalHandler successfully");
-        }
+
+    if (status != ER_OK) {
+        QCC_LogError(status, ("Could not register the SignalHandler"));
+    } else {
+        QCC_DbgPrintf(("Registered the SignalHandler successfully"));
     }
+
     pthread_create(&m_ReceiverThread, NULL, ReceiverThreadWrapper, this);
 }
 
 
 void NotificationTransportConsumer::handleSignal(const InterfaceDescription::Member* member, const char* srcPath, Message& msg)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug(TAG, "Received Message from producer.");
-    }
+    QCC_DbgPrintf(("Received Message from producer."));
     pthread_mutex_lock(&m_Lock);
     m_MessageQueue.push(msg);
     pthread_cond_signal(&m_QueueChanged);

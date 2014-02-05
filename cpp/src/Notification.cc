@@ -20,7 +20,10 @@
 #include "NotificationConstants.h"
 #include <alljoyn/services_common/AsyncTaskQueue.h>
 #include <alljoyn/notification/NotificationAsyncTaskEvents.h>
-#include <sstream>
+#include <qcc/Debug.h>
+#include <qcc/Log.h>
+#include <qcc/String.h>
+#include <alljoyn/notification/LogModule.h>
 
 using namespace ajn;
 using namespace services;
@@ -192,16 +195,7 @@ void Notification::setSender(const char* sender) {
 
 QStatus Notification::dismiss()
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        std::ostringstream stm;
-        stm << "Notification::dismiss() called";
-        stm << " OriginalSender:" << const_cast<char*>(getOriginalSender());
-        stm << " MessageId:" << getMessageId();
-        stm << " AppId:" << const_cast<char*>(getAppId());
-
-        logger->debug(TAG, String(std::string(stm.str()).c_str()));
-    }
+    QCC_DbgPrintf(("Notification::dismiss() called OriginalSender:%s MessageId:%d AppId:%s", getOriginalSender(), getMessageId(), getAppId()));
 
     NotificationMsg* notificationMsg = new NotificationMsg(getOriginalSender(), getMessageId(), getAppId());
     m_AsyncTaskQueue.Enqueue(notificationMsg);

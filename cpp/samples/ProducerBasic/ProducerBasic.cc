@@ -23,15 +23,11 @@
 #include <alljoyn/notification/NotificationText.h>
 #include <alljoyn/notification/RichAudioUrl.h>
 #include <alljoyn/notification/NotificationEnums.h>
-#include <alljoyn/services_common/GenericLogger.h>
 #include "CommonSampleUtil.h"
 #include <alljoyn/about/AboutServiceApi.h>
 #include <alljoyn/notification/Notification.h>
 #include "GuidUtil.h"
-
-#ifdef USE_SAMPLE_LOGGER
-#include "../common/SampleLogger.h"
-#endif
+#include <alljoyn/notification/LogModule.h>
 
 using namespace qcc;
 using namespace ajn;
@@ -59,7 +55,6 @@ using namespace ajn;
 using namespace services;
 
 NotificationService* prodService = 0;
-SampleLogger* myLogger = 0;
 NotificationSender* Sender = 0;
 BusAttachment* bus = 0;
 AboutPropertyStoreImpl* propertyStoreImpl = 0;
@@ -71,11 +66,6 @@ void cleanup()
     if (prodService) {
         prodService->shutdown();
     }
-#ifdef USE_SAMPLE_LOGGER
-    if (myLogger) {
-        delete myLogger;
-    }
-#endif
     if (bus && busListener) {
         CommonSampleUtil::aboutServiceDestroy(bus, busListener);
     }
@@ -111,13 +101,7 @@ int main()
 #endif
     QStatus status;
 
-#ifdef USE_SAMPLE_LOGGER
-    /* Optionally implement your own logger and instantiate it here */
-    myLogger = new SampleLogger();
-    prodService->setLogger(myLogger);
-#endif
-    // change loglevel to debug:
-    prodService->getLogger()->setLogLevel(Log::LEVEL_DEBUG);
+    QCC_SetDebugLevel(QCC_MODULE, ALL_LOG_LEVELS);
 
     bus = CommonSampleUtil::prepareBusAttachment();
     if (bus == NULL) {

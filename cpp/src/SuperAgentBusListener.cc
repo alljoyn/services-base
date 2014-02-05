@@ -18,6 +18,7 @@
 #include "Transport.h"
 #include <alljoyn/notification/NotificationService.h>
 #include <qcc/String.h>
+#include <alljoyn/notification/LogModule.h>
 
 namespace ajn {
 namespace services {
@@ -35,12 +36,7 @@ SuperAgentBusListener::~SuperAgentBusListener()
 
 void SuperAgentBusListener::FoundAdvertisedName(const char* name, TransportMask transport, const char* namePrefix)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        qcc::String log("FoundAdvertisedName name:");
-        log.append(name);
-        logger->debug(TAG, log);
-    }
+    QCC_DbgPrintf(("FoundAdvertisedName name:%s", name));
     // We must enable concurrent callbacks since some of the calls below are blocking
     m_Bus->EnableConcurrentCallbacks();
 
@@ -51,10 +47,7 @@ void SuperAgentBusListener::FoundAdvertisedName(const char* name, TransportMask 
 
 void SuperAgentBusListener::LostAdvertisedName(const char* name, TransportMask transport, const char* prefix)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug(TAG, "LostAdvertisedName");
-    }
+    QCC_DbgTrace(("LostAdvertisedName"));
     if (0 == ::strcmp(name, m_SuperAgentBusUniqueName.c_str())) {
         Transport::getInstance()->cancelListenToSuperAgent(m_SuperAgentBusUniqueName.c_str());
     }

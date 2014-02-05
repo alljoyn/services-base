@@ -22,7 +22,7 @@
 #include <iostream>
 #include "NotificationDismisserSender.h"
 #include <alljoyn/services_common/Conversions.h>
-#include <sstream>
+#include <alljoyn/notification/LogModule.h>
 
 using namespace ajn;
 using namespace services;
@@ -40,14 +40,10 @@ NotificationProducerReceiver::NotificationProducerReceiver(ajn::BusAttachment* b
         return;
     }
 
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-
     status = AddMethodHandler(m_InterfaceDescription->GetMember(AJ_DISMISS_METHOD_NAME.c_str()),
                               static_cast<MessageReceiver::MethodHandler>(&NotificationProducerReceiver::Dismiss));
     if (status != ER_OK) {
-        if (logger) {
-            logger->error(TAG, "AddMethodHandler failed.");
-        }
+        QCC_LogError(status, ("AddMethodHandler failed."));
         return;
     }
 
@@ -58,15 +54,9 @@ NotificationProducerReceiver::NotificationProducerReceiver(ajn::BusAttachment* b
 
 NotificationProducerReceiver::~NotificationProducerReceiver()
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug(TAG, "NotificationProducerReceiver::~NotificationProducerReceiver() - start");
-    }
+    QCC_DbgTrace(("start"));
 
-
-    if (logger) {
-        logger->debug(TAG, "NotificationProducerReceiver::~NotificationProducerReceiver() - end");
-    }
+    QCC_DbgTrace(("end"));
 }
 
 void NotificationProducerReceiver::unregisterHandler(BusAttachment* bus)
@@ -86,10 +76,7 @@ void NotificationProducerReceiver::unregisterHandler(BusAttachment* bus)
 
 void* NotificationProducerReceiver::ReceiverThreadWrapper(void* context)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug(TAG, "NotificationProducerReceiver::ReceiverThreadWrapper()");
-    }
+    QCC_DbgTrace(("NotificationProducerReceiver::ReceiverThreadWrapper()"));
     NotificationProducerReceiver* pNotificationProducerReceiver = reinterpret_cast<NotificationProducerReceiver*>(context);
     if (pNotificationProducerReceiver == NULL) { // should not happen
         return NULL;
@@ -100,19 +87,13 @@ void* NotificationProducerReceiver::ReceiverThreadWrapper(void* context)
 
 void NotificationProducerReceiver::Dismiss(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug(TAG, "NotificationProducerReceiver::Dismiss()");
-    }
+    QCC_DbgTrace(("NotificationProducerReceiver::Dismiss()"));
     HandleMethodCall(member, msg);
 }
 
 void NotificationProducerReceiver::HandleMethodCall(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug(TAG, "NotificationProducerReceiver::HandleMethodCall()");
-    }
+    QCC_DbgTrace(("NotificationProducerReceiver::HandleMethodCall()"));
     const ajn::MsgArg* args = 0;
     size_t numArgs = 0;
     QStatus status = ER_OK;
@@ -127,47 +108,34 @@ void NotificationProducerReceiver::HandleMethodCall(const ajn::InterfaceDescript
     if (status != ER_OK) {
         goto exit;
     }
-    if (logger) {
-        std::ostringstream stm;
-        stm << "msgId:";
-        stm << msgId;
-        logger->debug(TAG, String(std::string(stm.str()).c_str()));
-    }
+
+    QCC_DbgPrintf(("msgId:%d", msgId));
+
     MethodReply(msg, args, 0);
     pthread_mutex_lock(&m_Lock);
     {
         MsgQueueContent msgQueueContent(msgId);
         m_MessageQueue.push(msgQueueContent);
-        if (logger) {
-            logger->debug(TAG, "HandleMethodCall() - message pushed");
-        }
+        QCC_DbgPrintf(("HandleMethodCall() - message pushed"));
     }
     pthread_cond_signal(&m_QueueChanged);
     pthread_mutex_unlock(&m_Lock);
 
-
-
 exit:
     if (status != ER_OK) {
         MethodReply(msg, ER_INVALID_DATA);
-        if (logger) {
-            logger->debug(TAG, "ER_INVALID_DATA");
-        }
+        QCC_LogError(status, (""));
     }
 }
 
 void NotificationProducerReceiver::Receiver()
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-
     pthread_mutex_lock(&m_Lock);
     while (!m_IsStopping) {
         while (!m_MessageQueue.empty()) {
             MsgQueueContent message = m_MessageQueue.front();
             m_MessageQueue.pop();
-            if (logger) {
-                logger->debug(TAG, "NotificationProducerReceiver::ReceiverThread() - got a message.");
-            }
+            QCC_DbgPrintf(("NotificationProducerReceiver::ReceiverThread() - got a message."));
             pthread_mutex_unlock(&m_Lock);
             Transport::getInstance()->deleteMsg(message.m_MsgId);
             sendDismissSignal(message.m_MsgId);
@@ -180,10 +148,7 @@ void NotificationProducerReceiver::Receiver()
 
 QStatus NotificationProducerReceiver::sendDismissSignal(int32_t msgId)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug(TAG, "Notification::sendDismissSignal() called");
-    }
+    QCC_DbgTrace(("Notification::sendDismissSignal() called"));
     QStatus status;
     MsgArg msgIdArg;
 
@@ -199,7 +164,7 @@ QStatus NotificationProducerReceiver::sendDismissSignal(int32_t msgId)
      *
      * Transport::getInstance()->getNotificationDismisserSender()->sendSignal(dismisserArgs,nsConsts::TTL_MAX);
      * if (status != ER_OK) {
-     * logger->warn("NotificationAsyncTaskEvents", "sendSignal failed. Status: " + String(QCC_StatusText(status)));
+     * QCC_LogError(status,"NotificationAsyncTaskEvents", "sendSignal failed.");
      * return;
      * }
      *
@@ -221,19 +186,13 @@ QStatus NotificationProducerReceiver::sendDismissSignal(int32_t msgId)
     qcc::String objectPath = nsConsts::AJ_NOTIFICATION_DISMISSER_PATH + "/" + appId + "/" + std::string(stm.str()).c_str();
     NotificationDismisserSender notificationDismisserSender(Transport::getInstance()->getBusAttachment(), objectPath, status);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not create NotificationDismisserSender. Status: " + String(QCC_StatusText(status)));
-        }
+        QCC_LogError(status, ("Could not create NotificationDismisserSender."));
     }
     status = Transport::getInstance()->getBusAttachment()->RegisterBusObject(notificationDismisserSender);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not register NotificationDismisserSender. Status: " + String(QCC_StatusText(status)));
-        }
+        QCC_LogError(status, ("Could not register NotificationDismisserSender."));
     }
-    if (logger) {
-        logger->debug(TAG, "sendDismissSignal: going to send dismiss signal with object path " + String(objectPath.c_str()));
-    }
+    QCC_DbgPrintf(("sendDismissSignal: going to send dismiss signal with object path %s", objectPath.c_str()));
     notificationDismisserSender.sendSignal(dismisserArgs, nsConsts::TTL_MAX);
     /*
      * End of paragraph

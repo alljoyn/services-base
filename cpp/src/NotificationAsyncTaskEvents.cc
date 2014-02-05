@@ -25,6 +25,7 @@
 #include <alljoyn/notification/NotificationService.h>
 #include <alljoyn/services_common/Conversions.h>
 #include <sstream>
+#include <alljoyn/notification/LogModule.h>
 
 using namespace ajn;
 using namespace services;
@@ -43,10 +44,7 @@ void NotificationAsyncTaskEvents::OnEmptyQueue() {
 
 void NotificationAsyncTaskEvents::OnTask(TaskData const* taskData)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug("NotificationAsyncTaskEvents", "OnTask() called");
-    }
+    QCC_DbgTrace(("NotificationAsyncTaskEvents", "OnTask() called"));
 
     NotificationMsg const* notificationMsg = static_cast<NotificationMsg const*>(taskData);
 
@@ -57,24 +55,15 @@ void NotificationAsyncTaskEvents::OnTask(TaskData const* taskData)
     if (notificationMsg->m_OriginalSender.length() > 0) {
         status = pTransport->getBusAttachment()->JoinSession(notificationMsg->m_OriginalSender.c_str(), (ajn::SessionPort)nsConsts::AJ_NOTIFICATION_PRODUCER_SERVICE_PORT, NULL, sessionId, opts);
     } else {
-        if (logger) {
-            logger->debug("NotificationAsyncTaskEvents", "There is no original sender in the message. Can't join session.");
-        }
+        QCC_DbgHLPrintf(("There is no original sender in the message. Can't join session."));
         status = ER_FAIL;
     }
     if ((ER_OK != status) && (status != ER_ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED)) {
-        if (logger) {
-            logger->warn("NotificationAsyncTaskEvents", String("JoinSession to ") + notificationMsg->m_OriginalSender + String("failed (status=") + String(QCC_StatusText(status)) + String(")"));
-        }
-
+        QCC_LogError(status, ("Failed to JoinSession to %s", notificationMsg->m_OriginalSender.c_str()));
         sendDismissSignal(notificationMsg);
         return;
     } else {
-        if (logger) {
-            std::ostringstream stm;
-            stm << sessionId;
-            logger->debug("NotificationAsyncTaskEvents", String("JoinSession to ") + notificationMsg->m_OriginalSender +  String("SUCCEEDED (Session id=") + String(std::string(stm.str()).c_str()));
-        }
+        QCC_DbgPrintf(("JoinSession to %s SUCCEEDED (Session id=%u)", notificationMsg->m_OriginalSender.c_str(), sessionId));
     }
 
     NotificationProducerSender* pNotificationProducerSender = Transport::getInstance()->getNotificationProducerSender();
@@ -85,14 +74,10 @@ void NotificationAsyncTaskEvents::OnTask(TaskData const* taskData)
 
     status = pNotificationProducerSender->Dismiss(notificationMsg->m_OriginalSender.c_str(), sessionId, notificationMsg->m_MessageId);
     if (status != ER_OK) {
-        if (logger) {
-            logger->debug("NotificationAsyncTaskEvents", "Dismiss failed" + String(QCC_StatusText(status)));
-        }
+        QCC_LogError(status, ("Dismiss failed"));
         sendDismissSignal(taskData);
     } else {
-        if (logger) {
-            logger->debug("NotificationAsyncTaskEvents", "Dismiss succeeded");
-        }
+        QCC_DbgPrintf(("Dismiss succeeded"));
     }
 
     status = Transport::getInstance()->getBusAttachment()->LeaveSession(sessionId);
@@ -100,11 +85,7 @@ void NotificationAsyncTaskEvents::OnTask(TaskData const* taskData)
 
 void NotificationAsyncTaskEvents::sendDismissSignal(TaskData const* taskData)
 {
-
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug("NotificationAsyncTaskEvents", "sendDismissSignal() called!");
-    }
+    QCC_DbgPrintf(("NotificationAsyncTaskEvents", "sendDismissSignal() called!"));
 
     NotificationMsg const*  notificationMsg = dynamic_cast<NotificationMsg const*>(taskData);
 
@@ -133,9 +114,9 @@ void NotificationAsyncTaskEvents::sendDismissSignal(TaskData const* taskData)
          * In case dismiss signal will not need to be sent via different object path each time.
          * In that case enable code below and disable next paragraph.
          *
-         * Transport::getInstance()->getNotificationDismisserSender()->sendSignal(dismisserArgs,nsConsts::TTL_MAX);
+         * status = Transport::getInstance()->getNotificationDismisserSender()->sendSignal(dismisserArgs,nsConsts::TTL_MAX);
          * if (status != ER_OK) {
-         * logger->warn("NotificationAsyncTaskEvents", "sendSignal failed. Status: " + String(QCC_StatusText(status)));
+         * QCC_LogError(status,("NotificationAsyncTaskEvents", "sendSignal failed."));
          * return;
          * }
          *
@@ -151,16 +132,12 @@ void NotificationAsyncTaskEvents::sendDismissSignal(TaskData const* taskData)
         NotificationDismisserSender notificationDismisserSender(Transport::getInstance()->getBusAttachment(), objectPath, status);
         status = Transport::getInstance()->getBusAttachment()->RegisterBusObject(notificationDismisserSender);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn("NotificationAsyncTaskEvents", "Could not register NotificationDismisserSender. Status: " + String(QCC_StatusText(status)));
-            }
+            QCC_LogError(status, ("Could not register NotificationDismisserSender."));
             return;
         }
         status = notificationDismisserSender.sendSignal(dismisserArgs, nsConsts::TTL_MAX);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn("NotificationAsyncTaskEvents", "sendSignal failed. Status: " + String(QCC_StatusText(status)));
-            }
+            QCC_LogError(status, ("sendSignal failed."));
             return;
         }
         /*

@@ -33,7 +33,7 @@
 #include "NotificationTransportConsumer.h"
 #include "NotificationTransportProducer.h"
 #include "NotificationTransportSuperAgent.h"
-#include <sstream>
+#include <alljoyn/notification/LogModule.h>
 
 using namespace ajn;
 using namespace services;
@@ -70,18 +70,13 @@ Transport* Transport::getInstance()
 
 QStatus Transport::setBusAttachment(ajn::BusAttachment* bus)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
     if (m_Bus && bus->GetUniqueName().compare(m_Bus->GetUniqueName()) != 0) {
-        if (logger) {
-            logger->warn(TAG, "Could not accept this BusAttachment, a different bus attachment already exists");
-        }
+        QCC_LogError(ER_BUS_LISTENER_ALREADY_SET, ("Could not accept this BusAttachment, a different bus attachment already exists"));
         return ER_BUS_LISTENER_ALREADY_SET;
     }
 
     if (!bus->IsStarted() || !bus->IsConnected()) {
-        if (logger) {
-            logger->warn(TAG, "Could not acccept this BusAttachment, bus attachment not started or not connected");
-        }
+        QCC_LogError(ER_BAD_ARG_1, ("Could not acccept this BusAttachment, bus attachment not started or not connected"));
         return ER_BAD_ARG_1;
     }
 
@@ -106,19 +101,13 @@ void Transport::setNotificationReceiver(NotificationReceiver* notificationReceiv
 
 void Transport::onReceivedNotification(Notification const& notification)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-
     if (m_Receiver == 0) {
-        if (logger) {
-            logger->warn(TAG, "Could not receive message, Receiver is not initialized");
-        }
+        QCC_DbgHLPrintf(("Could not receive message, Receiver is not initialized"));
         return;
     }
 
     if (m_IsReceivingDisabled) {
-        if (logger) {
-            logger->info(TAG, "Could not receive message, Receiving is Disabled");
-        }
+        QCC_DbgHLPrintf(("Could not receive message, Receiving is Disabled"));
         return;
     }
 
@@ -129,19 +118,13 @@ void Transport::onReceivedNotification(Notification const& notification)
 QStatus Transport::sendNotification(NotificationMessageType messageType,
                                     MsgArg const notificationArgs[AJ_NOTIFY_NUM_PARAMS], uint16_t ttl)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-
     if (m_Producers[messageType] == 0) {
-        if (logger) {
-            logger->warn(TAG, "Could not send message, Sender is not initialized");
-        }
+        QCC_LogError(ER_BUS_OBJECT_NOT_REGISTERED, ("Could not send message, Sender is not initialized"));
         return ER_BUS_OBJECT_NOT_REGISTERED;
     }
 
     if (m_IsSendingDisabled) {
-        if (logger) {
-            logger->info(TAG, "Could not send message, Sending is Disabled");
-        }
+        QCC_LogError(ER_BUS_NOT_ALLOWED, ("Could not send message, Sending is Disabled"));
         return ER_BUS_NOT_ALLOWED;
     }
 
@@ -150,12 +133,8 @@ QStatus Transport::sendNotification(NotificationMessageType messageType,
 
 QStatus Transport::deleteLastMsg(NotificationMessageType messageType)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-
     if (m_Producers[messageType] == 0) {
-        if (logger) {
-            logger->warn(TAG, "Could not delete message, Sender is not initialized");
-        }
+        QCC_LogError(ER_BUS_OBJECT_NOT_REGISTERED, ("Could not delete message, Sender is not initialized"));
         return ER_BUS_OBJECT_NOT_REGISTERED;
     }
 
@@ -164,22 +143,15 @@ QStatus Transport::deleteLastMsg(NotificationMessageType messageType)
 
 QStatus Transport::deleteMsg(int32_t msgId)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug(TAG, "Transport::deleteMsg()");
-    }
+    QCC_DbgTrace(("Transport::deleteMsg() msgId=%d", msgId));
     QStatus ret = ER_OK;
 
     for (size_t i  = 0; i < ajn::services::MESSAGE_TYPE_CNT; i++) {
         if (m_Producers[i] == 0) {
-            if (logger) {
-                logger->warn(TAG, "Could not delete message, Sender is not initialized");
-            }
+            QCC_DbgHLPrintf(("Could not delete message, Sender is not initialized"));
             continue;
         } else {
-            if (logger) {
-                logger->warn(TAG, "deleting message");
-            }
+            QCC_DbgHLPrintf(("deleting message"));
         }
 
         ret = m_Producers[i]->deleteMsg(msgId);
@@ -189,53 +161,34 @@ QStatus Transport::deleteMsg(int32_t msgId)
     }
 
     if (ret == ER_OK) {
-        if (logger) {
-            std::ostringstream stm;
-            stm << "Transport::deleteMsg() - message successfully deleted. ";
-            stm << "msgId=" << msgId;
-            logger->debug(TAG, String(std::string(stm.str()).c_str()));
-        }
+        QCC_DbgPrintf(("Transport::deleteMsg() - message successfully deleted. msgId=%d", msgId));
     } else {
-        if (logger) {
-            std::ostringstream stm;
-            stm << "Transport::deleteMsg() - didn't find message to delete. ";
-            stm << "msgId=" << msgId;
-            logger->debug(TAG, String(std::string(stm.str()).c_str()));
-        }
+        QCC_DbgPrintf(("Transport::deleteMsg() - didn't find message to delete. msgId=%d", msgId));
     }
     return ret;
 }
 
 QStatus Transport::startSenderTransport(BusAttachment* bus, bool startSuperAgent)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug(TAG, "Transport::startSenderTransport");
-    }
+    QCC_DbgTrace(("Transport::startSenderTransport"));
     std::vector<String> interfaces;
     QStatus status;
 
     if ((status = setBusAttachment(bus)) != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not start Sender Transport. BusAttachment is not valid");
-        }
+        QCC_LogError(status, ("Could not start Sender Transport. BusAttachment is not valid"));
         goto exit;
     }
 
     if (m_Producers[0]) {
-        if (logger) {
-            logger->info(TAG, "Sender Transport already started. Ignoring request");
-        }
+        QCC_DbgPrintf(("Sender Transport already started. Ignoring request"));
         goto exit;
     }
 
     { //Handling AboutService
         AboutServiceApi* aboutService = AboutServiceApi::getInstance();
         if (!aboutService) {
-            if (logger) {
-                logger->info(TAG, "AboutService is not defined");
-            }
             status = ER_FAIL;
+            QCC_LogError(status, ("AboutService is not defined"));
             goto exit;
         }
 
@@ -273,17 +226,13 @@ QStatus Transport::startSenderTransport(BusAttachment* bus, bool startSuperAgent
             }
 
             if (status != ER_OK) {
-                if (logger) {
-                    logger->warn(TAG, "Could not create BusObject. Status: " + String(QCC_StatusText(status)));
-                }
+                QCC_LogError(status, ("Could not create BusObject."));
                 goto exit;
             }
 
             status = m_Bus->RegisterBusObject(*m_Producers[messageTypeIndx]);
             if (status != ER_OK) {
-                if (logger) {
-                    logger->warn(TAG, "Could not register BusObject. Status: " + String(QCC_StatusText(status)));
-                }
+                QCC_LogError(status, ("Could not register BusObject."));
                 goto exit;
             }
         }
@@ -296,14 +245,10 @@ QStatus Transport::startSenderTransport(BusAttachment* bus, bool startSuperAgent
     }
     status = m_Bus->RegisterBusObject(*m_NotificationProducerReceiver);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not register BusObject. Status: " + String(QCC_StatusText(status)));
-        }
+        QCC_LogError(status, ("Could not register BusObject."));
         goto exit;
     } else {
-        if (logger) {
-            logger->debug(TAG, "Transport::startSenderTransport - registered NotificationProducerReceiver successfully.");
-        }
+        QCC_DbgPrintf(("Transport::startSenderTransport - registered NotificationProducerReceiver successfully."));
     }
 
     m_NotificationProducerListener = new NotificationProducerListener();
@@ -315,14 +260,10 @@ QStatus Transport::startSenderTransport(BusAttachment* bus, bool startSuperAgent
 
         status = m_Bus->BindSessionPort(servicePort, sessionOpts, *m_NotificationProducerListener);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not bind Session Port successfully");
-            }
+            QCC_LogError(status, ("Could not bind Session Port successfully"));
             goto exit;
         } else {
-            if (logger) {
-                logger->warn(TAG, "bind Session Port successfully for notification producer service");
-            }
+            QCC_DbgPrintf(("bind Session Port successfully for notification producer service"));
         }
     }
     //Code handles NotificationProducerReceiver - End
@@ -330,30 +271,22 @@ QStatus Transport::startSenderTransport(BusAttachment* bus, bool startSuperAgent
     //Handling NotificationDismisserSender - start here
     m_NotificationDismisserSender = new NotificationDismisserSender(m_Bus, AJ_NOTIFICATION_DISMISSER_PATH, status);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not create NotificationDismisserSender. Status: " + String(QCC_StatusText(status)));
-        }
+        QCC_LogError(status, ("Could not create NotificationDismisserSender."));
         goto exit;
     }
 
     status = m_Bus->RegisterBusObject(*m_NotificationDismisserSender);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not register NotificationDismisserSender. Status: " + String(QCC_StatusText(status)));
-        }
+        QCC_LogError(status, ("Could not register NotificationDismisserSender."));
         goto exit;
     }
     //Handling NotificationDismisserSender - end here
 
 exit:    //label exit
     if (status == ER_OK) {
-        if (logger) {
-            logger->info(TAG, "Started Sender successfully");
-        }
+        QCC_DbgTrace(("Started Sender successfully"));
     } else {   //if (status != ER_OK)
-        if (logger) {
-            logger->info(TAG, "Started Sender with error. Status:" + String(QCC_StatusText(status)));
-        }
+        QCC_LogError(status, ("Started Sender with error."));
         cleanupSenderTransport();
     }
 
@@ -362,15 +295,12 @@ exit:    //label exit
 
 QStatus Transport::listenForAnnouncements()
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
     m_AnnounceListener = new NotificationAnnounceListener();
 
     QStatus status;
     status = AnnouncementRegistrar::RegisterAnnounceHandler(*m_Bus, *m_AnnounceListener);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not create AnnouncementListener. AnnounceHandlerApi not initialized");
-        }
+        QCC_DbgHLPrintf(("Could not create AnnouncementListener. AnnounceHandlerApi not initialized"));
         cleanupAnnouncementListener();
     }
     return status;
@@ -379,44 +309,32 @@ QStatus Transport::listenForAnnouncements()
 QStatus Transport::startReceiverTransport(BusAttachment* bus)
 {
     QStatus status = ER_OK;
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
 
     if ((status = setBusAttachment(bus)) != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not start Receiver Transport. BusAttachment is not valid");
-        }
+        QCC_LogError(status, ("Could not start Receiver Transport. BusAttachment is not valid"));
         goto exit;
     }
 
     if (m_Consumer == NULL) {
         m_Consumer = new NotificationTransportConsumer(m_Bus, AJ_CONSUMER_SERVICE_PATH, status);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not create Consumer BusObject. Status: " + String(QCC_StatusText(status)));
-            }
+            QCC_LogError(status, ("Could not create Consumer BusObject."));
             goto exit;
         }
 
         status = m_Bus->RegisterBusObject(*m_Consumer);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not register Consumer BusObject. Status: " + String(QCC_StatusText(status)));
-            }
+            QCC_LogError(status, ("Could not register Consumer BusObject."));
             goto exit;
         }
 
         String AJ_NOTIFICATION_INTERFACE_MATCH = "interface='" + AJ_NOTIFICATION_INTERFACE_NAME + "'";
-
-        if (logger) {
-            logger->debug(TAG, "Match String is: " + AJ_NOTIFICATION_INTERFACE_MATCH);
-        }
+        QCC_DbgPrintf(("Match String is: %s", AJ_NOTIFICATION_INTERFACE_MATCH.c_str()));
 
         status = m_Bus->AddMatch(AJ_NOTIFICATION_INTERFACE_MATCH.c_str());
 
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not add filter match for notification service. Status: " + String(QCC_StatusText(status)));
-            }
+            QCC_LogError(status, ("Could not add filter match for notification service."));
             goto exit;
         }
     }
@@ -424,31 +342,22 @@ QStatus Transport::startReceiverTransport(BusAttachment* bus)
         m_SuperAgent = new NotificationTransportSuperAgent(m_Bus, AJ_CONSUMER_SERVICE_PATH, status);
 
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not create SuperAgent BusObject. Status: " + String(QCC_StatusText(status)));
-            }
+            QCC_LogError(status, ("Could not create SuperAgent BusObject."));
             goto exit;
         }
 
         status = m_Bus->RegisterBusObject(*m_SuperAgent);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not register SuperAgent BusObject. Status: " + String(QCC_StatusText(status)));
-            }
+            QCC_LogError(status, ("Could not register SuperAgent BusObject."));
             goto exit;
         }
 
         String AJ_SUPERAGENT_INTERFACE_MATCH = "interface='" + AJ_SA_INTERFACE_NAME + "'";
-
-        if (logger) {
-            logger->debug(TAG, "SuperAgent Match String is: " + AJ_SUPERAGENT_INTERFACE_MATCH);
-        }
+        QCC_DbgPrintf(("SuperAgent Match String is: %s", AJ_SUPERAGENT_INTERFACE_MATCH.c_str()));
 
         status = m_Bus->AddMatch(AJ_SUPERAGENT_INTERFACE_MATCH.c_str());
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not add filter match. Status: " + String(QCC_StatusText(status)));
-            }
+            QCC_LogError(status, ("Could not add filter match."));
             goto exit;
         }
     }
@@ -457,16 +366,12 @@ QStatus Transport::startReceiverTransport(BusAttachment* bus)
     if (m_NotificationProducerSender == NULL) {
         m_NotificationProducerSender = new NotificationProducerSender(m_Bus, status);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not create NotificationProducerSender BusObject. Status: " + String(QCC_StatusText(status)));
-            }
+            QCC_LogError(status, ("Could not create NotificationProducerSender BusObject."));
             goto exit;
         }
         status = m_Bus->RegisterBusObject(*m_NotificationProducerSender);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not register NotificationProducerSender BusObject. Status: " + String(QCC_StatusText(status)));
-            }
+            QCC_LogError(status, ("Could not register NotificationProducerSender BusObject."));
             goto exit;
         }
     }
@@ -476,30 +381,21 @@ QStatus Transport::startReceiverTransport(BusAttachment* bus)
     if (m_NotificationDismisserReceiver == NULL) {
         m_NotificationDismisserReceiver = new NotificationDismisserReceiver(m_Bus, status);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not create NotificationDismisserReceiver BusObject. Status: " + String(QCC_StatusText(status)));
-            }
+            QCC_LogError(status, ("Could not create NotificationDismisserReceiver BusObject."));
             goto exit;
         }
         status = m_Bus->RegisterBusObject(*m_NotificationDismisserReceiver);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not register m_NotificationDismisserReceiver BusObject. Status: " + String(QCC_StatusText(status)));
-            }
+            QCC_LogError(status, ("Could not register m_NotificationDismisserReceiver BusObject."));
             goto exit;
         }
 
         String AJ_DISMISSER_INTERFACE_MATCH = "interface='" + AJ_NOTIFICATION_DISMISSER_INTERFACE + "'";
-
-        if (logger) {
-            logger->debug(TAG, "NotificationDismisserReceiver Match String is: " + AJ_DISMISSER_INTERFACE_MATCH);
-        }
+        QCC_DbgPrintf(("NotificationDismisserReceiver Match String is: %s", AJ_DISMISSER_INTERFACE_MATCH.c_str()));
 
         status = m_Bus->AddMatch(AJ_DISMISSER_INTERFACE_MATCH.c_str());
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not add filter match. Status: " + String(QCC_StatusText(status)));
-            }
+            QCC_LogError(status, ("Could not add filter match."));
             goto exit;
         }
     }
@@ -509,17 +405,13 @@ QStatus Transport::startReceiverTransport(BusAttachment* bus)
     if (m_NotificationDismisserSender == NULL) {
         m_NotificationDismisserSender = new NotificationDismisserSender(m_Bus, AJ_NOTIFICATION_DISMISSER_PATH, status);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not create NotificationDismisserSender. Status: " + String(QCC_StatusText(status)));
-            }
+            QCC_LogError(status, ("Could not create NotificationDismisserSender."));
             goto exit;
         }
 
         status = m_Bus->RegisterBusObject(*m_NotificationDismisserSender);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not register BusObject. Status: " + String(QCC_StatusText(status)));
-            }
+            QCC_LogError(status, ("Could not register BusObject."));
             goto exit;
         }
     }
@@ -527,14 +419,10 @@ QStatus Transport::startReceiverTransport(BusAttachment* bus)
     if (!m_IsSuperAgentDisabled) {
         status = listenForAnnouncements();
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not listen for announcements.");
-            }
+            QCC_LogError(status, ("Could not listen for announcements."));
             goto exit;
         } else {
-            if (logger) {
-                logger->warn(TAG, "successfully listens announcements.");
-            }
+            QCC_DbgPrintf(("successfully listens announcements."));
         }
     }
 
@@ -545,15 +433,10 @@ QStatus Transport::startReceiverTransport(BusAttachment* bus)
 
 exit:
     if (status != ER_OK) {
-        if (logger) {
-            logger->info(TAG, "Not listening to any producers");
-        }
-
+        QCC_LogError(status, ("Not listening to any producers"));
         cleanupReceiverTransport();
     } else {
-        if (logger) {
-            logger->info(TAG, "Started Receiver successfully");
-        }
+        QCC_DbgPrintf(("Started Receiver successfully"));
     }
     return status;
 }
@@ -566,13 +449,10 @@ QStatus Transport::FindSuperAgent(const char* busName)
 
 QStatus Transport::listenToSuperAgent(const char* senderId)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
     QStatus status = ER_OK;
 
     if (m_IsListeningToSuperAgent == true) {
-        if (logger) {
-            logger->warn(TAG, "Already listening to super agent");
-        }
+        QCC_DbgHLPrintf(("Already listening to super agent"));
         return status;
     }
 
@@ -584,9 +464,7 @@ QStatus Transport::listenToSuperAgent(const char* senderId)
 
     status = m_Bus->RemoveMatch(AJ_REMOVE_MATCH.c_str());
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not remove regular match from bus. Status: " + String(QCC_StatusText(status)));
-        }
+        QCC_LogError(status, ("Could not remove regular match from bus."));
         goto exit;
     }
 
@@ -595,25 +473,18 @@ QStatus Transport::listenToSuperAgent(const char* senderId)
 
     { //add mach sender id
         String AJ_SA_ADD_MATCH = "sender='" + String(senderId) + "'";
-
-        if (logger) {
-            logger->debug(TAG, "SuperAgent add match:" + AJ_SA_ADD_MATCH);
-        }
+        QCC_DbgPrintf(("SuperAgent add match:%s", AJ_SA_ADD_MATCH.c_str()));
 
         status = m_Bus->AddMatch(AJ_SA_ADD_MATCH.c_str());
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not add Super Agent filter match. Status: " + String(QCC_StatusText(status)));
-            }
+            QCC_LogError(status, ("Could not add Super Agent filter match."));
             goto exit;
         }
     }
 
     status = m_Bus->RemoveMatch(AJ_SA_REMOVE_MATCH.c_str());
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not remove super agent match from bus. Status: " + String(QCC_StatusText(status)));
-        }
+        QCC_LogError(status, ("Could not remove super agent match from bus."));
         goto exit;
     }
 
@@ -621,10 +492,8 @@ QStatus Transport::listenToSuperAgent(const char* senderId)
 
 exit:
     if (status == ER_OK) {
-        if (logger) {
-            logger->info(TAG, "Added Super Agent successfully");
-            logger->info(TAG, "NOTE: Starting to run in SuperAgent Mode");
-        }
+        QCC_DbgPrintf(("Added Super Agent successfully"));
+        QCC_DbgPrintf(("NOTE: Starting to run in SuperAgent Mode"));
     }
 
     return status;
@@ -632,13 +501,10 @@ exit:
 
 QStatus Transport::cancelListenToSuperAgent(const char* senderId)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
     QStatus status = ER_OK;
 
     if (m_IsListeningToSuperAgent == false) {
-        if (logger) {
-            logger->warn(TAG, "Already not listening to super agent");
-        }
+        QCC_DbgHLPrintf(("Already not listening to super agent"));
         return status;
     }
 
@@ -649,24 +515,17 @@ QStatus Transport::cancelListenToSuperAgent(const char* senderId)
     String AJ_SA_ADD_MATCH = "sender='" + String(senderId) + "'";
     status = m_Bus->RemoveMatch(AJ_SA_ADD_MATCH.c_str());
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not remove super agent match from bus. Status: " + String(QCC_StatusText(status)));
-        }
+        QCC_LogError(status, ("Could not remove super agent match from bus."));
         return status;
     }
     startReceiverTransport(m_Bus);
 
     String AJ_SUPERAGENT_INTERFACE_MATCH = "interface='" + AJ_SA_INTERFACE_NAME + "'";
-
-    if (logger) {
-        logger->debug(TAG, "SuperAgent Match String is: " + AJ_SUPERAGENT_INTERFACE_MATCH);
-    }
+    QCC_DbgPrintf(("SuperAgent Match String is: %s", AJ_SUPERAGENT_INTERFACE_MATCH.c_str()));
 
     status = m_Bus->AddMatch(AJ_SUPERAGENT_INTERFACE_MATCH.c_str());
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not add filter match. Status: " + String(QCC_StatusText(status)));
-        }
+        QCC_LogError(status, ("Could not add filter match."));
         return status;
     }
 
@@ -679,10 +538,7 @@ QStatus Transport::cancelListenToSuperAgent(const char* senderId)
 
 void Transport::cleanupTransportProducer(int32_t messageTypeIndx, bool unregister)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug(TAG, "Transport::cleanupTransportProducer - Start");
-    }
+    QCC_DbgTrace(("Transport::cleanupTransportProducer - Start"));
     for  (; messageTypeIndx >= 0; messageTypeIndx--) {
         if (!m_Producers[messageTypeIndx]) {
             continue;
@@ -693,35 +549,27 @@ void Transport::cleanupTransportProducer(int32_t messageTypeIndx, bool unregiste
         delete m_Producers[messageTypeIndx];
         m_Producers[messageTypeIndx] = 0;
     }
-    if (logger) {
-        logger->debug(TAG, "Transport::cleanupTransportProducer - End");
-    }
+    QCC_DbgTrace(("Transport::cleanupTransportProducer - End"));
 
 }
 
 void Transport::cleanupNotificationProducerReceiver()
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
     SessionPort sp = AJ_NOTIFICATION_PRODUCER_SERVICE_PORT;
     QStatus status = m_Bus->UnbindSessionPort(sp);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not unbind the SessionPort " + String(QCC_StatusText(status)));
-        }
+        QCC_LogError(status, ("Could not unbind the SessionPort "));
     }
 
-    if (logger) {
-        logger->debug(TAG, "cleaning NotificationProducerListener");
-    }
+    QCC_DbgPrintf(("cleaning NotificationProducerListener"));
+
     if (m_NotificationProducerListener) {
         delete m_NotificationProducerListener;
         m_NotificationProducerListener = 0;
     }
 
     if (m_NotificationProducerReceiver) {
-        if (logger) {
-            logger->debug(TAG, "cleaning NotificationProducerReceiver");
-        }
+        QCC_DbgPrintf(("cleaning NotificationProducerReceiver"));
         m_NotificationProducerReceiver->unregisterHandler(m_Bus);
         m_Bus->UnregisterBusObject(*m_NotificationProducerReceiver);
         delete m_NotificationProducerReceiver;

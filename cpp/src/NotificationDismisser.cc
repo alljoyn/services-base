@@ -18,6 +18,7 @@
 
 #include "NotificationDismisser.h"
 #include "NotificationConstants.h"
+#include <alljoyn/notification/LogModule.h>
 
 using namespace ajn;
 using namespace services;
@@ -29,9 +30,6 @@ qcc::String NotificationDismisser::TAG(TAG_NOTIFICATION_DISMISSER);
 NotificationDismisser::NotificationDismisser(ajn::BusAttachment* bus, qcc::String const& objectPath, QStatus& status) :
     BusObject(objectPath.c_str()), m_SignalMethod(0), m_InterfaceDescription(NULL)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-
-
     m_InterfaceDescription = const_cast<InterfaceDescription*>(bus->GetInterface(AJ_NOTIFICATION_DISMISSER_INTERFACE.c_str()));
     if (!m_InterfaceDescription) {
         if ((status = bus->CreateInterface(nsConsts::AJ_NOTIFICATION_DISMISSER_INTERFACE.c_str(), m_InterfaceDescription, false)) != ER_OK) {
@@ -39,25 +37,19 @@ NotificationDismisser::NotificationDismisser(ajn::BusAttachment* bus, qcc::Strin
         }
 
         if (!m_InterfaceDescription) {
-            if (logger) {
-                logger->debug(TAG, "m_InterfaceDescription is NULL");
-            }
             status = ER_FAIL;
+            QCC_LogError(status, ("m_InterfaceDescription is NULL"));
             return;
         }
 
         status = m_InterfaceDescription->AddSignal(AJ_DISMISS_SIGNAL_NAME.c_str(), AJ_DISMISS_SIGNAL_PARAMS.c_str(), AJ_DISMISS_PARAM_NAMES.c_str(), 0);
         if (status != ER_OK) {
-            if (logger) {
-                logger->debug(TAG, "AddSignal failed. satus=" + String(QCC_StatusText(status)));
-            }
+            QCC_LogError(status, ("AddSignal failed."));
             return;
         }
         status = m_InterfaceDescription->AddProperty(AJ_PROPERTY_VERSION.c_str(), AJPARAM_UINT16.c_str(), PROP_ACCESS_READ);
         if (status != ER_OK) {
-            if (logger) {
-                logger->debug(TAG, "AddSignal failed. satus=" + String(QCC_StatusText(status)));
-            }
+            QCC_LogError(status, ("AddProperty failed."));
             return;
         }
         m_InterfaceDescription->Activate();
@@ -65,19 +57,15 @@ NotificationDismisser::NotificationDismisser(ajn::BusAttachment* bus, qcc::Strin
 
     status = AddInterface(*m_InterfaceDescription);
     if (status != ER_OK) {
-        if (logger) {
-            logger->debug(TAG, "Could not add interface");
-        }
+        QCC_LogError(status, ("Could not add interface."));
         return;
     }
 
     // Get the signal method for future use
     m_SignalMethod = m_InterfaceDescription->GetMember(AJ_DISMISS_SIGNAL_NAME.c_str());
     if (m_SignalMethod == NULL) {
-        if (logger) {
-            logger->debug(TAG, "Could not add interface");
-        }
         status = ER_FAIL;
+        QCC_LogError(status, ("Could not add interface."));
         return;
     }
 
@@ -89,15 +77,10 @@ NotificationDismisser::~NotificationDismisser()
 
 QStatus NotificationDismisser::Get(const char* ifcName, const char* propName, MsgArg& val)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug(TAG, "Get property was called :\n");
-    }
+    QCC_DbgPrintf(("Get property was called:"));
 
     if (0 != strcmp(AJ_PROPERTY_VERSION.c_str(), propName)) {
-        if (logger) {
-            logger->warn(TAG, "Called for property different than version. Exiting :\n");
-        }
+        QCC_LogError(ER_BUS_NO_SUCH_PROPERTY, ("Called for property different than version."));
         return ER_BUS_NO_SUCH_PROPERTY;
     }
 

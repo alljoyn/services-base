@@ -20,6 +20,7 @@
 #include "NotificationDismisserSender.h"
 #include "NotificationConstants.h"
 #include "Transport.h"
+#include <alljoyn/notification/LogModule.h>
 
 using namespace ajn;
 using namespace services;
@@ -38,28 +39,16 @@ NotificationDismisserSender::NotificationDismisserSender(BusAttachment* bus, Str
     }
 
     //Add code here
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-
-    if (logger) {
-        String log("NotificationDismisserSender()  - Got objectpath=");
-        log.append(objectPath);
-        logger->debug(TAG, log);
-    }
+    QCC_DbgPrintf(("NotificationDismisserSender()  - Got objectpath=%s", objectPath.c_str()));
 }
 
 QStatus NotificationDismisserSender::sendSignal(ajn::MsgArg const dismisserArgs[AJ_DISMISSER_NUM_PARAMS],
                                                 uint16_t ttl)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-
-    if (logger) {
-        logger->debug(TAG, "Notification::sendSignal() called");
-    }
+    QCC_DbgTrace(("Notification::sendSignal() called"));
 
     if (m_SignalMethod == 0) {
-        if (logger) {
-            logger->warn(TAG, "signalMethod not set. Can't send signal");
-        }
+        QCC_LogError(ER_BUS_INTERFACE_NO_SUCH_MEMBER, ("signalMethod not set. Can't send signal"));
         return ER_BUS_INTERFACE_NO_SUCH_MEMBER;
     }
 
@@ -70,14 +59,10 @@ QStatus NotificationDismisserSender::sendSignal(ajn::MsgArg const dismisserArgs[
     QStatus status = Signal(NULL, 0, *m_SignalMethod, dismisserArgs, AJ_DISMISSER_NUM_PARAMS, ttl, flags, &msg);
 
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not send signal. Status: " + String(QCC_StatusText(status)));
-        }
+        QCC_LogError(status, ("Could not send signal."));
         return status;
     }
 
-    if (logger) {
-        logger->debug(TAG, "Sent signal successfully");
-    }
+    QCC_DbgPrintf(("Sent signal successfully"));
     return status;
 }

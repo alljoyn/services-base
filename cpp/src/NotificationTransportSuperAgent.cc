@@ -20,6 +20,7 @@
 #include "NotificationTransportSuperAgent.h"
 #include "PayloadAdapter.h"
 #include "Transport.h"
+#include <alljoyn/notification/LogModule.h>
 
 using namespace qcc;
 using namespace ajn;
@@ -39,43 +40,34 @@ NotificationTransportSuperAgent::NotificationTransportSuperAgent(
                                          static_cast<MessageReceiver::SignalHandler>(&NotificationTransportSuperAgent::handleSignal),
                                          m_SignalMethod,
                                          NULL);
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        if (status != ER_OK) {
-            logger->warn(TAG, "Could not register the SignalHandler");
-        } else {
-            logger->debug(TAG, "Registered the SignalHandler successfully");
-        }
+
+    if (status != ER_OK) {
+        QCC_LogError(status, ("Could not register the SignalHandler"));
+    } else {
+        QCC_DbgPrintf(("Registered the SignalHandler successfully"));
     }
+
 }
 
 
 void NotificationTransportSuperAgent::handleSignal(const InterfaceDescription::Member* member, const char* srcPath, Message& msg)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
     if (m_IsFirstSuperAgent) {
         m_IsFirstSuperAgent = false;
-        if (logger) {
-            logger->debug(TAG, "Found first super agent.");
-        }
+        QCC_DbgPrintf(("Found first super agent."));
 
         const char* messageSender = msg->GetSender();
         Transport* transport = Transport::getInstance();
 
         if (transport->FindSuperAgent(messageSender) != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not listen to SuperAgent");
-            }
+            QCC_DbgHLPrintf(("Could not listen to SuperAgent."));
             m_IsFirstSuperAgent = true;     //so that we try again
             return;
         }
     }
 
-    if (logger) {
-        String sender = msg->GetSender();
-        logger->debug(TAG, "Received Message from super agent: " + sender);
-    }
-
+    String sender = msg->GetSender();
+    QCC_DbgPrintf(("Received Message from super agent: %s", sender.c_str()));
     PayloadAdapter::receivePayload(msg);
 }
 

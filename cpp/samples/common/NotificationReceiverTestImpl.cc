@@ -19,8 +19,8 @@
 #include <alljoyn/notification/RichAudioUrl.h>
 #include <alljoyn/Status.h>
 #include <iostream>
-#include <sstream>
 #include <algorithm>
+#include <sstream>
 
 using namespace ajn;
 using namespace services;
