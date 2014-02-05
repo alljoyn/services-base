@@ -64,7 +64,7 @@ extern const char** ajapps_propertyStoreDefaultValues[AJSVC_PROPERTY_STORE_NUMBE
  * properties container for runtime values
  */
 typedef struct _AJAPPS_PropertyStoreRuntimeEntry {
-    char ** value; // An array of size 1 or AJSVC_PROPERTY_STORE_NUMBER_OF_LANGUAGES mutable buffers depending on whether the property is multilingual
+    char** value;  // An array of size 1 or AJSVC_PROPERTY_STORE_NUMBER_OF_LANGUAGES mutable buffers depending on whether the property is multilingual
     uint8_t size; // The size of the value buffer(s)
 } AJAPPS_PropertyStoreConfigEntry;
 

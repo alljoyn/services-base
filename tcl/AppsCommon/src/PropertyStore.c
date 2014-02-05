@@ -60,17 +60,17 @@ static const char* defaultLanguagesKeyName = { "SupportedLanguages" };
 uint8_t PropertyStore_GetMaxValueLength(AJSVC_PropertyStoreFieldIndices fieldIndex)
 {
     switch (fieldIndex) {
-        case AJSVC_PropertyStoreDeviceName:
-            return DEVICE_NAME_VALUE_LENGTH;
+    case AJSVC_PropertyStoreDeviceName:
+        return DEVICE_NAME_VALUE_LENGTH;
 
-        case AJSVC_PropertyStoreDefaultLanguage:
-            return LANG_VALUE_LENGTH;
+    case AJSVC_PropertyStoreDefaultLanguage:
+        return LANG_VALUE_LENGTH;
 
-        case AJSVC_PropertyStorePasscode:
-            return PASSWORD_VALUE_LENGTH;
+    case AJSVC_PropertyStorePasscode:
+        return PASSWORD_VALUE_LENGTH;
 
-        default:
-            return KEY_VALUE_LENGTH;
+    default:
+        return KEY_VALUE_LENGTH;
     }
 }
 
@@ -115,7 +115,7 @@ const char* PropertyStore_GetValueForLang(AJSVC_PropertyStoreFieldIndices fieldI
         AJ_Printf("Has key [%s] value [%s]\n", ajapps_propertyStoreProperties[fieldIndex].keyName, ajapps_propertyStoreRuntimeValues[fieldIndex].value[langIndex]);
         return ajapps_propertyStoreRuntimeValues[fieldIndex].value[langIndex];
     } else if (ajapps_propertyStoreDefaultValues[fieldIndex] != NULL &&
-         (ajapps_propertyStoreDefaultValues[fieldIndex])[langIndex] != NULL) {
+               (ajapps_propertyStoreDefaultValues[fieldIndex])[langIndex] != NULL) {
         AJ_Printf("Has key [%s] defaultValue [%s]\n", ajapps_propertyStoreProperties[fieldIndex].keyName, (ajapps_propertyStoreDefaultValues[fieldIndex])[langIndex]);
         return (ajapps_propertyStoreDefaultValues[fieldIndex])[langIndex];
     }
@@ -145,7 +145,7 @@ int8_t PropertyStore_GetLanguageIndex(const char* const language)
                     return (int8_t)langIndex;
                 }
 #ifdef CONFIG_SERVICE
-                }
+            }
 #endif
             } else {
                 if (!strcmp(language, ajsvc_propertyStoreDefaultLanguages[langIndex])) {
@@ -194,10 +194,10 @@ int8_t PropertyStore_GetCurrentDefaultLanguageIndex()
 static void ClearPropertiesInRAM()
 {
     AJSVC_PropertyStoreFieldIndices fieldIndex = 0;
-    for (;fieldIndex < AJSVC_PROPERTY_STORE_NUMBER_OF_CONFIG_KEYS; fieldIndex++) {
+    for (; fieldIndex < AJSVC_PROPERTY_STORE_NUMBER_OF_CONFIG_KEYS; fieldIndex++) {
         if (ajapps_propertyStoreRuntimeValues[fieldIndex].value) {
             uint8_t langIndex = AJSVC_PROPERTY_STORE_NO_LANGUAGE_INDEX;
-            for (;langIndex < AJSVC_PROPERTY_STORE_NUMBER_OF_LANGUAGES; langIndex++) {
+            for (; langIndex < AJSVC_PROPERTY_STORE_NUMBER_OF_LANGUAGES; langIndex++) {
                 if (ajapps_propertyStoreProperties[fieldIndex].mode2MultiLng || langIndex == AJSVC_PROPERTY_STORE_NO_LANGUAGE_INDEX) {
                     char* buf = ajapps_propertyStoreRuntimeValues[fieldIndex].value[langIndex];
                     if (buf) {
@@ -402,9 +402,8 @@ AJ_Status PropertyStore_ReadAll(AJ_Message* msg, AJSVC_PropertyStoreCategoryFilt
                     if (status != AJ_OK) {
                         return status;
                     }
-                }
 #ifdef CONFIG_SERVICE
-                else if (fieldIndex == AJSVC_PropertyStoreMaxLength) {
+                } else if (fieldIndex == AJSVC_PropertyStoreMaxLength) {
                     status = AJ_MarshalVariant(msg, "q");
                     if (status != AJ_OK) {
                         return status;
@@ -413,9 +412,8 @@ AJ_Status PropertyStore_ReadAll(AJ_Message* msg, AJSVC_PropertyStoreCategoryFilt
                     if (status != AJ_OK) {
                         return status;
                     }
-                }
 #endif
-                else if (fieldIndex == AJSVC_PropertyStoreAJSoftwareVersion) {
+                } else if (fieldIndex == AJSVC_PropertyStoreAJSoftwareVersion) {
                     status = AJ_MarshalVariant(msg, "s");
                     if (status != AJ_OK) {
                         return status;
@@ -424,8 +422,7 @@ AJ_Status PropertyStore_ReadAll(AJ_Message* msg, AJSVC_PropertyStoreCategoryFilt
                     if (status != AJ_OK) {
                         return status;
                     }
-                }
-                else {
+                } else {
                     status = AJ_MarshalVariant(msg, "s");
                     if (status != AJ_OK) {
                         return status;
