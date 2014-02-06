@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -85,18 +85,19 @@ public class ConnectionManager implements Handler.Callback {
 	 * Events listener of lost session 
 	 */
 	private class ConnMgrSessionListener extends SessionListener {
+		
 		@Override
-		public void sessionLost(int sessionId) {
-			super.sessionLost(sessionId);
-			Log.d(TAG, "Received SESSION_LOST for session: '" + sessionId + "'");
+		public void sessionLost(int sessionId, int reason) {
+			
+			Log.d(TAG, "Received SESSION_LOST for session: '" + sessionId + "', Reason: '" + reason + "'");
 			Map<String, Object> args = new HashMap<String, Object>();
 			args.put("SESSION_ID", sessionId);
 			
 			if ( handler != null ) {
 				Message.obtain(handler, ConnManagerEventType.SESSION_LOST.ordinal(), args).sendToTarget();
 			}
-			
 		}//sessionLost
+		
 	}//ControlPanelSessionListener
 
 	//=====================================================//

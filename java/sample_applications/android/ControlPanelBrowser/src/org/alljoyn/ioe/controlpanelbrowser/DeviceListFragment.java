@@ -509,7 +509,7 @@ public class DeviceListFragment extends ListFragment {
 				BusObjectDescription description	= objectDescriptions[i];
 				String[] supportedInterfaces 		= description.getInterfaces();
 				for(int j = 0; j < supportedInterfaces.length; ++j){
-					if(supportedInterfaces[j].startsWith("org.alljoyn.ControlPanel")){
+					if( supportedInterfaces[j].startsWith(ControlPanelService.INTERFACE_PREFIX) ){
 						// found a control panel interface
 						Log.d(TAG, "ADding BusObjectDesciption: " + description);
 						if (deviceContext == null) {
