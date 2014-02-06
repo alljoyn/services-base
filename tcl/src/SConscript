@@ -18,8 +18,6 @@ Import('notif_env')
 
 notif_env.Append(CPPPATH = [
                              Dir('../inc'),
-                             Dir('../samples/inc/'),
-                             Dir('../inc/target/' + notif_env['TARG']),
                             ])
 Export('notif_env') # needed when we are called directly by serversample
 returnValue = []

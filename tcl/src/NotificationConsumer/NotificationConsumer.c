@@ -14,8 +14,49 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+#include <alljoyn.h>
 #include <alljoyn/notification/NotificationConsumer.h>
 #include <aj_config.h>
+
+/* Notification ProxyObject bus registration */
+#define NOTIFICATION_PROXYOBJECT_INDEX 0 + NUM_PRE_NOTIFICATION_CONSUMER_PROXYOBJECTS
+#define INTERFACE_GET_PROPERTY_PROXY                          AJ_PRX_MESSAGE_ID(NOTIFICATION_PROXYOBJECT_INDEX, 0, AJ_PROP_GET)
+#define INTERFACE_SET_PROPERTY_PROXY                          AJ_PRX_MESSAGE_ID(NOTIFICATION_PROXYOBJECT_INDEX, 0, AJ_PROP_SET)
+
+#define NOTIFICATION_SIGNAL                                   AJ_PRX_MESSAGE_ID(NOTIFICATION_PROXYOBJECT_INDEX, 1, 0)
+#define GET_NOTIFICATION_VERSION_PROPERTY_PROXY               AJ_PRX_PROPERTY_ID(NOTIFICATION_PROXYOBJECT_INDEX, 1, 1)
+
+#define SUPERAGENT_SIGNAL                                     AJ_PRX_MESSAGE_ID(NOTIFICATION_PROXYOBJECT_INDEX, 2, 0)
+#define GET_SUPERAGENT_VERSION_PROPERTY_PROXY                 AJ_PRX_PROPERTY_ID(NOTIFICATION_PROXYOBJECT_INDEX, 2, 1)
+
+/* Producer ProxyObject bus registration */
+#define NOTIFICATION_PRODUCER_PROXYOBJECT_INDEX 1 + NUM_PRE_NOTIFICATION_CONSUMER_PROXYOBJECTS
+#define NOTIFICATION_PRODUCER_GET_PROPERTY_PROXY              AJ_PRX_MESSAGE_ID(NOTIFICATION_PRODUCER_PROXYOBJECT_INDEX, 0, AJ_PROP_GET)
+#define NOTIFICATION_PRODUCER_SET_PROPERTY_PROXY              AJ_PRX_MESSAGE_ID(NOTIFICATION_PRODUCER_PROXYOBJECT_INDEX, 0, AJ_PROP_SET)
+
+#define NOTIFICATION_PRODUCER_DISMISS_PROXY                   AJ_PRX_MESSAGE_ID(NOTIFICATION_PRODUCER_PROXYOBJECT_INDEX, 1, 0)
+#define GET_NOTIFICATION_PRODUCER_VERSION_PROPERTY_PROXY      AJ_PRX_PROPERTY_ID(NOTIFICATION_PRODUCER_PROXYOBJECT_INDEX, 1, 1)
+
+/* Dismisser ProxyObject bus registration */
+#define NOTIFICATION_DISMISSER_PROXYOBJECT_INDEX 2 + NUM_PRE_NOTIFICATION_CONSUMER_PROXYOBJECTS
+#define NOTIFICATION_DISMISSER_GET_PROPERTY_PROXY             AJ_PRX_MESSAGE_ID(NOTIFICATION_DISMISSER_PROXYOBJECT_INDEX, 0, AJ_PROP_GET)
+#define NOTIFICATION_DISMISSER_SET_PROPERTY_PROXY             AJ_PRX_MESSAGE_ID(NOTIFICATION_DISMISSER_PROXYOBJECT_INDEX, 0, AJ_PROP_SET)
+
+#define NOTIFICATION_DISMISSER_DISMISS_RECEIVED               AJ_PRX_MESSAGE_ID(NOTIFICATION_DISMISSER_PROXYOBJECT_INDEX, 1, 0)
+#define GET_NOTIFICATION_DISMISSER_VERSION_PROPERTY_PROXY     AJ_PRX_PROPERTY_ID(NOTIFICATION_PRODUCER_PROXYOBJECT_INDEX, 1, 1)
+
+#ifndef NOTIFICATION_SERVICE_PRODUCER
+   #define NOTIFICATION_SIGNAL_RECEIVED NOTIFICATION_SIGNAL
+#else
+   #define NOTIFICATION_SIGNAL_PROD1    AJ_APP_MESSAGE_ID(0 + NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS, 1, 0)
+   #define NOTIFICATION_SIGNAL_PROD2    AJ_APP_MESSAGE_ID(1 + NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS, 1, 0)
+   #define NOTIFICATION_SIGNAL_PROD3    AJ_APP_MESSAGE_ID(2 + NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS, 1, 0)
+
+   #define NOTIFICATION_SIGNAL_RECEIVED NOTIFICATION_SIGNAL : \
+case NOTIFICATION_SIGNAL_PROD1 : \
+case NOTIFICATION_SIGNAL_PROD2 : \
+case NOTIFICATION_SIGNAL_PROD3
+#endif
 
 /**
  * Static constants.
@@ -28,8 +69,8 @@ static const char dismisserMatch[] = "interface='org.alljoyn.Notification.Dismis
 
 static const char* SuperagentInterface[] = {
     SuperagentInterfaceName,
-    NotificationSignalName,
-    NotificationPropertyVersion,
+    AJNS_NotificationSignalName,
+    AJNS_NotificationPropertyVersion,
     NULL
 };
 
@@ -44,22 +85,49 @@ const AJ_InterfaceDescription SuperagentInterfaces[] = {
 
 const AJ_InterfaceDescription AllInterfaces[] = {
     AJ_PropertiesIface,
-    NotificationInterface,
+    AJNS_NotificationInterface,
     SuperagentInterface,
     NULL
 };
 
 const AJ_Object AllProxyObject          = { "*",   AllInterfaces };
 const AJ_Object SuperAgentProxyObject   = { "*",   SuperagentInterfaces };
-const AJ_Object NotificationProxyObject = { "*",   NotificationInterfaces };
+const AJ_Object NotificationProxyObject = { "*",   AJNS_NotificationInterfaces };
+
+static uint8_t appSuperAgentMode = TRUE;
+static AJ_Object* appProxyObjects;
 
 static char currentSuperAgentBusName[16] = { '\0' };
+static uint32_t producerSessionId = 0;
+static uint32_t lastSessionRequestSerialNum = 0;
 
-AJNS_DictionaryEntry textsRecd[NUMALLOWEDTEXTS], customAttributesRecd[NUMALLOWEDCUSTOMATTRIBUTES], richAudiosRecd[NUMALLOWEDRICHNOTS];
+static AJSVC_MethodCallCompleted onDismissCompleted = NULL;
+static AJNS_Consumer_NotificationReference notificationInProcess;
 
-AJ_Status ConsumerSetSignalRules(AJ_BusAttachment* busAttachment, uint8_t superAgentMode, const char* senderBusName)
+static AJNS_Consumer_OnNotify appOnNotify;
+static AJNS_Consumer_OnDismiss appOnDismiss;
+
+static AJNS_DictionaryEntry textsRecd[NUMALLOWEDTEXTS], customAttributesRecd[NUMALLOWEDCUSTOMATTRIBUTES], richAudiosRecd[NUMALLOWEDRICHNOTS];
+
+AJ_Status AJNS_Consumer_Start(uint8_t superAgentMode, AJ_Object* proxyObjects, AJNS_Consumer_OnNotify onNotify, AJNS_Consumer_OnDismiss onDismiss)
 {
     AJ_Status status = AJ_OK;
+    appSuperAgentMode = superAgentMode;
+    if (proxyObjects != NULL) {
+        proxyObjects[NOTIFICATION_PROXYOBJECT_INDEX] = appSuperAgentMode ? AllProxyObject : NotificationProxyObject;
+    } else {
+        status = AJ_ERR_INVALID;
+    }
+    appOnNotify = onNotify;
+    appOnDismiss = onDismiss;
+    return status;
+}
+
+AJ_Status AJNS_Consumer_SetSignalRules(AJ_BusAttachment* busAttachment, uint8_t superAgentMode, const char* senderBusName)
+{
+    AJ_Status status = AJ_OK;
+    char senderMatch[76];
+    size_t availableLen;
 
     AJ_Printf("In SetSignalRules()\n");
     AJ_Printf("Adding Dismisser interface match.\n");
@@ -81,8 +149,7 @@ AJ_Status ConsumerSetSignalRules(AJ_BusAttachment* busAttachment, uint8_t superA
         if (currentSuperAgentBusName[0]) {
             AJ_Printf("Removing Superagent interface matched for specific sender bus name %s.\n", currentSuperAgentBusName);
 
-            char senderMatch[76];
-            size_t availableLen = sizeof(senderMatch);
+            availableLen = sizeof(senderMatch);
             availableLen -= strlen(strncpy(senderMatch, superAgentFilterMatch, availableLen));
             availableLen -= strlen(strncat(senderMatch, currentSuperAgentBusName, availableLen));
             availableLen -= strlen(strncat(senderMatch, "'", availableLen));
@@ -120,8 +187,7 @@ AJ_Status ConsumerSetSignalRules(AJ_BusAttachment* busAttachment, uint8_t superA
             return status;
         }
 
-        char senderMatch[76];
-        size_t availableLen = sizeof(senderMatch);
+        availableLen = sizeof(senderMatch);
         availableLen -= strlen(strncpy(senderMatch, superAgentFilterMatch, availableLen));
         availableLen -= strlen(strncat(senderMatch, senderBusName, availableLen));
         availableLen -= strlen(strncat(senderMatch, "'", availableLen));
@@ -153,7 +219,7 @@ AJ_Status ConsumerSetSignalRules(AJ_BusAttachment* busAttachment, uint8_t superA
     return status;
 }
 
-uint8_t ConsumerIsSuperAgentLost(AJ_Message* msg)
+uint8_t AJNS_Consumer_IsSuperAgentLost(AJ_Message* msg)
 {
     if (msg->msgId == AJ_SIGNAL_LOST_ADV_NAME) {
         AJ_Arg arg;
@@ -167,15 +233,13 @@ uint8_t ConsumerIsSuperAgentLost(AJ_Message* msg)
     return FALSE;
 }
 
-AJ_Status ConsumerNotifySignalHandler(AJ_Message* msg)
+AJ_Status AJNS_Consumer_NotifySignalHandler(AJ_Message* msg)
 {
     AJ_Status status;
     AJNS_Notification notification;
     AJNS_NotificationContent content;
 
     char appId[UUID_LENGTH * 2 + 1];
-    size_t appIdLen;
-    AJ_Arg appIdArray;
     AJ_Arg attrbtArray;
     AJ_Arg customAttributeArray;
     AJ_Arg notTextArray;
@@ -212,14 +276,7 @@ AJ_Status ConsumerNotifySignalHandler(AJ_Message* msg)
         goto Exit;
     }
 
-    status = AJ_UnmarshalArg(msg, &appIdArray);
-    if (status != AJ_OK) {
-        goto Exit;
-    }
-
-    appIdLen = ((appIdArray.len > UUID_LENGTH) ? UUID_LENGTH : appIdArray.len) * 2 + 1;
-
-    status = AJ_RawToHex(appIdArray.val.v_byte, appIdArray.len, appId, appIdLen, FALSE);
+    status = AJSVC_UnmarshalAppId(msg, appId, sizeof(appId));
     if (status != AJ_OK) {
         goto Exit;
     }
@@ -258,7 +315,7 @@ AJ_Status ConsumerNotifySignalHandler(AJ_Message* msg)
         }
 
         switch (attrbtKey) {
-        case RICH_CONTENT_ICON_URL_ATTRIBUTE_KEY:
+        case AJNS_RICH_CONTENT_ICON_URL_ATTRIBUTE_KEY:
             {
                 status = AJ_UnmarshalVariant(msg, &variantSig);
                 if (status != AJ_OK) {
@@ -271,7 +328,7 @@ AJ_Status ConsumerNotifySignalHandler(AJ_Message* msg)
             }
             break;
 
-        case RICH_CONTENT_ICON_OBJECT_PATH_ATTRIBUTE_KEY:
+        case AJNS_RICH_CONTENT_ICON_OBJECT_PATH_ATTRIBUTE_KEY:
             {
                 status = AJ_UnmarshalVariant(msg, &variantSig);
                 if (status != AJ_OK) {
@@ -284,7 +341,7 @@ AJ_Status ConsumerNotifySignalHandler(AJ_Message* msg)
             }
             break;
 
-        case RICH_CONTENT_AUDIO_OBJECT_PATH_ATTRIBUTE_KEY:
+        case AJNS_RICH_CONTENT_AUDIO_OBJECT_PATH_ATTRIBUTE_KEY:
             {
                 status = AJ_UnmarshalVariant(msg, &variantSig);
                 if (status != AJ_OK) {
@@ -297,7 +354,7 @@ AJ_Status ConsumerNotifySignalHandler(AJ_Message* msg)
             }
             break;
 
-        case CONTROLPANELSERVICE_OBJECT_PATH_ATTRIBUTE_KEY:
+        case AJNS_CONTROLPANELSERVICE_OBJECT_PATH_ATTRIBUTE_KEY:
             {
                 status = AJ_UnmarshalVariant(msg, &variantSig);
                 if (status != AJ_OK) {
@@ -310,7 +367,7 @@ AJ_Status ConsumerNotifySignalHandler(AJ_Message* msg)
             }
             break;
 
-        case ORIGINAL_SENDER_NAME_ATTRIBUTE_KEY:
+        case AJNS_ORIGINAL_SENDER_NAME_ATTRIBUTE_KEY:
             {
                 status = AJ_UnmarshalVariant(msg, &variantSig);
                 if (status != AJ_OK) {
@@ -323,7 +380,7 @@ AJ_Status ConsumerNotifySignalHandler(AJ_Message* msg)
             }
             break;
 
-        case RICH_CONTENT_AUDIO_URL_ATTRIBUTE_KEY:
+        case AJNS_RICH_CONTENT_AUDIO_URL_ATTRIBUTE_KEY:
             {
                 status = AJ_UnmarshalVariant(msg, &variantSig);
                 if (status != AJ_OK) {
@@ -469,7 +526,9 @@ Exit:
     if (status != AJ_OK) {
         AJ_Printf("Handle Notification failed: '%s'\n", AJ_StatusText(status));
     } else {
-        status = ApplicationHandleNotify(&notification);
+        if (appOnNotify) {
+            status = (*appOnNotify)(&notification);
+        }
     }
 
     AJ_CloseMsg(msg);
@@ -477,33 +536,25 @@ Exit:
     return status;
 }
 
-AJ_Status ConsumerDismissSignalHandler(AJ_Message* msg)
+AJ_Status AJNS_Consumer_DismissSignalHandler(AJ_Message* msg)
 {
     AJ_Status status;
-
     uint32_t notificationId = 0;
     char appId[UUID_LENGTH * 2 + 1];
-    size_t appIdLen;
-    AJ_Arg appIdArray;
 
     status = AJ_UnmarshalArgs(msg, "i", &notificationId);
     if (status != AJ_OK) {
         goto Exit;
     }
 
-    status = AJ_UnmarshalArg(msg, &appIdArray);
+    status = AJSVC_UnmarshalAppId(msg, appId, sizeof(appId));
     if (status != AJ_OK) {
         goto Exit;
     }
 
-    appIdLen = ((appIdArray.len > UUID_LENGTH) ? UUID_LENGTH : appIdArray.len) * 2 + 1;
-
-    status = AJ_RawToHex(appIdArray.val.v_byte, appIdArray.len, appId, appIdLen, FALSE);
-    if (status != AJ_OK) {
-        goto Exit;
+    if (appOnDismiss) {
+        (*appOnDismiss)(notificationId, appId);
     }
-
-    ApplicationHandleDismiss(notificationId, appId);
 
 Exit:
 
@@ -512,24 +563,36 @@ Exit:
     return status;
 }
 
-AJ_Status ConsumerDismissNotification(AJ_BusAttachment* busAttachment, uint16_t version, int32_t msgId, const char* appId, const char* senderName, uint32_t sessionId)
+AJ_Status AJNS_Consumer_CreateSessionWithProducer(AJ_BusAttachment* busAttachment, const char* senderName, uint32_t* requestSerialNumber)
 {
-    AJ_Printf("Inside DismissNotification()\n");
+    AJ_Status status = AJ_OK;
+    AJ_SessionOpts sessionOpts = {
+        AJ_SESSION_TRAFFIC_MESSAGES,
+        AJ_SESSION_PROXIMITY_ANY,
+        AJ_TRANSPORT_ANY,
+        FALSE
+    };
+
+    AJ_Printf("Inside CreateSessionWithProducer()\n");
+    *requestSerialNumber = busAttachment->serial;
+    AJ_Printf("CreateSessionWithProducer(): Joining session with %s on port %u with serial number %u\n", senderName, AJNS_NotificationProducerPort, *requestSerialNumber);
+    status = AJ_BusJoinSession(busAttachment, senderName, AJNS_NotificationProducerPort, &sessionOpts);
+    AJ_Printf("CreateSessionWithProducer(): AJ_BusJoinSession() returned with status %s\n", AJ_StatusText(status));
+    return status;
+}
+
+AJ_Status AJNS_Consumer_SendDismissRequest(AJ_BusAttachment* busAttachment, uint16_t version, int32_t notificationId, const char* appId, const char* senderName, uint32_t sessionId)
+{
     AJ_Status status = AJ_OK;
 
-    if (version < 2) { // Producer does not support dismissal but other consumers might so send Dismiss signal
-        status = NotificationSendDismiss(busAttachment, msgId, appId);
-        return status;
-    }
-
-    if (status == AJ_OK && sessionId != 0) {
+    if ((status == AJ_OK) && (sessionId != 0)) {
         AJ_Message dismissMsg;
         status = AJ_MarshalMethodCall(busAttachment, &dismissMsg, NOTIFICATION_PRODUCER_DISMISS_PROXY, senderName, sessionId, AJ_NO_FLAGS, AJ_CALL_TIMEOUT);
         if (status != AJ_OK) {
             AJ_Printf("Could not marshal method call\n");
             return status;
         }
-        status = AJ_MarshalArgs(&dismissMsg, "i", msgId);
+        status = AJ_MarshalArgs(&dismissMsg, "i", notificationId);
         if (status != AJ_OK) {
             AJ_Printf("Could not marshal arguments\n");
             return status;
@@ -540,10 +603,162 @@ AJ_Status ConsumerDismissNotification(AJ_BusAttachment* busAttachment, uint16_t 
             return status;
         }
         AJ_CloseMsg(&dismissMsg);
-    } else if (status != AJ_ERR_READ) { // Failed to perform in-session dismissal against producer so send Dismiss signal
-        status = NotificationSendDismiss(busAttachment, msgId, appId);
     }
 
     return status;
 }
 
+AJ_Status AJNS_Consumer_ConnectedHandler(AJ_BusAttachment* busAttachment)
+{
+    return AJNS_Consumer_SetSignalRules(busAttachment, appSuperAgentMode, 0);
+}
+
+AJSVC_ServiceStatus AJNS_Consumer_SessionJoinedHandler(AJ_BusAttachment* busAttachment, uint32_t sessionId, uint32_t replySerialNum)
+{
+    AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_NOT_HANDLED;
+    AJ_Status status;
+
+    if (lastSessionRequestSerialNum != 0 && lastSessionRequestSerialNum == replySerialNum) { // Check if this is a reply to our request
+        AJ_Printf("HandleSessionJoined(): Got reply serial number %u that matches last request serial number %u\n", replySerialNum, lastSessionRequestSerialNum);
+        if (producerSessionId == 0) {
+            producerSessionId = sessionId;
+            if (onDismissCompleted) {
+                status = AJNS_Consumer_SendDismissRequest(busAttachment, notificationInProcess.version, notificationInProcess.notificationId, notificationInProcess.appId, notificationInProcess.originalSenderName, producerSessionId);
+                AJ_Printf("HandleSessionJoined(): SendDismissRequest returned status %s\n", AJ_StatusText(status));
+            }
+            serviceStatus = AJSVC_SERVICE_STATUS_HANDLED;
+        }
+    }
+
+    return serviceStatus;
+}
+
+AJSVC_ServiceStatus AJNS_Consumer_SessionRejectedHandler(AJ_BusAttachment* busAttachment, uint32_t replySerialNum, uint32_t replyCode)
+{
+    AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_NOT_HANDLED;
+    AJ_Status status;
+
+    if (lastSessionRequestSerialNum != 0 && lastSessionRequestSerialNum == replySerialNum) { // Check if this is a reply to our request
+        AJ_Printf("HandleSessionRejected(): Got reply serial number %u that matches last request serial number %u\n", replySerialNum, lastSessionRequestSerialNum);
+        if (producerSessionId == 0) {
+            if (onDismissCompleted) {
+                status = AJNS_SendDismissSignal(busAttachment, notificationInProcess.notificationId, notificationInProcess.appId);
+                AJ_Printf("HandleSessionJoinFailed(): SendDismissSignal returned status %s\n", AJ_StatusText(status));
+                (*onDismissCompleted)(status, NULL);
+                onDismissCompleted = NULL;
+            }
+            memset(&notificationInProcess, 0, sizeof(AJNS_Consumer_NotificationReference));
+            lastSessionRequestSerialNum = 0;
+            serviceStatus = AJSVC_SERVICE_STATUS_HANDLED;
+        }
+    }
+
+    return serviceStatus;
+}
+
+AJSVC_ServiceStatus AJNS_Consumer_SessionLostHandler(AJ_BusAttachment* busAttachment, uint32_t sessionId, uint32_t reason)
+{
+    AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_NOT_HANDLED;
+    AJ_Status status = AJ_OK;
+
+    if ((lastSessionRequestSerialNum != 0) && (producerSessionId == sessionId)) {
+        if (onDismissCompleted) {
+            (*onDismissCompleted)(status, NULL);
+            onDismissCompleted = NULL;
+        }
+        memset(&notificationInProcess, 0, sizeof(AJNS_Consumer_NotificationReference));
+        lastSessionRequestSerialNum = 0;
+        producerSessionId = 0;
+        serviceStatus = AJSVC_SERVICE_STATUS_HANDLED;
+    }
+
+    return serviceStatus;
+}
+
+AJ_Status AJNS_Consumer_DismissNotification(AJ_BusAttachment* busAttachment, uint16_t version, int32_t notificationId, const char* appId, const char* senderName, AJSVC_MethodCallCompleted completedCallback)
+{
+    AJ_Printf("Inside DismissNotification()\n");
+    AJ_Status status = AJ_OK;
+
+    if ((version < 2) || (senderName == NULL) || (senderName[0] == '\0')) { // Producer does not support dismissal but other consumers might so send Dismiss signal
+        status = AJNS_SendDismissSignal(busAttachment, notificationId, appId);
+        return status;
+    }
+
+    if (!lastSessionRequestSerialNum) {
+        onDismissCompleted = completedCallback;
+        status = AJNS_Consumer_CreateSessionWithProducer(busAttachment, senderName, &lastSessionRequestSerialNum);
+        if (status == AJ_OK) {
+            notificationInProcess.version = version;
+            notificationInProcess.notificationId = notificationId;
+            strncpy(notificationInProcess.appId, appId, sizeof(notificationInProcess.appId));
+            strncpy(notificationInProcess.originalSenderName, senderName, sizeof(notificationInProcess.originalSenderName));
+        } else {
+            if (onDismissCompleted) {
+                status = AJNS_SendDismissSignal(busAttachment, notificationId, appId);
+                AJ_Printf("DismissNotification(): SendDismissSignal returned status %s\n", AJ_StatusText(status));
+                (*onDismissCompleted)(status, NULL);
+                onDismissCompleted = NULL;
+            }
+            memset(&notificationInProcess, 0, sizeof(AJNS_Consumer_NotificationReference));
+        }
+    }
+
+    return status;
+}
+
+AJSVC_ServiceStatus AJNS_Consumer_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* msgStatus)
+{
+    switch (msg->msgId) {
+    case NOTIFICATION_SIGNAL_RECEIVED:
+        AJ_Printf("Received Producer signal.\n");
+        *msgStatus = AJNS_Consumer_NotifySignalHandler(msg);
+        break;
+
+    case SUPERAGENT_SIGNAL:
+        AJ_Printf("Received Superagent Signal.\n");
+        *msgStatus = AJNS_Consumer_SetSignalRules(busAttachment, appSuperAgentMode, msg->sender);
+        if (AJ_OK == *msgStatus) {
+            appProxyObjects[NOTIFICATION_PROXYOBJECT_INDEX] = SuperAgentProxyObject;
+        }
+        *msgStatus = AJNS_Consumer_NotifySignalHandler(msg);
+        break;
+
+    case NOTIFICATION_DISMISSER_DISMISS_RECEIVED:
+        AJ_Printf("Received Dismisser Dismiss signal.\n");
+        *msgStatus = AJNS_Consumer_DismissSignalHandler(msg);
+        break;
+
+    case AJ_SIGNAL_LOST_ADV_NAME:
+        if (appSuperAgentMode && AJNS_Consumer_IsSuperAgentLost(msg)) {
+            *msgStatus = AJNS_Consumer_SetSignalRules(busAttachment, appSuperAgentMode, NULL);
+            if (AJ_OK == *msgStatus) {
+                appProxyObjects[NOTIFICATION_PROXYOBJECT_INDEX] = AllProxyObject;
+            }
+        } else {
+            return AJSVC_SERVICE_STATUS_NOT_HANDLED;
+        }
+        break;
+
+    case AJ_REPLY_ID(NOTIFICATION_PRODUCER_DISMISS_PROXY):
+        if (producerSessionId != 0) {
+            AJ_Printf("NotificationProducer method replied. Leaving session %u\n", producerSessionId);
+            *msgStatus = AJ_BusLeaveSession(busAttachment, producerSessionId);
+            if (AJ_OK != *msgStatus) {
+                AJ_Printf("Failed to leave session %u\n", producerSessionId);
+            }
+            *msgStatus = AJNS_Consumer_SessionLostHandler(busAttachment, producerSessionId, 0); // Don't wait for SessionLost handle it immediately
+            producerSessionId = 0;
+        }
+        break;
+
+    default:
+        return AJSVC_SERVICE_STATUS_NOT_HANDLED;
+    }
+    return AJSVC_SERVICE_STATUS_HANDLED;
+}
+
+AJ_Status AJNS_Consumer_DisconnectHandler(AJ_BusAttachment* busAttachment)
+{
+    return AJ_OK;
+}

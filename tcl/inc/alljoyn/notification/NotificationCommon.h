@@ -22,14 +22,14 @@
 /**
  * Definitions
  */
-#define RICH_CONTENT_ICON_URL_ATTRIBUTE_KEY             0
-#define RICH_CONTENT_AUDIO_URL_ATTRIBUTE_KEY            1
-#define RICH_CONTENT_ICON_OBJECT_PATH_ATTRIBUTE_KEY     2
-#define RICH_CONTENT_AUDIO_OBJECT_PATH_ATTRIBUTE_KEY    3
-#define CONTROLPANELSERVICE_OBJECT_PATH_ATTRIBUTE_KEY   4
-#define ORIGINAL_SENDER_NAME_ATTRIBUTE_KEY              5
+#define AJNS_RICH_CONTENT_ICON_URL_ATTRIBUTE_KEY             0
+#define AJNS_RICH_CONTENT_AUDIO_URL_ATTRIBUTE_KEY            1
+#define AJNS_RICH_CONTENT_ICON_OBJECT_PATH_ATTRIBUTE_KEY     2
+#define AJNS_RICH_CONTENT_AUDIO_OBJECT_PATH_ATTRIBUTE_KEY    3
+#define AJNS_CONTROLPANELSERVICE_OBJECT_PATH_ATTRIBUTE_KEY   4
+#define AJNS_ORIGINAL_SENDER_NAME_ATTRIBUTE_KEY              5
 
-#define NUM_MESSAGE_TYPES 3
+#define AJNS_NUM_MESSAGE_TYPES 3
 
 /**
  * Generic structure for key=value
@@ -61,7 +61,7 @@ typedef struct _AJNS_NotificationContent {
  */
 typedef struct _AJNS_Notification {
     uint16_t version;                           /**< version of notification */
-    uint16_t messageType;                       /**< messageType One of \ref NOTIFICATION_MESSAGE_TYPE_INFO, \ref NOTIFICATION_MESSAGE_TYPE_WARNING, or \ref NOTIFICATION_MESSAGE_TYPE_EMERGENCY */
+    uint16_t messageType;                       /**< messageType One of \ref AJNS_NOTIFICATION_MESSAGE_TYPE_INFO, \ref AJNS_NOTIFICATION_MESSAGE_TYPE_WARNING, or \ref AJNS_NOTIFICATION_MESSAGE_TYPE_EMERGENCY */
     int32_t notificationId;                     /**< notification message id */
     const char* originalSenderName;             /**< originalSenderName The AllJoyn bus unique name of the originating producer application */
     const char* deviceId;                       /**< device id of originating producer application */
@@ -74,41 +74,41 @@ typedef struct _AJNS_Notification {
 /**
  * Notification interface name
  */
-extern const char NotificationInterfaceName[];
+extern const char AJNS_NotificationInterfaceName[];
 /**
  * Notification interface signal
  */
-extern const char NotificationSignalName[];
+extern const char AJNS_NotificationSignalName[];
 /**
  * Notification interface property version
  */
-extern const char NotificationPropertyVersion[];
+extern const char AJNS_NotificationPropertyVersion[];
 /**
  * Notification interface version property value
  */
-extern const uint16_t NotificationVersion;
+extern const uint16_t AJNS_NotificationVersion;
 
 /**
  * Notification interface name followed by the method signatures.
  *
  * See also .\inc\aj_introspect.h
  */
-extern const char* NotificationInterface[];
+extern const char* AJNS_NotificationInterface[];
 
 /**
  * A NULL terminated collection of all interfaces.
  */
-extern const AJ_InterfaceDescription NotificationInterfaces[];
+extern const AJ_InterfaceDescription AJNS_NotificationInterfaces[];
 
 /*!
    \brief Minimal time in seconds for the notification signal to live
  */
-extern const uint16_t NOTIFICATION_TTL_MIN;
+extern const uint16_t AJNS_NOTIFICATION_TTL_MIN;
 
 /*!
    \brief Maximal time in seconds for the notification signal to live
  */
-extern const uint16_t NOTIFICATION_TTL_MAX;
+extern const uint16_t AJNS_NOTIFICATION_TTL_MAX;
 
 /**
  * Notification Dismisser object for the Dismiss signal emitter
@@ -118,30 +118,30 @@ extern const uint16_t NOTIFICATION_TTL_MAX;
  *
  * See also .\inc\aj_introspect.h
  */
-extern const char* const NotificationDismisserInterface[];
+extern const char* const AJNS_NotificationDismisserInterface[];
 /*
  * Notification Dismisser interface version property value
  */
-extern const uint16_t NotificationDismisserVersion;
+extern const uint16_t AJNS_NotificationDismisserVersion;
 /*
  * Notification Dismisser interface signal emitter
  */
-extern AJ_Status NotificationSendDismiss(AJ_BusAttachment* busAttachment, int32_t msgId, const char* appId);
+AJ_Status AJNS_SendDismissSignal(AJ_BusAttachment* busAttachment, int32_t msgId, const char* appId);
 /**
  * A NULL terminated collection of all NotificationDismisser interfaces.
  */
-extern const AJ_InterfaceDescription NotificationDismisserInterfaces[];
+extern const AJ_InterfaceDescription AJNS_NotificationDismisserInterfaces[];
 /*
  * Notification Dismisser signal emitter object path
  */
-extern char NotificationDismisserObjectPath[];
+extern char AJNS_NotificationDismisserObjectPath[];
 
 /**
  * Dismisser Object description
  */
 #define NUM_NOTIFICATION_COMMON_OBJECTS 1
 #define NOTIFICATION_COMMON_APPOBJECTS \
-    { NotificationDismisserObjectPath,   NotificationDismisserInterfaces },
+    { AJNS_NotificationDismisserObjectPath,   AJNS_NotificationDismisserInterfaces },
 
 #define NOTIFICATION_DISMISSER_OBJECT_INDEX 0 + NUM_PRE_NOTIFICATION_COMMON_OBJECTS
 #define NOTIFICATION_DISMISSER_GET_PROPERTY             AJ_APP_PROPERTY_ID(NOTIFICATION_DISMISSER_OBJECT_INDEX, 0, AJ_PROP_GET)
@@ -155,21 +155,21 @@ extern char NotificationDismisserObjectPath[];
  *
  * See also .\inc\aj_introspect.h
  */
-extern const char* const NotificationProducerInterface[];
+extern const char* const AJNS_NotificationProducerInterface[];
 /**
  * Notification Producer interface version property value
  */
-extern const uint16_t NotificationProducerVersion;
+extern const uint16_t AJNS_NotificationProducerVersion;
 /**
  * A NULL terminated collection of all NotificationProducer interfaces.
  */
-extern const AJ_InterfaceDescription NotificationProducerInterfaces[];
+extern const AJ_InterfaceDescription AJNS_NotificationProducerInterfaces[];
 /**
  * The Notification service Producer object path
  */
-extern const char NotificationProducerObjectPath[];
+extern const char AJNS_NotificationProducerObjectPath[];
 /**
  * The Notification service Producer port
  */
-extern const uint16_t NotificationProducerPort;
+extern const uint16_t AJNS_NotificationProducerPort;
 #endif /* _NOTIFICATIONCOMMON_H_ */

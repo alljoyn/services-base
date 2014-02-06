@@ -28,19 +28,19 @@
 #include <alljoyn/services_common/Services_Common.h>
 
 /*!
-   \brief Constant for messageType  parameter to \ref SetNotification
+   \brief Constant for messageType  parameter to \ref SendNotification
  */
-#define NOTIFICATION_MESSAGE_TYPE_EMERGENCY 0
+#define AJNS_NOTIFICATION_MESSAGE_TYPE_EMERGENCY 0
 
 /*!
-   \brief Constant for messageType  parameter to \ref SetNotification
+   \brief Constant for messageType  parameter to \ref SendNotification
  */
-#define NOTIFICATION_MESSAGE_TYPE_WARNING   1
+#define AJNS_NOTIFICATION_MESSAGE_TYPE_WARNING   1
 
 /*!
-   \brief Constant for messageType  parameter to \ref SetNotification
+   \brief Constant for messageType  parameter to \ref SendNotification
  */
-#define NOTIFICATION_MESSAGE_TYPE_INFO      2
+#define AJNS_NOTIFICATION_MESSAGE_TYPE_INFO      2
 
 /*!
    \brief Constant for about of notification producer objects
@@ -48,150 +48,75 @@
 #define NUM_NOTIFICATION_PRODUCER_OBJECTS 4
 
 /*!
-   \brief Get Property event for Emergency NotificationService object
-   \details
-   \dontinclude ProducerSample.c
-   \skip switch (msg->msgId)
-   \until }
- */
-#define EMERGENCY_NOTIFICATION_GET_PROPERTY AJ_APP_MESSAGE_ID(0 + NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS, 0, AJ_PROP_GET)
-
-/*!
-   \brief Get Property event for Warning NotificationService object
-   \details
-   \dontinclude ProducerSample.c
-   \skip switch (msg->msgId)
-   \until }
- */
-#define WARNING_NOTIFICATION_GET_PROPERTY   AJ_APP_MESSAGE_ID(1 + NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS, 0, AJ_PROP_GET)
-
-/*!
-   \brief Get Property event for Info NotificationService object
-   \details
-   \dontinclude ProducerSample.c
-   \skip switch (msg->msgId)
-   \until }
- */
-#define INFO_NOTIFICATION_GET_PROPERTY      AJ_APP_MESSAGE_ID(2 + NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS, 0, AJ_PROP_GET)
-
-/*!
-   \brief Set Property event for Emergency NotificationService object
-   \details
-   \dontinclude ProducerSample.c
-   \skip switch (msg->msgId)
-   \until }
- */
-#define EMERGENCY_NOTIFICATION_SET_PROPERTY AJ_APP_MESSAGE_ID(0 + NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS, 0, AJ_PROP_SET)
-
-/*!
-   \brief Set Property event for Warning NotificationService object
-   \details
-   \dontinclude ProducerSample.c
-   \skip switch (msg->msgId)
-   \until }
- */
-#define WARNING_NOTIFICATION_SET_PROPERTY   AJ_APP_MESSAGE_ID(1 + NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS, 0, AJ_PROP_SET)
-
-/*!
-   \brief Set Property event for Info NotificationService object
-   \details
-   \dontinclude ProducerSample.c
-   \skip switch (msg->msgId)
-   \until }
- */
-#define INFO_NOTIFICATION_SET_PROPERTY      AJ_APP_MESSAGE_ID(2 + NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS, 0, AJ_PROP_SET)
-
-/*!
-   \brief Get Version event for Emergency NotificationService object
-   \details
-   \dontinclude ProducerSample.c
-   \skip switch (msg->msgId)
-   \until }
- */
-#define GET_EMERGENCY_NOTIFICATION_VERSION_PROPERTY AJ_APP_PROPERTY_ID(0 + NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS, 1, 1)
-
-/*!
-   \brief Get Version event for Warning NotificationService object
-   \details
-   \dontinclude ProducerSample.c
-   \skip switch (msg->msgId)
-   \until }
- */
-#define GET_WARNING_NOTIFICATION_VERSION_PROPERTY   AJ_APP_PROPERTY_ID(1 + NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS, 1, 1)
-
-/*!
-   \brief Get Version event for Info NotificationService object
-   \details
-   \dontinclude ProducerSample.c
-   \skip switch (msg->msgId)
-   \until }
- */
-#define GET_INFO_NOTIFICATION_VERSION_PROPERTY      AJ_APP_PROPERTY_ID(2 + NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS, 1, 1)
-
-/*!
    \brief The object path on which "Emergency" type notifications are sent
  */
-extern const char NotificationObjectPathEmergency[];
+extern const char AJNS_NotificationObjectPathEmergency[];
 
 /*!
    \brief The object path on which "warning" type notifications are sent
  */
-extern const char NotificationObjectPathWarning[];
+extern const char AJNS_NotificationObjectPathWarning[];
 
 /*!
    \brief The object path on which "Info" type notifications are sent
  */
-extern const char NotificationObjectPathInfo[];
-
-/* Producer Object bus registration */
-#define NOTIFICATION_PRODUCER_OBJECT_INDEX 3 + NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS
-#define NOTIFICATION_PRODUCER_GET_PROPERTY AJ_APP_PROPERTY_ID(NOTIFICATION_PRODUCER_OBJECT_INDEX, 0, AJ_PROP_GET)
-#define NOTIFICATION_PRODUCER_SET_PROPERTY AJ_APP_PROPERTY_ID(NOTIFICATION_PRODUCER_OBJECT_INDEX, 0, AJ_PROP_SET)
-
-#define NOTIFICATION_PRODUCER_DISMISS                   AJ_APP_MESSAGE_ID(NOTIFICATION_PRODUCER_OBJECT_INDEX, 1, 0)
-#define GET_NOTIFICATION_PRODUCER_VERSION_PROPERTY      AJ_APP_PROPERTY_ID(NOTIFICATION_PRODUCER_OBJECT_INDEX, 1, 1)
+extern const char AJNS_NotificationObjectPathInfo[];
 
 /*!
    \brief AllJoyn objects exposed by the NotificationProducer
  */
 #define NOTIFICATION_PRODUCER_APPOBJECTS \
-    { NotificationObjectPathEmergency,  NotificationInterfaces }, \
-    { NotificationObjectPathWarning,    NotificationInterfaces }, \
-    { NotificationObjectPathInfo,       NotificationInterfaces }, \
-    { NotificationProducerObjectPath,   NotificationProducerInterfaces },
+    { AJNS_NotificationObjectPathEmergency,     AJNS_NotificationInterfaces }, \
+    { AJNS_NotificationObjectPathWarning,       AJNS_NotificationInterfaces }, \
+    { AJNS_NotificationObjectPathInfo,          AJNS_NotificationInterfaces }, \
+    { AJNS_NotificationProducerObjectPath,      AJNS_NotificationProducerInterfaces },
 
 /*!
    \brief AllJoyn objects announced by the NotificationProducer
  */
 #define NOTIFICATION_PRODUCER_ANNOUNCEOBJECTS  \
-    { NotificationObjectPathEmergency,  NotificationInterfaces }, \
-    { NotificationObjectPathWarning,    NotificationInterfaces }, \
-    { NotificationObjectPathInfo,       NotificationInterfaces }, \
-    { NotificationProducerObjectPath,   NotificationProducerInterfaces },
+    { AJNS_NotificationObjectPathEmergency,     AJNS_NotificationInterfaces }, \
+    { AJNS_NotificationObjectPathWarning,       AJNS_NotificationInterfaces }, \
+    { AJNS_NotificationObjectPathInfo,          AJNS_NotificationInterfaces }, \
+    { AJNS_NotificationProducerObjectPath,      AJNS_NotificationProducerInterfaces },
 
 /*!
-   \brief Send the notifications previously set with \ref SetNotification
+   \brief Send a notification with the given content
+   \param busAttachment The bus through which the router is reached
+   \param messageSerialNumber Returned serial number of the outgoing notification message. Use later when calling \ref AJNS_Producer_CancelNotification.
    \return AJ_Status
  */
-extern AJ_Status ProducerSendNotification(AJ_BusAttachment* busAttachment, AJNS_NotificationContent* notificationContent, uint16_t messageType, uint32_t ttl, uint32_t* messageSerialNumber);
+AJ_Status AJNS_Producer_SendNotification(AJ_BusAttachment* busAttachment, AJNS_NotificationContent* notificationContent, uint16_t messageType, uint32_t ttl, uint32_t* messageSerialNumber);
 
 /*!
    \brief Instruct the AllJoyn bus to remove last message of the specified message type from the bus
    \details
    Effectively, this overrides the ttl parameter in the \ref SetNotification function
-   \param messageType One of \ref NOTIFICATION_MESSAGE_TYPE_INFO, \ref NOTIFICATION_MESSAGE_TYPE_WARNING, or \ref NOTIFICATION_MESSAGE_TYPE_EMERGENCY
+   \param busAttachment The bus through which the router is reached
+   \param messageType One of \ref AJNS_NOTIFICATION_MESSAGE_TYPE_INFO, \ref AJNS_NOTIFICATION_MESSAGE_TYPE_WARNING, or \ref AJNS_NOTIFICATION_MESSAGE_TYPE_EMERGENCY
    \return AJ_Status
  */
-extern AJ_Status ProducerDeleteLastMsg(AJ_BusAttachment* busAttachment, uint16_t messageType);
+AJ_Status AJNS_Producer_DeleteLastNotification(AJ_BusAttachment* busAttachment, uint16_t messageType);
 
 /*!
-   \brief Implementation of Dismiss functionality acknowledging and sending a Dismiss SSL to recall received message
+   \brief Instruct the AllJoyn bus to remove message of the specified notification id the bus
    \details
    Effectively, this overrides the ttl parameter in the \ref SetNotification function
+   \param busAttachment The bus through which the router is reached
+   \param messageSerialNumber The serial number of the notification to cancel on the daemon
+   \return AJ_Status
+ */
+AJ_Status AJNS_Producer_CancelNotification(AJ_BusAttachment* busAttachment, uint32_t messageSerialNumber);
+
+/*!
+   \brief Implementation of Dismiss functionality canceling the message on daemon and sending a Dismiss SSL to recall received message
+   \details
+   Effectively, this overrides the ttl parameter in the \ref SetNotification function
+   \param busAttachment The bus through which the router is reached
    \param msg The received Dismiss request message to process
    \return AJ_Status
  */
-extern AJ_Status ProducerDismissMsg(AJ_BusAttachment* busAttachment, AJ_Message* msg);
+AJ_Status AJNS_Producer_DismissRequestHandler(AJ_BusAttachment* busAttachment, AJ_Message* msg);
 
 /*!
    \brief Implementation of GetProperty functionality for the notification objects
@@ -205,7 +130,7 @@ extern AJ_Status ProducerDismissMsg(AJ_BusAttachment* busAttachment, AJ_Message*
    \param context For internal use
    \return AJ_Status
  */
-extern AJ_Status ProducerPropGetHandler(AJ_Message* replyMsg, uint32_t propId, void* context);
+AJ_Status AJNS_Producer_PropGetHandler(AJ_Message* replyMsg, uint32_t propId, void* context);
 
 /*!
    \brief Implementation of SetProperty functionality for the notification objects
@@ -219,6 +144,37 @@ extern AJ_Status ProducerPropGetHandler(AJ_Message* replyMsg, uint32_t propId, v
    \param context For internal use
    \return AJ_Status
  */
-extern AJ_Status ProducerPropSetHandler(AJ_Message* replyMsg, uint32_t propId, void* context);
+AJ_Status AJNS_Producer_PropSetHandler(AJ_Message* replyMsg, uint32_t propId, void* context);
+
+/**
+ * Function called after busAttachment connects to router
+ * @param busAttachment
+ * @return status
+ */
+AJ_Status AJNS_Producer_ConnectedHandler(AJ_BusAttachment* busAttachment);
+
+/**
+ * Session request accept/reject function for service targetted session
+ * @param port
+ * @param sessionId
+ * @param joiner
+ */
+uint8_t AJNS_Producer_CheckSessionAccepted(uint16_t port, uint32_t sessionId, const char* joiner);
+
+/**
+ * MessageProcessor function for the producer
+ * @param busAttachment
+ * @param msg
+ * @param msgStatus
+ * @return serviceStatus - was message handled
+ */
+AJSVC_ServiceStatus AJNS_Producer_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* msgStatus);
+
+/**
+ * Function called after busAttachment disconnects from router
+ * @param busAttachment
+ * @return status
+ */
+AJ_Status AJNS_Producer_DisconnectHandler(AJ_BusAttachment* busAttachment);
 
 #endif /* NOTIFICATIONPRODUCER_H_ */

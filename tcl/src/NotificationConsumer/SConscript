@@ -20,11 +20,6 @@ target_name = 'NotificationConsumer'
 
 consumer_source_files = [
                         'NotificationConsumer.c',
-                        'target/' + notif_env['TARG'] + '/sample_util.c',
-]
-
-source_files = [
-                '../../../samples/SimpleConsumerSample/ConsumerSample.c',
 ]
 
 # Consumer define string, in case others need it (such as
@@ -40,11 +35,10 @@ else:
 
 local_env.Append(CPPDEFINES = [define_string])
 
-local_objs = local_env.Object(source_files)
 # save the common files in the parent environment for use by test-app builder
 notif_env['CONSUMER_COMMON_OBJS'] = local_env.Object(consumer_source_files)
 
-local_objs.append(notif_env['CONSUMER_COMMON_OBJS'])
+local_objs = notif_env['CONSUMER_COMMON_OBJS']
 
 # if we are called as part of services server sample, then return now:
 if not notif_env.has_key('INDIV_BUILD'):

@@ -20,11 +20,6 @@ target_name = 'NotificationProducer'
 
 producer_source_files = [
                         'NotificationProducer.c',
-                        'target/' + notif_env['TARG'] + '/sample_util.c',
-]
-
-source_files = [
-                '../../../samples/' + notif_env['PROD_APP_DIR'] + '/ProducerSample.c',
 ]
 
 # Producer define string, in case others need it (such as
@@ -40,12 +35,10 @@ else:
 
 local_env.Append(CPPDEFINES = ['$PRODUCER_DEFINE_STRING'])
 
-local_objs = local_env.Object(source_files)
-
 # save the common files in the parent environment for use by test-app builder
 notif_env['PRODUCER_COMMON_OBJS'] = local_env.Object(producer_source_files)
 
-local_objs.append(notif_env['PRODUCER_COMMON_OBJS'])
+local_objs = notif_env['PRODUCER_COMMON_OBJS']
 
 # if we are called as part of services server sample, then return now:
 if not notif_env.has_key('INDIV_BUILD'):

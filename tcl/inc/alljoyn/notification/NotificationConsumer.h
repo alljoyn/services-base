@@ -17,60 +17,21 @@
 #ifndef NOTIFICATIONCONSUMER_H_
 #define NOTIFICATIONCONSUMER_H_
 
+#include <alljoyn.h>
 #include <alljoyn/services_common/Services_Common.h>
 #include <alljoyn/notification/NotificationCommon.h>
 
 /* Allowed limits on message content */
-#define NUMALLOWEDCUSTOMATTRIBUTES 10
-#define NUMALLOWEDTEXTS         10
-#define NUMALLOWEDRICHNOTS      10
-
-/* Notification ProxyObject bus registration */
-#define NOTIFICATION_PROXYOBJECT_INDEX 0 + NUM_PRE_NOTIFICATION_CONSUMER_PROXYOBJECTS
-#define INTERFACE_GET_PROPERTY_PROXY                          AJ_PRX_MESSAGE_ID(NOTIFICATION_PROXYOBJECT_INDEX, 0, AJ_PROP_GET)
-#define INTERFACE_SET_PROPERTY_PROXY                          AJ_PRX_MESSAGE_ID(NOTIFICATION_PROXYOBJECT_INDEX, 0, AJ_PROP_SET)
-
-#define NOTIFICATION_SIGNAL                                   AJ_PRX_MESSAGE_ID(NOTIFICATION_PROXYOBJECT_INDEX, 1, 0)
-#define GET_NOTIFICATION_VERSION_PROPERTY_PROXY               AJ_PRX_PROPERTY_ID(NOTIFICATION_PROXYOBJECT_INDEX, 1, 1)
-
-#define SUPERAGENT_SIGNAL                                     AJ_PRX_MESSAGE_ID(NOTIFICATION_PROXYOBJECT_INDEX, 2, 0)
-#define GET_SUPERAGENT_VERSION_PROPERTY_PROXY                 AJ_PRX_PROPERTY_ID(NOTIFICATION_PROXYOBJECT_INDEX, 2, 1)
-
-/* Producer ProxyObject bus registration */
-#define NOTIFICATION_PRODUCER_PROXYOBJECT_INDEX 1 + NUM_PRE_NOTIFICATION_CONSUMER_PROXYOBJECTS
-#define NOTIFICATION_PRODUCER_GET_PROPERTY_PROXY              AJ_PRX_MESSAGE_ID(NOTIFICATION_PRODUCER_PROXYOBJECT_INDEX, 0, AJ_PROP_GET)
-#define NOTIFICATION_PRODUCER_SET_PROPERTY_PROXY              AJ_PRX_MESSAGE_ID(NOTIFICATION_PRODUCER_PROXYOBJECT_INDEX, 0, AJ_PROP_SET)
-
-#define NOTIFICATION_PRODUCER_DISMISS_PROXY                   AJ_PRX_MESSAGE_ID(NOTIFICATION_PRODUCER_PROXYOBJECT_INDEX, 1, 0)
-#define GET_NOTIFICATION_PRODUCER_VERSION_PROPERTY_PROXY      AJ_PRX_PROPERTY_ID(NOTIFICATION_PRODUCER_PROXYOBJECT_INDEX, 1, 1)
-
-/* Dismisser ProxyObject bus registration */
-#define NOTIFICATION_DISMISSER_PROXYOBJECT_INDEX 2 + NUM_PRE_NOTIFICATION_CONSUMER_PROXYOBJECTS
-#define NOTIFICATION_DISMISSER_GET_PROPERTY_PROXY             AJ_PRX_MESSAGE_ID(NOTIFICATION_DISMISSER_PROXYOBJECT_INDEX, 0, AJ_PROP_GET)
-#define NOTIFICATION_DISMISSER_SET_PROPERTY_PROXY             AJ_PRX_MESSAGE_ID(NOTIFICATION_DISMISSER_PROXYOBJECT_INDEX, 0, AJ_PROP_SET)
-
-#define NOTIFICATION_DISMISSER_DISMISS_RECEIVED               AJ_PRX_MESSAGE_ID(NOTIFICATION_DISMISSER_PROXYOBJECT_INDEX, 1, 0)
-#define GET_NOTIFICATION_DISMISSER_VERSION_PROPERTY_PROXY     AJ_PRX_PROPERTY_ID(NOTIFICATION_PRODUCER_PROXYOBJECT_INDEX, 1, 1)
-
-#ifndef NOTIFICATION_SERVICE_PRODUCER
-   #define NOTIFICATION_SIGNAL_RECEIVED NOTIFICATION_SIGNAL
-#else
-   #define NOTIFICATION_SIGNAL_PROD1    AJ_APP_MESSAGE_ID(0 + NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS, 1, 0)
-   #define NOTIFICATION_SIGNAL_PROD2    AJ_APP_MESSAGE_ID(1 + NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS, 1, 0)
-   #define NOTIFICATION_SIGNAL_PROD3    AJ_APP_MESSAGE_ID(2 + NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS, 1, 0)
-
-   #define NOTIFICATION_SIGNAL_RECEIVED NOTIFICATION_SIGNAL : \
-case NOTIFICATION_SIGNAL_PROD1 : \
-case NOTIFICATION_SIGNAL_PROD2 : \
-case NOTIFICATION_SIGNAL_PROD3
-#endif
+#define NUMALLOWEDCUSTOMATTRIBUTES      10
+#define NUMALLOWEDTEXTS                 10
+#define NUMALLOWEDRICHNOTS              10
 
 #define NUM_NOTIFICATION_CONSUMER_PROXYOBJECTS 3
 
 #define NOTIFICATION_CONSUMER_PROXYOBJECTS  \
-    { "*",   NotificationInterfaces }, \
-    { NotificationProducerObjectPath,   NotificationProducerInterfaces }, \
-    { "*",  NotificationDismisserInterfaces },
+    { "*",   AJNS_NotificationInterfaces }, \
+    { AJNS_NotificationProducerObjectPath,   AJNS_NotificationProducerInterfaces }, \
+    { "*",  AJNS_NotificationDismisserInterfaces },
 
 extern const AJ_InterfaceDescription SuperagentInterfaces[];
 extern const AJ_InterfaceDescription AllInterfaces[];
@@ -87,80 +48,138 @@ typedef struct _AJNS_Consumer_NotificationReference {
 } AJNS_Consumer_NotificationReference;
 
 /**
- * ConsumerSetSignalRules, to add the correct filter for the required interface
+ * OnNotify implemented by the application
+ * @param notification header and content
+ * @return status success/failure
+ */
+typedef AJ_Status (*AJNS_Consumer_OnNotify)(AJNS_Notification* notification);
+
+/**
+ * OnDismiss implemented by the application
+ * @param notificationId the notification id of the notification to dismiss
+ * @param appId          the application id of the original sender of the notification to dismiss
+ * @return status success/failure
+ */
+typedef AJ_Status (*AJNS_Consumer_OnDismiss)(int32_t notificationId, const char* appId);
+
+/**
+ * Start Notification service framework Consumer passing mode and callbacks
+ * @param superAgentMode
+ * @param proxyObjects
+ * @param onNotify
+ * @param isValueValid
+ * @return onDismiss
+ */
+AJ_Status AJNS_Consumer_Start(uint8_t appSuperAgentMode, AJ_Object* proxyObjects, AJNS_Consumer_OnNotify appOnNotify, const AJNS_Consumer_OnDismiss appOnDismiss);
+
+/**
+ * Consumer_SetSignalRules, to add the correct filter for the required interface
  * @param bus
  * @param superAgentMode
  * @param senderBusName
  * @return status
  */
-extern AJ_Status ConsumerSetSignalRules(AJ_BusAttachment* busAttachment, uint8_t superAgentMode, const char* senderBusName);
+AJ_Status AJNS_Consumer_SetSignalRules(AJ_BusAttachment* busAttachment, uint8_t superAgentMode, const char* senderBusName);
 
 /**
- * ConsumerIsSuperAgentLost, checks whether the lost device/app is the SuperAgent
+ * Consumer_IsSuperAgentLost, checks whether the lost device/app is the SuperAgent
  * @param msg LOST_ADVERTISED_NAME message to process
  * @return Whether the lost device/app is the SuperAgent
  */
-extern uint8_t ConsumerIsSuperAgentLost(AJ_Message* msg);
+uint8_t AJNS_Consumer_IsSuperAgentLost(AJ_Message* msg);
 
 /**
- * ConsumerNotifySignalHandler - receives message, unmarshals it and calls handleNotify
+ * Consumer_NotifySignalHandler - receives message, unmarshals it and calls handleNotify
  * @param msg
  * @return status
  */
-extern AJ_Status ConsumerNotifySignalHandler(AJ_Message* msg);
+AJ_Status AJNS_Consumer_NotifySignalHandler(AJ_Message* msg);
 
 /**
- * ConsumerDismissSignalHandler - receives message, unmarshals it and calls handleDismiss
+ * Consumer_DismissSignalHandler - receives message, unmarshals it and calls handleDismiss
  * @param msg
  * @return status
  */
-extern AJ_Status ConsumerDismissSignalHandler(AJ_Message* msg);
+AJ_Status AJNS_Consumer_DismissSignalHandler(AJ_Message* msg);
 
 /**
- * ConsumerDismissNotification - send a dismissal request to the producer of the given message, marshals the methodcall and delivers it
+ * Consumer_DismissNotification - send a dismissal request to the producer of the given message, marshals the methodcall and delivers it
  * @param busAttachment
- * @param version       the message version
- * @param msdId         the message id
- * @param appId         the application id of the message sender application
- * @param senderName    the bus unique name of the message sender
- * @param sessionId     the session id for the proxy object
+ * @param version               the message version
+ * @param msdId                 the message id
+ * @param appId                 the application id of the message sender application
+ * @param senderName            the bus unique name of the message sender
+ * @param completedCallback     the callback to call when the Dismiss method reply is received
  * @return status
  */
-extern AJ_Status ConsumerDismissNotification(AJ_BusAttachment* busAttachment, uint16_t version, int32_t msgId, const char* appId, const char* senderName, uint32_t sessionId);
+AJ_Status AJNS_Consumer_DismissNotification(AJ_BusAttachment* busAttachment, uint16_t version, int32_t notificationId, const char* appId, const char* senderName, AJSVC_MethodCallCompleted completedCallback);
 
 /**
- * ConsumerPropGetHandler - handle get property call
+ * Consumer_PropGetHandler - handle get property call
  * @param replyMsg
  * @param propId
  * @param context
  * @return the Alljoyn status
  */
-extern AJ_Status ConsumerPropGetHandler(AJ_Message* replyMsg, uint32_t propId, void* context);
+AJ_Status AJNS_Consumer_PropGetHandler(AJ_Message* replyMsg, uint32_t propId, void* context);
 
 /**
- * ConsumerPropSetHandler - handle set property call
+ * Consumer_PropSetHandler - handle set property call
  * @param replyMsg
  * @param propId
  * @param context
  * @return the Alljoyn status
  */
-extern AJ_Status ConsumerPropSetHandler(AJ_Message* replyMsg, uint32_t propId, void* context);
+AJ_Status AJNS_Consumer_PropSetHandler(AJ_Message* replyMsg, uint32_t propId, void* context);
 
 /**
- * ApplicationHandleNotify implemented by the application
- * @param notification header and content
- * @return status success/failure
+ * Function called after service connects
+ * @param busAttachment
+ * @return the Alljoyn status
  */
-extern AJ_Status ApplicationHandleNotify(AJNS_Notification* notification);
+AJ_Status AJNS_Consumer_ConnectedHandler(AJ_BusAttachment* busAttachment);
 
 /**
- * ApplicationHandleDismiss implemented by the application
- * @param notificationId the notification id of the notification to dismiss
- * @param appId          the application id of the original sender of the notification to dismiss
- * @return status success/failure
+ * Process the message received
+ * @param busAttachment
+ * @param msg
+ * @param msgStatus
+ * @return status - was message handled
  */
-extern AJ_Status ApplicationHandleDismiss(int32_t notificationId, const char* appId);
+AJSVC_ServiceStatus AJNS_Consumer_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* msgStatus);
+
+/**
+ * Handle failed session join
+ * @param busAttachment
+ * @param sessionId
+ * @param replySerialNum
+ * @return status - was message handled
+ */
+AJSVC_ServiceStatus AJNS_Consumer_SessionJoinedHandler(AJ_BusAttachment* busAttachment, uint32_t sessionId, uint32_t replySerialNum);
+
+/**
+ * Handle successful session join
+ * @param busAttachment
+ * @param replySerialNum
+ * @param replyCode
+ * @return status - was message handled
+ */
+AJSVC_ServiceStatus AJNS_Consumer_SessionRejectedHandler(AJ_BusAttachment* busAttachment, uint32_t replySerialNum, uint32_t replyCode);
+
+/**
+ * Handle session loss
+ * @param busAttachment
+ * @param sessionId
+ * @param reason
+ * @return status - was message handled
+ */
+AJSVC_ServiceStatus AJNS_Consumer_SessionLostHandler(AJ_BusAttachment* busAttachment, uint32_t sessionId, uint32_t reason);
+
+/**
+ * Function called after service disconnects
+ * @param busAttachment
+ * @return the Alljoyn status
+ */
+AJ_Status AJNS_Consumer_DisconnectHandler(AJ_BusAttachment* busAttachment);
 
 #endif /* NOTIFICATIONCONSUMER_H_ */
-
-

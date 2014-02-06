@@ -17,45 +17,45 @@
 #include <alljoyn/notification/NotificationCommon.h>
 #include <alljoyn/services_common/Services_Common.h>
 
-const char NotificationInterfaceName[]   = "org.alljoyn.Notification";
-const char NotificationSignalName[]      = "!notify >q >i >q >s >s >ay >s >a{iv} >a{ss} >a(ss)";
-const char NotificationPropertyVersion[] = "@Version>q";
+const char AJNS_NotificationInterfaceName[]   = "org.alljoyn.Notification";
+const char AJNS_NotificationSignalName[]      = "!notify >q >i >q >s >s >ay >s >a{iv} >a{ss} >a(ss)";
+const char AJNS_NotificationPropertyVersion[] = "@Version>q";
 
-const uint16_t NotificationVersion = 2;
+const uint16_t AJNS_NotificationVersion = 2;
 
-const uint16_t NOTIFICATION_TTL_MIN   = 30;
-const uint16_t NOTIFICATION_TTL_MAX   = 43200;
+const uint16_t AJNS_NOTIFICATION_TTL_MIN   = 30;
+const uint16_t AJNS_NOTIFICATION_TTL_MAX   = 43200;
 
 /**
  * The interface name followed by the method signatures.
  *
  * See also .\inc\aj_introspect.h
  */
-const char* NotificationInterface[] = {
-    NotificationInterfaceName,               /*The first entry is the interface name.*/
-    NotificationSignalName,                  /*Signal at index 0 - See above for signature*/
-    NotificationPropertyVersion,
+const char* AJNS_NotificationInterface[] = {
+    AJNS_NotificationInterfaceName,               /*The first entry is the interface name.*/
+    AJNS_NotificationSignalName,                  /*Signal at index 0 - See above for signature*/
+    AJNS_NotificationPropertyVersion,
     NULL
 };
 
 /**
  * A NULL terminated collection of all interfaces.
  */
-const AJ_InterfaceDescription NotificationInterfaces[] = {
+const AJ_InterfaceDescription AJNS_NotificationInterfaces[] = {
     AJ_PropertiesIface,
-    NotificationInterface,
+    AJNS_NotificationInterface,
     NULL
 };
 
-const uint16_t NotificationDismisserVersion = 1;
+const uint16_t AJNS_NotificationDismisserVersion = 1;
 
 // TODO: Change NotificationDismisserObjectPath to be 'const char []' when AJTCL adds the "DON'T COLLAPSE" flag
 #define NOTIFICATION_DISMISSER_OBJECT_PATH_PREFIX "/notificationDismisser"
 #define NOTIFICATION_DISMISSER_OBJECT_PATH_PREFIX_LENGTH 22
 #define NOTIFICATION_DISMISSER_OBJECT_PATH_LENGTH (NOTIFICATION_DISMISSER_OBJECT_PATH_PREFIX_LENGTH + 1 + 2 * UUID_LENGTH + 1 + 10 + 1) // Prefix of NOTIFICATION_DISMISSER_OBJECT_PATH_PREFIX_LENGTH + '/' + AppId in 32 Hex chars + '/' + MsgId in 10 Ascii chars
-char NotificationDismisserObjectPath[NOTIFICATION_DISMISSER_OBJECT_PATH_LENGTH] = NOTIFICATION_DISMISSER_OBJECT_PATH_PREFIX; // /012345678901234567890123456789012/012345678";
+char AJNS_NotificationDismisserObjectPath[NOTIFICATION_DISMISSER_OBJECT_PATH_LENGTH] = NOTIFICATION_DISMISSER_OBJECT_PATH_PREFIX; // /012345678901234567890123456789012/012345678";
 
-const char* const NotificationDismisserInterface[] = {
+const char* const AJNS_NotificationDismisserInterface[] = {
     "org.alljoyn.Notification.Dismisser",
     "!Dismiss >i >ay",
     "@Version>q",
@@ -65,13 +65,13 @@ const char* const NotificationDismisserInterface[] = {
 /**
  * A NULL terminated collection of all interfaces.
  */
-const AJ_InterfaceDescription NotificationDismisserInterfaces[] = {
+const AJ_InterfaceDescription AJNS_NotificationDismisserInterfaces[] = {
     AJ_PropertiesIface,
-    NotificationDismisserInterface,
+    AJNS_NotificationDismisserInterface,
     NULL
 };
 
-AJ_Status NotificationSendDismiss(AJ_BusAttachment* busAttachment, int32_t msgId, const char* appId)
+AJ_Status AJNS_SendDismissSignal(AJ_BusAttachment* busAttachment, int32_t msgId, const char* appId)
 {
     AJ_Status status;
     AJ_Message msg;
@@ -84,9 +84,9 @@ AJ_Status NotificationSendDismiss(AJ_BusAttachment* busAttachment, int32_t msgId
     }
 
     // TODO: Remove setting of temporary Dismisser ObjectPath when AJTCL adds the "DON'T COLLAPSE" flag
-    NotificationDismisserObjectPath[snprintf(NotificationDismisserObjectPath, NOTIFICATION_DISMISSER_OBJECT_PATH_LENGTH, "%s/%s/%d", NotificationDismisserObjectPath, appId, msgId)] = '\0';
+    AJNS_NotificationDismisserObjectPath[snprintf(AJNS_NotificationDismisserObjectPath, NOTIFICATION_DISMISSER_OBJECT_PATH_LENGTH, "%s/%s/%d", AJNS_NotificationDismisserObjectPath, appId, msgId)] = '\0';
 
-    status = AJ_MarshalSignal(busAttachment, &msg, NOTIFICATION_DISMISSER_DISMISS_EMITTER, NULL, 0, ALLJOYN_FLAG_SESSIONLESS, NOTIFICATION_TTL_MAX); // TODO: Add the "DON'T COLLAPSE" flag
+    status = AJ_MarshalSignal(busAttachment, &msg, NOTIFICATION_DISMISSER_DISMISS_EMITTER, NULL, 0, ALLJOYN_FLAG_SESSIONLESS, AJNS_NOTIFICATION_TTL_MAX); // TODO: Add the "DON'T COLLAPSE" flag
     if (status != AJ_OK) {
         AJ_Printf("Could not Marshal Signal\n");
         return status;
@@ -96,7 +96,7 @@ AJ_Status NotificationSendDismiss(AJ_BusAttachment* busAttachment, int32_t msgId
     if (status != AJ_OK) {
         goto ErrorExit;
     }
-    status = Common_MarshalAppId(&msg, appId);
+    status = AJSVC_MarshalAppId(&msg, appId);
     if (status != AJ_OK) {
         goto ErrorExit;
     }
@@ -110,7 +110,7 @@ AJ_Status NotificationSendDismiss(AJ_BusAttachment* busAttachment, int32_t msgId
     }
 
     // TODO: Remove resetting of temporary Dismisser ObjectPath when AJTCL adds the "DON'T COLLAPSE" flag
-    NotificationDismisserObjectPath[NOTIFICATION_DISMISSER_OBJECT_PATH_PREFIX_LENGTH] = '\0';
+    AJNS_NotificationDismisserObjectPath[NOTIFICATION_DISMISSER_OBJECT_PATH_PREFIX_LENGTH] = '\0';
     return status;
 
 ErrorExit:
@@ -119,22 +119,22 @@ ErrorExit:
     return status;
 }
 
-const uint16_t NotificationProducerPort = 1010;
-const char NotificationProducerObjectPath[] = "/notificationProducer";
+const uint16_t AJNS_NotificationProducerPort = 1010;
+const char AJNS_NotificationProducerObjectPath[] = "/notificationProducer";
 
-const char* const NotificationProducerInterface[] = {
+const char* const AJNS_NotificationProducerInterface[] = {
     "org.alljoyn.Notification.Producer",
     "?Dismiss <i",
     "@Version>q",
     NULL
 };
 
-const uint16_t NotificationProducerVersion = 1;
+const uint16_t AJNS_NotificationProducerVersion = 1;
 
-const AJ_InterfaceDescription NotificationProducerInterfaces[] = {
+const AJ_InterfaceDescription AJNS_NotificationProducerInterfaces[] = {
     AJ_PropertiesIface,
-    NotificationProducerInterface,
-    NotificationDismisserInterface,
+    AJNS_NotificationProducerInterface,
+    AJNS_NotificationDismisserInterface,
     NULL
 };
 
