@@ -22,85 +22,28 @@
 
 #ifdef CONTROLPANEL_SERVICE
 #include <alljoyn/services_common/Services_Common.h>
-#include <ControlPanelGenerated.h>
 #else
 #define NUM_PRE_CONTROLPANEL_OBJECTS 0
-#include <ControlPanelClientGenerated.h>
+#include "ControlPanelClientGenerated.h"
 #endif
 
 /**
- * Message Id's based on Interfaces defined in service
- */
-#define CONTROLPANEL_APPOBJECTS  \
-    CONTROLPANELAPPOBJECTS
-
-#define CONTROLPANEL_ANNOUNCEOBJECTS \
-    CONTROLPANELANNOUNCEOBJECTS
-
-/**
- * Port used for controlpanelservice
- */
-extern const uint16_t CPSPort;
-
-/**
- * Marshal and send the url for the controlPanel
- * @param msg
- * @param msgId
- * @return
- */
-AJ_Status CpsSendRootUrl(AJ_Message* msg, uint32_t msgId);
-
-/**
- * Marshal and send a specific property for a Widget
- * @param replyMsg
- * @param propId
- * @param context
- * @return
- */
-AJ_Status CpsGetWidgetProperty(AJ_Message* replyMsg, uint32_t propId, void* context);
-
-/**
- * Marshal and send all properties for a Widget
- * @param msg
- * @param msgId
- * @return
- */
-AJ_Status CpsGetAllWidgetProperties(AJ_Message* msg, uint32_t msgId);
-
-/**
- * Marshal and send the version property for the Root Interfaces
- * @param replyMsg
- * @param propId
- * @param context
- * @return status
- */
-AJ_Status CpsGetRootProperty(AJ_Message* replyMsg, uint32_t propId, void* context);
-
-/**
- * Marshal and send all properties for a Root Interface
- * @param msg
- * @param msgId
- * @return status
- */
-AJ_Status CpsGetAllRootProperties(AJ_Message* msg, uint32_t msgId);
-
-/**
  * Send Signal if a property of a widget has changed.
- * @param bus
+ * @param busAttachment
  * @param propSignal
  * @param sessionId
  * @return status
  */
-AJ_Status CpsSendPropertyChangedSignal(AJ_BusAttachment* bus, uint32_t propSignal, uint32_t sessionId);
+AJ_Status AJCPS_SendPropertyChangedSignal(AJ_BusAttachment* busAttachment, uint32_t propSignal, uint32_t sessionId);
 
 /**
  * Send a signal to dismiss the displayed NotificationAction
- * @param bus
+ * @param busAttachment
  * @param propSignal
  * @param sessionId
  * @return status
  */
-AJ_Status CpsSendDismissSignal(AJ_BusAttachment* bus, uint32_t propSignal, uint32_t sessionId);
+AJ_Status AJCPS_SendDismissSignal(AJ_BusAttachment* busAttachment, uint32_t propSignal, uint32_t sessionId);
 
 /**
  * Function used to identify what kind of request we're dealing with. Defined in Generated code.
@@ -110,7 +53,7 @@ AJ_Status CpsSendDismissSignal(AJ_BusAttachment* bus, uint32_t propSignal, uint3
  * @param language
  * @return widget
  */
-extern void* identifyMsgOrPropId(uint32_t identifier, uint16_t* widgetType, uint16_t* propType, uint16_t* language);
+typedef void* (*AJCPS_IdentifyMsgOrPropId)(uint32_t identifier, uint16_t* widgetType, uint16_t* propType, uint16_t* language);
 
 /**
  * Function used to identify what kind of signal we're sending. Defined in Generated code.
@@ -119,13 +62,43 @@ extern void* identifyMsgOrPropId(uint32_t identifier, uint16_t* widgetType, uint
  * @param language
  * @return widget
  */
-extern void* identifyMsgOrPropIdForSignal(uint32_t identifier, uint8_t* isProperty);
+typedef void* (*AJCPS_IdentifyMsgOrPropIdForSignal)(uint32_t identifier, uint8_t* isProperty);
 
 /**
  * Function used to identify what kind of request we're dealing with. Defined in Generated code.
  * @param identifier
  * @return true/false
  */
-extern uint8_t identifyRootMsgOrPropId(uint32_t identifier);
+typedef uint8_t (*AJCPS_IdentifyRootMsgOrPropId)(uint32_t identifier);
+
+/**
+ * Start ControlPanel service framework passing callbacks from generated code
+ * @param generatedMessageProcessor
+ * @param identifyMsgOrPropId
+ * @param identifyMsgOrPropIdForSignal
+ * @param identifyRootMsgOrPropId
+ * @return status
+ */
+AJ_Status AJCPS_Start(AJSVC_MessageProcessor generatedMessageProcessor, AJCPS_IdentifyMsgOrPropId identifyMsgOrPropId, AJCPS_IdentifyMsgOrPropIdForSignal identifyMsgOrPropIdForSignal, AJCPS_IdentifyRootMsgOrPropId identifyRootMsgOrPropId);
+
+/**
+ * return the current session id
+ * @return sessionId
+ */
+uint32_t AJCPS_GetCurrentSessionId();
+
+uint8_t AJCPS_CheckSessionAccepted(uint16_t port, uint32_t sessionId, char* joiner);
+
+AJ_Status AJCPS_ConnectedHandler(AJ_BusAttachment* busAttachment);
+
+AJSVC_ServiceStatus AJCPS_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* msgStatus);
+
+AJ_Status AJCPS_DisconnectHandler(AJ_BusAttachment* busAttachment);
+
+AJ_Status AJCPS_SendRootUrl(AJ_Message* msg, uint32_t msgId);
+AJ_Status AJCPS_GetWidgetProperty(AJ_Message* replyMsg, uint32_t propId, void* context);
+AJ_Status AJCPS_GetRootProperty(AJ_Message* replyMsg, uint32_t propId, void* context);
+AJ_Status AJCPS_GetAllRootProperties(AJ_Message* msg, uint32_t msgId);
+AJ_Status AJCPS_GetAllWidgetProperties(AJ_Message* msg, uint32_t msgId);
 
 #endif /* CONTROLPANELRESPONSES_H_ */

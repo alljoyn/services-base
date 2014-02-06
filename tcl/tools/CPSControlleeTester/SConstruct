@@ -1,5 +1,5 @@
 #*****************************************************************************
-# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+# Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
@@ -22,7 +22,7 @@
 # sample usage:
 # scons VARIANT=debug TARG=linux WS=off AJ_TCL_ROOT=../../../ajtcl
 
-ajtcl_root_default = '../../../../../ajtcl'
+ajtcl_root_default = '../../../../../core/ajtcl'
 
 env = SConscript(ajtcl_root_default + '/SConscript')
 
