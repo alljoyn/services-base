@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -22,9 +22,13 @@
  *  @{
  */
 
-#include <alljoyn/services_common/PropertyStore.h>
-#include <alljoyn/config/ConfigOEMProvisioning.h>
+#include <alljoyn.h>
 #include <alljoyn/services_common/Services_Common.h>
+
+/**
+ * published Config Service objects and interfaces
+ */
+extern const AJ_InterfaceDescription AJSVC_ConfigInterfaces[];
 
 /*
  * Following definitions are read by the application.
@@ -33,97 +37,75 @@
 #define NUM_CONFIG_OBJECTS 1
 
 #define CONFIG_APPOBJECTS \
-    { "/Config",             ConfigInterfaces },
+    { "/Config",             AJSVC_ConfigInterfaces },
 
 #ifndef CONFIG_ANNOUNCEOBJECTS
 #define CONFIG_ANNOUNCEOBJECTS CONFIG_APPOBJECTS
 #endif
 
-/*
- * Message identifiers for the method calls this service implements
+/**
+ * actions to perform when factory reset is requested
+ * @return status
  */
+typedef AJ_Status (*AJCFG_FactoryReset)(void);
 
-#define CONFIG_OBJECT_INDEX                                     NUM_PRE_CONFIG_OBJECTS
+/**
+ * actions to perform when a device restart is requested
+ * @return status
+ */
+typedef AJ_Status (*AJCFG_Restart)(void);
 
-#define CONFIG_GET_PROP                                         AJ_APP_MESSAGE_ID(CONFIG_OBJECT_INDEX, 0, AJ_PROP_GET)
-#define CONFIG_SET_PROP                                         AJ_APP_MESSAGE_ID(CONFIG_OBJECT_INDEX, 0, AJ_PROP_SET)
+/**
+ * actions to perform when a new device passcode is set
+ * @param daemonRealm
+ * @param newStringPasscode
+ * @return status
+ */
+typedef AJ_Status (*AJCFG_SetPasscode)(const char* daemonRealm, const char* newStringPasscode);
 
-#define CONFIG_VERSION_PROP                                     AJ_APP_PROPERTY_ID(CONFIG_OBJECT_INDEX, 1, 0)
-#define CONFIG_FACTORY_RESET                                    AJ_APP_MESSAGE_ID(CONFIG_OBJECT_INDEX, 1, 1)
-#define CONFIG_RESTART                                          AJ_APP_MESSAGE_ID(CONFIG_OBJECT_INDEX, 1, 2)
-#define CONFIG_GET_CONFIG_CONFIGURATIONS                        AJ_APP_MESSAGE_ID(CONFIG_OBJECT_INDEX, 1, 3)
-#define CONFIG_UPDATE_CONFIGURATIONS                            AJ_APP_MESSAGE_ID(CONFIG_OBJECT_INDEX, 1, 4)
-#define CONFIG_RESET_CONFIGURATIONS                             AJ_APP_MESSAGE_ID(CONFIG_OBJECT_INDEX, 1, 5)
-#define CONFIG_SET_PASSCODE                                     AJ_APP_MESSAGE_ID(CONFIG_OBJECT_INDEX, 1, 6)
+/**
+ * check whether the given value is valid for the given key
+ * @param key
+ * @param value
+ * @return isValid
+ */
+typedef uint8_t (*AJCFG_IsValueValid)(const char* key, const char* value);
 
 /*
  * Config Service API
  */
 
 /**
- * published Config Service objects and interfaces
+ * Start Config service framework passing callbacks
+ * @param factoryReset
+ * @param restart
+ * @param setPasscode
+ * @param isValueValid
+ * @return status
  */
-extern const AJ_InterfaceDescription ConfigInterfaces[];
+AJ_Status AJCFG_Start(AJCFG_FactoryReset factoryReset, AJCFG_Restart restart, AJCFG_SetPasscode setPasscode, AJCFG_IsValueValid isValueValid);
 
 /**
- * handler for property getters associated with org.alljoyn.Config
- * @param replyMsg
- * @param propId
- * @param context
+ * on connected service
+ * @param bus
  * @return aj_status
  */
-AJ_Status ConfigPropGetHandler(AJ_Message* replyMsg, uint32_t propId, void* context);
+AJ_Status AJCFG_ConnectedHandler(AJ_BusAttachment* busAttachment);
 
 /**
- * handler for property setters associated with org.alljoyn.Config
- * @param replyMsg
- * @param propId
- * @param context
- * @return aj_status
- */
-AJ_Status ConfigPropSetHandler(AJ_Message* replyMsg, uint32_t propId, void* context);
-
-/**
- * handler for FactoryReset request in org.alljoyn.Config
+ * on processing message
+ * @param bus
  * @param msg
  * @return aj_status
  */
-AJ_Status ConfigFactoryReset(AJ_Message* msg);
+AJSVC_ServiceStatus AJCFG_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* msgStatus);
 
 /**
- * handler for Restart request in org.alljoyn.Config
- * @param msg
+ * on disconnect service
+ * @param bus
  * @return aj_status
  */
-AJ_Status ConfigRestart(AJ_Message* msg);
-
-/**
- * handler for GetConfigruations request in org.alljoyn.Config
- * @param msg
- * @return aj_status
- */
-AJ_Status ConfigGetConfigurations(AJ_Message* msg);
-
-/**
- * handler for UpdateConfigurations request in org.alljoyn.Config
- * @param msg
- * @return aj_status
- */
-AJ_Status ConfigUpdateConfigurations(AJ_Message* msg);
-
-/**
- * handler for ResetConfigurations request in org.alljoyn.Config
- * @param msg
- * @return aj_status
- */
-AJ_Status ConfigResetConfigurations(AJ_Message* msg);
-
-/**
- * handler for SetPasscode request in org.alljoyn.Config
- * @param msg
- * @return aj_status
- */
-AJ_Status ConfigSetPasscode(AJ_Message* msg);
+AJ_Status AJCFG_DisconnectHandler(AJ_BusAttachment* busAttachment);
 
 /** @} */
  #endif // _CONFIGSERVICE_H_
