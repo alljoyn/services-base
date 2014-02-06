@@ -17,26 +17,27 @@
 #ifndef _SERVICES_COMMON_H_
 #define _SERVICES_COMMON_H_
 
-#include <alljoyn/services_common/PropertyStore.h>
-#define CHECK(x) if ((status = (x)) != AJ_OK) { break; }
+#include <alljoyn.h>
+
+typedef void (*AJSVC_MethodCallCompleted)(AJ_Status status, void* context);
 
 /**
- * busAttachment that will be used for connecting and sending messages
- * Needs to be defined in app
+ * Service Status is an enum that signals whether a call was handled
+ * or not handled within a service_message_processor function
  */
-extern AJ_BusAttachment busAttachment;
+typedef enum _AJSVC_ServiceStatus {
+    AJSVC_SERVICE_STATUS_HANDLED,       //!< SERVICE_STATUS_HANDLED
+    AJSVC_SERVICE_STATUS_NOT_HANDLED,   //!< SERVICE_STATUS_NOT_HANDLED
+} AJSVC_ServiceStatus;
 
 /**
- * "boolean" that reflects whether the bus is connected or not
- * Can be set to TRUE or FALSE - should default to FALSE
+ * Function used to process request messages.
+ * @param busAttachment
+ * @param msg
+ * @param msgStatus
+ * @return serviceStatus
  */
-extern uint8_t isBusConnected;
-
-/**
- * "boolean" that reflects whether at the conclusion of this message loop processing the device will reboot
- * Can be set to TRUE or FALSE - should default to FALSE
- */
-extern uint8_t isRebootRequired;
+typedef AJSVC_ServiceStatus (*AJSVC_MessageProcessor)(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* msgStatus);
 
 /**
  * UpdateNotAllowed Error Message for services
@@ -71,7 +72,7 @@ extern uint8_t isRebootRequired;
  * @param langIndex
  * @return success
  */
-uint8_t Common_IsLanguageSupported(AJ_Message* msg, AJ_Message* reply, const char* language, int8_t* langIndex);
+uint8_t AJSVC_IsLanguageSupported(AJ_Message* msg, AJ_Message* reply, const char* language, int8_t* langIndex);
 
 /*!
    \brief Length of the AppID field
@@ -79,14 +80,122 @@ uint8_t Common_IsLanguageSupported(AJ_Message* msg, AJ_Message* reply, const cha
 #define UUID_LENGTH 16
 
 /**
- * returns the language index for the given language name possibly creating an error reply message if erred
+ * marshals the provided appId as an 'ay'
  * @param msg   the message to marshal the appId into
  * @param appId the application id to marshal
  * @return status
  */
-AJ_Status Common_MarshalAppId(AJ_Message* msg, const char* appId);
+AJ_Status AJSVC_MarshalAppId(AJ_Message* msg, const char* appId);
 
-// The following is to be included in all services
-#include <alljoyn/services_common/Services_Registration.h>
+/**
+ * unmarshals the appId from the provided message
+ * @param msg     the message to unmarshal the appId from
+ * @param buf     the buffer where the application id is unmarshalled into
+ * @param bufLen  the size of the provided buffer. Should be UUID_LENGTH * 2 + 1.
+ * @return status
+ */
+AJ_Status AJSVC_UnmarshalAppId(AJ_Message* msg, char* buf, size_t bufLen);
+
+// The following is the static registration of all services' bus objects
+
+/*
+ * For each service:
+ * 1) Define pre objects - the amount of objects registered before the service
+ * 2) If service is included:
+ *    i)   include service header file(s)
+ *    If service is NOT included:
+ *    i)   define the default number of appobjects and number of objects
+ *    ii)  define the default announce objects
+ */
+/*
+ * Includes for all the services
+ */
+#define NUM_PRE_ABOUT_OBJECTS 0
+#include "alljoyn/about/AboutService.h"
+
+#define NUM_PRE_CONFIG_OBJECTS                NUM_PRE_ABOUT_OBJECTS + NUM_ABOUT_OBJECTS
+#ifdef CONFIG_SERVICE
+    #include "alljoyn/config/ConfigService.h"
+#else
+    #define NUM_CONFIG_OBJECTS 0
+    #define CONFIG_APPOBJECTS
+    #define CONFIG_ANNOUNCEOBJECTS
+#endif
+
+#define NUM_PRE_ONBOARDING_OBJECTS            NUM_PRE_CONFIG_OBJECTS + NUM_CONFIG_OBJECTS
+#ifdef ONBOARDING_SERVICE
+    #include "alljoyn/onboarding/OnboardingService.h"
+#else
+    #define NUM_ONBOARDING_OBJECTS 0
+    #define ONBOARDING_APPOBJECTS
+    #define ONBOARDING_ANNOUNCEOBJECTS
+#endif
+
+#define NUM_PRE_NOTIFICATION_COMMON_OBJECTS   NUM_PRE_ONBOARDING_OBJECTS + NUM_ONBOARDING_OBJECTS
+#if defined(NOTIFICATION_SERVICE_PRODUCER) || defined(NOTIFICATION_SERVICE_CONSUMER)
+    #include "alljoyn/notification/NotificationCommon.h"
+#else
+    #define NUM_NOTIFICATION_COMMON_OBJECTS 0
+    #define NOTIFICATION_COMMON_APPOBJECTS
+#endif
+
+#define NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS NUM_PRE_NOTIFICATION_COMMON_OBJECTS + NUM_NOTIFICATION_COMMON_OBJECTS
+#ifdef NOTIFICATION_SERVICE_PRODUCER
+    #include "alljoyn/notification/NotificationProducer.h"
+#else
+    #define NUM_NOTIFICATION_PRODUCER_OBJECTS 0
+    #define NOTIFICATION_PRODUCER_APPOBJECTS
+    #define NOTIFICATION_PRODUCER_ANNOUNCEOBJECTS
+#endif
+
+#define NUM_PRE_CONTROLPANEL_OBJECTS          NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS + NUM_NOTIFICATION_PRODUCER_OBJECTS
+#ifdef CONTROLPANEL_SERVICE
+    #include "alljoyn/controlpanel/ControlPanelService.h"
+#else
+    #define NUM_CONTROLPANEL_OBJECTS 0
+    #define CONTROLPANEL_APPOBJECTS
+    #define CONTROLPANEL_ANNOUNCEOBJECTS
+#endif
+
+#define NUM_PRE_APPLICATION_OBJECTS (NUM_PRE_CONTROLPANEL_OBJECTS + NUM_CONTROLPANEL_OBJECTS)
+
+#define NUM_PRE_NOTIFICATION_CONSUMER_PROXYOBJECTS 0
+#ifdef NOTIFICATION_SERVICE_CONSUMER
+    #include "alljoyn/notification/NotificationConsumer.h"
+#else
+    #define NUM_NOTIFICATION_CONSUMER_PROXYOBJECTS 0
+    #define NOTIFICATION_CONSUMER_PROXYOBJECTS
+#endif
+
+#define NUM_PRE_PROXY_OBJECTS (NUM_PRE_NOTIFICATION_CONSUMER_PROXYOBJECTS + NOTIFICATION_CONSUMER_PROXYOBJECTS)
+
+/*
+ * Define pre objects - the amount of objects registered before each service
+ */
+
+/*
+ * Defines AppObjects and Proxyobjects to be registered
+ * each of those are described in the service itself
+ * for example NOTIFICATION_PRODUCER_APPOBJECTS is defined in
+ * services/notification/tcl/inc/alljoyn/notification/NotificationProducer.h
+ */
+#define IOE_SERVICES_APPOBJECTS \
+    ABOUT_APPOBJECTS \
+    CONFIG_APPOBJECTS \
+    ONBOARDING_APPOBJECTS \
+    NOTIFICATION_COMMON_APPOBJECTS \
+    NOTIFICATION_PRODUCER_APPOBJECTS
+
+#define IOE_SERVICES_PROXYOBJECTS \
+    NOTIFICATION_CONSUMER_PROXYOBJECTS
+
+/*
+ * Define all objects to be announced
+ */
+#define IOE_SERVICES_ANNOUNCEOBJECTS \
+    ABOUT_ANNOUNCEOBJECTS \
+    CONFIG_ANNOUNCEOBJECTS \
+    ONBOARDING_ANNOUNCEOBJECTS \
+    NOTIFICATION_PRODUCER_ANNOUNCEOBJECTS
 
 #endif /* _SERVICES_COMMON_H_ */

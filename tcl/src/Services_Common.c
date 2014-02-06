@@ -14,13 +14,13 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#include <alljoyn/services_common/PropertyStore.h>
 #include <alljoyn/services_common/Services_Common.h>
+#include <alljoyn/services_common/PropertyStore.h>
 
-uint8_t Common_IsLanguageSupported(AJ_Message* msg, AJ_Message* reply, const char* language, int8_t* langIndex)
+uint8_t AJSVC_IsLanguageSupported(AJ_Message* msg, AJ_Message* reply, const char* language, int8_t* langIndex)
 {
     uint8_t supported = TRUE;
-    int8_t foundLangIndex = PropertyStore_GetLanguageIndex(language);
+    int8_t foundLangIndex = AJSVC_PropertyStore_GetLanguageIndex(language);
     if (foundLangIndex == AJSVC_PROPERTY_STORE_ERROR_LANGUAGE_INDEX) {
         AJ_MarshalErrorMsg(msg, reply, AJSVC_ERROR_LANGUAGE_NOT_SUPPORTED);
         supported = FALSE;
@@ -31,7 +31,7 @@ uint8_t Common_IsLanguageSupported(AJ_Message* msg, AJ_Message* reply, const cha
     return supported;
 }
 
-AJ_Status Common_MarshalAppId(AJ_Message*msg, const char* appId)
+AJ_Status AJSVC_MarshalAppId(AJ_Message* msg, const char* appId)
 {
     AJ_Arg appIdArg;
     uint8_t binAppId[UUID_LENGTH];
@@ -46,4 +46,23 @@ AJ_Status Common_MarshalAppId(AJ_Message*msg, const char* appId)
     return AJ_MarshalArg(msg, &appIdArg);
 }
 
+AJ_Status AJSVC_UnmarshalAppId(AJ_Message* msg, char* buf, size_t bufLen)
+{
+    AJ_Arg appIdArray;
+    AJ_Status status;
+    size_t appIdLen;
 
+    if (bufLen < (UUID_LENGTH * 2 + 1)) {
+        AJ_Printf("UnmarshalAppId: Insufficient buffer size! Should be at least %u but got %u\n", UUID_LENGTH * 2 + 1, (uint32_t)bufLen);
+        return AJ_ERR_RESOURCES;
+    }
+
+    status = AJ_UnmarshalArg(msg, &appIdArray);
+    if (status != AJ_OK) {
+        return status;
+    }
+
+    appIdLen = ((appIdArray.len > UUID_LENGTH) ? UUID_LENGTH : appIdArray.len) * 2 + 1;
+
+    return AJ_RawToHex(appIdArray.val.v_byte, appIdArray.len, buf, appIdLen, FALSE);
+}
