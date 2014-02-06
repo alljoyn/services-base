@@ -33,7 +33,7 @@ services_common_root_default = '../../../services_common/tcl'
 about_root_default           = '../../../../core/about_tcl/tcl'
 config_root_default          = '../../../config/tcl'
 notification_root_default    = '../../../notification/tcl'
-cps_root_default             = '../../../controlpanel/tcl/samples/CPSControlleeSample'
+cps_root_default             = '../../../controlpanel/tcl'
 
 import os
 
@@ -77,7 +77,10 @@ else:
     sersamp_env = env.Clone()
 Export('sersamp_env')
 
-sersamp_env.Append(CPPPATH = [Dir('inc')])
+sersamp_env.Append(CPPPATH = [Dir('.')])
+sersamp_env.Append(CPPPATH = [Dir('../AppsCommon/inc')])
+sersamp_env.Append(CPPPATH = [Dir('../AppsCommon/target/' + sersamp_env['TARG'])])
+
 
 variant_dir = 'obj'
 if sersamp_env.has_key('SERSAMP_VARIANT_DIR'):
@@ -85,20 +88,8 @@ if sersamp_env.has_key('SERSAMP_VARIANT_DIR'):
     # by defining separate variant dir for each env/app
     variant_dir += '/' + sersamp_env['SERSAMP_VARIANT_DIR']
 
-objs = SConscript('src/SConscript', variant_dir = variant_dir, duplicate = 0)
-
-services_common_objs = sersamp_env.SConscript('$SERVICES_COMMON_ROOT/SConscript', {'services_common_env': sersamp_env})
-objs.extend(services_common_objs)
-
-about_objs = sersamp_env.SConscript('$ABOUT_ROOT/SConscript', {'about_env': sersamp_env})
-objs.extend(about_objs)
-
-# if called by a service (to provide main() and About) then return now:
-if sersamp_env.has_key('INDIV_BUILD'):
-    Return ('objs')
-
 # build the service sample, based on command-line args
-build_config_default      = 1 # do     build by default
+build_config_default      = 0 # do     build by default
 build_producer_default    = 0 # do NOT build by default
 build_consumer_default    = 0 # do NOT build by default
 build_cps_default         = 0 # do NOT build by default
@@ -115,11 +106,21 @@ else:
     build_consumer  = ARGUMENTS.get('CONSUMER',    build_consumer_default)
     build_cps       = ARGUMENTS.get('CPS',         build_cps_default)
 
+srcs = ['ServerSample.c', '../AppsCommon/src/PropertyStore.c', '../AppsCommon/src/Services_Handlers.c']
+objs = []
+
 if int(build_config):
+    srcs.extend(['../AppsCommon/src/ConfigSample.c'])
     config_root = ARGUMENTS.get('CONFIG_ROOT', config_root_default)
     component_objs = SConscript(config_root + '/src/SConscript', {'config_env': sersamp_env})
     if component_objs:
         objs.extend(component_objs)
+
+if int(build_producer):
+    srcs.extend(['SimpleNotificationProducerSample.c', '../AppsCommon/target/' + sersamp_env['TARG'] + '/NotificationProducerSampleUtil.c'])
+
+if int(build_consumer):
+    srcs.extend(['SimpleNotificationConsumerSample.c', '../AppsCommon/target/'  + sersamp_env['TARG'] + '/NotificationConsumerSampleUtil.c'])
 
 if int(build_producer) or int(build_consumer):
     notification_root = ARGUMENTS.get('NOTIFICATION_ROOT', notification_root_default)
@@ -133,10 +134,23 @@ if int(build_producer) or int(build_consumer):
         objs.extend(component_objs)
 
 if int(build_cps):
+    srcs.extend(['ControlPanelGenerated.c', 'ControlPanelProvided.c', 'ControlPanelSample.c'])
     cps_root = ARGUMENTS.get('CPS_ROOT', cps_root_default)
     component_objs = SConscript(cps_root + '/SConscript', {'cps_env': sersamp_env})
     if component_objs:
         objs.extend(component_objs)
+
+objs.extend(sersamp_env.Object(srcs))
+
+services_common_objs = sersamp_env.SConscript('$SERVICES_COMMON_ROOT/SConscript', {'services_common_env': sersamp_env})
+objs.extend(services_common_objs)
+
+about_objs = sersamp_env.SConscript('$ABOUT_ROOT/SConscript', {'about_env': sersamp_env})
+objs.extend(about_objs)
+
+# if called by a service (to provide main() and About) then return now:
+if sersamp_env.has_key('INDIV_BUILD'):
+    Return ('objs')
 
 prog = sersamp_env.Program(
     target = variant_dir + '/' + main_exe,

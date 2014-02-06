@@ -18,73 +18,72 @@
 #define _SERVICES_HANDLERS_H_
 
 #include <alljoyn.h>
-#include <Apps_Common.h>
+#include <alljoyn/services_common/Services_Common.h>
 
 /**
  * Initialize the Services. called at the start of the application
  */
-void Service_Init();
+AJ_Status AJServices_Init(AJ_Object* appObjects, AJ_Object* proxyObjects, AJ_Object* announceObjects, uint8_t* appIsRebootRequired, const char* deviceManufactureName, const char* deviceProductName);
 
 /**
- * Connect to Daemon
- * @param daemonName - daemonName to connect to
+ * Connect to Router
+ * @param busAttachment
+ * @param routerName - name of the Router to connect to
  * @return true/false if connected successfully
  */
-uint8_t Daemon_Connect(char* daemonName);
+uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* routerName);
 
 /**
- * Functions to call after the Service Connected
- * @return aj_status - status of last request to daemon
+ * Run when the bus is connected to the Router
+ * application is idle
+ * @param busAttachment
+ * @return aj_status for last request to router
  */
-AJ_Status Service_ConnectedHandler();
+AJ_Status AJApp_ConnectedHandler(AJ_BusAttachment* busAttachment);
+
+/**
+ * Functions to call after the Router is Connected
+ * @param busAttachment
+ * @return ajStatus - status of last request to Router
+ */
+AJ_Status AJServices_ConnectedHandler(AJ_BusAttachment* busAttachment);
 
 /**
  * Process an incoming message
+ * @param busAttachment
  * @param msg
  * @param status
- * @return service_status - shows if the message was processed or not
+ * @return servicestatus - shows if the message was processed or not
  */
-Service_Status Service_MessageProcessor(AJ_Message* msg, AJ_Status* status);
+AJSVC_ServiceStatus AJServices_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* status);
 
 /**
- * Run when there is a timeout reading off the bus -
+ * Run when there is a timeout reading off the bus
  * application is idle
+ * @param busAttachment
  */
-void Service_IdleConnectedHandler();
+void AJServices_DoWork(AJ_BusAttachment* busAttachment);
 
 /**
  * Shutdown services. Should be called on bus disconnect
  */
-void Service_DisconnectHandler();
+void AJServices_DisconnectHandler();
 
 /**
- * Callback to set the password for the daemon
- * @param buffer
- * @param bufLen
- * @return length of data but in buffer
- */
-uint32_t PasswordCallback(uint8_t* buffer, uint32_t bufLen);
-
-/**
- * Run when the bus is connected to the daemon
- * application is idle
- * @return aj_status for last request to daemon
- */
-AJ_Status Application_ConnectedHandler();
-
-/**
- * Run when the bus is disconnecting from the daemon
- * Connection to daemon is either restarting or was stopped
+ * Run when the bus is disconnecting from the Router
+ * Connection to Router is either restarting or was stopped
+ * @param busAttachment
  * @param restart
- * @return aj_status for last request to daemon
+ * @return aj_status for last request to Router
  */
-AJ_Status Application_DisconnectHandler(uint8_t restart);
+AJ_Status AJApp_DisconnectHandler(AJ_BusAttachment* busAttachment, uint8_t restart);
 
 /**
- * Disconnect from Daemon
+ * Disconnect from the Router
+ * @param busAttachment
  * @param disconnectWiFi
  * @return true/false if disconnected successfully
  */
-uint8_t Daemon_Disconnect(uint8_t disconnectWiFi);
+uint8_t AJRouter_Disconnect(AJ_BusAttachment* busAttachment, uint8_t disconnectWiFi);
 
 #endif /* _SERVICES_HANDLERS_H_ */

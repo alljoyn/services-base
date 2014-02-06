@@ -14,64 +14,103 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+#include "Services_Handlers.h"
 #include <alljoyn.h>
+#include <aj_config.h>
 #include <aj_creds.h>
 #include <aj_nvram.h>
+#include <aj_link_timeout.h>
 
-#include <PropertyStoreOEMProvisioning.h>
-#include <alljoyn/about/AboutOEMProvisioning.h>
-#ifdef CONFIG_SERVICE
-    #include <alljoyn/config/ConfigOEMProvisioning.h>
-#endif
+#include "PropertyStoreOEMProvisioning.h"
+#include <alljoyn/about/AboutSample.h>
 #ifdef ONBOARDING_SERVICE
-    #include <alljoyn/onboarding/OnboardingOEMProvisioning.h>
+    #include <alljoyn/onboarding/OnboardingManager.h>
 #endif
+#ifdef CONTROLPANEL_SERVICE
+    #include "ControlPanelGenerated.h"
+#endif
+
 #include <alljoyn/services_common/PropertyStore.h>
 #include <alljoyn/services_common/Services_Common.h>
+
+// Application wide globals
+#define ROUTER_NAME "org.alljoyn.BusNode"
+static uint8_t isBusConnected = FALSE;
+static uint8_t isRebootRequired = FALSE;
+static AJ_BusAttachment busAttachment;
+
+/*
+ * Define timeout/pause values. Values are in milli seconds.
+ * The following may be tuned according to platform requirements such as battery usage.
+ */
+#define AJAPP_UNMARSHAL_TIMEOUT   (1000 * 1) // Override AJ_UNMARSHAL_TIMEOUT to be more responsive
+
+// Services Provisioning
+
+AJ_Object AppObjects[] = {
+    IOE_SERVICES_APPOBJECTS
+#ifdef CONTROLPANEL_SERVICE
+    CONTROLPANELAPPOBJECTS
+#endif
+    { NULL, NULL }
+};
+
+AJ_Object ProxyObjects[] = {
+    IOE_SERVICES_PROXYOBJECTS
+    { NULL, NULL }
+};
+
+const AJ_Object AnnounceObjects[] = {
+    IOE_SERVICES_ANNOUNCEOBJECTS
+#ifdef CONTROLPANEL_SERVICE
+    CONTROLPANELANNOUNCEOBJECTS
+#endif
+    { NULL, NULL }
+};
 
 const char* deviceManufactureName = "QCA";
 const char* deviceProductName = "AC";
 
 static const char* DEFAULT_LANGUAGE = "en";
 
-const char** ajsvc_propertyStoreDefaultLanguages = { &DEFAULT_LANGUAGE };
+const char** propertyStoreDefaultLanguages = { &DEFAULT_LANGUAGE };
 const uint8_t AJSVC_PROPERTY_STORE_NUMBER_OF_LANGUAGES = 1;
 
 /**
  * properties array of default values
  */
-static const char* DEFAULT_PASSCODE = "000000";
-static const char* DEFAULT_APP_NAME = "Controlee";
-static const char* DEFAULT_DESCRIPTION = "AC IOE device";
-static const char* DEFAULT_MANUFACTURER = "Company A(EN)";
-static const char* DEFAULT_DEVICE_MODEL = "0.0.1";
-static const char* DEFAULT_DATE_OF_MANUFACTURE = "2014-02-01";
-static const char* DEFAULT_SOFTWARE_VERSION = "0.0.1";
-static const char* DEFAULT_HARDWARE_VERSION = "0.0.1";
-static const char* DEFAULT_SUPPORT_URL = "www.company_a.com";
+static const char* DEFAULT_PASSCODE[] = { "000000" };
+static const char* DEFAULT_APP_NAME[] = { "Controlee" };
+static const char* DEFAULT_DESCRIPTION[] = { "AC IOE device" };
+static const char* DEFAULT_MANUFACTURER[] = { "Company A(EN)" };
+static const char* DEFAULT_DEVICE_MODEL[] = { "0.0.1" };
+static const char* DEFAULT_DATE_OF_MANUFACTURE[] = { "2014-02-01" };
+static const char* DEFAULT_SOFTWARE_VERSION[] = { "0.0.1" };
+static const char* DEFAULT_HARDWARE_VERSION[] = { "0.0.1" };
+static const char* DEFAULT_SUPPORT_URL[] = { "www.company_a.com" };
 
-const char** ajapps_propertyStoreDefaultValues[AJSVC_PROPERTY_STORE_NUMBER_OF_KEYS] =
+const char** propertyStoreDefaultValues[AJSVC_PROPERTY_STORE_NUMBER_OF_KEYS] =
 {
-//  {"Default Values per language"},     "Key Name"
-    { NULL },                           /*DeviceId*/
-    { NULL },                           /*AppId*/
-    { NULL },                           /*DeviceName*/
+// "Default Values per language",    "Key Name"
+    NULL,                           /*DeviceId*/
+    NULL,                           /*AppId*/
+    NULL,                           /*DeviceName*/
 // Add other persisted keys above this line
-    { (&DEFAULT_LANGUAGE) },            /*DefaultLanguage*/
-    { (&DEFAULT_PASSCODE) },            /*Passcode*/
-    { NULL },                           /*RealmName*/
+    &DEFAULT_LANGUAGE,              /*DefaultLanguage*/
+    DEFAULT_PASSCODE,               /*Passcode*/
+    NULL,                           /*RealmName*/
 // Add other configurable keys above this line
-    { (&DEFAULT_APP_NAME) },            /*AppName*/
-    { (&DEFAULT_DESCRIPTION) },         /*Description*/
-    { (&DEFAULT_MANUFACTURER) },        /*Manufacturer*/
-    { (&DEFAULT_DEVICE_MODEL) },        /*ModelNumber*/
-    { (&DEFAULT_DATE_OF_MANUFACTURE) }, /*DateOfManufacture*/
-    { (&DEFAULT_SOFTWARE_VERSION) },    /*SoftwareVersion*/
-    { NULL },                           /*AJSoftwareVersion*/
-    { (&DEFAULT_HARDWARE_VERSION) },    /*HardwareVersion*/
-    { (&DEFAULT_SUPPORT_URL) },         /*SupportUrl*/
+    DEFAULT_APP_NAME,               /*AppName*/
+    DEFAULT_DESCRIPTION,            /*Description*/
+    DEFAULT_MANUFACTURER,           /*Manufacturer*/
+    DEFAULT_DEVICE_MODEL,           /*ModelNumber*/
+    DEFAULT_DATE_OF_MANUFACTURE,    /*DateOfManufacture*/
+    DEFAULT_SOFTWARE_VERSION,       /*SoftwareVersion*/
+    NULL,                           /*AJSoftwareVersion*/
+    DEFAULT_HARDWARE_VERSION,       /*HardwareVersion*/
+    DEFAULT_SUPPORT_URL,            /*SupportUrl*/
 #if defined CONFIG_SERVICE
-    { NULL },                           /*MaxLength*/
+    NULL,                           /*MaxLength*/
 #endif
 // Add other about keys above this line
 };
@@ -92,16 +131,18 @@ static char realmNameVar[KEY_VALUE_LENGTH + 1] = { 0 };
 static char* realmNameVars[] = { realmNameVar };
 #endif
 
-AJAPPS_PropertyStoreConfigEntry ajapps_propertyStoreRuntimeValues[AJSVC_PROPERTY_STORE_NUMBER_OF_CONFIG_KEYS] =
+PropertyStoreConfigEntry propertyStoreRuntimeValues[AJSVC_PROPERTY_STORE_NUMBER_OF_CONFIG_KEYS] =
 {
 //  {"Buffers for Values per language", "Buffer Size"},                  "Key Name"
-    { machineIdVars,                 MACHINE_ID_LENGTH + 1 },           /*DeviceId*/
+    { machineIdVars,                    MACHINE_ID_LENGTH + 1 },        /*DeviceId*/
     { machineIdVars,                    MACHINE_ID_LENGTH + 1 },        /*AppId*/
-    { deviceNameVars,              DEVICE_NAME_VALUE_LENGTH + 1 },      /*DeviceName*/
+    { deviceNameVars,                   DEVICE_NAME_VALUE_LENGTH + 1 }, /*DeviceName*/
 // Add other persisted keys above this line
-    { defaultLanguageVars,            LANG_VALUE_LENGTH + 1 },          /*AppName*/
-    { passcodeVars,               PASSWORD_VALUE_LENGTH + 1 },          /*Description*/
-    { realmNameVars,             KEY_VALUE_LENGTH + 1 },                /*Manufacturer*/
+#ifdef CONFIG_SERVICE
+    { defaultLanguageVars,              LANG_VALUE_LENGTH + 1 },        /*AppName*/
+    { passcodeVars,                     PASSWORD_VALUE_LENGTH + 1 },    /*Description*/
+    { realmNameVars,                    KEY_VALUE_LENGTH + 1 },         /*Manufacturer*/
+#endif
 };
 
 const char* aboutIconMimetype = { "image/png" };
@@ -109,138 +150,104 @@ const uint8_t aboutIconContent[] = { 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0
 const size_t aboutIconContentSize = sizeof(aboutIconContent);
 const char* aboutIconUrl = { "" };
 
-#ifdef CONFIG_SERVICE
-AJ_Status App_FactoryReset()
+static uint32_t MyBusAuthPwdCB(uint8_t* buf, uint32_t bufLen)
 {
-    AJ_Printf("GOT FACTORY RESET\n");
-    AJ_Status status = AJ_OK;
+    const char* myRouterPwd = "000000";
+    strncpy((char*)buf, myRouterPwd, bufLen);
+    return (uint32_t)strlen(myRouterPwd);
+}
 
+// The AllJoyn Message Loop
 
-    status = PropertyStore_ResetAll();
+int AJ_Main(void)
+{
+    static AJ_Status status = AJ_OK;
+    static uint8_t isUnmarshalingSuccessful = FALSE;
+    AJSVC_ServiceStatus serviceStatus;
+
+    AJ_Initialize();
+    status = PropertyStore_Init();
     if (status != AJ_OK) {
-        return status;
+        goto Exit;
     }
-    AJ_ClearCredentials();
-#ifdef ONBOARDING_SERVICE
-    status = OBS_ClearInfo();
+    status = About_Init(AnnounceObjects, aboutIconMimetype, aboutIconContent, aboutIconContentSize, aboutIconUrl);
     if (status != AJ_OK) {
-        return status;
+        goto Exit;
     }
-#endif // ONBOARDING_SERVICE
+    status = AJServices_Init(AppObjects, ProxyObjects, AnnounceObjects, &isRebootRequired, deviceManufactureName, deviceProductName);
+    if (status != AJ_OK) {
+        goto Exit;
+    }
+    AJ_RegisterObjects(AppObjects, ProxyObjects);
+    SetBusAuthPwdCallback(MyBusAuthPwdCB);
 
-    isRebootRequired = TRUE;
-    return AJ_ERR_RESTART;     // Force disconnect of AJ and services and reconnection of WiFi on restart
-}
+    while (TRUE) {
+        AJ_Message msg;
+        status = AJ_OK;
 
-AJ_Status App_Restart()
-{
-    AJ_Printf("GOT RESTART REQUEST\n");
-    SetShouldAnnounce(TRUE); // Set flag for sending an updated Announcement
-    isRebootRequired = TRUE;
-    return AJ_ERR_RESTART; // Force disconnect of AJ and services and reconnection of WiFi on restart
-}
-
-AJ_Status App_SetPasscode(const char* daemonRealm, const char* newStringPasscode)
-{
-    AJ_Status status = AJ_OK;
-
-    if (PropertyStore_SetValue(AJSVC_PropertyStoreRealmName, daemonRealm) && PropertyStore_SetValue(AJSVC_PropertyStorePasscode, newStringPasscode)) {
-
-        status = PropertyStore_SaveAll();
-        if (status != AJ_OK) {
-            return status;
+        if (!isBusConnected) {
+            isBusConnected = AJRouter_Connect(&busAttachment, ROUTER_NAME);
+            if (isBusConnected) {
+                status = AJServices_ConnectedHandler(&busAttachment);
+            } else { // Failed to connect to daemon.
+                continue; // Retry establishing connection to daemon.
+            }
         }
-        AJ_ClearCredentials();
-        status = AJ_ERR_READ;     //Force disconnect of AJ and services to refresh current sessions
-    } else {
 
-        status = PropertyStore_LoadAll();
-        if (status != AJ_OK) {
-            return status;
+        if (status == AJ_OK) {
+            status = AJApp_ConnectedHandler(&busAttachment);
         }
-    }
 
-    return status;
-}
+        if (status == AJ_OK) {
+            status = AJ_UnmarshalMsg(&busAttachment, &msg, AJAPP_UNMARSHAL_TIMEOUT);
+            isUnmarshalingSuccessful = (status == AJ_OK);
 
-uint8_t App_IsValueValid(const char* key, const char* value)
-{
-    return TRUE;
-}
-#endif // CONFIG_SERVICE
+            if (status == AJ_ERR_TIMEOUT) {
+                if (AJ_ERR_LINK_TIMEOUT == AJ_BusLinkStateProc(&busAttachment)) {
+                    status = AJ_ERR_READ;             // something's not right. force disconnect
+                } else {                              // nothing on bus, do our own thing
+                    AJServices_DoWork(&busAttachment);
+                    continue;
+                }
+            }
 
-#ifdef ONBOARDING_SERVICE
-/**
- * Whether the SSID is hidden
- */
-const uint8_t OBS_SoftAPIsHidden = FALSE;
-/**
- * SoftAP passpharse. If NULL means OPEN network otherwise assumes WPA2 from 8 up to 63 characters.
- */
-const char* OBS_SoftAPPassphrase = NULL;
-/**
- * Wait time for clients to connect to SoftAP station (ms)
- */
-const uint32_t OBS_WAIT_FOR_SOFTAP_CONNECTION = 600000;
-/**
- * retry parameters after failed connection of already validated configuration.
- */
-const uint8_t OBS_MAX_RETRIES = 2;
-/**
- * Wait time between retries (ms)
- */
-const uint32_t OBS_WAIT_BETWEEN_RETRIES  = 180000;
+            if (isUnmarshalingSuccessful) {
 
-AJ_Status OBS_ReadInfo(OBInfo* info)
-{
-    AJ_Status status = AJ_OK;
-    size_t size = sizeof(OBInfo);
+                serviceStatus = AJServices_MessageProcessor(&busAttachment, &msg, &status);
+                if (serviceStatus == AJSVC_SERVICE_STATUS_NOT_HANDLED) {
+                    //Pass to the built-in bus message handlers
+                    status = AJ_BusHandleBusMessage(&msg);
+                }
+                AJ_NotifyLinkActive();
+            }
 
-    if (NULL == info) {
-        return AJ_ERR_NULL;
-    }
-    memset(info, 0, size);
-
-    if (!AJ_NVRAM_Exist(AJ_OBS_OBINFO_NV_ID)) {
-        return AJ_ERR_INVALID;
-    }
-
-    AJ_NV_DATASET* nvramHandle = AJ_NVRAM_Open(AJ_OBS_OBINFO_NV_ID, "r", 0);
-    if (nvramHandle != NULL) {
-        int sizeRead = AJ_NVRAM_Read(info, size, nvramHandle);
-        status = AJ_NVRAM_Close(nvramHandle);
-        if (sizeRead != sizeRead) {
-            status = AJ_ERR_WRITE;
-        } else {
-            AJ_Printf("Readed Info values: state=%d, ssid=%s authType=%d pc=%s\n", info->state, info->ssid, info->authType, info->pc);
+            //Unmarshaled messages must be closed to free resources
+            AJ_CloseMsg(&msg);
         }
-    }
 
-    return status;
-}
-
-AJ_Status OBS_WriteInfo(OBInfo* info)
-{
-    AJ_Status status = AJ_OK;
-    size_t size = sizeof(OBInfo);
-
-    if (NULL == info) {
-        return AJ_ERR_NULL;
-    }
-
-    AJ_Printf("Going to write Info values: state=%d, ssid=%s authType=%d pc=%s\n", info->state, info->ssid, info->authType, info->pc);
-
-    AJ_NV_DATASET* nvramHandle = AJ_NVRAM_Open(AJ_OBS_OBINFO_NV_ID, "w", size);
-    if (nvramHandle != NULL) {
-        int sizeWritten = AJ_NVRAM_Write(info, size, nvramHandle);
-        status = AJ_NVRAM_Close(nvramHandle);
-        if (sizeWritten != size) {
-            status = AJ_ERR_WRITE;
+        if (status == AJ_ERR_READ || status == AJ_ERR_RESTART) {
+            if (isBusConnected) {
+                AJApp_DisconnectHandler(&busAttachment, status == AJ_ERR_RESTART);
+                AJServices_DisconnectHandler();
+                isBusConnected = !AJRouter_Disconnect(&busAttachment, status == AJ_ERR_RESTART);
+                if (status == AJ_ERR_RESTART && isRebootRequired == TRUE) {
+                    isRebootRequired = FALSE;
+                    AJ_Reboot();
+                }
+            }
         }
-    }
+    }     // while (TRUE)
 
-    return status;
+    return 0;
+
+Exit:
+
+    return (1);
 }
 
-#endif // ONBOARDING_SERVICE
-
+#ifdef AJ_MAIN
+int main()
+{
+    return AJ_Main();
+}
+#endif

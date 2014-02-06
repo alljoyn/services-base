@@ -14,28 +14,39 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#include <aj_link_timeout.h>
-
+#include <alljoyn.h>
 #include "Services_Handlers.h"
+
 #include <alljoyn/services_common/Services_Common.h>
 #include <alljoyn/services_common/PropertyStore.h>
-
 #include <alljoyn/about/AboutSample.h>
 #ifdef CONFIG_SERVICE
-    #include <alljoyn/config/ConfigSample.h>
+    #include "ConfigSample.h"
 #endif
 #ifdef ONBOARDING_SERVICE
-    #include <alljoyn/onboarding/OnboardingSample.h>
+    #include "OnboardingSample.h"
+    #include <alljoyn/onboarding/OnboardingManager.h>
 #endif
 #ifdef NOTIFICATION_SERVICE_PRODUCER
-    #include <NotificationProducerSample.h>
+    #include "NotificationProducerSample.h"
 #endif
 #ifdef CONTROLPANEL_SERVICE
-    #include <ControlPanelSample.h>
+    #include "ControlPanelSample.h"
 #endif
 #ifdef NOTIFICATION_SERVICE_CONSUMER
-    #include <NotificationConsumerSample.h>
+    #include "NotificationConsumerSample.h"
 #endif
+
+#include <aj_config.h>
+#include <aj_link_timeout.h>
+
+/*
+ * Define timeout/pause values. Values are in milli seconds.
+ * The following may be tuned according to platform requirements such as battery usage.
+ */
+#define AJAPP_CONNECT_TIMEOUT     AJ_CONNECT_TIMEOUT
+#define AJAPP_CONNECT_PAUSE       (1000 * 2) // Override AJ_CONNECT_PAUSE to be more responsive
+#define AJAPP_SLEEP_TIME          (1000 * 2) // A little pause to let things settle
 
 const char SESSIONLESS_MATCH[] = "sessionless='t',type='error'"; //AddMatch to allow sessionless messages coming in
 
@@ -56,129 +67,116 @@ typedef enum {
 static const uint8_t MAX_INIT_RETRIES = 5;
 static uint8_t init_retries = 0;
 
-void Service_Init()
+
+static uint32_t PasswordCallback(uint8_t* buffer, uint32_t bufLen)
 {
-    PropertyStore_Init();
-    About_Init();
-#ifdef CONFIG_SERVICE
-    Config_Init();
-#endif
-#ifdef ONBOARDING_SERVICE
-    Onboarding_Init();
-#endif
-#ifdef NOTIFICATION_SERVICE_PRODUCER
-    Producer_Init();
-#endif
-#ifdef NOTIFICATION_SERVICE_CONSUMER
-    Consumer_Init();
-#endif
-#ifdef CONTROLPANEL_SERVICE
-    CPS_Init();
-#endif
+    AJ_Status status = AJ_OK;
+    const char* hexPassword;
+    size_t hexPasswordLen;
+    uint32_t len = 0;
+
+    hexPassword = AJSVC_PropertyStore_GetValue(AJSVC_PROPERTY_STORE_PASSCODE);
+    if (hexPassword == NULL) {
+        AJ_Printf("Password is NULL!\n");
+        return len;
+    }
+    AJ_Printf("Retrieved password=%s\n", hexPassword);
+    hexPasswordLen = strlen(hexPassword);
+    len = hexPasswordLen / 2;
+    status = AJ_HexToRaw(hexPassword, hexPasswordLen, buffer, bufLen);
+    if (status == AJ_ERR_RESOURCES) {
+        len = 0;
+    }
+
+    return len;
 }
 
-uint8_t Daemon_Connect(char* daemonName)
+AJ_Status AJServices_Init(AJ_Object* appObjects, AJ_Object* proxyObjects, AJ_Object* announceObjects, uint8_t* appIsRebootRequired, const char* deviceManufactureName, const char* deviceProductName)
+{
+    AJ_Status status = AJ_OK;
+
+#ifdef CONFIG_SERVICE
+    status = Config_Init(appIsRebootRequired);
+    if (status != AJ_OK) {
+        goto Exit;
+    }
+#endif
+#ifdef ONBOARDING_SERVICE
+    status = Onboarding_Init(deviceManufactureName, deviceProductName);
+    if (status != AJ_OK) {
+        goto Exit;
+    }
+#endif
+#ifdef NOTIFICATION_SERVICE_PRODUCER
+    status = NotificationProducer_Init();
+    if (status != AJ_OK) {
+        goto Exit;
+    }
+#endif
+#ifdef NOTIFICATION_SERVICE_CONSUMER
+    status = NotificationConsumer_Init(proxyObjects);
+    if (status != AJ_OK) {
+        goto Exit;
+    }
+#endif
+#ifdef CONTROLPANEL_SERVICE
+    status = Controlee_Init();
+    if (status != AJ_OK) {
+        goto Exit;
+    }
+#endif
+
+Exit:
+
+    return status;
+}
+
+uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* routerName)
 {
     while (TRUE) {
         AJ_Status status = AJ_OK;
 #ifdef ONBOARDING_SERVICE
-        status = Onboarding_IdleDisconnectedHandler(&busAttachment);
+        status = AJOBS_EstablishWiFi();
         if (status != AJ_OK) {
             AJ_Printf("Failed to establish WiFi connectivity\n");
             AJ_Sleep(AJAPP_CONNECT_PAUSE);
             return FALSE;
         }
 #endif
-        AJ_Printf("Attempting to connect to bus '%s'\n", daemonName);
-        status = AJ_Connect(&busAttachment, daemonName, AJAPP_CONNECT_TIMEOUT);
+        AJ_Printf("Attempting to connect to bus '%s'\n", routerName);
+        status = AJ_Connect(busAttachment, routerName, AJAPP_CONNECT_TIMEOUT);
         if (status != AJ_OK) {
             AJ_Printf("Failed to connect to bus sleeping for %d seconds\n", AJAPP_CONNECT_PAUSE / 1000);
             AJ_Sleep(AJAPP_CONNECT_PAUSE);
 #ifdef ONBOARDING_SERVICE
             if (status == AJ_ERR_DHCP) {
-                Onboarding_SwitchToRetry();
+                AJOBS_SwitchToRetry();
             }
 #endif
             continue;
         }
-        const char* busUniqueName = AJ_GetUniqueName(&busAttachment);
+        const char* busUniqueName = AJ_GetUniqueName(busAttachment);
         if (busUniqueName == NULL) {
             AJ_Printf("Failed to GetUniqueName() from newly connected bus, retrying\n");
             continue;
         }
-        AJ_Printf("Connected to daemon with BusUniqueName=%s\n", busUniqueName);
+        AJ_Printf("Connected to router with BusUniqueName=%s\n", busUniqueName);
         break;
     }
     return TRUE;
 }
 
-AJ_Status Service_ConnectedHandler()
-{
-    AJ_BusSetPasswordCallback(&busAttachment, PasswordCallback);
-    /* Configure timeout for the link to the daemon bus */
-    AJ_SetBusLinkTimeout(&busAttachment, 60);     // 60 seconds
-
-    AJ_Status status = AJ_OK;
-
-    status = About_ConnectedHandler(&busAttachment);
-    if (status != AJ_OK) {
-        goto ErrorExit;
-    }
-#ifdef CONFIG_SERVICE
-
-    status = Config_ConnectedHandler(&busAttachment);
-    if (status != AJ_OK) {
-        goto ErrorExit;
-    }
-#endif
-#ifdef ONBOARDING_SERVICE
-
-    status = Onboarding_ConnectedHandler(&busAttachment);
-    if (status != AJ_OK) {
-        goto ErrorExit;
-    }
-#endif
-#ifdef NOTIFICATION_SERVICE_PRODUCER
-
-    status = Producer_ConnectedHandler(&busAttachment);
-    if (status != AJ_OK) {
-        goto ErrorExit;
-    }
-#endif
-#ifdef CONTROLPANEL_SERVICE
-
-    status = ControlPanel_ConnectedHandler(&busAttachment);
-    if (status != AJ_OK) {
-        goto ErrorExit;
-    }
-#endif
-#ifdef NOTIFICATION_SERVICE_CONSUMER
-
-    status = Consumer_ConnectedHandler(&busAttachment);
-    if (status != AJ_OK) {
-        goto ErrorExit;
-    }
-#endif
-    return status;
-
-ErrorExit:
-
-    AJ_Printf("Service ConnectedHandler returned an error %s\n", (AJ_StatusText(status)));
-    return status;
-}
-
 static enum_init_state_t currentServicesInitializationState = INIT_START;
 static enum_init_state_t nextServicesInitializationState = INIT_START;
 
-AJ_Status Application_ConnectedHandler()
+AJ_Status AJApp_ConnectedHandler(AJ_BusAttachment* busAttachment)
 {
     AJ_Status status = AJ_OK;
-    if (AJ_GetUniqueName(&busAttachment)) {
+    if (AJ_GetUniqueName(busAttachment)) {
         if (currentServicesInitializationState == nextServicesInitializationState) {
             switch (currentServicesInitializationState) {
             case INIT_SERVICES_PORT:
-
-                status = AJ_BusBindSessionPort(&busAttachment, App_ServicePort, NULL, 0);
+                status = AJ_BusBindSessionPort(busAttachment, AJ_ABOUT_SERVICE_PORT, NULL, 0);
                 if (status != AJ_OK) {
                     goto Exit;
                 }
@@ -186,8 +184,7 @@ AJ_Status Application_ConnectedHandler()
                 break;
 
             case INIT_ADVERTISE_NAME:
-
-                status = AJ_BusAdvertiseName(&busAttachment, AJ_GetUniqueName(&busAttachment), AJ_TRANSPORT_ANY, AJ_BUS_START_ADVERTISING, 0);
+                status = AJ_BusAdvertiseName(busAttachment, AJ_GetUniqueName(busAttachment), AJ_TRANSPORT_ANY, AJ_BUS_START_ADVERTISING, 0);
                 if (status != AJ_OK) {
                     goto Exit;
                 }
@@ -199,8 +196,7 @@ AJ_Status Application_ConnectedHandler()
                 break;
 
             case INIT_ADDSLMATCH:
-
-                status = AJ_BusSetSignalRule(&busAttachment, SESSIONLESS_MATCH, AJ_BUS_SIGNAL_ALLOW);
+                status = AJ_BusSetSignalRule(busAttachment, SESSIONLESS_MATCH, AJ_BUS_SIGNAL_ALLOW);
                 if (status != AJ_OK) {
                     goto Exit;
                 }
@@ -208,18 +204,19 @@ AJ_Status Application_ConnectedHandler()
                 break;
 
             case INIT_FINISHED:
-                if (IsShouldAnnounce()) {
-                    status = AboutAnnounce(&busAttachment);
+                if (AJ_About_IsShouldAnnounce()) {
+                    status = AJ_About_Announce(busAttachment);
                     if (status != AJ_OK) {
                         goto Exit;
                     }
-                    SetShouldAnnounce(FALSE);
+                    AJ_About_SetShouldAnnounce(FALSE);
                 }
 #ifdef ONBOARDING_SERVICE
-                if (!OBCAPI_IsWiFiClient() && !OBCAPI_IsWiFiSoftAP()) {
+                if (!AJOBS_IsWiFiConnected()) {
                     status = AJ_ERR_RESTART;
                 }
 #endif
+                break;
             }
         }
     }
@@ -237,9 +234,64 @@ Exit:
     return status;
 }
 
-static Service_Status Application_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg, AJ_Status* status)
+AJ_Status AJServices_ConnectedHandler(AJ_BusAttachment* busAttachment)
 {
-    Service_Status serviceStatus = SERVICE_STATUS_NOT_HANDLED;
+    AJ_BusSetPasswordCallback(busAttachment, PasswordCallback);
+    /* Configure timeout for the link to the Router bus */
+    AJ_SetBusLinkTimeout(busAttachment, 60);     // 60 seconds
+
+    AJ_Status status = AJ_OK;
+
+    status = AJ_About_ConnectedHandler(busAttachment);
+    if (status != AJ_OK) {
+        goto ErrorExit;
+    }
+#ifdef CONFIG_SERVICE
+
+    status = AJCFG_ConnectedHandler(busAttachment);
+    if (status != AJ_OK) {
+        goto ErrorExit;
+    }
+#endif
+#ifdef ONBOARDING_SERVICE
+
+    status = AJOBS_ConnectedHandler(busAttachment);
+    if (status != AJ_OK) {
+        goto ErrorExit;
+    }
+#endif
+#ifdef NOTIFICATION_SERVICE_PRODUCER
+
+    status = AJNS_Producer_ConnectedHandler(busAttachment);
+    if (status != AJ_OK) {
+        goto ErrorExit;
+    }
+#endif
+#ifdef CONTROLPANEL_SERVICE
+
+    status = AJCPS_ConnectedHandler(busAttachment);
+    if (status != AJ_OK) {
+        goto ErrorExit;
+    }
+#endif
+#ifdef NOTIFICATION_SERVICE_CONSUMER
+
+    status = AJNS_Consumer_ConnectedHandler(busAttachment);
+    if (status != AJ_OK) {
+        goto ErrorExit;
+    }
+#endif
+    return status;
+
+ErrorExit:
+
+    AJ_Printf("Service ConnectedHandler returned an error %s\n", (AJ_StatusText(status)));
+    return status;
+}
+
+static AJSVC_ServiceStatus AJApp_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg, AJ_Status* status)
+{
+    AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_NOT_HANDLED;
 
     switch (currentServicesInitializationState) {
     case INIT_SERVICES_PORT:
@@ -267,39 +319,64 @@ static Service_Status Application_MessageProcessor(AJ_BusAttachment* bus, AJ_Mes
     return serviceStatus;
 }
 
-static uint8_t Services_CheckSessionAccepted(uint16_t port, uint32_t sessionId, char*joiner)
+static uint8_t AJServices_CheckSessionAccepted(uint16_t port, uint32_t sessionId, char* joiner)
 {
     uint8_t session_accepted = FALSE;
-    session_accepted |= (port == App_ServicePort);
+    session_accepted |= (port == AJ_ABOUT_SERVICE_PORT);
 
 #ifdef NOTIFICATION_SERVICE_PRODUCER
-    session_accepted |= Producer_CheckSessionAccepted(port, sessionId, joiner);
+    session_accepted |= AJNS_Producer_CheckSessionAccepted(port, sessionId, joiner);
 #endif
 
 #ifdef CONTROLPANEL_SERVICE
-    session_accepted |= CPS_CheckSessionAccepted(port, sessionId, joiner);
+    session_accepted |= AJCPS_CheckSessionAccepted(port, sessionId, joiner);
 #endif
 
     return session_accepted;
 }
 
-static Service_Status Services_HandleSessionStateChanged(AJ_BusAttachment* bus, uint32_t sessionId, uint8_t sessionJoined, uint32_t replySerialNum)
+static AJSVC_ServiceStatus AJServices_SessionJoinedHandler(AJ_BusAttachment* busAttachment, uint32_t sessionId, uint32_t replySerialNum)
 {
-    Service_Status serviceStatus = SERVICE_STATUS_NOT_HANDLED;
+    AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_NOT_HANDLED;
 
 #ifdef NOTIFICATION_SERVICE_CONSUMER
-    if (serviceStatus == SERVICE_STATUS_NOT_HANDLED) {
-        serviceStatus = Consumer_HandleSessionStateChanged(bus, sessionId, sessionJoined, replySerialNum);
+    if (serviceStatus == AJSVC_SERVICE_STATUS_NOT_HANDLED) {
+        serviceStatus = AJNS_Consumer_SessionJoinedHandler(busAttachment, sessionId, replySerialNum);
     }
 #endif
 
     return serviceStatus;
 }
 
-Service_Status Service_MessageProcessor(AJ_Message* msg, AJ_Status* status)
+static AJSVC_ServiceStatus AJServices_SessionRejectedHandler(AJ_BusAttachment* busAttachment, uint32_t sessionId, uint32_t replySerialNum, uint32_t replyCode)
 {
-    AJ_Printf("Processing message with id %u\n", msg->msgId);
-    Service_Status serviceStatus = SERVICE_STATUS_NOT_HANDLED;
+    AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_NOT_HANDLED;
+
+#ifdef NOTIFICATION_SERVICE_CONSUMER
+    if (serviceStatus == AJSVC_SERVICE_STATUS_NOT_HANDLED) {
+        serviceStatus = AJNS_Consumer_SessionRejectedHandler(busAttachment, replySerialNum, replyCode);
+    }
+#endif
+
+    return serviceStatus;
+}
+
+static AJSVC_ServiceStatus AJServices_SessionLostHandler(AJ_BusAttachment* busAttachment, uint32_t sessionId, uint32_t reason)
+{
+    AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_NOT_HANDLED;
+
+#ifdef NOTIFICATION_SERVICE_CONSUMER
+    if (serviceStatus == AJSVC_SERVICE_STATUS_NOT_HANDLED) {
+        serviceStatus = AJNS_Consumer_SessionLostHandler(busAttachment, sessionId, reason);
+    }
+#endif
+
+    return serviceStatus;
+}
+
+AJSVC_ServiceStatus AJServices_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* status)
+{
+    AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_NOT_HANDLED;
     if  (msg->msgId == AJ_METHOD_ACCEPT_SESSION) {    // Process all incoming request to join a session and pass request for acceptance by all services
         uint16_t port;
         char* joiner;
@@ -307,16 +384,16 @@ Service_Status Service_MessageProcessor(AJ_Message* msg, AJ_Status* status)
         AJ_UnmarshalArgs(msg, "qus", &port, &sessionId, &joiner);
         uint8_t session_accepted = FALSE;
 
-        session_accepted |= Services_CheckSessionAccepted(port, sessionId, joiner);
+        session_accepted |= AJServices_CheckSessionAccepted(port, sessionId, joiner);
 
         *status = AJ_BusReplyAcceptSession(msg, session_accepted);
         AJ_Printf("%s session session_id=%u joiner=%s for port %u\n", (session_accepted ? "Accepted" : "Rejected"), sessionId, joiner, port);
-        serviceStatus = SERVICE_STATUS_HANDLED;
+        serviceStatus = AJSVC_SERVICE_STATUS_HANDLED;
     } else if (msg->msgId == AJ_REPLY_ID(AJ_METHOD_JOIN_SESSION)) {     // Process all incoming replies to join a session and pass session state change to all services
         uint32_t replyCode = 0;
         uint32_t sessionId = 0;
         uint8_t sessionJoined = FALSE;
-        uint32_t sessionReplySerialNum = msg->replySerial;
+        uint32_t joinSessionReplySerialNum = msg->replySerial;
         if (msg->hdr->msgType == AJ_MSG_ERROR) {
             AJ_Printf("JoinSessionReply: AJ_METHOD_JOIN_SESSION: AJ_ERR_FAILURE\n");
             *status = AJ_ERR_FAILURE;
@@ -326,7 +403,7 @@ Service_Status Service_MessageProcessor(AJ_Message* msg, AJ_Status* status)
                 AJ_Printf("JoinSessionReply: failed to unmarshal\n");
             } else {
                 if (replyCode == AJ_JOINSESSION_REPLY_SUCCESS) {
-                    AJ_Printf("JoinSessionReply: AJ_JOINSESSION_REPLY_SUCCESS with sessionId=%u\n", sessionId);
+                    AJ_Printf("JoinSessionReply: AJ_JOINSESSION_REPLY_SUCCESS with sessionId=%u and replySerial=%u\n", sessionId, joinSessionReplySerialNum);
                     sessionJoined = TRUE;
                 } else {
                     AJ_Printf("JoinSessionReply: AJ_ERR_FAILURE\n");
@@ -334,143 +411,134 @@ Service_Status Service_MessageProcessor(AJ_Message* msg, AJ_Status* status)
                 }
             }
         }
-        serviceStatus = Services_HandleSessionStateChanged(&busAttachment, sessionId, sessionJoined, sessionReplySerialNum);
-        if (serviceStatus == SERVICE_STATUS_NOT_HANDLED) {
+        if (sessionJoined) {
+            serviceStatus = AJServices_SessionJoinedHandler(busAttachment, sessionId, joinSessionReplySerialNum);
+        } else {
+            serviceStatus = AJServices_SessionRejectedHandler(busAttachment, sessionId, joinSessionReplySerialNum, replyCode);
+        }
+        if (serviceStatus == AJSVC_SERVICE_STATUS_NOT_HANDLED) {
             AJ_ResetArgs(msg);
         }
-//  } else if (msg->msgId == AJ_SIGNAL_SESSION_LOST_WITH_REASON || msg->msgId == AJ_SIGNAL_SESSION_LOST) {     // Process all incoming lost session signals and pass session state change to all services
-//      uint32_t sessionId = 0;
-//      uint32_t reason = 0;
-//      if (msg->msgId == AJ_SIGNAL_SESSION_LOST_WITH_REASON) {
-//          *status = AJ_UnmarshalArgs(msg, "uu", &sessionId, &reason);
-//      } else {
-//          *status = AJ_UnmarshalArgs(msg, "u", &sessionId);
-//      }
-//      if (*status != AJ_OK) {
-//          AJ_Printf("JoinSessionReply: failed to marshal\n");
-//      } else {
-//          AJ_Printf("Session lost: sessionId = %u, reason = %u", sessionId, reason);
-//          serviceStatus = Services_HandleSessionStateChanged(&busAttachment, sessionId, FALSE, 0);
-//          if (serviceStatus == SERVICE_STATUS_NOT_HANDLED) {
-//              AJ_ResetArgs(msg);
-//          }
-//      }
-    } else {
-        if (serviceStatus == SERVICE_STATUS_NOT_HANDLED) {
-            serviceStatus = Application_MessageProcessor(&busAttachment, msg, status);
+    } else if (msg->msgId == AJ_SIGNAL_SESSION_LOST || msg->msgId == AJ_SIGNAL_SESSION_LOST_WITH_REASON) {     // Process all incoming LeaveSession replies and lost session signals and pass session state change to all services
+        uint32_t sessionId = 0;
+        uint32_t reason = 0;
+        if (msg->msgId == AJ_SIGNAL_SESSION_LOST_WITH_REASON) {
+            *status = AJ_UnmarshalArgs(msg, "uu", &sessionId, &reason);
+        } else {
+            *status = AJ_UnmarshalArgs(msg, "u", &sessionId);
         }
-        if (serviceStatus == SERVICE_STATUS_NOT_HANDLED) {
-            serviceStatus = About_MessageProcessor(&busAttachment, msg, status);
+        if (*status != AJ_OK) {
+            AJ_Printf("JoinSessionReply: failed to marshal\n");
+        } else {
+            AJ_Printf("Session lost: sessionId = %u, reason = %u\n", sessionId, reason);
+            serviceStatus = AJServices_SessionLostHandler(busAttachment, sessionId, reason);
+            if (serviceStatus == AJSVC_SERVICE_STATUS_NOT_HANDLED) {
+                AJ_ResetArgs(msg);
+            }
+        }
+    } else {
+        if (serviceStatus == AJSVC_SERVICE_STATUS_NOT_HANDLED) {
+            serviceStatus = AJApp_MessageProcessor(busAttachment, msg, status);
+        }
+        if (serviceStatus == AJSVC_SERVICE_STATUS_NOT_HANDLED) {
+            serviceStatus = AJ_About_MessageProcessor(busAttachment, msg, status);
         }
 #ifdef CONFIG_SERVICE
-        if (serviceStatus == SERVICE_STATUS_NOT_HANDLED) {
-            serviceStatus = Config_MessageProcessor(&busAttachment, msg, status);
+        if (serviceStatus == AJSVC_SERVICE_STATUS_NOT_HANDLED) {
+            serviceStatus = AJCFG_MessageProcessor(busAttachment, msg, status);
         }
 #endif
 #ifdef ONBOARDING_SERVICE
-        if (serviceStatus == SERVICE_STATUS_NOT_HANDLED) {
-            serviceStatus = Onboarding_MessageProcessor(&busAttachment, msg, status);
+        if (serviceStatus == AJSVC_SERVICE_STATUS_NOT_HANDLED) {
+            serviceStatus = AJOBS_MessageProcessor(busAttachment, msg, status);
         }
 #endif
 #ifdef NOTIFICATION_SERVICE_PRODUCER
-        if (serviceStatus == SERVICE_STATUS_NOT_HANDLED) {
-            serviceStatus = Producer_MessageProcessor(&busAttachment, msg, status);
+        if (serviceStatus == AJSVC_SERVICE_STATUS_NOT_HANDLED) {
+            serviceStatus = AJNS_Producer_MessageProcessor(busAttachment, msg, status);
         }
 #endif
 #ifdef NOTIFICATION_SERVICE_CONSUMER
-        if (serviceStatus == SERVICE_STATUS_NOT_HANDLED) {
-            serviceStatus = Consumer_MessageProcessor(&busAttachment, msg, status);
+        if (serviceStatus == AJSVC_SERVICE_STATUS_NOT_HANDLED) {
+            serviceStatus = AJNS_Consumer_MessageProcessor(busAttachment, msg, status);
         }
 #endif
 #ifdef CONTROLPANEL_SERVICE
-        if (serviceStatus == SERVICE_STATUS_NOT_HANDLED) {
-            serviceStatus = CPS_MessageProcessor(&busAttachment, msg, status);
+        if (serviceStatus == AJSVC_SERVICE_STATUS_NOT_HANDLED) {
+            serviceStatus = AJCPS_MessageProcessor(busAttachment, msg, status);
         }
 #endif
     }
     return serviceStatus;
 }
 
-void Service_IdleConnectedHandler()
+void AJServices_DoWork(AJ_BusAttachment* busAttachment)
 {
-    About_IdleConnectedHandler(&busAttachment);
+    About_DoWork(busAttachment);
 #ifdef CONFIG_SERVICE
-    Config_IdleConnectedHandler(&busAttachment);
+    Config_DoWork(busAttachment);
 #endif
 #ifdef ONBOARDING_SERVICE
-    Onboarding_IdleConnectedHandler(&busAttachment);
+    Onboarding_DoWork(busAttachment);
 #endif
 #ifdef NOTIFICATION_SERVICE_PRODUCER
-    Producer_DoWork(&busAttachment);
+    NotificationProducer_DoWork(busAttachment);
 #endif
 #ifdef NOTIFICATION_SERVICE_CONSUMER
-    Consumer_IdleConnectedHandler(&busAttachment);
+    NotificationConsumer_DoWork(busAttachment);
 #endif
 #ifdef CONTROLPANEL_SERVICE
-    Controllee_DoWork(&busAttachment);
+    Controlee_DoWork(busAttachment);
 #endif
 }
 
-AJ_Status Application_DisconnectHandler(uint8_t restart)
+void AJServices_DisconnectHandler(AJ_BusAttachment* busAttachment)
+{
+    AJ_About_DisconnectHandler(busAttachment);
+#ifdef CONFIG_SERVICE
+    AJCFG_DisconnectHandler(busAttachment);
+#endif
+#ifdef ONBOARDING_SERVICE
+    AJOBS_DisconnectHandler(busAttachment);
+#endif
+#ifdef NOTIFICATION_SERVICE_CONSUMER
+    AJNS_Consumer_DisconnectHandler(busAttachment);
+#endif
+#ifdef NOTIFICATION_SERVICE_PRODUCER
+    AJNS_Producer_DisconnectHandler(busAttachment);
+#endif
+#ifdef CONTROLPANEL_SERVICE
+    AJCPS_DisconnectHandler(busAttachment);
+#endif
+}
+
+AJ_Status AJApp_DisconnectHandler(AJ_BusAttachment* busAttachment, uint8_t restart)
 {
     AJ_Status status = AJ_OK;
 
     if (restart) {
-        AJ_BusAdvertiseName(&busAttachment, AJ_GetUniqueName(&busAttachment), AJ_TRANSPORT_ANY, AJ_BUS_STOP_ADVERTISING, 0);
-        AJ_BusUnbindSession(&busAttachment, App_ServicePort);
+        AJ_BusAdvertiseName(busAttachment, AJ_GetUniqueName(busAttachment), AJ_TRANSPORT_ANY, AJ_BUS_STOP_ADVERTISING, 0);
+        AJ_BusUnbindSession(busAttachment, AJ_ABOUT_SERVICE_PORT);
     }
 
-    SetShouldAnnounce(TRUE);
+    AJ_About_SetShouldAnnounce(TRUE);
     currentServicesInitializationState = nextServicesInitializationState = INIT_START;
     init_retries = 0;
 
     return status;
 }
 
-void Service_DisconnectHandler()
-{
-    About_Finish(&busAttachment);
-#ifdef CONFIG_SERVICE
-    Config_Finish(&busAttachment);
-#endif
-#ifdef ONBOARDING_SERVICE
-    Onboarding_Finish(&busAttachment);
-#endif
-#ifdef NOTIFICATION_SERVICE_PRODUCER
-    Producer_Finish(&busAttachment);
-#endif
-#ifdef CONTROLPANEL_SERVICE
-    CPS_Finish(&busAttachment);
-#endif
-}
-
-uint8_t Daemon_Disconnect(uint8_t disconnectWiFi)
+uint8_t AJRouter_Disconnect(AJ_BusAttachment* busAttachment, uint8_t disconnectWiFi)
 {
     AJ_Printf("AllJoyn disconnect\n");
-    AJ_Sleep(AJAPP_SLEEP_TIME); // Sleep a little to let any pending requests to daemon to be sent
-    AJ_Disconnect(&busAttachment);
+    AJ_Sleep(AJAPP_SLEEP_TIME); // Sleep a little to let any pending requests to router to be sent
+    AJ_Disconnect(busAttachment);
 #ifdef ONBOARDING_SERVICE
     if (disconnectWiFi) {
-        Onboarding_DisconnectedHandler(&busAttachment);
+        AJOBS_DisconnectWiFi();
     }
 #endif
+    AJ_Sleep(AJAPP_SLEEP_TIME); // Sleep a little while before trying to reconnect
 
     return TRUE;
-}
-
-uint32_t PasswordCallback(uint8_t* buffer, uint32_t bufLen)
-{
-    const char* password = PropertyStore_GetValue(AJSVC_PropertyStorePasscode);
-    if (password == NULL) {
-        AJ_Printf("Password is NULL!\n");
-        return 0;
-    }
-    AJ_Printf("Retrieved password=%s\n", password);
-    size_t len = strlen(password);
-    if (len > bufLen) {
-        AJ_Printf("Password is too long (%lu > %lu) - Truncating!\n", len, (unsigned long)bufLen);
-        len = bufLen;
-    }
-    memcpy(buffer, password, len);
-    return len;
 }

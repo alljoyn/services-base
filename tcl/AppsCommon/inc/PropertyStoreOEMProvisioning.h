@@ -22,21 +22,35 @@
  *  @{
  */
 
+#include <alljoyn.h>
 #include <aj_auth.h>
 #include <aj_config.h>
 #include <alljoyn/services_common/Services_Common.h>
 #include <alljoyn/services_common/PropertyStore.h>
 
+/**
+ * Device manufacture name
+ */
+extern const char* deviceManufactureName;
+
+/**
+ * Device product name
+ */
+extern const char* deviceProductName;
+
 #define LANG_VALUE_LENGTH 7
 #define KEY_VALUE_LENGTH 10
 #define MACHINE_ID_LENGTH (UUID_LENGTH * 2)
 #define DEVICE_NAME_VALUE_LENGTH 32
-#define PASSWORD_VALUE_LENGTH AJ_ADHOC_LEN
+#define PASSWORD_VALUE_LENGTH (AJ_ADHOC_LEN * 2)
+
+extern const uint8_t AJSVC_PROPERTY_STORE_NUMBER_OF_LANGUAGES;
+extern const char** propertyStoreDefaultLanguages;
 
 /**
  * property structure
  */
-typedef struct _AJAPPS_PropertyStoreEntry {
+typedef struct _PropertyStoreEntry {
     const char* keyName; // The property key name as shown in About and Config documentation
 
     // msb=public/private; bit number 3 - initialise once; bit number 2 - multi-language value; bit number 1 - announce; bit number 0 - read/write
@@ -48,33 +62,35 @@ typedef struct _AJAPPS_PropertyStoreEntry {
     uint8_t mode5 : 1;
     uint8_t mode6 : 1;
     uint8_t mode7Public : 1;
-} AJAPPS_PropertyStoreEntry;
+} PropertyStoreEntry;
 
 /**
  * properties array variable with property definitions
  */
-extern const AJAPPS_PropertyStoreEntry ajapps_propertyStoreProperties[AJSVC_PROPERTY_STORE_NUMBER_OF_KEYS];
+extern const PropertyStoreEntry propertyStoreProperties[AJSVC_PROPERTY_STORE_NUMBER_OF_KEYS];
 
 /**
  * properties array variable with default values
  */
-extern const char** ajapps_propertyStoreDefaultValues[AJSVC_PROPERTY_STORE_NUMBER_OF_KEYS]; // Array of Array of size 1 or AJSVC_PROPERTY_STORE_NUMBER_OF_LANGUAGES constant buffers depending on whether the property is multilingual
+extern const char** propertyStoreDefaultValues[AJSVC_PROPERTY_STORE_NUMBER_OF_KEYS]; // Array of Array of size 1 or AJSVC_PROPERTY_STORE_NUMBER_OF_LANGUAGES constant buffers depending on whether the property is multilingual
 
 /**
  * properties container for runtime values
  */
-typedef struct _AJAPPS_PropertyStoreRuntimeEntry {
+typedef struct _PropertyStoreRuntimeEntry {
     char** value;  // An array of size 1 or AJSVC_PROPERTY_STORE_NUMBER_OF_LANGUAGES mutable buffers depending on whether the property is multilingual
     uint8_t size; // The size of the value buffer(s)
-} AJAPPS_PropertyStoreConfigEntry;
+} PropertyStoreConfigEntry;
 
 /**
  * properties runtime array variable with runtime values of dynamically initialized and configurable properties
  */
-extern AJAPPS_PropertyStoreConfigEntry ajapps_propertyStoreRuntimeValues[AJSVC_PROPERTY_STORE_NUMBER_OF_CONFIG_KEYS];
+extern PropertyStoreConfigEntry propertyStoreRuntimeValues[AJSVC_PROPERTY_STORE_NUMBER_OF_CONFIG_KEYS];
 
 #define AJ_PROPERTIES_NV_ID_BEGIN (AJ_NVRAM_ID_CREDS_MAX + 1)
 #define AJ_PROPERTIES_NV_ID_END   (AJ_PROPERTIES_NV_ID_BEGIN + (int)AJSVC_PROPERTY_STORE_NUMBER_OF_CONFIG_KEYS * (int)AJSVC_PROPERTY_STORE_NUMBER_OF_LANGUAGES - 1)
+
+AJ_Status PropertyStore_Init();
 
 /** @} */
  #endif //_PROPERTYSTOREOEMPROVISIONING_H_
