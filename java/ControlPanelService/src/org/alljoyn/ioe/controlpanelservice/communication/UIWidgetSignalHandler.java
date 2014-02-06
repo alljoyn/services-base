@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -16,17 +16,31 @@
 
 package org.alljoyn.ioe.controlpanelservice.communication;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 import org.alljoyn.ioe.controlpanelservice.ControlPanelException;
+import org.alljoyn.ioe.controlpanelservice.ui.UIElement;
 
 import android.util.Log;
 
 /**
- * The class includes all the required data to register/unregister signals
+ * The class includes all the required data to register/unregister signals <br>
+ * Additionally the class has a logic to dispatch the received signals to be handled on the separate thread from AllJoyn
  */
-public class UIWidgetSignalHandler {
+public class UIWidgetSignalHandler implements InvocationHandler {
 	private static final String TAG = "cpan" + UIWidgetSignalHandler.class.getSimpleName();
+	
+	/**
+	  * MetadataChanged signal refreshes {@link UIElement} object properties which it was sent for.
+	  * This is done by executing {@link org.alljoyn.bus.ifaces.Properties#GetAll(String)} method.
+	  * To avoid load on the AJ daemon when it receives multiple METADATA_CHANGED signals, we handle them
+	  * sequentially on a separate thread by invoking {@link TaskManager#enqueue(Runnable)}.
+	  * All the other signals that are just delegated to an appropriate listener will be simultaneously 
+	  * handled by a separate thread from the {@link TaskManager} thread pool by invoking {@link TaskManager#execute(Runnable)}
+	  */
+	private static final String METADATA_CHANGED = "MetadataChanged";
 	
 	/**
 	 * The object path that is used as a signal source.
@@ -34,10 +48,18 @@ public class UIWidgetSignalHandler {
 	 private String objPath;
 	    
 	 /**
-	  * The signal handler object
+	  * The real signal handler object
 	  */
 	 private Object signalReceiver;
-	    
+	 
+	 /**
+	  * The proxy object signal handler is created on the base of {@link Proxy}
+	  * This object is actually receives signals from daemon and its {@link InvocationHandler} dispatches 
+	  * the signal to be handled on the separate thread from AllJoyn.
+	  * Signal handling logic is executed in the signalReceiver object 
+	  */
+	 private Object proxySignalReceiver;
+	 
 	 /**
 	  * The reflection of the signal method 
 	  */
@@ -67,11 +89,21 @@ public class UIWidgetSignalHandler {
 	 * @throws ControlPanelException
 	 */
 	public void register() throws ControlPanelException {
+				
+		Class<?>[] ifaceList = signalReceiver.getClass().getInterfaces();
+		if ( ifaceList.length == 0 ) {
+		    String msg = "Received signalReceiver object doesn't implement any interface";
+            Log.e(TAG, msg); 
+            throw new ControlPanelException(msg);
+		}
+		
+		proxySignalReceiver = createProxySignalReceiver(ifaceList);
+		
         ConnectionManager.getInstance().registerObjectAndSetSignalHandler(
                 ifName,
                 method.getName(),
                 method,
-                signalReceiver,
+                proxySignalReceiver,
                 objPath,
                 objPath
        );
@@ -82,7 +114,51 @@ public class UIWidgetSignalHandler {
 	 * @throws ControlPanelException
 	 */
 	public void unregister() throws ControlPanelException {
+		
 		Log.v(TAG, "Unregistering signal handler: '" + method.getName() + "', objPath: '" + objPath + "'");
-		ConnectionManager.getInstance().unregisterSignalHandler(signalReceiver, method);
+		ConnectionManager.getInstance().unregisterSignalHandler(proxySignalReceiver, method);
+		signalReceiver      = null;
+		proxySignalReceiver = null;
 	}//unregister
+
+	/**
+	 * Create {@link Proxy} object object base of the given interface class <br>
+	 * @return Created object
+	 */
+	private Object createProxySignalReceiver(Class<?>[] ifaceClassList) {
+		return Proxy.newProxyInstance(ifaceClassList[0].getClassLoader(), ifaceClassList, this);
+	}
+
+	/**
+	 * @see java.lang.reflect.InvocationHandler#invoke(java.lang.Object, java.lang.reflect.Method, java.lang.Object[])
+	 */
+	@Override
+	public Object invoke(Object proxy, final Method method, final Object[] args) throws Throwable {
+		
+		Runnable task = new Runnable() {
+			@Override
+			public void run() {
+				try {
+					method.invoke(signalReceiver, args);
+				} catch (Exception e) {
+					Log.d(TAG, "Failed to invoke the method: '" + method.getName() + "', Error: '" + e.getMessage() + "'", e);
+				}
+			}
+		};
+		
+		//Received METADATA_CHANGED signal enqueue it to be executed 
+		if ( METADATA_CHANGED.equals(method.getName()) ) {
+			
+			Log.d(TAG, "Received '" + METADATA_CHANGED + "' signal storing it in the queue for the later execution");
+			TaskManager.getInstance().enqueue(task) ;
+		}
+		else {
+			
+			Log.d(TAG, "Received '" + method.getName() + "' signal passing it for execution");
+			TaskManager.getInstance().execute(task);
+		}
+		
+		return null;
+	}//invoke
+	
 }

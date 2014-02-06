@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -21,7 +21,7 @@ import java.util.Map;
 import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.Variant;
 import org.alljoyn.ioe.controlpanelservice.ControlPanelException;
-import org.alljoyn.ioe.controlpanelservice.communication.ConnectionManager;
+import org.alljoyn.ioe.controlpanelservice.communication.TaskManager;
 import org.alljoyn.ioe.controlpanelservice.communication.interfaces.PropertyControl;
 import org.alljoyn.ioe.controlpanelservice.communication.interfaces.PropertyControlSecured;
 
@@ -89,7 +89,7 @@ public class PropertyWidgetSignalHandler implements PropertyControlSecured, Prop
 	 */
 	@Override
 	public void ValueChanged(Variant value) throws BusException {
-	    ConnectionManager.getInstance().getBusAttachment().enableConcurrentCallbacks();
+		
 	    ControlPanelEventsListener eventsListener = propertyWidget.controlPanel.getEventsListener();
 	    
 	    String msg = "Device: '" + propertyWidget.device.getDeviceId() +
@@ -113,14 +113,13 @@ public class PropertyWidgetSignalHandler implements PropertyControlSecured, Prop
 	 */
 	@Override
 	public void MetadataChanged() throws BusException {
-        ConnectionManager.getInstance().getBusAttachment().enableConcurrentCallbacks();
         
         String msg = "Device: '" + propertyWidget.device.getDeviceId() +
                 "', PropertyWidget: '" + propertyWidget.objectPath + "', received METADATA_CHANGED signal";
 
         Log.d(TAG, msg);
         
-        ControlPanelEventsListener eventsListener = propertyWidget.controlPanel.getEventsListener();
+        final ControlPanelEventsListener eventsListener = propertyWidget.controlPanel.getEventsListener();
         
         try {
         	propertyWidget.refreshProperties();
@@ -132,7 +131,13 @@ public class PropertyWidgetSignalHandler implements PropertyControlSecured, Prop
              return;
         }
         
-        eventsListener.metadataChanged(propertyWidget.controlPanel, propertyWidget);
+        //Delegate to the listener on a separate thread
+        TaskManager.getInstance().execute( new Runnable() {
+			@Override
+			public void run() {
+				eventsListener.metadataChanged(propertyWidget.controlPanel, propertyWidget);
+			}
+		});
 	}//MetadataChanged
 	
 }
