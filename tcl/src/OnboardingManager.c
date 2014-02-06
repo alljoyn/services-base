@@ -30,9 +30,6 @@ AJ_Time obRetryTimer;
 uint8_t bTimerActivated = FALSE;
 uint8_t bFirstStart = TRUE;
 
-/* SoftAP state variable for AJTCL */
-extern uint8_t IsSoftAP;
-
 static char obSoftAPssid[SSID_MAX_LENGTH + 1] = { 0 };
 
 static const char* OB_GetSoftAPSSID()
@@ -294,40 +291,7 @@ AJ_Status OBCAPI_GotoIdleWiFi(uint8_t reset)
         AJ_Sleep(500);
     }
 
-    IsSoftAP = FALSE;
-
     status = OBCAPI_DoScanInfo();
-    return status;
-}
-
-static AJ_Status OBM_EnableSoftAP(const char* ssid, A_UINT8 hidden, const char* passphrase)
-{
-    AJ_Status status = AJ_OK;
-
-    status = OBCAPI_GotoIdleWiFi(TRUE);
-
-    AJ_Printf("Configuring soft AP %s\n", ssid);
-
-    status = AJ_EnableSoftAP(ssid, hidden, passphrase);
-    if (status != AJ_OK) {
-        AJ_Printf("EnableSoftAP error\n");
-        return status;
-    }
-
-    AJ_WiFiConnectState wifiConnectState = AJ_GetWifiConnectState();
-    while (wifiConnectState == AJ_WIFI_SOFT_AP_INIT) {
-        AJ_Sleep(100);
-        AJ_Printf(".");
-        wifiConnectState = AJ_GetWifiConnectState();
-    }
-
-    if ((wifiConnectState == AJ_WIFI_SOFT_AP_UP) || (wifiConnectState == AJ_WIFI_STATION_OK)) {
-        IsSoftAP = TRUE;
-        AJ_Printf("Soft AP Wifi state = %s\n", AJ_WiFiConnectStateText(wifiConnectState));
-    } else {
-        AJ_Printf("ERROR unexpected soft AP Wifi state = %s\n", AJ_WiFiConnectStateText(wifiConnectState));
-    }
-
     return status;
 }
 
@@ -499,42 +463,25 @@ AJ_Status OBCAPI_StartSoftAPIfNeededOrConnect(OBInfo* obInfo)
     while (1) {
         // Check if require to switch into AP mode.
         if ((obInfo->state == NOT_CONFIGURED || obInfo->state == CONFIGURED_ERROR || obInfo->state == CONFIGURED_RETRY)) {
-            // Check if not already switched into AP mode.
-            if (!OBCAPI_IsWiFiSoftAP()) {
-                const char* softApSSID = OB_GetSoftAPSSID();
-                AJ_Printf("Establishing SoftAP with ssid=%s%s auth=%s\n", softApSSID, (OBS_SoftAPIsHidden ? " (hidden)" : ""), OBS_SoftAPPassphrase == NULL ? "OPEN" : OBS_SoftAPPassphrase);
-                status = OBM_EnableSoftAP(softApSSID, OBS_SoftAPIsHidden, OBS_SoftAPPassphrase);
-                if (AJ_OK == status) {
-                    if (obInfo->state == CONFIGURED_RETRY) {
-                        AJ_Printf("Retry timer activated\n");
-                        AJ_InitTimer(&obRetryTimer);
-                        bTimerActivated = TRUE;
-                    }
-                }
+            const char* softApSSID = OB_GetSoftAPSSID();
+            AJ_Printf("Establishing SoftAP with ssid=%s%s auth=%s\n", softApSSID, (OBS_SoftAPIsHidden ? " (hidden)" : ""), OBS_SoftAPPassphrase == NULL ? "OPEN" : OBS_SoftAPPassphrase);
+            if (obInfo->state == CONFIGURED_RETRY) {
+                AJ_Printf("Retry timer activated\n");
+                status = AJ_EnableSoftAP(softApSSID, OBS_SoftAPIsHidden, OBS_SoftAPPassphrase, OBS_WAIT_BETWEEN_RETRIES);
+            } else {
+                status = AJ_EnableSoftAP(softApSSID, OBS_SoftAPIsHidden, OBS_SoftAPPassphrase, OBS_WAIT_FOR_SOFTAP_CONNECTION);
             }
-            /*
-             * Wait until a remote station connects
-             */
-            AJ_Printf("Waiting for remote station to connect\n");
-            AJ_WiFiConnectState wifiConnectState = AJ_GetWifiConnectState();
-            while (wifiConnectState != AJ_WIFI_STATION_OK) {
-                //check for timer elapsed for retry
-                if (bTimerActivated) {
-                    uint32_t elapsed = AJ_GetElapsedTime(&obRetryTimer, TRUE);
-                    if (elapsed > OBS_WAIT_BETWEEN_RETRIES) {
+            if (AJ_OK != status) {
+                if (AJ_ERR_TIMEOUT == status) {
+                    //check for timer elapsed for retry
+                    if (obInfo->state == CONFIGURED_RETRY) {
                         AJ_Printf("Retry timer elapsed at %ums\n", OBS_WAIT_BETWEEN_RETRIES);
                         obInfo->state = CONFIGURED_VALIDATED;
                         status = OBS_WriteInfo(obInfo);
-                        break;
                     }
                 }
-                AJ_Sleep(100);
-                wifiConnectState = AJ_GetWifiConnectState();
-                if (wifiConnectState != AJ_WIFI_SOFT_AP_UP) {
-                    break;
-                }
+                break;
             }
-            bTimerActivated = FALSE;
             if (obInfo->state == CONFIGURED_VALIDATED) {
                 continue; // Loop back and connect in client mode
             }

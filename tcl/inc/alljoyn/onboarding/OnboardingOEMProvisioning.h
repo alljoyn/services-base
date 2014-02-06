@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -33,13 +33,17 @@
 #define ERROR_MESSAGE_LEN 32
 
 /**
+ * Wait time for clients to connect to SoftAP station (ms)
+ */
+extern const uint32_t OBS_WAIT_FOR_SOFTAP_CONNECTION; // 600000;
+/**
  * retry parameters after failed connection of already validated configuration.
  */
 extern const uint8_t OBS_MAX_RETRIES; // 2;
 /**
  * Wait time between retries (ms)
  */
-extern const uint32_t OBS_WAIT_BETWEEN_RETRIES; // 60000;
+extern const uint32_t OBS_WAIT_BETWEEN_RETRIES; // 180000;
 /**
  * maximum number of scan info results.
  */
