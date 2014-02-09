@@ -114,7 +114,8 @@ void NotificationReceiverTestImpl::Receive(Notification const& notification) {
 
         std::cout << "******************** End New Message Received ********************" << std::endl << std::endl;
 
-        Notification& nonConstNotification = const_cast<Notification&>(notification);
+        //Copy the notification with implicit or explicit copy constructor. Notification must be safe for that purpose.
+        Notification nonConstNotification(notification);
 
         if (m_WaitForExternalNotificationAction) {
             pthread_mutex_lock(&m_Lock);

@@ -25,6 +25,7 @@
 #include <alljoyn/Status.h>
 #include <alljoyn/services_common/AsyncTaskQueue.h>
 #include "NotificationAsyncTaskEvents.h"
+#include <qcc/String.h>
 
 namespace ajn {
 namespace services {
@@ -32,6 +33,7 @@ namespace services {
 /**
  * NotificationMsg
  * This message will be sent when user uses interface NotificationProducer
+ * Implicit or explicit copy constructor must work.
  */
 class NotificationMsg : public TaskData {
   public:
@@ -112,6 +114,10 @@ class Notification {
      */
     ~Notification();
 
+    /**
+     * copy constructor
+     */
+    Notification(const Notification& notification);
     /**
      * Get the Version
      * @return version
@@ -297,6 +303,15 @@ class Notification {
     static AsyncTaskQueue m_AsyncTaskQueue;
 
   private:
+    /**
+     * assignment operator is forbidden
+     */
+    Notification& operator=(const Notification&);
+
+    /**
+     * set the original sender
+     */
+    void setOriginalSender(const char* originalSender);
 
     /**
      * The Notification's Message Id
@@ -306,7 +321,7 @@ class Notification {
     /**
      * The Notifications Sender
      */
-    const char* m_Sender;
+    qcc::String* m_Sender;
 
     /**
      * The Notifications MessageType
@@ -316,22 +331,22 @@ class Notification {
     /**
      * The Notification's Device Id
      */
-    const char* m_DeviceId;
+    qcc::String* m_DeviceId;
 
     /**
      * The Notification's Device Name
      */
-    const char* m_DeviceName;
+    qcc::String* m_DeviceName;
 
     /**
      * The Notification's App Id
      */
-    const char* m_AppId;
+    qcc::String* m_AppId;
 
     /**
      * The Notification's App Name
      */
-    const char* m_AppName;
+    qcc::String* m_AppName;
 
     /**
      * The Notification's map of Custom Attributs
@@ -346,7 +361,7 @@ class Notification {
     /**
      * The Notification's rich Icon Url
      */
-    const char* m_RichIconUrl;
+    qcc::String* m_RichIconUrl;
 
     /**
      * The Notification's vector of Rich Audio Urls
@@ -356,26 +371,22 @@ class Notification {
     /**
      * The Notification's rich Icon Object Path
      */
-    const char* m_RichIconObjectPath;
+    qcc::String* m_RichIconObjectPath;
 
     /**
      * The Notification's rich Audio Object
      */
-    const char* m_RichAudioObjectPath;
+    qcc::String* m_RichAudioObjectPath;
 
     /**
      * The Notification's ControlPanelService object path
      */
-    const char* m_ControlPanelServiceObjectPath;
+    qcc::String* m_ControlPanelServiceObjectPath;
 
     /**
-     * The Notification's ControlPanelService object path
+     * The Notification's original sender
      */
-    const char* m_OriginalSender;
-    /**
-     * Tag for Logging
-     */
-    static qcc::String TAG;
+    qcc::String* m_OriginalSender;
 };
 
 } //namespace services
