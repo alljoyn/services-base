@@ -423,20 +423,22 @@ int main()
             std::cout << "Notification sent with ttl of " << ttl << std::endl;
         }
 
-        int c;
+        std::string input;
         do {
             std::cout << "To delete the bus connection and start again please push 'c' character:" << std::endl;
-            c = getchar();
-            putchar(c);
-        } while (c != 'c');
+            getline(std::cin, input);
+        } while (input != "c");
 
         prodService->shutdownSender();
         if (Sender) {
+            std::cout << "Going to delete Sender" << std::endl;
             delete Sender;
             Sender = 0;
         }
 
+        std::cout << "Going to call aboutServiceDestroy" << std::endl;
         CommonSampleUtil::aboutServiceDestroy(bus, notificationBusListener);
+        std::cout << "Going to sleep:" << sleepTime << std::endl;
         sleep(sleepTime);
     }
 

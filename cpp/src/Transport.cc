@@ -555,6 +555,7 @@ void Transport::cleanupTransportProducer(int32_t messageTypeIndx, bool unregiste
 
 void Transport::cleanupNotificationProducerReceiver()
 {
+    QCC_DbgTrace(("Transport::cleanupNotificationProducerReceiver start"));
     SessionPort sp = AJ_NOTIFICATION_PRODUCER_SERVICE_PORT;
     QStatus status = m_Bus->UnbindSessionPort(sp);
     if (status != ER_OK) {
@@ -575,6 +576,7 @@ void Transport::cleanupNotificationProducerReceiver()
         delete m_NotificationProducerReceiver;
         m_NotificationProducerReceiver = NULL;
     }
+    QCC_DbgTrace(("Transport::cleanupNotificationProducerReceiver end"));
 }
 
 void Transport::cleanupNotificationDismisserSender()
@@ -591,6 +593,7 @@ void Transport::cleanupNotificationDismisserSender()
 
 void Transport::cleanupNotificationDismisserReceiver()
 {
+    QCC_DbgTrace(("Transport::cleanupNotificationDismisserReceiver start"));
     if (!m_NotificationDismisserReceiver) {
         return;
     }
@@ -600,6 +603,7 @@ void Transport::cleanupNotificationDismisserReceiver()
 
     delete m_NotificationDismisserReceiver;
     m_NotificationDismisserReceiver = 0;
+    QCC_DbgTrace(("Transport::cleanupNotificationDismisserReceiver end"));
 }
 
 
@@ -613,15 +617,18 @@ void Transport::cleanupSenderTransport()
 
 void Transport::cleanupReceiverTransport()
 {
+    QCC_DbgTrace(("Transport::cleanupReceiverTransport start"));
     cleanupNotificationDismisserReceiver();
     cleanupNotificationProducerSender();
     cleanupTransportConsumer(true);
     cleanupTransportSuperAgent(true);
     cleanupAnnouncementListener(true);
+    QCC_DbgTrace(("Transport::cleanupReceiverTransport end"));
 }
 
 void Transport::cleanupTransportConsumer(bool unregister)
 {
+    QCC_DbgTrace(("Transport::cleanupTransportConsumer start"));
     if (!m_Consumer) {
         return;
     }
@@ -632,11 +639,13 @@ void Transport::cleanupTransportConsumer(bool unregister)
     }
     delete m_Consumer;
     m_Consumer = 0;
+    QCC_DbgTrace(("Transport::cleanupTransportConsumer end"));
 }
 
 
 void Transport::cleanupTransportSuperAgent(bool unregister)
 {
+    QCC_DbgTrace(("Transport::cleanupTransportSuperAgent start"));
     if (!m_SuperAgent) {
         return;
     }
@@ -647,10 +656,12 @@ void Transport::cleanupTransportSuperAgent(bool unregister)
     }
     delete m_SuperAgent;
     m_SuperAgent = 0;
+    QCC_DbgTrace(("Transport::cleanupTransportSuperAgent end"));
 }
 
 void Transport::cleanupAnnouncementListener(bool unregister)
 {
+    QCC_DbgTrace(("Transport::cleanupTransportSuperAgent start"));
     if (!m_AnnounceListener) {
         return;
     }
@@ -660,10 +671,12 @@ void Transport::cleanupAnnouncementListener(bool unregister)
     }
     delete m_AnnounceListener;
     m_AnnounceListener = 0;
+    QCC_DbgTrace(("Transport::cleanupTransportSuperAgent end"));
 }
 
 void Transport::cleanupNotificationProducerSender()
 {
+    QCC_DbgTrace(("Transport::cleanupNotificationProducerSender start"));
     if (!m_NotificationProducerSender) {
         return;
     }
@@ -672,6 +685,7 @@ void Transport::cleanupNotificationProducerSender()
 
     delete m_NotificationProducerSender;
     m_NotificationProducerSender = 0;
+    QCC_DbgTrace(("Transport::cleanupNotificationProducerSender end"));
 }
 
 void Transport::cleanup()

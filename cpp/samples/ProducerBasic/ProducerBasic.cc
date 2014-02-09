@@ -191,12 +191,12 @@ int main()
 
     std::cout << "Notification sent! " << std::endl;
 
-    int c;
+
+    std::string input;
     do {
         std::cout << "To exit please push 'c' character:" << std::endl;
-        c = getchar();
-        putchar(c);
-    } while (c != 'c');
+        getline(std::cin, input);
+    } while (input != "c");
 
     std::cout << "Exiting the application deletes the bus connection." << std::endl;
     cleanup();
