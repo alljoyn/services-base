@@ -14,10 +14,44 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#include <alljoyn/about/AboutService.h>
+#include <alljoyn.h>
 #include <alljoyn/config/ConfigService.h>
 
-static const char* const ConfigInterface[] = {
+/*
+ * Message identifiers for the method calls this service implements
+ */
+
+#define CONFIG_OBJECT_INDEX                                     NUM_PRE_CONFIG_OBJECTS
+
+#define CONFIG_GET_PROP                                         AJ_APP_MESSAGE_ID(CONFIG_OBJECT_INDEX, 0, AJ_PROP_GET)
+#define CONFIG_SET_PROP                                         AJ_APP_MESSAGE_ID(CONFIG_OBJECT_INDEX, 0, AJ_PROP_SET)
+
+#define CONFIG_VERSION_PROP                                     AJ_APP_PROPERTY_ID(CONFIG_OBJECT_INDEX, 1, 0)
+#define CONFIG_FACTORY_RESET                                    AJ_APP_MESSAGE_ID(CONFIG_OBJECT_INDEX, 1, 1)
+#define CONFIG_RESTART                                          AJ_APP_MESSAGE_ID(CONFIG_OBJECT_INDEX, 1, 2)
+#define CONFIG_GET_CONFIG_CONFIGURATIONS                        AJ_APP_MESSAGE_ID(CONFIG_OBJECT_INDEX, 1, 3)
+#define CONFIG_UPDATE_CONFIGURATIONS                            AJ_APP_MESSAGE_ID(CONFIG_OBJECT_INDEX, 1, 4)
+#define CONFIG_RESET_CONFIGURATIONS                             AJ_APP_MESSAGE_ID(CONFIG_OBJECT_INDEX, 1, 5)
+#define CONFIG_SET_PASSCODE                                     AJ_APP_MESSAGE_ID(CONFIG_OBJECT_INDEX, 1, 6)
+
+static AJCFG_FactoryReset appFactoryReset = NULL;
+static AJCFG_Restart appRestart = NULL;
+static AJCFG_SetPasscode appSetPasscode = NULL;
+static AJCFG_IsValueValid appIsValueValid = NULL;
+
+AJ_Status AJCFG_Start(AJCFG_FactoryReset factoryReset, AJCFG_Restart restart, AJCFG_SetPasscode setPasscode, AJCFG_IsValueValid isValueValid)
+{
+    AJ_Status status = AJ_OK;
+
+    appFactoryReset = factoryReset;
+    appRestart = restart;
+    appSetPasscode = setPasscode;
+    appIsValueValid = isValueValid;
+
+    return status;
+}
+
+static const char* const AJSVC_ConfigInterface[] = {
     "$org.alljoyn.Config",
     "@Version>q",
     "?FactoryReset",
@@ -29,48 +63,51 @@ static const char* const ConfigInterface[] = {
     NULL
 };
 
-static const uint16_t ConfigVersion = 1;
+static const uint16_t AJSVC_ConfigVersion = 1;
 
-const AJ_InterfaceDescription ConfigInterfaces[] = {
+const AJ_InterfaceDescription AJSVC_ConfigInterfaces[] = {
     AJ_PropertiesIface,
-    ConfigInterface,
+    AJSVC_ConfigInterface,
     NULL
 };
 
-AJ_Status ConfigPropGetHandler(AJ_Message* replyMsg, uint32_t propId, void* context)
+AJ_Status AJCFG_PropGetHandler(AJ_Message* replyMsg, uint32_t propId, void* context)
 {
     if (propId == CONFIG_VERSION_PROP) {
-        uint16_t q = ConfigVersion;
-        return AJ_MarshalArgs(replyMsg, "q", q);
+        return AJ_MarshalArgs(replyMsg, "q", AJSVC_ConfigVersion);
     } else {
         return AJ_ERR_UNEXPECTED;
     }
 }
 
-AJ_Status ConfigPropSetHandler(AJ_Message* replyMsg, uint32_t propId, void* context)
+AJ_Status AJCFG_PropSetHandler(AJ_Message* replyMsg, uint32_t propId, void* context)
 {
     return AJ_ERR_UNEXPECTED;
 }
 
-AJ_Status ConfigFactoryReset(AJ_Message* msg)
+AJ_Status AJCFG_FactoryResetHandler(AJ_Message* msg)
 {
     AJ_Status status = AJ_OK;
 
-    status = App_FactoryReset();
+    if (appFactoryReset) {
+        status = (appFactoryReset)();
+    }
 
     return status;
 }
 
-AJ_Status ConfigRestart(AJ_Message* msg)
+AJ_Status AJCFG_RestartHandler(AJ_Message* msg)
 {
     AJ_Status status = AJ_OK;
 
-    status = App_Restart();
+    if (appRestart) {
+        status = (appRestart)();
+    }
 
     return status;
 }
 
-AJ_Status ConfigGetConfigurations(AJ_Message* msg)
+AJ_Status AJCFG_GetConfigurationsHandler(AJ_Message* msg)
 {
     AJ_Status status = AJ_OK;
     AJ_Message reply;
@@ -86,12 +123,12 @@ AJ_Status ConfigGetConfigurations(AJ_Message* msg)
     if (status != AJ_OK) {
         return status;
     }
-    if (Common_IsLanguageSupported(msg, &reply, language, &langIndex)) {
+    if (AJSVC_IsLanguageSupported(msg, &reply, language, &langIndex)) {
         status = AJ_MarshalReplyMsg(msg, &reply);
         if (status != AJ_OK) {
             return status;
         }
-        status = PropertyStore_ReadAll(&reply, filter, langIndex);
+        status = AJSVC_PropertyStore_ReadAll(&reply, filter, langIndex);
         if (status != AJ_OK) {
             return status;
         }
@@ -104,14 +141,14 @@ AJ_Status ConfigGetConfigurations(AJ_Message* msg)
     return status;
 }
 
-static uint8_t Config_IsValueValid(AJ_Message* msg, AJ_Message* reply, const char* key, const char* value)
+static uint8_t IsValueValid(AJ_Message* msg, AJ_Message* reply, const char* key, const char* value)
 {
-    if (strcmp(PropertyStore_GetFieldNameForIndex(AJSVC_PropertyStoreDefaultLanguage), key) == 0) { // Check that if language was updated that it is supported
-        if (Common_IsLanguageSupported(msg, reply, value, NULL)) {
+    if (strcmp(AJSVC_PropertyStore_GetFieldNameForIndex(AJSVC_PROPERTY_STORE_DEFAULT_LANGUAGE), key) == 0) { // Check that if language was updated that it is supported
+        if (AJSVC_IsLanguageSupported(msg, reply, value, NULL)) {
             return TRUE;
         }
-    } else if (strcmp(PropertyStore_GetFieldNameForIndex(AJSVC_PropertyStoreDeviceName), key) == 0) { // Check that if device name was updated
-        if (strlen(value) <= PropertyStore_GetMaxValueLength(AJSVC_PropertyStoreDeviceName)) {        // that it does not exceed maximum length
+    } else if (strcmp(AJSVC_PropertyStore_GetFieldNameForIndex(AJSVC_PROPERTY_STORE_DEVICE_NAME), key) == 0) { // Check that if device name was updated
+        if (strlen(value) <= AJSVC_PropertyStore_GetMaxValueLength(AJSVC_PROPERTY_STORE_DEVICE_NAME)) {        // that it does not exceed maximum length
             if (strlen(value) > 0) {                                               // that it is not empty
                 return TRUE;
             } else {
@@ -121,7 +158,7 @@ static uint8_t Config_IsValueValid(AJ_Message* msg, AJ_Message* reply, const cha
             AJ_MarshalErrorMsg(msg, reply, AJSVC_ERROR_MAX_SIZE_EXCEEDED);
         }
     } else {
-        if (App_IsValueValid(key, value)) {
+        if (appIsValueValid == NULL || (appIsValueValid)(key, value)) {
             return TRUE;
         }
         AJ_MarshalErrorMsg(msg, reply, AJSVC_ERROR_INVALID_VALUE);
@@ -129,7 +166,7 @@ static uint8_t Config_IsValueValid(AJ_Message* msg, AJ_Message* reply, const cha
     return FALSE;
 }
 
-AJ_Status ConfigUpdateConfigurations(AJ_Message* msg)
+AJ_Status AJCFG_UpdateConfigurationsHandler(AJ_Message* msg)
 {
     AJ_Status status = AJ_OK;
     AJ_Arg array;
@@ -149,7 +186,7 @@ AJ_Status ConfigUpdateConfigurations(AJ_Message* msg)
         goto Exit;
     }
     AJ_Printf("Lang=%s\n", language);
-    if (Common_IsLanguageSupported(msg, &reply, language, &langIndex)) {
+    if (AJSVC_IsLanguageSupported(msg, &reply, language, &langIndex)) {
         status = AJ_MarshalReplyMsg(msg, &reply);
         if (status != AJ_OK) {
             goto Exit;
@@ -176,8 +213,8 @@ AJ_Status ConfigUpdateConfigurations(AJ_Message* msg)
                 break;
             }
             AJ_Printf("key=%s value=%s\n", key, value);
-            if (Config_IsValueValid(msg, &reply, key, value)) {
-                if (PropertyStore_Update(key, langIndex, value) == AJ_OK) {
+            if (IsValueValid(msg, &reply, key, value)) {
+                if (AJSVC_PropertyStore_Update(key, langIndex, value) == AJ_OK) {
                     numOfUpdatedItems++;
                 } else {
                     AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_UPDATE_NOT_ALLOWED);
@@ -204,14 +241,14 @@ AJ_Status ConfigUpdateConfigurations(AJ_Message* msg)
 Exit:
 
     if (numOfUpdatedItems) {
-        PropertyStore_SaveAll();
-        SetShouldAnnounce(TRUE);
+        AJSVC_PropertyStore_SaveAll();
+        AJ_About_SetShouldAnnounce(TRUE);
     }
 
     return status;
 }
 
-AJ_Status ConfigResetConfigurations(AJ_Message* msg)
+AJ_Status AJCFG_ResetConfigurationsHandler(AJ_Message* msg)
 {
     AJ_Status status = AJ_OK;
     AJ_Arg array;
@@ -228,7 +265,7 @@ AJ_Status ConfigResetConfigurations(AJ_Message* msg)
         goto Exit;
     }
     AJ_Printf("Lang=%s\n", language);
-    if (Common_IsLanguageSupported(msg, &reply, language, &langIndex)) {
+    if (AJSVC_IsLanguageSupported(msg, &reply, language, &langIndex)) {
         status = AJ_MarshalReplyMsg(msg, &reply);
         if (status != AJ_OK) {
             goto Exit;
@@ -243,7 +280,7 @@ AJ_Status ConfigResetConfigurations(AJ_Message* msg)
                 break;
             }
             AJ_Printf("Key=%s\n", key);
-            if (PropertyStore_Reset(key, langIndex) == AJ_OK) {
+            if (AJSVC_PropertyStore_Reset(key, langIndex) == AJ_OK) {
                 numOfDeletedItems++;
             } else {
                 AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_UPDATE_NOT_ALLOWED);
@@ -265,14 +302,14 @@ AJ_Status ConfigResetConfigurations(AJ_Message* msg)
 Exit:
 
     if (numOfDeletedItems) {
-        PropertyStore_SaveAll();
-        SetShouldAnnounce(TRUE);
+        AJSVC_PropertyStore_SaveAll();
+        AJ_About_SetShouldAnnounce(TRUE);
     }
 
     return status;
 }
 
-AJ_Status ConfigSetPasscode(AJ_Message* msg)
+AJ_Status AJCFG_SetPasscodeHandler(AJ_Message* msg)
 {
     AJ_Status status = AJ_OK;
     char* daemonRealm;
@@ -291,7 +328,7 @@ AJ_Status ConfigSetPasscode(AJ_Message* msg)
         return status;
     }
     if (newPasscode.typeId == AJ_ARG_BYTE) {
-        if (newPasscode.len <= PropertyStore_GetMaxValueLength(AJSVC_PropertyStorePasscode)) { // Check passcode does not exceed limit
+        if (newPasscode.len <= AJSVC_PropertyStore_GetMaxValueLength(AJSVC_PROPERTY_STORE_PASSCODE)) { // Check passcode does not exceed limit
             if (newPasscode.len > 0) { // Check passcode is not empty
                 AJ_Printf("newStringPasscode=%s\n", newPasscode.val.v_string);
                 status = AJ_MarshalReplyMsg(msg, &reply);
@@ -302,9 +339,11 @@ AJ_Status ConfigSetPasscode(AJ_Message* msg)
                 if (status != AJ_OK) {
                     return status;
                 }
-                status = App_SetPasscode(daemonRealm, newPasscode.val.v_string);
-                if (status != AJ_OK) {
-                    return status;
+                if (appSetPasscode) {
+                    status = (appSetPasscode)(daemonRealm, newPasscode.val.v_string);
+                    if (status != AJ_OK) {
+                        return status;
+                    }
                 }
             } else {
                 AJ_Printf("Error - newPasscode cannot be empty!\n");
@@ -315,7 +354,7 @@ AJ_Status ConfigSetPasscode(AJ_Message* msg)
                 }
             }
         } else {
-            AJ_Printf("Error - newPasscode length %d > %d!\n", newPasscode.len, PropertyStore_GetMaxValueLength(AJSVC_PropertyStorePasscode));
+            AJ_Printf("Error - newPasscode length %d > %d!\n", newPasscode.len, AJSVC_PropertyStore_GetMaxValueLength(AJSVC_PROPERTY_STORE_PASSCODE));
             AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_MAX_SIZE_EXCEEDED);
             status = AJ_DeliverMsg(&reply);
             if (status != AJ_OK) {
@@ -332,4 +371,60 @@ AJ_Status ConfigSetPasscode(AJ_Message* msg)
     }
 
     return status;
+}
+
+AJ_Status AJCFG_ConnectedHandler(AJ_BusAttachment* busAttachment)
+{
+    return AJ_OK;
+}
+
+AJSVC_ServiceStatus AJCFG_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg, AJ_Status* msgStatus)
+{
+    AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_HANDLED;
+
+    switch (msg->msgId) {
+
+    case CONFIG_GET_PROP:
+        *msgStatus = AJ_BusPropGet(msg, AJCFG_PropGetHandler, NULL);
+        break;
+
+    case CONFIG_SET_PROP:
+        *msgStatus = AJ_BusPropSet(msg, AJCFG_PropSetHandler, NULL);
+        break;
+
+    case CONFIG_FACTORY_RESET:
+        *msgStatus = AJCFG_FactoryResetHandler(msg);
+        break;
+
+    case CONFIG_RESTART:
+        *msgStatus = AJCFG_RestartHandler(msg);
+        break;
+
+    case CONFIG_GET_CONFIG_CONFIGURATIONS:
+        *msgStatus = AJCFG_GetConfigurationsHandler(msg);
+        break;
+
+    case CONFIG_RESET_CONFIGURATIONS:
+        *msgStatus = AJCFG_ResetConfigurationsHandler(msg);
+        break;
+
+    case CONFIG_UPDATE_CONFIGURATIONS:
+        *msgStatus = AJCFG_UpdateConfigurationsHandler(msg);
+        break;
+
+    case CONFIG_SET_PASSCODE:
+        *msgStatus = AJCFG_SetPasscodeHandler(msg);
+        break;
+
+    default:
+        serviceStatus = AJSVC_SERVICE_STATUS_NOT_HANDLED;
+        break;
+    }
+
+    return serviceStatus;
+}
+
+AJ_Status AJCFG_DisconnectHandler(AJ_BusAttachment* busAttachment)
+{
+    return AJ_OK;
 }
