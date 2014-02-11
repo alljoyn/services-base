@@ -79,7 +79,7 @@ const uint8_t AJSVC_PROPERTY_STORE_NUMBER_OF_LANGUAGES = 1;
 /**
  * properties array of default values
  */
-static const char* DEFAULT_PASSCODE[] = { "000000" };
+static const char* DEFAULT_PASSCODE[] = { "303030303030" }; // HEX encoded { '0', '0', '0', '0', '0', '0' }
 static const char* DEFAULT_APP_NAME[] = { "Controlee" };
 static const char* DEFAULT_DESCRIPTION[] = { "AC IOE device" };
 static const char* DEFAULT_MANUFACTURER[] = { "Company A(EN)" };

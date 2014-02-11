@@ -81,7 +81,7 @@ const uint8_t AJSVC_PROPERTY_STORE_NUMBER_OF_LANGUAGES = sizeof(SUPPORTED_LANGUA
 /**
  * property array of structure with defaults
  */
-static const char* DEFAULT_PASSCODES[] = { "000000" };
+static const char* DEFAULT_PASSCODES[] = { "303030303030" }; // HEX encoded { '0', '0', '0', '0', '0', '0' }
 #if     defined CONTROLPANEL_SERVICE
 static const char* DEFAULT_APP_NAMES[] = { "Controlee" };
 #elif   defined NOTIFICATION_SERVICE_PRODUCER

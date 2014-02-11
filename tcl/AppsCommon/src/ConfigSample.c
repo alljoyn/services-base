@@ -17,6 +17,7 @@
 #include "ConfigSample.h"
 #include <alljoyn/config/ConfigService.h>
 #include <alljoyn.h>
+#include "PropertyStoreOEMProvisioning.h"
 #include <alljoyn/services_common/PropertyStore.h>
 #include <aj_creds.h>
 #ifdef ONBOARDING_SERVICE
@@ -54,10 +55,15 @@ static AJ_Status Restart()
     return AJ_ERR_RESTART; // Force disconnect of AJ and services and reconnection of WiFi on restart
 }
 
-static AJ_Status SetPasscode(const char* daemonRealm, const char* newStringPasscode)
+static AJ_Status SetPasscode(const char* daemonRealm, const uint8_t* newPasscode, uint8_t newPasscodeLen)
 {
     AJ_Status status = AJ_OK;
 
+    char newStringPasscode[PASSWORD_VALUE_LENGTH + 1];
+    status = AJ_RawToHex(newPasscode, newPasscodeLen, newStringPasscode, sizeof(newStringPasscode), FALSE);
+    if (status != AJ_OK) {
+        return status;
+    }
     if (AJSVC_PropertyStore_SetValue(AJSVC_PROPERTY_STORE_REALM_NAME, daemonRealm) && AJSVC_PropertyStore_SetValue(AJSVC_PROPERTY_STORE_PASSCODE, newStringPasscode)) {
 
         status = AJSVC_PropertyStore_SaveAll();
