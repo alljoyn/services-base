@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -21,10 +21,35 @@
  *
  *  @{
  */
-#include <alljoyn/onboarding/OnboardingOEMProvisioning.h>
-#include <alljoyn/services_common/PropertyStore.h>
-#include <alljoyn/services_common/Services_Common.h>
-#include <aj_wifi_ctrl.h>
+
+#include <alljoyn.h>
+#include <alljoyn/onboarding/OnboardingManager.h>
+
+/**
+ * Onboarding state variable.
+ */
+AJOBS_State AJOBS_ControllerAPI_GetState();
+void AJOBS_ControllerAPI_SetState(AJOBS_State state);
+
+/**
+ * Onboarding last error variable.
+ */
+const AJOBS_Error* AJOBS_ControllerAPI_GetError();
+
+/**
+ * Onboarding last scan time.
+ */
+const AJ_Time* AJOBS_ControllerAPI_GetLastScanTime();
+
+/**
+ * Onboarding scan infos variable.
+ */
+const AJOBS_ScanInfo* AJOBS_ControllerAPI_GetScanInfos();
+
+/**
+ * Onboarding scan infos count variable.
+ */
+uint8_t AJOBS_ControllerAPI_GetScanInfoCount();
 
 /**
  * perform a check of the current configuration state and accordingly take the relevant action of
@@ -33,38 +58,38 @@
  * @param obInfo
  * @return status
  */
-AJ_Status OBCAPI_StartSoftAPIfNeededOrConnect(OBInfo* obInfo);
+AJ_Status AJOBS_ControllerAPI_StartSoftAPIfNeededOrConnect(AJOBS_Info* obInfo);
 
 /**
  * disconnect from current mode (SoftAP or client) and go to idle mode.
  * @param reset
  * @return status
  */
-AJ_Status OBCAPI_GotoIdleWiFi(uint8_t reset);
+AJ_Status AJOBS_ControllerAPI_GotoIdleWiFi(uint8_t reset);
 
 /**
  * perform a offboarding clearing the current configuration state and values.
  * @return status
  */
-AJ_Status OBCAPI_DoOffboardWiFi();
+AJ_Status AJOBS_ControllerAPI_DoOffboardWiFi();
 
 /**
  * perform a scaninfo.
  * @return status
  */
-AJ_Status OBCAPI_DoScanInfo();
+AJ_Status AJOBS_ControllerAPI_DoScanInfo();
 
 /**
  * return whether the Wi-Fi is in SoftAP mode.
  * @return success
  */
-int8_t OBCAPI_IsWiFiSoftAP();
+int8_t AJOBS_ControllerAPI_IsWiFiSoftAP();
 
 /**
  * return whether the Wi-Fi is in client mode.
  * @return success
  */
-int8_t OBCAPI_IsWiFiClient();
+int8_t AJOBS_ControllerAPI_IsWiFiClient();
 
 /** @} */
  #endif // _ONBOARDINGCONTROLLERAPI_H_

@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -22,8 +22,12 @@
  *  @{
  */
 
-#include <alljoyn/onboarding/OnboardingControllerAPI.h>
 #include <alljoyn/services_common/Services_Common.h>
+
+/**
+ * published Onboarding Service objects and interfaces
+ */
+extern const AJ_InterfaceDescription AJSVC_OnboardingInterfaces[];
 
 /*
  * Following definitions are read by the application.
@@ -32,7 +36,7 @@
 #define NUM_ONBOARDING_OBJECTS 1
 
 #define ONBOARDING_APPOBJECTS   \
-    { "/Onboarding",         OnboardingInterfaces },
+    { "/Onboarding",         AJSVC_OnboardingInterfaces },
 
 #ifndef ONBOARDING_ANNOUNCEOBJECTS
 #define ONBOARDING_ANNOUNCEOBJECTS  ONBOARDING_APPOBJECTS
@@ -56,14 +60,11 @@
 #define OBS_GET_SCAN_INFO                                       AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 1, 6)
 #define OBS_CONNECTION_RESULT                                   AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 1, 7)
 
+#define AJOBS_SSID_MAX_LENGTH 32
+
 /*
  * Onboarding Service API
  */
-
-/**
- * published Onboarding Service objects and interfaces
- */
-extern const AJ_InterfaceDescription OnboardingInterfaces[];
 
 /**
  * handler for property getters associated with org.alljoyn.Onboarding
@@ -72,7 +73,7 @@ extern const AJ_InterfaceDescription OnboardingInterfaces[];
  * @param context
  * @return aj_status
  */
-AJ_Status OnboardingPropGetHandler(AJ_Message* replyMsg, uint32_t propId, void* context);
+AJ_Status AJOBS_PropGetHandler(AJ_Message* replyMsg, uint32_t propId, void* context);
 
 /**
  * handler for property setters associated with org.alljoyn.Onboarding
@@ -81,35 +82,35 @@ AJ_Status OnboardingPropGetHandler(AJ_Message* replyMsg, uint32_t propId, void* 
  * @param context
  * @return aj_status
  */
-AJ_Status OnboardingPropSetHandler(AJ_Message* replyMsg, uint32_t propId, void* context);
+AJ_Status AJOBS_PropSetHandler(AJ_Message* replyMsg, uint32_t propId, void* context);
 
 /**
  * handler for ConfigureWiFi request in org.alljoyn.Onboarding
  * @param msg
  * @return aj_status
  */
-AJ_Status OBS_ConfigureWiFi(AJ_Message* msg);
+AJ_Status AJOBS_ConfigureWiFiHandler(AJ_Message* msg);
 
 /**
  * handler for ConnectWiFi request in org.alljoyn.Onboarding
  * @param msg
  * @return aj_status
  */
-AJ_Status OBS_ConnectWiFi(AJ_Message* msg);
+AJ_Status AJOBS_ConnectWiFiHandler(AJ_Message* msg);
 
 /**
  * handler for OffboardWiFi request in org.alljoyn.Onboarding
  * @param msg
  * @return aj_status
  */
-AJ_Status OBS_OffboardWiFi(AJ_Message* msg);
+AJ_Status AJOBS_OffboardWiFiHandler(AJ_Message* msg);
 
 /**
  * handler for GetScanInfo request in org.alljoyn.Onboarding
  * @param msg
  * @return aj_status
  */
-AJ_Status OBS_GetScanInfo(AJ_Message* msg);
+AJ_Status AJOBS_GetScanInfoHandler(AJ_Message* msg);
 
 /*
    //will be used in future versions
