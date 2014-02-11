@@ -17,6 +17,7 @@
 #include "OptParser.h"
 #include <iostream>
 #include <IniParser.h>
+#include <GuidUtil.h>
 #include <alljoyn/about/AboutPropertyStoreImpl.h>
 
 static const char versionPreamble[] = "OnboardingService version: 1\n"
@@ -29,8 +30,8 @@ OptParser::OptParser(int argc, char** argv) :
     argc(argc), argv(argv) {
     port = 900;
     concurrency = 0;
-    appGUID.assign("000102030405060708090A0B0C0D0E0F");
-    deviceId.assign("1231232145667745675477");
+    GuidUtil::GetInstance()->GetDeviceIdString(&deviceId);
+    GuidUtil::GetInstance()->GenerateGUID(&appGUID);
     deviceName.assign("MyDeviceName");
     defaultLanguage.assign("en");
     factoryConfigFile.assign("FactoryOnboardingService.conf");
