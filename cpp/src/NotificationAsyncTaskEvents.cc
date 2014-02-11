@@ -87,7 +87,7 @@ void NotificationAsyncTaskEvents::sendDismissSignal(TaskData const* taskData)
 {
     QCC_DbgPrintf(("NotificationAsyncTaskEvents", "sendDismissSignal() called!"));
 
-    NotificationMsg const*  notificationMsg = dynamic_cast<NotificationMsg const*>(taskData);
+    NotificationMsg const*  notificationMsg = static_cast<NotificationMsg const*>(taskData);
 
     QStatus status = ER_OK;
     MsgArg msgIdArg;
