@@ -23,6 +23,7 @@
 #include <alljoyn/services_common/GenericLogger.h>
 #include <SrpKeyXListener.h>
 #include <CommonSampleUtil.h>
+#include <GuidUtil.h>
 #include <ControlPanelGenerated.h>
 
 #define SERVICE_PORT 900
@@ -95,8 +96,11 @@ int32_t main()
         exitApp(1);
     }
 
-    qcc::String device_id = "123456", device_name = "testdeviceName";
-    qcc::String app_id = "2826752ae35c416a82bcef272c55eace", app_name = "testappName";
+    qcc::String device_id, app_id;
+    qcc::String app_name = "testappName", device_name = "testdeviceName";
+    GuidUtil::GetInstance()->GetDeviceIdString(&device_id);
+    GuidUtil::GetInstance()->GenerateGUID(&app_id);
+
     propertyStoreImpl = new AboutPropertyStoreImpl();
     status = CommonSampleUtil::fillPropertyStore(propertyStoreImpl, app_id, app_name, device_id, device_name);
     if (status != ER_OK) {
