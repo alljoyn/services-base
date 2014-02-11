@@ -16,6 +16,7 @@
 
 #include "OptParser.h"
 #include <IniParser.h>
+#include <GuidUtil.h>
 #include <alljoyn/about/AboutPropertyStoreImpl.h>
 
 static const char versionPreamble[] = "ConfigService version: 1\n"
@@ -27,8 +28,8 @@ using namespace services;
 OptParser::OptParser(int argc, char** argv) :
     argc(argc), argv(argv) {
     port = 900;
-    appGUID.assign("000102030405060708090A0B0C0D0E0D");
-    deviceId.assign("1231232145667745675477");
+    GuidUtil::GetInstance()->GetDeviceIdString(&deviceId);
+    GuidUtil::GetInstance()->GenerateGUID(&appGUID);
     deviceName.assign("MyDeviceName");
     defaultLanguage.assign("en");
     factoryConfigFile.assign("FactoryConfigService.conf");
