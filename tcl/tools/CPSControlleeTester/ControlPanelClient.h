@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -16,10 +16,6 @@
 
 #ifndef CONTROLPANELCLIENT_H_
 #define CONTROLPANELCLIENT_H_
-
-#ifdef COMBINED_SERVICES
-#include "Services_Common.h"
-#endif
 
 #include "ControlPanelClientGenerated.h"
 #include "alljoyn/controlpanel/ControlPanelService.h"
@@ -38,14 +34,12 @@ char announceSender[16];
 
 #define CONTROLPANEL_APPOBJECTS \
     CONTROLPANELAPPOBJECTS
-
-#ifndef COMBINED_SERVICES
-typedef enum {
-    SERVICE_STATUS_HANDLED,
-    SERVICE_STATUS_NOT_HANDLED
-} Service_Status;
-#endif
-
+/*
+   typedef enum _AJSVC_ServiceStatus {
+    AJSVC_SERVICE_STATUS_HANDLED,       //!< SERVICE_STATUS_HANDLED
+    AJSVC_SERVICE_STATUS_NOT_HANDLED,   //!< SERVICE_STATUS_NOT_HANDLED
+   } AJSVC_ServiceStatus;
+ */
 void CPS_Init();
 
 AJ_Status CPS_StartService(AJ_BusAttachment* bus, const char* daemonName, uint32_t timeout, uint8_t connected);
@@ -54,9 +48,9 @@ void MakeMethodCall(uint32_t sessionId);
 
 void CPS_IdleConnectedHandler(AJ_BusAttachment*bus);
 
-Service_Status CPS_NotifySessionAccepted(uint32_t sessionId, const char*sender);
+AJSVC_ServiceStatus CPS_NotifySessionAccepted(uint32_t sessionId, const char*sender);
 
-Service_Status CPS_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg, AJ_Status*msgStatus);
+AJSVC_ServiceStatus CPS_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg, AJ_Status*msgStatus);
 
 void CPS_Finish();
 

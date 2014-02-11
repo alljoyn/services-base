@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -86,6 +86,10 @@ typedef struct {
  */
 void WidgetsInit();
 
+void* IdentifyMsgOrPropId(uint32_t identifier, uint16_t* widgetType, uint16_t* propType, uint16_t* language);
+void* IdentifyMsgOrPropIdForSignal(uint32_t identifier, uint8_t* isProperty);
+uint8_t IdentifyRootMsgOrPropId(uint32_t identifier);
+
 /**
  * Set Value of a property.
  * @param replyMsg - reply message
@@ -117,5 +121,7 @@ typedef struct {
 #define ALL_REPLY_CASES                //ALL_REPLIES_GO_HERE
 
 void TestsInit(CPSTest* testsToRun);
+
+AJSVC_ServiceStatus GeneratedMessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg, AJ_Status* msgStatus);
 
 #endif /* CONTROL_GENERATED_H_ */

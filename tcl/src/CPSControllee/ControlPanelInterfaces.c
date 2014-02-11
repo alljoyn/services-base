@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -55,7 +55,7 @@ static const char NotificationActionDismiss[] = "!Dismiss";
 
 static const char* NotificationActionInterface[] =
 {
-    NotificationActionInterfaceName,           /* The first entry is the interface name. */
+    NotificationActionInterfaceName,       /* The first entry is the interface name. */
     Version,                               /* The Version Property */
     NotificationActionDismiss,             /* Signal to dismiss notification action */
     NULL
