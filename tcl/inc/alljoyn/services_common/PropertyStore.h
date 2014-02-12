@@ -127,14 +127,14 @@ AJ_Status AJSVC_PropertyStore_ResetAll();
  * @param fieldIndex
  * @return fieldName
  */
-const char* AJSVC_PropertyStore_GetFieldNameForIndex(AJSVC_PropertyStoreFieldIndices fieldIndex);
+const char* AJSVC_PropertyStore_GetFieldName(AJSVC_PropertyStoreFieldIndices fieldIndex);
 
 /**
  * get field index for given field name
  * @param fieldName
  * @return fieldIndex
  */
-AJSVC_PropertyStoreFieldIndices AJSVC_PropertyStore_GetIndexOfFieldName(const char* fieldName);
+AJSVC_PropertyStoreFieldIndices AJSVC_PropertyStore_GetFieldIndex(const char* fieldName);
 
 /**
  * get value for given field index for given language index
@@ -175,7 +175,14 @@ uint8_t AJSVC_PropertyStore_SetValue(AJSVC_PropertyStoreFieldIndices fieldIndex,
 int8_t AJSVC_PropertyStore_GetCurrentDefaultLanguageIndex();
 
 /**
- * returns the language index for the given language name
+ * get language name for given language index
+ * @param langIndex
+ * @return languageName
+ */
+const char* AJSVC_PropertyStore_GetLanguageName(int8_t langIndex);
+
+/**
+ * get the language index for the given language name
  * @param language
  * @return langIndex
  */
