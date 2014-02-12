@@ -1,4 +1,4 @@
-# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+# Copyright (c) 2013 -2014, AllSeen Alliance. All rights reserved.
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
@@ -47,8 +47,8 @@ class Action (common.Widget):
     def generateOnAction (self) :
         onAction = self.element.onAction
         if hasattr(onAction, "executeCode") : 
-            self.generated.executeAction += self.executeCases + "    {0}\n".format("{")    
-            self.generated.executeAction += "        {0}\n    {1}\n    break;\n\n".format(onAction.executeCode, "}")
+            self.generated.executeAction += self.executeCases + "        {0}\n".format("{")    
+            self.generated.executeAction += "            {0}\n        {1}\n        break;\n\n".format(onAction.executeCode, "}")
         elif hasattr(onAction, "dialog") : 
             dialogElem = onAction.dialog
             dialog = dw.Dialog(self.generated, dialogElem, (self.parentObjectPath + self.objectPathSuffix), self.languageSetName)

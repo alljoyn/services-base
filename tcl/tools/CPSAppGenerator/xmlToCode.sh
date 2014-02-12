@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+# Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
@@ -18,7 +18,7 @@ echo "Generating code for" "$@"
 INITIAL_DIR=`pwd` # Save current dir
 cd `dirname $0`       # Go to script dir
 
-python generateCPSApp.py "$@" -p ../../samples/CPSControlleeSample/ -t ../CPSControlleeTester/
+python generateCPSApp.py "$@" -p ../../../../sample_apps/tcl/ServerSample/ -t ../CPSControlleeTester/
 retval=$?
 
 cd ${INITIAL_DIR}

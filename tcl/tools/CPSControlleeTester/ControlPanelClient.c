@@ -55,31 +55,22 @@ const AJ_Object AnnounceObjects[] = {
 
 #define CONTROL_ANNOUNCE_SIGNAL_RECEIVED  AJ_PRX_MESSAGE_ID(NUM_CONTROLPANEL_OBJECTS, 0, 0)
 
-const char* ajapps_deviceManufactureName = "COMPANY";
-const char* ajapps_deviceProductName = "GENERIC BOARD";
+const char* deviceManufactureName = "COMPANY";
+const char* deviceProductName = "GENERIC BOARD";
 
 static const char DEFAULT_LANGUAGE[] = "en";
 static const char* DEFAULT_LANGUAGES[] = { DEFAULT_LANGUAGE };
 static const char SUPPORTED_LANG2[] = "de-AT";
 static const char* SUPPORTED_LANGUAGES[] = { DEFAULT_LANGUAGE, SUPPORTED_LANG2 };
-const char** ajsvc_propertyStoreDefaultLanguages = SUPPORTED_LANGUAGES;
+const char** propertyStoreDefaultLanguages = SUPPORTED_LANGUAGES;
 const uint8_t AJSVC_PROPERTY_STORE_NUMBER_OF_LANGUAGES = sizeof(SUPPORTED_LANGUAGES) / sizeof(char*);
 
 /**
  * property array of structure with defaults
  */
 static const char* DEFAULT_PASSCODES[] = { "000000" };
-#if     defined CONTROLPANEL_SERVICE
-static const char* DEFAULT_APP_NAMES[] = { "Controlee" };
-#elif   defined NOTIFICATION_SERVICE_PRODUCER
-static const char* DEFAULT_APP_NAMES[] = { "Notifier" };
-#elif   defined ONBOARDING_SERVICE
-static const char* DEFAULT_APP_NAMES[] = { "Onboardee" };
-#elif   defined CONFIG_SERVICE
-static const char* DEFAULT_APP_NAMES[] = { "Configuree" };
-#else
-static const char* DEFAULT_APP_NAMES[] = { "Announcer" };
-#endif
+static const char* DEFAULT_APP_NAMES[] = { "Controler" };
+static const char* DEFAULT_DEVICE_NAMES[] = { "CPSTESTER" };
 static const char DEFAULT_DESCRIPTION_LANG1[] = "AC IOE device";
 static const char DEFAULT_DESCRIPTION_LANG2[] = "Mein erstes IOE Geraet";
 static const char* DEFAULT_DESCRIPTIONS[] = { DEFAULT_DESCRIPTION_LANG1, DEFAULT_DESCRIPTION_LANG2 };
@@ -94,12 +85,12 @@ static const char DEFAULT_SUPPORT_URL_LANG1[] = "www.company_a.com";
 static const char DEFAULT_SUPPORT_URL_LANG2[] = "www.company_a.com/de-AT";
 static const char* DEFAULT_SUPPORT_URLS[] = { DEFAULT_SUPPORT_URL_LANG1, DEFAULT_SUPPORT_URL_LANG2 };
 
-const char** ajapps_propertyStoreDefaultValues[AJSVC_PROPERTY_STORE_NUMBER_OF_KEYS] =
+const char** propertyStoreDefaultValues[AJSVC_PROPERTY_STORE_NUMBER_OF_KEYS] =
 {
 // "Default Values per language",                    "Key Name"
     NULL,                                           /*DeviceId*/
     NULL,                                           /*AppId*/
-    NULL,                                           /*DeviceName*/
+    DEFAULT_DEVICE_NAMES,                           /*DeviceName*/
 // Add other persisted keys above this line
     DEFAULT_LANGUAGES,                              /*DefaultLanguage*/
     DEFAULT_PASSCODES,                              /*Passcode*/
@@ -133,7 +124,7 @@ static char realmNameVar[KEY_VALUE_LENGTH + 1] = { 0 };
 static char* realmNameVars[] = { realmNameVar };
 #endif
 
-AJAPPS_PropertyStoreConfigEntry ajapps_propertyStoreRuntimeValues[AJSVC_PROPERTY_STORE_NUMBER_OF_CONFIG_KEYS] =
+PropertyStoreConfigEntry propertyStoreRuntimeValues[AJSVC_PROPERTY_STORE_NUMBER_OF_CONFIG_KEYS] =
 {
 //  {"Buffers for Values per language", "Buffer Size"},                  "Key Name"
     { machineIdVars,             MACHINE_ID_LENGTH + 1 },               /*DeviceId*/
