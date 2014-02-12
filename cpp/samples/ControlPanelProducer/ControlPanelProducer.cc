@@ -28,6 +28,7 @@
 #include <GuidUtil.h>
 #include <CommonSampleUtil.h>
 #include <ControlPanelGenerated.h>
+#include <alljoyn/services_common/LogModulesNames.h>
 
 #define SERVICE_PORT 900
 
@@ -102,7 +103,7 @@ int32_t main()
 
     // Initialize Service object and Sender Object
     prodService = NotificationService::getInstance();
-    prodService->setLogLevel(Log::LogLevel::LEVEL_DEBUG);
+    QCC_SetDebugLevel(logModules::NOTIFICATION_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
 
     srpKeyXListener = new SrpKeyXListener();
 
