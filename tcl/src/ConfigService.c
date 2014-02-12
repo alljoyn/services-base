@@ -214,9 +214,12 @@ AJ_Status AJCFG_UpdateConfigurationsHandler(AJ_Message* msg)
             }
             AJ_Printf("key=%s value=%s\n", key, value);
             if (IsValueValid(msg, &reply, key, value)) {
-                if (AJSVC_PropertyStore_Update(key, langIndex, value) == AJ_OK) {
+                status = AJSVC_PropertyStore_Update(key, langIndex, value);
+                if (status == AJ_OK) {
                     numOfUpdatedItems++;
-                } else {
+                } else if (status == AJ_ERR_INVALID) {
+                    AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_INVALID_VALUE);
+                } else if (status == AJ_ERR_FAILURE) {
                     AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_UPDATE_NOT_ALLOWED);
                 }
             }
@@ -280,9 +283,12 @@ AJ_Status AJCFG_ResetConfigurationsHandler(AJ_Message* msg)
                 break;
             }
             AJ_Printf("Key=%s\n", key);
-            if (AJSVC_PropertyStore_Reset(key, langIndex) == AJ_OK) {
+            status = AJSVC_PropertyStore_Reset(key, langIndex);
+            if (status == AJ_OK) {
                 numOfDeletedItems++;
-            } else {
+            } else if (status == AJ_ERR_INVALID) {
+                AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_INVALID_VALUE);
+            } else if (status == AJ_ERR_FAILURE) {
                 AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_UPDATE_NOT_ALLOWED);
             }
         }
