@@ -58,10 +58,11 @@ typedef AJ_Status (*AJCFG_Restart)(void);
 /**
  * actions to perform when a new device passcode is set
  * @param daemonRealm
- * @param newStringPasscode
+ * @param newPasscode
+ * @param newPasscodeLen
  * @return status
  */
-typedef AJ_Status (*AJCFG_SetPasscode)(const char* daemonRealm, const char* newStringPasscode);
+typedef AJ_Status (*AJCFG_SetPasscode)(const char* daemonRealm, const uint8_t* newPasscode, uint8_t newPasscodeLen);
 
 /**
  * check whether the given value is valid for the given key

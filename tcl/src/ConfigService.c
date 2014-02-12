@@ -327,48 +327,27 @@ AJ_Status AJCFG_SetPasscodeHandler(AJ_Message* msg)
     if (status != AJ_OK) {
         return status;
     }
+    status = AJ_MarshalReplyMsg(msg, &reply);
+    if (status != AJ_OK) {
+        return status;
+    }
     if (newPasscode.typeId == AJ_ARG_BYTE) {
-        if (newPasscode.len <= AJSVC_PropertyStore_GetMaxValueLength(AJSVC_PROPERTY_STORE_PASSCODE)) { // Check passcode does not exceed limit
-            if (newPasscode.len > 0) { // Check passcode is not empty
-                AJ_Printf("newStringPasscode=%s\n", newPasscode.val.v_string);
-                status = AJ_MarshalReplyMsg(msg, &reply);
-                if (status != AJ_OK) {
-                    return status;
-                }
-                status = AJ_DeliverMsg(&reply);
-                if (status != AJ_OK) {
-                    return status;
-                }
-                if (appSetPasscode) {
-                    status = (appSetPasscode)(daemonRealm, newPasscode.val.v_string);
-                    if (status != AJ_OK) {
-                        return status;
-                    }
-                }
-            } else {
-                AJ_Printf("Error - newPasscode cannot be empty!\n");
-                AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_INVALID_VALUE);
-                status = AJ_DeliverMsg(&reply);
-                if (status != AJ_OK) {
-                    return status;
+        if (newPasscode.len > 0) { // Check passcode is not empty
+            if (appSetPasscode) {
+                status = (appSetPasscode)(daemonRealm, newPasscode.val.v_string, newPasscode.len);
+                if (status == AJ_ERR_RESOURCES) { // Check passcode is too long to persist
+                    AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_MAX_SIZE_EXCEEDED);
                 }
             }
         } else {
-            AJ_Printf("Error - newPasscode length %d > %d!\n", newPasscode.len, AJSVC_PropertyStore_GetMaxValueLength(AJSVC_PROPERTY_STORE_PASSCODE));
-            AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_MAX_SIZE_EXCEEDED);
-            status = AJ_DeliverMsg(&reply);
-            if (status != AJ_OK) {
-                return status;
-            }
+            AJ_Printf("Error - newPasscode cannot be empty!\n");
+            AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_INVALID_VALUE);
         }
     } else {
         AJ_Printf("Error - newPasscode is not an 'ay' rather type '%c'!\n", newPasscode.typeId);
         AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_INVALID_VALUE);
-        status = AJ_DeliverMsg(&reply);
-        if (status != AJ_OK) {
-            return status;
-        }
     }
+    status = AJ_DeliverMsg(&reply);
 
     return status;
 }
