@@ -21,7 +21,7 @@
 #include "../common/NotificationReceiverTestImpl.h"
 #include "CommonSampleUtil.h"
 #include <alljoyn/about/AnnouncementRegistrar.h>
-#include <alljoyn/notification/LogModule.h>
+#include <alljoyn/services_common/LogModulesNames.h>
 
 using namespace ajn;
 using namespace services;
@@ -87,7 +87,7 @@ int main()
 #endif
 
     // change loglevel to debug:
-    QCC_SetDebugLevel(QCC_MODULE, ALL_LOG_LEVELS);
+    QCC_SetDebugLevel(logModules::NOTIFICATION_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
 
     Receiver = new NotificationReceiverTestImpl(false);
 

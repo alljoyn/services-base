@@ -20,7 +20,6 @@
 #include "NotificationConstants.h"
 #include <alljoyn/services_common/AsyncTaskQueue.h>
 #include <alljoyn/notification/NotificationAsyncTaskEvents.h>
-#include <qcc/Debug.h>
 #include <qcc/Log.h>
 #include <qcc/String.h>
 #include <alljoyn/notification/LogModule.h>
