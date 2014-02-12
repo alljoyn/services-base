@@ -504,21 +504,27 @@ AJ_Status AJSVC_PropertyStore_ReadAll(AJ_Message* msg, AJSVC_PropertyStoreCatego
 #ifdef CONFIG_SERVICE
 AJ_Status AJSVC_PropertyStore_Update(const char* key, int8_t langIndex, const char* value)
 {
-    if (UpdateFieldInRAM(AJSVC_PropertyStore_GetIndexOfFieldName(key), langIndex, value)) {
-        return AJ_OK;
+    AJSVC_PropertyStoreFieldIndices fieldIndex = AJSVC_PropertyStore_GetIndexOfFieldName(key);
+    if (fieldIndex == AJSVC_PROPERTY_STORE_ERROR_FIELD_INDEX) {
+        return AJ_ERR_INVALID;
     }
-
-    return AJ_ERR_FAILURE;
+    if (!UpdateFieldInRAM(fieldIndex, langIndex, value)) {
+        return AJ_ERR_FAILURE;
+    }
+    return AJ_OK;
 }
 
 AJ_Status AJSVC_PropertyStore_Reset(const char* key, int8_t langIndex)
 {
-    if (DeleteFieldFromRAM(AJSVC_PropertyStore_GetIndexOfFieldName(key), langIndex)) {
-        InitMandatoryPropertiesInRAM();
-        return AJ_OK;
+    AJSVC_PropertyStoreFieldIndices fieldIndex = AJSVC_PropertyStore_GetIndexOfFieldName(key);
+    if (fieldIndex == AJSVC_PROPERTY_STORE_ERROR_FIELD_INDEX) {
+        return AJ_ERR_INVALID;
     }
-
-    return AJ_ERR_FAILURE;
+    if (!DeleteFieldFromRAM(fieldIndex, langIndex)) {
+        return AJ_ERR_FAILURE;
+    }
+    InitMandatoryPropertiesInRAM();
+    return AJ_OK;
 }
 
 AJ_Status AJSVC_PropertyStore_ResetAll()
