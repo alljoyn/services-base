@@ -15,20 +15,17 @@
  ******************************************************************************/
 
 #include <algorithm>
-#include <sstream>
 #include <alljoyn/notification/NotificationSender.h>
 #include <alljoyn/notification/NotificationService.h>
-#include <alljoyn/services_common/ServicesLoggerImpl.h>
 #include "NotificationConstants.h"
 #include "Transport.h"
 #include "NotificationProducerReceiver.h"
+#include <alljoyn/notification/LogModule.h>
 
 using namespace ajn;
 using namespace services;
 using namespace qcc;
 using namespace nsConsts;
-
-#define CALLBACKTAG "AllJoynInternal"
 
 NotificationService* NotificationService::s_Instance(NULL);
 uint16_t const NotificationService::NOTIFICATION_SERVICE_VERSION = 2;
@@ -41,11 +38,8 @@ NotificationService* NotificationService::getInstance()
     return s_Instance;
 }
 
-NotificationService::NotificationService() :
-    logger(0), TAG(TAG_NOTSERVICE)
+NotificationService::NotificationService()
 {
-    ServicesLoggerImpl* nsLogger = new ServicesLoggerImpl();
-    setLogger(nsLogger);
 }
 
 NotificationService::~NotificationService()
@@ -60,21 +54,15 @@ uint16_t NotificationService::getVersion()
 
 NotificationSender* NotificationService::initSend(BusAttachment* bus, PropertyStore* store)
 {
-    if (logger) {
-        logger->debug(TAG, "NotificationService::initSend");
-    }
+    QCC_DbgTrace(("NotificationService::initSend"));
 
     if (!bus) {
-        if (logger) {
-            logger->warn(TAG, "BusAttachment cannot be NULL");
-        }
+        QCC_DbgHLPrintf(("BusAttachment cannot be NULL"));
         return NULL;
     }
 
     if (!store) {
-        if (logger) {
-            logger->warn(TAG, "PropertyStore cannot be NULL");
-        }
+        QCC_DbgHLPrintf(("PropertyStore cannot be NULL"));
         return NULL;
     }
 
@@ -89,15 +77,11 @@ NotificationSender* NotificationService::initSend(BusAttachment* bus, PropertySt
     QStatus status;
 
     if ((status = store->ReadAll(0, PropertyStore::READ, configArgs[0]))) {
-        if (logger) {
-            logger->warn(TAG, "Error reading all in configuration data" + String(QCC_StatusText(status)));
-        }
+        QCC_LogError(status, ("Error reading all in configuration data"));
     }
 
     if ((status = configArgs[0].Get(AJPARAM_ARR_DICT_STR_VAR.c_str(), &configNum, &configEntries))) {
-        if (logger) {
-            logger->warn(TAG, "Error reading in configuration data" + String(QCC_StatusText(status)));
-        }
+        QCC_LogError(status, ("Error reading in configuration data"));
     }
 
     MsgArg appIdArg;
@@ -108,9 +92,7 @@ NotificationSender* NotificationService::initSend(BusAttachment* bus, PropertySt
 
         status = configEntries[i].Get(AJPARAM_DICT_STR_VAR.c_str(), &keyChar, &variant);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Error reading in configuration data" + String(QCC_StatusText(status)));
-            }
+            QCC_LogError(status, ("Error reading in configuration data"));
         }
 
         key = keyChar;
@@ -121,16 +103,12 @@ NotificationSender* NotificationService::initSend(BusAttachment* bus, PropertySt
     }
 
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Something went wrong unmarshalling the propertystore." + String(QCC_StatusText(status)));
-        }
+        QCC_LogError(status, ("Something went wrong unmarshalling the propertystore."));
         return NULL;
     }
 
     if (appIdArg.typeId != ALLJOYN_BYTE_ARRAY) {
-        if (logger) {
-            logger->warn(TAG, "ApplicationId argument is not correct type.");
-        }
+        QCC_DbgHLPrintf(("ApplicationId argument is not correct type."));
         return NULL;
     }
 
@@ -142,22 +120,16 @@ NotificationSender* NotificationService::initSend(BusAttachment* bus, PropertySt
 QStatus NotificationService::initReceive(ajn::BusAttachment* bus, NotificationReceiver* notificationReceiver)
 {
     if (!bus) {
-        if (logger) {
-            logger->warn(TAG, "BusAttachment cannot be NULL");
-        }
+        QCC_LogError(ER_BAD_ARG_1, ("BusAttachment cannot be NULL."));
         return ER_BAD_ARG_1;
     }
 
     if (!notificationReceiver) {
-        if (logger) {
-            logger->warn(TAG, "Could not set NotificationReceiver to null pointer");
-        }
+        QCC_LogError(ER_BAD_ARG_2, ("Could not set NotificationReceiver to null pointer"));
         return ER_BAD_ARG_2;
     }
 
-    if (logger) {
-        logger->debug(TAG, "Init receive");
-    }
+    QCC_DbgPrintf(("Init receive"));
 
     Transport* transport = Transport::getInstance();
     transport->setNotificationReceiver(notificationReceiver);
@@ -172,27 +144,21 @@ QStatus NotificationService::initReceive(ajn::BusAttachment* bus, NotificationRe
 
 void NotificationService::shutdownSender()
 {
-    if (logger) {
-        logger->debug(TAG, "Stop Sender");
-    }
+    QCC_DbgTrace(("Stop Sender"));
     Transport* transport = Transport::getInstance();
     transport->cleanupSenderTransport();
 }
 
 void NotificationService::shutdownReceiver()
 {
-    if (logger) {
-        logger->debug(TAG, "Stop Receiver");
-    }
+    QCC_DbgTrace(("Stop Receiver"));
     Transport* transport = Transport::getInstance();
     transport->cleanupReceiverTransport();
 }
 
 void NotificationService::shutdown()
 {
-    if (logger) {
-        logger->debug(TAG, "Shutdown");
-    }
+    QCC_DbgTrace(("Shutdown"));
     Transport* transport = Transport::getInstance();
     transport->cleanup();
 
@@ -202,9 +168,7 @@ void NotificationService::shutdown()
 
 QStatus NotificationService::disableSuperAgent()
 {
-    if (logger) {
-        logger->debug(TAG, "Disabling SuperAgent");
-    }
+    QCC_DbgTrace(("Disabling SuperAgent"));
     Transport* transport = Transport::getInstance();
     return transport->disableSuperAgent();
 }
@@ -212,83 +176,7 @@ QStatus NotificationService::disableSuperAgent()
 
 BusAttachment* NotificationService::getBusAttachment()
 {
-    if (logger) {
-        logger->debug(TAG, "In Get BusAttachment");
-    }
+    QCC_DbgTrace(("In Get BusAttachment"));
     Transport* transport = Transport::getInstance();
     return transport->getBusAttachment();
-}
-
-GenericLogger* NotificationService::setLogger(GenericLogger* newLogger)
-{
-    GenericLogger* prevLogger = getLogger();
-    Log::LogLevel prevLogLevel = getLogLevel();
-    logger = newLogger;
-    if (logger) {
-        setLogLevel(prevLogLevel);
-        // reroute internal AJ logging to logger
-        ServicesLoggerImpl::RegisterCallBack(logger, &GenericLoggerCallBack, NULL);
-    }
-    return prevLogger;
-}
-
-GenericLogger* NotificationService::getLogger()
-{
-    return logger;
-}
-
-Log::LogLevel NotificationService::setLogLevel(Log::LogLevel newLogLevel)
-{
-    return logger ? logger->setLogLevel(newLogLevel) : ServicesLoggerImpl::getDefaultLogLevel();
-}
-
-Log::LogLevel NotificationService::getLogLevel()
-{
-    return logger ? logger->getLogLevel() : ServicesLoggerImpl::getDefaultLogLevel();
-}
-
-void NotificationService::GenericLoggerCallBack(DbgMsgType type, const char* module, const char* msg, void* context)
-{
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        Log::LogLevel currLogLevel = logger->getLogLevel();
-        switch (type) {
-        case DBG_LOCAL_ERROR:
-        case DBG_REMOTE_ERROR:
-            if (currLogLevel >= Log::LEVEL_ERROR) {
-                logger->error(CALLBACKTAG, msg);
-            }
-            break;
-
-        case DBG_GEN_MESSAGE:
-            if (currLogLevel >= Log::LEVEL_INFO) {
-                logger->info(CALLBACKTAG, msg);
-            }
-            break;
-
-        case DBG_API_TRACE:
-            if (currLogLevel >= Log::LEVEL_DEBUG) {
-                logger->debug(CALLBACKTAG, msg);
-            }
-            break;
-
-        case DBG_HIGH_LEVEL:
-            if (currLogLevel >= Log::LEVEL_WARN) {
-                logger->warn(CALLBACKTAG, msg);
-            }
-            break;
-
-        case DBG_REMOTE_DATA:
-        case DBG_LOCAL_DATA:
-            if (currLogLevel >= Log::LEVEL_DEBUG) {
-                logger->debug(CALLBACKTAG, msg);
-            }
-            break;
-
-        default:
-            if (currLogLevel >= Log::LEVEL_DEBUG) {
-                logger->debug(CALLBACKTAG, msg);
-            }
-        }
-    }
 }

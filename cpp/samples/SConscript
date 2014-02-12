@@ -18,7 +18,6 @@ samples_env = nsenv.Clone()
 
 samples_env.Append(CPPPATH = samples_env.Dir('common').srcnode())
 samples_env.Append(CPPPATH = samples_env.Dir('$APP_COMMON_DIR/cpp/samples_common').srcnode())
-samples_env.Append(CPPDEFINES = 'USE_SAMPLE_LOGGER')
 samples_env.Prepend(LIBS = ['alljoyn_notification', 'alljoyn_about', 'alljoyn_services_common'])
 
 if samples_env['BR'] == 'on' and samples_env.has_key('brobj') and samples_env.has_key('ajrlib'):

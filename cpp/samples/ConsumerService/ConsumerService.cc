@@ -15,18 +15,13 @@
  ******************************************************************************/
 
 #include <iostream>
-#include <sstream>
 #include <signal.h>
 #include <alljoyn/PasswordManager.h>
 #include <alljoyn/notification/NotificationService.h>
-#include <alljoyn/services_common/GenericLogger.h>
 #include "../common/NotificationReceiverTestImpl.h"
 #include "CommonSampleUtil.h"
 #include <alljoyn/about/AnnouncementRegistrar.h>
-
-#ifdef USE_SAMPLE_LOGGER
-#include "../common/SampleLogger.h"
-#endif
+#include <alljoyn/notification/LogModule.h>
 
 using namespace ajn;
 using namespace services;
@@ -35,10 +30,6 @@ NotificationService* conService = 0;
 NotificationReceiverTestImpl* Receiver = 0;
 ajn::BusAttachment* busAttachment = 0;
 static volatile sig_atomic_t s_interrupt = false;
-
-#ifdef USE_SAMPLE_LOGGER
-SampleLogger* myLogger;
-#endif
 
 void cleanup()
 {
@@ -52,11 +43,6 @@ void cleanup()
     if (busAttachment) {
         delete busAttachment;
     }
-#ifdef USE_SAMPLE_LOGGER
-    if (myLogger) {
-        delete myLogger;
-    }
-#endif
     std::cout << "cleanup() - end" << std::endl;
 }
 
@@ -100,13 +86,8 @@ int main()
     PasswordManager::SetCredentials("ALLJOYN_PIN_KEYX", "000000");
 #endif
 
-#ifdef USE_SAMPLE_LOGGER
-    /* Optionally implement your own logger and instantiate it here */
-    myLogger = new SampleLogger();
-    conService->setLogger(myLogger);
-#endif
     // change loglevel to debug:
-    conService->getLogger()->setLogLevel(Log::LEVEL_DEBUG);
+    QCC_SetDebugLevel(QCC_MODULE, ALL_LOG_LEVELS);
 
     Receiver = new NotificationReceiverTestImpl(false);
 

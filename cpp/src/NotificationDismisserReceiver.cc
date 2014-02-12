@@ -19,9 +19,9 @@
 #include "NotificationDismisserReceiver.h"
 #include "NotificationConstants.h"
 #include "Transport.h"
-#include <sstream>
 #include <alljoyn/MsgArg.h>
 #include <alljoyn/services_common/Conversions.h>
+#include <alljoyn/notification/LogModule.h>
 
 using namespace ajn;
 using namespace services;
@@ -31,10 +31,7 @@ using namespace qcc;
 NotificationDismisserReceiver::NotificationDismisserReceiver(BusAttachment* bus, QStatus& status) :
     NotificationDismisser(bus, AJ_NOTIFICATION_DISMISSER_PATH, status), m_IsStopping(false)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug(TAG, "NotificationDismisserReceiver::NotificationDismisserReceiver() - called()");
-    }
+    QCC_DbgTrace(("NotificationDismisserReceiver::NotificationDismisserReceiver() - called()"));
 
     /**
      * Do not add code until the status that returned from the base class is verified.
@@ -50,23 +47,21 @@ NotificationDismisserReceiver::NotificationDismisserReceiver(BusAttachment* bus,
                                          static_cast<MessageReceiver::SignalHandler>(&NotificationDismisserReceiver::Signal),
                                          m_SignalMethod,
                                          NULL);
-    if (logger) {
-        if (status != ER_OK) {
-            logger->warn(TAG, "Could not register the SignalHandler");
-        } else {
-            logger->debug(TAG, "Registered the SignalHandler successfully");
-        }
+
+    if (status != ER_OK) {
+        QCC_LogError(status, ("Could not register the SignalHandler"));
+    } else {
+        QCC_DbgPrintf(("Registered the SignalHandler successfully"));
     }
+
     pthread_create(&m_ReceiverThread, NULL, ReceiverThreadWrapper, this);
 }
 
 
 void NotificationDismisserReceiver::Signal(const InterfaceDescription::Member* member, const char* srcPath, Message& msg)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug(TAG, "Received dismisser signal.");
-    }
+    QCC_DbgPrintf(("Received dismisser signal."));
+
     pthread_mutex_lock(&m_Lock);
     m_MessageQueue.push(msg);
     pthread_cond_signal(&m_QueueChanged);
@@ -105,16 +100,13 @@ void* NotificationDismisserReceiver::ReceiverThreadWrapper(void* context)
 
 void NotificationDismisserReceiver::ReceiverThread()
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
     pthread_mutex_lock(&m_Lock);
     while (!m_IsStopping) {
         while (!m_MessageQueue.empty()) {
             Message message = m_MessageQueue.front();
             m_MessageQueue.pop();
             pthread_mutex_unlock(&m_Lock);
-            if (logger) {
-                logger->debug(TAG, "ReceiverThread() - got a dismiss message.");
-            }
+            QCC_DbgPrintf(("ReceiverThread() - got a dismiss message."));
             int32_t msgId;
             qcc::String appId;
             QStatus status = UnmarshalMessage(message, msgId, appId);
@@ -131,7 +123,6 @@ void NotificationDismisserReceiver::ReceiverThread()
 QStatus NotificationDismisserReceiver::UnmarshalMessage(Message& in_message, int32_t& msgId, qcc::String& appId)
 {
     QStatus status = ER_OK;
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
     const MsgArg* messageIdArg = in_message.unwrap()->GetArg(0);
     const MsgArg* appIdArg = in_message.unwrap()->GetArg(1);
 
@@ -143,27 +134,21 @@ QStatus NotificationDismisserReceiver::UnmarshalMessage(Message& in_message, int
     //unmarshal messageid
     if (messageIdArg->typeId != ALLJOYN_INT32) {
         status = ER_BUS_BAD_VALUE_TYPE;
-        if (logger) {
-            logger->debug(TAG, "UnmarshalMessage() - bad type to unmarshal.");
-        }
+        QCC_LogError(status, ("UnmarshalMessage() - bad type to unmarshal."));
         return status;
     }
     status = messageIdArg->Get(AJPARAM_INT.c_str(), &msgId);
     if (status != ER_OK) {
-        if (logger) {
-            logger->debug(TAG, "UnmarshalMessage() - failed to get parameter.");
-        }
+        QCC_LogError(status, ("UnmarshalMessage() - failed to get parameter."));
         return status;
     }
 
     //Unmarshal appId
     uint8_t* appIdBin = NULL;
     size_t len;
-    status = Conversions::MsgArgToArrayOfBytes(appIdArg, &appIdBin, &len, logger);
+    status = Conversions::MsgArgToArrayOfBytes(appIdArg, &appIdBin, &len, NULL);
     if (status != ER_OK) {
-        if (logger) {
-            logger->debug(TAG, "UnmarshalMessage() - failed to get array of bytes.");
-        }
+        QCC_LogError(status, ("UnmarshalMessage() - failed to get array of bytes."));
         return status;
     }
 

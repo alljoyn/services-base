@@ -20,7 +20,10 @@
 #include "NotificationConstants.h"
 #include <alljoyn/services_common/AsyncTaskQueue.h>
 #include <alljoyn/notification/NotificationAsyncTaskEvents.h>
-#include <sstream>
+#include <qcc/Debug.h>
+#include <qcc/Log.h>
+#include <qcc/String.h>
+#include <alljoyn/notification/LogModule.h>
 
 using namespace ajn;
 using namespace services;
@@ -28,9 +31,6 @@ using namespace qcc;
 
 NotificationAsyncTaskEvents Notification::m_NotificationAsyncTaskEvents;
 AsyncTaskQueue Notification::m_AsyncTaskQueue(&Notification::m_NotificationAsyncTaskEvents);
-
-const char* TAG = "Notification";
-String Notification::TAG(nsConsts::TAG_NOTIFICATION);
 
 Notification::Notification(int32_t messageId,
                            NotificationMessageType messageType, const char* deviceId, const char* deviceName,
@@ -40,23 +40,92 @@ Notification::Notification(int32_t messageId,
                            const char* richIconUrl, std::vector<RichAudioUrl> const&  richAudioUrl,
                            const char* richIconObjectPath, const char* richAudioObjectPath,
                            const char* controlPanelServiceObjectPath, const char* originalSender) :
-    m_MessageId(messageId), m_Sender(sender), m_MessageType(messageType), m_DeviceId(deviceId),
-    m_DeviceName(deviceName), m_AppId(appId), m_AppName(appName), m_CustomAttributes(customAttributes),
-    m_Text(notificationText), m_RichIconUrl(richIconUrl), m_RichAudioUrl(richAudioUrl), m_RichIconObjectPath(richIconObjectPath),
-    m_RichAudioObjectPath(richAudioObjectPath), m_ControlPanelServiceObjectPath(controlPanelServiceObjectPath), m_OriginalSender(originalSender)
+    m_MessageId(messageId), m_Sender(0), m_MessageType(messageType), m_DeviceId(0),
+    m_DeviceName(0), m_AppId(0), m_AppName(0), m_CustomAttributes(customAttributes),
+    m_Text(notificationText), m_RichIconUrl(0), m_RichAudioUrl(richAudioUrl), m_RichIconObjectPath(0),
+    m_RichAudioObjectPath(0), m_ControlPanelServiceObjectPath(0), m_OriginalSender(0)
 {
+    setDeviceId(deviceId);
+    setDeviceName(deviceName);
+    setAppId(appId);
+    setAppName(appName);
+    setSender(sender);
+    setRichIconUrl(richIconUrl);
+    setRichIconObjectPath(richIconObjectPath);
+    setRichAudioObjectPath(richAudioObjectPath);
+    setControlPanelServiceObjectPath(controlPanelServiceObjectPath);
+    setOriginalSender(originalSender);
 }
 
 Notification::Notification(NotificationMessageType messageType, std::vector<NotificationText> const& notificationText) :
-    m_MessageId(-1), m_Sender(0), m_MessageType(messageType), m_DeviceId(0),
-    m_DeviceName(0), m_AppId(0), m_AppName(0), m_Text(notificationText), m_RichIconUrl(0), m_RichIconObjectPath(0),
+    m_MessageId(-1), m_Sender(0),  m_MessageType(messageType), m_DeviceId(0), m_DeviceName(0), m_AppId(0), m_AppName(0), m_Text(notificationText), m_RichIconUrl(0),  m_RichIconObjectPath(0),
     m_RichAudioObjectPath(0), m_ControlPanelServiceObjectPath(0), m_OriginalSender(0)
+
 {
+}
+
+Notification::Notification(const Notification& notification)
+{
+    m_Sender = NULL;
+    m_DeviceId = NULL;
+    m_DeviceName = NULL;
+    m_AppId = NULL;
+    m_AppName = NULL;
+    m_RichIconUrl = NULL;
+    m_RichIconObjectPath = NULL;
+    m_RichAudioObjectPath = NULL;
+    m_ControlPanelServiceObjectPath = NULL;
+    m_OriginalSender = NULL;
+
+    setDeviceId(notification.getDeviceId());
+    setDeviceName(notification.getDeviceName());
+    setAppId(notification.getAppId());
+    setAppName(notification.getAppName());
+    setSender(notification.getSenderBusName());
+    setRichIconUrl(notification.getRichIconUrl());
+    setRichIconObjectPath(notification.getRichIconObjectPath());
+    setRichAudioObjectPath(notification.getRichAudioObjectPath());
+    setControlPanelServiceObjectPath(notification.getControlPanelServiceObjectPath());
+    setOriginalSender(notification.getOriginalSender());
+
+    m_CustomAttributes = notification.m_CustomAttributes;
+    m_MessageId = notification.m_MessageId;
+    m_MessageType = notification.m_MessageType;
+    m_Text = notification.m_Text;
+    m_RichAudioUrl = notification.m_RichAudioUrl;
 }
 
 Notification::~Notification()
 {
+    delete m_Sender;
+    m_Sender = NULL;
 
+    delete m_DeviceId;
+    m_DeviceId = NULL;
+
+    delete m_DeviceName;
+    m_DeviceName = NULL;
+
+    delete m_AppId;
+    m_AppId = NULL;
+
+    delete m_AppName;
+    m_AppName = NULL;
+
+    delete m_RichIconUrl;
+    m_RichIconUrl = NULL;
+
+    delete m_RichIconObjectPath;
+    m_RichIconObjectPath = NULL;
+
+    delete m_RichAudioObjectPath;
+    m_RichAudioObjectPath = NULL;
+
+    delete m_ControlPanelServiceObjectPath;
+    m_ControlPanelServiceObjectPath = NULL;
+
+    delete m_OriginalSender;
+    m_OriginalSender = NULL;
 }
 
 const uint16_t Notification::getVersion() const
@@ -66,22 +135,34 @@ const uint16_t Notification::getVersion() const
 
 const char* Notification::getDeviceId() const
 {
-    return m_DeviceId;
+    if (m_DeviceId == NULL) {
+        return NULL;
+    }
+    return m_DeviceId->c_str();
 }
 
 const char* Notification::getDeviceName() const
 {
-    return m_DeviceName;
+    if (m_DeviceName == NULL) {
+        return NULL;
+    }
+    return m_DeviceName->c_str();
 }
 
 const char* Notification::getAppId() const
 {
-    return m_AppId;
+    if (m_AppId == NULL) {
+        return NULL;
+    }
+    return m_AppId->c_str();
 }
 
 const char* Notification::getAppName() const
 {
-    return m_AppName;
+    if (m_AppName == NULL) {
+        return NULL;
+    }
+    return m_AppName->c_str();
 }
 
 const std::map<qcc::String, qcc::String>& Notification::getCustomAttributes() const
@@ -101,7 +182,10 @@ const std::vector<NotificationText>& Notification::getText() const
 
 const char* Notification::getSenderBusName() const
 {
-    return m_Sender;
+    if (m_Sender == NULL) {
+        return NULL;
+    }
+    return m_Sender->c_str();
 }
 
 const NotificationMessageType Notification::getMessageType() const
@@ -111,17 +195,26 @@ const NotificationMessageType Notification::getMessageType() const
 
 const char* Notification::getRichIconUrl() const
 {
-    return m_RichIconUrl;
+    if (m_RichIconUrl == NULL) {
+        return NULL;
+    }
+    return m_RichIconUrl->c_str();
 }
 
 const char* Notification::getRichIconObjectPath() const
 {
-    return m_RichIconObjectPath;
+    if (m_RichIconObjectPath == NULL) {
+        return NULL;
+    }
+    return m_RichIconObjectPath->c_str();
 }
 
 const char* Notification::getRichAudioObjectPath() const
 {
-    return m_RichAudioObjectPath;
+    if (m_RichAudioObjectPath == NULL) {
+        return NULL;
+    }
+    return m_RichAudioObjectPath->c_str();
 }
 
 const std::vector<RichAudioUrl>& Notification::getRichAudioUrl() const
@@ -131,25 +224,61 @@ const std::vector<RichAudioUrl>& Notification::getRichAudioUrl() const
 
 const char* Notification::getControlPanelServiceObjectPath() const
 {
-    return m_ControlPanelServiceObjectPath;
+    if (m_ControlPanelServiceObjectPath == NULL) {
+        return NULL;
+    }
+    return m_ControlPanelServiceObjectPath->c_str();
 }
 
 const char* Notification::getOriginalSender() const
 {
-    return m_OriginalSender;
+    if (m_OriginalSender == NULL) {
+        return NULL;
+    }
+    return m_OriginalSender->c_str();
 }
 
 void Notification::setAppId(const char* appId) {
-    m_AppId = appId;
+    if (appId == NULL) {
+        delete m_AppId;
+        m_AppId = NULL;
+        return;
+    }
+
+    if (!m_AppId) {
+        m_AppId = new qcc::String(appId);
+    } else {
+        m_AppId->assign(appId);
+    }
 }
 
 void Notification::setAppName(const char* appName) {
-    m_AppName = appName;
+    if (appName == NULL) {
+        delete m_AppName;
+        m_AppName = NULL;
+        return;
+    }
+
+    if (!m_AppName) {
+        m_AppName = new qcc::String(appName);
+    } else {
+        m_AppName->assign(appName);
+    }
 }
 
 void Notification::setControlPanelServiceObjectPath(
     const char* controlPanelServiceObjectPath) {
-    m_ControlPanelServiceObjectPath = controlPanelServiceObjectPath;
+    if (controlPanelServiceObjectPath == NULL) {
+        delete m_ControlPanelServiceObjectPath;
+        m_ControlPanelServiceObjectPath = NULL;
+        return;
+    }
+
+    if (!m_ControlPanelServiceObjectPath) {
+        m_ControlPanelServiceObjectPath = new qcc::String(controlPanelServiceObjectPath);
+    } else {
+        m_ControlPanelServiceObjectPath->assign(controlPanelServiceObjectPath);
+    }
 }
 
 void Notification::setCustomAttributes(
@@ -158,11 +287,45 @@ void Notification::setCustomAttributes(
 }
 
 void Notification::setDeviceId(const char* deviceId) {
-    m_DeviceId = deviceId;
+    if (deviceId == NULL) {
+        delete m_DeviceId;
+        m_DeviceId = NULL;
+        return;
+    }
+
+    if (!m_DeviceId) {
+        m_DeviceId = new qcc::String(deviceId);
+    } else {
+        m_DeviceId->assign(deviceId);
+    }
 }
 
 void Notification::setDeviceName(const char* deviceName) {
-    m_DeviceName = deviceName;
+    if (deviceName == NULL) {
+        delete m_DeviceName;
+        m_DeviceName = NULL;
+        return;
+    }
+
+    if (!m_DeviceName) {
+        m_DeviceName = new qcc::String(deviceName);
+    } else {
+        m_DeviceName->assign(deviceName);
+    }
+}
+
+void Notification::setOriginalSender(const char* originalSender) {
+    if (originalSender == NULL) {
+        delete m_OriginalSender;
+        m_OriginalSender = NULL;
+        return;
+    }
+
+    if (!m_OriginalSender) {
+        m_OriginalSender = new qcc::String(originalSender);
+    } else {
+        m_OriginalSender->assign(originalSender);
+    }
 }
 
 void Notification::setMessageId(int32_t messageId) {
@@ -175,33 +338,64 @@ void Notification::setRichAudioUrl(
 }
 
 void Notification::setRichIconUrl(const char* richIconUrl) {
-    m_RichIconUrl = richIconUrl;
+    if (richIconUrl == NULL) {
+        delete m_RichIconUrl;
+        m_RichIconUrl = NULL;
+        return;
+    }
+
+    if (!m_RichIconUrl) {
+        m_RichIconUrl = new qcc::String(richIconUrl);
+    } else {
+        m_RichIconUrl->assign(richIconUrl);
+    }
 }
 
 void Notification::setRichIconObjectPath(const char* richIconObjectPath) {
-    m_RichIconObjectPath = richIconObjectPath;
+    if (richIconObjectPath == NULL) {
+        delete m_RichIconObjectPath;
+        m_RichIconObjectPath = NULL;
+        return;
+    }
+
+    if (!m_RichIconObjectPath) {
+        m_RichIconObjectPath = new qcc::String(richIconObjectPath);
+    } else {
+        m_RichIconObjectPath->assign(richIconObjectPath);
+    }
 }
 
 void Notification::setRichAudioObjectPath(const char* richAudioObjectPath) {
-    m_RichAudioObjectPath = richAudioObjectPath;
+    if (richAudioObjectPath == NULL) {
+        delete m_RichAudioObjectPath;
+        m_RichAudioObjectPath = NULL;
+        return;
+    }
+
+    if (!m_RichAudioObjectPath) {
+        m_RichAudioObjectPath = new qcc::String(richAudioObjectPath);
+    } else {
+        m_RichAudioObjectPath->assign(richAudioObjectPath);
+    }
 }
 
 void Notification::setSender(const char* sender) {
-    m_Sender = sender;
+    if (sender == NULL) {
+        delete m_Sender;
+        m_Sender = NULL;
+        return;
+    }
+
+    if (!m_Sender) {
+        m_Sender = new qcc::String(sender);
+    } else {
+        m_Sender->assign(sender);
+    }
 }
 
 QStatus Notification::dismiss()
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        std::ostringstream stm;
-        stm << "Notification::dismiss() called";
-        stm << " OriginalSender:" << const_cast<char*>(getOriginalSender());
-        stm << " MessageId:" << getMessageId();
-        stm << " AppId:" << const_cast<char*>(getAppId());
-
-        logger->debug(TAG, String(std::string(stm.str()).c_str()));
-    }
+    QCC_DbgPrintf(("Notification::dismiss() called OriginalSender:%s MessageId:%d AppId:%s", getOriginalSender(), getMessageId(), getAppId()));
 
     NotificationMsg* notificationMsg = new NotificationMsg(getOriginalSender(), getMessageId(), getAppId());
     m_AsyncTaskQueue.Enqueue(notificationMsg);

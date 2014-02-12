@@ -24,15 +24,11 @@
 #include <alljoyn/notification/NotificationEnums.h>
 #include <alljoyn/notification/NotificationText.h>
 #include <alljoyn/notification/RichAudioUrl.h>
-#include <alljoyn/services_common/GenericLogger.h>
 #include "CommonSampleUtil.h"
 #include <alljoyn/notification/Notification.h>
 #include <GuidUtil.h>
 #include <stdio.h>
-
-#ifdef USE_SAMPLE_LOGGER
-#include "../common/SampleLogger.h"
-#endif
+#include <alljoyn/notification/LogModule.h>
 
 #define SERVICE_PORT 900
 
@@ -41,7 +37,6 @@ using namespace services;
 using namespace qcc;
 
 NotificationService* prodService = 0;
-SampleLogger* myLogger = 0;
 BusAttachment* bus = 0;
 CommonBusListener* notificationBusListener = 0;
 AboutPropertyStoreImpl* propertyStoreImpl = 0;
@@ -302,11 +297,6 @@ void cleanup()
     if (prodService) {
         prodService->shutdown();
     }
-#ifdef USE_SAMPLE_LOGGER
-    if (myLogger) {
-        delete myLogger;
-    }
-#endif
     if (Sender) {
         delete Sender;
     }
@@ -346,14 +336,7 @@ int main()
     PasswordManager::SetCredentials("ALLJOYN_PIN_KEYX", "000000");
 #endif
 
-#ifdef USE_SAMPLE_LOGGER
-    /* Optionally implement your own logger and instantiate it here */
-    myLogger = new SampleLogger();
-    prodService->setLogger(myLogger);
-#endif
-
-    // change loglevel to debug:
-    prodService->getLogger()->setLogLevel(Log::LEVEL_DEBUG);
+    QCC_SetDebugLevel(QCC_MODULE, ALL_LOG_LEVELS);
 
     std::cout << "Begin Producer Application. (Press CTRL+C to end application)" << std::endl;
 
@@ -440,20 +423,22 @@ int main()
             std::cout << "Notification sent with ttl of " << ttl << std::endl;
         }
 
-        int c;
+        std::string input;
         do {
             std::cout << "To delete the bus connection and start again please push 'c' character:" << std::endl;
-            c = getchar();
-            putchar(c);
-        } while (c != 'c');
+            getline(std::cin, input);
+        } while (input != "c");
 
         prodService->shutdownSender();
         if (Sender) {
+            std::cout << "Going to delete Sender" << std::endl;
             delete Sender;
             Sender = 0;
         }
 
+        std::cout << "Going to call aboutServiceDestroy" << std::endl;
         CommonSampleUtil::aboutServiceDestroy(bus, notificationBusListener);
+        std::cout << "Going to sleep:" << sleepTime << std::endl;
         sleep(sleepTime);
     }
 

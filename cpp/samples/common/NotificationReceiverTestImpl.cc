@@ -19,8 +19,8 @@
 #include <alljoyn/notification/RichAudioUrl.h>
 #include <alljoyn/Status.h>
 #include <iostream>
-#include <sstream>
 #include <algorithm>
+#include <sstream>
 
 using namespace ajn;
 using namespace services;
@@ -114,7 +114,7 @@ void NotificationReceiverTestImpl::Receive(Notification const& notification) {
 
         std::cout << "******************** End New Message Received ********************" << std::endl << std::endl;
 
-        Notification& nonConstNotification = const_cast<Notification&>(notification);
+        Notification nonConstNotification(notification);
 
         if (m_WaitForExternalNotificationAction) {
             pthread_mutex_lock(&m_Lock);

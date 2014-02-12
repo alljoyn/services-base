@@ -15,9 +15,9 @@
  ******************************************************************************/
 
 #include <alljoyn/notification/NotificationService.h>
-
 #include "NotificationTransport.h"
 #include "NotificationConstants.h"
+#include <alljoyn/notification/LogModule.h>
 
 using namespace ajn;
 using namespace services;
@@ -28,8 +28,6 @@ NotificationTransport::NotificationTransport(ajn::BusAttachment* bus,
                                              qcc::String const& servicePath, QStatus& status, String const& interfaceName, String const& tag) :
     BusObject(servicePath.c_str()), m_SignalMethod(0), TAG(tag)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-
     InterfaceDescription* intf = NULL;
     status = bus->CreateInterface(interfaceName.c_str(), intf);
 
@@ -40,24 +38,18 @@ NotificationTransport::NotificationTransport(ajn::BusAttachment* bus,
     } else if (status == ER_BUS_IFACE_ALREADY_EXISTS) {
         intf = (InterfaceDescription*) bus->GetInterface(interfaceName.c_str());
         if (!intf) {
-            if (logger) {
-                logger->warn(TAG, "Could not get interface");
-            }
             status = ER_BUS_UNKNOWN_INTERFACE;
+            QCC_LogError(status, ("Could not get interface"));
             return;
         }
     } else {
-        if (logger) {
-            logger->warn(TAG, "Could not create interface");
-        }
+        QCC_LogError(status, ("Could not create interface"));
         return;
     }
 
     status = AddInterface(*intf);
     if (status != ER_OK) {
-        if (logger) {
-            logger->debug(TAG, "Could not add interface");
-        }
+        QCC_LogError(status, ("Could not add interface"));
         return;
     }
 
@@ -72,15 +64,10 @@ NotificationTransport::~NotificationTransport()
 
 QStatus NotificationTransport::Get(const char* ifcName, const char* propName, MsgArg& val)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug(TAG, "Get property was called :\n");
-    }
+    QCC_DbgTrace(("Get property was called"));
 
     if (0 != strcmp(AJ_PROPERTY_VERSION.c_str(), propName)) {
-        if (logger) {
-            logger->warn(TAG, "Called for property different than version. Exiting :\n");
-        }
+        QCC_LogError(ER_BUS_NO_SUCH_PROPERTY, ("Called for property different than version."));
         return ER_BUS_NO_SUCH_PROPERTY;
     }
 

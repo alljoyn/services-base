@@ -18,8 +18,7 @@
 #include "Transport.h"
 #include "NotificationConstants.h"
 #include <alljoyn/notification/NotificationService.h>
-#include <iostream>
-#include <sstream>
+#include <alljoyn/notification/LogModule.h>
 
 using namespace ajn;
 using namespace services;
@@ -45,16 +44,7 @@ NotificationProducerSender::~NotificationProducerSender()
 
 QStatus NotificationProducerSender::Dismiss(const char* busName, ajn::SessionId sessionId, int32_t mgsId)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        std::ostringstream stm;
-        stm << "NotificationProducerSender::Dismiss ";
-        stm << "busName:" << busName << " ";
-        stm << "sessionId:" << sessionId << " ";
-        stm << "mgsId:" << mgsId;
-
-        logger->debug(TAG, String(std::string(stm.str()).c_str()));
-    }
+    QCC_DbgPrintf(("NotificationProducerSender::Dismiss busName:%s sessionId:%u mgsId:%d", busName, sessionId, mgsId));
 
     QStatus status = ER_OK;
     if (!m_InterfaceDescription) {
@@ -66,9 +56,7 @@ QStatus NotificationProducerSender::Dismiss(const char* busName, ajn::SessionId 
     }
     status = proxyBusObj->AddInterface(*m_InterfaceDescription);
     if (status != ER_OK) {
-        if (logger) {
-            logger->error(TAG, "MethodCallDismiss - AddInterface status=" + String(QCC_StatusText(status)));
-        }
+        QCC_LogError(status, ("MethodCallDismiss - AddInterface."));
         delete proxyBusObj;
         proxyBusObj = NULL;
         return status;
@@ -79,9 +67,7 @@ QStatus NotificationProducerSender::Dismiss(const char* busName, ajn::SessionId 
     args[0].Set(AJPARAM_INT.c_str(), mgsId);
     status = proxyBusObj->MethodCall(AJ_NOTIFICATION_PRODUCER_INTERFACE.c_str(), AJ_DISMISS_METHOD_NAME.c_str(), args, 1, replyMsg);
     if (status != ER_OK) {
-        if (logger) {
-            logger->error(TAG, "Dismiss - MethodCall status=" + String(QCC_StatusText(status)));
-        }
+        QCC_LogError(status, ("MethodCallDismiss - MethodCall."));
         delete proxyBusObj;
         proxyBusObj = NULL;
         return status;

@@ -18,6 +18,7 @@
 #include "NotificationAnnounceListener.h"
 #include "NotificationConstants.h"
 #include "Transport.h"
+#include <alljoyn/notification/LogModule.h>
 
 using namespace ajn;
 using namespace services;
@@ -35,10 +36,8 @@ NotificationAnnounceListener::~NotificationAnnounceListener()
 
 void NotificationAnnounceListener::Announce(uint16_t version, uint16_t port, const char* busName, const ObjectDescriptions& objectDescs, const AboutData& aboutData)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug(TAG, "Received Announce Signal");
-    }
+
+    QCC_DbgPrintf(("Received Announce Signal"));
 
     Transport::getInstance()->getBusAttachment()->EnableConcurrentCallbacks();
 
@@ -48,21 +47,15 @@ void NotificationAnnounceListener::Announce(uint16_t version, uint16_t port, con
 
         for (interfaceIter = interfaces.begin(); interfaceIter != interfaces.end(); ++interfaceIter) {
 
-            if (logger) {
-                logger->debug(TAG, "Received announce of interface " + *interfaceIter +
-                              " for objectpath " + it->first);
-            }
+            QCC_DbgPrintf((qcc::String("Received announce of interface " + *interfaceIter + " for objectpath " + it->first).c_str()));
 
             if (0 == interfaceIter->compare(AJ_SA_INTERFACE_NAME)) {
-                if (logger) {
-                    logger->debug(TAG, "Received announce of superAgent interface");
-                }
+                QCC_DbgPrintf((qcc::String("Received announce of superAgent interface").c_str()));
+
 
                 QStatus status = Transport::getInstance()->FindSuperAgent(busName);
                 if (status != ER_OK) {
-                    if (logger) {
-                        logger->debug(TAG, "FindAdvertisedName failed");
-                    }
+                    QCC_DbgPrintf((qcc::String("FindAdvertisedName failed").c_str()));
                 }
 
                 return;

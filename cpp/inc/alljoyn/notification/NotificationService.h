@@ -19,7 +19,6 @@
 
 #include <qcc/Debug.h>
 #include <alljoyn/BusAttachment.h>
-#include <alljoyn/services_common/GenericLogger.h>
 #include <alljoyn/notification/NotificationSender.h>
 #include <alljoyn/about/PropertyStore.h>
 
@@ -89,32 +88,6 @@ class NotificationService {
     QStatus disableSuperAgent();
 
     /**
-     * Receive GenericLogger* to use for logging
-     * @param logger Implementation of GenericLogger
-     * @return previous logger
-     */
-    GenericLogger* setLogger(GenericLogger* logger);
-
-    /**
-     * Get the currently-configured logger implementation
-     * @return logger Implementation of GenericLogger
-     */
-    GenericLogger* getLogger();
-
-    /**
-     * Set log level filter for subsequent logging messages
-     * @param newLogLevel enum value
-     * @return logLevel enum value that was in effect prior to this change
-     */
-    Log::LogLevel setLogLevel(Log::LogLevel newLogLevel);
-
-    /**
-     * Get log level filter value currently in effect
-     * @return logLevel enum value currently in effect
-     */
-    Log::LogLevel getLogLevel();
-
-    /**
      * Virtual method to get the busAttachment used in the service.
      */
     ajn::BusAttachment* getBusAttachment();
@@ -124,15 +97,6 @@ class NotificationService {
      * @return the NotificationService version
      */
     static uint16_t getVersion();
-
-    /**
-     * A callback passed to the Generic Logger when the default logger is replaced by a different logger
-     * @param type - message type
-     * @param module - module of the message
-     * @param msg - message
-     * @param context - context passed in by the application
-     */
-    static void GenericLoggerCallBack(DbgMsgType type, const char* module, const char* msg, void* context);
 
   private:
 
@@ -151,16 +115,6 @@ class NotificationService {
      * instance variable - NotificationServiceImpl is a singleton
      */
     static NotificationService* s_Instance;
-
-    /**
-     * Logger that is used in library
-     */
-    GenericLogger* logger;
-
-    /**
-     * Tag for logging
-     */
-    qcc::String TAG;
 };
 } //namespace services
 } //namespace ajn

@@ -17,12 +17,12 @@
 #include <alljoyn/notification/NotificationSender.h>
 #include <alljoyn/notification/NotificationService.h>
 #include <alljoyn/notification/Notification.h>
-#include <alljoyn/services_common/GenericLogger.h>
 
 #include "PayloadAdapter.h"
 #include "Transport.h"
 #include "NotificationConstants.h"
 #include <string.h>
+#include <alljoyn/notification/LogModule.h>
 
 using namespace ajn;
 using namespace services;
@@ -37,28 +37,19 @@ NotificationSender::NotificationSender(PropertyStore* propertyStore) :
 
 QStatus NotificationSender::send(Notification const& notification, uint16_t ttl)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug(TAG, "Send Message called");
-    }
+    QCC_DbgTrace(("Send Message called"));
 
     //Validations
     if (notification.getMessageType() < 0 || notification.getMessageType() >= MESSAGE_TYPE_CNT) {
-        if (logger) {
-            logger->warn(TAG, "MessageType sent is not a valid MessageType");
-        }
+        QCC_LogError(ER_BAD_ARG_1, ("MessageType sent is not a valid MessageType"));
         return ER_BAD_ARG_1;
     }
 
     if (notification.getText().size() == 0) {
-        if (logger) {
-            logger->warn(TAG, "There must be at least one notification defined");
-        }
+        QCC_LogError(ER_BAD_ARG_1, ("There must be at least one notification defined"));
         return ER_BAD_ARG_1;
     } else if ((TTL_MIN > ttl) || (ttl  > TTL_MAX)) {   // ttl value is not in range
-        if (logger) {
-            logger->warn(TAG, "TTL sent is not a valid TTL value");
-        }
+        QCC_LogError(ER_BAD_ARG_2, ("TTL sent is not a valid TTL value"));
         return ER_BAD_ARG_2;
     }
 
@@ -74,16 +65,11 @@ QStatus NotificationSender::send(Notification const& notification, uint16_t ttl)
 
 QStatus NotificationSender::deleteLastMsg(NotificationMessageType messageType)
 {
-    GenericLogger* logger = NotificationService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug(TAG, "Delete Last Message called");
-    }
+    QCC_DbgTrace(("Delete Last Message called"));
 
     //Validation
     if (messageType < 0 || messageType >= MESSAGE_TYPE_CNT) {
-        if (logger) {
-            logger->warn(TAG, "MessageType sent is not a valid MessageType");
-        }
+        QCC_LogError(ER_BAD_ARG_1, ("MessageType sent is not a valid MessageType"));
         return ER_BAD_ARG_1;
     }
 
