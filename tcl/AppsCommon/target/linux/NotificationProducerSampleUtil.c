@@ -190,8 +190,8 @@ void Producer_GetNotificationFromUser(AJNS_NotificationContent* notificationCont
             if (!(strcmp(buf, stringType) == 0)) {             //they do not match, it is not int
                 AJ_Printf("Ttl is not an integer value. Defaulting to %u\n", defaultTtl);
                 *ttl = defaultTtl;
-            } else if (*ttl < NOTIFICATION_TTL_MIN || NOTIFICATION_TTL_MAX < *ttl) {
-                AJ_Printf("Ttl is not in the range %u - %u. Defaulting to %u\n", NOTIFICATION_TTL_MIN, NOTIFICATION_TTL_MAX, defaultTtl);
+            } else if (*ttl < AJNS_NOTIFICATION_TTL_MIN || AJNS_NOTIFICATION_TTL_MAX < *ttl) {
+                AJ_Printf("Ttl is not in the range %u - %u. Defaulting to %u\n", AJNS_NOTIFICATION_TTL_MIN, AJNS_NOTIFICATION_TTL_MAX, defaultTtl);
                 *ttl = defaultTtl;
             }
         }
