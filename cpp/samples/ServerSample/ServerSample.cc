@@ -20,6 +20,7 @@
 #include <PropertyStoreImpl.h>
 #include <IniParser.h>
 #include <OptParser.h>
+#include <alljoyn/services_common/LogModulesNames.h>
 
 #include <alljoyn/about/AboutIconService.h>
 #include <alljoyn/about/AboutServiceApi.h>
@@ -483,8 +484,7 @@ int main(int argc, char**argv, char**envArg) {
 #ifdef _NOTIFICATION_
     // Initialize Service object and Sender Object
     prodService = NotificationService::getInstance();
-    prodService->setLogLevel(Log::LogLevel::LEVEL_DEBUG);
-
+    QCC_SetDebugLevel(logModules::NOTIFICATION_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
     sender = prodService->initSend(msgBus, propertyStoreImpl);
     if (!sender) {
         std::cout << "Could not initialize Sender - exiting application" << std::endl;
