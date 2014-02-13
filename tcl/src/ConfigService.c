@@ -14,8 +14,23 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+/**
+ * Per-module definition of the current module for debug logging.  Must be defined
+ * prior to first inclusion of aj_debug.h
+ */
+#define AJ_MODULE AJCFG
+#include <aj_debug.h>
+
 #include <alljoyn.h>
 #include <alljoyn/config/ConfigService.h>
+
+/**
+ * Turn on per-module debug printing by setting this variable to non-zero value
+ * (usually in debugger).
+ */
+#ifndef NDEBUG
+AJ_EXPORT uint8_t dbgAJCFG = 0;
+#endif
 
 /*
  * Message identifiers for the method calls this service implements
@@ -114,7 +129,7 @@ AJ_Status AJCFG_GetConfigurationsHandler(AJ_Message* msg)
     char* language;
     int8_t langIndex = AJSVC_PROPERTY_STORE_ERROR_LANGUAGE_INDEX;
 
-    AJ_Printf("GetConfigurations()\n");
+    AJ_InfoPrintf(("Handling GetConfigurations request\n"));
 
     AJSVC_PropertyStoreCategoryFilter filter;
     memset(&filter, 0, sizeof(AJSVC_PropertyStoreCategoryFilter));
@@ -179,13 +194,13 @@ AJ_Status AJCFG_UpdateConfigurationsHandler(AJ_Message* msg)
     int8_t langIndex = AJSVC_PROPERTY_STORE_ERROR_LANGUAGE_INDEX;
     uint8_t numOfUpdatedItems = 0;
 
-    AJ_Printf("UpdateConfigurations()\n");
+    AJ_InfoPrintf(("Handling UpdateConfigurations request\n"));
 
     status = AJ_UnmarshalArgs(msg, "s", &language);
     if (status != AJ_OK) {
         goto Exit;
     }
-    AJ_Printf("Lang=%s\n", language);
+    AJ_InfoPrintf(("Lang=%s\n", language));
     if (AJSVC_IsLanguageSupported(msg, &reply, language, &langIndex)) {
         status = AJ_MarshalReplyMsg(msg, &reply);
         if (status != AJ_OK) {
@@ -212,7 +227,7 @@ AJ_Status AJCFG_UpdateConfigurationsHandler(AJ_Message* msg)
             if (status != AJ_OK) {
                 break;
             }
-            AJ_Printf("key=%s value=%s\n", key, value);
+            AJ_InfoPrintf(("key=%s value=%s\n", key, value));
             if (IsValueValid(msg, &reply, key, value)) {
                 status = AJSVC_PropertyStore_Update(key, langIndex, value);
                 if (status == AJ_OK) {
@@ -261,13 +276,13 @@ AJ_Status AJCFG_ResetConfigurationsHandler(AJ_Message* msg)
     int8_t langIndex = AJSVC_PROPERTY_STORE_ERROR_LANGUAGE_INDEX;
     uint8_t numOfDeletedItems = 0;
 
-    AJ_Printf("ResetConfigurations()\n");
+    AJ_InfoPrintf(("Handling ResetConfigurations request\n"));
 
     status = AJ_UnmarshalArgs(msg, "s", &language);
     if (status != AJ_OK) {
         goto Exit;
     }
-    AJ_Printf("Lang=%s\n", language);
+    AJ_InfoPrintf(("Lang=%s\n", language));
     if (AJSVC_IsLanguageSupported(msg, &reply, language, &langIndex)) {
         status = AJ_MarshalReplyMsg(msg, &reply);
         if (status != AJ_OK) {
@@ -282,7 +297,7 @@ AJ_Status AJCFG_ResetConfigurationsHandler(AJ_Message* msg)
             if (status != AJ_OK) {
                 break;
             }
-            AJ_Printf("Key=%s\n", key);
+            AJ_InfoPrintf(("Key=%s\n", key));
             status = AJSVC_PropertyStore_Reset(key, langIndex);
             if (status == AJ_OK) {
                 numOfDeletedItems++;
@@ -322,13 +337,13 @@ AJ_Status AJCFG_SetPasscodeHandler(AJ_Message* msg)
     AJ_Arg newPasscode;
     AJ_Message reply;
 
-    AJ_Printf("SetPasscode()\n");
+    AJ_InfoPrintf(("Handling SetPasscode request\n"));
 
     status = AJ_UnmarshalArgs(msg, "s", &daemonRealm);
     if (status != AJ_OK) {
         return status;
     }
-    AJ_Printf("DaemonRealm=%s\n", daemonRealm);
+    AJ_InfoPrintf(("Realm=%s\n", daemonRealm));
     status = AJ_UnmarshalArg(msg, &newPasscode);
     if (status != AJ_OK) {
         return status;
@@ -338,6 +353,7 @@ AJ_Status AJCFG_SetPasscodeHandler(AJ_Message* msg)
         return status;
     }
     if (newPasscode.typeId == AJ_ARG_BYTE) {
+        AJ_InfoPrintf(("Passcode %*%ds %d bytes long\n", newPasscode.len, "", newPasscode.len));
         if (newPasscode.len > 0) { // Check passcode is not empty
             if (appSetPasscode) {
                 status = (appSetPasscode)(daemonRealm, newPasscode.val.v_string, newPasscode.len);
@@ -346,11 +362,11 @@ AJ_Status AJCFG_SetPasscodeHandler(AJ_Message* msg)
                 }
             }
         } else {
-            AJ_Printf("Error - newPasscode cannot be empty!\n");
+            AJ_ErrPrintf(("Error - newPasscode cannot be empty!\n"));
             AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_INVALID_VALUE);
         }
     } else {
-        AJ_Printf("Error - newPasscode is not an 'ay' rather type '%c'!\n", newPasscode.typeId);
+        AJ_ErrPrintf(("Error - newPasscode is not an 'ay' rather type '%c'!\n", newPasscode.typeId));
         AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_INVALID_VALUE);
     }
     status = AJ_DeliverMsg(&reply);
