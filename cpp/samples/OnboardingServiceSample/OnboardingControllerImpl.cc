@@ -335,6 +335,8 @@ void OnboardingControllerImpl::ParseScanInfo()
  *-----------------------------------------------------------------------------*/
 void OnboardingControllerImpl::GetScanInfo(unsigned short& age, OBScanInfo*& scanList, size_t& scanListNumElements) {
     std::cout << "entered " << __FUNCTION__ << std::endl;
+    ParseScanInfo();
+
     scanListNumElements = m_ScanList.size();
     scanList = m_ScanArray;
 
