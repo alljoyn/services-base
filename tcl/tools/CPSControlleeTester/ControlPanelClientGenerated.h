@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -24,6 +24,7 @@
 #include <alljoyn/controlpanel/Widgets/LabelWidget.h>
 #include <alljoyn/controlpanel/Widgets/DialogWidget.h>
 #include <alljoyn/controlpanel/Common/HttpControl.h>
+#include <alljoyn/services_common/Services_Common.h>
 
 /**
  * Defines and objectPaths
@@ -400,5 +401,10 @@ case AJ_REPLY_ID(DE_AT_MYDEVICE_AREYOUSURE_EXEC_ACTION3): \
 
 
 void TestsInit(CPSTest* testsToRun);
+
+void* IdentifyMsgOrPropId(uint32_t identifier, uint16_t* widgetType, uint16_t* propType, uint16_t* language);
+void* IdentifyMsgOrPropIdForSignal(uint32_t identifier, uint8_t* isProperty);
+uint8_t IdentifyRootMsgOrPropId(uint32_t identifier);
+AJSVC_ServiceStatus GeneratedMessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg, AJ_Status* msgStatus);
 
 #endif /* CONTROL_GENERATED_H_ */

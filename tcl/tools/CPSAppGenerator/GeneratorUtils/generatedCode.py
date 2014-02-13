@@ -1,4 +1,4 @@
-# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+# Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
@@ -159,7 +159,7 @@ class Generator:
 
     def writeFiles(self) :
 
-        genH = open(self.path + "/inc/ControlPanelGenerated.h", 'w')
+        genH = open(self.path + "/ControlPanelGenerated.h", 'w')
         genH.write(self.headerFile)
         genH.close()
 
@@ -207,10 +207,10 @@ class Generator:
         self.generatedFile = self.generatedFile.replace("//SET_WIDGET_PROPERTY_GO_HERE", self.setWidgetPropFunc)
         self.generatedFile = self.generatedFile.replace("//EXECUTE_ACTION_GO_HERE", self.executeAction)
         self.generatedFile = self.generatedFile.replace("//INITTESTS_GO_HERE", "")
-
+        
         self.testerGeneratedFile = self.testerGeneratedFile.replace("//INITTESTS_GO_HERE", self.initTests)
         self.testerGeneratedFile = self.testerGeneratedFile.replace("//STATICS_GO_HERE", "")
-        self.testerGeneratedFile = self.testerGeneratedFile.replace("//INCLUDES_GO_HERE", "")
+        self.testerGeneratedFile = self.testerGeneratedFile.replace("//INCLUDES_GO_HERE", "#include \"ControlPanelClientGenerated.h\"\n")
         self.testerGeneratedFile = self.testerGeneratedFile.replace("//INITROOT_GO_HERE", "")
         self.testerGeneratedFile = self.testerGeneratedFile.replace("//ADD_MAIN_CASE_HERE", "")
         self.testerGeneratedFile = self.testerGeneratedFile.replace("//ADD_ROOT_CASE_HERE", "")

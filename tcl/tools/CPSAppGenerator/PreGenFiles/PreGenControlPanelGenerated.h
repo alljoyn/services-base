@@ -24,6 +24,7 @@
 #include <alljoyn/controlpanel/Widgets/LabelWidget.h>
 #include <alljoyn/controlpanel/Widgets/DialogWidget.h>
 #include <alljoyn/controlpanel/Common/HttpControl.h>
+#include <alljoyn/services_common/Services_Common.h>
 
 /**
  * Defines and objectPaths
@@ -86,10 +87,6 @@ typedef struct {
  */
 void WidgetsInit();
 
-void* IdentifyMsgOrPropId(uint32_t identifier, uint16_t* widgetType, uint16_t* propType, uint16_t* language);
-void* IdentifyMsgOrPropIdForSignal(uint32_t identifier, uint8_t* isProperty);
-uint8_t IdentifyRootMsgOrPropId(uint32_t identifier);
-
 /**
  * Set Value of a property.
  * @param replyMsg - reply message
@@ -122,6 +119,9 @@ typedef struct {
 
 void TestsInit(CPSTest* testsToRun);
 
+void* IdentifyMsgOrPropId(uint32_t identifier, uint16_t* widgetType, uint16_t* propType, uint16_t* language);
+void* IdentifyMsgOrPropIdForSignal(uint32_t identifier, uint8_t* isProperty);
+uint8_t IdentifyRootMsgOrPropId(uint32_t identifier);
 AJSVC_ServiceStatus GeneratedMessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg, AJ_Status* msgStatus);
 
 #endif /* CONTROL_GENERATED_H_ */

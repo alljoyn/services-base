@@ -1,4 +1,4 @@
-# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+# Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
@@ -78,10 +78,10 @@ class Dialog (common.Widget):
 
         error = "AJ_MarshalErrorMsg(msg, &reply, AJ_ErrServiceUnknown);"
         for i in range(0, len(self.element.button)):
-            self.generated.executeAction += self.executeCases.format(str(i+1)) + "    {\n"
-            self.generated.executeAction += """        {0}\n    {1}\n    break;\n\n""".format(self.element.button[i].executeCode, "}")
+            self.generated.executeAction += self.executeCases.format(str(i+1)) + "        {\n"
+            self.generated.executeAction += """            {0}\n        {1}\n        break;\n\n""".format(self.element.button[i].executeCode, "}")
             self.setLabelAction(i)
         for i in range(len(self.element.button), 3):    
-            self.generated.executeAction += self.executeCases.format(str(i+1)) + "    {0}\n".format("{")    
-            self.generated.executeAction += """        {0}\n    {1}\n    break;\n\n""".format(error, "}")
+            self.generated.executeAction += self.executeCases.format(str(i+1)) + "        {0}\n".format("{")    
+            self.generated.executeAction += """            {0}\n        {1}\n        break;\n\n""".format(error, "}")
 

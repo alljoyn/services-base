@@ -1,4 +1,4 @@
-# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+# Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
@@ -35,7 +35,7 @@ class Property (common.Widget):
         self.generated.defines += "#define {0}_VALUE_PROPERTY             AJ_APP_PROPERTY_ID({1} + NUM_PRECEDING_OBJECTS, 1, 4)\n".format(capName, self.generated.definesIndx)
         self.generated.defines += "#define {0}_SIGNAL_VALUE_CHANGED       AJ_APP_MESSAGE_ID({1} + NUM_PRECEDING_OBJECTS, 1, 5)\n".format(capName, self.generated.definesIndx)
         self.propertyCases += "    case {0}_VALUE_PROPERTY:\n".format(capName) 
-        self.signalsString += "        ((SetValueContext*)context)->signals[{0}] = {1}_SIGNAL_VALUE_CHANGED;\n".format(self.signalsIndx, capName)
+        self.signalsString += "            ((SetValueContext*)context)->signals[{0}] = {1}_SIGNAL_VALUE_CHANGED;\n".format(self.signalsIndx, capName)
         self.signalsIndx += 1
 
     def generateIdentify(self, capName, language) :
@@ -71,13 +71,15 @@ class Property (common.Widget):
             setCode = setCode.replace("%s", "newValue")
         else :
             setCode = setCode.replace("%s", "&newValue")
-        self.generated.setWidgetPropFunc += self.propertyCases + "    {0}\n".format("{")    
-        self.generated.setWidgetPropFunc += "        {0} newValue;\n".format(self.varType)
-        self.generated.setWidgetPropFunc += "        if ((status = unmarshalPropertyValue(&{0}, replyMsg, &newValue, ((SetValueContext*)context)->sender)))\n".format(self.name)
-        self.generated.setWidgetPropFunc += "            return status;\n"
-        self.generated.setWidgetPropFunc += "        {0};\n".format(setCode)
-        self.generated.setWidgetPropFunc += "        ((SetValueContext*)context)->numSignals = {0};\n".format(self.signalsIndx)
-        self.generated.setWidgetPropFunc += self.signalsString + "    }\n    break;\n\n"
+        self.generated.setWidgetPropFunc += self.propertyCases + "        {0}\n".format("{")    
+        self.generated.setWidgetPropFunc += "            {0} newValue;\n".format(self.varType)
+        self.generated.setWidgetPropFunc += "            status = unmarshalPropertyValue(&{0}, replyMsg, &newValue, ((SetValueContext*)context)->sender);\n".format(self.name)
+        self.generated.setWidgetPropFunc += "            if (status != AJ_OK) {0}\n".format("{")
+        self.generated.setWidgetPropFunc += "                return status;\n"
+        self.generated.setWidgetPropFunc += "            }\n"
+        self.generated.setWidgetPropFunc += "            {0};\n".format(setCode)
+        self.generated.setWidgetPropFunc += "            ((SetValueContext*)context)->numSignals = {0};\n".format(self.signalsIndx)
+        self.generated.setWidgetPropFunc += self.signalsString + "        }\n        break;\n\n"
 
     def generateOptionalVariables (self) :
         self.setBgColor()
