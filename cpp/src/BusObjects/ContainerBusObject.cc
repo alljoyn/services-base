@@ -155,10 +155,10 @@ QStatus ContainerBusObject::Introspect(std::vector<IntrospectionNode>& childNode
                 }
             } else if (strcmp(ifaces[j]->GetName(), AJ_SECURED_ACTION_INTERFACE.c_str()) == 0) {
                 if (proxyBusObjectChildren[i]->GetChildren()) {
-                    IntrospectionNode node(objectPath, ACTION_WITH_DIALOG, false);
+                    IntrospectionNode node(objectPath, ACTION_WITH_DIALOG, true);
                     childNodes.push_back(node);
                 } else {
-                    IntrospectionNode node(objectPath, ACTION, false);
+                    IntrospectionNode node(objectPath, ACTION, true);
                     childNodes.push_back(node);
                 }
             } else {
