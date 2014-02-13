@@ -20,13 +20,11 @@
 
 #include <qcc/Debug.h>
 #include <qcc/platform.h>
+#include <alljoyn/services_common/LogModulesNames.h>
 
 namespace ajn {
 namespace services {
-
-static const char* QCC_MODULE = "Notification";
-static const uint32_t ALL_LOG_LEVELS = 15;
-
+static char const* const QCC_MODULE = logModules::NOTIFICATION_MODULE_LOG_NAME;
 }
 }
 

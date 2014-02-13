@@ -28,7 +28,7 @@
 #include <alljoyn/notification/Notification.h>
 #include <GuidUtil.h>
 #include <stdio.h>
-#include <alljoyn/notification/LogModule.h>
+#include <alljoyn/services_common/LogModulesNames.h>
 
 #define SERVICE_PORT 900
 
@@ -336,7 +336,7 @@ int main()
     PasswordManager::SetCredentials("ALLJOYN_PIN_KEYX", "000000");
 #endif
 
-    QCC_SetDebugLevel(QCC_MODULE, ALL_LOG_LEVELS);
+    QCC_SetDebugLevel(logModules::NOTIFICATION_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
 
     std::cout << "Begin Producer Application. (Press CTRL+C to end application)" << std::endl;
 

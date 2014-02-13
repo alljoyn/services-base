@@ -27,7 +27,7 @@
 #include <alljoyn/about/AboutServiceApi.h>
 #include <alljoyn/notification/Notification.h>
 #include "GuidUtil.h"
-#include <alljoyn/notification/LogModule.h>
+#include <alljoyn/services_common/LogModulesNames.h>
 
 using namespace qcc;
 using namespace ajn;
@@ -101,7 +101,7 @@ int main()
 #endif
     QStatus status;
 
-    QCC_SetDebugLevel(QCC_MODULE, ALL_LOG_LEVELS);
+    QCC_SetDebugLevel(logModules::NOTIFICATION_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
 
     bus = CommonSampleUtil::prepareBusAttachment();
     if (bus == NULL) {

@@ -27,7 +27,7 @@
 #include "CommonSampleUtil.h"
 #include "TestFunction.h"
 #include "GuidUtil.h"
-#include <alljoyn/notification/LogModule.h>
+#include <alljoyn/services_common/LogModulesNames.h>
 
 #define SERVICE_PORT 900
 
@@ -195,7 +195,7 @@ bool setCustomAttributes(std::map<qcc::String, qcc::String>& params)
 
 bool setLogger(std::map<qcc::String, qcc::String>& params)
 {
-    QCC_SetDebugLevel(QCC_MODULE, ALL_LOG_LEVELS);
+    QCC_SetDebugLevel(logModules::NOTIFICATION_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
     return true;
 }
 
