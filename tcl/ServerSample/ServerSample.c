@@ -60,7 +60,7 @@ AJ_Object ProxyObjects[] = {
     { NULL, NULL }
 };
 
-const AJ_Object AnnounceObjects[] = {
+AJ_Object AnnounceObjects[] = {
     IOE_SERVICES_ANNOUNCEOBJECTS
 #ifdef CONTROLPANEL_SERVICE
     CONTROLPANELANNOUNCEOBJECTS
