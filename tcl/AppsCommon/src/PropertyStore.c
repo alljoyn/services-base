@@ -46,12 +46,13 @@ const PropertyStoreEntry propertyStoreProperties[AJSVC_PROPERTY_STORE_NUMBER_OF_
     { "DateOfManufacture",    0, 0, 0, 0, 0, 0, 0, 1 },
     { "SoftwareVersion",      0, 0, 0, 0, 0, 0, 0, 1 },
     { "AJSoftwareVersion",    0, 0, 0, 0, 0, 0, 0, 1 },
-    { "HardwareVersion",      0, 0, 0, 0, 0, 0, 0, 1 },
-    { "SupportUrl",           0, 0, 1, 0, 0, 0, 0, 1 },
 #if defined CONFIG_SERVICE
     { "MaxLength",            0, 0, 1, 0, 0, 0, 0, 1 },
 #endif
-// Add other about keys above this line
+// Add other mandatory about keys above this line
+    { "HardwareVersion",      0, 0, 0, 0, 0, 0, 0, 1 },
+    { "SupportUrl",           0, 0, 1, 0, 0, 0, 0, 1 },
+// Add other optional about keys above this line
 };
 
 static const char* defaultLanguagesKeyName = { "SupportedLanguages" };
@@ -114,11 +115,11 @@ const char* AJSVC_PropertyStore_GetValueForLang(AJSVC_PropertyStoreFieldIndices 
         propertyStoreRuntimeValues[fieldIndex].value != NULL &&
         (propertyStoreRuntimeValues[fieldIndex].value[langIndex]) != NULL &&
         (propertyStoreRuntimeValues[fieldIndex].value[langIndex])[0] != '\0') {
-        AJ_Printf("Has key [%s] value [%s]\n", propertyStoreProperties[fieldIndex].keyName, propertyStoreRuntimeValues[fieldIndex].value[langIndex]);
+        AJ_Printf("Has key [%s] runtime Value [%s]\n", propertyStoreProperties[fieldIndex].keyName, propertyStoreRuntimeValues[fieldIndex].value[langIndex]);
         return propertyStoreRuntimeValues[fieldIndex].value[langIndex];
     } else if (propertyStoreDefaultValues[fieldIndex] != NULL &&
                (propertyStoreDefaultValues[fieldIndex])[langIndex] != NULL) {
-        AJ_Printf("Has key [%s] defaultValue [%s]\n", propertyStoreProperties[fieldIndex].keyName, (propertyStoreDefaultValues[fieldIndex])[langIndex]);
+        AJ_Printf("Has key [%s] default Value [%s]\n", propertyStoreProperties[fieldIndex].keyName, (propertyStoreDefaultValues[fieldIndex])[langIndex]);
         return (propertyStoreDefaultValues[fieldIndex])[langIndex];
     }
 
@@ -142,7 +143,7 @@ int8_t AJSVC_PropertyStore_GetLanguageIndex(const char* const language)
 {
     uint8_t langIndex;
     const char* search = language;
-    if (language != NULL) {
+    if (search != NULL) {
         if (search[0] == '\0') { // Check for empty language, if yes then search for current default language index
             search = AJSVC_PropertyStore_GetValue(AJSVC_PROPERTY_STORE_DEFAULT_LANGUAGE);
         }
@@ -428,6 +429,7 @@ AJ_Status AJSVC_PropertyStore_ReadAll(AJ_Message* msg, AJSVC_PropertyStoreCatego
                     if (status != AJ_OK) {
                         return status;
                     }
+                    AJ_Printf("Has key [%s] runtime Value [%d]\n", propertyStoreProperties[AJSVC_PROPERTY_STORE_MAX_LENGTH].keyName, DEVICE_NAME_VALUE_LENGTH);
 #endif
                 } else if (fieldIndex == AJSVC_PROPERTY_STORE_AJ_SOFTWARE_VERSION) {
                     status = AJ_MarshalVariant(msg, "s");
@@ -438,6 +440,7 @@ AJ_Status AJSVC_PropertyStore_ReadAll(AJ_Message* msg, AJSVC_PropertyStoreCatego
                     if (status != AJ_OK) {
                         return status;
                     }
+                    AJ_Printf("Has key [%s] runtime Value [%s]\n", propertyStoreProperties[AJSVC_PROPERTY_STORE_AJ_SOFTWARE_VERSION].keyName, AJ_GetVersion());
                 } else {
                     status = AJ_MarshalVariant(msg, "s");
                     if (status != AJ_OK) {

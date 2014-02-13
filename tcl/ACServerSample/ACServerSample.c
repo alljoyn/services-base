@@ -107,12 +107,13 @@ const char** propertyStoreDefaultValues[AJSVC_PROPERTY_STORE_NUMBER_OF_KEYS] =
     DEFAULT_DATE_OF_MANUFACTURE,    /*DateOfManufacture*/
     DEFAULT_SOFTWARE_VERSION,       /*SoftwareVersion*/
     NULL,                           /*AJSoftwareVersion*/
-    DEFAULT_HARDWARE_VERSION,       /*HardwareVersion*/
-    DEFAULT_SUPPORT_URL,            /*SupportUrl*/
 #if defined CONFIG_SERVICE
     NULL,                           /*MaxLength*/
 #endif
-// Add other about keys above this line
+// Add other mandatory about keys above this line
+    DEFAULT_HARDWARE_VERSION,       /*HardwareVersion*/
+    DEFAULT_SUPPORT_URL,            /*SupportUrl*/
+// Add other optional about keys above this line
 };
 
 /**
