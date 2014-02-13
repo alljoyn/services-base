@@ -14,6 +14,15 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+/**
+ * Per-module definition of the current module for debug logging.  Must be defined
+ * prior to first inclusion of aj_debug.h.
+ * The corresponding flag dbgAJOBS is defined in services_common.h and implemented
+ * in services_common.c.
+ */
+#define AJ_MODULE AJOBS
+#include <aj_debug.h>
+
 #include <alljoyn.h>
 #include <alljoyn/services_common/PropertyStore.h>
 #include <alljoyn/services_common/Services_Common.h>
@@ -53,7 +62,7 @@ AJ_Status AJOBS_Start(const AJOBS_Settings* settings, AJOBS_ReadInfo readInfo, A
     obWriteInfo = writeInfo;
 
     if (obSettings == NULL || obSettings->AJOBS_SoftAPSSID == NULL || (obSettings->AJOBS_SoftAPSSID)[0] == '\0') {
-        AJ_Printf("AJOBS_Start(): No SoftAP SSID was provided!");
+        AJ_ErrPrintf(("AJOBS_Start(): No SoftAP SSID was provided!"));
         status = AJ_ERR_INVALID;
     }
 
@@ -113,14 +122,14 @@ uint8_t AJOBS_GetScanInfoCount()
 AJ_Status AJOBS_GetInfo(AJOBS_Info* obInfo)
 {
     AJ_Status status = (*obReadInfo)(obInfo);
-    AJ_Printf("ReadInfo status: %s\n", AJ_StatusText(status));
+    AJ_InfoPrintf(("ReadInfo status: %s\n", AJ_StatusText(status)));
     return status;
 }
 
 AJ_Status AJOBS_SetInfo(AJOBS_Info* obInfo)
 {
     AJ_Status status = (*obWriteInfo)(obInfo);
-    AJ_Printf("WriteInfo status: %s\n", AJ_StatusText(status));
+    AJ_InfoPrintf(("WriteInfo status: %s\n", AJ_StatusText(status)));
     return status;
 }
 
@@ -318,7 +327,7 @@ static void WiFiScanResult(void* context, const char* ssid, const uint8_t bssid[
 {
     static const char* const sec[] = { "OPEN", "WEP", "WPA", "WPA2" };
     static const char* const typ[] = { "", ":TKIP", ":CCMP", ":WEP" };
-    AJ_Printf("WiFiScanResult found ssid=%s rssi=%d security=%s%s\n", ssid, rssi, sec[secType], typ[cipherType]);
+    AJ_InfoPrintf(("WiFiScanResult found ssid=%s rssi=%d security=%s%s\n", ssid, rssi, sec[secType], typ[cipherType]));
     AJOBS_AuthType authType = GetAuthType(secType, cipherType);
     GotScanInfo(ssid, bssid, rssi, authType);
 }
@@ -353,7 +362,7 @@ AJ_Status AJOBS_ControllerAPI_GotoIdleWiFi(uint8_t reset)
 
     while ((wifiConnectState != AJ_WIFI_IDLE) && (wifiConnectState != AJ_WIFI_CONNECT_FAILED) && (wifiConnectState != AJ_WIFI_DISCONNECTING)) {
         wifiConnectState = AJ_GetWifiConnectState();
-        AJ_Printf("WIFI_CONNECT_STATE: %s\n", AJ_WiFiConnectStateText(wifiConnectState));
+        AJ_InfoPrintf(("WIFI_CONNECT_STATE: %s\n", AJ_WiFiConnectStateText(wifiConnectState)));
         AJ_Sleep(500);
     }
 
@@ -366,7 +375,7 @@ static AJ_Status DoConnectWifi(AJOBS_Info* connectInfo)
     AJ_Status status = AJ_OK;
     uint8_t retries = 0;
 
-    AJ_Printf("Attempting to connect to %s with passcode=%s and auth=%d\n", connectInfo->ssid, connectInfo->pc, connectInfo->authType);
+    AJ_InfoPrintf(("Attempting to connect to %s with passcode=%s and auth=%d\n", connectInfo->ssid, connectInfo->pc, connectInfo->authType));
 
     AJ_WiFiSecurityType secType = AJ_WIFI_SECURITY_NONE;
     AJ_WiFiCipherType cipherType = AJ_WIFI_CIPHER_NONE;
@@ -405,7 +414,7 @@ static AJ_Status DoConnectWifi(AJOBS_Info* connectInfo)
 
     secType = GetSecType(fallback);
     cipherType = GetCipherType(fallback);
-    AJ_Printf("Trying to connect with auth=%d (secType=%d, cipherType=%d)\n", fallback, secType, cipherType);
+    AJ_InfoPrintf(("Trying to connect with auth=%d (secType=%d, cipherType=%d)\n", fallback, secType, cipherType));
 
     status = AJOBS_ControllerAPI_GotoIdleWiFi(TRUE); // Go into IDLE mode and reset wifi
     while (1) {
@@ -425,7 +434,7 @@ static AJ_Status DoConnectWifi(AJOBS_Info* connectInfo)
         }
 
         status = AJ_ConnectWiFi(connectInfo->ssid, secType, cipherType, password);
-        AJ_Printf("%s: AJ_ConnectWifi returned %s\n", __FUNCTION__, AJ_StatusText(status));
+        AJ_InfoPrintf(("AJ_ConnectWifi returned %s\n", AJ_StatusText(status)));
 
         if (status == AJ_OK) {
             // Clear last error
@@ -433,17 +442,17 @@ static AJ_Status DoConnectWifi(AJOBS_Info* connectInfo)
             obLastError.message[0] = '\0';
 
             wifiConnectState = AJ_GetWifiConnectState();
-            AJ_Printf("WIFI_CONNECT_STATE: %s, connectInfo->state: %u\n", AJ_WiFiConnectStateText(wifiConnectState), connectInfo->state);
+            AJ_InfoPrintf(("WIFI_CONNECT_STATE: %s, connectInfo->state: %u\n", AJ_WiFiConnectStateText(wifiConnectState), connectInfo->state));
             uint32_t counter = 0;
             while (wifiConnectState == AJ_WIFI_CONNECTING || wifiConnectState == AJ_WIFI_DISCONNECTING) {
-                AJ_Printf(".");
+                AJ_InfoPrintf(("."));
                 AJ_Sleep(500);
                 wifiConnectState = AJ_GetWifiConnectState();
                 if (++counter >= 60) {
                     break;
                 }
             }
-            AJ_Printf("\n");
+            AJ_InfoPrintf(("\n"));
 
             //wifiConnectState = AJ_WIFI_CONNECT_FAILED;// This line should be disable. Debug only. ###
             switch (wifiConnectState) {
@@ -470,7 +479,7 @@ static AJ_Status DoConnectWifi(AJOBS_Info* connectInfo)
                 break;
 
             default:
-                AJ_Printf("Warning - OBS_DoConnectWifi wifiConnectState = %s\n", AJ_WiFiConnectStateText(wifiConnectState));
+                AJ_WarnPrintf(("Warning - OBS_DoConnectWifi wifiConnectState = %s\n", AJ_WiFiConnectStateText(wifiConnectState)));
                 obLastError.code = AJOBS_STATE_LAST_ERROR_ERROR_MESSAGE;
                 strncpy(obLastError.message, "Failed to connect! Unexpected error", AJOBS_ERROR_MESSAGE_LEN);
                 obState = AJOBS_STATE_CONFIGURED_ERROR;
@@ -492,14 +501,14 @@ static AJ_Status DoConnectWifi(AJOBS_Info* connectInfo)
                             secType = GetSecType(fallback);
                             cipherType = GetCipherType(fallback);
                             retries = 0;
-                            AJ_Printf("Trying to connect with fallback auth=%d (secType=%d, cipherType=%d)\n", fallback, secType, cipherType);
+                            AJ_InfoPrintf(("Trying to connect with fallback auth=%d (secType=%d, cipherType=%d)\n", fallback, secType, cipherType));
                             status = AJOBS_ControllerAPI_GotoIdleWiFi(FALSE); // Go into IDLE mode disconnecting from current connection
                             continue;
                         }
                     }
                     break;
                 }
-                AJ_Printf("Retry number %d out of %d\n", retries, obSettings->AJOBS_MAX_RETRIES);
+                AJ_InfoPrintf(("Retry number %d out of %d\n", retries, obSettings->AJOBS_MAX_RETRIES));
             }
         } else {
             obLastError.code = AJOBS_STATE_LAST_ERROR_ERROR_MESSAGE;
@@ -529,9 +538,9 @@ AJ_Status AJOBS_ControllerAPI_StartSoftAPIfNeededOrConnect(AJOBS_Info* obInfo)
     while (1) {
         // Check if require to switch into AP mode.
         if ((obInfo->state == AJOBS_STATE_NOT_CONFIGURED || obInfo->state == AJOBS_STATE_CONFIGURED_ERROR || obInfo->state == AJOBS_STATE_CONFIGURED_RETRY)) {
-            AJ_Printf("Establishing SoftAP with ssid=%s%s auth=%s\n", obSettings->AJOBS_SoftAPSSID, (obSettings->AJOBS_SoftAPIsHidden ? " (hidden)" : ""), obSettings->AJOBS_SoftAPPassphrase == NULL ? "OPEN" : obSettings->AJOBS_SoftAPPassphrase);
+            AJ_InfoPrintf(("Establishing SoftAP with ssid=%s%s auth=%s\n", obSettings->AJOBS_SoftAPSSID, (obSettings->AJOBS_SoftAPIsHidden ? " (hidden)" : ""), obSettings->AJOBS_SoftAPPassphrase == NULL ? "OPEN" : obSettings->AJOBS_SoftAPPassphrase));
             if (obInfo->state == AJOBS_STATE_CONFIGURED_RETRY) {
-                AJ_Printf("Retry timer activated\n");
+                AJ_InfoPrintf(("Retry timer activated\n"));
                 status = AJ_EnableSoftAP(obSettings->AJOBS_SoftAPSSID, obSettings->AJOBS_SoftAPIsHidden, obSettings->AJOBS_SoftAPPassphrase, obSettings->AJOBS_WAIT_BETWEEN_RETRIES);
             } else {
                 status = AJ_EnableSoftAP(obSettings->AJOBS_SoftAPSSID, obSettings->AJOBS_SoftAPIsHidden, obSettings->AJOBS_SoftAPPassphrase, obSettings->AJOBS_WAIT_FOR_SOFTAP_CONNECTION);
@@ -540,7 +549,7 @@ AJ_Status AJOBS_ControllerAPI_StartSoftAPIfNeededOrConnect(AJOBS_Info* obInfo)
                 if (AJ_ERR_TIMEOUT == status) {
                     //check for timer elapsed for retry
                     if (obInfo->state == AJOBS_STATE_CONFIGURED_RETRY) {
-                        AJ_Printf("Retry timer elapsed at %ums\n", obSettings->AJOBS_WAIT_BETWEEN_RETRIES);
+                        AJ_InfoPrintf(("Retry timer elapsed at %ums\n", obSettings->AJOBS_WAIT_BETWEEN_RETRIES));
                         obInfo->state = AJOBS_STATE_CONFIGURED_VALIDATED;
                         status = (*obWriteInfo)(obInfo);
                     }
@@ -644,7 +653,7 @@ AJ_Status AJOBS_EstablishWiFi()
 
     AJOBS_Info obInfo;
     status = (*obReadInfo)(&obInfo);
-    AJ_Printf("ReadInfo status: %s\n", AJ_StatusText(status));
+    AJ_InfoPrintf(("ReadInfo status: %s\n", AJ_StatusText(status)));
 
     status = AJOBS_ControllerAPI_StartSoftAPIfNeededOrConnect(&obInfo);
 
@@ -666,7 +675,7 @@ void AJOBS_SwitchToRetry()
         return;
     }
 
-    AJ_Printf("SwitchToRetry status: %s\n", AJ_StatusText(status));
+    AJ_InfoPrintf(("SwitchToRetry status: %s\n", AJ_StatusText(status)));
 }
 
 AJ_Status AJOBS_DisconnectWiFi()

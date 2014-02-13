@@ -14,6 +14,15 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+/**
+ * Per-module definition of the current module for debug logging.  Must be defined
+ * prior to first inclusion of aj_debug.h
+ * The corresponding flag dbgAJOBS is defined in services_common.h and implemented
+ * in services_common.c.
+ */
+#define AJ_MODULE AJOBS
+#include <aj_debug.h>
+
 #include <alljoyn/onboarding/OnboardingService.h>
 #include <alljoyn/onboarding/OnboardingControllerAPI.h>
 #include <aj_nvram.h>
@@ -101,14 +110,14 @@ AJ_Status AJOBS_ConfigureWiFiHandler(AJ_Message* msg)
     int16_t retVal;
 
     // Set provided network configuration
-    AJ_Printf("ConfigureWiFi()\n");
+    AJ_InfoPrintf(("Handling ConfigureWiFi request\n"));
 
     status = AJ_UnmarshalArgs(msg, "ssn", &ssid, &pc, &newInfo.authType);
     if (status != AJ_OK) {
         return status;
     }
     if ((int8_t)newInfo.authType >= AJOBS_AUTH_TYPE_MAX_OF_WIFI_AUTH_TYPE || (int8_t)newInfo.authType <= AJOBS_AUTH_TYPE_MIN_OF_WIFI_AUTH_TYPE) {
-        AJ_Printf("Unknown authentication type %d\n", newInfo.authType);
+        AJ_ErrPrintf(("Unknown authentication type %d\n", newInfo.authType));
         status = AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_INVALID_VALUE);
         if (status != AJ_OK) {
             return status;
@@ -126,7 +135,7 @@ AJ_Status AJOBS_ConfigureWiFiHandler(AJ_Message* msg)
     strncpy(newInfo.pc, pc, AJOBS_PASSCODE_MAX_LENGTH);
     newInfo.pc[pcLen] = '\0';
 
-    AJ_Printf("Got new info for %s with passcode=%s and auth=%d\n", newInfo.ssid, newInfo.pc, newInfo.authType);
+    AJ_InfoPrintf(("Got new info for %s with passcode=%s and auth=%d\n", newInfo.ssid, newInfo.pc, newInfo.authType));
     retVal = 1;
     status = AJ_MarshalReplyMsg(msg, &reply);
     if (status != AJ_OK) {
@@ -156,13 +165,13 @@ AJ_Status AJOBS_ConnectWiFiHandler(AJ_Message* msg)
 {
     AJ_Status status = AJ_OK;
 
-    AJ_Printf("Got connect\n");
+    AJ_InfoPrintf(("Handling ConnectWiFi request\n"));
     AJOBS_Info obInfo;
     status = AJOBS_GetInfo(&obInfo);
     if (status != AJ_OK) {
         return status;
     }
-    AJ_Printf("ReadInfo status: %s\n", AJ_StatusText(status));
+    AJ_InfoPrintf(("ReadInfo status: %s\n", AJ_StatusText(status)));
     status = AJ_ERR_RESTART;     // Force disconnect of AJ and services and reconnection of WiFi on restart
 
     return status;
@@ -172,7 +181,7 @@ AJ_Status AJOBS_OffboardWiFiHandler(AJ_Message* msg)
 {
     AJ_Status status = AJ_OK;
 
-    AJ_Printf("Offboard()\n");
+    AJ_InfoPrintf(("Handling Offboard request\n"));
     status = AJOBS_ControllerAPI_DoOffboardWiFi();
     if (status != AJ_OK) {
         return status;
@@ -190,7 +199,7 @@ AJ_Status AJOBS_GetScanInfoHandler(AJ_Message* msg)
     AJ_Arg structure;
     uint32_t elapsed;
 
-    AJ_Printf("GetScanInfo()\n");
+    AJ_InfoPrintf(("Handling GetScanInfo request\n"));
 
     status = AJ_MarshalReplyMsg(msg, &reply);
     if (status != AJ_OK) {
@@ -250,7 +259,7 @@ AJ_Status AJOBS_GetScanInfoHandler(AJ_Message* msg)
     const AJOBS_Error* obError = AJOBS_GetError();
     AJ_Message out;
     AJ_Arg structure;
-    AJ_Printf("ConnectionResult()\n");
+    AJ_InfoPrintf(("Sending ConnectionResult signal\n"));
     status = AJ_MarshalSignal(bus, &out, OBS_CONNECTION_RESULT, NULL, obsSessionId, AJ_FLAG_GLOBAL_BROADCAST, AJOBS_CONNECTION_RESULT_TTL);
     if (status != AJ_OK) {
         return status;
