@@ -143,11 +143,11 @@ AJ_Status AJCFG_GetConfigurationsHandler(AJ_Message* msg)
 
 static uint8_t IsValueValid(AJ_Message* msg, AJ_Message* reply, const char* key, const char* value)
 {
-    if (strcmp(AJSVC_PropertyStore_GetFieldNameForIndex(AJSVC_PROPERTY_STORE_DEFAULT_LANGUAGE), key) == 0) { // Check that if language was updated that it is supported
+    if (strcmp(AJSVC_PropertyStore_GetFieldName(AJSVC_PROPERTY_STORE_DEFAULT_LANGUAGE), key) == 0) { // Check that if language was updated that it is supported
         if (AJSVC_IsLanguageSupported(msg, reply, value, NULL)) {
             return TRUE;
         }
-    } else if (strcmp(AJSVC_PropertyStore_GetFieldNameForIndex(AJSVC_PROPERTY_STORE_DEVICE_NAME), key) == 0) { // Check that if device name was updated
+    } else if (strcmp(AJSVC_PropertyStore_GetFieldName(AJSVC_PROPERTY_STORE_DEVICE_NAME), key) == 0) { // Check that if device name was updated
         if (strlen(value) <= AJSVC_PropertyStore_GetMaxValueLength(AJSVC_PROPERTY_STORE_DEVICE_NAME)) {        // that it does not exceed maximum length
             if (strlen(value) > 0) {                                               // that it is not empty
                 return TRUE;
