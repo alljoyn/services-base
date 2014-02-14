@@ -77,22 +77,22 @@ static const char* SuperagentInterface[] = {
 /**
  * A NULL terminated collection of all interfaces.
  */
-const AJ_InterfaceDescription SuperagentInterfaces[] = {
+static const AJ_InterfaceDescription SuperagentInterfaces[] = {
     AJ_PropertiesIface,
     SuperagentInterface,
     NULL
 };
 
-const AJ_InterfaceDescription AllInterfaces[] = {
+static const AJ_InterfaceDescription AllInterfaces[] = {
     AJ_PropertiesIface,
     AJNS_NotificationInterface,
     SuperagentInterface,
     NULL
 };
 
-const AJ_Object AllProxyObject          = { "*",   AllInterfaces };
-const AJ_Object SuperAgentProxyObject   = { "*",   SuperagentInterfaces };
-const AJ_Object NotificationProxyObject = { "*",   AJNS_NotificationInterfaces };
+static const AJ_Object AllProxyObject          = { "*",   AllInterfaces };
+static const AJ_Object SuperAgentProxyObject   = { "*",   SuperagentInterfaces };
+static const AJ_Object NotificationProxyObject = { "*",   AJNS_NotificationInterfaces };
 
 static uint8_t appSuperAgentMode = TRUE;
 static AJ_Object* appProxyObjects;
@@ -113,9 +113,12 @@ AJ_Status AJNS_Consumer_Start(uint8_t superAgentMode, AJ_Object* proxyObjects, A
 {
     AJ_Status status = AJ_OK;
     appSuperAgentMode = superAgentMode;
-    if (proxyObjects != NULL) {
-        proxyObjects[NOTIFICATION_PROXYOBJECT_INDEX] = appSuperAgentMode ? AllProxyObject : NotificationProxyObject;
+    appProxyObjects = proxyObjects;
+    if (appProxyObjects != NULL) {
+        appProxyObjects[NOTIFICATION_PROXYOBJECT_INDEX] = appSuperAgentMode ? AllProxyObject : NotificationProxyObject;
     } else {
+        AJ_Printf("appProxyObjects is NULL. Setting superAgenMode to FALSE.\n");
+        appSuperAgentMode = FALSE;
         status = AJ_ERR_INVALID;
     }
     appOnNotify = onNotify;
@@ -718,7 +721,7 @@ AJSVC_ServiceStatus AJNS_Consumer_MessageProcessor(AJ_BusAttachment* busAttachme
     case SUPERAGENT_SIGNAL:
         AJ_Printf("Received Superagent Signal.\n");
         *msgStatus = AJNS_Consumer_SetSignalRules(busAttachment, appSuperAgentMode, msg->sender);
-        if (AJ_OK == *msgStatus) {
+        if (AJ_OK == *msgStatus && appProxyObjects != NULL) {
             appProxyObjects[NOTIFICATION_PROXYOBJECT_INDEX] = SuperAgentProxyObject;
         }
         *msgStatus = AJNS_Consumer_NotifySignalHandler(msg);
@@ -732,7 +735,7 @@ AJSVC_ServiceStatus AJNS_Consumer_MessageProcessor(AJ_BusAttachment* busAttachme
     case AJ_SIGNAL_LOST_ADV_NAME:
         if (appSuperAgentMode && AJNS_Consumer_IsSuperAgentLost(msg)) {
             *msgStatus = AJNS_Consumer_SetSignalRules(busAttachment, appSuperAgentMode, NULL);
-            if (AJ_OK == *msgStatus) {
+            if (AJ_OK == *msgStatus && appProxyObjects != NULL) {
                 appProxyObjects[NOTIFICATION_PROXYOBJECT_INDEX] = AllProxyObject;
             }
         } else {

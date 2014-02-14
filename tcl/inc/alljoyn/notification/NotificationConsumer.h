@@ -26,19 +26,15 @@
 #define NUMALLOWEDTEXTS                 10
 #define NUMALLOWEDRICHNOTS              10
 
+/*
+ * Following definitions are read by the application.
+ */
 #define NUM_NOTIFICATION_CONSUMER_PROXYOBJECTS 3
 
 #define NOTIFICATION_CONSUMER_PROXYOBJECTS  \
     { "*",   AJNS_NotificationInterfaces }, \
     { AJNS_NotificationProducerObjectPath,   AJNS_NotificationProducerInterfaces }, \
     { "*",  AJNS_NotificationDismisserInterfaces },
-
-extern const AJ_InterfaceDescription SuperagentInterfaces[];
-extern const AJ_InterfaceDescription AllInterfaces[];
-
-extern const AJ_Object AllProxyObject;
-extern const AJ_Object SuperAgentProxyObject;
-extern const AJ_Object NotificationProxyObject;
 
 typedef struct _AJNS_Consumer_NotificationReference {
     uint16_t version;
