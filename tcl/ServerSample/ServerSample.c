@@ -60,7 +60,7 @@ AJ_Object ProxyObjects[] = {
     { NULL, NULL }
 };
 
-const AJ_Object AnnounceObjects[] = {
+AJ_Object AnnounceObjects[] = {
     IOE_SERVICES_ANNOUNCEOBJECTS
 #ifdef CONTROLPANEL_SERVICE
     CONTROLPANELANNOUNCEOBJECTS
@@ -125,12 +125,13 @@ const char** propertyStoreDefaultValues[AJSVC_PROPERTY_STORE_NUMBER_OF_KEYS] =
     DEFAULT_DATE_OF_MANUFACTURES,                   /*DateOfManufacture*/
     DEFAULT_SOFTWARE_VERSIONS,                      /*SoftwareVersion*/
     NULL,                                           /*AJSoftwareVersion*/
-    DEFAULT_HARDWARE_VERSIONS,                      /*HardwareVersion*/
-    DEFAULT_SUPPORT_URLS,                           /*SupportUrl*/
 #if defined CONFIG_SERVICE
     NULL,                                           /*MaxLength*/
 #endif
-// Add other about keys above this line
+// Add other mandatory about keys above this line
+    DEFAULT_HARDWARE_VERSIONS,                      /*HardwareVersion*/
+    DEFAULT_SUPPORT_URLS,                           /*SupportUrl*/
+// Add other optional about keys above this line
 };
 
 /**
