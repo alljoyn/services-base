@@ -168,7 +168,7 @@ int32_t main()
         controlPanelServiceObjectPath = input.length() ? input.c_str() : defaultControlPanelServiceObjectPath;
 
         NotificationMessageType messageType = INFO;
-        NotificationText textToSend("defaultLang", "Sending CPS ObjectPath");
+        NotificationText textToSend("en", "Sending CPS ObjectPath");
         std::vector<NotificationText> vecMessages;
         vecMessages.push_back(textToSend);
         Notification notification(messageType, vecMessages);
