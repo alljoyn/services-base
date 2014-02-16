@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -19,6 +19,8 @@ package org.alljoyn.onboarding;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.alljoyn.about.AboutServiceImpl;
 import org.alljoyn.bus.BusAttachment;
@@ -26,7 +28,6 @@ import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.BusObject;
 import org.alljoyn.bus.ErrorReplyBusException;
 import org.alljoyn.bus.Status;
-import org.alljoyn.onboarding.OnboardingService.AuthType;
 import org.alljoyn.onboarding.client.OnboardingClient;
 import org.alljoyn.onboarding.client.OnboardingClientImpl;
 import org.alljoyn.onboarding.transport.MyScanResult;
@@ -46,10 +47,12 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.State;
 import android.net.wifi.ScanResult;
+import android.net.wifi.SupplicantState;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
+import android.util.Pair;
 
 /**
  * Impements the Server side of OnboardingService
@@ -58,6 +61,18 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
 	
 	private static final String TAG = "ioe"
 			+ OnboardingServiceImpl.class.getSimpleName();
+	
+	//  WEP HEX password pattern.
+	static final String WEP_HEX_PATTERN = "[\\dA-Fa-f]+";
+	
+	// Stores the details of the target Wi-Fi. Uses volatile to verify that the
+	// broadcast receiver reads its content each time onReceive is called, thus
+	// "knowing" if the an API call to connect has been made
+
+	private volatile WifiConfiguration targetWifiConfiguration = null;
+	
+    // Timer for checking completion of Wi-Fi tasks.
+    private Timer wifiTimeoutTimer = new Timer();
 	
 	// State. This service is implemented as a state machine. See HLD
 	private OnboardingState m_state = OnboardingState.PERSONAL_AP_NOT_CONFIGURED;
@@ -354,7 +369,7 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
 
 		Log.d(TAG, "validate: waiting for 2 seconds");
 		try {
-			Thread.sleep(2000);
+			Thread.sleep(5000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -374,33 +389,63 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
 		// set the WiFi configuration
 		
 		AuthType authenticationType = AuthType.getAuthTypeById(m_authType);
-		WifiConfiguration wifiConfiguration = new WifiConfiguration();
 		m_networkId = -1;
-		
+
+		// the configured Wi-Fi networks
+        final List<WifiConfiguration> wifiConfigs = m_wifi.getConfiguredNetworks();
+        
+        // delete any existing WifiConfiguration that has the same SSID as the new one
+        for (WifiConfiguration w : wifiConfigs) {
+            if (w.SSID != null && isSsidEquals(w.SSID, m_ssid)) {
+            	m_networkId = w.networkId;
+                Log.i(TAG, "validate found " + m_ssid + " in ConfiguredNetworks. networkId = " + m_networkId);
+                boolean res = m_wifi.removeNetwork(m_networkId);
+                Log.i(TAG, "validate removed networkId: " + m_networkId + "? " + res);
+                res = m_wifi.saveConfiguration();
+                Log.i(TAG, "validate saveConfiguration  res = " + res);
+                break;
+            }
+        }
+        WifiConfiguration wifiConfiguration = new WifiConfiguration();
 		switch (authenticationType) {
 		case OPEN: {
 			wifiConfiguration.SSID = "\"" + m_ssid + "\"";
-			wifiConfiguration.allowedKeyManagement
-					.set(WifiConfiguration.KeyMgmt.NONE);
-
+			wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
 			m_networkId = m_wifi.addNetwork(wifiConfiguration);
 			Log.d(TAG, "addNetwork returned " + m_networkId);
-
 			break;
 		}
+		
 		case WEP: {
+
 			wifiConfiguration.SSID = "\"" + m_ssid + "\"";
-			wifiConfiguration.wepKeys[0] = m_passphrase;//Password is in Hex
-			wifiConfiguration.wepTxKeyIndex = 0;
-			wifiConfiguration.allowedKeyManagement
-					.set(WifiConfiguration.KeyMgmt.NONE);
-			wifiConfiguration.allowedGroupCiphers
-					.set(WifiConfiguration.GroupCipher.WEP40);
 
-			m_networkId = m_wifi.addNetwork(wifiConfiguration);
-			Log.d(TAG, "addNetwork returned " + m_networkId);
-
-			break;
+            // check the validity of a WEP password
+            Pair<Boolean, Boolean> wepCheckResult = checkWEPPassword(m_passphrase);
+            if (!wepCheckResult.first) {//password not valid
+                Log.i(TAG, "auth type = WEP: password " + m_passphrase + " invalid length or charecters");
+                return;
+            }
+            Log.i(TAG, "connectToWifiAP [WEP] using " + (!wepCheckResult.second ? "ASCII" : "HEX"));
+            if (!wepCheckResult.second) {
+                wifiConfiguration.wepKeys[0] = "\"" + m_passphrase + "\"";
+            } else {
+                wifiConfiguration.wepKeys[0] = m_passphrase;
+            }
+            wifiConfiguration.priority = 40;
+            wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+            wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+            wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+            wifiConfiguration.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
+            wifiConfiguration.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.SHARED);
+            wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
+            wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
+            wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
+            wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP104);
+            wifiConfiguration.wepTxKeyIndex = 0;
+            m_networkId = m_wifi.addNetwork(wifiConfiguration);
+            Log.d(TAG, "connectToWifiAP [WEP] add Network returned " + m_networkId);
+            break;
 		}
 		case WPA_AUTO:
 		case WPA_TKIP:	
@@ -408,49 +453,94 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
 		case WPA2_AUTO:
 		case WPA2_TKIP:
 		case WPA2_CCMP: {
+
 			wifiConfiguration.SSID = "\"" + m_ssid + "\"";
-			wifiConfiguration.preSharedKey = m_passphrase;//The password is given in Hex-this is why we don't need the ""
-			wifiConfiguration.hiddenSSID = true;
-			wifiConfiguration.status = WifiConfiguration.Status.ENABLED;
-			wifiConfiguration.allowedGroupCiphers
-					.set(WifiConfiguration.GroupCipher.TKIP);
-			wifiConfiguration.allowedGroupCiphers
-					.set(WifiConfiguration.GroupCipher.CCMP);
-			wifiConfiguration.allowedKeyManagement
-					.set(WifiConfiguration.KeyMgmt.WPA_PSK);
-			wifiConfiguration.allowedPairwiseCiphers
-					.set(WifiConfiguration.PairwiseCipher.TKIP);
-			wifiConfiguration.allowedPairwiseCiphers
-					.set(WifiConfiguration.PairwiseCipher.CCMP);
-			wifiConfiguration.allowedProtocols
-					.set(WifiConfiguration.Protocol.RSN);
-			wifiConfiguration.allowedProtocols
-					.set(WifiConfiguration.Protocol.WPA);
-
-			m_networkId = m_wifi.addNetwork(wifiConfiguration);
-			Log.d(TAG, "addNetwork returned " + m_networkId);
-
-			break;
+            // handle special case when WPA/WPA2 and 64 length password that can
+            // be HEX
+            if (m_passphrase.length() == 64 && m_passphrase.matches(WEP_HEX_PATTERN)) {
+                wifiConfiguration.preSharedKey = m_passphrase;
+            } else {
+                wifiConfiguration.preSharedKey = "\"" + m_passphrase + "\"";
+            }
+            wifiConfiguration.hiddenSSID = true;
+            wifiConfiguration.status = WifiConfiguration.Status.ENABLED;
+            wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
+            wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
+            wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+            wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
+            wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
+            wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+            wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+            m_networkId = m_wifi.addNetwork(wifiConfiguration);
+            Log.d(TAG, "connectToWifiAP  [WPA..WPA2] add Network returned " + m_networkId);
+            break;
+            
 		}
-		}
-
-		boolean changeHappened = m_wifi.saveConfiguration();
-
-		if (m_networkId != -1 && changeHappened) {
-			Log.d(TAG, "Successfully configured Wifi");
-			saveNetworkId();
-		} else {
-			Log.w(TAG, "WifiManager.saveConfiguration failed.");
+		default:
+            m_networkId = -1;
+            break;
 		}
 
-		// enable the network
-		boolean networkEnabled = m_wifi.enableNetwork(m_networkId, true);
-		if (!networkEnabled) {
-			Log.w(TAG, "WifiManager.enableNetwork failed");
-			setState(OnboardingState.PERSONAL_AP_CONFIGURED_ERROR);
-		}
+		if (m_networkId < 0) {
+            Log.d(TAG, "connectToWifiAP networkId <0  WIFI_AUTHENTICATION_ERROR");
+            return;
+        }
+        Log.d(TAG, "connectToWifiAP calling connect");
+        connect(wifiConfiguration, m_networkId, 30*1000);
+
 	}
 
+	
+	/**
+     * Make the actual connection to the requested Wi-Fi target.
+     *
+     * @param wifiConfig
+     *            details of the Wi-Fi access point used by the WifiManger
+     * @param networkId
+     *            id of the Wi-Fi configuration
+     * @param timeoutMsec
+     *            period of time in Msec to complete Wi-Fi connection task
+     */
+    private void connect(final WifiConfiguration wifiConfig, final int networkId, final long timeoutMsec) {
+       
+    	Log.i(TAG, "connect  SSID=" + wifiConfig.SSID + " within " + timeoutMsec);
+        boolean res;
+
+        synchronized (this) {
+            targetWifiConfiguration = wifiConfig;
+        }
+
+        // this is the application's Wi-Fi connection timeout
+        wifiTimeoutTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Log.e(TAG, "Network Listener WIFI_TIMEOUT  when trying to connect to " + normalizeSSID(targetWifiConfiguration.SSID));
+            }
+        }, timeoutMsec);
+
+        if (m_wifi.getConnectionInfo().getSupplicantState() == SupplicantState.DISCONNECTED) {
+        	m_wifi.disconnect();
+        }
+
+        res = m_wifi.enableNetwork(networkId, false);
+        Log.d(TAG, "connect enableNetwork [false] status=" + res);
+        res = m_wifi.disconnect();
+        Log.d(TAG, "connect disconnect  status=" + res);
+
+        // enabling a network doesn't guarantee that it's the one that Android
+        // will connect to.
+        // Selecting a particular network is achieved by passing 'true' here to
+        // disable all other networks.
+        // the side effect is that all other user's Wi-Fi networks become
+        // disabled.
+        // The recovery for that is enableAllWifiNetworks method.
+        res = m_wifi.enableNetwork(networkId, true);
+        Log.d(TAG, "connect enableNetwork [true] status=" + res);
+        res = m_wifi.reconnect();
+        m_wifi.setWifiEnabled(true);
+    }
+	
+	
 	/**
 	 * Start the AP mode.
 	 */
@@ -811,6 +901,53 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
 
 	}
 
+	/**
+     * A utility method that checks if a password complies with WEP password
+     * rules, and if it's in HEX format.
+     *
+     * @param password
+     * @return {@link Pair} of two {@link Boolean} is it a valid WEP password
+     *         and is it a HEX password.
+     */
+    static Pair<Boolean, Boolean> checkWEPPassword(String password) {
+        Log.d(TAG, "checkWEPPassword");
 
+        if (password == null || password.isEmpty()) {
+            Log.w(TAG, "checkWEPPassword empty password");
+            return new Pair<Boolean, Boolean>(false, false);
+        }
+
+        int length = password.length();
+        switch (length) {
+        // valid ASCII keys length
+        case 5:
+        case 13:
+        case 16:
+        case 29:
+            Log.d(TAG, "checkWEPPassword valid WEP ASCII password");
+            return new Pair<Boolean, Boolean>(true, false);
+            // valid hex keys length
+        case 10:
+        case 26:
+        case 32:
+        case 58:
+            if (password.matches(WEP_HEX_PATTERN)) {
+                Log.d(TAG, "checkWEPPassword valid WEP password length, and HEX pattern match");
+                return new Pair<Boolean, Boolean>(true, true);
+            }
+            Log.w(TAG, "checkWEPPassword valid WEP password length, but HEX pattern matching failed: " + WEP_HEX_PATTERN);
+            return new Pair<Boolean, Boolean>(false, false);
+        default:
+            Log.w(TAG, "checkWEPPassword invalid WEP password length: " + length);
+            return new Pair<Boolean, Boolean>(false, false);
+        }
+    }
+    
+    static String normalizeSSID(String ssid) {
+        if (ssid != null && ssid.length() > 0 && ssid.startsWith("\"")) {
+            ssid = ssid.replace("\"", "");
+        }
+        return ssid;
+    }
 
 }// OnboardingServiceImpl
