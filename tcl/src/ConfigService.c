@@ -336,6 +336,7 @@ AJ_Status AJCFG_SetPasscodeHandler(AJ_Message* msg)
     char* daemonRealm;
     AJ_Arg newPasscode;
     AJ_Message reply;
+    uint8_t forceRouterDisconnect = FALSE;
 
     AJ_InfoPrintf(("Handling SetPasscode request\n"));
 
@@ -356,10 +357,11 @@ AJ_Status AJCFG_SetPasscodeHandler(AJ_Message* msg)
         AJ_InfoPrintf(("Passcode %*%ds %d bytes long\n", newPasscode.len, "", newPasscode.len));
         if (newPasscode.len > 0) { // Check passcode is not empty
             if (appSetPasscode) {
-                status = (appSetPasscode)(daemonRealm, newPasscode.val.v_string, newPasscode.len);
+                status = (appSetPasscode)(daemonRealm, (const uint8_t*)newPasscode.val.v_string, (uint8_t)newPasscode.len);
                 if (status == AJ_ERR_RESOURCES) { // Check passcode is too long to persist
                     AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_MAX_SIZE_EXCEEDED);
                 }
+                forceRouterDisconnect = (status == AJ_ERR_READ);
             }
         } else {
             AJ_ErrPrintf(("Error - newPasscode cannot be empty!\n"));
@@ -371,6 +373,9 @@ AJ_Status AJCFG_SetPasscodeHandler(AJ_Message* msg)
     }
     status = AJ_DeliverMsg(&reply);
 
+    if (forceRouterDisconnect) {
+        return AJ_ERR_READ;
+    }
     return status;
 }
 
