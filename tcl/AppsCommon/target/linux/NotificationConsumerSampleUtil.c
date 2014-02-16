@@ -64,7 +64,7 @@ void Consumer_SetupEnv(uint8_t* inputMode, uint8_t* superAgentMode)
         if (NS_GetLine(buf, BUF_SIZE, stdin) != NULL) {
             if (strlen(buf)) {
                 *superAgentMode = (uint8_t)atoi(buf);
-                if (*superAgentMode < 0 || 1 < *superAgentMode) {
+                if (1 < *superAgentMode) {
                     *superAgentMode = defaultSuperAgentMode;
                 }
             }

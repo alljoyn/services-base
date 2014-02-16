@@ -260,10 +260,10 @@ AJ_Status PropertyStore_Init()
 }
 
 #ifdef CONFIG_SERVICE
-static AJ_Status PropertyStore_ReadConfig(uint16_t index, void* ptr, size_t size)
+static AJ_Status PropertyStore_ReadConfig(uint16_t index, void* ptr, uint16_t size)
 {
     AJ_Status status = AJ_OK;
-    size_t sizeRead = 0;
+    uint16_t sizeRead = 0;
 
     AJ_NV_DATASET* nvramHandle = AJ_NVRAM_Open(index, "r", 0);
     if (nvramHandle != NULL) {
@@ -277,10 +277,10 @@ static AJ_Status PropertyStore_ReadConfig(uint16_t index, void* ptr, size_t size
     return status;
 }
 
-static AJ_Status PropertyStore_WriteConfig(uint16_t index, void* ptr, size_t size, char* mode)
+static AJ_Status PropertyStore_WriteConfig(uint16_t index, void* ptr, uint16_t size, char* mode)
 {
     AJ_Status status = AJ_OK;
-    size_t sizeWritten = 0;
+    uint16_t sizeWritten = 0;
 
     AJ_NV_DATASET* nvramHandle = AJ_NVRAM_Open(index, mode, size);
     if (nvramHandle != NULL) {
@@ -298,7 +298,7 @@ AJ_Status AJSVC_PropertyStore_LoadAll()
 {
     AJ_Status status = AJ_OK;
     void* buf = NULL;
-    size_t size = 0;
+    uint16_t size = 0;
     uint16_t entry;
 
     int8_t langIndex = AJSVC_PROPERTY_STORE_NO_LANGUAGE_INDEX;
@@ -314,7 +314,7 @@ AJ_Status AJSVC_PropertyStore_LoadAll()
                 size = propertyStoreRuntimeValues[fieldIndex].size;
                 entry = (int)fieldIndex + (int)langIndex * (int)AJSVC_PROPERTY_STORE_NUMBER_OF_CONFIG_KEYS;
                 status = PropertyStore_ReadConfig(AJ_PROPERTIES_NV_ID_BEGIN + entry, buf, size);
-                AJ_Printf("nvram read fieldIndex=%d langIndex=%d entry=%d val=%s size=%lu status=%s\n", (int)fieldIndex, (int)langIndex, (int)entry, propertyStoreRuntimeValues[fieldIndex].value[langIndex], size, AJ_StatusText(status));
+                AJ_Printf("nvram read fieldIndex=%d langIndex=%d entry=%d val=%s size=%u status=%s\n", (int)fieldIndex, (int)langIndex, (int)entry, propertyStoreRuntimeValues[fieldIndex].value[langIndex], (int)size, AJ_StatusText(status));
             }
         }
     }
@@ -326,7 +326,7 @@ AJ_Status AJSVC_PropertyStore_SaveAll()
 {
     AJ_Status status = AJ_OK;
     void* buf = NULL;
-    size_t size = 0;
+    uint16_t size = 0;
     uint16_t entry;
 
     int8_t langIndex = AJSVC_PROPERTY_STORE_NO_LANGUAGE_INDEX;
@@ -342,7 +342,7 @@ AJ_Status AJSVC_PropertyStore_SaveAll()
                 size = propertyStoreRuntimeValues[fieldIndex].size;
                 entry = (int)fieldIndex + (int)langIndex * (int)AJSVC_PROPERTY_STORE_NUMBER_OF_CONFIG_KEYS;
                 status = PropertyStore_WriteConfig(AJ_PROPERTIES_NV_ID_BEGIN + entry, buf, size, "w");
-                AJ_Printf("nvram write fieldIndex=%d langIndex=%d entry=%d val=%s size=%lu status=%s\n", (int)fieldIndex, (int)langIndex, (int)entry, propertyStoreRuntimeValues[fieldIndex].value[langIndex], size, AJ_StatusText(status));
+                AJ_Printf("nvram write fieldIndex=%d langIndex=%d entry=%d val=%s size=%u status=%s\n", (int)fieldIndex, (int)langIndex, (int)entry, propertyStoreRuntimeValues[fieldIndex].value[langIndex], (int)size, AJ_StatusText(status));
             }
         }
     }
