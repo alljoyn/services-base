@@ -583,11 +583,6 @@ public class OnboardingSDK {
     private static Handler stateHandler = null;
 
     /**
-     * Stores the AllJoynManagmentCallback object
-     */
-    private AllJoynManagmentCallback alljoynManagmentCallback = null;
-
-    /**
      * Stores the OnboardingsdkWifiManager object
      */
     private OnboardingSDKWifiManager onboardingSDKWifiManager = null;
@@ -926,16 +921,18 @@ public class OnboardingSDK {
      * @throws OnboardingIllegalStateException
      *             if already initialized.
      */
-    public void init(Context context, AllJoynManagmentCallback allJoynManagmentCallback) throws OnboardingIllegalArgumentException, OnboardingIllegalStateException {
-        if (context == null || allJoynManagmentCallback == null) {
+    public void init(Context context, AboutService aboutService, BusAttachment bus) throws OnboardingIllegalArgumentException, OnboardingIllegalStateException {
+        if (context == null || aboutService == null ||  bus==null) {
             throw new OnboardingIllegalArgumentException();
         }
-        if (this.context != null || this.onboardingSDKWifiManager != null) {
+        if (this.context != null || this.aboutService!=null || this.bus!=null) {
             throw new OnboardingIllegalStateException();
         }
         this.context = context;
-        this.onboardingSDKWifiManager = new OnboardingSDKWifiManager(context);
-        this.alljoynManagmentCallback = allJoynManagmentCallback;
+        this.onboardingSDKWifiManager = new OnboardingSDKWifiManager(this.context);
+        this.bus = bus;
+        this.aboutService=aboutService;
+
     }
 
 
@@ -946,7 +943,8 @@ public class OnboardingSDK {
     public void shutDown() throws OnboardingIllegalStateException {
         if (currentState==State.IDLE){
             this.context=null;
-            this.alljoynManagmentCallback=null;
+            this.bus=null;
+            this.aboutService=null;
             this.onboardingSDKWifiManager=null;
             if (aboutService!=null){
                 aboutService.removeAnnouncementHandler(announcementHandler);
@@ -954,27 +952,6 @@ public class OnboardingSDK {
         }else{
             throw new OnboardingIllegalStateException("Not in IDLE state ,please Abort first");
         }
-    }
-
-
-    /**
-     * Update the SDK singleton with the current application configuration.
-     *
-     * @param aboutService
-     * @param bus
-     *            The AllJoyn BusAttachment
-     *
-     * @throws OnboardingIllegalArgumentException
-     *             if any of the parameters is null
-     *
-     */
-    public void update(AboutService aboutService, BusAttachment bus) throws OnboardingIllegalArgumentException {
-        if (aboutService == null || bus == null) {
-            throw new OnboardingIllegalArgumentException();
-        }
-        this.bus = bus;
-        this.aboutService=aboutService;
-        aboutService.addAnnouncementHandler(announcementHandler);
     }
 
 
@@ -1039,12 +1016,6 @@ public class OnboardingSDK {
      */
     private void handleWaitForOnboardeeAnnounceState() {
         Bundle extras = new Bundle();
-        //this is a temporery fix (see AllJoynManagmentCallback) before alljoynManagmentCallback.reconnectToBus() need to release the onboardingClient.
-        if (onboardingClient!=null){
-            onboardingClient.disconnect();
-            onboardingClient=null;
-        }
-        alljoynManagmentCallback.reconnectToBus();
         extras.clear();
         extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.FINDING_ONBOARDEE.toString());
         sendBroadcast(STATE_CHANGE_ACTION, extras);
@@ -1227,6 +1198,7 @@ public class OnboardingSDK {
         extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.VERIFIED_ONBOARDED.toString());
         sendBroadcast(STATE_CHANGE_ACTION, extras);
 
+        aboutService.removeAnnouncementHandler(announcementHandler);
         setState(State.IDLE);
         onboardingSDKWifiManager.enableAllWifiNetworks();
     }
@@ -1331,12 +1303,6 @@ public class OnboardingSDK {
 
         case WAITING_FOR_TARGET_ANNOUNCE:
             currentState = State.WAITING_FOR_TARGET_ANNOUNCE;
-            //this is a temporery fix (see AllJoynManagmentCallback) before calling  alljoynManagmentCallback.reconnectToBus() need to release the onboardingClient.
-            if (onboardingClient!=null){
-                onboardingClient.disconnect();
-                onboardingClient=null;
-            }
-            alljoynManagmentCallback.reconnectToBus();
             handleWaitForTargetAnnounceState();
             break;
 
@@ -1423,6 +1389,12 @@ public class OnboardingSDK {
             if (announceData.getPort() == 0) {
                 return new DeviceResponse(ResponseCode.Status_ERROR, "announceData.getPort() == 0");
             }
+
+            if (onboardingClient!=null){
+                onboardingClient.disconnect();
+                onboardingClient=null;
+            }
+
             onboardingClient = new OnboardingClientImpl(announceData.getServiceName(), bus, new ServiceAvailabilityListener() {
                 @Override
                 public void connectionLost() {
@@ -1499,6 +1471,10 @@ public class OnboardingSDK {
         extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.JOINING_SESSION.toString());
         sendBroadcast(STATE_CHANGE_ACTION, extras);
 
+        if (onboardingClient!=null){
+            onboardingClient.disconnect();
+            onboardingClient=null;
+        }
 
         try {
             onboardingClient = new OnboardingClientImpl(serviceName, bus, new ServiceAvailabilityListener() {
@@ -1814,7 +1790,10 @@ public class OnboardingSDK {
         if (!validateOnboardingConfiguration(config)){
             throw new OnboardingIllegalArgumentException();
         }
+
+        aboutService.addAnnouncementHandler(announcementHandler);
         onboardingConfiguration = config;
+
         if (currentState == State.IDLE) {
 
             if (onboardingSDKWifiManager.getCurrentConnectedAP()!=null){
@@ -1929,7 +1908,7 @@ public class OnboardingSDK {
             onboardingSDKWifiManager.removeWifiAP(onboardingConfiguration.getOnboardee().getSSID());
         }
         final Bundle extras =new Bundle();
-
+        aboutService.removeAnnouncementHandler(announcementHandler);
         //Try to connect to orginal access point if existed.
         if (originalNetwork!=null)
         {
@@ -2007,7 +1986,7 @@ public class OnboardingSDK {
      * @throws OnboardingIllegalArgumentException is thrown when config is not valid
      * @throws WifiDisabledException in case Wi-Fi is disabled.
      */
-    public void runOffboarding(OffboardingConfiguration config) throws OnboardingIllegalStateException, OnboardingIllegalArgumentException,WifiDisabledException {
+    public void runOffboarding(final OffboardingConfiguration config) throws OnboardingIllegalStateException, OnboardingIllegalArgumentException, WifiDisabledException {
 
         if (!onboardingSDKWifiManager.isWifiEnabled()) {
             throw new WifiDisabledException();
@@ -2021,18 +2000,23 @@ public class OnboardingSDK {
         if (currentState != State.IDLE) {
             throw new OnboardingIllegalStateException("onboarding process is already running");
         }
-        DeviceResponse deviceResponse = offboardDevice(config.getServiceName(), config.getPort());
-        if (deviceResponse.getStatus() != ResponseCode.Status_OK) {
-            Bundle extras = new Bundle();
-            if (deviceResponse.getStatus()==ResponseCode.Status_ERROR_CANT_ESTABLISH_SESSION){
-                extras.putString(EXTRA_DEVICE_INFORMATION, config.getServiceName());
-                extras.putString(EXTRA_ERROR_DETAILS,OnboardingErrorType.JOIN_SESSION_ERROR.toString());
-            }else{
-                extras.putString(EXTRA_DEVICE_INFORMATION, config.getServiceName());
-                extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.ERROR_CONFIGURING_ONBOARDEE.toString());
+
+        new Thread() {
+            public void run() {
+                DeviceResponse deviceResponse = offboardDevice(config.getServiceName(), config.getPort());
+                if (deviceResponse.getStatus() != ResponseCode.Status_OK) {
+                    Bundle extras = new Bundle();
+                    if (deviceResponse.getStatus() == ResponseCode.Status_ERROR_CANT_ESTABLISH_SESSION) {
+                        extras.putString(EXTRA_DEVICE_INFORMATION, config.getServiceName());
+                        extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.JOIN_SESSION_ERROR.toString());
+                    } else {
+                        extras.putString(EXTRA_DEVICE_INFORMATION, config.getServiceName());
+                        extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.ERROR_CONFIGURING_ONBOARDEE.toString());
+                    }
+                    sendBroadcast(ERROR, extras);
+                }
             }
-            sendBroadcast(ERROR, extras);
-        }
+        }.start();
     }
 
 
