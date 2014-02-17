@@ -14,6 +14,15 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+/**
+ * Per-module definition of the current module for debug logging.  Must be defined
+ * prior to first inclusion of aj_debug.h.
+ * The corresponding flag dbgAJNS is defined in services_common.h and implemented
+ * in services_common.c.
+ */
+#define AJ_MODULE AJNS
+#include <aj_debug.h>
+
 #include <alljoyn/notification/NotificationCommon.h>
 #include <alljoyn/services_common/Services_Common.h>
 
@@ -76,10 +85,10 @@ AJ_Status AJNS_SendDismissSignal(AJ_BusAttachment* busAttachment, int32_t msgId,
     AJ_Status status;
     AJ_Message msg;
 
-    AJ_Printf("In SendDismiss\n");
+    AJ_InfoPrintf(("In SendDismiss\n"));
 
     if (appId == 0) {
-        AJ_Printf("AppId can not be NULL\n");
+        AJ_ErrPrintf(("AppId can not be NULL\n"));
         return AJ_ERR_DISALLOWED;
     }
 
@@ -88,7 +97,7 @@ AJ_Status AJNS_SendDismissSignal(AJ_BusAttachment* busAttachment, int32_t msgId,
 
     status = AJ_MarshalSignal(busAttachment, &msg, NOTIFICATION_DISMISSER_DISMISS_EMITTER, NULL, 0, ALLJOYN_FLAG_SESSIONLESS, AJNS_NOTIFICATION_TTL_MAX); // TODO: Add the "DON'T COLLAPSE" flag
     if (status != AJ_OK) {
-        AJ_Printf("Could not Marshal Signal\n");
+        AJ_ErrPrintf(("Could not Marshal Signal\n"));
         return status;
     }
 
@@ -115,7 +124,7 @@ AJ_Status AJNS_SendDismissSignal(AJ_BusAttachment* busAttachment, int32_t msgId,
 
 ErrorExit:
 
-    AJ_Printf("Could not Deliver Message\n");
+    AJ_ErrPrintf(("Could not Deliver Message\n"));
     return status;
 }
 

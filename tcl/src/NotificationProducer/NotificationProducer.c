@@ -14,6 +14,16 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+/**
+ * Per-module definition of the current module for debug logging.  Must be defined
+ * prior to first inclusion of aj_debug.h.
+ * The corresponding flag dbgAJNS is defined in services_common.h and implemented
+ * in services_common.c.
+ */
+#define AJ_MODULE AJNS
+#include <aj_debug.h>
+
+#include <alljoyn.h>
 #include <alljoyn/notification/NotificationProducer.h>
 #include <alljoyn/services_common/PropertyStore.h>
 #include <aj_crypto.h>
@@ -146,13 +156,13 @@ static AJ_Status AJNS_Producer_MarshalNotificationMsg(AJ_BusAttachment* busAttac
     int8_t indx;
 
     if (notification == NULL) {
-        AJ_Printf("Nothing to send\n");
+        AJ_InfoPrintf(("Nothing to send\n"));
         return status;
     }
 
     status = AJ_MarshalSignal(busAttachment, msg, AJ_APP_MESSAGE_ID(notification->messageType + NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS, 1, 0), NULL, 0, ALLJOYN_FLAG_SESSIONLESS, ttl);
     if (status != AJ_OK) {
-        AJ_Printf("Could not Marshal Signal\n");
+        AJ_ErrPrintf(("Could not Marshal Signal\n"));
         return status;
     }
 
@@ -246,7 +256,7 @@ static AJ_Status AJNS_Producer_MarshalNotificationMsg(AJ_BusAttachment* busAttac
 
         for (indx = 0; indx < notification->content->numAudioUrls; indx++) {
             if ((strlen(notification->content->richAudioUrls[indx].key) == 0) || (strlen(notification->content->richAudioUrls[indx].value) == 0)) {
-                AJ_Printf("Rich Audio Language/Url can not be empty\n");
+                AJ_ErrPrintf(("Rich Audio Language/Url can not be empty\n"));
                 AJ_MarshalCloseContainer(msg, &richAudioArray);
                 status = AJ_ERR_DISALLOWED;
                 goto ErrorExit;
@@ -407,7 +417,7 @@ static AJ_Status AJNS_Producer_MarshalNotificationMsg(AJ_BusAttachment* busAttac
 
     for (indx = 0; indx < notification->content->numTexts; indx++) {
         if ((strlen(notification->content->texts[indx].key) == 0) || (strlen(notification->content->texts[indx].value) == 0)) {
-            AJ_Printf("Language/Text can not be empty\n");
+            AJ_ErrPrintf(("Language/Text can not be empty\n"));
             AJ_MarshalCloseContainer(msg, &notTextArray);
             status = AJ_ERR_DISALLOWED;
             goto ErrorExit;
@@ -435,7 +445,7 @@ static AJ_Status AJNS_Producer_MarshalNotificationMsg(AJ_BusAttachment* busAttac
 
 ErrorExit:
 
-    AJ_Printf("MarshalNotification failed: '%s'\n", AJ_StatusText(status));
+    AJ_ErrPrintf(("MarshalNotification failed: '%s'\n", AJ_StatusText(status)));
     return status;
 }
 
@@ -448,19 +458,19 @@ static AJ_Status AJNS_Producer_SendNotifySignal(AJ_BusAttachment* busAttachment,
     AJ_Message msg;
     uint32_t serialNum;
 
-    AJ_Printf("In SendNotifySignal\n");
+    AJ_InfoPrintf(("In SendNotifySignal\n"));
     status = AJNS_Producer_MarshalNotificationMsg(busAttachment, &msg, notification, ttl);
     if (status != AJ_OK) {
-        AJ_Printf("Could not Marshal Message\n");
+        AJ_InfoPrintf(("Could not Marshal Message\n"));
         return status;
     }
     serialNum = msg.hdr->serialNum;
     status = AJ_DeliverMsg(&msg);
     if (status != AJ_OK) {
-        AJ_Printf("Could not Deliver Message\n");
+        AJ_ErrPrintf(("Could not Deliver Message\n"));
         return status;
     }
-    AJ_Printf("***************** Notification id %d delivered successfully with serial number %u *****************\n", notification->notificationId, serialNum);
+    AJ_InfoPrintf(("***************** Notification id %d delivered successfully with serial number %u *****************\n", notification->notificationId, serialNum));
     if (messageSerialNumber != NULL) {
         *messageSerialNumber = serialNum;
     }
@@ -479,17 +489,17 @@ AJ_Status AJNS_Producer_SendNotification(AJ_BusAttachment* busAttachment, AJNS_N
     AJNS_Notification notification;
     uint32_t serialNumber;
 
-    AJ_Printf("In SendNotification\n");
+    AJ_InfoPrintf(("In SendNotification\n"));
 
     notification.version = AJNS_NotificationVersion;
     if (messageType >= AJNS_NUM_MESSAGE_TYPES) {
-        AJ_Printf("Could not Set Notification - MessageType is not valid\n");
+        AJ_ErrPrintf(("Could not Send Notification - MessageType is not valid\n"));
         return AJ_ERR_DISALLOWED;
     }
     notification.messageType = messageType;
 
     if ((ttl < AJNS_NOTIFICATION_TTL_MIN) || (ttl > AJNS_NOTIFICATION_TTL_MAX)) {      //ttl is mandatory and must be in range
-        AJ_Printf("TTL '%u' is not a valid TTL value\n", ttl);
+        AJ_ErrPrintf(("TTL '%u' is not a valid TTL value\n", ttl));
         return AJ_ERR_DISALLOWED;
     }
 
@@ -500,13 +510,13 @@ AJ_Status AJNS_Producer_SendNotification(AJ_BusAttachment* busAttachment, AJNS_N
 
     if ((notification.deviceId == 0) || (notification.deviceName == 0) ||
         (notification.appId == 0) || (notification.appName == 0)) {
-        AJ_Printf("DeviceId/DeviceName/AppId/AppName can not be NULL\n");
+        AJ_ErrPrintf(("DeviceId/DeviceName/AppId/AppName can not be NULL\n"));
         return AJ_ERR_DISALLOWED;
     }
 
     if ((strlen(notification.deviceId) == 0) || (strlen(notification.deviceName) == 0) ||
         (strlen(notification.appId) == 0) || (strlen(notification.appName) == 0)) {
-        AJ_Printf("DeviceId/DeviceName/AppId/AppName can not be empty\n");
+        AJ_ErrPrintf(("DeviceId/DeviceName/AppId/AppName can not be empty\n"));
         return AJ_ERR_DISALLOWED;
     }
 
@@ -514,12 +524,12 @@ AJ_Status AJNS_Producer_SendNotification(AJ_BusAttachment* busAttachment, AJNS_N
         notification.originalSenderName = AJ_GetUniqueName(busAttachment);
 
         if (notification.originalSenderName == 0) {
-            AJ_Printf("OriginalSender can not be NULL\n");
+            AJ_ErrPrintf(("OriginalSender can not be NULL\n"));
             return AJ_ERR_DISALLOWED;
         }
 
         if (strlen(notification.originalSenderName) == 0) {
-            AJ_Printf("OriginalSender can not be empty\n");
+            AJ_ErrPrintf(("OriginalSender can not be empty\n"));
             return AJ_ERR_DISALLOWED;
         }
     } else {
@@ -527,7 +537,7 @@ AJ_Status AJNS_Producer_SendNotification(AJ_BusAttachment* busAttachment, AJNS_N
     }
 
     if (!notificationId) {
-        AJ_Printf("Generating random number for notification id\n");
+        AJ_InfoPrintf(("Generating random number for notification id\n"));
         AJ_RandBytes((uint8_t*)&notificationId, 4);
     }
 
@@ -549,32 +559,32 @@ AJ_Status AJNS_Producer_SendNotification(AJ_BusAttachment* busAttachment, AJNS_N
 
 AJ_Status AJNS_Producer_DeleteLastNotification(AJ_BusAttachment* busAttachment, uint16_t messageType)
 {
-    AJ_Printf("In DeleteLastNotification\n");
+    AJ_InfoPrintf(("In DeleteLastNotification\n"));
     AJ_Status status;
     uint32_t lastSentSerialNumber;
 
     if (messageType >= AJNS_NUM_MESSAGE_TYPES) {
-        AJ_Printf("Could not delete Notification - MessageType is not valid\n");
+        AJ_ErrPrintf(("Could not delete Notification - MessageType is not valid\n"));
         return AJ_ERR_DISALLOWED;
     }
 
     lastSentSerialNumber = lastSentNotifications[messageType].serialNum;
     if (lastSentSerialNumber == 0) {
-        AJ_Printf("Could not Delete Message - no message to delete\n");
+        AJ_ErrPrintf(("Could not Delete Message - no message to delete\n"));
         return AJ_OK;
     }
 
     status = AJ_BusCancelSessionless(busAttachment, lastSentSerialNumber);
 
     if (status != AJ_OK) {
-        AJ_Printf("Could not Delete Message\n");
+        AJ_ErrPrintf(("Could not Delete Message\n"));
         return status;
     }
 
     lastSentNotifications[messageType].notificationId = 0;
     lastSentNotifications[messageType].serialNum = 0;
 
-    AJ_Printf("***************** Message deleted successfully *****************\n");
+    AJ_InfoPrintf(("***************** Message deleted successfully *****************\n"));
     return status;
 }
 
@@ -583,10 +593,10 @@ static AJ_Status AJNS_Producer_CancelNotificationById(AJ_BusAttachment* busAttac
     AJ_Status status;
     uint16_t messageType = 0;
 
-    AJ_Printf("In CancelNotificationById\n");
+    AJ_InfoPrintf(("In CancelNotificationById\n"));
 
     if (notificationId == 0) {
-        AJ_Printf("Could not cancel Message - no message to cancel\n");
+        AJ_ErrPrintf(("Could not cancel Message - no message to cancel\n"));
         return AJ_OK;
     }
     for (; messageType < AJNS_NUM_MESSAGE_TYPES; messageType++) {
@@ -595,14 +605,14 @@ static AJ_Status AJNS_Producer_CancelNotificationById(AJ_BusAttachment* busAttac
         }
     }
     if (messageType >= AJNS_NUM_MESSAGE_TYPES) {
-        AJ_Printf("Could not find matching Message serial number - no message to cancel\n");
+        AJ_ErrPrintf(("Could not find matching Message serial number - no message to cancel\n"));
         return AJ_OK;
     }
 
     status = AJ_BusCancelSessionless(busAttachment, lastSentNotifications[messageType].serialNum);
 
     if (status != AJ_OK) {
-        AJ_Printf("Failed to send cancelation\n");
+        AJ_ErrPrintf(("Failed to send cancelation\n"));
         return status;
     }
 
@@ -617,10 +627,10 @@ AJ_Status AJNS_Producer_CancelNotification(AJ_BusAttachment* busAttachment, uint
     AJ_Status status;
     uint16_t messageType = 0;
 
-    AJ_Printf("In CancelNotificationBySerialNum\n");
+    AJ_InfoPrintf(("In CancelNotificationBySerialNum\n"));
 
     if (serialNum == 0) {
-        AJ_Printf("Could not cancel Message - no message to cancel\n");
+        AJ_ErrPrintf(("Could not cancel Message - no message to cancel\n"));
         return AJ_OK;
     }
     for (; messageType < AJNS_NUM_MESSAGE_TYPES; messageType++) {
@@ -629,14 +639,14 @@ AJ_Status AJNS_Producer_CancelNotification(AJ_BusAttachment* busAttachment, uint
         }
     }
     if (messageType >= AJNS_NUM_MESSAGE_TYPES) {
-        AJ_Printf("Could not find matching Message serial number - no message to cancel\n");
+        AJ_ErrPrintf(("Could not find matching Message serial number - no message to cancel\n"));
         return AJ_OK;
     }
 
     status = AJ_BusCancelSessionless(busAttachment, serialNum);
 
     if (status != AJ_OK) {
-        AJ_Printf("Failed to send cancelation\n");
+        AJ_ErrPrintf(("Failed to send cancelation\n"));
         return status;
     }
 
@@ -648,14 +658,14 @@ AJ_Status AJNS_Producer_CancelNotification(AJ_BusAttachment* busAttachment, uint
 
 AJ_Status AJNS_Producer_DismissRequestHandler(AJ_BusAttachment* busAttachment, AJ_Message* msg)
 {
-    AJ_Printf("In DismissMsg\n");
+    AJ_InfoPrintf(("In DismissMsg\n"));
     AJ_Status status;
     int32_t notificationId;
     const char* appId;
 
     status = AJ_UnmarshalArgs(msg, "i", &notificationId);
     if (status != AJ_OK) {
-        AJ_Printf("Could not unmarshal message\n");
+        AJ_ErrPrintf(("Could not unmarshal message\n"));
         return status;
     }
 
@@ -670,7 +680,7 @@ AJ_Status AJNS_Producer_DismissRequestHandler(AJ_BusAttachment* busAttachment, A
         return status;
     }
 
-    AJ_Printf("***************** Message dismissed successfully *****************\n");
+    AJ_InfoPrintf(("***************** Message dismissed successfully *****************\n"));
     return status;
 }
 
@@ -715,7 +725,7 @@ AJ_Status AJNS_Producer_ConnectedHandler(AJ_BusAttachment* busAttachment)
 
     status = AJ_BusBindSessionPort(busAttachment, AJNS_NotificationProducerPort, &sessionOpts, 0);
     if (status != AJ_OK) {
-        AJ_Printf("Failed to send bind session port message\n");
+        AJ_ErrPrintf(("Failed to send bind session port message\n"));
     }
 
     serviceStarted = FALSE;
@@ -746,7 +756,7 @@ AJ_Status AJNS_Producer_ConnectedHandler(AJ_BusAttachment* busAttachment)
     }
 
     if (status != AJ_OK) {
-        AJ_Printf("AllJoyn disconnect bus status=%d\n", status);
+        AJ_ErrPrintf(("AllJoyn disconnect bus status=%d\n", status));
         status = AJ_ERR_READ;
     }
     return status;
@@ -757,7 +767,7 @@ uint8_t AJNS_Producer_CheckSessionAccepted(uint16_t port, uint32_t sessionId, co
     if (port != AJNS_NotificationProducerPort) {
         return FALSE;
     }
-    AJ_Printf("Producer: Accepted session on port %u from %s\n", port, joiner);
+    AJ_InfoPrintf(("Producer: Accepted session on port %u from %s\n", port, joiner));
     return TRUE;
 }
 
@@ -799,7 +809,7 @@ AJ_Status AJNS_Producer_DisconnectHandler(AJ_BusAttachment* busAttachment)
     AJ_Status status = AJ_OK;
 //    status = AJ_BusUnbindSession(busAttachment, AJNS_NotificationProducerPort);
 //    if (status != AJ_OK) {
-//        AJ_Printf("Failed to send unbind session port=%d\n", AJNS_NotificationProducerPort);
+//        AJ_ErrPrintf(("Failed to send unbind session port=%d\n", AJNS_NotificationProducerPort));
 //    }
     return status;
 }
