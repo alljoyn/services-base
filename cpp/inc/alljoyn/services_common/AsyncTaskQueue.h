@@ -115,10 +115,6 @@ class AsyncTaskQueue {
      * The function run in the Receiver
      */
     void Receiver();
-    /**
-     * Tag for logging
-     */
-    qcc::String TAG;
 
     /**
      * class to report about events to the client

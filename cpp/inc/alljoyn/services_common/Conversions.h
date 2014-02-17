@@ -26,8 +26,6 @@ namespace ajn {
 class MsgArg;
 
 namespace services {
-
-class GenericLogger;
 /**
  * class contains methods for conversion needs
  */
@@ -39,10 +37,9 @@ class Conversions {
      * @param msgArg    An array of MsgArgs to unpack.
      * @param byteArray    pointer to ponter to uint8_t to return.
      * @param len       The length of byte array.
-     * @param logger    Pointer to GenericLogger
      * @return status ER_BUS_BAD_VALUE_TYPE in case of failure
      */
-    static QStatus MsgArgToArrayOfBytes(const MsgArg* msgArg, uint8_t** byteArray, size_t* len, GenericLogger* logger);
+    static QStatus MsgArgToArrayOfBytes(const MsgArg* msgArg, uint8_t** byteArray, size_t* len);
     /**
      * Convert MsgArg to array of bytes
      *

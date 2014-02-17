@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -14,33 +14,18 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#include "alljoyn/services_common/GenericLogger.h"
 
-using namespace ajn;
-using namespace services;
+#ifndef LOGMODULE_H_
+#define LOGMODULE_H_
 
-void GenericLogger::debug(qcc::String const& Tag, qcc::String const& logText)
-{
-    return debug(Tag.c_str(), logText.c_str());
+#include <qcc/Debug.h>
+#include <qcc/platform.h>
+#include <alljoyn/services_common/LogModulesNames.h>
+
+namespace ajn {
+namespace services {
+static char const* const QCC_MODULE = logModules::SERVICES_COMMON_MODULE_LOG_NAME;
+}
 }
 
-void GenericLogger::info(qcc::String const& Tag, qcc::String const& logText)
-{
-    return info(Tag.c_str(), logText.c_str());
-}
-
-void GenericLogger::warn(qcc::String const& Tag, qcc::String const& logText)
-{
-    return warn(Tag.c_str(), logText.c_str());
-}
-
-void GenericLogger::error(qcc::String const& Tag, qcc::String const& logText)
-{
-    return error(Tag.c_str(), logText.c_str());
-}
-
-void GenericLogger::fatal(qcc::String const& Tag, qcc::String const& logText)
-{
-    return fatal(Tag.c_str(), logText.c_str());
-}
-
+#endif /* LOGMODULE_H_ */

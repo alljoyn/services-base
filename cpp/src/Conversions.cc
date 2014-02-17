@@ -18,46 +18,32 @@
 #include <alljoyn/MsgArg.h>
 #include <qcc/String.h>
 #include <alljoyn/BusAttachment.h>
-#include "alljoyn/services_common/GenericLogger.h"
 #include <qcc/platform.h>
 #include <qcc/String.h>
 #include <alljoyn/Status.h>
 #include "alljoyn/services_common/ServicesCommonConstants.h"
 #include <iostream>
 #include <sstream>
+#include "alljoyn/services_common/LogModule.h"
 
 using namespace ajn;
 using namespace services;
 using namespace commonConsts;
 using namespace qcc;
 
-static const qcc::String TAG = "Conversions: ";
-
-
-QStatus Conversions::MsgArgToArrayOfBytes(const MsgArg* msgArg, uint8_t** byteArray, size_t* len, GenericLogger* logger)
+QStatus Conversions::MsgArgToArrayOfBytes(const MsgArg* msgArg, uint8_t** byteArray, size_t* len)
 {
     QStatus status = ER_OK;
     if (msgArg->typeId != ALLJOYN_BYTE_ARRAY) {
         status = ER_BUS_BAD_VALUE_TYPE;
-        qcc::String str = qcc::String("ERROR- Problem receiving message: Can not unmarshal this array of bytes argument.");
-        if (logger) {
-            logger->error(TAG, str);
-        }
+        QCC_LogError(status, ("ERROR- Problem receiving message: Can not unmarshal this array of bytes argument."));
         return status;
     }
 
     status = msgArg->Get(AJPARAM_ARR_BYTE.c_str(), len, byteArray);
     if (*len != UUID_LENGTH) {
-        std::ostringstream stm;
-        stm << "ERROR- Array of bytes length is not equal to ";
-        stm << UUID_LENGTH * 2;
-        stm << " but to ";
-        stm << *len;
-
-        if (logger) {
-            logger->error(TAG, String(std::string(stm.str()).c_str()));
-        }
         status = ER_BUS_BAD_VALUE;
+        QCC_LogError(status, ("ERROR- Array of bytes length is not equal to %d  but to %d", UUID_LENGTH * 2, *len));
         return status;
     }
     return status;
