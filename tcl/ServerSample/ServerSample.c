@@ -36,7 +36,6 @@
 // Application wide globals
 #define ROUTER_NAME "org.alljoyn.BusNode"
 static uint8_t isBusConnected = FALSE;
-static uint8_t isRebootRequired = FALSE;
 static AJ_BusAttachment busAttachment;
 
 /*
@@ -214,7 +213,7 @@ int AJ_Main(void)
     if (status != AJ_OK) {
         goto Exit;
     }
-    status = AJServices_Init(AppObjects, ProxyObjects, AnnounceObjects, &isRebootRequired, deviceManufactureName, deviceProductName);
+    status = AJServices_Init(AppObjects, ProxyObjects, AnnounceObjects, deviceManufactureName, deviceProductName);
     if (status != AJ_OK) {
         goto Exit;
     }
@@ -265,13 +264,12 @@ int AJ_Main(void)
             AJ_CloseMsg(&msg);
         }
 
-        if (status == AJ_ERR_READ || status == AJ_ERR_RESTART) {
+        if (status == AJ_ERR_READ || status == AJ_ERR_RESTART || status == AJ_ERR_RESTART_APP) {
             if (isBusConnected) {
-                AJApp_DisconnectHandler(&busAttachment, status == AJ_ERR_RESTART);
+                AJApp_DisconnectHandler(&busAttachment, status != AJ_ERR_READ);
                 AJServices_DisconnectHandler();
-                isBusConnected = !AJRouter_Disconnect(&busAttachment, status == AJ_ERR_RESTART);
-                if (status == AJ_ERR_RESTART && isRebootRequired == TRUE) {
-                    isRebootRequired = FALSE;
+                isBusConnected = !AJRouter_Disconnect(&busAttachment, status != AJ_ERR_READ);
+                if (status == AJ_ERR_RESTART_APP) {
                     AJ_Reboot();
                 }
             }
