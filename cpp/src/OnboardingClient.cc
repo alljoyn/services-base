@@ -365,12 +365,12 @@ GenericLogger* OnboardingClient::getLogger()
 
 Log::LogLevel OnboardingClient::setLogLevel(Log::LogLevel newLogLevel)
 {
-    return logger ? logger->setLogLevel(newLogLevel) : Log::LogLevel::LEVEL_INFO;
+    return logger ? logger->setLogLevel(newLogLevel) : Log::LEVEL_INFO;
 }
 
 Log::LogLevel OnboardingClient::getLogLevel()
 {
-    return logger ? logger->getLogLevel() : Log::LogLevel::LEVEL_INFO;
+    return logger ? logger->getLogLevel() : Log::LEVEL_INFO;
 }
 
 void OnboardingClient::GenericLoggerCallBack(DbgMsgType type, const char* module, const char* msg, void* context)
