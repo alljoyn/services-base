@@ -19,4 +19,4 @@ if not os.path.isfile(ajtcl_root + '/SConscript'):
     print "SConscript in 'AJ_TCL_ROOT=" + ajtcl_root + "' not found; aborting.\n"
     exit(1)
 env = SConscript(ajtcl_root + '/SConscript')
-env.SConscript('SConscript')
+env.SConscript('SConscript', variant_dir = 'obj', duplicate = 0)
