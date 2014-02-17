@@ -16,21 +16,15 @@
 
 /**
  * Per-module definition of the current module for debug logging.  Must be defined
- * prior to first inclusion of aj_debug.h
+ * prior to first inclusion of aj_debug.h.
+ * The corresponding flag dbgAJCFG is defined in services_common.h and implemented
+ * in services_common.c.
  */
 #define AJ_MODULE AJCFG
 #include <aj_debug.h>
 
 #include <alljoyn.h>
 #include <alljoyn/config/ConfigService.h>
-
-/**
- * Turn on per-module debug printing by setting this variable to non-zero value
- * (usually in debugger).
- */
-#ifndef NDEBUG
-AJ_EXPORT uint8_t dbgAJCFG = 0;
-#endif
 
 /*
  * Message identifiers for the method calls this service implements
