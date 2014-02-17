@@ -1,5 +1,5 @@
 #*****************************************************************************
-# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+# Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
@@ -14,42 +14,11 @@
 #    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #*****************************************************************************
 
-import os
 Import('config_env')
 
-target_name = 'AboutConfigServiceSample'
-source_files = [
-                Glob('*.c'),
+srcs = [Glob('*.c')]
 
-]
+objs = config_env.Object(srcs)
 
-config_env['CONFIG_DEFINE_STRING'] = 'CONFIG_SERVICE'
-config_env['INCLUDE_DIRS'] =  [
-                     Dir('../inc'),
-                 ]
+Return('objs')
 
-config_env.Append(CPPPATH    = config_env['INCLUDE_DIRS'])
-
-config_env.Append(CPPDEFINES = '$CONFIG_DEFINE_STRING')
-                 
-Export('config_env') # needed when we are called directly by serversample
-
-local_objs = config_env.Object(source_files)
-
-# if we are called as part of services server sample, then return now:
-if not config_env.has_key('INDIV_BUILD'):
-	Return('local_objs')
-
-# we are called as part of Config build, which needs 
-# server sample, Services Common and About components
-
-config_env['SERSAMP_VARIANT_DIR'] = config_env['CONFIG_DEFINE_STRING'].lower()
-serversample_objs = config_env.SConscript('$SERVERSAMPLE_ROOT_FROM_COMPONENT/SConscript', {'env': config_env})
-
-prog = config_env.Program(target = target_name, 
-			source = [
-    			local_objs,
-                serversample_objs,
-                config_env['aj_obj'],
-			])
-Return('prog')
