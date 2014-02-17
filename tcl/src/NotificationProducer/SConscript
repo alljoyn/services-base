@@ -14,47 +14,22 @@
 #    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #*****************************************************************************
 
+import os
+
 Import('notif_env')
 
-target_name = 'NotificationProducer'
+notif_env.Append(CPPDEFINES = ['NOTIFICATION_SERVICE_PRODUCER'])
 
-producer_source_files = [
-                        'NotificationProducer.c',
-]
+srcs = [Glob('*.c')]
 
-# Producer define string, in case others need it (such as
-# Notification test apps) 
-notif_env['PRODUCER_DEFINE_STRING'] = 'NOTIFICATION_SERVICE_PRODUCER'
-# if we are called as part of Notification build, 
-# clone this env so as not to taint other Notification apps. but, if
-# called as part of services server sample, then we want to taint: 
-if notif_env.has_key('INDIV_BUILD'):
-    local_env = notif_env.Clone()
-else:
-    local_env = notif_env
+notif_env.Append(CPPPATH = [
+                             Dir('../../../inc'),
+                            ])
 
-local_env.Append(CPPDEFINES = ['$PRODUCER_DEFINE_STRING'])
+Export('notif_env')
 
-# save the common files in the parent environment for use by test-app builder
-notif_env['PRODUCER_COMMON_OBJS'] = local_env.Object(producer_source_files)
+objs = notif_env.Object(srcs)
 
-local_objs = notif_env['PRODUCER_COMMON_OBJS']
+Return('objs')
 
-# if we are called as part of services server sample, then return now:
-if not notif_env.has_key('INDIV_BUILD'):
-    Return('local_objs')
 
-# we are called as part of Notification build, which needs 
-# server sample and About components
-local_env['SERSAMP_VARIANT_DIR'] = notif_env['PRODUCER_DEFINE_STRING'].lower()
-serversample_objs = local_env.SConscript('$SERVERSAMPLE_ROOT_FROM_COMPONENT/SConscript', {'env': local_env})
-
-local_objs.append(local_env.SConscript('../../NotificationCommon/SConscript', variant_dir = "common", exports = {'notif_env': local_env}))
-
-prog = local_env.Program(target = target_name,
-            source = [
-                local_objs,
-                serversample_objs,
-                local_env['aj_obj'],
-            ])
-Return('prog')

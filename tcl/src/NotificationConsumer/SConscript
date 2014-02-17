@@ -14,47 +14,21 @@
 #    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #*****************************************************************************
 
+import os
+
 Import('notif_env')
 
-target_name = 'NotificationConsumer'
+notif_env.Append(CPPDEFINES = ['NOTIFICATION_SERVICE_CONSUMER'])
 
-consumer_source_files = [
-                        'NotificationConsumer.c',
-]
+srcs = [Glob('*.c')]
 
-# Consumer define string, in case others need it (such as
-# Notification test apps?) 
-define_string = 'NOTIFICATION_SERVICE_CONSUMER'
-# if we are called as part of Notification build, 
-# clone this env so as not to taint other Notification apps. but, if
-# called as part of services server sample, then we want to taint: 
-if notif_env.has_key('INDIV_BUILD'):
-    local_env = notif_env.Clone()
-else:
-    local_env = notif_env
+notif_env.Append(CPPPATH = [
+                             Dir('../../../inc'),
+                            ])
 
-local_env.Append(CPPDEFINES = [define_string])
+Export('notif_env')
 
-# save the common files in the parent environment for use by test-app builder
-notif_env['CONSUMER_COMMON_OBJS'] = local_env.Object(consumer_source_files)
+objs = notif_env.Object(srcs)
 
-local_objs = notif_env['CONSUMER_COMMON_OBJS']
+Return('objs')
 
-# if we are called as part of services server sample, then return now:
-if not notif_env.has_key('INDIV_BUILD'):
-    Return('local_objs')
-
-# we are called as part of Notification build, which needs 
-# server sample and About components
-local_env['SERSAMP_VARIANT_DIR'] = define_string.lower()
-serversample_objs = local_env.SConscript('$SERVERSAMPLE_ROOT_FROM_COMPONENT/SConscript', {'env': local_env})
-
-local_objs.append(local_env.SConscript('../../NotificationCommon/SConscript', variant_dir = "common", exports = {'notif_env': local_env}))
-
-prog = local_env.Program(target = target_name, 
-            source = [
-                local_objs,
-                serversample_objs,
-                local_env['aj_obj'],
-            ])
-Return('prog')

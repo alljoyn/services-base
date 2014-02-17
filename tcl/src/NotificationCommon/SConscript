@@ -14,9 +14,17 @@
 #    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #*****************************************************************************
 
+import os
+
 Import('notif_env')
 
 srcs = [Glob('*.c')]
+
+notif_env.Append(CPPPATH = [
+                             Dir('../../../inc'),
+                            ])
+
+Export('notif_env')
 
 objs = notif_env.Object(srcs)
 
