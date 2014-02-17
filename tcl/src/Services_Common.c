@@ -17,6 +17,26 @@
 #include <alljoyn/services_common/Services_Common.h>
 #include <alljoyn/services_common/PropertyStore.h>
 
+/**
+ * Turn on per-module debug printing by setting this variable to non-zero value
+ * (usually in debugger).
+ */
+#ifndef NDEBUG
+#ifdef CONFIG_SERVICE
+AJ_EXPORT uint8_t dbgAJCFG = 0;
+#endif
+#ifdef ONBOARDING_SERVICE
+AJ_EXPORT uint8_t dbgAJOBS = 0;
+#endif
+#if defined(NOTIFICATION_SERVICE_CONSUMER) || defined(NOTIFICATION_SERVICE_PRODUCER)
+AJ_EXPORT uint8_t dbgAJNS = 0;
+#endif
+#ifdef CONTROLPANEL_SERVICE
+AJ_EXPORT uint8_t dbgAJCPS = 0;
+#endif
+AJ_EXPORT uint8_t dbgAJSVC = 0;
+#endif
+
 uint8_t AJSVC_IsLanguageSupported(AJ_Message* msg, AJ_Message* reply, const char* language, int8_t* langIndex)
 {
     uint8_t supported = TRUE;
