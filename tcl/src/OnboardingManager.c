@@ -373,15 +373,14 @@ AJ_Status AJOBS_ControllerAPI_GotoIdleWiFi(uint8_t reset)
 static AJ_Status DoConnectWifi(AJOBS_Info* connectInfo)
 {
     AJ_Status status = AJ_OK;
-    uint8_t retries = 0;
-
-    AJ_InfoPrintf(("Attempting to connect to %s with passcode=%s and auth=%d\n", connectInfo->ssid, connectInfo->pc, connectInfo->authType));
-
     AJ_WiFiSecurityType secType = AJ_WIFI_SECURITY_NONE;
     AJ_WiFiCipherType cipherType = AJ_WIFI_CIPHER_NONE;
-
     AJOBS_AuthType fallback = AJOBS_AUTH_TYPE_OPEN;
     AJOBS_AuthType fallbackUntil = AJOBS_AUTH_TYPE_OPEN;
+    uint8_t retries = 0;
+    AJ_WiFiConnectState wifiConnectState;
+
+    AJ_InfoPrintf(("Attempting to connect to %s with passcode=%s and auth=%d\n", connectInfo->ssid, connectInfo->pc, connectInfo->authType));
 
     switch (connectInfo->authType) {
     case AJOBS_AUTH_TYPE_ANY:
@@ -418,8 +417,6 @@ static AJ_Status DoConnectWifi(AJOBS_Info* connectInfo)
 
     status = AJOBS_ControllerAPI_GotoIdleWiFi(TRUE); // Go into IDLE mode and reset wifi
     while (1) {
-        AJ_WiFiConnectState wifiConnectState = AJ_GetWifiConnectState();
-
         if (connectInfo->state == AJOBS_STATE_CONFIGURED_NOT_VALIDATED) {
             connectInfo->state = AJOBS_STATE_CONFIGURED_VALIDATING;
         }
@@ -436,87 +433,69 @@ static AJ_Status DoConnectWifi(AJOBS_Info* connectInfo)
         status = AJ_ConnectWiFi(connectInfo->ssid, secType, cipherType, password);
         AJ_InfoPrintf(("AJ_ConnectWifi returned %s\n", AJ_StatusText(status)));
 
-        if (status == AJ_OK) {
-            // Clear last error
+        wifiConnectState = AJ_GetWifiConnectState();
+
+        // Set last error and state
+        if ((status == AJ_OK) /* (wifiConnectState == AJ_WIFI_CONNECT_OK)*/) {
             obLastError.code = AJOBS_STATE_LAST_ERROR_VALIDATED;
             obLastError.message[0] = '\0';
-
-            wifiConnectState = AJ_GetWifiConnectState();
-            AJ_InfoPrintf(("WIFI_CONNECT_STATE: %s, connectInfo->state: %u\n", AJ_WiFiConnectStateText(wifiConnectState), connectInfo->state));
-            uint32_t counter = 0;
-            while (wifiConnectState == AJ_WIFI_CONNECTING || wifiConnectState == AJ_WIFI_DISCONNECTING) {
-                AJ_InfoPrintf(("."));
-                AJ_Sleep(500);
-                wifiConnectState = AJ_GetWifiConnectState();
-                if (++counter >= 60) {
-                    break;
-                }
-            }
-            AJ_InfoPrintf(("\n"));
-
-            //wifiConnectState = AJ_WIFI_CONNECT_FAILED;// This line should be disable. Debug only. ###
-            switch (wifiConnectState) {
-            case AJ_WIFI_CONNECT_OK:
-                obState = AJOBS_STATE_CONFIGURED_VALIDATED;
-                connectInfo->authType = fallback;
-                break;
-
-            case AJ_WIFI_CONNECT_FAILED:
-            case AJ_WIFI_AUTH_FAILED:
-                if (wifiConnectState == AJ_WIFI_CONNECT_FAILED) {
-                    obLastError.code = AJOBS_STATE_LAST_ERROR_UNREACHABLE;
-                    strncpy(obLastError.message, "Network unreachable!", AJOBS_ERROR_MESSAGE_LEN);
-                } else { // (AJ_WIFI_AUTH_FAILED)
-                    obLastError.code = AJOBS_STATE_LAST_ERROR_UNAUTHORIZED;
-                    strncpy(obLastError.message, "Authorization failed!", AJOBS_ERROR_MESSAGE_LEN);
-                }
-
-                if (connectInfo->state == AJOBS_STATE_CONFIGURED_VALIDATED || connectInfo->state == AJOBS_STATE_CONFIGURED_RETRY) {
-                    obState = AJOBS_STATE_CONFIGURED_RETRY;
-                } else {
-                    obState = AJOBS_STATE_CONFIGURED_ERROR;
-                }
-                break;
-
-            default:
-                AJ_WarnPrintf(("Warning - OBS_DoConnectWifi wifiConnectState = %s\n", AJ_WiFiConnectStateText(wifiConnectState)));
-                obLastError.code = AJOBS_STATE_LAST_ERROR_ERROR_MESSAGE;
-                strncpy(obLastError.message, "Failed to connect! Unexpected error", AJOBS_ERROR_MESSAGE_LEN);
+            obState = AJOBS_STATE_CONFIGURED_VALIDATED;
+            connectInfo->authType = fallback;
+        } else if ((status == AJ_ERR_CONNECT) /* (wifiConnectState == AJ_WIFI_CONNECT_FAILED)*/) {
+            obLastError.code = AJOBS_STATE_LAST_ERROR_UNREACHABLE;
+            strncpy(obLastError.message, "Network unreachable!", AJOBS_ERROR_MESSAGE_LEN);
+            if (connectInfo->state == AJOBS_STATE_CONFIGURED_VALIDATED || connectInfo->state == AJOBS_STATE_CONFIGURED_RETRY) {
+                obState = AJOBS_STATE_CONFIGURED_RETRY;
+            } else {
                 obState = AJOBS_STATE_CONFIGURED_ERROR;
-                break;
             }
-
-            if (obState == AJOBS_STATE_CONFIGURED_VALIDATED) {
-                break;
+        } else if ((status == AJ_ERR_SECURITY) /* (wifiConnectState == AJ_WIFI_AUTH_FAILED)*/) {
+            obLastError.code = AJOBS_STATE_LAST_ERROR_UNAUTHORIZED;
+            strncpy(obLastError.message, "Authorization failed!", AJOBS_ERROR_MESSAGE_LEN);
+            if (connectInfo->state == AJOBS_STATE_CONFIGURED_VALIDATED || connectInfo->state == AJOBS_STATE_CONFIGURED_RETRY) {
+                obState = AJOBS_STATE_CONFIGURED_RETRY;
+            } else {
+                obState = AJOBS_STATE_CONFIGURED_ERROR;
             }
-
-            if (obState == AJOBS_STATE_CONFIGURED_ERROR || obState == AJOBS_STATE_CONFIGURED_RETRY) {
-                retries++;
-                if (retries >= obSettings->AJOBS_MAX_RETRIES) {
-                    if (obState == AJOBS_STATE_CONFIGURED_ERROR && connectInfo->state == AJOBS_STATE_CONFIGURED_VALIDATING) {
-                        if (connectInfo->authType < 0 && fallback > fallbackUntil) {
-                            obLastError.code = AJOBS_STATE_LAST_ERROR_UNSUPPORTED_PROTOCOL;
-                            strncpy(obLastError.message, "Unsupported protocol", AJOBS_ERROR_MESSAGE_LEN);
-                            fallback--; // Try next authentication protocol
-                            secType = GetSecType(fallback);
-                            cipherType = GetCipherType(fallback);
-                            retries = 0;
-                            AJ_InfoPrintf(("Trying to connect with fallback auth=%d (secType=%d, cipherType=%d)\n", fallback, secType, cipherType));
-                            status = AJOBS_ControllerAPI_GotoIdleWiFi(FALSE); // Go into IDLE mode disconnecting from current connection
-                            continue;
-                        }
-                    }
-                    break;
-                }
-                AJ_InfoPrintf(("Retry number %d out of %d\n", retries, obSettings->AJOBS_MAX_RETRIES));
-            }
-        } else {
+        } else if (status == AJ_ERR_DRIVER) {
             obLastError.code = AJOBS_STATE_LAST_ERROR_ERROR_MESSAGE;
             strncpy(obLastError.message, "Driver error", AJOBS_ERROR_MESSAGE_LEN);
             obState = AJOBS_STATE_CONFIGURED_ERROR;
+        } else if (status == AJ_ERR_DHCP) {
+            obLastError.code = AJOBS_STATE_LAST_ERROR_ERROR_MESSAGE;
+            strncpy(obLastError.message, "Failed to establish IP!", AJOBS_ERROR_MESSAGE_LEN);
+            obState = AJOBS_STATE_CONFIGURED_ERROR;
+        } else {
+            obLastError.code = AJOBS_STATE_LAST_ERROR_ERROR_MESSAGE;
+            strncpy(obLastError.message, "Failed to connect! Unexpected error", AJOBS_ERROR_MESSAGE_LEN);
+            obState = AJOBS_STATE_CONFIGURED_ERROR;
+        }
+
+        if (obState == AJOBS_STATE_CONFIGURED_VALIDATED) {
             break;
         }
-        status = AJOBS_ControllerAPI_GotoIdleWiFi(FALSE); // Go into IDLE mode disconnecting from current connection
+        AJ_WarnPrintf(("Warning - DoConnectWifi wifiConnectState = %s\n", AJ_WiFiConnectStateText(wifiConnectState)));
+
+        if (obState == AJOBS_STATE_CONFIGURED_ERROR || obState == AJOBS_STATE_CONFIGURED_RETRY) {
+            retries++;
+            if (retries >= obSettings->AJOBS_MAX_RETRIES) {
+                if (obState == AJOBS_STATE_CONFIGURED_ERROR && connectInfo->state == AJOBS_STATE_CONFIGURED_VALIDATING) {
+                    if (connectInfo->authType < 0 && fallback > fallbackUntil) {
+                        obLastError.code = AJOBS_STATE_LAST_ERROR_UNSUPPORTED_PROTOCOL;
+                        strncpy(obLastError.message, "Unsupported protocol", AJOBS_ERROR_MESSAGE_LEN);
+                        fallback--; // Try next authentication protocol
+                        secType = GetSecType(fallback);
+                        cipherType = GetCipherType(fallback);
+                        retries = 0;
+                        AJ_InfoPrintf(("Trying to connect with fallback auth=%d (secType=%d, cipherType=%d)\n", fallback, secType, cipherType));
+                        status = AJOBS_ControllerAPI_GotoIdleWiFi(FALSE); // Go into IDLE mode disconnecting from current connection
+                        continue;
+                    }
+                }
+                break;
+            }
+            AJ_InfoPrintf(("Retry number %d out of %d\n", retries, obSettings->AJOBS_MAX_RETRIES));
+        }
     }
 
     connectInfo->state = obState;
@@ -530,13 +509,18 @@ AJ_Status AJOBS_ControllerAPI_StartSoftAPIfNeededOrConnect(AJOBS_Info* obInfo)
 
     // Check if just started
     if (bFirstStart) {
+        // Check if already Onboarded or in SoftAP mode
+        if (AJOBS_ControllerAPI_IsWiFiClient() || AJOBS_ControllerAPI_IsWiFiSoftAP()) {
+            AJ_InfoPrintf(("CONFIGURE_WIFI_UPON_START was set\n"));
+            return status;
+        }
         bFirstStart = FALSE;
         if (obInfo->state == AJOBS_STATE_CONFIGURED_RETRY) {
             obInfo->state = AJOBS_STATE_CONFIGURED_VALIDATED;
         }
     }
     while (1) {
-        // Check if require to switch into AP mode.
+        // Check if require to switch into SoftAP mode.
         if ((obInfo->state == AJOBS_STATE_NOT_CONFIGURED || obInfo->state == AJOBS_STATE_CONFIGURED_ERROR || obInfo->state == AJOBS_STATE_CONFIGURED_RETRY)) {
             AJ_InfoPrintf(("Establishing SoftAP with ssid=%s%s auth=%s\n", obSettings->AJOBS_SoftAPSSID, (obSettings->AJOBS_SoftAPIsHidden ? " (hidden)" : ""), obSettings->AJOBS_SoftAPPassphrase == NULL ? "OPEN" : obSettings->AJOBS_SoftAPPassphrase));
             if (obInfo->state == AJOBS_STATE_CONFIGURED_RETRY) {
@@ -545,27 +529,28 @@ AJ_Status AJOBS_ControllerAPI_StartSoftAPIfNeededOrConnect(AJOBS_Info* obInfo)
             } else {
                 status = AJ_EnableSoftAP(obSettings->AJOBS_SoftAPSSID, obSettings->AJOBS_SoftAPIsHidden, obSettings->AJOBS_SoftAPPassphrase, obSettings->AJOBS_WAIT_FOR_SOFTAP_CONNECTION);
             }
-            if (AJ_OK != status) {
+            if (status != AJ_OK) {
                 if (AJ_ERR_TIMEOUT == status) {
                     //check for timer elapsed for retry
                     if (obInfo->state == AJOBS_STATE_CONFIGURED_RETRY) {
                         AJ_InfoPrintf(("Retry timer elapsed at %ums\n", obSettings->AJOBS_WAIT_BETWEEN_RETRIES));
                         obInfo->state = AJOBS_STATE_CONFIGURED_VALIDATED;
                         status = (*obWriteInfo)(obInfo);
+                        if (status == AJ_OK) {
+                            continue; // Loop back and connect in client mode
+                        }
                     }
                 }
-                break;
+                AJ_WarnPrintf(("Failed to establish SoftAP with status=%s\n", AJ_StatusText(status)));
             }
-            if (obInfo->state == AJOBS_STATE_CONFIGURED_VALIDATED) {
-                continue; // Loop back and connect in client mode
-            }
-        } else {
-            if (!AJOBS_ControllerAPI_IsWiFiClient()) {
-                // Otherwise connect to given configuration and according to error code returned map to relevant onboarding state and set value for LastError and ConnectionResult.
-                status = DoConnectWifi(obInfo);
+        } else { // Otherwise connect to given configuration and according to error code returned map to relevant onboarding state and set value for LastError and ConnectionResult.
+            status = DoConnectWifi(obInfo);
+            if (status == AJ_OK) {
                 if (obInfo->state == AJOBS_STATE_CONFIGURED_ERROR || obInfo->state == AJOBS_STATE_CONFIGURED_RETRY) {
                     continue; // Loop back and establish SoftAP mode
                 }
+            } else {
+                AJ_WarnPrintf(("Failed to establish connection with current configuration status=%s\n", AJ_StatusText(status)));
             }
         }
         break; // Either connected to (as client) or connected from (as SoftAP) a station
