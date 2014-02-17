@@ -27,6 +27,7 @@
 #include <SessionListenerImpl.h>
 #include <iostream>
 #include <iomanip>
+#include <alljoyn/services_common/LogModulesNames.h>
 
 using namespace ajn;
 using namespace services;
@@ -464,8 +465,8 @@ int main(int argc, char**argv, char**envArg)
     std::cout << "AllJoyn Library build info: " << ajn::GetBuildInfo() << std::endl;
     QCC_SetLogLevels("ALLJOYN_ABOUT_CLIENT=7");
     QCC_SetLogLevels("ALLJOYN_ABOUT_ICON_CLIENT=7");
-    QCC_SetLogLevels("ALLJOYN_CONFIG_CLIENT=7");
     QCC_SetLogLevels("ALLJOYN_ABOUT_ANNOUNCE_HANDLER=7");
+    QCC_SetDebugLevel(logModules::CONFIG_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
 
     struct sigaction act, oldact;
     sigset_t sigmask, waitmask;

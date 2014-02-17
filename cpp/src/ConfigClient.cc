@@ -15,10 +15,8 @@
  ******************************************************************************/
 
 #include <alljoyn/config/ConfigClient.h>
-#include <qcc/Debug.h>
+#include <alljoyn/config/LogModule.h>
 
-#define TAG "ALLJOYN_CONFIG_CLIENT"
-#define CALLBACKTAG "AllJoynInternal"
 #define CHECK_BREAK(x) if ((status = x) != ER_OK) { break; }
 
 using namespace ajn;
@@ -28,12 +26,9 @@ static const char* CONFIG_OBJECT_PATH = "/Config";
 static const char* CONFIG_INTERFACE_NAME = "org.alljoyn.Config";
 
 ConfigClient::ConfigClient(ajn::BusAttachment& bus) :
-    m_BusAttachment(&bus), logger(0)
+    m_BusAttachment(&bus)
 {
-    setLogger(&configLogger);
-    if (logger) {
-        logger->debug(TAG, "In ConfigClient Constructor");
-    }
+    QCC_DbgTrace(("In ConfigClient Constructor"));
 
     QStatus status = ER_OK;
 
@@ -57,17 +52,14 @@ ConfigClient::ConfigClient(ajn::BusAttachment& bus) :
                 return;
             } while (0);
         } //if (createIface)
-        if (logger) {
-            logger->warn(TAG, "ConfigClientInterface could not be created. Status = " + qcc::String(QCC_StatusText(status)));
-        }
+        QCC_LogError(status, ("ConfigClientInterface could not be created."));
     } //if (!getIface)
 }
 
 QStatus ConfigClient::FactoryReset(const char* busName, ajn::SessionId sessionId)
 {
-    if (logger) {
-        logger->debug(TAG, "In ConfigClient FactoryReset");
-    }
+    QCC_DbgTrace(("In ConfigClient FactoryReset"));
+
     QStatus status = ER_OK;
 
     const InterfaceDescription* p_InterfaceDescription = m_BusAttachment->GetInterface(CONFIG_INTERFACE_NAME);
@@ -89,9 +81,7 @@ QStatus ConfigClient::FactoryReset(const char* busName, ajn::SessionId sessionId
 
 QStatus ConfigClient::Restart(const char* busName, ajn::SessionId sessionId)
 {
-    if (logger) {
-        logger->debug(TAG, "In ConfigClient Restart");
-    }
+    QCC_DbgTrace(("In ConfigClient Restart"));
     QStatus status = ER_OK;
 
     const InterfaceDescription* p_InterfaceDescription = m_BusAttachment->GetInterface(CONFIG_INTERFACE_NAME);
@@ -114,9 +104,7 @@ QStatus ConfigClient::Restart(const char* busName, ajn::SessionId sessionId)
 QStatus ConfigClient::SetPasscode(const char* busName, const char* daemonRealm, size_t newPasscodeSize,
                                   const uint8_t* newPasscode, ajn::SessionId sessionId)
 {
-    if (logger) {
-        logger->debug(TAG, "In ConfigClient SetPasscode");
-    }
+    QCC_DbgTrace(("In ConfigClient SetPasscode"));
     QStatus status = ER_OK;
 
     const InterfaceDescription* p_InterfaceDescription = m_BusAttachment->GetInterface(CONFIG_INTERFACE_NAME);
@@ -143,9 +131,7 @@ QStatus ConfigClient::SetPasscode(const char* busName, const char* daemonRealm, 
 QStatus ConfigClient::GetConfigurations(const char* busName, const char* languageTag, Configurations& configs,
                                         ajn::SessionId sessionId)
 {
-    if (logger) {
-        logger->debug(TAG, "In ConfigClient GetConfigurations");
-    }
+    QCC_DbgTrace(("In ConfigClient GetConfigurations"));
     QStatus status = ER_OK;
 
     const InterfaceDescription* p_InterfaceDescription = m_BusAttachment->GetInterface(CONFIG_INTERFACE_NAME);
@@ -187,11 +173,11 @@ QStatus ConfigClient::GetConfigurations(const char* busName, const char* languag
                 status = ER_BUS_BAD_VALUE;
             }
         } else if (status == ER_BUS_REPLY_IS_ERROR_MESSAGE) {
+#if !defined(NDEBUG)
             qcc::String errorMessage;
             const char* errorName = replyMsg->GetErrorName(&errorMessage);
-            if (logger) {
-                logger->warn(TAG, "GetConfigurations errorName: " + qcc::String(errorName) + " errorMessage: " + errorMessage);
-            }
+#endif
+            QCC_LogError(status, ("GetConfigurations errorName:%s errorMessage: %s", errorName ? errorName : "", errorMessage.c_str() ? errorMessage.c_str() : ""));
         }
     } while (0);
     delete proxyBusObj;
@@ -201,9 +187,7 @@ QStatus ConfigClient::GetConfigurations(const char* busName, const char* languag
 QStatus ConfigClient::UpdateConfigurations(const char* busName, const char* languageTag, const Configurations& configs,
                                            ajn::SessionId sessionId)
 {
-    if (logger) {
-        logger->debug(TAG, "In ConfigClient UpdateConfigurations");
-    }
+    QCC_DbgTrace(("In ConfigClient UpdateConfigurations"));
     QStatus status = ER_OK;
 
     const InterfaceDescription* p_InterfaceDescription = m_BusAttachment->GetInterface(CONFIG_INTERFACE_NAME);
@@ -235,11 +219,11 @@ QStatus ConfigClient::UpdateConfigurations(const char* busName, const char* lang
         CHECK_BREAK(args[1].Set("a{sv}", i, tempconfigMapDictEntries.data()))
         status = proxyBusObj->MethodCall(CONFIG_INTERFACE_NAME, "UpdateConfigurations", args, 2, replyMsg);
         if (status == ER_BUS_REPLY_IS_ERROR_MESSAGE) {
+#if !defined(NDEBUG)
             qcc::String errorMessage;
             const char* errorName = replyMsg->GetErrorName(&errorMessage);
-            if (logger) {
-                logger->warn(TAG, "UpdateConfigurations errorName: " + qcc::String(errorName) + " errorMessage: " + errorMessage);
-            }
+#endif
+            QCC_LogError(status, ("UpdateConfigurations errorName:%s errorMessage: %s", errorName ? errorName : "", errorMessage.c_str() ? errorMessage.c_str() : ""));
         }
     } while (0);
     delete proxyBusObj;
@@ -249,9 +233,7 @@ QStatus ConfigClient::UpdateConfigurations(const char* busName, const char* lang
 QStatus ConfigClient::ResetConfigurations(const char* busName, const char* languageTag,
                                           const std::vector<qcc::String>& configNames, ajn::SessionId sessionId)
 {
-    if (logger) {
-        logger->debug(TAG, "In ConfigClient ResetConfigurations");
-    }
+    QCC_DbgTrace(("In ConfigClient ResetConfigurations"));
 
     QStatus status = ER_OK;
     const InterfaceDescription* p_InterfaceDescription = m_BusAttachment->GetInterface(CONFIG_INTERFACE_NAME);
@@ -279,11 +261,11 @@ QStatus ConfigClient::ResetConfigurations(const char* busName, const char* langu
             CHECK_BREAK(args[1].Set("as", i, tempKeys))
             status = proxyBusObj->MethodCall(CONFIG_INTERFACE_NAME, "ResetConfigurations", args, 2, replyMsg);
             if (status == ER_BUS_REPLY_IS_ERROR_MESSAGE) {
+#if !defined(NDEBUG)
                 qcc::String errorMessage;
                 const char* errorName = replyMsg->GetErrorName(&errorMessage);
-                if (logger) {
-                    logger->warn(TAG, "ResetConfigurations errorName: " + qcc::String(errorName) + " errorMessage: " + errorMessage);
-                }
+#endif
+                QCC_LogError(status, ("ResetConfigurations errorName:%s errorMessage: %s", errorName ? errorName : "", errorMessage.c_str() ? errorMessage.c_str() : ""));
             }
         } else {
             status = ER_INVALID_DATA;
@@ -295,9 +277,7 @@ QStatus ConfigClient::ResetConfigurations(const char* busName, const char* langu
 
 QStatus ConfigClient::GetVersion(const char* busName, int& version, ajn::SessionId sessionId)
 {
-    if (logger) {
-        logger->debug(TAG, "In ConfigClient GetVersion");
-    }
+    QCC_DbgTrace(("In ConfigClient GetVersion"));
 
     QStatus status = ER_OK;
 
@@ -318,79 +298,4 @@ QStatus ConfigClient::GetVersion(const char* busName, int& version, ajn::Session
     } while (0);
     delete proxyBusObj;
     return status;
-}
-
-GenericLogger* ConfigClient::setLogger(GenericLogger* newLogger)
-{
-    GenericLogger* prevLogger = getLogger();
-    Log::LogLevel prevLogLevel = getLogLevel();
-    logger = newLogger;
-    if (logger) {
-        setLogLevel(prevLogLevel);
-        // reroute internal AJ logging to logger
-        ServicesLoggerImpl::RegisterCallBack(logger, &GenericLoggerCallBack, this);
-    }
-    return prevLogger;
-}
-
-GenericLogger* ConfigClient::getLogger()
-{
-    return logger;
-}
-
-Log::LogLevel ConfigClient::setLogLevel(Log::LogLevel newLogLevel)
-{
-    return logger ? logger->setLogLevel(newLogLevel) : Log::LEVEL_INFO;
-}
-
-Log::LogLevel ConfigClient::getLogLevel()
-{
-    return logger ? logger->getLogLevel() : Log::LEVEL_INFO;
-}
-
-void ConfigClient::GenericLoggerCallBack(DbgMsgType type, const char* module, const char* msg, void* context)
-{
-    ConfigClient* configClient = (ConfigClient*)context;
-    GenericLogger* logger = configClient->getLogger();
-    if (logger) {
-        Log::LogLevel currLogLevel = logger->getLogLevel();
-        switch (type) {
-        case DBG_LOCAL_ERROR:
-        case DBG_REMOTE_ERROR:
-            if (currLogLevel >= Log::LEVEL_ERROR) {
-                logger->error(CALLBACKTAG, msg);
-            }
-            break;
-
-        case DBG_GEN_MESSAGE:
-            if (currLogLevel >= Log::LEVEL_INFO) {
-                logger->info(CALLBACKTAG, msg);
-            }
-            break;
-
-        case DBG_API_TRACE:
-            if (currLogLevel >= Log::LEVEL_DEBUG) {
-                logger->debug(CALLBACKTAG, msg);
-            }
-            break;
-
-        case DBG_HIGH_LEVEL:
-            if (currLogLevel >= Log::LEVEL_WARN) {
-                logger->warn(CALLBACKTAG, msg);
-            }
-            break;
-
-        case DBG_REMOTE_DATA:
-        case DBG_LOCAL_DATA:
-            if (currLogLevel >= Log::LEVEL_DEBUG) {
-                logger->debug(CALLBACKTAG, msg);
-            }
-            break;
-
-        default:
-            if (currLogLevel >= Log::LEVEL_DEBUG) {
-                logger->debug(CALLBACKTAG, msg);
-            }
-        }
-    }
 }

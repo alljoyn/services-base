@@ -18,10 +18,8 @@
 
 #include <alljoyn/config/ConfigService.h>
 #include <alljoyn/BusAttachment.h>
-#include <qcc/Debug.h>
+#include <alljoyn/config/LogModule.h>
 
-#define TAG "ALLJOYN_CONFIG_SERVICE"
-#define CALLBACKTAG "AllJoynInternal"
 #define CHECK_RETURN(x) if ((status = x) != ER_OK) { return status; }
 #define CHECK_BREAK(x) if ((status = x) != ER_OK) { break; }
 
@@ -31,12 +29,9 @@ using namespace services;
 static const char* CONFIG_INTERFACE_NAME = "org.alljoyn.Config";
 
 ConfigService::ConfigService(ajn::BusAttachment& bus, PropertyStore& store, Listener& listener) :
-    BusObject("/Config"), m_BusAttachment(&bus), m_PropertyStore(&store), m_Listener(&listener), logger(0)
+    BusObject("/Config"), m_BusAttachment(&bus), m_PropertyStore(&store), m_Listener(&listener)
 {
-    setLogger(&configLogger);
-    if (logger) {
-        logger->debug(TAG, "In ConfigService Constructor");
-    }
+    QCC_DbgTrace(("In ConfigService Constructor"));
 }
 
 ConfigService::~ConfigService()
@@ -47,9 +42,7 @@ ConfigService::~ConfigService()
 QStatus ConfigService::Register()
 {
     QStatus status = ER_OK;
-    if (logger) {
-        logger->debug(TAG, "In ConfigService Register");
-    }
+    QCC_DbgTrace(("In ConfigService Register"));
 
     InterfaceDescription* intf = const_cast<InterfaceDescription*>(m_BusAttachment->GetInterface(CONFIG_INTERFACE_NAME));
     if (!intf) {
@@ -89,13 +82,10 @@ QStatus ConfigService::Register()
 
 void ConfigService::SetPasscodeHandler(const InterfaceDescription::Member* member, Message& msg)
 {
-    if (logger) {
-        logger->debug(TAG, "In ConfigService SetPassCodeHandler");
-    }
-
+    QCC_DbgTrace(("In ConfigService SetPassCodeHandler"));
+    QStatus status = ER_OK;
     const ajn::MsgArg* args = 0;
     size_t numArgs = 0;
-    QStatus status;
     msg->GetArgs(numArgs, args);
     do {
         if (numArgs != 2) {
@@ -111,9 +101,7 @@ void ConfigService::SetPasscodeHandler(const InterfaceDescription::Member* membe
         }
 
         if (newPasscodeNumElements == 0) {
-            if (logger) {
-                logger->warn(TAG, "Password can not be empty");
-            }
+            QCC_LogError(ER_INVALID_DATA, ("Password can not be empty."));
             MethodReply(msg, ER_INVALID_DATA);
             return;
         }
@@ -127,9 +115,7 @@ void ConfigService::SetPasscodeHandler(const InterfaceDescription::Member* membe
 
 void ConfigService::GetConfigurationsHandler(const InterfaceDescription::Member* member, Message& msg)
 {
-    if (logger) {
-        logger->debug(TAG, "In ConfigService GetConfigurationsHandler");
-    }
+    QCC_DbgTrace(("In ConfigService GetConfigurationsHandler"));
 
     const ajn::MsgArg* args;
     size_t numArgs;
@@ -147,11 +133,7 @@ void ConfigService::GetConfigurationsHandler(const InterfaceDescription::Member*
         ajn::MsgArg writeData[1];
         CHECK_BREAK(m_PropertyStore->ReadAll(args[0].v_string.str, PropertyStore::WRITE, writeData[0]))
 
-        if (logger) {
-            logger->debug(TAG, ("ReadAll called with PropertyStore::WRITE for language: " + qcc::String(args[0].v_string.str)
-                                + " status= " + QCC_StatusText(status)));
-            logger->debug(TAG, ("data = " + writeData[0].ToString()));
-        }
+        QCC_DbgPrintf(("ReadAll called with PropertyStore::WRITE for language: %s data: %s", args[0].v_string.str ? args[0].v_string.str : "", writeData[0].ToString().c_str() ? writeData[0].ToString().c_str() : ""));
 
         MethodReply(msg, writeData, 1);
         return;
@@ -168,9 +150,7 @@ void ConfigService::GetConfigurationsHandler(const InterfaceDescription::Member*
 
 void ConfigService::UpdateConfigurationsHandler(const InterfaceDescription::Member* member, Message& msg)
 {
-    if (logger) {
-        logger->debug(TAG, "In ConfigService UpdateConfigurationsHandler");
-    }
+    QCC_DbgTrace(("In ConfigService UpdateConfigurationsHandler"));
 
     const ajn::MsgArg* args;
     size_t numArgs;
@@ -194,11 +174,7 @@ void ConfigService::UpdateConfigurationsHandler(const InterfaceDescription::Memb
             MsgArg* tempValue;
             CHECK_BREAK(configMapDictEntries[i].Get("{sv}", &tempKey, &tempValue))
             CHECK_BREAK(m_PropertyStore->Update(tempKey, languageTag, tempValue))
-            if (logger) {
-                qcc::String logline = "Calling update for " + qcc::String(tempKey) + " with lang: " + languageTag + " Value: " +
-                                      tempValue->ToString().c_str() + " status: " + QCC_StatusText(status);
-                logger->debug(TAG, logline);
-            }
+            QCC_DbgPrintf(("Calling update for %s with lang: %s Value: %s", tempKey ? tempKey : "", languageTag ? languageTag : "", tempValue->ToString().c_str() ? tempValue->ToString().c_str() : ""));
         }
         CHECK_BREAK(status)
 
@@ -208,9 +184,7 @@ void ConfigService::UpdateConfigurationsHandler(const InterfaceDescription::Memb
 
     } while (0);
 
-    if (logger) {
-        logger->warn(TAG, "UpdateConfigurationsHandler Failed");
-    }
+    QCC_DbgHLPrintf(("UpdateConfigurationsHandler Failed"));
 
     if (status == ER_MAX_SIZE_EXCEEDED) {
         MethodReply(msg, "org.alljoyn.Error.MaxSizeExceeded", "Maximum size exceeded");
@@ -232,9 +206,7 @@ void ConfigService::UpdateConfigurationsHandler(const InterfaceDescription::Memb
 
 void ConfigService::ResetConfigurationsHandler(const InterfaceDescription::Member* member, Message& msg)
 {
-    if (logger) {
-        logger->debug(TAG, "In ConfigService ResetConfigurationsHandler");
-    }
+    QCC_DbgTrace(("In ConfigService ResetConfigurationsHandler"));
 
     const ajn::MsgArg* args;
     size_t numArgs;
@@ -258,11 +230,7 @@ void ConfigService::ResetConfigurationsHandler(const InterfaceDescription::Membe
             char* tempString;
             CHECK_BREAK(stringArray[i].Get("s", &tempString))
             CHECK_BREAK(m_PropertyStore->Delete(tempString, languageTag))
-            if (logger) {
-                qcc::String logline = "Calling delete for " + qcc::String(tempString) + " with lang: " + languageTag +
-                                      " status: " + QCC_StatusText(status);
-                logger->debug(TAG, logline);
-            }
+            QCC_DbgPrintf(("Calling delete for %s with lang: %s", tempString ? tempString : "", languageTag ? languageTag : ""));
         }
         CHECK_BREAK(status)
 
@@ -271,9 +239,7 @@ void ConfigService::ResetConfigurationsHandler(const InterfaceDescription::Membe
         return;
     } while (0);
 
-    if (logger) {
-        logger->warn(TAG, "ResetConfigurationsHandler Failed");
-    }
+    QCC_DbgHLPrintf(("ResetConfigurationsHandler Failed"));
 
     if (status == ER_MAX_SIZE_EXCEEDED) {
         MethodReply(msg, "org.alljoyn.Error.MaxSizeExceeded", "Maximum size exceeded");
@@ -294,9 +260,7 @@ void ConfigService::ResetConfigurationsHandler(const InterfaceDescription::Membe
 
 void ConfigService::FactoryResetHandler(const InterfaceDescription::Member* member, Message& msg)
 {
-    if (logger) {
-        logger->debug(TAG, "In ConfigService FactoryResetHandler");
-    }
+    QCC_DbgTrace(("In ConfigService FactoryResetHandler"));
 
     const ajn::MsgArg* args;
     size_t numArgs;
@@ -318,9 +282,7 @@ void ConfigService::FactoryResetHandler(const InterfaceDescription::Member* memb
 
 void ConfigService::RestartHandler(const InterfaceDescription::Member* member, Message& msg)
 {
-    if (logger) {
-        logger->debug(TAG, "In ConfigService RestartHandler");
-    }
+    QCC_DbgTrace(("In ConfigService RestartHandler"));
 
     const ajn::MsgArg* args;
     size_t numArgs;
@@ -350,79 +312,4 @@ QStatus ConfigService::Get(const char*ifcName, const char*propName, MsgArg& val)
         }
     }
     return status;
-}
-
-GenericLogger* ConfigService::setLogger(GenericLogger* newLogger)
-{
-    GenericLogger* prevLogger = getLogger();
-    Log::LogLevel prevLogLevel = getLogLevel();
-    logger = newLogger;
-    if (logger) {
-        setLogLevel(prevLogLevel);
-        // reroute internal AJ logging to logger
-        ServicesLoggerImpl::RegisterCallBack(logger, &GenericLoggerCallBack, this);
-    }
-    return prevLogger;
-}
-
-GenericLogger* ConfigService::getLogger()
-{
-    return logger;
-}
-
-Log::LogLevel ConfigService::setLogLevel(Log::LogLevel newLogLevel)
-{
-    return logger ? logger->setLogLevel(newLogLevel) : Log::LEVEL_INFO;
-}
-
-Log::LogLevel ConfigService::getLogLevel()
-{
-    return logger ? logger->getLogLevel() : Log::LEVEL_INFO;
-}
-
-void ConfigService::GenericLoggerCallBack(DbgMsgType type, const char* module, const char* msg, void* context)
-{
-    ConfigService* configService = (ConfigService*)context;
-    GenericLogger* logger = configService->getLogger();
-    if (logger) {
-        Log::LogLevel currLogLevel = logger->getLogLevel();
-        switch (type) {
-        case DBG_LOCAL_ERROR:
-        case DBG_REMOTE_ERROR:
-            if (currLogLevel >= Log::LEVEL_ERROR) {
-                logger->error(CALLBACKTAG, msg);
-            }
-            break;
-
-        case DBG_GEN_MESSAGE:
-            if (currLogLevel >= Log::LEVEL_INFO) {
-                logger->info(CALLBACKTAG, msg);
-            }
-            break;
-
-        case DBG_API_TRACE:
-            if (currLogLevel >= Log::LEVEL_DEBUG) {
-                logger->debug(CALLBACKTAG, msg);
-            }
-            break;
-
-        case DBG_HIGH_LEVEL:
-            if (currLogLevel >= Log::LEVEL_WARN) {
-                logger->warn(CALLBACKTAG, msg);
-            }
-            break;
-
-        case DBG_REMOTE_DATA:
-        case DBG_LOCAL_DATA:
-            if (currLogLevel >= Log::LEVEL_DEBUG) {
-                logger->debug(CALLBACKTAG, msg);
-            }
-            break;
-
-        default:
-            if (currLogLevel >= Log::LEVEL_DEBUG) {
-                logger->debug(CALLBACKTAG, msg);
-            }
-        }
-    }
 }

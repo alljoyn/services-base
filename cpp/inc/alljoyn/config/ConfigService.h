@@ -19,8 +19,6 @@
 
 #include <alljoyn/about/PropertyStore.h>
 #include <alljoyn/BusObject.h>
-#include <alljoyn/services_common/GenericLogger.h>
-#include <alljoyn/services_common/ServicesLoggerImpl.h>
 
 namespace ajn {
 namespace services {
@@ -80,42 +78,6 @@ class ConfigService : public ajn::BusObject {
      * @return status.
      */
     QStatus Register();
-
-    /**
-     * Receive GenericLogger* to use for logging
-     * @param logger Implementation of GenericLogger
-     * @return previous logger
-     */
-    GenericLogger* setLogger(GenericLogger* logger);
-
-    /**
-     * Get the currently-configured logger implementation
-     * @return logger Implementation of GenericLogger
-     */
-    GenericLogger* getLogger();
-
-    /**
-     * Set log level filter for subsequent logging messages
-     * @param newLogLevel enum value
-     * @return logLevel enum value that was in effect prior to this change
-     */
-    Log::LogLevel setLogLevel(Log::LogLevel newLogLevel);
-
-    /**
-     * Get log level filter value currently in effect
-     * @return logLevel enum value currently in effect
-     */
-    Log::LogLevel getLogLevel();
-
-
-    /**
-     * A callback passed to the Generic Logger when the default logger is replaced by a different logger
-     * @param type - message type
-     * @param module - module of the message
-     * @param msg - message
-     * @param context - context passed in by the application
-     */
-    static void GenericLoggerCallBack(DbgMsgType type, const char* module, const char* msg, void* context);
 
   private:
 
@@ -198,16 +160,6 @@ class ConfigService : public ajn::BusObject {
      * pointer of Listener
      */
     Listener* m_Listener;
-
-    /**
-     * Logger that is used in library
-     */
-    GenericLogger* logger;
-
-    /**
-     * Default Logger that is used in library
-     */
-    ServicesLoggerImpl configLogger;
 };
 inline ConfigService::Listener::~Listener() {
 }

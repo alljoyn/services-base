@@ -30,6 +30,7 @@
 #include "PropertyStoreImpl.h"
 #include "ConfigServiceListenerImpl.h"
 #include "OptParser.h"
+#include <alljoyn/services_common/LogModulesNames.h>
 
 #define DEFAULTPASSCODE "000000"
 #define SERVICE_EXIT_OK       0
@@ -147,6 +148,7 @@ int main(int argc, char**argv, char**envArg) {
     std::cout << "AllJoyn Library build info: " << ajn::GetBuildInfo() << std::endl;
     QCC_SetLogLevels("ALLJOYN_ABOUT_SERVICE=7;");
     QCC_SetLogLevels("ALLJOYN_ABOUT_ICON_SERVICE=7;");
+    QCC_SetDebugLevel(logModules::CONFIG_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
 
     OptParser opts(argc, argv);
     OptParser::ParseResultCode parseCode(opts.ParseResult());
