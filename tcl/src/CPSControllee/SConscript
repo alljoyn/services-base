@@ -20,7 +20,6 @@ source_files = [
     Glob('Common/*.c'),
 ]
 
-cps_env.Append(CPPPATH      = [Dir('../../inc')])
-
 objs = cps_env.Object(source_files)
+
 Return('objs')

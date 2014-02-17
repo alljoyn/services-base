@@ -14,39 +14,21 @@
 #    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #*****************************************************************************
 
-about_root_default           = '../../../../core/about_tcl/tcl'
-serversample_root_default    = '../../sample_apps/tcl/ServerSample'
-
 import os
+
 Import('cps_env')
 
-cps_env['CONTROLPANEL_DEFINE_STRING'] = 'CONTROLPANEL_SERVICE'
-cps_env.Append(CPPDEFINES = '$CONTROLPANEL_DEFINE_STRING')
+cps_env.Append(CPPDEFINES = 'CONTROLPANEL_SERVICE')
 
-vars = Variables()
-vars.Add('ABOUT_ROOT', 'Root directory of About service', about_root_default)
-vars.Add('SERVERSAMPLE_ROOT', 'Root directory of services server sample', serversample_root_default)
+cps_env.Append(CPPPATH = [
+                             Dir('inc'),
+                            ])
 
-vars.Update(cps_env)
+Export('cps_env')
 
-Help(vars.GenerateHelpText(cps_env))
+variant_dir = 'obj'
 
-if not os.path.isfile(cps_env['SERVERSAMPLE_ROOT'] + '/SConscript'):
-    print "SConscript in 'SERVERSAMPLE_ROOT=" + cps_env['SERVERSAMPLE_ROOT'] + "' not found; aborting.\n"
-    exit(1)
+objs = SConscript('src/CPSControllee/SConscript', variant_dir = variant_dir, duplicate = 0)
 
-# a flag to tell services server sample not to build its executable, but rather
-# to return to us build parameters and info for us to build here.
-#cps_env['INDIV_BUILD'] = 1
-# convert locations to absolute, to be passed on to sample apps in subdirectories
-cps_env['SERVERSAMPLE_ROOT_FROM_COMPONENT'] = str(cps_env.Dir('$SERVERSAMPLE_ROOT'))
-# abs. path to About service is needed by server sample scons
-cps_env['ABOUT_ROOT_FROM_COMPONENT']        = str(cps_env.Dir('$ABOUT_ROOT'))
+Return('objs')
 
-returnValue = []
-Export('cps_env') # needed when we are called directly by serversample
-controlpanel_app = cps_env.SConscript('src/CPSControllee/SConscript')
-cps_env.Install("build", controlpanel_app)
-returnValue += controlpanel_app
-
-Return('returnValue')

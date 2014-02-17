@@ -53,7 +53,10 @@ source_files = [
     'PropertyStore.c',
 ]
 
-cps_env.Append(CPPPATH      = [cps_env.Dir('.').srcnode()])
+cps_env.Append(CPPPATH = [
+                            cps_env.Dir('.'),
+                            Dir('../../inc'),
+                         ])
 
 objs = cps_env.Object(source_files)
 cps_obj = cps_env.SConscript('../../src/CPSControllee/SConscript', {'cps_env': cps_env })
