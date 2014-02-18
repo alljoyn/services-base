@@ -3,7 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="libs/alljoyn_about.jar"/>
-	<classpathentry exported="true" kind="lib" path="libs/alljoyn_services_common.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/alljoyn.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
