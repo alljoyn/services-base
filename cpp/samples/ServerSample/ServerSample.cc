@@ -329,7 +329,7 @@ int main(int argc, char**argv, char**envArg) {
     }
 #endif
 
-    propertyStoreImpl = new PropertyStoreImpl(opts.GetConfigFile().c_str(), opts.GetFactoryConfigFile().c_str());
+    propertyStoreImpl = new PropertyStoreImpl(opts.GetFactoryConfigFile().c_str(), opts.GetConfigFile().c_str());
     status = fillPropertyStore(propertyStoreImpl, opts.GetAppId(), opts.GetAppName(), opts.GetDeviceId(),
                                opts.GetDeviceName(), opts.GetDefaultLanguage());
     propertyStoreImpl->Initialize();

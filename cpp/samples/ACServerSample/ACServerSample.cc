@@ -244,7 +244,7 @@ int main(int argc, char**argv, char**envArg) {
     busListener = new CommonBusListener(msgBus);
     busListener->setSessionPort(SERVICE_PORT);
 
-    propertyStoreImpl = new PropertyStoreImpl(opts.GetConfigFile().c_str(), opts.GetFactoryConfigFile().c_str());
+    propertyStoreImpl = new PropertyStoreImpl(opts.GetFactoryConfigFile().c_str(), opts.GetConfigFile().c_str());
     status = CommonSampleUtil::fillPropertyStore(propertyStoreImpl, opts.GetAppId(), opts.GetAppName(), opts.GetDeviceId(),
                                                  opts.GetDeviceName(), opts.GetDefaultLanguage());
     propertyStoreImpl->Initialize();
