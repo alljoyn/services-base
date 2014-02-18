@@ -91,12 +91,12 @@ static uint32_t PasswordCallback(uint8_t* buffer, uint32_t bufLen)
     return len;
 }
 
-AJ_Status AJServices_Init(AJ_Object* appObjects, AJ_Object* proxyObjects, AJ_Object* announceObjects, uint8_t* appIsRebootRequired, const char* deviceManufactureName, const char* deviceProductName)
+AJ_Status AJServices_Init(AJ_Object* appObjects, AJ_Object* proxyObjects, AJ_Object* announceObjects, const char* deviceManufactureName, const char* deviceProductName)
 {
     AJ_Status status = AJ_OK;
 
 #ifdef CONFIG_SERVICE
-    status = Config_Init(appIsRebootRequired);
+    status = Config_Init();
     if (status != AJ_OK) {
         goto Exit;
     }
