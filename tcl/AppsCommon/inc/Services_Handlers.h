@@ -23,7 +23,7 @@
 /**
  * Initialize the Services. called at the start of the application
  */
-AJ_Status AJServices_Init(AJ_Object* appObjects, AJ_Object* proxyObjects, AJ_Object* announceObjects, uint8_t* appIsRebootRequired, const char* deviceManufactureName, const char* deviceProductName);
+AJ_Status AJServices_Init(AJ_Object* appObjects, AJ_Object* proxyObjects, AJ_Object* announceObjects, const char* deviceManufactureName, const char* deviceProductName);
 
 /**
  * Connect to Router

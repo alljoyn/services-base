@@ -24,8 +24,6 @@
     #include <alljoyn/onboarding/OnboardingManager.h>
 #endif
 
-static uint8_t* cfgIsRebootRequired = NULL;
-
 static AJ_Status FactoryReset()
 {
     AJ_Printf("GOT FACTORY RESET\n");
@@ -43,16 +41,14 @@ static AJ_Status FactoryReset()
     }
 #endif // ONBOARDING_SERVICE
 
-    *cfgIsRebootRequired = TRUE;
-    return AJ_ERR_RESTART;     // Force disconnect of AJ and services and reconnection of WiFi on restart
+    return AJ_ERR_RESTART_APP;     // Force disconnect of AJ and services and reconnection of WiFi on restart of app
 }
 
 static AJ_Status Restart()
 {
     AJ_Printf("GOT RESTART REQUEST\n");
     AJ_About_SetShouldAnnounce(TRUE); // Set flag for sending an updated Announcement
-    *cfgIsRebootRequired = TRUE;
-    return AJ_ERR_RESTART; // Force disconnect of AJ and services and reconnection of WiFi on restart
+    return AJ_ERR_RESTART_APP; // Force disconnect of AJ and services and reconnection of WiFi on restart of app
 }
 
 static AJ_Status SetPasscode(const char* daemonRealm, const uint8_t* newPasscode, uint8_t newPasscodeLen)
@@ -88,9 +84,8 @@ static uint8_t IsValueValid(const char* key, const char* value)
     return TRUE;
 }
 
-AJ_Status Config_Init(uint8_t* appIsRebootRequired)
+AJ_Status Config_Init()
 {
-    cfgIsRebootRequired = appIsRebootRequired;
     AJ_Status status = AJCFG_Start(&FactoryReset, &Restart, &SetPasscode, &IsValueValid);
     return status;
 }
