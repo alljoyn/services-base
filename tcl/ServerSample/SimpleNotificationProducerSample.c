@@ -14,6 +14,14 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+/**
+ * Per-module definition of the current module for debug logging.  Must be defined
+ * prior to first inclusion of aj_debug.h.
+ * The corresponding flag dbgAJSVCAPP is defined in the containing sample app.
+ */
+#define AJ_MODULE AJSVCAPP
+#include <aj_debug.h>
+
 #include <NotificationProducerSample.h>
 #include <alljoyn/notification/NotificationCommon.h>
 #include <alljoyn/notification/NotificationProducer.h>
@@ -26,6 +34,10 @@
 #define Producer_SetupEnv(...) do { } while (0)
 #define Producer_PossiblyDeleteNotification(...) do { } while (0)
 #define Producer_FreeNotification(...) do { } while (0)
+#endif
+
+#ifndef NDEBUG
+extern AJ_EXPORT uint8_t dbgAJSVCAPP;
 #endif
 
 #define NUM_CUSTOMS 2

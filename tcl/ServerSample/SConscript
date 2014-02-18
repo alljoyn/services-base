@@ -94,10 +94,10 @@ objs.extend(sersamp_env.SConscript('../../../../services_common/tcl/SConscript',
 objs.extend(sersamp_env.SConscript('../../../../../core/about_tcl/tcl/SConscript', {'about_env': sersamp_env}))
 
 prog = sersamp_env.Program(
-    target = 'obj/' + main_exe,
+    target = main_exe,
     source = [
               objs,
               sersamp_env['aj_obj'],
     ]
  )
-sersamp_env.Install('build', prog)
+sersamp_env.Install('../build', prog)

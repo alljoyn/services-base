@@ -33,6 +33,13 @@
 #include <alljoyn/services_common/PropertyStore.h>
 #include <alljoyn/services_common/Services_Common.h>
 
+#ifndef NDEBUG
+#ifndef ER_DEBUG_AJSVCAPP
+#define ER_DEBUG_AJSVCAPP 0
+AJ_EXPORT uint8_t dbgAJSVCAPP = ER_DEBUG_AJSVCAPP;
+#endif
+#endif
+
 // Application wide globals
 #define ROUTER_NAME "org.alljoyn.BusNode"
 static uint8_t isBusConnected = FALSE;
