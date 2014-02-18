@@ -14,11 +14,23 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+/**
+ * Per-module definition of the current module for debug logging.  Must be defined
+ * prior to first inclusion of aj_debug.h.
+ * The corresponding flag dbgAJSVCAPP is defined in the containing sample app.
+ */
+#define AJ_MODULE AJSVCAPP
+#include <aj_debug.h>
+
 #include <alljoyn.h>
 #include <NotificationProducerSample.h>
 #include <alljoyn/notification/NotificationProducer.h>
 
 #include "ControlPanelProvided.h"
+
+#ifndef NDEBUG
+extern AJ_EXPORT uint8_t dbgAJSVCAPP;
+#endif
 
 #define NUM_CUSTOMS 0
 #define NUM_TEXTS   1
@@ -69,7 +81,7 @@ void NotificationProducer_DoWork(AJ_BusAttachment* busAttachment)
         textToSend[0].key   = langEng;
         textToSend[0].value = getNotificationString();
 
-        AJ_Printf("About to send Notification ==> %s \n", textToSend[0].value);
+        AJ_InfoPrintf(("About to send Notification ==> %s \n", textToSend[0].value));
         AJNS_Producer_SendNotification(busAttachment, &notificationContent, AJNS_NOTIFICATION_MESSAGE_TYPE_INFO, 20000, NULL);
     }
 }

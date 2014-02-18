@@ -14,6 +14,14 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+/**
+ * Per-module definition of the current module for debug logging.  Must be defined
+ * prior to first inclusion of aj_debug.h.
+ * The corresponding flag dbgAJSVCAPP is defined in the containing sample app.
+ */
+#define AJ_MODULE AJSVCAPP
+#include <aj_debug.h>
+
 #include "ConfigSample.h"
 #include <alljoyn/config/ConfigService.h>
 #include <alljoyn.h>
@@ -24,9 +32,13 @@
     #include <alljoyn/onboarding/OnboardingManager.h>
 #endif
 
+#ifndef NDEBUG
+extern AJ_EXPORT uint8_t dbgAJSVCAPP;
+#endif
+
 static AJ_Status FactoryReset()
 {
-    AJ_Printf("GOT FACTORY RESET\n");
+    AJ_InfoPrintf(("GOT FACTORY RESET\n"));
     AJ_Status status = AJ_OK;
 
     status = AJSVC_PropertyStore_ResetAll();
@@ -46,7 +58,7 @@ static AJ_Status FactoryReset()
 
 static AJ_Status Restart()
 {
-    AJ_Printf("GOT RESTART REQUEST\n");
+    AJ_InfoPrintf(("GOT RESTART REQUEST\n"));
     AJ_About_SetShouldAnnounce(TRUE); // Set flag for sending an updated Announcement
     return AJ_ERR_RESTART_APP; // Force disconnect of AJ and services and reconnection of WiFi on restart of app
 }

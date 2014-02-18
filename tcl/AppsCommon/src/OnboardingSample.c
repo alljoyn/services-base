@@ -14,6 +14,14 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+/**
+ * Per-module definition of the current module for debug logging.  Must be defined
+ * prior to first inclusion of aj_debug.h.
+ * The corresponding flag dbgAJSVCAPP is defined in the containing sample app.
+ */
+#define AJ_MODULE AJSVCAPP
+#include <aj_debug.h>
+
 #include <alljoyn.h>
 #include "OnboardingSample.h"
 #include <alljoyn/onboarding/OnboardingService.h>
@@ -21,6 +29,10 @@
 #include "PropertyStoreOEMProvisioning.h"
 #include <alljoyn/services_common/PropertyStore.h>
 #include <aj_nvram.h>
+
+#ifndef NDEBUG
+extern AJ_EXPORT uint8_t dbgAJSVCAPP;
+#endif
 
 static const char* appDeviceManufactureName = NULL;
 static const char* appDeviceProductName = NULL;
@@ -72,9 +84,9 @@ AJ_Status OnboardingReadInfo(AJOBS_Info* info)
         int sizeRead = AJ_NVRAM_Read(info, size, nvramHandle);
         status = AJ_NVRAM_Close(nvramHandle);
         if (sizeRead != sizeRead) {
-            status = AJ_ERR_WRITE;
+            status = AJ_ERR_READ;
         } else {
-            AJ_Printf("Readed Info values: state=%d, ssid=%s authType=%d pc=%s\n", info->state, info->ssid, info->authType, info->pc);
+            AJ_InfoPrintf(("Read Info values: state=%d, ssid=%s authType=%d pc=%s\n", info->state, info->ssid, info->authType, info->pc));
         }
     }
 
@@ -90,7 +102,7 @@ AJ_Status OnboardingWriteInfo(AJOBS_Info* info)
         return AJ_ERR_NULL;
     }
 
-    AJ_Printf("Going to write Info values: state=%d, ssid=%s authType=%d pc=%s\n", info->state, info->ssid, info->authType, info->pc);
+    AJ_InfoPrintf(("Going to write Info values: state=%d, ssid=%s authType=%d pc=%s\n", info->state, info->ssid, info->authType, info->pc));
 
     AJ_NV_DATASET* nvramHandle = AJ_NVRAM_Open(AJ_OBS_OBINFO_NV_ID, "w", size);
     if (nvramHandle != NULL) {
@@ -112,11 +124,11 @@ AJ_Status Onboarding_Init(const char* deviceManufactureName, const char* deviceP
     appDeviceManufactureName = deviceManufactureName;
     appDeviceProductName = deviceProductName;
     if (appDeviceManufactureName == NULL || appDeviceManufactureName[0] == '\0') {
-        AJ_Printf("Onboarding_Init(): DeviceManufactureName is NULL or empty\n");
+        AJ_ErrPrintf(("Onboarding_Init(): DeviceManufactureName is NULL or empty\n"));
         status = AJ_ERR_INVALID;
         goto Exit;
     } else if (appDeviceProductName == NULL || appDeviceProductName[0] == '\0') {
-        AJ_Printf("Onboarding_Init(): DeviceProductName is NULL or empty\n");
+        AJ_ErrPrintf(("Onboarding_Init(): DeviceProductName is NULL or empty\n"));
         status = AJ_ERR_INVALID;
         goto Exit;
     }

@@ -14,6 +14,14 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+/**
+ * Per-module definition of the current module for debug logging.  Must be defined
+ * prior to first inclusion of aj_debug.h.
+ * The corresponding flag dbgAJPROPERTYSTORE is defined below statically.
+ */
+#define AJ_MODULE AJPROPERTYSTORE
+#include <aj_debug.h>
+
 #include <alljoyn.h>
 #include <errno.h>
 #include "PropertyStoreOEMProvisioning.h"
@@ -27,6 +35,13 @@
 #include <aj_nvram.h>
 #include <aj_creds.h>
 #include <aj_config.h>
+
+#ifndef NDEBUG
+#ifndef ER_DEBUG_AJPROPERTYSTORE
+#define ER_DEBUG_AJPROPERTYSTORE 0
+#endif
+static AJ_EXPORT uint8_t dbgAJPROPERTYSTORE = ER_DEBUG_AJPROPERTYSTORE;
+#endif
 
 const PropertyStoreEntry propertyStoreProperties[AJSVC_PROPERTY_STORE_NUMBER_OF_KEYS] =
 {
@@ -115,11 +130,11 @@ const char* AJSVC_PropertyStore_GetValueForLang(AJSVC_PropertyStoreFieldIndices 
         propertyStoreRuntimeValues[fieldIndex].value != NULL &&
         (propertyStoreRuntimeValues[fieldIndex].value[langIndex]) != NULL &&
         (propertyStoreRuntimeValues[fieldIndex].value[langIndex])[0] != '\0') {
-        AJ_Printf("Has key [%s] runtime Value [%s]\n", propertyStoreProperties[fieldIndex].keyName, propertyStoreRuntimeValues[fieldIndex].value[langIndex]);
+        AJ_InfoPrintf(("Has key [%s] runtime Value [%s]\n", propertyStoreProperties[fieldIndex].keyName, propertyStoreRuntimeValues[fieldIndex].value[langIndex]));
         return propertyStoreRuntimeValues[fieldIndex].value[langIndex];
     } else if (propertyStoreDefaultValues[fieldIndex] != NULL &&
                (propertyStoreDefaultValues[fieldIndex])[langIndex] != NULL) {
-        AJ_Printf("Has key [%s] default Value [%s]\n", propertyStoreProperties[fieldIndex].keyName, (propertyStoreDefaultValues[fieldIndex])[langIndex]);
+        AJ_InfoPrintf(("Has key [%s] default Value [%s]\n", propertyStoreProperties[fieldIndex].keyName, (propertyStoreDefaultValues[fieldIndex])[langIndex]));
         return (propertyStoreDefaultValues[fieldIndex])[langIndex];
     }
 
@@ -167,7 +182,7 @@ uint8_t AJSVC_PropertyStore_SetValueForLang(AJSVC_PropertyStoreFieldIndices fiel
     if (langIndex <= AJSVC_PROPERTY_STORE_ERROR_LANGUAGE_INDEX || langIndex >= AJSVC_PROPERTY_STORE_NUMBER_OF_LANGUAGES) {
         return FALSE;
     }
-    AJ_Printf("Set key [%s] defaultValue [%s]\n", propertyStoreProperties[fieldIndex].keyName, value);
+    AJ_InfoPrintf(("Set key [%s] defaultValue [%s]\n", propertyStoreProperties[fieldIndex].keyName, value));
     var_size = propertyStoreRuntimeValues[fieldIndex].size;
     strncpy(propertyStoreRuntimeValues[fieldIndex].value[langIndex], value, var_size - 1);
     (propertyStoreRuntimeValues[fieldIndex].value[langIndex])[var_size - 1] = '\0';
@@ -186,7 +201,7 @@ int8_t AJSVC_PropertyStore_GetCurrentDefaultLanguageIndex()
     int8_t currentDefaultLanguageIndex = AJSVC_PropertyStore_GetLanguageIndex(currentDefaultLanguage);
     if (currentDefaultLanguageIndex == AJSVC_PROPERTY_STORE_ERROR_LANGUAGE_INDEX) {
         currentDefaultLanguageIndex = AJSVC_PROPERTY_STORE_NO_LANGUAGE_INDEX;
-        AJ_Printf("Failed to find default language %s defaulting to %s", (currentDefaultLanguage != NULL ? currentDefaultLanguage : "NULL"), propertyStoreDefaultLanguages[AJSVC_PROPERTY_STORE_NO_LANGUAGE_INDEX]);
+        AJ_WarnPrintf(("Failed to find default language %s defaulting to %s", (currentDefaultLanguage != NULL ? currentDefaultLanguage : "NULL"), propertyStoreDefaultLanguages[AJSVC_PROPERTY_STORE_NO_LANGUAGE_INDEX]));
     }
     return currentDefaultLanguageIndex;
 }
@@ -314,7 +329,7 @@ AJ_Status AJSVC_PropertyStore_LoadAll()
                 size = propertyStoreRuntimeValues[fieldIndex].size;
                 entry = (int)fieldIndex + (int)langIndex * (int)AJSVC_PROPERTY_STORE_NUMBER_OF_CONFIG_KEYS;
                 status = PropertyStore_ReadConfig(AJ_PROPERTIES_NV_ID_BEGIN + entry, buf, size);
-                AJ_Printf("nvram read fieldIndex=%d langIndex=%d entry=%d val=%s size=%u status=%s\n", (int)fieldIndex, (int)langIndex, (int)entry, propertyStoreRuntimeValues[fieldIndex].value[langIndex], (int)size, AJ_StatusText(status));
+                AJ_InfoPrintf(("nvram read fieldIndex=%d langIndex=%d entry=%d val=%s size=%u status=%s\n", (int)fieldIndex, (int)langIndex, (int)entry, propertyStoreRuntimeValues[fieldIndex].value[langIndex], (int)size, AJ_StatusText(status)));
             }
         }
     }
@@ -342,7 +357,7 @@ AJ_Status AJSVC_PropertyStore_SaveAll()
                 size = propertyStoreRuntimeValues[fieldIndex].size;
                 entry = (int)fieldIndex + (int)langIndex * (int)AJSVC_PROPERTY_STORE_NUMBER_OF_CONFIG_KEYS;
                 status = PropertyStore_WriteConfig(AJ_PROPERTIES_NV_ID_BEGIN + entry, buf, size, "w");
-                AJ_Printf("nvram write fieldIndex=%d langIndex=%d entry=%d val=%s size=%u status=%s\n", (int)fieldIndex, (int)langIndex, (int)entry, propertyStoreRuntimeValues[fieldIndex].value[langIndex], (int)size, AJ_StatusText(status));
+                AJ_InfoPrintf(("nvram write fieldIndex=%d langIndex=%d entry=%d val=%s size=%u status=%s\n", (int)fieldIndex, (int)langIndex, (int)entry, propertyStoreRuntimeValues[fieldIndex].value[langIndex], (int)size, AJ_StatusText(status)));
             }
         }
     }
@@ -358,7 +373,7 @@ static uint8_t UpdateFieldInRAM(AJSVC_PropertyStoreFieldIndices fieldIndex, int8
     if (propertyStoreProperties[fieldIndex].mode0Write && propertyStoreProperties[fieldIndex].mode7Public) {
         ret = AJSVC_PropertyStore_SetValueForLang(fieldIndex, langIndex, fieldValue);
     } else {
-        AJ_Printf("UpdateFieldInRAM ERROR - field %s has read only attribute or is private\n", propertyStoreProperties[fieldIndex].keyName);
+        AJ_ErrPrintf(("UpdateFieldInRAM ERROR - field %s has read only attribute or is private\n", propertyStoreProperties[fieldIndex].keyName));
     }
 
     return ret;
@@ -381,7 +396,7 @@ AJ_Status AJSVC_PropertyStore_ReadAll(AJ_Message* msg, AJSVC_PropertyStoreCatego
     uint8_t rawValue[16];
     uint8_t index;
 
-    AJ_Printf("PropertyStore_ReadAll()\n");
+    AJ_InfoPrintf(("PropertyStore_ReadAll()\n"));
 
     status = AJ_MarshalContainer(msg, &array, AJ_ARG_ARRAY);
     if (status != AJ_OK) {
@@ -398,7 +413,7 @@ AJ_Status AJSVC_PropertyStore_ReadAll(AJ_Message* msg, AJSVC_PropertyStoreCatego
             value = AJSVC_PropertyStore_GetValueForLang(fieldIndex, langIndex);
 
             if (value == NULL && fieldIndex >= AJSVC_PROPERTY_STORE_NUMBER_OF_MANDATORY_KEYS) {     // Non existing values are skipped!
-                AJ_Printf("PropertyStore_ReadAll - Failed to get value for field=(name=%s, index=%d) and language=(name=%s, index=%d), skipping.\n", AJSVC_PropertyStore_GetFieldName(fieldIndex), (int)fieldIndex, AJSVC_PropertyStore_GetLanguageName(langIndex), (int)langIndex);
+                AJ_WarnPrintf(("PropertyStore_ReadAll - Failed to get value for field=(name=%s, index=%d) and language=(name=%s, index=%d), skipping.\n", AJSVC_PropertyStore_GetFieldName(fieldIndex), (int)fieldIndex, AJSVC_PropertyStore_GetLanguageName(langIndex), (int)langIndex));
             } else {
                 status = AJ_MarshalContainer(msg, &dict, AJ_ARG_DICT_ENTRY);
                 if (status != AJ_OK) {
@@ -429,7 +444,7 @@ AJ_Status AJSVC_PropertyStore_ReadAll(AJ_Message* msg, AJSVC_PropertyStoreCatego
                     if (status != AJ_OK) {
                         return status;
                     }
-                    AJ_Printf("Has key [%s] runtime Value [%d]\n", propertyStoreProperties[AJSVC_PROPERTY_STORE_MAX_LENGTH].keyName, DEVICE_NAME_VALUE_LENGTH);
+                    AJ_InfoPrintf(("Has key [%s] runtime Value [%d]\n", propertyStoreProperties[AJSVC_PROPERTY_STORE_MAX_LENGTH].keyName, DEVICE_NAME_VALUE_LENGTH));
 #endif
                 } else if (fieldIndex == AJSVC_PROPERTY_STORE_AJ_SOFTWARE_VERSION) {
                     status = AJ_MarshalVariant(msg, "s");
@@ -440,7 +455,7 @@ AJ_Status AJSVC_PropertyStore_ReadAll(AJ_Message* msg, AJSVC_PropertyStoreCatego
                     if (status != AJ_OK) {
                         return status;
                     }
-                    AJ_Printf("Has key [%s] runtime Value [%s]\n", propertyStoreProperties[AJSVC_PROPERTY_STORE_AJ_SOFTWARE_VERSION].keyName, AJ_GetVersion());
+                    AJ_InfoPrintf(("Has key [%s] runtime Value [%s]\n", propertyStoreProperties[AJSVC_PROPERTY_STORE_AJ_SOFTWARE_VERSION].keyName, AJ_GetVersion()));
                 } else {
                     status = AJ_MarshalVariant(msg, "s");
                     if (status != AJ_OK) {

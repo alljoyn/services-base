@@ -14,11 +14,23 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+/**
+ * Per-module definition of the current module for debug logging.  Must be defined
+ * prior to first inclusion of aj_debug.h.
+ * The corresponding flag dbgAJSVCAPP is defined in the containing sample app.
+ */
+#define AJ_MODULE AJSVCAPP
+#include <aj_debug.h>
+
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include "ControlPanelProvided.h"
 #include "ControlPanelGenerated.h"
 #include "ControlPanelSample.h"
 #include <aj_link_timeout.h>
+
+#ifndef NDEBUG
+extern AJ_EXPORT uint8_t dbgAJSVCAPP;
+#endif
 
 AJ_Status Controlee_Init()
 {
@@ -38,19 +50,19 @@ void Controlee_DoWork(AJ_BusAttachment* busAttachment)
         // 1000 == need to update the state of fan speed selector
 
         if ((sendUpdates & (1 << 0)) != 0) {
-            AJ_Printf("##### Sending update signal: temperature string field \n");
+            AJ_InfoPrintf(("##### Sending update signal: temperature string field \n"));
             AJCPS_SendPropertyChangedSignal(busAttachment, EN_MYDEVICE_CURRENTTEMPSTRINGPROPERTY_SIGNAL_VALUE_CHANGED, AJCPS_GetCurrentSessionId());
         }
         if ((sendUpdates & (1 << 1)) != 0) {
-            AJ_Printf("##### Sending update signal: status string field \n");
+            AJ_InfoPrintf(("##### Sending update signal: status string field \n"));
             AJCPS_SendPropertyChangedSignal(busAttachment, EN_MYDEVICE_STATUSSTRINGPROPERTY_SIGNAL_VALUE_CHANGED, AJCPS_GetCurrentSessionId());
         }
         if ((sendUpdates & (1 << 2)) != 0) {
-            AJ_Printf("##### Sending update signal: temperature selector state \n");
+            AJ_InfoPrintf(("##### Sending update signal: temperature selector state \n"));
             AJCPS_SendPropertyChangedSignal(busAttachment, EN_MYDEVICE_SET_TEMPERATURE_SIGNAL_PROPERTIES_CHANGED, AJCPS_GetCurrentSessionId());
         }
         if ((sendUpdates & (1 << 3)) != 0) {
-            AJ_Printf("##### Sending update signal: fan speed selector state \n");
+            AJ_InfoPrintf(("##### Sending update signal: fan speed selector state \n"));
             AJCPS_SendPropertyChangedSignal(busAttachment, EN_MYDEVICE_FAN_SPEED_SIGNAL_PROPERTIES_CHANGED, AJCPS_GetCurrentSessionId());
         }
     }
