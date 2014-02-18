@@ -73,7 +73,7 @@ AJ_Status AJSVC_UnmarshalAppId(AJ_Message* msg, char* buf, size_t bufLen)
     size_t appIdLen;
 
     if (bufLen < (UUID_LENGTH * 2 + 1)) {
-        AJ_Printf("UnmarshalAppId: Insufficient buffer size! Should be at least %u but got %u\n", UUID_LENGTH * 2 + 1, (uint32_t)bufLen);
+        AJ_ErrPrintf(("UnmarshalAppId: Insufficient buffer size! Should be at least %u but got %u\n", UUID_LENGTH * 2 + 1, (uint32_t)bufLen));
         return AJ_ERR_RESOURCES;
     }
 
