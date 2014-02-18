@@ -14,6 +14,16 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+/**
+ * Per-module definition of the current module for debug logging.  Must be defined
+ * prior to first inclusion of aj_debug.h.
+ * The corresponding flag dbgAJCPS is defined in services_common.h and implemented
+ * in services_common.c.
+ */
+#define AJ_MODULE AJCPS
+#include <aj_debug.h>
+
+#include <alljoyn.h>
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include <alljoyn/controlpanel/Widgets/PropertyWidget.h>
 #include <alljoyn/controlpanel/Widgets/LabelWidget.h>
@@ -39,7 +49,7 @@ AJ_Status AJCPS_Start(AJSVC_MessageProcessor generatedMessageProcessor, AJCPS_Id
     appIdentifyMsgOrPropIdForSignal = identifyMsgOrPropIdForSignal;
     appIdentifyRootMsgOrPropId = identifyRootMsgOrPropId;
     if (appGeneratedMessageProcessor == NULL || appIdentifyMsgOrPropId == NULL || appIdentifyMsgOrPropIdForSignal == NULL || appIdentifyRootMsgOrPropId == NULL) {
-        AJ_Printf("AJCPS_Start(): One of the required callbacks is NULL!\n");
+        AJ_ErrPrintf(("AJCPS_Start(): One of the required callbacks is NULL!\n"));
         status = AJ_ERR_INVALID;
     }
 
@@ -180,7 +190,7 @@ AJ_Status AJCPS_SendPropertyChangedSignal(AJ_BusAttachment* busAttachment, uint3
     AJ_Status status;
     AJ_Message msg;
 
-    AJ_Printf("Sending Property Changed Signal.\n");
+    AJ_InfoPrintf(("Sending Property Changed Signal.\n"));
 
     uint8_t isProperty = FALSE;
 
@@ -209,7 +219,7 @@ AJ_Status AJCPS_SendDismissSignal(AJ_BusAttachment* busAttachment, uint32_t prop
     AJ_Status status;
     AJ_Message msg;
 
-    AJ_Printf("Sending Dismiss Signal.\n");
+    AJ_InfoPrintf(("Sending Dismiss Signal.\n"));
 
     uint8_t found = (appIdentifyRootMsgOrPropId)(propSignal);
     if (!found) {
@@ -236,7 +246,7 @@ AJ_Status AJCPS_ConnectedHandler(AJ_BusAttachment* busAttachment)
 
     status = AJ_BusBindSessionPort(busAttachment, AJCPS_Port, &sessionOpts, 0);
     if (status != AJ_OK) {
-        AJ_Printf("Failed to send bind session port message\n");
+        AJ_ErrPrintf(("Failed to send bind session port message\n"));
     }
 
     uint8_t serviceStarted = FALSE;
@@ -268,7 +278,7 @@ AJ_Status AJCPS_ConnectedHandler(AJ_BusAttachment* busAttachment)
     }
 
     if (status != AJ_OK) {
-        AJ_Printf("AllJoyn disconnect bus status=%d\n", status);
+        AJ_ErrPrintf(("AllJoyn disconnect bus status=%d\n", status));
         status = AJ_ERR_READ;
     }
     return status;
@@ -293,7 +303,7 @@ AJ_Status AJCPS_DisconnectHandler(AJ_BusAttachment* busAttachment)
     AJ_Status status = AJ_OK;
 //    status = AJ_BusUnbindSession(busAttachment, AJCPS_Port);
 //    if (status != AJ_OK) {
-//        AJ_Printf("Failed to send unbind session port=%d\n", AJCPS_Port);
+//        AJ_ErrPrintf(("Failed to send unbind session port=%d\n", AJCPS_Port));
 //    }
     return status;
 }
