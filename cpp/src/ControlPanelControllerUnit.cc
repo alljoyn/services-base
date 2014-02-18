@@ -21,8 +21,7 @@
 #include <alljoyn/controlpanel/LanguageSets.h>
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include "ControlPanelConstants.h"
-
-#define TAG TAG_CONTROLPANELUNIT
+#include <alljoyn/controlpanel/LogModule.h>
 
 namespace ajn {
 namespace services {
@@ -41,19 +40,14 @@ ControlPanelControllerUnit::~ControlPanelControllerUnit()
 QStatus ControlPanelControllerUnit::addHttpControl(qcc::String const& objectPath)
 {
     BusAttachment* busAttachment = ControlPanelService::getInstance()->getBusAttachment();
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
 
     if (!busAttachment) {
-        if (logger) {
-            logger->warn(TAG, "BusAttachment is not set");
-        }
+        QCC_DbgHLPrintf(("BusAttachment is not set"));
         return ER_BUS_BUS_NOT_STARTED;
     }
 
     if (m_HttpControl) {
-        if (logger) {
-            logger->info(TAG, "HttpControl for this unit already exists");
-        }
+        QCC_DbgPrintf(("HttpControl for this unit already exists"));
         return ER_OK;
     }
 
@@ -69,12 +63,9 @@ QStatus ControlPanelControllerUnit::addHttpControl(qcc::String const& objectPath
 QStatus ControlPanelControllerUnit::addControlPanel(qcc::String const& objectPath, qcc::String const& panelName)
 {
     BusAttachment* busAttachment = ControlPanelService::getInstance()->getBusAttachment();
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
 
     if (!busAttachment) {
-        if (logger) {
-            logger->warn(TAG, "BusAttachment is not set");
-        }
+        QCC_DbgHLPrintf(("BusAttachment is not set"));
         return ER_BUS_BUS_NOT_STARTED;
     }
 
@@ -87,9 +78,7 @@ QStatus ControlPanelControllerUnit::addControlPanel(qcc::String const& objectPat
         controlPanel = new ControlPanel(*LanguageSets::get(myLanguages.getLanguageSetName()), objectPath, m_Device);
         m_ControlPanels[panelName] = controlPanel;
     } else {
-        if (logger) {
-            logger->debug(TAG, "ControlPanel for " + panelName + " already exists");
-        }
+        QCC_DbgPrintf(("ControlPanel for %s already exists", panelName.c_str()));
         controlPanel = it->second;
     }
 
@@ -102,12 +91,9 @@ QStatus ControlPanelControllerUnit::addControlPanel(qcc::String const& objectPat
 QStatus ControlPanelControllerUnit::addNotificationAction(qcc::String const& objectPath, qcc::String const& actionName)
 {
     BusAttachment* busAttachment = ControlPanelService::getInstance()->getBusAttachment();
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
 
     if (!busAttachment) {
-        if (logger) {
-            logger->warn(TAG, "BusAttachment is not set");
-        }
+        QCC_DbgHLPrintf(("BusAttachment is not set"));
         return ER_BUS_BUS_NOT_STARTED;
     }
 
@@ -120,9 +106,7 @@ QStatus ControlPanelControllerUnit::addNotificationAction(qcc::String const& obj
         notificationAction = new NotificationAction(*LanguageSets::get(myLanguages.getLanguageSetName()), objectPath, m_Device);
         m_NotificationActions[actionName] = notificationAction;
     } else {
-        if (logger) {
-            logger->debug(TAG, "NotificationAction for " + actionName + " already exists");
-        }
+        QCC_DbgPrintf(("NotificationAction for %s already exists", actionName.c_str()));
         notificationAction = it->second;
     }
 
@@ -150,12 +134,9 @@ QStatus ControlPanelControllerUnit::removeNotificationAction(qcc::String const& 
 QStatus ControlPanelControllerUnit::registerObjects()
 {
     BusAttachment* busAttachment = ControlPanelService::getInstance()->getBusAttachment();
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
 
     if (!busAttachment) {
-        if (logger) {
-            logger->warn(TAG, "BusAttachment is not set");
-        }
+        QCC_DbgHLPrintf(("BusAttachment is not set"));
         return ER_BUS_BUS_NOT_STARTED;
     }
 
@@ -171,9 +152,7 @@ QStatus ControlPanelControllerUnit::registerObjects()
     std::map<qcc::String, ControlPanel*>::iterator it;
     for (it = m_ControlPanels.begin(); it != m_ControlPanels.end(); it++) {
         if ((status = it->second->registerObjects(busAttachment)) != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Registering ControlPanel Objects failed");
-            }
+            QCC_LogError(status, ("Registering ControlPanel Objects failed"));
             returnStatus = status;
         }
     }

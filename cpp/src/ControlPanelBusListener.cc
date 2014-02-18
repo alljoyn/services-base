@@ -17,6 +17,7 @@
 #include <alljoyn/controlpanel/ControlPanelBusListener.h>
 #include <iostream>
 #include <algorithm>
+#include <alljoyn/controlpanel/LogModule.h>
 
 namespace ajn {
 namespace services {
@@ -46,7 +47,7 @@ bool ControlPanelBusListener::AcceptSessionJoiner(ajn::SessionPort sessionPort, 
         return false;
     }
 
-    std::cout << "Accepting JoinSessionRequest" << std::endl;
+    QCC_DbgPrintf(("Accepting JoinSessionRequest"));
     return true;
 }
 

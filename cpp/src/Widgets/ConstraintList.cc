@@ -17,12 +17,11 @@
 #include <alljoyn/controlpanel/ConstraintList.h>
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include "../ControlPanelConstants.h"
+#include <alljoyn/controlpanel/LogModule.h>
 
 namespace ajn {
 namespace services {
 using namespace cpsConsts;
-
-#define TAG TAG_CONSTRAINTLIST
 
 ConstraintList::ConstraintList() : m_PropertyType(UNDEFINED), m_Display(""), m_GetDisplays(0)
 {
@@ -118,19 +117,13 @@ void ConstraintList::setGetDisplays(GetStringFptr getDisplays)
 
 QStatus ConstraintList::fillConstraintArg(MsgArg& val, uint16_t languageIndx, PropertyType propertyType)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (m_PropertyType != propertyType) {
-        if (logger) {
-            logger->warn(TAG, "Could not fill the Constraint Arg. PropertyTypes do not match");
-        }
+        QCC_DbgHLPrintf(("Could not fill the Constraint Arg. PropertyTypes do not match"));
         return ER_FAIL;
     }
 
     if (!m_Displays.size() > languageIndx && !m_GetDisplays) {
-        if (logger) {
-            logger->warn(TAG, "Could not fill the Constraint Arg. Display is not set");
-        }
+        QCC_DbgHLPrintf(("Could not fill the Constraint Arg. Display is not set"));
         return ER_FAIL;
     }
 
@@ -176,10 +169,7 @@ QStatus ConstraintList::fillConstraintArg(MsgArg& val, uint16_t languageIndx, Pr
     }
 
     if (status != ER_OK) {
-        GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-        if (logger) {
-            logger->warn(TAG, "Could not marshal Constraint Value");
-        }
+        QCC_LogError(status, ("Could not marshal Constraint Value"));
         delete valueArg;
         return status;
     }
@@ -188,10 +178,7 @@ QStatus ConstraintList::fillConstraintArg(MsgArg& val, uint16_t languageIndx, Pr
     status = val.Set(AJPARAM_STRUCT_VAR_STR.c_str(), valueArg, display);
 
     if (status != ER_OK) {
-        GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-        if (logger) {
-            logger->warn(TAG, "Could not marshal Constraint Value");
-        }
+        QCC_LogError(status, ("Could not marshal Constraint Value"));
         delete valueArg;
         return status;
     }

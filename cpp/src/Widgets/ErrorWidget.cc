@@ -24,7 +24,7 @@ namespace services {
 using namespace cpsConsts;
 
 ErrorWidget::ErrorWidget(qcc::String const& name, Widget* rootWidget, Widget* originalWidget, ControlPanelDevice* device) :
-    Widget(name, rootWidget, device, ERROR, TAG_ERROR_WIDGET), m_OriginalWidget(originalWidget)
+    Widget(name, rootWidget, device, ERROR), m_OriginalWidget(originalWidget)
 {
     m_Label.assign(ERROR_WIDGET_LABEL);
 }

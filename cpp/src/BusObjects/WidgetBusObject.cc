@@ -18,6 +18,7 @@
 #include "WidgetBusObject.h"
 #include "../ControlPanelConstants.h"
 #include "WidgetProxyBusObjectListener.h"
+#include <alljoyn/controlpanel/LogModule.h>
 
 namespace ajn {
 namespace services {
@@ -26,16 +27,13 @@ using namespace cpsConsts;
 
 #define DEFAULT_WIDGET_INTERFACE_VERSION 1
 
-WidgetBusObject::WidgetBusObject(String const& objectPath, uint16_t langIndx, String const& tag,
-                                 QStatus& status, Widget* widget) : BusObject(objectPath.c_str()), m_Widget(widget), m_Proxy(0),
-    m_LanguageIndx(langIndx), m_ObjectPath(objectPath), m_InterfaceDescription(0), m_SignalPropertyChanged(0), TAG(tag)
+WidgetBusObject::WidgetBusObject(String const& objectPath, uint16_t langIndx, QStatus& status, Widget* widget) :
+    BusObject(objectPath.c_str()), m_Widget(widget), m_Proxy(0),
+    m_LanguageIndx(langIndx), m_ObjectPath(objectPath), m_InterfaceDescription(0), m_SignalPropertyChanged(0)
 {
     status = ER_OK;
     if (!widget) {
-        GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-        if (logger) {
-            logger->warn(TAG, "Can't send in a NULL widget");
-        }
+        QCC_DbgHLPrintf(("Can't send in a NULL widget"));
         status = ER_BAD_ARG_5;
     }
 }
@@ -69,40 +67,31 @@ QStatus WidgetBusObject::addDefaultInterfaceVariables(InterfaceDescription* intf
 
 QStatus WidgetBusObject::addSignalHandler(BusAttachment* bus)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     QStatus status =  bus->RegisterSignalHandler(this,
                                                  static_cast<MessageReceiver::SignalHandler>(&WidgetBusObject::PropertyChanged),
                                                  m_SignalPropertyChanged,
                                                  m_ObjectPath.c_str());
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not register the SignalHandler");
-        }
+        QCC_LogError(status, ("Could not register the SignalHandler"));
     }
     return status;
 }
 
 QStatus WidgetBusObject::UnregisterSignalHandler(BusAttachment* bus)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     QStatus status =  bus->UnregisterSignalHandler(this,
                                                    static_cast<MessageReceiver::SignalHandler>(&WidgetBusObject::PropertyChanged),
                                                    m_SignalPropertyChanged,
                                                    m_ObjectPath.c_str());
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not unregister the SignalHandler");
-        }
+        QCC_LogError(status, ("Could not unregister the SignalHandler"));
     }
     return status;
 }
 
 QStatus WidgetBusObject::Get(const char* interfaceName, const char* propName, MsgArg& val)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug(TAG, "Get property was called - in WidgetBusObject class:");
-    }
+    QCC_DbgTrace(("Get property was called - in WidgetBusObject class:"));
 
     if (0 == strcmp(AJ_PROPERTY_VERSION.c_str(), propName)) {
         return val.Set(AJPARAM_UINT16.c_str(), getInterfaceVersion());
@@ -122,38 +111,28 @@ QStatus WidgetBusObject::Set(const char* interfaceName, const char* propName, Ms
 
 void WidgetBusObject::PropertyChanged(const InterfaceDescription::Member* member, const char* srcPath, Message& msg)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (msg.unwrap()->GetSender() && strcmp(msg.unwrap()->GetSender(), m_Widget->getDevice()->getDeviceBusName().c_str()) != 0) {
-        if (logger) {
-            logger->debug(TAG, "Received PropertyChanged signal for someone else");
-        }
+        QCC_DbgPrintf(("Received PropertyChanged signal for someone else"));
         return;
     }
 
-    if (logger) {
-        logger->debug(TAG, "Received PropertyChanged signal - reloading properties");
-    }
+    QCC_DbgPrintf(("Received PropertyChanged signal - reloading properties"));
 
     return m_Widget->PropertyChanged();
 }
 
 QStatus WidgetBusObject::SendPropertyChangedSignal()
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     ControlPanelBusListener* busListener = ControlPanelService::getInstance()->getBusListener();
     QStatus status = ER_BUS_PROPERTY_VALUE_NOT_SET;
 
     if (!m_SignalPropertyChanged) {
-        if (logger) {
-            logger->warn(TAG, "Can't send propertyChanged signal. Signal to set");
-        }
+        QCC_DbgHLPrintf(("Can't send propertyChanged signal. Signal to set"));
         return status;
     }
 
     if (!busListener) {
-        if (logger) {
-            logger->warn(TAG, "Can't send valueChanged signal. SessionIds are unknown");
-        }
+        QCC_DbgHLPrintf(("Can't send valueChanged signal. SessionIds are unknown"));
         return status;
     }
 
@@ -161,9 +140,7 @@ QStatus WidgetBusObject::SendPropertyChangedSignal()
     for (size_t indx = 0; indx < sessionIds.size(); indx++) {
         status = Signal(NULL, sessionIds[indx], *m_SignalPropertyChanged, NULL, 0);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not send PropertyChanged Signal for sessionId: " + sessionIds[indx]);
-            }
+            QCC_LogError(status, ("Could not send PropertyChanged Signal for sessionId: %s", sessionIds[indx]));
         }
     }
     return status;
@@ -171,19 +148,13 @@ QStatus WidgetBusObject::SendPropertyChangedSignal()
 
 QStatus WidgetBusObject::setRemoteController(BusAttachment* bus, qcc::String const& deviceBusName, SessionId sessionId)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (m_Proxy && m_Proxy->GetSessionId() == sessionId) {
-        if (logger) {
-            logger->debug(TAG, "ProxyBusObject already set - ignoring");
-        }
+        QCC_DbgPrintf(("ProxyBusObject already set - ignoring"));
         return ER_OK;
     }
 
     if (!m_InterfaceDescription) {
-        if (logger) {
-            logger->warn(TAG, "InterfaceDescription is not set. Cannot set RemoteController");
-        }
+        QCC_DbgHLPrintf(("InterfaceDescription is not set. Cannot set RemoteController"));
         return ER_FAIL;
     }
 
@@ -194,46 +165,34 @@ QStatus WidgetBusObject::setRemoteController(BusAttachment* bus, qcc::String con
     m_Proxy = new ProxyBusObject(*bus, deviceBusName.c_str(), m_ObjectPath.c_str(), sessionId);
     QStatus status = m_Proxy->AddInterface(*m_InterfaceDescription);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not add Interface to ProxyBusobject");
-        }
+        QCC_LogError(status, ("Could not add Interface to ProxyBusobject"));
     }
     return status;
 }
 
 QStatus WidgetBusObject::checkVersions()
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (!m_Proxy) {
-        if (logger) {
-            logger->warn(TAG, "Cannot Check Versions. ProxyBusObject is not set");
-        }
+        QCC_DbgHLPrintf(("Cannot Check Versions. ProxyBusObject is not set"));
         return ER_BUS_PROPERTY_VALUE_NOT_SET;
     }
 
     MsgArg value;
     QStatus status = m_Proxy->GetProperty(m_InterfaceDescription->GetName(), AJ_PROPERTY_VERSION.c_str(), value);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Call to get Version Property failed");
-        }
+        QCC_LogError(status, ("Call to get Version Property failed"));
         return status;
     }
 
     uint16_t version = 1;
     status = value.Get(AJPARAM_UINT16.c_str(), &version);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not unmarshal version property");
-        }
+        QCC_LogError(status, ("Could not unmarshal version property"));
         return status;
     }
 
     if (getInterfaceVersion() < version) {
-        if (logger) {
-            logger->warn(TAG, "The versions of the interface are not compatible");
-        }
+        QCC_DbgHLPrintf(("The versions of the interface are not compatible"));
         return ER_BUS_INTERFACE_MISMATCH;
     }
     return ER_OK;
@@ -241,21 +200,15 @@ QStatus WidgetBusObject::checkVersions()
 
 QStatus WidgetBusObject::fillProperties()
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (!m_Proxy) {
-        if (logger) {
-            logger->warn(TAG, "Cannot fill Properties. ProxyBusObject is not set");
-        }
+        QCC_DbgHLPrintf(("Cannot fill Properties. ProxyBusObject is not set"));
         return ER_BUS_PROPERTY_VALUE_NOT_SET;
     }
 
     MsgArg allPropValues;
     QStatus status = m_Proxy->GetAllProperties(m_InterfaceDescription->GetName(), allPropValues);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Call to getAllProperties failed");
-        }
+        QCC_LogError(status, ("Call to getAllProperties failed"));
         return status;
     }
     return fillAllProperties(allPropValues);
@@ -263,24 +216,18 @@ QStatus WidgetBusObject::fillProperties()
 
 QStatus WidgetBusObject::refreshProperties()
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (!m_Proxy) {
-        if (logger) {
-            logger->warn(TAG, "Cannot refresh Properties. ProxyBusObject is not set");
-        }
+        QCC_DbgHLPrintf(("Cannot refresh Properties. ProxyBusObject is not set"));
         return ER_BUS_PROPERTY_VALUE_NOT_SET;
     }
 
-    WidgetProxyBusObjectListener* listener = new WidgetProxyBusObjectListener(m_Widget, this, TAG);
+    WidgetProxyBusObjectListener* listener = new WidgetProxyBusObjectListener(m_Widget, this);
     QStatus status = m_Proxy->GetAllPropertiesAsync(m_InterfaceDescription->GetName(), listener,
                                                     static_cast<ProxyBusObject::Listener::GetAllPropertiesCB>(&WidgetProxyBusObjectListener::GetAllPropertiesCallBack),
                                                     NULL);
 
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Call to getAllProperties failed");
-        }
+        QCC_LogError(status, ("Call to getAllProperties failed"));
     }
     return status;
 }

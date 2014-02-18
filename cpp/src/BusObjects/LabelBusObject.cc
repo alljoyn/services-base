@@ -18,6 +18,7 @@
 #include "../ControlPanelConstants.h"
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include <alljoyn/controlpanel/Label.h>
+#include <alljoyn/controlpanel/LogModule.h>
 
 namespace ajn {
 namespace services {
@@ -25,14 +26,10 @@ using namespace qcc;
 using namespace cpsConsts;
 
 LabelBusObject::LabelBusObject(BusAttachment* bus, String const& objectPath, uint16_t langIndx,
-                               QStatus& status, Widget* widget) : WidgetBusObject(objectPath, langIndx,
-                                                                                  TAG_LABEL_BUSOBJECT, status, widget)
+                               QStatus& status, Widget* widget) : WidgetBusObject(objectPath, langIndx, status, widget)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not create the BusObject");
-        }
+        QCC_DbgHLPrintf(("Could not create the BusObject"));
         return;
     }
 
@@ -46,17 +43,13 @@ LabelBusObject::LabelBusObject(BusAttachment* bus, String const& objectPath, uin
         } while (0);
     }
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not create interface");
-        }
+        QCC_LogError(status, ("Could not create interface"));
         return;
     }
 
     status = AddInterface(*m_InterfaceDescription);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not add interface");
-        }
+        QCC_LogError(status, ("Could not add interface"));
         return;
     }
 
@@ -65,9 +58,7 @@ LabelBusObject::LabelBusObject(BusAttachment* bus, String const& objectPath, uin
     if (widget->getControlPanelMode() == CONTROLLER_MODE) {
         status = addSignalHandler(bus);
     }
-    if (logger) {
-        logger->debug(TAG, "Created LabelBusObject successfully");
-    }
+    QCC_DbgPrintf(("Created LabelBusObject successfully"));
 }
 
 LabelBusObject::~LabelBusObject() {
@@ -75,10 +66,7 @@ LabelBusObject::~LabelBusObject() {
 
 QStatus LabelBusObject::Get(const char* interfaceName, const char* propName, MsgArg& val)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug(TAG, "Get property was called - in LabelBusObject class:\n");
-    }
+    QCC_DbgTrace(("Get property was called - in LabelBusObject class."));
 
     if (0 == strcmp(AJ_PROPERTY_LABEL.c_str(), propName)) {
         return ((Label*)m_Widget)->fillLabelArg(val, m_LanguageIndx);

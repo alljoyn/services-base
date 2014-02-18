@@ -20,15 +20,13 @@
 #include <qcc/Debug.h>
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include "ControlPanelConstants.h"
+#include <alljoyn/controlpanel/LogModule.h>
 
 namespace ajn {
 namespace services {
 
 using namespace qcc;
 using namespace cpsConsts;
-
-#define TAG TAG_CONTROLPANELSERVICE
-#define CALLBACKTAG "AllJoynInternal"
 
 ControlPanelService* ControlPanelService::s_Instance(0);
 uint16_t const ControlPanelService::CONTROLPANEL_SERVICE_VERSION = 1;
@@ -44,16 +42,13 @@ ControlPanelService* ControlPanelService::getInstance()
 
 ControlPanelService::ControlPanelService() :
     m_Bus(0), m_BusListener(0), m_ControlPanelControllee(0),
-    m_ControlPanelController(0), m_ControlPanelListener(0), logger(0)
+    m_ControlPanelController(0), m_ControlPanelListener(0)
 {
-    setLogger(&cpsLogger);
 }
 
 ControlPanelService::~ControlPanelService()
 {
-    if (logger) {
-        logger->info(TAG, "Shutting down");
-    }
+    QCC_DbgPrintf(("Shutting down"));
 
     if (m_BusListener) {
         if (m_Bus) {
@@ -75,56 +70,40 @@ uint16_t ControlPanelService::getVersion()
 
 QStatus ControlPanelService::initControllee(BusAttachment* bus, ControlPanelControllee* controlPanelControllee)
 {
-    if (logger) {
-        logger->debug(TAG, "Initializing Controllee");
-    }
+    QCC_DbgPrintf(("Initializing Controllee"));
 
     if (!bus) {
-        if (logger) {
-            logger->warn(TAG, "Bus cannot be NULL");
-        }
+        QCC_DbgHLPrintf(("Bus cannot be NULL"));
         return ER_BAD_ARG_1;
     }
 
     if (!bus->IsStarted()) {
-        if (logger) {
-            logger->warn(TAG, "Bus is not started");
-        }
+        QCC_DbgHLPrintf(("Bus is not started"));
         return ER_BAD_ARG_1;
     }
 
     if (!bus->IsConnected()) {
-        if (logger) {
-            logger->warn(TAG, "Bus is not connected");
-        }
+        QCC_DbgHLPrintf(("Bus is not connected"));
         return ER_BAD_ARG_1;
     }
 
     if (m_Bus && m_Bus->GetUniqueName().compare(bus->GetUniqueName()) != 0) {
-        if (logger) {
-            logger->warn(TAG, "Bus is already set to different BusAttachment");
-        }
+        QCC_DbgHLPrintf(("Bus is already set to different BusAttachment"));
         return ER_BAD_ARG_1;
     }
 
     if (!controlPanelControllee) {
-        if (logger) {
-            logger->warn(TAG, "ControlPanelControllee cannot be null");
-        }
+        QCC_DbgHLPrintf(("ControlPanelControllee cannot be null"));
         return ER_BAD_ARG_2;
     }
 
     if (m_ControlPanelControllee) {
-        if (logger) {
-            logger->warn(TAG, "ControlPanelControllee already initialized");
-        }
+        QCC_DbgHLPrintf(("ControlPanelControllee already initialized"));
         return ER_BUS_OBJ_ALREADY_EXISTS;
     }
 
     if (m_BusListener) {
-        if (logger) {
-            logger->warn(TAG, "BusListener already initialized");
-        }
+        QCC_DbgHLPrintf(("BusListener already initialized"));
         return ER_BUS_OBJ_ALREADY_EXISTS;
     }
 
@@ -133,9 +112,7 @@ QStatus ControlPanelService::initControllee(BusAttachment* bus, ControlPanelCont
 
     QStatus status = controlPanelControllee->registerObjects(bus);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not register the BusObjects");
-        }
+        QCC_LogError(status, ("Could not register the BusObjects"));
         return status;
     }
 
@@ -148,28 +125,22 @@ QStatus ControlPanelService::initControllee(BusAttachment* bus, ControlPanelCont
 
     status = m_Bus->BindSessionPort(servicePort, sessionOpts, *m_BusListener);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not bind Session Port successfully");
-        }
+        QCC_LogError(status, ("Could not bind Session Port successfully"));
         return status;
     }
-    logger->info(TAG, "Initialized Controllee successfully");
+    QCC_DbgPrintf(("Initialized Controllee successfully"));
     return status;
 }
 
 QStatus ControlPanelService::shutdownControllee()
 {
     if (!m_ControlPanelControllee) {
-        if (logger) {
-            logger->info(TAG, "ControlPanelControllee not initialized. Returning");
-        }
+        QCC_DbgHLPrintf(("ControlPanelControllee not initialized. Returning"));
         return ER_OK;
     }
 
     if (!m_Bus) {
-        if (logger) {
-            logger->info(TAG, "Bus not set.");
-        }
+        QCC_DbgHLPrintf(("Bus not set."));
         return ER_BUS_BUS_NOT_STARTED;
     }
 
@@ -186,17 +157,13 @@ QStatus ControlPanelService::shutdownControllee()
     QStatus returnStatus = ER_OK;
     QStatus status = m_Bus->UnbindSessionPort(sp);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not unbind the SessionPort");
-        }
+        QCC_LogError(status, ("Could not unbind the SessionPort"));
         returnStatus = status;
     }
 
     status = m_ControlPanelControllee->unregisterObjects(m_Bus);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not unregister the BusObjects");
-        }
+        QCC_LogError(status, ("Could not unregister the BusObjects"));
         returnStatus = status;
     }
 
@@ -207,63 +174,45 @@ QStatus ControlPanelService::shutdownControllee()
 QStatus ControlPanelService::initController(BusAttachment* bus, ControlPanelController* controlPanelController,
                                             ControlPanelListener* controlPanelListener)
 {
-    if (logger) {
-        logger->debug(TAG, "Initializing Controller");
-    }
+    QCC_DbgTrace(("Initializing Controller"));
 
     if (!bus) {
-        if (logger) {
-            logger->warn(TAG, "Bus cannot be NULL");
-        }
+        QCC_DbgHLPrintf(("Bus cannot be NULL"));
         return ER_BAD_ARG_1;
     }
 
     if (!bus->IsStarted()) {
-        if (logger) {
-            logger->warn(TAG, "Bus is not started");
-        }
+        QCC_DbgHLPrintf(("Bus is not started"));
         return ER_BAD_ARG_1;
     }
 
     if (!bus->IsConnected()) {
-        if (logger) {
-            logger->warn(TAG, "Bus is not connected");
-        }
+        QCC_DbgHLPrintf(("Bus is not connected"));
         return ER_BAD_ARG_1;
     }
 
     if (m_Bus && m_Bus->GetUniqueName().compare(bus->GetUniqueName()) != 0) {
-        if (logger) {
-            logger->warn(TAG, "Bus is already set to different BusAttachment");
-        }
+        QCC_DbgHLPrintf(("Bus is already set to different BusAttachment"));
         return ER_BAD_ARG_1;
     }
 
     if (!controlPanelController) {
-        if (logger) {
-            logger->warn(TAG, "ControlPanelController cannot be null");
-        }
+        QCC_DbgHLPrintf(("ControlPanelController cannot be null"));
         return ER_BAD_ARG_2;
     }
 
     if (m_ControlPanelController) {
-        if (logger) {
-            logger->warn(TAG, "ControlPanelController already initialized");
-        }
+        QCC_DbgHLPrintf(("ControlPanelController already initialized"));
         return ER_BUS_OBJ_ALREADY_EXISTS;
     }
 
     if (!controlPanelListener) {
-        if (logger) {
-            logger->warn(TAG, "ControlPanelListener cannot be null");
-        }
+        QCC_DbgHLPrintf(("ControlPanelListener cannot be null"));
         return ER_BAD_ARG_3;
     }
 
     if (m_ControlPanelListener) {
-        if (logger) {
-            logger->warn(TAG, "m_ControlPanelListener already initialized");
-        }
+        QCC_DbgHLPrintf(("m_ControlPanelListener already initialized"));
         return ER_BUS_OBJ_ALREADY_EXISTS;
     }
 
@@ -271,31 +220,25 @@ QStatus ControlPanelService::initController(BusAttachment* bus, ControlPanelCont
     m_ControlPanelController = controlPanelController;
     m_ControlPanelListener = controlPanelListener;
 
-    logger->info(TAG, "Initialized Controller successfully");
+    QCC_DbgPrintf(("Initialized Controller successfully"));
     return ER_OK;
 }
 
 QStatus ControlPanelService::shutdownController()
 {
     if (!m_ControlPanelController) {
-        if (logger) {
-            logger->info(TAG, "ControlPanelControllee not initialized. Returning");
-        }
+        QCC_DbgHLPrintf(("ControlPanelControllee not initialized. Returning"));
         return ER_OK;
     }
 
     if (!m_Bus) {
-        if (logger) {
-            logger->info(TAG, "Bus not set.");
-        }
+        QCC_DbgHLPrintf(("Bus not set."));
         return ER_BUS_BUS_NOT_STARTED;
     }
 
     QStatus status = m_ControlPanelController->deleteAllControllableDevices();
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not stop all Controllable Devices");
-        }
+        QCC_DbgHLPrintf(("Could not stop all Controllable Devices"));
     }
 
     m_ControlPanelController = 0;
@@ -311,95 +254,17 @@ QStatus ControlPanelService::shutdown()
     QStatus status = shutdownController();
     if (status != ER_OK) {
         returnStatus = status;
-        if (logger) {
-            logger->warn(TAG, "Could not shutdown Controller successfully");
-        }
+        QCC_DbgHLPrintf(("Could not shutdown Controller successfully"));
     }
 
     status = shutdownControllee();
     if (status != ER_OK) {
         returnStatus = status;
-        if (logger) {
-            logger->warn(TAG, "Could not shutdown Controllee successfully");
-        }
+        QCC_DbgHLPrintf(("Could not shutdown Controllee successfully"));
     }
 
     m_Bus = 0;
     return returnStatus;
-}
-
-void ControlPanelService::GenericLoggerCallBack(DbgMsgType type, const char* module, const char* msg, void* context)
-{
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-    if (logger) {
-        Log::LogLevel currLogLevel = logger->getLogLevel();
-        switch (type) {
-        case DBG_LOCAL_ERROR:
-        case DBG_REMOTE_ERROR:
-            if (currLogLevel >= Log::LEVEL_ERROR) {
-                logger->error(CALLBACKTAG, msg);
-            }
-            break;
-
-        case DBG_GEN_MESSAGE:
-            if (currLogLevel >= Log::LEVEL_INFO) {
-                logger->info(CALLBACKTAG, msg);
-            }
-            break;
-
-        case DBG_API_TRACE:
-            if (currLogLevel >= Log::LEVEL_DEBUG) {
-                logger->debug(CALLBACKTAG, msg);
-            }
-            break;
-
-        case DBG_HIGH_LEVEL:
-            if (currLogLevel >= Log::LEVEL_WARN) {
-                logger->warn(CALLBACKTAG, msg);
-            }
-            break;
-
-        case DBG_REMOTE_DATA:
-        case DBG_LOCAL_DATA:
-            if (currLogLevel >= Log::LEVEL_DEBUG) {
-                logger->debug(CALLBACKTAG, msg);
-            }
-            break;
-
-        default:
-            if (currLogLevel >= Log::LEVEL_DEBUG) {
-                logger->debug(CALLBACKTAG, msg);
-            }
-        }
-    }
-}
-
-GenericLogger* ControlPanelService::setLogger(GenericLogger* newLogger)
-{
-    GenericLogger* prevLogger = getLogger();
-    Log::LogLevel prevLogLevel = getLogLevel();
-    logger = newLogger;
-    if (logger) {
-        setLogLevel(prevLogLevel);
-        // reroute internal AJ logging to logger
-        ServicesLoggerImpl::RegisterCallBack(logger, &GenericLoggerCallBack, NULL);
-    }
-    return prevLogger;
-}
-
-GenericLogger* ControlPanelService::getLogger()
-{
-    return logger;
-}
-
-Log::LogLevel ControlPanelService::setLogLevel(Log::LogLevel newLogLevel)
-{
-    return logger ? logger->setLogLevel(newLogLevel) : Log::LogLevel::LEVEL_INFO;
-}
-
-Log::LogLevel ControlPanelService::getLogLevel()
-{
-    return logger ? logger->getLogLevel() : Log::LogLevel::LEVEL_INFO;
 }
 
 BusAttachment* ControlPanelService::getBusAttachment()

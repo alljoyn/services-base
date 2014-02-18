@@ -18,17 +18,18 @@
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include "../BusObjects/ActionBusObject.h"
 #include "../ControlPanelConstants.h"
+#include <alljoyn/controlpanel/LogModule.h>
 
 namespace ajn {
 namespace services {
 using namespace cpsConsts;
 
-Action::Action(qcc::String const& name, Widget* rootWidget) : Widget(name, rootWidget, ACTION, TAG_ACTION_WIDGET)
+Action::Action(qcc::String const& name, Widget* rootWidget) : Widget(name, rootWidget, ACTION)
 {
 }
 
 Action::Action(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* device) :
-    Widget(name, rootWidget, device, ACTION, TAG_ACTION_WIDGET)
+    Widget(name, rootWidget, device, ACTION)
 {
 
 }
@@ -45,18 +46,13 @@ WidgetBusObject* Action::createWidgetBusObject(BusAttachment* bus, qcc::String c
 
 QStatus Action::executeAction()
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (m_ControlPanelMode == CONTROLLEE_MODE) {
-        if (logger) {
-            logger->warn(TAG, "Cannot execute Action. Widget is a Controllee widget");
-        }
+        QCC_DbgHLPrintf(("Cannot execute Action. Widget is a Controllee widget"));
         return ER_NOT_IMPLEMENTED;
     }
 
     if (!m_BusObjects.size()) {
-        if (logger) {
-            logger->warn(TAG, "Cannot execute Action. BusObject is not set");
-        }
+        QCC_DbgHLPrintf(("Cannot execute Action. BusObject is not set"));
         return ER_BUS_BUS_NOT_STARTED;
     }
 

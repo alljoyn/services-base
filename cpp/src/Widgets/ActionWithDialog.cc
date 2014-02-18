@@ -18,18 +18,19 @@
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include "../BusObjects/ActionBusObject.h"
 #include "../ControlPanelConstants.h"
+#include <alljoyn/controlpanel/LogModule.h>
 
 namespace ajn {
 namespace services {
 using namespace cpsConsts;
 
 ActionWithDialog::ActionWithDialog(qcc::String const& name, Widget* rootWidget) :
-    Widget(name, rootWidget, ACTION_WITH_DIALOG, TAG_ACTION_WIDGET), m_Dialog(0)
+    Widget(name, rootWidget, ACTION_WITH_DIALOG), m_Dialog(0)
 {
 }
 
 ActionWithDialog::ActionWithDialog(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* device) :
-    Widget(name, rootWidget, device, ACTION_WITH_DIALOG, TAG_ACTION_WIDGET), m_Dialog(0)
+    Widget(name, rootWidget, device, ACTION_WITH_DIALOG), m_Dialog(0)
 {
 }
 
@@ -53,27 +54,20 @@ Dialog* ActionWithDialog::getChildDialog() const
 
 QStatus ActionWithDialog::addChildDialog(Dialog* childDialog)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!childDialog) {
-        if (logger) {
-            logger->warn(TAG, "Cannot add a childDialog that is NULL");
-        }
+        QCC_DbgHLPrintf(("Cannot add a childDialog that is NULL"));
         return ER_BAD_ARG_1;
     }
 
     m_Dialog = childDialog;
 
-    if (logger) {
-        logger->debug(TAG, "Adding childDialog named: " + childDialog->getWidgetName());
-    }
+    QCC_DbgPrintf(("Adding childDialog named: %s", childDialog->getWidgetName().c_str()));
     return ER_OK;
 }
 
 QStatus ActionWithDialog::registerObjects(BusAttachment* bus, LanguageSet const& languageSet,
                                           qcc::String const& objectPathPrefix, qcc::String const& objectPathSuffix, bool isRoot)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     QStatus status = Widget::registerObjects(bus, languageSet, objectPathPrefix, objectPathSuffix, isRoot);
     if (status != ER_OK) {
         return status;
@@ -82,17 +76,13 @@ QStatus ActionWithDialog::registerObjects(BusAttachment* bus, LanguageSet const&
     qcc::String newObjectPathSuffix = isRoot ? objectPathSuffix : objectPathSuffix + "/" + m_Name;
 
     if (!m_Dialog) {
-        if (logger) {
-            logger->warn(TAG, "Could not register. ActionWithDialog is missing the child Dialog");
-        }
+        QCC_DbgHLPrintf(("Could not register. ActionWithDialog is missing the child Dialog"));
         return ER_FAIL;
     }
 
     status = m_Dialog->registerObjects(bus, languageSet, objectPathPrefix, newObjectPathSuffix);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not register childDialog objects");
-        }
+        QCC_LogError(status, ("Could not register childDialog objects"));
         return status;
     }
     return status;
@@ -100,23 +90,18 @@ QStatus ActionWithDialog::registerObjects(BusAttachment* bus, LanguageSet const&
 
 QStatus ActionWithDialog::unregisterObjects(BusAttachment* bus)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     QStatus returnStatus = ER_OK;
 
     QStatus status = Widget::unregisterObjects(bus);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not unregister BusObjects");
-        }
+        QCC_LogError(status, ("Could not unregister BusObjects"));
         returnStatus = status;
     }
 
     if (m_Dialog) {
         status = m_Dialog->unregisterObjects(bus);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not unregister Objects for the childDialog");
-            }
+            QCC_LogError(status, ("Could not unregister Objects for the childDialog"));
             returnStatus = status;
         }
     }
@@ -125,20 +110,15 @@ QStatus ActionWithDialog::unregisterObjects(BusAttachment* bus)
 
 QStatus ActionWithDialog::addChildren(BusAttachment* bus)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!m_BusObjects.size()) {
-        if (logger) {
-            logger->warn(TAG, "BusObject is not set");
-        }
+        QCC_DbgHLPrintf(("BusObject is not set"));
         return ER_BUS_BUS_NOT_STARTED;
     }
 
     std::vector<IntrospectionNode> childNodes;
     QStatus status = m_BusObjects[0]->Introspect(childNodes);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Introspection failed");
-        }
+        QCC_LogError(status, ("Introspection failed"));
         return status;
     }
 
@@ -156,19 +136,14 @@ QStatus ActionWithDialog::addChildren(BusAttachment* bus)
 
 QStatus ActionWithDialog::refreshChildren(BusAttachment* bus)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!m_Dialog) {
-        if (logger) {
-            logger->warn(TAG, "Could not refresh. ActionWithDialog is missing the child Dialog");
-        }
+        QCC_DbgHLPrintf(("Could not refresh. ActionWithDialog is missing the child Dialog"));
         return ER_FAIL;
     }
 
     QStatus status = m_Dialog->refreshObjects(bus);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Error refreshing Child: " + m_Dialog->getWidgetName());
-        }
+        QCC_LogError(status, ("Error refreshing Child: %s", m_Dialog->getWidgetName().c_str()));
     }
 
     return status;

@@ -21,8 +21,7 @@
 #include <alljoyn/controlpanel/LanguageSets.h>
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include "ControlPanelConstants.h"
-
-#define TAG TAG_CONTROLPANELUNIT
+#include <alljoyn/controlpanel/LogModule.h>
 
 namespace ajn {
 namespace services {
@@ -45,12 +44,8 @@ const qcc::String& ControlPanelControlleeUnit::getUnitName() const
 
 QStatus ControlPanelControlleeUnit::addControlPanel(ControlPanel* controlPanel)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (!controlPanel) {
-        if (logger) {
-            logger->warn(TAG, "Could not add a NULL controlPanel");
-        }
+        QCC_DbgHLPrintf(("Could not add a NULL controlPanel"));
         return ER_BAD_ARG_1;
     }
 
@@ -65,12 +60,8 @@ const std::vector<ControlPanel*>& ControlPanelControlleeUnit::getControlPanels()
 
 QStatus ControlPanelControlleeUnit::addNotificationAction(NotificationAction* notificationAction)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (!notificationAction) {
-        if (logger) {
-            logger->warn(TAG, "Could not add a NULL notificationAction");
-        }
+        QCC_DbgHLPrintf(("Could not add a NULL notificationAction"));
         return ER_BAD_ARG_1;
     }
 
@@ -85,19 +76,13 @@ const std::vector<NotificationAction*>& ControlPanelControlleeUnit::getNotificat
 
 QStatus ControlPanelControlleeUnit::setHttpControl(HttpControl* httpControl)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (!httpControl) {
-        if (logger) {
-            logger->warn(TAG, "Could not add a NULL httpControl");
-        }
+        QCC_DbgHLPrintf(("Could not add a NULL httpControl"));
         return ER_BAD_ARG_1;
     }
 
     if (m_HttpControl) {
-        if (logger) {
-            logger->warn(TAG, "Could not set httpControl. HttpControl already set");
-        }
+        QCC_DbgHLPrintf(("Could not set httpControl. HttpControl already set"));
         return ER_BUS_PROPERTY_ALREADY_EXISTS;
     }
 
@@ -112,15 +97,12 @@ const HttpControl* ControlPanelControlleeUnit::getHttpControl() const
 
 QStatus ControlPanelControlleeUnit::registerObjects(BusAttachment* bus)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     QStatus status = ER_OK;
 
     if (m_HttpControl) {
         status = m_HttpControl->registerObjects(bus, m_UnitName);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not register the HttpControl");
-            }
+            QCC_LogError(status, ("Could not register the HttpControl"));
             return status;
         }
     }
@@ -128,9 +110,7 @@ QStatus ControlPanelControlleeUnit::registerObjects(BusAttachment* bus)
     for (size_t indx = 0; indx < m_ControlPanels.size(); indx++) {
         status = m_ControlPanels[indx]->registerObjects(bus, m_UnitName);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not register Objects for the ControlPanels");
-            }
+            QCC_LogError(status, ("Could not register Objects for the ControlPanels"));
             return status;
         }
     }
@@ -138,9 +118,7 @@ QStatus ControlPanelControlleeUnit::registerObjects(BusAttachment* bus)
     for (size_t indx = 0; indx < m_NotificationActions.size(); indx++) {
         status = m_NotificationActions[indx]->registerObjects(bus, m_UnitName);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not register Objects for the ControlPanels");
-            }
+            QCC_LogError(status, ("Could not register Objects for the ControlPanels"));
             return status;
         }
     }
@@ -149,15 +127,12 @@ QStatus ControlPanelControlleeUnit::registerObjects(BusAttachment* bus)
 
 QStatus ControlPanelControlleeUnit::unregisterObjects(BusAttachment* bus)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     QStatus returnStatus = ER_OK;
 
     if (m_HttpControl) {
         QStatus status = m_HttpControl->unregisterObjects(bus);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not unregister the HttpControl");
-            }
+            QCC_LogError(status, ("Could not unregister the HttpControl"));
             returnStatus = status;
         }
     }
@@ -165,9 +140,7 @@ QStatus ControlPanelControlleeUnit::unregisterObjects(BusAttachment* bus)
     for (size_t indx = 0; indx < m_ControlPanels.size(); indx++) {
         QStatus status = m_ControlPanels[indx]->unregisterObjects(bus);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not register Objects for the ControlPanels");
-            }
+            QCC_LogError(status, ("Could not register Objects for the ControlPanels"));
             returnStatus = status;
         }
     }
@@ -175,9 +148,7 @@ QStatus ControlPanelControlleeUnit::unregisterObjects(BusAttachment* bus)
     for (size_t indx = 0; indx < m_NotificationActions.size(); indx++) {
         QStatus status = m_NotificationActions[indx]->unregisterObjects(bus);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not register Objects for the ControlPanels");
-            }
+            QCC_LogError(status, ("Could not register Objects for the ControlPanels"));
             returnStatus = status;
         }
     }

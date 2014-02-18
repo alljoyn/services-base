@@ -17,12 +17,11 @@
 #include <alljoyn/controlpanel/ControlPanelControllee.h>
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include "ControlPanelConstants.h"
+#include <alljoyn/controlpanel/LogModule.h>
 
 namespace ajn {
 namespace services {
 using namespace cpsConsts;
-
-#define TAG TAG_CONTROLPANELCONTROLLEE
 
 ControlPanelControllee::ControlPanelControllee()
 {
@@ -35,15 +34,12 @@ ControlPanelControllee::~ControlPanelControllee()
 
 QStatus ControlPanelControllee::registerObjects(BusAttachment* bus)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     QStatus status = ER_OK;
 
     for (size_t indx = 0; indx < m_Units.size(); indx++) {
         status = m_Units[indx]->registerObjects(bus);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not register Objects for the Units");
-            }
+            QCC_LogError(status, ("Could not register Objects for the Units"));
             return status;
         }
     }
@@ -52,15 +48,12 @@ QStatus ControlPanelControllee::registerObjects(BusAttachment* bus)
 
 QStatus ControlPanelControllee::unregisterObjects(BusAttachment* bus)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     QStatus returnStatus = ER_OK;
 
     for (size_t indx = 0; indx < m_Units.size(); indx++) {
         QStatus status = m_Units[indx]->unregisterObjects(bus);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not register Objects for the Units");
-            }
+            QCC_LogError(status, ("Could not register Objects for the Units"));
             returnStatus = status;
         }
     }
@@ -70,11 +63,8 @@ QStatus ControlPanelControllee::unregisterObjects(BusAttachment* bus)
 
 QStatus ControlPanelControllee::addControlPanelUnit(ControlPanelControlleeUnit* unit)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!unit) {
-        if (logger) {
-            logger->warn(TAG, "Could not add a NULL unit");
-        }
+        QCC_DbgHLPrintf(("Could not add a NULL unit"));
         return ER_BAD_ARG_1;
     }
 

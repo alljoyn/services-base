@@ -23,7 +23,6 @@
 #include <alljoyn/notification/NotificationText.h>
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include <alljoyn/controlpanel/ControlPanelControllee.h>
-#include <alljoyn/services_common/GenericLogger.h>
 #include <SrpKeyXListener.h>
 #include <GuidUtil.h>
 #include <CommonSampleUtil.h>
@@ -99,11 +98,11 @@ int32_t main()
 
     controlpanelBusListener = new CommonBusListener();;
     controlPanelService = ControlPanelService::getInstance();
-    controlPanelService->setLogLevel(Log::LogLevel::LEVEL_INFO);
+    QCC_SetDebugLevel(logModules::CONTROLPANEL_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
 
     // Initialize Service object and Sender Object
     prodService = NotificationService::getInstance();
-    QCC_SetDebugLevel(logModules::NOTIFICATION_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
+
 
     srpKeyXListener = new SrpKeyXListener();
 

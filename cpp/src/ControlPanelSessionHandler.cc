@@ -19,12 +19,12 @@
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include "ControlPanelConstants.h"
 #include <sstream>
+#include <alljoyn/controlpanel/LogModule.h>
 
 namespace ajn {
 namespace services {
 using namespace cpsConsts;
 
-#define TAG TAG_CONTROLPANELSESSIONHANDLER
 
 ControlPanelSessionHandler::ControlPanelSessionHandler(ControlPanelDevice* device) : m_SessionId(0), m_Device(device)
 {
@@ -38,12 +38,7 @@ ControlPanelSessionHandler::~ControlPanelSessionHandler()
 
 void ControlPanelSessionHandler::SessionLost(ajn::SessionId sessionId)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-    if (logger) {
-        std::stringstream sessionIdStr;
-        sessionIdStr << sessionId;
-        logger->info(TAG, "Session lost for sessionId: " + qcc::String(sessionIdStr.str().c_str()));
-    }
+    QCC_DbgPrintf(("Session lost for sessionId: %u", sessionId));
     m_SessionId = 0;
 
     ControlPanelListener* listener = m_Device->getListener();
@@ -54,12 +49,8 @@ void ControlPanelSessionHandler::SessionLost(ajn::SessionId sessionId)
 
 void ControlPanelSessionHandler::JoinSessionCB(QStatus status, ajn::SessionId id, const ajn::SessionOpts& opts, void* context)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, qcc::String("Joining session failed. Status: ") + QCC_StatusText(status));
-        }
+        QCC_LogError(status, ("Joining session failed."));
         ControlPanelListener* listener = m_Device->getListener();
         if (listener) {
             listener->errorOccured(m_Device, status, SESSION_JOIN, "Could not join session");
@@ -67,11 +58,7 @@ void ControlPanelSessionHandler::JoinSessionCB(QStatus status, ajn::SessionId id
         return;
     }
 
-    if (logger) {
-        std::stringstream sessionIdStr;
-        sessionIdStr << id;
-        logger->info(TAG, "Joining session succeeded. SessionId: " + qcc::String(sessionIdStr.str().c_str()));
-    }
+    QCC_DbgPrintf(("Joining session succeeded. SessionId: %u", id));
 
     m_SessionId = id;
     m_Device->handleSessionJoined();

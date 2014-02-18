@@ -20,20 +20,17 @@
 #include <alljoyn/controlpanel/Dialog.h>
 #include "ControlPanelConstants.h"
 #include "BusObjects/NotificationActionBusObject.h"
+#include <alljoyn/controlpanel/LogModule.h>
 
 namespace ajn {
 namespace services {
 using namespace cpsConsts;
 
-#define TAG TAG_NOTIFICATIONACTION
 
 NotificationAction* NotificationAction::createNotificationAction(LanguageSet* languageSet)
 {
     if (!languageSet) {
-        GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-        if (logger) {
-            logger->warn(TAG, "Could not create NotificationAction. LanguageSet is NULL");
-        }
+        QCC_DbgHLPrintf(("Could not create NotificationAction. LanguageSet is NULL"));
         return NULL;
     }
     return new NotificationAction(*languageSet);
@@ -72,19 +69,13 @@ NotificationAction::~NotificationAction()
 
 QStatus NotificationAction::setRootWidget(RootWidget* rootWidget)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (!rootWidget) {
-        if (logger) {
-            logger->warn(TAG, "Could not add a NULL rootWidget");
-        }
+        QCC_DbgHLPrintf(("Could not add a NULL rootWidget"));
         return ER_BAD_ARG_1;
     }
 
     if (m_RootWidget) {
-        if (logger) {
-            logger->warn(TAG, "Could not set RootWidget. RootWidget already set");
-        }
+        QCC_DbgHLPrintf(("Could not set RootWidget. RootWidget already set"));
         return ER_BUS_PROPERTY_ALREADY_EXISTS;
     }
 
@@ -107,12 +98,8 @@ qcc::String NotificationAction::getNotificationActionName() const
 
 QStatus NotificationAction::registerObjects(BusAttachment* bus, qcc::String const& unitName)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (m_NotificationActionBusObject) {
-        if (logger) {
-            logger->warn(TAG, "Could not register Object. BusObject already exists");
-        }
+        QCC_DbgHLPrintf(("Could not register Object. BusObject already exists"));
         return ER_BUS_OBJ_ALREADY_EXISTS;
     }
 
@@ -120,32 +107,24 @@ QStatus NotificationAction::registerObjects(BusAttachment* bus, qcc::String cons
     qcc::String objectPath = AJ_OBJECTPATH_PREFIX + unitName + "/" + m_RootWidget->getWidgetName();
     m_NotificationActionBusObject = new NotificationActionBusObject(bus, objectPath.c_str(), status);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not create NotificationActionBusObject");
-        }
+        QCC_LogError(status, ("Could not create NotificationActionBusObject"));
         return status;
     }
 
     status = bus->RegisterBusObject(*m_NotificationActionBusObject);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not register NotificationActionBusObject.");
-        }
+        QCC_LogError(status, ("Could not register NotificationActionBusObject."));
         return status;
     }
 
     if (!m_RootWidget) {
-        if (logger) {
-            logger->warn(TAG, "Root Widget not set");
-        }
+        QCC_DbgHLPrintf(("Root Widget not set"));
         return ER_BUS_OBJECT_NOT_REGISTERED;
     }
 
     status = m_RootWidget->setNotificationActionBusObject(m_NotificationActionBusObject);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not set NotificationActionBusObject.");
-        }
+        QCC_LogError(status, ("Could not set NotificationActionBusObject."));
         return status;
     }
 
@@ -154,19 +133,14 @@ QStatus NotificationAction::registerObjects(BusAttachment* bus, qcc::String cons
 
 QStatus NotificationAction::unregisterObjects(BusAttachment* bus)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     QStatus status = ER_OK;
     if (!m_NotificationActionBusObject && !m_RootWidget) {
-        if (logger) {
-            logger->info(TAG, "Can not unregister. BusObjects do not exist");
-        }
+        QCC_DbgHLPrintf(("Can not unregister. BusObjects do not exist"));
         return status; //this does not need to fail
     }
 
     if (!bus) {
-        if (logger) {
-            logger->warn(TAG, "Could not unregister Object. Bus is NULL");
-        }
+        QCC_DbgHLPrintf(("Could not unregister Object. Bus is NULL"));
         return ER_BAD_ARG_1;
     }
 
@@ -174,9 +148,7 @@ QStatus NotificationAction::unregisterObjects(BusAttachment* bus)
         m_NotificationActionBusObject = 0; // Gets unregistered in rootWidget
         status = m_RootWidget->unregisterObjects(bus);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not unregister RootWidget.");
-            }
+            QCC_LogError(status, ("Could not unregister RootWidget."));
             return status;
         }
     } else if (m_NotificationActionBusObject) {   // no rootWidget so need to unregister here
@@ -193,9 +165,7 @@ QStatus NotificationAction::unregisterObjects(BusAttachment* bus)
     for (it = m_RootWidgetMap.begin(); it != m_RootWidgetMap.end(); it++) {
         it->second->unregisterObjects(bus);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not unregister RootContainer for language " + it->first);
-            }
+            QCC_LogError(status, ("Could not unregister RootContainer for language ", it->first.c_str()));
         }
     }
 
@@ -204,59 +174,43 @@ QStatus NotificationAction::unregisterObjects(BusAttachment* bus)
 
 QStatus NotificationAction::registerObjects(BusAttachment* bus)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (!bus) {
-        if (logger) {
-            logger->warn(TAG, "Could not register Object. Bus is NULL");
-        }
+        QCC_DbgHLPrintf(("Could not register Object. Bus is NULL"));
         return ER_BAD_ARG_1;
     }
 
     if (!(bus->IsStarted() && bus->IsConnected())) {
-        if (logger) {
-            logger->warn(TAG, "Could not register Object. Bus is not started or not connected");
-        }
+        QCC_DbgHLPrintf(("Could not register Object. Bus is not started or not connected"));
         return ER_BAD_ARG_1;
     }
 
     if (m_NotificationActionBusObject) {
-        if (logger) {
-            logger->debug(TAG, "BusObject already exists, just refreshing remote controller");
-        }
+        QCC_DbgPrintf(("BusObject already exists, just refreshing remote controller"));
         return m_NotificationActionBusObject->setRemoteController(bus, m_Device->getDeviceBusName(), m_Device->getSessionId());
     }
 
     QStatus status = ER_OK;
     m_NotificationActionBusObject = new NotificationActionBusObject(bus, m_ObjectPath, status, this);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not create NotificationActionBusObject");
-        }
+        QCC_LogError(status, ("Could not create NotificationActionBusObject"));
         return status;
     }
 
     status = m_NotificationActionBusObject->setRemoteController(bus, m_Device->getDeviceBusName(), m_Device->getSessionId());
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Call to SetRemoteController failed");
-        }
+        QCC_LogError(status, ("Call to SetRemoteController failed"));
         return status;
     }
 
     status = checkVersions();
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Call to CheckVersions failed");
-        }
+        QCC_LogError(status, ("Call to CheckVersions failed"));
         return status;
     }
 
     status = addChildren();
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Call to AddChildren failed");
-        }
+        QCC_LogError(status, ("Call to AddChildren failed"));
         return status;
     }
     return status;
@@ -264,11 +218,8 @@ QStatus NotificationAction::registerObjects(BusAttachment* bus)
 
 QStatus NotificationAction::checkVersions()
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!m_NotificationActionBusObject) {
-        if (logger) {
-            logger->warn(TAG, "NotificationActionBusObject is not set");
-        }
+        QCC_DbgHLPrintf(("NotificationActionBusObject is not set"));
         return ER_BUS_BUS_NOT_STARTED;
     }
     return m_NotificationActionBusObject->checkVersions();
@@ -276,20 +227,15 @@ QStatus NotificationAction::checkVersions()
 
 QStatus NotificationAction::addChildren()
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!m_NotificationActionBusObject) {
-        if (logger) {
-            logger->warn(TAG, "NotificationActionBusObject is not set");
-        }
+        QCC_DbgHLPrintf(("NotificationActionBusObject is not set"));
         return ER_BUS_BUS_NOT_STARTED;
     }
 
     std::vector<IntrospectionNode> childNodes;
     QStatus status = m_NotificationActionBusObject->Introspect(childNodes);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Introspection failed");
-        }
+        QCC_LogError(status, ("Introspection failed"));
         return status;
     }
 

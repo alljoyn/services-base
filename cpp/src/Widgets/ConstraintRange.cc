@@ -17,12 +17,11 @@
 #include <alljoyn/controlpanel/ConstraintRange.h>
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include "../ControlPanelConstants.h"
+#include <alljoyn/controlpanel/LogModule.h>
 
 namespace ajn {
 namespace services {
 using namespace cpsConsts;
-
-#define TAG TAG_CONSTRAINTRANGE
 
 ConstraintRange::ConstraintRange() : m_PropertyType(UNDEFINED)
 {
@@ -53,10 +52,7 @@ const ConstraintRangeVal& ConstraintRange::getMinValue() const
 bool ConstraintRange::validateConstraintValue(PropertyType propertyType)
 {
     if (m_PropertyType != propertyType && m_PropertyType != UNDEFINED) {
-        GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-        if (logger) {
-            logger->warn(TAG, "Could not set Constraint Value. Value Type is wrong");
-        }
+        QCC_DbgHLPrintf(("Could not set Constraint Value. Value Type is wrong"));
         return false;
     }
     m_PropertyType = propertyType;
@@ -334,10 +330,7 @@ QStatus ConstraintRange::fillConstraintArg(MsgArg& val, uint16_t languageIndx, P
     }
 
     if (status != ER_OK) {
-        GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-        if (logger) {
-            logger->warn(TAG, "Could not marshal Constraint Range");
-        }
+        QCC_LogError(status, ("Could not marshal Constraint Range"));
         delete minValue;
         delete maxValue;
         delete incrementValue;
@@ -347,10 +340,7 @@ QStatus ConstraintRange::fillConstraintArg(MsgArg& val, uint16_t languageIndx, P
     status = val.Set(AJPARAM_STRUCT_VAR_VAR_VAR.c_str(), minValue, maxValue, incrementValue);
 
     if (status != ER_OK) {
-        GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-        if (logger) {
-            logger->warn(TAG, "Could not marshal Constraint Range");
-        }
+        QCC_LogError(status, ("Could not marshal Constraint Range"));
         delete minValue;
         delete maxValue;
         delete incrementValue;

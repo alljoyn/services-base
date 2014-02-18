@@ -22,20 +22,16 @@
 #include "BusObjects/ControlPanelBusObject.h"
 #include "BusObjects/NotificationActionBusObject.h"
 #include "BusObjects/IntrospectionNode.h"
+#include <alljoyn/controlpanel/LogModule.h>
 
 namespace ajn {
 namespace services {
 using namespace cpsConsts;
 
-#define TAG TAG_CONTROLPANEL
-
 ControlPanel* ControlPanel::createControlPanel(LanguageSet* languageSet)
 {
     if (!languageSet) {
-        GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-        if (logger) {
-            logger->warn(TAG, "Could not create ControlPanel. LanguageSet is NULL");
-        }
+        QCC_DbgHLPrintf(("Could not create ControlPanel. LanguageSet is NULL"));
         return NULL;
     }
     return new ControlPanel(*languageSet);
@@ -73,19 +69,13 @@ ControlPanel::~ControlPanel()
 
 QStatus ControlPanel::setRootWidget(Container* rootWidget)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (!rootWidget) {
-        if (logger) {
-            logger->warn(TAG, "Could not add a NULL rootWidget");
-        }
+        QCC_DbgHLPrintf(("Could not add a NULL rootWidget"));
         return ER_BAD_ARG_1;
     }
 
     if (m_RootWidget) {
-        if (logger) {
-            logger->warn(TAG, "Could not set the RootWidget. RootWidget already set");
-        }
+        QCC_DbgHLPrintf(("Could not set the RootWidget. RootWidget already set"));
         return ER_BUS_PROPERTY_ALREADY_EXISTS;
     }
 
@@ -113,41 +103,29 @@ Container* ControlPanel::getRootWidget() const
 
 QStatus ControlPanel::registerObjects(BusAttachment* bus, qcc::String const& unitName)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (m_ControlPanelBusObject) {
-        if (logger) {
-            logger->warn(TAG, "Could not register Object. BusObject already exists");
-        }
+        QCC_DbgHLPrintf(("Could not register Object. BusObject already exists"));
         return ER_BUS_OBJ_ALREADY_EXISTS;
     }
 
     if (!bus) {
-        if (logger) {
-            logger->warn(TAG, "Could not register Object. Bus is NULL");
-        }
+        QCC_DbgHLPrintf(("Could not register Object. Bus is NULL"));
         return ER_BAD_ARG_1;
     }
 
     if (!(bus->IsStarted() && bus->IsConnected())) {
-        if (logger) {
-            logger->warn(TAG, "Could not register Object. Bus is not started or not connected");
-        }
+        QCC_DbgHLPrintf(("Could not register Object. Bus is not started or not connected"));
         return ER_BAD_ARG_1;
     }
 
     if (!m_RootWidget) {
-        if (logger) {
-            logger->warn(TAG, "RootWidget has not been initialized. Can't continue");
-        }
+        QCC_DbgHLPrintf(("RootWidget has not been initialized. Can't continue"));
         return ER_BUS_TRANSPORT_NOT_STARTED;
     }
 
     AboutServiceApi* aboutService = AboutServiceApi::getInstance();
     if (!aboutService) {
-        if (logger) {
-            logger->warn(TAG, "Could not retrieve AboutService. It has not been initialized");
-        }
+        QCC_DbgHLPrintf(("Could not retrieve AboutService. It has not been initialized"));
         return ER_BUS_TRANSPORT_NOT_STARTED;
     }
 
@@ -155,16 +133,12 @@ QStatus ControlPanel::registerObjects(BusAttachment* bus, qcc::String const& uni
     qcc::String objectPath = AJ_OBJECTPATH_PREFIX + unitName + "/" + m_RootWidget->getWidgetName();
     m_ControlPanelBusObject = new ControlPanelBusObject(bus, objectPath.c_str(), status);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not create ControlPanelBusObject");
-        }
+        QCC_LogError(status, ("Could not create ControlPanelBusObject"));
         return status;
     }
     status = bus->RegisterBusObject(*m_ControlPanelBusObject);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not register ControlPanelBusObject.");
-        }
+        QCC_LogError(status, ("Could not register ControlPanelBusObject."));
         return status;
     }
 
@@ -178,19 +152,14 @@ QStatus ControlPanel::registerObjects(BusAttachment* bus, qcc::String const& uni
 
 QStatus ControlPanel::unregisterObjects(BusAttachment* bus)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     QStatus status = ER_OK;
     if (!m_ControlPanelBusObject && !m_RootWidget) {
-        if (logger) {
-            logger->info(TAG, "Can not unregister. BusObjects do not exist");
-        }
+        QCC_DbgHLPrintf(("Can not unregister. BusObjects do not exist"));
         return status; //this does not need to fail
     }
 
     if (!bus) {
-        if (logger) {
-            logger->warn(TAG, "Could not unregister Object. Bus is NULL");
-        }
+        QCC_DbgHLPrintf(("Could not unregister Object. Bus is NULL"));
         return ER_BAD_ARG_1;
     }
 
@@ -204,9 +173,7 @@ QStatus ControlPanel::unregisterObjects(BusAttachment* bus)
     if (m_RootWidget) {
         QStatus status = m_RootWidget->unregisterObjects(bus);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not unregister RootContainer.");
-            }
+            QCC_LogError(status, ("Could not unregister RootContainer."));
         }
     }
 
@@ -214,9 +181,7 @@ QStatus ControlPanel::unregisterObjects(BusAttachment* bus)
     for (it = m_RootWidgetMap.begin(); it != m_RootWidgetMap.end(); it++) {
         it->second->unregisterObjects(bus);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not unregister RootContainer for language " + it->first);
-            }
+            QCC_LogError(status, ("Could not unregister RootContainer for language %s", it->first.c_str()));
         }
     }
 
@@ -225,59 +190,43 @@ QStatus ControlPanel::unregisterObjects(BusAttachment* bus)
 
 QStatus ControlPanel::registerObjects(BusAttachment* bus)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (!bus) {
-        if (logger) {
-            logger->warn(TAG, "Could not register Object. Bus is NULL");
-        }
+        QCC_DbgHLPrintf(("Could not register Object. Bus is NULL"));
         return ER_BAD_ARG_1;
     }
 
     if (!(bus->IsStarted() && bus->IsConnected())) {
-        if (logger) {
-            logger->warn(TAG, "Could not register Object. Bus is not started or not connected");
-        }
+        QCC_DbgHLPrintf(("Could not register Object. Bus is not started or not connected"));
         return ER_BAD_ARG_1;
     }
 
     if (m_ControlPanelBusObject) {
-        if (logger) {
-            logger->debug(TAG, "BusObject already exists, just refreshing remote controller");
-        }
+        QCC_DbgHLPrintf(("BusObject already exists, just refreshing remote controller"));
         return m_ControlPanelBusObject->setRemoteController(bus, m_Device->getDeviceBusName(), m_Device->getSessionId());
     }
 
     QStatus status = ER_OK;
     m_ControlPanelBusObject = new ControlPanelBusObject(bus, m_ObjectPath, status);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not create ControlPanelBusObject");
-        }
+        QCC_LogError(status, ("Could not create ControlPanelBusObject"));
         return status;
     }
 
     status = m_ControlPanelBusObject->setRemoteController(bus, m_Device->getDeviceBusName(), m_Device->getSessionId());
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Call to SetRemoteController failed");
-        }
+        QCC_LogError(status, ("Call to SetRemoteController failed"));
         return status;
     }
 
     status = checkVersions();
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Call to CheckVersions failed");
-        }
+        QCC_LogError(status, ("Call to CheckVersions failed"));
         return status;
     }
 
     status = addChildren();
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Call to AddChildren failed");
-        }
+        QCC_LogError(status, ("Call to AddChildren failed"));
         return status;
     }
     return status;
@@ -285,11 +234,8 @@ QStatus ControlPanel::registerObjects(BusAttachment* bus)
 
 QStatus ControlPanel::checkVersions()
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!m_ControlPanelBusObject) {
-        if (logger) {
-            logger->warn(TAG, "ControlPanelBusObject is not set");
-        }
+        QCC_DbgHLPrintf(("ControlPanelBusObject is not set"));
         return ER_BUS_BUS_NOT_STARTED;
     }
     return m_ControlPanelBusObject->checkVersions();
@@ -297,20 +243,15 @@ QStatus ControlPanel::checkVersions()
 
 QStatus ControlPanel::addChildren()
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!m_ControlPanelBusObject) {
-        if (logger) {
-            logger->warn(TAG, "ControlPanelBusObject is not set");
-        }
+        QCC_DbgHLPrintf(("ControlPanelBusObject is not set"));
         return ER_BUS_BUS_NOT_STARTED;
     }
 
     std::vector<IntrospectionNode> childNodes;
     QStatus status = m_ControlPanelBusObject->Introspect(childNodes);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Introspection failed");
-        }
+        QCC_LogError(status, ("Introspection failed"));
         return status;
     }
 

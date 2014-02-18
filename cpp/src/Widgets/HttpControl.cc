@@ -19,12 +19,11 @@
 #include <alljoyn/about/AboutServiceApi.h>
 #include "../ControlPanelConstants.h"
 #include "../BusObjects/HttpControlBusObject.h"
+#include <alljoyn/controlpanel/LogModule.h>
 
 namespace ajn {
 namespace services {
 using namespace cpsConsts;
-
-#define TAG TAG_HTTPCONTROL
 
 HttpControl::HttpControl(qcc::String const& url) : m_Url(url), m_ObjectPath(""),
     m_HttpControlBusObject(0), m_Device(0), m_ControlPanelMode(CONTROLLEE_MODE), m_Version(0)
@@ -61,34 +60,24 @@ const uint16_t HttpControl::getInterfaceVersion() const
 
 QStatus HttpControl::registerObjects(BusAttachment* bus, qcc::String const& unitName)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (m_HttpControlBusObject) {
-        if (logger) {
-            logger->warn(TAG, "Could not register Object. BusObject already exists");
-        }
+        QCC_DbgHLPrintf(("Could not register Object. BusObject already exists"));
         return ER_BUS_OBJ_ALREADY_EXISTS;
     }
 
     if (!bus) {
-        if (logger) {
-            logger->warn(TAG, "Could not register Object. Bus is NULL");
-        }
+        QCC_DbgHLPrintf(("Could not register Object. Bus is NULL"));
         return ER_BAD_ARG_1;
     }
 
     if (!(bus->IsStarted() && bus->IsConnected())) {
-        if (logger) {
-            logger->warn(TAG, "Could not register Object. Bus is not started or not connected");
-        }
+        QCC_DbgHLPrintf(("Could not register Object. Bus is not started or not connected"));
         return ER_BAD_ARG_1;
     }
 
     AboutServiceApi* aboutService = AboutServiceApi::getInstance();
     if (!aboutService) {
-        if (logger) {
-            logger->warn(TAG, "Could not retrieve AboutService. It has not been initialized");
-        }
+        QCC_DbgHLPrintf(("Could not retrieve AboutService. It has not been initialized"));
         return ER_FAIL;
     }
 
@@ -96,16 +85,12 @@ QStatus HttpControl::registerObjects(BusAttachment* bus, qcc::String const& unit
     qcc::String objectPath = AJ_OBJECTPATH_PREFIX + unitName + AJ_HTTP_OBJECTPATH_SUFFIX;
     m_HttpControlBusObject = new HttpControlBusObject(bus, objectPath.c_str(), status, this);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not create HttpControlBusObject");
-        }
+        QCC_LogError(status, ("Could not create HttpControlBusObject"));
         return status;
     }
     status = bus->RegisterBusObject(*m_HttpControlBusObject);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not register HttpControlBusObject.");
-        }
+        QCC_LogError(status, ("Could not register HttpControlBusObject."));
         return status;
     }
 
@@ -118,59 +103,43 @@ QStatus HttpControl::registerObjects(BusAttachment* bus, qcc::String const& unit
 
 QStatus HttpControl::registerObjects(BusAttachment* bus)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (m_HttpControlBusObject) {
-        if (logger) {
-            logger->debug(TAG, "BusObject already exists - refreshing widget");
-        }
+        QCC_DbgPrintf(("BusObject already exists - refreshing widget"));
         return refreshObjects(bus);
     }
 
     if (!bus) {
-        if (logger) {
-            logger->warn(TAG, "Could not register Object. Bus is NULL");
-        }
+        QCC_DbgHLPrintf(("Could not register Object. Bus is NULL"));
         return ER_BAD_ARG_1;
     }
 
     if (!(bus->IsStarted() && bus->IsConnected())) {
-        if (logger) {
-            logger->warn(TAG, "Could not register Object. Bus is not started or not connected");
-        }
+        QCC_DbgHLPrintf(("Could not register Object. Bus is not started or not connected"));
         return ER_BAD_ARG_1;
     }
 
     QStatus status;
     m_HttpControlBusObject = new HttpControlBusObject(bus, m_ObjectPath.c_str(), status, this);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not create HttpControlBusObject");
-        }
+        QCC_LogError(status, ("Could not create HttpControlBusObject"));
         return status;
     }
 
     status = m_HttpControlBusObject->setRemoteController(bus, m_Device->getDeviceBusName(), m_Device->getSessionId());
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Call to SetRemoteController failed");
-        }
+        QCC_LogError(status, ("Call to SetRemoteController failed"));
         return status;
     }
 
     status = m_HttpControlBusObject->checkVersions();
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Call to CheckVersions failed");
-        }
+        QCC_LogError(status, ("Call to CheckVersions failed"));
         return status;
     }
 
     status = m_HttpControlBusObject->GetUrl(bus);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Call to GetUrl failed");
-        }
+        QCC_LogError(status, ("Call to GetUrl failed"));
         return status;
     }
 
@@ -179,51 +148,37 @@ QStatus HttpControl::registerObjects(BusAttachment* bus)
 
 QStatus HttpControl::refreshObjects(BusAttachment* bus)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (!m_HttpControlBusObject) {
-        if (logger) {
-            logger->warn(TAG, "BusObject does not exist - exiting");
-        }
+        QCC_DbgHLPrintf(("BusObject does not exist - exiting"));
         return ER_BUS_OBJECT_NOT_REGISTERED;
     }
 
     if (!bus) {
-        if (logger) {
-            logger->warn(TAG, "Could not register Object. Bus is NULL");
-        }
+        QCC_DbgHLPrintf(("Could not register Object. Bus is NULL"));
         return ER_BAD_ARG_1;
     }
 
     if (!(bus->IsStarted() && bus->IsConnected())) {
-        if (logger) {
-            logger->warn(TAG, "Could not register Object. Bus is not started or not connected");
-        }
+        QCC_DbgHLPrintf(("Could not register Object. Bus is not started or not connected"));
         return ER_BAD_ARG_1;
     }
 
     QStatus status;
     status = m_HttpControlBusObject->setRemoteController(bus, m_Device->getDeviceBusName(), m_Device->getSessionId());
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Call to SetRemoteController failed");
-        }
+        QCC_LogError(status, ("Call to SetRemoteController failed"));
         return status;
     }
 
     status = m_HttpControlBusObject->checkVersions();
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Call to CheckVersions failed");
-        }
+        QCC_LogError(status, ("Call to CheckVersions failed"));
         return status;
     }
 
     status = m_HttpControlBusObject->GetUrl(bus);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Call to GetUrl failed");
-        }
+        QCC_LogError(status, ("Call to GetUrl failed"));
         return status;
     }
 
@@ -233,19 +188,13 @@ QStatus HttpControl::refreshObjects(BusAttachment* bus)
 
 QStatus HttpControl::unregisterObjects(BusAttachment* bus)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (!m_HttpControlBusObject) {
-        if (logger) {
-            logger->info(TAG, "Can not unregister. HttpControlBusObject does not exist");
-        }
+        QCC_DbgHLPrintf(("Can not unregister. HttpControlBusObject does not exist"));
         return ER_OK; //this does not need to fail
     }
 
     if (!bus) {
-        if (logger) {
-            logger->warn(TAG, "Could not unregister Object. Bus is NULL");
-        }
+        QCC_DbgHLPrintf(("Could not unregister Object. Bus is NULL"));
         return ER_BAD_ARG_1;
     }
 

@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -35,9 +35,8 @@ class WidgetProxyBusObjectListener : public ProxyBusObject::Listener {
      * Constructor of WidgetProxyBusObjectListener class
      * @param widget - widget getallproperties is being executed for
      * @param busObject - busObject being used for call
-     * @param tag - tag for logging
      */
-    WidgetProxyBusObjectListener(Widget* widget, WidgetBusObject* busObject, qcc::String const& tag);
+    WidgetProxyBusObjectListener(Widget* widget, WidgetBusObject* busObject);
 
     /**
      * Destructor of WidgetProxyBusObjectListener class
@@ -64,11 +63,6 @@ class WidgetProxyBusObjectListener : public ProxyBusObject::Listener {
      * The BusObject getAllProperties was being executed from
      */
     WidgetBusObject* m_BusObject;
-
-    /**
-     * The tag used for logging
-     */
-    qcc::String const& TAG;
 };
 
 } /* namespace services */

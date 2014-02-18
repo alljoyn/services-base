@@ -18,12 +18,11 @@
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include <alljoyn/about/AboutClient.h>
 #include "ControlPanelConstants.h"
+#include <alljoyn/controlpanel/LogModule.h>
 
 namespace ajn {
 namespace services {
 using namespace cpsConsts;
-
-#define TAG TAG_CONTROLPANELCONTROLLER
 
 ControlPanelController::ControlPanelController()
 {
@@ -36,20 +35,15 @@ ControlPanelController::~ControlPanelController()
 ControlPanelDevice* ControlPanelController::createControllableDevice(qcc::String const& sender,
                                                                      const AnnounceHandler::ObjectDescriptions& objectDescs)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (sender.length() == 0) {
-        if (logger) {
-            logger->warn(TAG, "Sender cannot be empty");
-        }
+        QCC_DbgHLPrintf(("Sender cannot be empty"));
         return NULL;
     }
 
     ControlPanelDevice* device = 0;
     std::map<qcc::String, ControlPanelDevice*>::iterator iter;
     if ((iter = m_ControllableDevices.find(sender)) != m_ControllableDevices.end()) {
-        if (logger) {
-            logger->info(TAG, "ControlPanelDevice for this sender already exists");
-        }
+        QCC_DbgPrintf(("ControlPanelDevice for this sender already exists"));
         device = iter->second;
     }
 
@@ -65,17 +59,13 @@ ControlPanelDevice* ControlPanelController::createControllableDevice(qcc::String
                 device = getControllableDevice(sender);
             }
             if (device->addControlPanelUnit(key, it->second)) {
-                if (logger) {
-                    logger->debug(TAG, "Adding ControlPanelUnit for objectPath: " + key);
-                }
+                QCC_DbgPrintf(("Adding ControlPanelUnit for objectPath: %s", key.c_str()));
                 hasControlPanel = true;
             }
         }
     }
     if (hasControlPanel) {
-        if (logger) {
-            logger->debug(TAG, "Calling startSession for device " + sender);
-        }
+        QCC_DbgPrintf(("Calling startSession for device %s", sender.c_str()));
         device->startSessionAsync();
     }
     return device;
@@ -83,20 +73,14 @@ ControlPanelDevice* ControlPanelController::createControllableDevice(qcc::String
 
 ControlPanelDevice* ControlPanelController::getControllableDevice(qcc::String const& sender)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (sender.length() == 0) {
-        if (logger) {
-            logger->warn(TAG, "Sender cannot be empty");
-        }
+        QCC_DbgHLPrintf(("Sender cannot be empty"));
         return NULL;
     }
 
     std::map<qcc::String, ControlPanelDevice*>::iterator iter;
     if ((iter = m_ControllableDevices.find(sender)) != m_ControllableDevices.end()) {
-        if (logger) {
-            logger->info(TAG, "ControlPanelDevice for this sender already exists");
-        }
+        QCC_DbgPrintf(("ControlPanelDevice for this sender already exists"));
         return iter->second;
     }
 
@@ -107,29 +91,21 @@ ControlPanelDevice* ControlPanelController::getControllableDevice(qcc::String co
 
 QStatus ControlPanelController::deleteControllableDevice(qcc::String const& sender)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (sender.length() == 0) {
-        if (logger) {
-            logger->warn(TAG, "Sender cannot be empty");
-        }
+        QCC_DbgHLPrintf(("Sender cannot be empty"));
         return ER_BAD_ARG_1;
     }
 
     std::map<qcc::String, ControlPanelDevice*>::iterator iter;
     if ((iter = m_ControllableDevices.find(sender)) == m_ControllableDevices.end()) {
-        if (logger) {
-            logger->warn(TAG, "Sender does not exist");
-        }
+        QCC_DbgHLPrintf(("Sender does not exist"));
         return ER_BAD_ARG_1;
     }
 
     ControlPanelDevice* device = iter->second;
     QStatus status = device->shutdownDevice();
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not end Session successfully");
-        }
+        QCC_LogError(status, ("Could not end Session successfully"));
     }
 
     m_ControllableDevices.erase(iter);
@@ -139,7 +115,6 @@ QStatus ControlPanelController::deleteControllableDevice(qcc::String const& send
 
 QStatus ControlPanelController::deleteAllControllableDevices()
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     QStatus returnStatus = ER_OK;
     std::map<qcc::String, ControlPanelDevice*>::iterator iter;
     std::map<qcc::String, ControlPanelDevice*>::iterator deliter;
@@ -149,9 +124,7 @@ QStatus ControlPanelController::deleteAllControllableDevices()
         deliter = iter++;
         QStatus status = device->shutdownDevice();
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not shutdown Device successfully");
-            }
+            QCC_LogError(status, ("Could not shutdown Device successfully"));
             returnStatus = status;
         }
 

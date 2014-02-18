@@ -18,24 +18,21 @@
 #include "../ControlPanelConstants.h"
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include <alljoyn/controlpanel/HttpControl.h>
+#include <alljoyn/controlpanel/LogModule.h>
 
 namespace ajn {
 namespace services {
 using namespace qcc;
 using namespace cpsConsts;
 
-#define TAG TAG_HTTPCONTROL_BUSOBJECT
 #define HTTP_INTERFACE_VERSION 1
 
 HttpControlBusObject::HttpControlBusObject(BusAttachment* bus, String const& objectPath,
                                            QStatus& status, HttpControl* httpControl) :
     BusObject(objectPath.c_str()), m_HttpControl(httpControl), m_Proxy(0), m_ObjectPath(objectPath), m_InterfaceDescription(0)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!httpControl) {
-        if (logger) {
-            logger->warn(TAG, "HttpControl cannot be NULL");
-        }
+        QCC_DbgHLPrintf(("HttpControl cannot be NULL"));
         status = ER_BAD_ARG_4;
         return;
     }
@@ -51,17 +48,13 @@ HttpControlBusObject::HttpControlBusObject(BusAttachment* bus, String const& obj
         } while (0);
     }
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not create interface");
-        }
+        QCC_LogError(status, ("Could not create interface"));
         return;
     }
 
     status = AddInterface(*m_InterfaceDescription);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not add interface");
-        }
+        QCC_LogError(status, ("Could not add interface"));
         return;
     }
 
@@ -71,15 +64,11 @@ HttpControlBusObject::HttpControlBusObject(BusAttachment* bus, String const& obj
 
         status = AddMethodHandler(getRootUrlMember, static_cast<MessageReceiver::MethodHandler>(&HttpControlBusObject::HttpControlGetUrl));
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not register the MethodHandler");
-            }
+            QCC_LogError(status, ("Could not register the MethodHandler"));
             return;
         }
     }
-    if (logger) {
-        logger->debug(TAG, "Created HttpControlBusObject successfully");
-    }
+    QCC_DbgPrintf(("Created HttpControlBusObject successfully"));
 }
 
 HttpControlBusObject::~HttpControlBusObject()
@@ -93,10 +82,7 @@ uint16_t HttpControlBusObject::getInterfaceVersion()
 
 QStatus HttpControlBusObject::Get(const char* interfaceName, const char* propName, MsgArg& val)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug(TAG, "Get property was called - in HttpControlBusObject class:\n");
-    }
+    QCC_DbgTrace(("Get property was called - in HttpControlBusObject class."));
 
     if (0 == strcmp(AJ_PROPERTY_VERSION.c_str(), propName)) {
         return val.Set(AJPARAM_UINT16.c_str(), getInterfaceVersion());
@@ -112,48 +98,33 @@ QStatus HttpControlBusObject::Set(const char* interfaceName, const char* propNam
 
 void HttpControlBusObject::HttpControlGetUrl(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug(TAG, "Get Url was called");
-    }
+    QCC_DbgTrace(("Get Url was called"));
 
     MsgArg url;
     QStatus status = m_HttpControl->fillUrlArg(url);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not set Url");
-        }
+        QCC_LogError(status, ("Could not set Url"));
         MethodReply(msg, AJ_ERROR_UNKNOWN.c_str(), AJ_ERROR_UNKNOWN_MESSAGE.c_str());
         return;
     }
 
     status = MethodReply(msg, &url, 1);
     if (ER_OK != status) {
-        if (logger) {
-            logger->warn(TAG, "Did not reply successfully");
-        }
+        QCC_LogError(status, ("Did not reply successfully"));
     } else {
-        if (logger) {
-            logger->info(TAG, "Replied to GetUrl successfully");
-        }
+        QCC_DbgPrintf(("Replied to GetUrl successfully"));
     }
 }
 
 QStatus HttpControlBusObject::setRemoteController(BusAttachment* bus, qcc::String const& deviceBusName, SessionId sessionId)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (m_Proxy && m_Proxy->GetSessionId() == sessionId) {
-        if (logger) {
-            logger->debug(TAG, "ProxyBusObject already set - ignoring");
-        }
+        QCC_DbgPrintf(("ProxyBusObject already set - ignoring"));
         return ER_OK;
     }
 
     if (!m_InterfaceDescription) {
-        if (logger) {
-            logger->warn(TAG, "InterfaceDescription is not set. Cannot set RemoteController");
-        }
+        QCC_DbgHLPrintf(("InterfaceDescription is not set. Cannot set RemoteController"));
         return ER_FAIL;
     }
 
@@ -164,83 +135,61 @@ QStatus HttpControlBusObject::setRemoteController(BusAttachment* bus, qcc::Strin
     m_Proxy = new ProxyBusObject(*bus, deviceBusName.c_str(), m_ObjectPath.c_str(), sessionId);
     QStatus status = m_Proxy->AddInterface(*m_InterfaceDescription);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not add Interface to ProxyBusobject");
-        }
+        QCC_LogError(status, ("Could not add Interface to ProxyBusobject"));
     }
     return status;
 }
 
 QStatus HttpControlBusObject::checkVersions()
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (!m_Proxy) {
-        if (logger) {
-            logger->warn(TAG, "Cannot Check Versions. ProxyBusObject is not set");
-        }
+        QCC_DbgHLPrintf(("Cannot Check Versions. ProxyBusObject is not set"));
         return ER_BUS_PROPERTY_VALUE_NOT_SET;
     }
 
     MsgArg value;
     QStatus status = m_Proxy->GetProperty(m_InterfaceDescription->GetName(), AJ_PROPERTY_VERSION.c_str(), value);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Call to get Version Property failed");
-        }
+        QCC_LogError(status, ("Call to get Version Property failed"));
         return status;
     }
 
     uint16_t version = 1;
     status = value.Get(AJPARAM_UINT16.c_str(), &version);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not unmarshal version property");
-        }
+        QCC_LogError(status, ("Could not unmarshal version property"));
         return status;
     }
 
     if (getInterfaceVersion() < version) {
-        if (logger) {
-            logger->warn(TAG, "The versions of the interface are not compatible");
-        }
+        QCC_DbgHLPrintf(("The versions of the interface are not compatible"));
         return ER_BUS_INTERFACE_MISMATCH;
     }
 
     QStatus setVersionStatus = m_HttpControl->readVersionArg(value);
     if (setVersionStatus != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not set version property");
-        }
+        QCC_LogError(status, ("Could not set version property"));
     }
     return status;
 }
 
 QStatus HttpControlBusObject::GetUrl(BusAttachment* bus)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (!m_Proxy) {
-        if (logger) {
-            logger->warn(TAG, "Cannot get the Url. ProxyBusObject is not set");
-        }
+        QCC_DbgHLPrintf(("Cannot get the Url. ProxyBusObject is not set"));
         return ER_BUS_PROPERTY_VALUE_NOT_SET;
     }
 
     const ajn::InterfaceDescription::Member* getRootUrlMember = m_InterfaceDescription->GetMember(AJ_METHOD_GETROOTURL.c_str());
     if (!getRootUrlMember) {
-        if (logger) {
-            logger->warn(TAG, "Cannot get the Url. RootUrlMember is not set");
-        }
+        QCC_DbgHLPrintf(("Cannot get the Url. RootUrlMember is not set"));
         return ER_BUS_PROPERTY_VALUE_NOT_SET;
     }
 
     Message replyMsg(*bus);
     QStatus status = m_Proxy->MethodCall(*getRootUrlMember, NULL, 0, replyMsg);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Call to getUrl failed");
-        }
+        QCC_LogError(status, ("Call to getUrl failed"));
         return status;
     }
 
@@ -248,9 +197,7 @@ QStatus HttpControlBusObject::GetUrl(BusAttachment* bus)
     size_t numArgs;
     replyMsg->GetArgs(numArgs, returnArgs);
     if (numArgs != 1) {
-        if (logger) {
-            logger->warn(TAG, "Received unexpected amount of returnArgs");
-        }
+        QCC_DbgHLPrintf(("Received unexpected amount of returnArgs"));
         return ER_BUS_UNEXPECTED_SIGNATURE;
     }
 

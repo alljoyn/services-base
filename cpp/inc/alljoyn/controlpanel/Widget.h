@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -43,9 +43,8 @@ class Widget {
      * @param name - name of Widget
      * @param rootWidget - the RootWidget of the widget
      * @param widgetType - the type of the widget
-     * @param tag - tag for logging
      */
-    Widget(qcc::String const& name, Widget* rootWidget, WidgetType widgetType, qcc::String const& tag);
+    Widget(qcc::String const& name, Widget* rootWidget, WidgetType widgetType);
 
     /**
      * Constructor for Widget class
@@ -53,9 +52,8 @@ class Widget {
      * @param rootWidget - the RootWidget of the widget
      * @param device - the device containing this widget
      * @param widgetType - the type of the widget
-     * @param tag - tag for logging
      */
-    Widget(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* device, WidgetType widgetType, qcc::String const& tag);
+    Widget(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* device, WidgetType widgetType);
 
     /**
      * Destructor for Widget
@@ -417,11 +415,6 @@ class Widget {
      * The Device that contains this widget
      */
     ControlPanelDevice* m_Device;
-
-    /**
-     * Tag used for Logging
-     */
-    qcc::String const& TAG;
 
     /**
      * Function to fill the OptParams of the Widget Base class

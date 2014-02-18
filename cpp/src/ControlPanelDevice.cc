@@ -17,12 +17,11 @@
 #include <alljoyn/controlpanel/ControlPanelDevice.h>
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include "ControlPanelConstants.h"
+#include <alljoyn/controlpanel/LogModule.h>
 
 namespace ajn {
 namespace services {
 using namespace cpsConsts;
-
-#define TAG TAG_CONTROLPANELDEVICE
 
 ControlPanelDevice::ControlPanelDevice(qcc::String const& deviceBusName) :
     m_DeviceBusName(deviceBusName), m_SessionHandler(this), m_Listener(0)
@@ -36,20 +35,15 @@ ControlPanelDevice::~ControlPanelDevice()
 
 QStatus ControlPanelDevice::startSessionAsync()
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     BusAttachment* busAttachment = ControlPanelService::getInstance()->getBusAttachment();
     if (!busAttachment) {
-        if (logger) {
-            logger->warn(TAG, "BusAttachment is not set");
-        }
+        QCC_DbgHLPrintf(("BusAttachment is not set"));
         return ER_BUS_BUS_NOT_STARTED;
     }
     busAttachment->EnableConcurrentCallbacks();
 
     if (m_SessionHandler.getSessionId() != 0) {
-        if (logger) {
-            logger->info(TAG, "Session already started, firing Listener");
-        }
+        QCC_DbgPrintf(("Session already started, firing Listener"));
 
         ControlPanelListener* listener = getListener();
         if (listener) {
@@ -64,30 +58,23 @@ QStatus ControlPanelDevice::startSessionAsync()
                                                      opts, &m_SessionHandler, NULL);
 
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Unable to JoinSession with " + m_DeviceBusName);
-        }
+        QCC_LogError(status, ("Unable to JoinSession with %s", m_DeviceBusName.c_str()));
     }
     return status;
 }
 
 QStatus ControlPanelDevice::startSession()
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     BusAttachment* busAttachment = ControlPanelService::getInstance()->getBusAttachment();
 
     if (!busAttachment) {
-        if (logger) {
-            logger->warn(TAG, "BusAttachment is not set");
-        }
+        QCC_DbgHLPrintf(("BusAttachment is not set"));
         return ER_BUS_BUS_NOT_STARTED;
     }
     busAttachment->EnableConcurrentCallbacks();
 
     if (m_SessionHandler.getSessionId() != 0) {
-        if (logger) {
-            logger->info(TAG, "Session already started, firing Listener");
-        }
+        QCC_DbgPrintf(("Session already started, firing Listener"));
 
         ControlPanelListener* listener = getListener();
         if (listener) {
@@ -101,9 +88,7 @@ QStatus ControlPanelDevice::startSession()
     ajn::SessionPort port = CONTROLPANELSERVICE_PORT;
     QStatus status = busAttachment->JoinSession(m_DeviceBusName.c_str(), port, &m_SessionHandler, sessionId, opts);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Unable to JoinSession with " + m_DeviceBusName);
-        }
+        QCC_LogError(status, ("Unable to JoinSession with %s", m_DeviceBusName.c_str()));
     }
     m_SessionHandler.JoinSessionCB(status, sessionId, opts, this);
     return status;
@@ -111,30 +96,23 @@ QStatus ControlPanelDevice::startSession()
 
 QStatus ControlPanelDevice::endSession()
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     BusAttachment* busAttachment = ControlPanelService::getInstance()->getBusAttachment();
 
     if (!busAttachment) {
-        if (logger) {
-            logger->warn(TAG, "BusAttachment is not set");
-        }
+        QCC_DbgHLPrintf(("BusAttachment is not set"));
         return ER_BUS_BUS_NOT_STARTED;
     }
 
     SessionId sessionId = m_SessionHandler.getSessionId();
     if (sessionId == 0) {
-        if (logger) {
-            logger->debug(TAG, "Session not started. Can't end Session");
-        }
+        QCC_DbgPrintf(("Session not started. Can't end Session"));
         return ER_OK;
     }
 
     QStatus status = busAttachment->LeaveSession(sessionId);
 
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Unable to LeaveSession with " + m_DeviceBusName);
-        }
+        QCC_LogError(status, ("Unable to LeaveSession with %s", m_DeviceBusName.c_str()));
     }
 
     return status;
@@ -142,12 +120,9 @@ QStatus ControlPanelDevice::endSession()
 
 QStatus ControlPanelDevice::shutdownDevice()
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     QStatus status = endSession();
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Call to endSession failed");
-        }
+        QCC_LogError(status, ("Call to endSession failed"));
     }
 
     std::map<qcc::String, ControlPanelControllerUnit*>::iterator iter;
@@ -188,44 +163,34 @@ void ControlPanelDevice::handleSessionJoined()
 
 ControlPanelControllerUnit* ControlPanelDevice::getControlPanelUnit(qcc::String const& objectPath)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     qcc::String unitName = "";
     qcc::String panelName = "";
 
     ControlPanelControllerUnit* unit = getControlPanelUnit(objectPath, unitName, panelName, false);
     if (!unit) {
-        if (logger) {
-            logger->info(TAG, "Could not retrieve ControlPanelUnit");
-        }
+        QCC_DbgHLPrintf(("Could not retrieve ControlPanelUnit"));
     }
     return unit;
 }
 
 ControlPanelControllerUnit* ControlPanelDevice::addControlPanelUnit(qcc::String const& objectPath, std::vector<qcc::String> const& interfaces)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     bool hasControlPanel = false;
     bool hasHttpControl = false;
 
     for (size_t i = 0; i < interfaces.size(); i++) {
         if (interfaces[i].compare(AJ_CONTROLPANEL_INTERFACE) == 0) {
             hasControlPanel = true;
-            if (logger) {
-                logger->debug(TAG, "ObjectPath contains ControlPanel");
-            }
+            QCC_DbgPrintf(("ObjectPath contains ControlPanel"));
         }
         if (interfaces[i].compare(AJ_HTTPCONTROL_INTERFACE) == 0) {
             hasHttpControl = true;
-            if (logger) {
-                logger->debug(TAG, "ObjectPath contains HttpControl");
-            }
+            QCC_DbgPrintf(("ObjectPath contains HttpControl"));
         }
     }
 
     if (!hasControlPanel && !hasHttpControl) {
-        if (logger) {
-            logger->warn(TAG, "ObjectPath does not contain a ControlPanel or HttpControl");
-        }
+        QCC_DbgHLPrintf(("ObjectPath does not contain a ControlPanel or HttpControl"));
         return NULL;
     }
 
@@ -234,9 +199,7 @@ ControlPanelControllerUnit* ControlPanelDevice::addControlPanelUnit(qcc::String 
 
     ControlPanelControllerUnit* unit = getControlPanelUnit(objectPath, unitName, panelName);
     if (!unit) {
-        if (logger) {
-            logger->warn(TAG, "Could not add ControlPanelUnit");
-        }
+        QCC_DbgHLPrintf(("Could not add ControlPanelUnit"));
         return NULL;
     }
 
@@ -261,11 +224,8 @@ ControlPanelListener* ControlPanelDevice::getListener() const
 
 QStatus ControlPanelDevice::setListener(ControlPanelListener* listener)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!listener) {
-        if (logger) {
-            logger->warn(TAG, "Listener cannot be NULL");
-        }
+        QCC_DbgHLPrintf(("Listener cannot be NULL"));
         return ER_BAD_ARG_1;
     }
     m_Listener = listener;
@@ -275,12 +235,9 @@ QStatus ControlPanelDevice::setListener(ControlPanelListener* listener)
 ControlPanelControllerUnit* ControlPanelDevice::getControlPanelUnit(qcc::String const& objectPath, qcc::String& unitName, qcc::String& panel,
                                                                     bool createIfNotFound)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     std::vector<qcc::String> splitObjectPath = ControlPanelService::SplitObjectPath(objectPath);
     if (splitObjectPath.size() < 3) {
-        if (logger) {
-            logger->warn(TAG, "ObjectPath is unexpected size");
-        }
+        QCC_DbgHLPrintf(("ObjectPath is unexpected size"));
         return NULL;
     }
 
@@ -291,9 +248,7 @@ ControlPanelControllerUnit* ControlPanelDevice::getControlPanelUnit(qcc::String 
     if ((it = m_DeviceUnits.find(unitName)) != m_DeviceUnits.end()) {
         return it->second;
     } else if (createIfNotFound) {
-        if (logger) {
-            logger->debug(TAG, "Creating new unit " + unitName);
-        }
+        QCC_DbgPrintf(("Creating new unit %s", unitName.c_str()));
         ControlPanelControllerUnit* unit = new ControlPanelControllerUnit(unitName, this);
         m_DeviceUnits[unitName] = unit;
         return unit;
@@ -304,18 +259,13 @@ ControlPanelControllerUnit* ControlPanelDevice::getControlPanelUnit(qcc::String 
 
 NotificationAction* ControlPanelDevice::addNotificationAction(qcc::String const& objectPath)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!objectPath.size()) {
-        if (logger) {
-            logger->warn(TAG, "Cannot add a Notification Action. ObjectPath is empty");
-        }
+        QCC_DbgHLPrintf(("Cannot add a Notification Action. ObjectPath is empty"));
         return NULL;
     }
 
     if (m_SessionHandler.getSessionId() == 0) {
-        if (logger) {
-            logger->warn(TAG, "Cannot add a Notification Action. Device not in session");
-        }
+        QCC_DbgHLPrintf(("Cannot add a Notification Action. Device not in session"));
         return NULL;
     }
 
@@ -324,17 +274,13 @@ NotificationAction* ControlPanelDevice::addNotificationAction(qcc::String const&
 
     ControlPanelControllerUnit* unit = getControlPanelUnit(objectPath, unitName, actionName);
     if (!unit) {
-        if (logger) {
-            logger->warn(TAG, "Could not add ControlPanelUnit");
-        }
+        QCC_DbgHLPrintf(("Could not add ControlPanelUnit"));
         return NULL;
     }
 
     QStatus status = unit->addNotificationAction(objectPath, actionName);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not add NotificationAction");
-        }
+        QCC_LogError(status, ("Could not add NotificationAction"));
         return NULL;
     }
 
@@ -343,19 +289,14 @@ NotificationAction* ControlPanelDevice::addNotificationAction(qcc::String const&
 
 QStatus ControlPanelDevice::removeNotificationAction(NotificationAction* notificationAction)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!notificationAction) {
-        if (logger) {
-            logger->warn(TAG, "Cannot remove the NotificationAction. NotificationAction is NULL");
-        }
+        QCC_DbgHLPrintf(("Cannot remove the NotificationAction. NotificationAction is NULL"));
         return ER_BAD_ARG_1;
     }
 
     qcc::String objectPath = notificationAction->getObjectPath();
     if (!objectPath.size()) {
-        if (logger) {
-            logger->warn(TAG, "Cannot remove the NotificationAction. The ObjectPath is empty");
-        }
+        QCC_DbgHLPrintf(("Cannot remove the NotificationAction. The ObjectPath is empty"));
         return ER_BAD_ARG_1;
     }
 
@@ -364,9 +305,7 @@ QStatus ControlPanelDevice::removeNotificationAction(NotificationAction* notific
 
     ControlPanelControllerUnit* unit = getControlPanelUnit(objectPath, unitName, actionName, false);
     if (!unit) {
-        if (logger) {
-            logger->warn(TAG, "Unit for NotificationAction does not exist");
-        }
+        QCC_DbgHLPrintf(("Unit for NotificationAction does not exist"));
         return ER_BAD_ARG_1;
     }
 

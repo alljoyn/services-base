@@ -18,13 +18,14 @@
 #include "../ControlPanelConstants.h"
 #include "WidgetBusObject.h"
 #include <alljoyn/controlpanel/ControlPanelService.h>
+#include <alljoyn/controlpanel/LogModule.h>
 
 namespace ajn {
 namespace services {
 using namespace cpsConsts;
 
-WidgetProxyBusObjectListener::WidgetProxyBusObjectListener(Widget* widget, WidgetBusObject* busObject, qcc::String const& tag) :
-    m_Widget(widget), m_BusObject(busObject), TAG(tag)
+WidgetProxyBusObjectListener::WidgetProxyBusObjectListener(Widget* widget, WidgetBusObject* busObject) :
+    m_Widget(widget), m_BusObject(busObject)
 {
 
 
@@ -37,11 +38,8 @@ WidgetProxyBusObjectListener::~WidgetProxyBusObjectListener()
 
 void WidgetProxyBusObjectListener::GetAllPropertiesCallBack(QStatus status, ProxyBusObject* obj, const MsgArg& values, void* context)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (!m_Widget || !m_BusObject) {
-        if (logger) {
-            logger->warn(TAG, "WidgetProxyBusObjectListener does not have widget or BusObject set");
-        }
+        QCC_DbgHLPrintf(("WidgetProxyBusObjectListener does not have widget or BusObject set"));
         delete this;     //Finished using listener - needs to be deleted
         return;
     }
@@ -49,9 +47,7 @@ void WidgetProxyBusObjectListener::GetAllPropertiesCallBack(QStatus status, Prox
     ControlPanelDevice* device = m_Widget->getDevice();
     ControlPanelListener* listener = device ? device->getListener() : NULL;
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Something went wrong reloading properties");
-        }
+        QCC_DbgHLPrintf(("Something went wrong reloading properties"));
         if (listener) {
             listener->errorOccured(device, status, REFRESH_PROPERTIES, "Something went wrong reloading properties");
         }
@@ -61,9 +57,7 @@ void WidgetProxyBusObjectListener::GetAllPropertiesCallBack(QStatus status, Prox
 
     status = m_BusObject->fillAllProperties(values);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Something went wrong reloading properties");
-        }
+        QCC_LogError(status, ("Something went wrong reloading properties"));
         if (listener) {
             listener->errorOccured(device, status, REFRESH_PROPERTIES, "Something went wrong reloading properties");
         }

@@ -18,25 +18,26 @@
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include "../ControlPanelConstants.h"
 #include "../BusObjects/DialogBusObject.h"
+#include <alljoyn/controlpanel/LogModule.h>
 
 namespace ajn {
 namespace services {
 using namespace cpsConsts;
 
-Dialog::Dialog(qcc::String const& name, Widget* rootWidget) : RootWidget(name, rootWidget, DIALOG, TAG_DIALOG_WIDGET),
+Dialog::Dialog(qcc::String const& name, Widget* rootWidget) : RootWidget(name, rootWidget, DIALOG),
     m_NumActions(0), m_GetMessages(0), m_LabelAction1(""), m_GetLabelsAction1(0), m_LabelAction2(""),
     m_GetLabelsAction2(0), m_LabelAction3(""), m_GetLabelsAction3(0)
 {
 }
 
 Dialog::Dialog(qcc::String const& name, Widget* rootWidget, qcc::String const& objectPath, ControlPanelDevice* device) :
-    RootWidget(name, rootWidget, objectPath, device, DIALOG, TAG_DIALOG_WIDGET), m_NumActions(0), m_GetMessages(0), m_LabelAction1(""),
+    RootWidget(name, rootWidget, objectPath, device, DIALOG), m_NumActions(0), m_GetMessages(0), m_LabelAction1(""),
     m_GetLabelsAction1(0), m_LabelAction2(""), m_GetLabelsAction2(0), m_LabelAction3(""), m_GetLabelsAction3(0)
 {
 }
 
 Dialog::Dialog(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* device) :
-    RootWidget(name, rootWidget, "", device, DIALOG, TAG_DIALOG_WIDGET), m_NumActions(0), m_GetMessages(0), m_LabelAction1(""),
+    RootWidget(name, rootWidget, "", device, DIALOG), m_NumActions(0), m_GetMessages(0), m_LabelAction1(""),
     m_GetLabelsAction1(0), m_LabelAction2(""), m_GetLabelsAction2(0), m_LabelAction3(""), m_GetLabelsAction3(0)
 {
 }
@@ -189,10 +190,7 @@ QStatus Dialog::fillOptParamsArg(MsgArg& val, uint16_t languageIndx)
 
     status = Widget::fillOptParamsArg(optParams, languageIndx, optParamIndx);
     if (status != ER_OK) {
-        GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-        if (logger) {
-            logger->warn(TAG, "Could not marshal optParams");
-        }
+        QCC_LogError(status, ("Could not marshal optParams"));
         delete[] optParams;
         return status;
     }
@@ -294,34 +292,24 @@ QStatus Dialog::readOptParamsArg(uint16_t key, MsgArg* val)
 
 bool Dialog::executeActionNotDefined()
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-    if (logger) {
-        logger->warn(TAG, "Could not execute this Action. It is not defined");
-    }
+    QCC_DbgHLPrintf(("Could not execute this Action. It is not defined."));
     return false;
 }
 
 QStatus Dialog::executeAction1()
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (m_ControlPanelMode == CONTROLLEE_MODE) {
-        if (logger) {
-            logger->warn(TAG, "Cannot execute Action 1. Widget is a Controllee widget");
-        }
+        QCC_DbgHLPrintf(("Cannot execute Action 1. Widget is a Controllee widget"));
         return ER_NOT_IMPLEMENTED;
     }
 
     if (!m_BusObjects.size()) {
-        if (logger) {
-            logger->warn(TAG, "Cannot execute Action 1. BusObject is not set");
-        }
+        QCC_DbgHLPrintf(("Cannot execute Action 1. BusObject is not set"));
         return ER_BUS_BUS_NOT_STARTED;
     }
 
     if (m_NumActions < 1) {
-        if (logger) {
-            logger->warn(TAG, "Cannot execute Action 1 - numActions is less than 1");
-        }
+        QCC_DbgHLPrintf(("Cannot execute Action 1 - numActions is less than 1"));
         return ER_NOT_IMPLEMENTED;
     }
 
@@ -330,25 +318,18 @@ QStatus Dialog::executeAction1()
 
 QStatus Dialog::executeAction2()
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (m_ControlPanelMode == CONTROLLEE_MODE) {
-        if (logger) {
-            logger->warn(TAG, "Cannot execute Action 2. Widget is a Controllee widget");
-        }
+        QCC_DbgHLPrintf(("Cannot execute Action 2. Widget is a Controllee widget"));
         return ER_NOT_IMPLEMENTED;
     }
 
     if (!m_BusObjects.size()) {
-        if (logger) {
-            logger->warn(TAG, "Cannot execute Action 2. BusObject is not set");
-        }
+        QCC_DbgHLPrintf(("Cannot execute Action 2. BusObject is not set"));
         return ER_BUS_BUS_NOT_STARTED;
     }
 
     if (m_NumActions < 2) {
-        if (logger) {
-            logger->warn(TAG, "Cannot execute Action2 - numActions is less than 2");
-        }
+        QCC_DbgHLPrintf(("Cannot execute Action2 - numActions is less than 2"));
         return ER_NOT_IMPLEMENTED;
     }
 
@@ -357,25 +338,18 @@ QStatus Dialog::executeAction2()
 
 QStatus Dialog::executeAction3()
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (m_ControlPanelMode == CONTROLLEE_MODE) {
-        if (logger) {
-            logger->warn(TAG, "Cannot execute Action 3. Widget is a Controllee widget");
-        }
+        QCC_DbgHLPrintf(("Cannot execute Action 3. Widget is a Controllee widget"));
         return ER_NOT_IMPLEMENTED;
     }
 
     if (!m_BusObjects.size()) {
-        if (logger) {
-            logger->warn(TAG, "Cannot execute Action 3. BusObject is not set");
-        }
+        QCC_DbgHLPrintf(("Cannot execute Action 3. BusObject is not set"));
         return ER_BUS_BUS_NOT_STARTED;
     }
 
     if (m_NumActions < 3) {
-        if (logger) {
-            logger->warn(TAG, "Cannot execute Action3 - numActions is less than 3");
-        }
+        QCC_DbgHLPrintf(("Cannot execute Action3 - numActions is less than 3"));
         return ER_NOT_IMPLEMENTED;
     }
 

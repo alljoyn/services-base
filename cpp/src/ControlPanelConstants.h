@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -32,33 +32,6 @@ namespace cpsConsts {
 static const uint16_t CONTROLPANELSERVICE_PORT = 1000;
 static const uint16_t DATE_PROPERTY_TYPE = 0;
 static const uint16_t TIME_PROPERTY_TYPE = 1;
-
-static const qcc::String TAG_CONTROLPANEL = "ControlPanel";
-static const qcc::String TAG_NOTIFICATIONACTION = "NotificationAction";
-static const qcc::String TAG_CONTROLPANELCONTROLLEE = "ControlPanelControllee";
-static const qcc::String TAG_CONTROLPANELCONTROLLER = "ControlPanelController";
-static const qcc::String TAG_CONTROLPANELSERVICE = "ControlPanelService";
-static const qcc::String TAG_CONTROLPANELDEVICE = "ControlPanelDevice";
-static const qcc::String TAG_CONTROLPANELUNIT = "ControlPanelUnit";
-static const qcc::String TAG_CONTROLPANELSESSIONHANDLER = "ControlPanelSessionHandler";
-static const qcc::String TAG_CONTROLPANELBUSOBJECT = "ControlPanelBusObject";
-static const qcc::String TAG_NOTIFICATIONACTIONBUSOBJECT = "NotificationActionBusObject";
-static const qcc::String TAG_CONTAINER_BUSOBJECT = "ContainerBusObject";
-static const qcc::String TAG_LABEL_BUSOBJECT = "LabelBusObject";
-static const qcc::String TAG_ACTION_BUSOBJECT = "ActionBusObject";
-static const qcc::String TAG_DIALOG_BUSOBJECT = "DialogBusObject";
-static const qcc::String TAG_PROPERTY_BUSOBJECT = "PropertyBusObject";
-static const qcc::String TAG_HTTPCONTROL_BUSOBJECT = "HttpControlBusObject";
-static const qcc::String TAG_CONTAINER_WIDGET = "ContainerWidget";
-static const qcc::String TAG_ACTION_WIDGET = "ActionWidget";
-static const qcc::String TAG_PROPERTY_WIDGET = "PropertyWidget";
-static const qcc::String TAG_LABEL_WIDGET = "LabelWidget";
-static const qcc::String TAG_DIALOG_WIDGET = "DialogWidget";
-static const qcc::String TAG_ERROR_WIDGET = "ErrorWidget";
-static const qcc::String TAG_HTTPCONTROL = "HttpControl";
-static const qcc::String TAG_CONSTRAINTLIST = "ConstraintList";
-static const qcc::String TAG_CONSTRAINTRANGE = "ConstraintRange";
-
 
 static const qcc::String AJ_OBJECTPATH_PREFIX = "/ControlPanel/";
 static const qcc::String AJ_HTTP_OBJECTPATH_SUFFIX = "/HTTPControl";

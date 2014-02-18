@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -34,9 +34,8 @@ class RootWidget : public Widget {
      * @param name - name of Widget
      * @param rootWidget - the RootWidget of the widget
      * @param widgetType - the type of the widget
-     * @param tag - Tag for logging
      */
-    RootWidget(qcc::String const& name, Widget* rootWidget, WidgetType widgetType, qcc::String const& tag);
+    RootWidget(qcc::String const& name, Widget* rootWidget, WidgetType widgetType);
 
     /**
      * Constructor for RootWidget
@@ -45,10 +44,9 @@ class RootWidget : public Widget {
      * @param objectPath the objectPath of the widget
      * @param device - the device that contains the widget
      * @param widgetType - the type of Widget created
-     * @param tag - Tag for logging
      */
     RootWidget(qcc::String const& name, Widget* rootWidget, qcc::String const& objectPath,
-               ControlPanelDevice* device, WidgetType widgetType, qcc::String const& tag);
+               ControlPanelDevice* device, WidgetType widgetType);
 
     /**
      * Destructor of RootWidget

@@ -17,18 +17,19 @@
 #include <alljoyn/controlpanel/RootWidget.h>
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include "../BusObjects/NotificationActionBusObject.h"
+#include <alljoyn/controlpanel/LogModule.h>
 
 namespace ajn {
 namespace services {
 
-RootWidget::RootWidget(qcc::String const& name, Widget* rootWidget, WidgetType widgetType, qcc::String const& tag) :
-    Widget(name, rootWidget, widgetType, tag), m_NotificationActionBusObject(0), m_ObjectPath("")
+RootWidget::RootWidget(qcc::String const& name, Widget* rootWidget, WidgetType widgetType) :
+    Widget(name, rootWidget, widgetType), m_NotificationActionBusObject(0), m_ObjectPath("")
 {
 }
 
 RootWidget::RootWidget(qcc::String const& name, Widget* rootWidget, qcc::String const& objectPath, ControlPanelDevice* device,
-                       WidgetType widgetType, qcc::String const& tag) :
-    Widget(name, rootWidget, device, widgetType, tag), m_NotificationActionBusObject(0), m_ObjectPath(objectPath)
+                       WidgetType widgetType) :
+    Widget(name, rootWidget, device, widgetType), m_NotificationActionBusObject(0), m_ObjectPath(objectPath)
 {
 }
 
@@ -47,19 +48,13 @@ QStatus RootWidget::SendDismissSignal()
 
 QStatus RootWidget::setNotificationActionBusObject(BusObject* notificationActionBusObject)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (!notificationActionBusObject) {
-        if (logger) {
-            logger->warn(TAG, "Could not add a NULL notificationActionBusObject");
-        }
+        QCC_DbgHLPrintf(("Could not add a NULL notificationActionBusObject"));
         return ER_BAD_ARG_1;
     }
 
     if (m_NotificationActionBusObject) {
-        if (logger) {
-            logger->warn(TAG, "Could not set notificationActionBusObject. NotificationActionBusObject already set");
-        }
+        QCC_DbgHLPrintf(("Could not set notificationActionBusObject. NotificationActionBusObject already set"));
         return ER_BUS_PROPERTY_ALREADY_EXISTS;
     }
 
@@ -69,12 +64,9 @@ QStatus RootWidget::setNotificationActionBusObject(BusObject* notificationAction
 
 QStatus RootWidget::unregisterObjects(BusAttachment* bus)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     QStatus status = Widget::unregisterObjects(bus);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not unregister BusObjects");
-        }
+        QCC_LogError(status, ("Could not unregister BusObjects"));
     }
 
     if (m_NotificationActionBusObject) {

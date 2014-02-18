@@ -22,12 +22,12 @@
 #include <alljoyn/notification/NotificationService.h>
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include <alljoyn/controlpanel/ControlPanelController.h>
-#include <alljoyn/services_common/GenericLogger.h>
 #include "ControlPanelListenerImpl.h"
 #include "ControllerNotificationReceiver.h"
 #include <SrpKeyXListener.h>
 #include <CommonSampleUtil.h>
 #include <AnnounceHandlerImpl.h>
+#include <alljoyn/services_common/LogModulesNames.h>
 
 #define SERVICE_PORT 900
 
@@ -103,7 +103,7 @@ int main()
 #endif
 
     controlPanelService = ControlPanelService::getInstance();
-    controlPanelService->setLogLevel(Log::LogLevel::LEVEL_INFO);
+    QCC_SetDebugLevel(logModules::CONTROLPANEL_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
 
     srpKeyXListener = new SrpKeyXListener();
 

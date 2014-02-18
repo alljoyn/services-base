@@ -17,6 +17,7 @@
 #include "ControlPanelBusObject.h"
 #include "../ControlPanelConstants.h"
 #include <alljoyn/controlpanel/ControlPanelService.h>
+#include <alljoyn/controlpanel/LogModule.h>
 
 using namespace qcc;
 namespace ajn {
@@ -24,12 +25,10 @@ namespace services {
 using namespace cpsConsts;
 
 #define CONTROLPANEL_INTERFACE_VERSION 1
-#define TAG TAG_CONTROLPANELBUSOBJECT
 
 ControlPanelBusObject::ControlPanelBusObject(BusAttachment* bus, String const& objectPath, QStatus& status) :
     BusObject(objectPath.c_str()), m_Proxy(0), m_ObjectPath(objectPath), m_InterfaceDescription(0)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     status = ER_OK;
 
     String interfaceName = AJ_CONTROLPANEL_INTERFACE;
@@ -42,22 +41,16 @@ ControlPanelBusObject::ControlPanelBusObject(BusAttachment* bus, String const& o
         } while (0);
     }
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not create interface");
-        }
+        QCC_LogError(status, ("Could not create interface"));
         return;
     }
 
     status = AddInterface(*m_InterfaceDescription);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not add interface");
-        }
+        QCC_LogError(status, ("Could not add interface"));
         return;
     }
-    if (logger) {
-        logger->debug(TAG, "Created ControlPanelBusObject successfully");
-    }
+    QCC_DbgPrintf(("Created ControlPanelBusObject successfully"));
 }
 
 ControlPanelBusObject::~ControlPanelBusObject()
@@ -69,10 +62,7 @@ ControlPanelBusObject::~ControlPanelBusObject()
 
 QStatus ControlPanelBusObject::Get(const char* interfaceName, const char* propName, MsgArg& val)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug(TAG, "Get property was called - in ControlPanelBusObject class:");
-    }
+    QCC_DbgPrintf(("Get property was called - in ControlPanelBusObject class."));
 
     if (0 == strcmp(AJ_PROPERTY_VERSION.c_str(), propName)) {
         return val.Set(AJPARAM_UINT16.c_str(), CONTROLPANEL_INTERFACE_VERSION);
@@ -87,19 +77,13 @@ QStatus ControlPanelBusObject::Set(const char* interfaceName, const char* propNa
 
 QStatus ControlPanelBusObject::setRemoteController(BusAttachment* bus, qcc::String const& deviceBusName, SessionId sessionId)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (m_Proxy && m_Proxy->GetSessionId() == sessionId) {
-        if (logger) {
-            logger->debug(TAG, "ProxyBusObject already set - ignoring");
-        }
+        QCC_DbgPrintf(("ProxyBusObject already set - ignoring"));
         return ER_OK;
     }
 
     if (!m_InterfaceDescription) {
-        if (logger) {
-            logger->warn(TAG, "InterfaceDescription is not set. Cannot set RemoteController");
-        }
+        QCC_DbgHLPrintf(("InterfaceDescription is not set. Cannot set RemoteController"));
         return ER_FAIL;
     }
 
@@ -110,46 +94,34 @@ QStatus ControlPanelBusObject::setRemoteController(BusAttachment* bus, qcc::Stri
     m_Proxy = new ProxyBusObject(*bus, deviceBusName.c_str(), m_ObjectPath.c_str(), sessionId);
     QStatus status = m_Proxy->AddInterface(*m_InterfaceDescription);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not add Interface to ProxyBusobject");
-        }
+        QCC_LogError(status, ("Could not add Interface to ProxyBusobject"));
     }
     return status;
 }
 
 QStatus ControlPanelBusObject::checkVersions()
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (!m_Proxy) {
-        if (logger) {
-            logger->warn(TAG, "Cannot Check Versions. ProxyBusObject is not set");
-        }
+        QCC_DbgHLPrintf(("Cannot Check Versions. ProxyBusObject is not set."));
         return ER_BUS_PROPERTY_VALUE_NOT_SET;
     }
 
     MsgArg value;
     QStatus status = m_Proxy->GetProperty(AJ_CONTROLPANEL_INTERFACE.c_str(), AJ_PROPERTY_VERSION.c_str(), value);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Call to get Version Property failed");
-        }
+        QCC_LogError(status, ("Call to get Version Property failed"));
         return status;
     }
 
     uint16_t version = 1;
     status = value.Get(AJPARAM_UINT16.c_str(), &version);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not unmarshal version property");
-        }
+        QCC_LogError(status, ("Could not unmarshal version property"));
         return status;
     }
 
     if (CONTROLPANEL_INTERFACE_VERSION < version) {
-        if (logger) {
-            logger->warn(TAG, "The versions of the interface are not compatible");
-        }
+        QCC_DbgHLPrintf(("The versions of the interface are not compatible"));
         return ER_BUS_INTERFACE_MISMATCH;
     }
     return ER_OK;
@@ -157,20 +129,14 @@ QStatus ControlPanelBusObject::checkVersions()
 
 QStatus ControlPanelBusObject::Introspect(std::vector<IntrospectionNode>& childNodes)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (!m_Proxy) {
-        if (logger) {
-            logger->warn(TAG, "Cannot Check Versions. ProxyBusObject is not set");
-        }
+        QCC_DbgHLPrintf(("Cannot Check Versions. ProxyBusObject is not set"));
         return ER_BUS_PROPERTY_VALUE_NOT_SET;
     }
 
     QStatus status = m_Proxy->IntrospectRemoteObject();
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not introspect RemoteObject");
-        }
+        QCC_LogError(status, ("Could not introspect RemoteObject"));
         return status;
     }
 
@@ -185,15 +151,11 @@ QStatus ControlPanelBusObject::Introspect(std::vector<IntrospectionNode>& childN
     for (size_t i = 0; i < numChildren; i++) {
 
         String const& objectPath = proxyBusObjectChildren[i]->GetPath();
-        if (logger) {
-            logger->debug(TAG, "ObjectPath is: " + objectPath);
-        }
+        QCC_DbgPrintf(("ObjectPath is: %s", objectPath.c_str()));
 
         status = proxyBusObjectChildren[i]->IntrospectRemoteObject();
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not introspect RemoteObjectChild");
-            }
+            QCC_LogError(status, ("Could not introspect RemoteObjectChild"));
             delete[] proxyBusObjectChildren;
             return status;
         }
@@ -207,9 +169,7 @@ QStatus ControlPanelBusObject::Introspect(std::vector<IntrospectionNode>& childN
         const InterfaceDescription** ifaces = new const InterfaceDescription *[numInterfaces];
         numInterfaces = proxyBusObjectChildren[i]->GetInterfaces(ifaces, numInterfaces);
         for (size_t j = 0; j < numInterfaces; j++) {
-            if (logger) {
-                logger->debug(TAG, "InterfaceName is : " + String(ifaces[j]->GetName()));
-            }
+            QCC_DbgPrintf(("InterfaceName is : %s", ifaces[j]->GetName()));
             if (strcmp(ifaces[j]->GetName(), AJ_CONTAINER_INTERFACE.c_str()) == 0) {
                 IntrospectionNode node(objectPath, CONTAINER, false);
                 childNodes.push_back(node);
@@ -217,9 +177,7 @@ QStatus ControlPanelBusObject::Introspect(std::vector<IntrospectionNode>& childN
                 IntrospectionNode node(objectPath, CONTAINER, true);
                 childNodes.push_back(node);
             } else {
-                if (logger) {
-                    logger->debug(TAG, "Ignoring interface - not a container interface");
-                }
+                QCC_DbgPrintf(("Ignoring interface - not a container interface"));
             }
         }
         delete[] ifaces;

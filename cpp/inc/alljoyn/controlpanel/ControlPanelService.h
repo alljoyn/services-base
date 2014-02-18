@@ -18,12 +18,10 @@
 #define CONTROLPANELSERVICE_H_
 
 #include <alljoyn/BusAttachment.h>
-#include <alljoyn/services_common/GenericLogger.h>
 #include <alljoyn/controlpanel/ControlPanelControllee.h>
 #include <alljoyn/controlpanel/ControlPanelController.h>
 #include <alljoyn/controlpanel/ControlPanelBusListener.h>
 #include <alljoyn/controlpanel/ControlPanelListener.h>
-#include <alljoyn/services_common/ServicesLoggerImpl.h>
 
 namespace ajn {
 namespace services {
@@ -83,32 +81,6 @@ class ControlPanelService {
     QStatus shutdown();
 
     /**
-     * Receive GenericLogger* to use for logging
-     * @param logger Implementation of GenericLogger
-     * @return previous logger
-     */
-    GenericLogger* setLogger(GenericLogger* logger);
-
-    /**
-     * Get the currently-configured logger implementation
-     * @return logger Implementation of GenericLogger
-     */
-    GenericLogger* getLogger();
-
-    /**
-     * Set log level filter for subsequent logging messages
-     * @param newLogLevel enum value
-     * @return logLevel enum value that was in effect prior to this change
-     */
-    Log::LogLevel setLogLevel(Log::LogLevel newLogLevel);
-
-    /**
-     * Get log level filter value currently in effect
-     * @return logLevel enum value currently in effect
-     */
-    Log::LogLevel getLogLevel();
-
-    /**
      * Method to get the busAttachment used in the service.
      * @return BusAttachment
      */
@@ -138,15 +110,6 @@ class ControlPanelService {
      * @return the ControlPanelService version
      */
     static uint16_t getVersion();
-
-    /**
-     * A callback passed to the Generic Logger when the default logger is replaced by a different logger
-     * @param type - message type
-     * @param module - module of the message
-     * @param msg - message
-     * @param context - context passed in by the application
-     */
-    static void GenericLoggerCallBack(DbgMsgType type, const char* module, const char* msg, void* context);
 
   private:
 
@@ -191,15 +154,6 @@ class ControlPanelService {
      */
     ControlPanelListener* m_ControlPanelListener;
 
-    /**
-     * Logger that is used in library
-     */
-    GenericLogger* logger;
-
-    /**
-     * Default Logger that is used in library
-     */
-    ServicesLoggerImpl cpsLogger;
 };
 } //namespace services
 } //namespace ajn

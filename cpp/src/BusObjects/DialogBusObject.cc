@@ -18,6 +18,7 @@
 #include "../ControlPanelConstants.h"
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include <alljoyn/controlpanel/Dialog.h>
+#include <alljoyn/controlpanel/LogModule.h>
 
 namespace ajn {
 namespace services {
@@ -26,13 +27,10 @@ using namespace cpsConsts;
 
 DialogBusObject::DialogBusObject(BusAttachment* bus, String const& objectPath, uint16_t langIndx,
                                  QStatus& status, Widget* widget) :
-    WidgetBusObject(objectPath, langIndx, TAG_DIALOG_BUSOBJECT, status, widget)
+    WidgetBusObject(objectPath, langIndx, status, widget)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not create the BusObject");
-        }
+        QCC_DbgHLPrintf(("Could not create the BusObject"));
         return;
     }
 
@@ -55,17 +53,13 @@ DialogBusObject::DialogBusObject(BusAttachment* bus, String const& objectPath, u
         } while (0);
     }
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not create interface");
-        }
+        QCC_LogError(status, ("Could not create interface"));
         return;
     }
 
     status = AddInterface(*m_InterfaceDescription);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Could not add interface");
-        }
+        QCC_LogError(status, ("Could not add interface"));
         return;
     }
 
@@ -80,31 +74,22 @@ DialogBusObject::DialogBusObject(BusAttachment* bus, String const& objectPath, u
 
         status = AddMethodHandler(execMember1, static_cast<MessageReceiver::MethodHandler>(&DialogBusObject::DialogExecute));
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not register the MethodHandler");
-            }
+            QCC_LogError(status, ("Could not register the MethodHandler"));
             return;
         }
 
         status = AddMethodHandler(execMember2, static_cast<MessageReceiver::MethodHandler>(&DialogBusObject::DialogExecute));
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not register the MethodHandler");
-            }
+            QCC_LogError(status, ("Could not register the MethodHandler"));
             return;
         }
 
         status = AddMethodHandler(execMember3, static_cast<MessageReceiver::MethodHandler>(&DialogBusObject::DialogExecute));
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Could not register the MethodHandler");
-            }
-            return;
+            QCC_LogError(status, ("Could not register the MethodHandler"));            return;
         }
     }
-    if (logger) {
-        logger->debug(TAG, "Created DialogBusObject successfully");
-    }
+    QCC_DbgPrintf(("Created DialogBusObject successfully"));
 }
 
 DialogBusObject::~DialogBusObject()
@@ -113,11 +98,7 @@ DialogBusObject::~DialogBusObject()
 
 QStatus DialogBusObject::Get(const char* interfaceName, const char* propName, MsgArg& val)
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug(TAG, "Get property was called - in DialogBusObject class:\n");
-    }
-
+    QCC_DbgTrace(("Get property was called - in DialogBusObject class."));
     if (0 == strcmp(AJ_PROPERTY_NUMACTIONS.c_str(), propName)) {
         return ((Dialog*)m_Widget)->fillNumActionArg(val, m_LanguageIndx);
     }
@@ -132,129 +113,92 @@ QStatus DialogBusObject::Get(const char* interfaceName, const char* propName, Ms
 void DialogBusObject::DialogExecute(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
 {
     QStatus status = ER_OK;
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-    if (logger) {
-        logger->debug(TAG, "Execute was called");
-    }
+    QCC_DbgTrace(("Execute was called"));
 
     if (member->name.compare(AJ_METHOD_ACTION1) == 0 &&
         ((Dialog*)m_Widget)->executeAction1CallBack()) {
         MsgArg replyArg;
         status = MethodReply(msg, &replyArg, 0);
-        if (logger) {
-            logger->info(TAG, "Execute Action 1 completed successfully");
-        }
+        QCC_DbgPrintf(("Execute Action 1 completed successfully"));
     } else if (member->name.compare(AJ_METHOD_ACTION2) == 0 &&
                ((Dialog*)m_Widget)->executeAction2CallBack()) {
         MsgArg replyArg;
         status = MethodReply(msg, &replyArg, 0);
-        if (logger) {
-            logger->info(TAG, "Execute Action 2 completed successfully");
-        }
+        QCC_DbgPrintf(("Execute Action 2 completed successfully"));
     } else if (member->name.compare(AJ_METHOD_ACTION3) == 0 &&
                ((Dialog*)m_Widget)->executeAction3CallBack()) {
         MsgArg replyArg;
         status = MethodReply(msg, &replyArg, 0);
-        if (logger) {
-            logger->info(TAG, "Execute Action 3 completed successfully");
-        }
+        QCC_DbgPrintf(("Execute Action 3 completed successfully"));
     } else {
-        if (logger) {
-            logger->warn(TAG, "Unknown Execute Action was called, or action did not complete successfully");
-        }
+        QCC_DbgHLPrintf(("Unknown Execute Action was called, or action did not complete successfully"));
         status = MethodReply(msg, AJ_ERROR_UNKNOWN.c_str(), AJ_ERROR_UNKNOWN_MESSAGE.c_str());
     }
 
     if (ER_OK != status) {
-        if (logger) {
-            logger->warn(TAG, "Did not reply successfully");
-        }
+        QCC_LogError(status, ("Did not reply successfully"));
     }
 }
 
 QStatus DialogBusObject::ExecuteAction1()
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (!m_Proxy) {
-        if (logger) {
-            logger->warn(TAG, "Cannot execute the Action 1. ProxyBusObject is not set");
-        }
+        QCC_DbgHLPrintf(("Cannot execute the Action 1. ProxyBusObject is not set"));
         return ER_BUS_PROPERTY_VALUE_NOT_SET;
     }
 
     const ajn::InterfaceDescription::Member* execMember = m_InterfaceDescription->GetMember(AJ_METHOD_ACTION1.c_str());
     if (!execMember) {
-        if (logger) {
-            logger->warn(TAG, "Cannot execute the Action 1. ExecMember is not set");
-        }
+        QCC_DbgHLPrintf(("Cannot execute the Action 1. ExecMember is not set"));
         return ER_BUS_PROPERTY_VALUE_NOT_SET;
     }
 
     Message replyMsg(*bus);
     QStatus status = m_Proxy->MethodCall(*execMember, NULL, 0, replyMsg);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Call to execute the Action 1 failed");
-        }
+        QCC_DbgHLPrintf(("Call to execute the Action 1 failed"));
     }
     return status;
 }
 
 QStatus DialogBusObject::ExecuteAction2()
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (!m_Proxy) {
-        if (logger) {
-            logger->warn(TAG, "Cannot execute the Action 2. ProxyBusObject is not set");
-        }
+        QCC_DbgHLPrintf(("Cannot execute the Action 2. ProxyBusObject is not set"));
         return ER_BUS_PROPERTY_VALUE_NOT_SET;
     }
 
     const ajn::InterfaceDescription::Member* execMember = m_InterfaceDescription->GetMember(AJ_METHOD_ACTION2.c_str());
     if (!execMember) {
-        if (logger) {
-            logger->warn(TAG, "Cannot execute the Action 2. ExecMember is not set");
-        }
+        QCC_DbgHLPrintf(("Cannot execute the Action 2. ExecMember is not set"));
         return ER_BUS_PROPERTY_VALUE_NOT_SET;
     }
 
     Message replyMsg(*bus);
     QStatus status = m_Proxy->MethodCall(*execMember, NULL, 0, replyMsg);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Call to execute the Action 2 failed");
-        }
+        QCC_DbgHLPrintf(("Call to execute the Action 2 failed"));
     }
     return status;
 }
 
 QStatus DialogBusObject::ExecuteAction3()
 {
-    GenericLogger* logger = ControlPanelService::getInstance()->getLogger();
-
     if (!m_Proxy) {
-        if (logger) {
-            logger->warn(TAG, "Cannot execute the Action 3. ProxyBusObject is not set");
-        }
+        QCC_DbgHLPrintf(("Cannot execute the Action 3. ProxyBusObject is not set"));
         return ER_BUS_PROPERTY_VALUE_NOT_SET;
     }
 
     const ajn::InterfaceDescription::Member* execMember = m_InterfaceDescription->GetMember(AJ_METHOD_ACTION3.c_str());
     if (!execMember) {
-        if (logger) {
-            logger->warn(TAG, "Cannot execute the Action 3. ExecMember is not set");
-        }
+        QCC_DbgHLPrintf(("Cannot execute the Action 3. ExecMember is not set"));
         return ER_BUS_PROPERTY_VALUE_NOT_SET;
     }
 
     Message replyMsg(*bus);
     QStatus status = m_Proxy->MethodCall(*execMember, NULL, 0, replyMsg);
     if (status != ER_OK) {
-        if (logger) {
-            logger->warn(TAG, "Call to execute the Action 3 failed");
-        }
+        QCC_DbgHLPrintf(("Call to execute the Action 3 failed"));
     }
     return status;
 }

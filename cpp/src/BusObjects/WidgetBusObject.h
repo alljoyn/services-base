@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -38,12 +38,10 @@ class WidgetBusObject : public ajn::BusObject {
      * Constructor for WidgetBusObject class
      * @param objectPath - objectPath of BusObject
      * @param langIndx - the languageIndex of the BusObject
-     * @param tag - the Tag for logging
      * @param status - success/failure
      * @param widget - the widget associated with the BusObject
      */
-    WidgetBusObject(qcc::String const& objectPath, uint16_t langIndx, qcc::String const& tag,
-                    QStatus& status, Widget* widget);
+    WidgetBusObject(qcc::String const& objectPath, uint16_t langIndx, QStatus& status, Widget* widget);
 
     /**
      * Destructor of the WidgetBusObject class
@@ -189,11 +187,6 @@ class WidgetBusObject : public ajn::BusObject {
      * The pointer used to send signal/register Signal Handler
      */
     const ajn::InterfaceDescription::Member* m_SignalPropertyChanged;
-
-    /**
-     * The Tag for logging
-     */
-    qcc::String const& TAG;
 };
 } //namespace services
 } //namespace ajn
