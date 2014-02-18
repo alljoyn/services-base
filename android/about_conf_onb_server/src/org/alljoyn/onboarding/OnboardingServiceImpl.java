@@ -30,6 +30,7 @@ import org.alljoyn.bus.ErrorReplyBusException;
 import org.alljoyn.bus.Status;
 import org.alljoyn.onboarding.client.OnboardingClient;
 import org.alljoyn.onboarding.client.OnboardingClientImpl;
+import org.alljoyn.onboarding.transport.ConnectionResultAJ;
 import org.alljoyn.onboarding.transport.MyScanResult;
 import org.alljoyn.onboarding.transport.OBLastError;
 import org.alljoyn.onboarding.transport.OnboardingTransport;
@@ -760,6 +761,11 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
 		@Override
 		public OBLastError getLastError() throws BusException {
 			return m_lastError;
+		}
+
+		@Override
+		public void ConnectionResult(ConnectionResultAJ arg0) {
+			// No need to implement. Android doesn't support 2 multiple Wi-Fi connections
 		}
 	}
 
