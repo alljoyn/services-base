@@ -13,115 +13,56 @@
 #    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 # sample usage:
-# scons TARG=linux WS=off VARIANT=debug 
-#       SERVICES_COMMON_ROOT=/path/to/nonstandard/location/services_common/tcl \
-#       ABOUT_ROOT=/path/to/nonstandard/location/about/tcl \
-#       CONFIG_ROOT=/path/to/nonstandard/location/config/tcl \
-#       NOTIFICATION_ROOT=/path/to/nonstandard/location/notification/tcl \
-#       CPS_ROOT=/path/to/nonstandard/location/controlpanel/tcl/samples/sampleapp \
-#       AJ_TCL_ROOT=/path/to/ajtcl
-
-services_common_root_default = '../../../services_common/tcl'
-about_root_default           = '../../../../core/about_tcl/tcl'
-config_root_default          = '../../../config/tcl'
-notification_root_default    = '../../../notification/tcl'
-cps_root_default             = '../../../controlpanel/tcl'
-#cps_root_default             = '../../../controlpanel/tcl/samples/ACControlleeSample'
+# scons ALL=1 TARG=linux WS=off VARIANT=debug 
+# scons PRODUCER=1 CONSUMER=1 CONFIG=1 CPS=1 TARG=linux WS=off VARIANT=debug 
+# defaults:
+# ALL=0
+# CONFIG=1
+# PRODUCER=0
+# CONSUMER=0
+# CPS=0
 
 import os
 
 Import('env')
 
-main_exe = 'ACServerSample'
-
 vars = Variables()
-if not env.has_key('SERVICES_COMMON_ROOT'):
-    vars.Add('SERVICES_COMMON_ROOT', 'Root directory of Services Common', services_common_root_default)
-vars.Update(env)
 
-# if SERVICES_COMMON_ROOT passed in via the env., use it:
-if env.has_key('SERVICES_COMMON_ROOT_FROM_COMPONENT'):
-    env.Replace(SERVICES_COMMON_ROOT = env['SERVICES_COMMON_ROOT_FROM_COMPONENT'])
-Help(vars.GenerateHelpText(env))
+sersamp_env = env.Clone()
 
-if not os.path.isfile(env['SERVICES_COMMON_ROOT'] + '/SConscript'):
-    print "SConscript in 'SERVICES_COMMON_ROOT=" + env['SERVICES_COMMON_ROOT'] + "' not found; aborting.\n"
-    exit(1)
-
-if not env.has_key('ABOUT_ROOT'):
-    vars.Add('ABOUT_ROOT', 'Root directory of About service', about_root_default)
-vars.Update(env)
-
-# if ABOUT_ROOT passed in via the env., use it:
-if env.has_key('ABOUT_ROOT_FROM_COMPONENT'):
-    env.Replace(ABOUT_ROOT = env['ABOUT_ROOT_FROM_COMPONENT'])
-Help(vars.GenerateHelpText(env))
-
-if not os.path.isfile(env['ABOUT_ROOT'] + '/SConscript'):
-    print "SConscript in 'ABOUT_ROOT=" + env['ABOUT_ROOT'] + "' not found; aborting.\n"
-    exit(1)
-
-# if called by a service (to provide main() and About) ('INDIV_BUILD' defined), 
-# don't clone this env before setting CPPPATH. but, if called to build 
-# services server sample, then clone so we don't taint ajtcl build: 
-if env.has_key('INDIV_BUILD'):
-    sersamp_env = env
-else:
-    sersamp_env = env.Clone()
 Export('sersamp_env')
 
-sersamp_env.Append(CPPPATH = [Dir('.')])
-sersamp_env.Append(CPPPATH = [Dir('../AppsCommon/inc')])
+sersamp_env.Append(CPPPATH = [Dir('../')])
+sersamp_env.Append(CPPPATH = [Dir('../../AppsCommon/inc')])
+sersamp_env.Append(CPPPATH = [Dir('../../AppsCommon/target/' + sersamp_env['TARG'])])
+sersamp_env.Append(CPPPATH = [Dir('../../../../notification/tcl/inc')])
 
-variant_dir = 'obj'
-if sersamp_env.has_key('SERSAMP_VARIANT_DIR'):
-    # avoid scons "two environments different actions" error
-    # by defining separate variant dir for each env/app
-    variant_dir += '/' + sersamp_env['SERSAMP_VARIANT_DIR']
+main_exe = 'ACServerSample'
 
-srcs = ['ACServerSample.c', '../AppsCommon/src/PropertyStore.c', '../AppsCommon/src/Services_Handlers.c']
 objs= []
-#objs = SConscript('src/SConscript', variant_dir = variant_dir, duplicate = 0)
+srcs = ['ACServerSample.c', '../../AppsCommon/src/PropertyStore.c', '../../AppsCommon/src/Services_Handlers.c']
 
-services_common_objs = sersamp_env.SConscript('$SERVICES_COMMON_ROOT/SConscript', {'services_common_env': sersamp_env})
-objs.extend(services_common_objs)
-
-about_objs = sersamp_env.SConscript('$ABOUT_ROOT/SConscript', {'about_env': sersamp_env})
-objs.extend(about_objs)
-
-# if called by a service (to provide main() and About) then return now:
-if sersamp_env.has_key('INDIV_BUILD'):
-    Return ('objs')
-
-srcs.extend(['../AppsCommon/src/ConfigSample.c'])
-config_root = ARGUMENTS.get('CONFIG_ROOT', config_root_default)
-component_objs = SConscript(config_root + '/src/SConscript', {'config_env': sersamp_env})
-if component_objs:
-	objs.extend(component_objs)
-
+srcs.extend(['../../AppsCommon/src/ConfigSample.c'])
+objs.extend(sersamp_env.SConscript('../../../../config/tcl/SConscript', {'config_env': sersamp_env}))
+    
 srcs.extend(['ACNotificationProducerSample.c'])
-
-notification_root = ARGUMENTS.get('NOTIFICATION_ROOT', notification_root_default)
-# call notification scons with an env list of apps to compile in
-sersamp_env['notif_app_list'] = ['NotificationProducer']
-sersamp_env['PROD_APP_DIR'] = 'ACProducerSample'
-component_objs = SConscript(notification_root + '/src/SConscript', {'notif_env': sersamp_env})
-if component_objs:
-	objs.extend(component_objs)
+objs.extend(SConscript('../../../../notification/tcl/src/NotificationProducer/SConscript', exports = {'notif_env': sersamp_env}))
+objs.extend(SConscript('../../../../notification/tcl/src/NotificationCommon/SConscript', exports = {'notif_env': sersamp_env}))
 
 srcs.extend(['ControlPanelGenerated.c', 'ControlPanelProvided.c', 'ControlPanelSample.c'])
-cps_root = ARGUMENTS.get('CPS_ROOT', cps_root_default)
-component_objs = SConscript(cps_root + '/SConscript', {'cps_env': sersamp_env})
-if component_objs:
-	objs.extend(component_objs)
+objs.extend(SConscript('../../../../controlpanel/tcl/SConscript', {'cps_env': sersamp_env}))
 
-objs.extend(sersamp_env.Object(srcs))
+objs.extend(sersamp_env.Object(srcs, variant_dir = 'obj', duplicate = 0))
+
+objs.extend(sersamp_env.SConscript('../../../../services_common/tcl/SConscript', {'services_common_env': sersamp_env}))
+
+objs.extend(sersamp_env.SConscript('../../../../../core/about_tcl/tcl/SConscript', {'about_env': sersamp_env}))
 
 prog = sersamp_env.Program(
-	target = variant_dir + '/' + main_exe,
-	source = [
-     	objs,
-        sersamp_env['aj_obj'],
-	]
+    target = 'obj/' + main_exe,
+    source = [
+              objs,
+              sersamp_env['aj_obj'],
+    ]
  )
 sersamp_env.Install('build', prog)
