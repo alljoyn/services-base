@@ -16,7 +16,7 @@
 
 /**
  * Per-module definition of the current module for debug logging.  Must be defined
- * prior to first inclusion of aj_debug.h
+ * prior to first inclusion of aj_debug.h.
  * The corresponding flag dbgAJOBS is defined in services_common.h and implemented
  * in services_common.c.
  */
@@ -172,7 +172,7 @@ AJ_Status AJOBS_ConnectWiFiHandler(AJ_Message* msg)
         return status;
     }
     AJ_InfoPrintf(("ReadInfo status: %s\n", AJ_StatusText(status)));
-    status = AJ_ERR_RESTART;     // Force disconnect of AJ and services and reconnection of WiFi on restart
+    status = AJ_ERR_RESTART;     // Force disconnect of AJ and services and reconnection of WiFi on restart of message lopp
 
     return status;
 }
@@ -186,7 +186,7 @@ AJ_Status AJOBS_OffboardWiFiHandler(AJ_Message* msg)
     if (status != AJ_OK) {
         return status;
     }
-    status = AJ_ERR_RESTART;     // Force disconnect of AJ and services and reconnection of WiFi on restart
+    status = AJ_ERR_RESTART;     // Force disconnect of AJ and services and reconnection of WiFi on restart on restart of message lopp
 
     return status;
 }
