@@ -463,7 +463,11 @@ static AJ_Status DoConnectWifi(AJOBS_Info* connectInfo)
         } else if (status == AJ_ERR_DHCP) {
             obLastError.code = AJOBS_STATE_LAST_ERROR_ERROR_MESSAGE;
             strncpy(obLastError.message, "Failed to establish IP!", AJOBS_ERROR_MESSAGE_LEN);
-            obState = AJOBS_STATE_CONFIGURED_ERROR;
+            if (connectInfo->state == AJOBS_STATE_CONFIGURED_VALIDATED || connectInfo->state == AJOBS_STATE_CONFIGURED_RETRY) {
+                obState = AJOBS_STATE_CONFIGURED_RETRY;
+            } else {
+                obState = AJOBS_STATE_CONFIGURED_ERROR;
+            }
         } else {
             obLastError.code = AJOBS_STATE_LAST_ERROR_ERROR_MESSAGE;
             strncpy(obLastError.message, "Failed to connect! Unexpected error", AJOBS_ERROR_MESSAGE_LEN);
