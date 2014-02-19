@@ -14,6 +14,15 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+/**
+ * Per-module definition of the current module for debug logging.  Must be defined
+ * prior to first inclusion of aj_debug.h.
+ * The corresponding flag dbgAJSVC is defined in services_common.h and implemented
+ * in services_common.c.
+ */
+#define AJ_MODULE AJSVC
+#include <aj_debug.h>
+
 #include <alljoyn/services_common/Services_Common.h>
 #include <alljoyn/services_common/PropertyStore.h>
 
@@ -22,19 +31,37 @@
  * (usually in debugger).
  */
 #ifndef NDEBUG
+#ifndef ER_DEBUG_AJSVCALL
+#define ER_DEBUG_AJSVCALL 0
+#endif
 #ifdef CONFIG_SERVICE
-AJ_EXPORT uint8_t dbgAJCFG = 0;
+#ifndef ER_DEBUG_AJCFG
+#define ER_DEBUG_AJCFG 0
+#endif
+AJ_EXPORT uint8_t dbgAJCFG = ER_DEBUG_AJCFG || ER_DEBUG_AJSVCALL;
 #endif
 #ifdef ONBOARDING_SERVICE
-AJ_EXPORT uint8_t dbgAJOBS = 0;
+#ifndef ER_DEBUG_AJOBS
+#define ER_DEBUG_AJOBS 0
+#endif
+AJ_EXPORT uint8_t dbgAJOBS = ER_DEBUG_AJOBS || ER_DEBUG_AJSVCALL;
 #endif
 #if defined(NOTIFICATION_SERVICE_CONSUMER) || defined(NOTIFICATION_SERVICE_PRODUCER)
-AJ_EXPORT uint8_t dbgAJNS = 0;
+#ifndef ER_DEBUG_AJNS
+#define ER_DEBUG_AJNS 0
+#endif
+AJ_EXPORT uint8_t dbgAJNS = ER_DEBUG_AJNS || ER_DEBUG_AJSVCALL;
 #endif
 #ifdef CONTROLPANEL_SERVICE
-AJ_EXPORT uint8_t dbgAJCPS = 0;
+#ifndef ER_DEBUG_AJCPS
+#define ER_DEBUG_AJCPS 0
 #endif
-AJ_EXPORT uint8_t dbgAJSVC = 0;
+AJ_EXPORT uint8_t dbgAJCPS = ER_DEBUG_AJCPS || ER_DEBUG_AJSVCALL;
+#endif
+#ifndef ER_DEBUG_AJSVC
+#define ER_DEBUG_AJSVC 0
+#endif
+AJ_EXPORT uint8_t dbgAJSVC = ER_DEBUG_AJSVC || ER_DEBUG_AJSVCALL;
 #endif
 
 uint8_t AJSVC_IsLanguageSupported(AJ_Message* msg, AJ_Message* reply, const char* language, int8_t* langIndex)

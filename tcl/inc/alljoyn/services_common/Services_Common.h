@@ -19,6 +19,26 @@
 
 #include <alljoyn.h>
 
+/**
+ * Turn on per-module debug printing by setting this variable to non-zero value
+ * (usually in debugger).
+ */
+#ifndef NDEBUG
+#ifdef CONFIG_SERVICE
+extern uint8_t dbgAJCFG;
+#endif
+#ifdef ONBOARDING_SERVICE
+extern uint8_t dbgAJOBS;
+#endif
+#if defined(NOTIFICATION_SERVICE_CONSUMER) || defined(NOTIFICATION_SERVICE_PRODUCER)
+extern uint8_t dbgAJNS;
+#endif
+#ifdef CONTROLPANEL_SERVICE
+extern uint8_t dbgAJCPS;
+#endif
+extern uint8_t dbgAJSVC;
+#endif
+
 typedef void (*AJSVC_MethodCallCompleted)(AJ_Status status, void* context);
 
 /**
@@ -197,25 +217,5 @@ AJ_Status AJSVC_UnmarshalAppId(AJ_Message* msg, char* buf, size_t bufLen);
     CONFIG_ANNOUNCEOBJECTS \
     ONBOARDING_ANNOUNCEOBJECTS \
     NOTIFICATION_PRODUCER_ANNOUNCEOBJECTS
-
-/**
- * Turn on per-module debug printing by setting this variable to non-zero value
- * (usually in debugger).
- */
-#ifndef NDEBUG
-#ifdef CONFIG_SERVICE
-extern uint8_t dbgAJCFG;
-#endif
-#ifdef ONBOARDING_SERVICE
-extern uint8_t dbgAJOBS;
-#endif
-#if defined(NOTIFICATION_SERVICE_CONSUMER) || defined(NOTIFICATION_SERVICE_PRODUCER)
-extern uint8_t dbgAJNS;
-#endif
-#ifdef CONTROLPANEL_SERVICE
-extern uint8_t dbgAJCPS;
-#endif
-extern uint8_t dbgAJSVC;
-#endif
 
 #endif /* _SERVICES_COMMON_H_ */
