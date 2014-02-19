@@ -159,7 +159,7 @@ uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* routerName
         }
 #endif
         AJ_InfoPrintf(("Attempting to connect to bus '%s'\n", routerName));
-        status = AJ_Connect(busAttachment, routerName, AJAPP_CONNECT_TIMEOUT);
+        status = AJ_FindBusAndConnect(busAttachment, routerName, AJAPP_CONNECT_TIMEOUT);
         if (status != AJ_OK) {
             AJ_InfoPrintf(("Failed to connect to bus sleeping for %d seconds\n", AJAPP_CONNECT_PAUSE / 1000));
             AJ_Sleep(AJAPP_CONNECT_PAUSE);
