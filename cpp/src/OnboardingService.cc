@@ -17,10 +17,8 @@
 #include <stdio.h>
 #include <alljoyn/onboarding/OnboardingService.h>
 #include <alljoyn/BusAttachment.h>
-#include <qcc/Debug.h>
+#include <alljoyn/onboarding/LogModule.h>
 
-#define CALLBACKTAG "AllJoynInternal"
-#define TAG "ALLJOYN_ONBOARDING_SERVICE"
 #define CHECK_RETURN(x) if ((status = x) != ER_OK) { return status; }
 #define CHECK_BREAK(x) if ((status = x) != ER_OK) { break; }
 
@@ -40,19 +38,14 @@ static const char* const ERROR_PASSPHRASE_LONG = "Maximum passphrase length is 6
 static const char* const ERROR_WEPKEY_INVALID = "Invalid WEP key length";
 
 OnboardingService::OnboardingService(ajn::BusAttachment& bus, OnboardingControllerAPI& pOnboardingControllerAPI) :
-    BusObject("/Onboarding"), m_BusAttachment(&bus), m_OnboardingController(pOnboardingControllerAPI), logger(0)
+    BusObject("/Onboarding"), m_BusAttachment(&bus), m_OnboardingController(pOnboardingControllerAPI)
 {
-    setLogger(&onboardingLogger);
-    if (logger) {
-        logger->debug(TAG, "In OnboardingService Constructor");
-    }
+    QCC_DbgTrace(("In OnboardingService Constructor"));
 }
 
 QStatus OnboardingService::Register()
 {
-    if (logger) {
-        logger->debug(TAG, "In OnboardingService Register");
-    }
+    QCC_DbgTrace(("In OnboardingService Register"));
     QStatus status = ER_OK;
 
     InterfaceDescription* intf = NULL;
@@ -131,9 +124,7 @@ QStatus HexToRaw(const char* hex, size_t hexLen, char* raw, size_t rawLen)
 
 void OnboardingService::ConfigureWiFiHandler(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
 {
-    if (logger) {
-        logger->debug(TAG, "In OnboardingService ConfigureWiFiHandler");
-    }
+    QCC_DbgTrace(("In OnboardingService ConfigureWiFiHandler"));
     const ajn::MsgArg* args;
     size_t numArgs;
     QStatus status = ER_OK;
@@ -230,9 +221,7 @@ void OnboardingService::Check_MethodReply(const Message& msg, const MsgArg* args
     if (!(msg->GetFlags() & ALLJOYN_FLAG_NO_REPLY_EXPECTED)) {
         status = MethodReply(msg, args, numArgs);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Method did not execute successfully. Status: " + qcc::String(QCC_StatusText(status)));
-            }
+            QCC_LogError(status, ("Method did not execute successfully."));
         }
     }
 }
@@ -243,18 +232,14 @@ void OnboardingService::Check_MethodReply(const Message& msg, QStatus status)
     if (!(msg->GetFlags() & ALLJOYN_FLAG_NO_REPLY_EXPECTED)) {
         status = MethodReply(msg, status);
         if (status != ER_OK) {
-            if (logger) {
-                logger->warn(TAG, "Method did not execute successfully. Status: " + qcc::String(QCC_StatusText(status)));
-            }
+            QCC_LogError(status, ("Method did not execute successfully."));
         }
     }
 }
 
 void OnboardingService::ConnectHandler(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
 {
-    if (logger) {
-        logger->debug(TAG, "In OnboardingService ConnectHandler");
-    }
+    QCC_DbgTrace(("In OnboardingService ConnectHandler"));
     const ajn::MsgArg* args = 0;
     size_t numArgs = 0;
     msg->GetArgs(numArgs, args);
@@ -273,9 +258,7 @@ void OnboardingService::ConnectHandler(const ajn::InterfaceDescription::Member* 
 
 void OnboardingService::OffboardHandler(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
 {
-    if (logger) {
-        logger->debug(TAG, "In OnboardingService OffboardHandler");
-    }
+    QCC_DbgTrace(("In OnboardingService OffboardHandler"));
     const ajn::MsgArg* args = 0;
     size_t numArgs = 0;
     do {
@@ -294,9 +277,7 @@ void OnboardingService::OffboardHandler(const ajn::InterfaceDescription::Member*
 
 void OnboardingService::GetScanInfoHandler(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
 {
-    if (logger) {
-        logger->debug(TAG, "In OnboardingService GetScanInfoHandler");
-    }
+    QCC_DbgTrace(("In OnboardingService GetScanInfoHandler"));
     const ajn::MsgArg* args = NULL;
     size_t numArgs = 0;
     QStatus status = ER_OK;
@@ -331,9 +312,7 @@ void OnboardingService::GetScanInfoHandler(const ajn::InterfaceDescription::Memb
 
 QStatus OnboardingService::Get(const char* ifcName, const char* propName, MsgArg& val)
 {
-    if (logger) {
-        logger->debug(TAG, "In OnboardingService GetProperty");
-    }
+    QCC_DbgTrace(("In OnboardingService GetProperty"));
     QStatus status = ER_OK;
 // Check the requested property and return the value if it exists
     if (0 == strcmp(ifcName, ONBOARDING_INTERFACE_NAME)) {
@@ -343,10 +322,7 @@ QStatus OnboardingService::Get(const char* ifcName, const char* propName, MsgArg
             status = val.Set("q", m_OnboardingController.GetState());
         } else if (0 == strcmp("LastError", propName)) {
             OBLastError lastError = m_OnboardingController.GetLastError();
-            if (logger) {
-                qcc::String message = qcc::String("Last State: ") + lastError.validationState + "lastErrorMessage: " + lastError.message;
-                logger->debug(TAG, message);
-            }
+            QCC_DbgHLPrintf(("Last State: %d lastErrorMessage: %s", lastError.validationState, lastError.message.c_str()));
             status = val.Set("(ns)", lastError.validationState, lastError.message.c_str());
         } else {
             status = ER_BUS_NO_SUCH_PROPERTY;
@@ -355,79 +331,4 @@ QStatus OnboardingService::Get(const char* ifcName, const char* propName, MsgArg
         status = ER_BUS_NO_SUCH_PROPERTY;
     }
     return status;
-}
-
-GenericLogger* OnboardingService::setLogger(GenericLogger* newLogger)
-{
-    GenericLogger* prevLogger = getLogger();
-    Log::LogLevel prevLogLevel = getLogLevel();
-    logger = newLogger;
-    if (logger) {
-        setLogLevel(prevLogLevel);
-        // reroute internal AJ logging to logger
-        ServicesLoggerImpl::RegisterCallBack(logger, &GenericLoggerCallBack, this);
-    }
-    return prevLogger;
-}
-
-GenericLogger* OnboardingService::getLogger()
-{
-    return logger;
-}
-
-Log::LogLevel OnboardingService::setLogLevel(Log::LogLevel newLogLevel)
-{
-    return logger ? logger->setLogLevel(newLogLevel) : Log::LogLevel::LEVEL_INFO;
-}
-
-Log::LogLevel OnboardingService::getLogLevel()
-{
-    return logger ? logger->getLogLevel() : Log::LogLevel::LEVEL_INFO;
-}
-
-void OnboardingService::GenericLoggerCallBack(DbgMsgType type, const char* module, const char* msg, void* context)
-{
-    OnboardingService* onboardingService = (OnboardingService*)context;
-    GenericLogger* logger = onboardingService->getLogger();
-    if (logger) {
-        Log::LogLevel currLogLevel = logger->getLogLevel();
-        switch (type) {
-        case DBG_LOCAL_ERROR:
-        case DBG_REMOTE_ERROR:
-            if (currLogLevel >= Log::LEVEL_ERROR) {
-                logger->error(CALLBACKTAG, msg);
-            }
-            break;
-
-        case DBG_GEN_MESSAGE:
-            if (currLogLevel >= Log::LEVEL_INFO) {
-                logger->info(CALLBACKTAG, msg);
-            }
-            break;
-
-        case DBG_API_TRACE:
-            if (currLogLevel >= Log::LEVEL_DEBUG) {
-                logger->debug(CALLBACKTAG, msg);
-            }
-            break;
-
-        case DBG_HIGH_LEVEL:
-            if (currLogLevel >= Log::LEVEL_WARN) {
-                logger->warn(CALLBACKTAG, msg);
-            }
-            break;
-
-        case DBG_REMOTE_DATA:
-        case DBG_LOCAL_DATA:
-            if (currLogLevel >= Log::LEVEL_DEBUG) {
-                logger->debug(CALLBACKTAG, msg);
-            }
-            break;
-
-        default:
-            if (currLogLevel >= Log::LEVEL_DEBUG) {
-                logger->debug(CALLBACKTAG, msg);
-            }
-        }
-    }
 }

@@ -16,10 +16,8 @@
 
 #include <alljoyn/onboarding/OnboardingClient.h>
 #include <alljoyn/AllJoynStd.h>
-#include <qcc/Debug.h>
+#include <alljoyn/onboarding/LogModule.h>
 
-#define CALLBACKTAG "AllJoynInternal"
-#define TAG "ALLJOYN_ONBOARDING_CLIENT"
 #define CHECK_RETURN_STATUS(x) if ((status = x) != ER_OK) { return status; }
 #define CHECK_RETURN(x) if ((status = x) != ER_OK) { return; }
 #define CHECK_BREAK(x) if ((status = x) != ER_OK) { break; }
@@ -31,15 +29,11 @@ static const char* ONBOARDING_OBJECT_PATH = "/Onboarding";
 static const char* ONBOARDING_INTERFACE_NAME = "org.alljoyn.Onboarding";
 
 OnboardingClient::OnboardingClient(BusAttachment& bus) :
-    m_BusAttachment(&bus), logger(0)
+    m_BusAttachment(&bus)
 {
-    setLogger(&onboardingLogger);
-    if (logger) {
-        logger->debug(TAG, "In OnboardingClient Constructor");
-    }
+    QCC_DbgTrace(("In OnboardingClient Constructor"));
 
     QStatus status = ER_OK;
-
     const InterfaceDescription* getIface = NULL;
     getIface = m_BusAttachment->GetInterface(ONBOARDING_INTERFACE_NAME);
     if (!getIface) {
@@ -64,17 +58,13 @@ OnboardingClient::OnboardingClient(BusAttachment& bus) :
 
 OnboardingClient::~OnboardingClient()
 {
-    if (logger) {
-        logger->debug(TAG, "In OnboardingClient Destructor");
-    }
+    QCC_DbgTrace(("In OnboardingClient Destructor"));
 }
 
 QStatus OnboardingClient::GetScanInfo(const char* busName, unsigned short& age, ScanInfos& scanInfos,
                                       ajn::SessionId sessionId)
 {
-    if (logger) {
-        logger->debug(TAG, "In OnboardingClient GetScanInfo");
-    }
+    QCC_DbgTrace(("In OnboardingClient GetScanInfo"));
     QStatus status = ER_OK;
 
     const InterfaceDescription* ifc = m_BusAttachment->GetInterface(ONBOARDING_INTERFACE_NAME);
@@ -98,11 +88,11 @@ QStatus OnboardingClient::GetScanInfo(const char* busName, unsigned short& age, 
         delete proxyBusObj;
         proxyBusObj = NULL;
         if (status == ER_BUS_REPLY_IS_ERROR_MESSAGE) {
+#if !defined(NDEBUG)
             qcc::String errorMessage;
             const char* errorName = replyMsg->GetErrorName(&errorMessage);
-            if (logger) {
-                logger->warn(TAG, "GetScanInfo errorName: " + qcc::String(errorName) + " errorMessage: " + errorMessage);
-            }
+#endif
+            QCC_DbgHLPrintf(("GetScanInfo errorName: %s errorMessage: %s", errorName ? errorName : "", errorMessage.c_str()));
         }
         return status;
     }
@@ -140,9 +130,7 @@ QStatus OnboardingClient::GetScanInfo(const char* busName, unsigned short& age, 
 QStatus OnboardingClient::ConfigureWiFi(const char* busName, const OBInfo& oBInfo, short& resultStatus,
                                         ajn::SessionId sessionId)
 {
-    if (logger) {
-        logger->debug(TAG, "In OnboardingClient ConfigureWiFi");
-    }
+    QCC_DbgTrace(("In OnboardingClient ConfigureWiFi"));
 
     QStatus status = ER_OK;
 
@@ -174,12 +162,11 @@ QStatus OnboardingClient::ConfigureWiFi(const char* busName, const OBInfo& oBInf
         delete proxyBusObj;
         proxyBusObj = NULL;
         if (status == ER_BUS_REPLY_IS_ERROR_MESSAGE) {
+#if !defined(NDEBUG)
             qcc::String errorMessage;
             const char* errorName = replyMsg->GetErrorName(&errorMessage);
-            if (logger) {
-                logger->warn(TAG, "ConfigureWiFi errorName: " + qcc::String(errorName) + " errorMessage: " + errorMessage);
-            }
-
+#endif
+            QCC_DbgHLPrintf(("ConfigureWiFi errorName: %s errorMessage: %s", errorName ? errorName : "", errorMessage.c_str()));
         }
         return status;
     }
@@ -199,9 +186,7 @@ QStatus OnboardingClient::ConfigureWiFi(const char* busName, const OBInfo& oBInf
 
 QStatus OnboardingClient::ConnectTo(const char* busName, ajn::SessionId sessionId)
 {
-    if (logger) {
-        logger->debug(TAG, "In OnboardingClient ConnectTo");
-    }
+    QCC_DbgTrace(("In OnboardingClient ConnectTo"));
 
     QStatus status = ER_OK;
 
@@ -226,9 +211,7 @@ QStatus OnboardingClient::ConnectTo(const char* busName, ajn::SessionId sessionI
 
 QStatus OnboardingClient::OffboardFrom(const char* busName, ajn::SessionId sessionId)
 {
-    if (logger) {
-        logger->debug(TAG, "In OnboardingClient OffboardFrom");
-    }
+    QCC_DbgTrace(("In OnboardingClient OffboardFrom"));
     QStatus status = ER_OK;
 
     const InterfaceDescription* ifc = m_BusAttachment->GetInterface(ONBOARDING_INTERFACE_NAME);
@@ -253,10 +236,7 @@ QStatus OnboardingClient::OffboardFrom(const char* busName, ajn::SessionId sessi
 
 QStatus OnboardingClient::GetVersion(const char* busName, int& version, ajn::SessionId sessionId)
 {
-    if (logger) {
-        logger->debug(TAG, "In OnboardingClient GetVersion");
-    }
-
+    QCC_DbgTrace(("In OnboardingClient GetVersion"));
     QStatus status = ER_OK;
 
     const InterfaceDescription* ifc = m_BusAttachment->GetInterface(ONBOARDING_INTERFACE_NAME);
@@ -282,9 +262,7 @@ QStatus OnboardingClient::GetVersion(const char* busName, int& version, ajn::Ses
 
 QStatus OnboardingClient::GetState(const char* busName, short& state, ajn::SessionId sessionId)
 {
-    if (logger) {
-        logger->debug(TAG, "In OnboardingClient GetState");
-    }
+    QCC_DbgTrace(("In OnboardingClient GetState"));
 
     QStatus status = ER_OK;
 
@@ -311,10 +289,7 @@ QStatus OnboardingClient::GetState(const char* busName, short& state, ajn::Sessi
 
 QStatus OnboardingClient::GetLastError(const char* busName, OBLastError& lastError, ajn::SessionId sessionId)
 {
-    if (logger) {
-        logger->debug(TAG, "In OnboardingClient GetLastError");
-    }
-
+    QCC_DbgTrace(("In OnboardingClient GetLastError"));
     QStatus status = ER_OK;
 
     const InterfaceDescription* ifc = m_BusAttachment->GetInterface(ONBOARDING_INTERFACE_NAME);
@@ -343,79 +318,4 @@ QStatus OnboardingClient::GetLastError(const char* busName, OBLastError& lastErr
     proxyBusObj = NULL;
     return status;
 
-}
-
-GenericLogger* OnboardingClient::setLogger(GenericLogger* newLogger)
-{
-    GenericLogger* prevLogger = getLogger();
-    Log::LogLevel prevLogLevel = getLogLevel();
-    logger = newLogger;
-    if (logger) {
-        setLogLevel(prevLogLevel);
-        // reroute internal AJ logging to logger
-        ServicesLoggerImpl::RegisterCallBack(logger, &GenericLoggerCallBack, this);
-    }
-    return prevLogger;
-}
-
-GenericLogger* OnboardingClient::getLogger()
-{
-    return logger;
-}
-
-Log::LogLevel OnboardingClient::setLogLevel(Log::LogLevel newLogLevel)
-{
-    return logger ? logger->setLogLevel(newLogLevel) : Log::LEVEL_INFO;
-}
-
-Log::LogLevel OnboardingClient::getLogLevel()
-{
-    return logger ? logger->getLogLevel() : Log::LEVEL_INFO;
-}
-
-void OnboardingClient::GenericLoggerCallBack(DbgMsgType type, const char* module, const char* msg, void* context)
-{
-    OnboardingClient* onboardingClient = (OnboardingClient*)context;
-    GenericLogger* logger = onboardingClient->getLogger();
-    if (logger) {
-        Log::LogLevel currLogLevel = logger->getLogLevel();
-        switch (type) {
-        case DBG_LOCAL_ERROR:
-        case DBG_REMOTE_ERROR:
-            if (currLogLevel >= Log::LEVEL_ERROR) {
-                logger->error(CALLBACKTAG, msg);
-            }
-            break;
-
-        case DBG_GEN_MESSAGE:
-            if (currLogLevel >= Log::LEVEL_INFO) {
-                logger->info(CALLBACKTAG, msg);
-            }
-            break;
-
-        case DBG_API_TRACE:
-            if (currLogLevel >= Log::LEVEL_DEBUG) {
-                logger->debug(CALLBACKTAG, msg);
-            }
-            break;
-
-        case DBG_HIGH_LEVEL:
-            if (currLogLevel >= Log::LEVEL_WARN) {
-                logger->warn(CALLBACKTAG, msg);
-            }
-            break;
-
-        case DBG_REMOTE_DATA:
-        case DBG_LOCAL_DATA:
-            if (currLogLevel >= Log::LEVEL_DEBUG) {
-                logger->debug(CALLBACKTAG, msg);
-            }
-            break;
-
-        default:
-            if (currLogLevel >= Log::LEVEL_DEBUG) {
-                logger->debug(CALLBACKTAG, msg);
-            }
-        }
-    }
 }

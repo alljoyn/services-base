@@ -45,6 +45,7 @@
 #include <alljoyn/onboarding/OnboardingService.h>
 #include <OnboardingControllerImpl.h>
 #include <alljoyn/about/AboutServiceApi.h>
+#include <alljoyn/services_common/LogModulesNames.h>
 
 using namespace ajn;
 using namespace services;

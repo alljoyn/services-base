@@ -30,6 +30,7 @@
 #include <AnnounceHandlerImpl.h>
 #include <AsyncSessionJoiner.h>
 #include <SessionListenerImpl.h>
+#include <alljoyn/services_common/LogModulesNames.h>
 
 using namespace ajn;
 using namespace services;
@@ -374,8 +375,8 @@ int main(int argc, char**argv, char**envArg) {
     QCC_SetLogLevels("ALLJOYN_ABOUT_ANNOUNCE_HANDLER=7");
     QCC_SetLogLevels("ALLJOYN_ABOUT_CLIENT=7");
     QCC_SetLogLevels("ALLJOYN_ABOUT_ICON_CLIENT=7");
-    QCC_SetLogLevels("ALLJOYN_CONFIG_CLIENT=7");
-    QCC_SetLogLevels("ALLJOYN_ONBOARDING_CLIENT=7");
+    QCC_SetDebugLevel(logModules::CONFIG_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
+    QCC_SetDebugLevel(logModules::ONBOARDING_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
 
     struct sigaction act, oldact;
     sigset_t sigmask, waitmask;
