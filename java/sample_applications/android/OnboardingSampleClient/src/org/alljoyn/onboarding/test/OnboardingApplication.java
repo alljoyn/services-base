@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -16,7 +16,6 @@
 
 package org.alljoyn.onboarding.test;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -645,32 +644,6 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
 			m_logger.info(TAG_PASSWORD, " ** " + authPeer + " successfully authenticated");
 	}
 	//======================================================================
-	 private static final char[] HEX_CODE = "0123456789ABCDEF".toCharArray();
-     
-	 /**
-	 * Convert a given password in decimal format to hex format.
-	 * @param pass The given password in decimal format.
-	 * @return The password in hex format.
-	 */
-	public String toHexadecimalString(String pass) {
-		 
-		 Log.d(TAG, "toHexadecimalString("+pass+")");
-		 byte[] data;
-		 try {
-			 data = pass.getBytes("UTF-8");
-		 } catch (UnsupportedEncodingException e) {
-			 Log.e(TAG, "Failed getting bytes of passcode by UTF-8", e);
-			 data = pass.getBytes();
-		 }
-		 StringBuilder r = new StringBuilder(data.length*2);
-		 for ( byte b : data) {
-			 r.append(HEX_CODE[(b >> 4) & 0xF]);
-			 r.append(HEX_CODE[(b & 0xF)]);
-		 }
-		 String hexadecimalString = r.toString();
-		 Log.d(TAG, "toHexadecimalString -->"+hexadecimalString);
-		 return hexadecimalString;
-     }
-	//======================================================================
+	
 }
 

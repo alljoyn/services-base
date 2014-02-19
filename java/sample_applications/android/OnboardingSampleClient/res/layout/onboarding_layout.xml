@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 
-  Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+  Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
 
      Permission to use, copy, modify, and/or distribute this software for any
      purpose with or without fee is hereby granted, provided that the above
@@ -165,20 +165,12 @@
 		android:layout_marginRight="20dp"
         />
     
-    <!-- Password Type -->
-    <include
-        android:id="@+id/onboarding_password_type"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/network_password"
-        layout="@layout/password_type"/>
-    
     <!-- Auth Type -->
     <RelativeLayout 
         android:id="@+id/auth_type_layout"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/onboarding_password_type"
+        android:layout_below="@+id/network_password"
         >
 	    <TextView
 	        android:id="@+id/auth_type_label"
