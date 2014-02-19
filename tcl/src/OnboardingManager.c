@@ -415,7 +415,6 @@ static AJ_Status DoConnectWifi(AJOBS_Info* connectInfo)
     cipherType = GetCipherType(fallback);
     AJ_InfoPrintf(("Trying to connect with auth=%d (secType=%d, cipherType=%d)\n", fallback, secType, cipherType));
 
-    status = AJOBS_ControllerAPI_GotoIdleWiFi(TRUE); // Go into IDLE mode and reset wifi
     while (1) {
         if (connectInfo->state == AJOBS_STATE_CONFIGURED_NOT_VALIDATED) {
             connectInfo->state = AJOBS_STATE_CONFIGURED_VALIDATING;
@@ -475,6 +474,7 @@ static AJ_Status DoConnectWifi(AJOBS_Info* connectInfo)
             break;
         }
         AJ_WarnPrintf(("Warning - DoConnectWifi wifiConnectState = %s\n", AJ_WiFiConnectStateText(wifiConnectState)));
+        AJ_WarnPrintf(("Last error set to \"%s\" (code=%d)\n", obLastError.message, obLastError.code));
 
         if (obState == AJOBS_STATE_CONFIGURED_ERROR || obState == AJOBS_STATE_CONFIGURED_RETRY) {
             retries++;
@@ -488,7 +488,6 @@ static AJ_Status DoConnectWifi(AJOBS_Info* connectInfo)
                         cipherType = GetCipherType(fallback);
                         retries = 0;
                         AJ_InfoPrintf(("Trying to connect with fallback auth=%d (secType=%d, cipherType=%d)\n", fallback, secType, cipherType));
-                        status = AJOBS_ControllerAPI_GotoIdleWiFi(FALSE); // Go into IDLE mode disconnecting from current connection
                         continue;
                     }
                 }
@@ -520,6 +519,10 @@ AJ_Status AJOBS_ControllerAPI_StartSoftAPIfNeededOrConnect(AJOBS_Info* obInfo)
         }
     }
     while (1) {
+        status = AJOBS_ControllerAPI_GotoIdleWiFi(TRUE); // Go into IDLE mode, reset wifi and perfrom scan
+        if (status != AJ_OK) {
+            break;
+        }
         // Check if require to switch into SoftAP mode.
         if ((obInfo->state == AJOBS_STATE_NOT_CONFIGURED || obInfo->state == AJOBS_STATE_CONFIGURED_ERROR || obInfo->state == AJOBS_STATE_CONFIGURED_RETRY)) {
             AJ_InfoPrintf(("Establishing SoftAP with ssid=%s%s auth=%s\n", obSettings->AJOBS_SoftAPSSID, (obSettings->AJOBS_SoftAPIsHidden ? " (hidden)" : ""), obSettings->AJOBS_SoftAPPassphrase == NULL ? "OPEN" : obSettings->AJOBS_SoftAPPassphrase));
