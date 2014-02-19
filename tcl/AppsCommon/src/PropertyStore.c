@@ -17,9 +17,9 @@
 /**
  * Per-module definition of the current module for debug logging.  Must be defined
  * prior to first inclusion of aj_debug.h.
- * The corresponding flag dbgAJPROPERTYSTORE is defined below statically.
+ * The corresponding flag dbgAJSVCAPP is defined in the containing sample app.
  */
-#define AJ_MODULE AJPROPERTYSTORE
+#define AJ_MODULE AJSVCAPP
 #include <aj_debug.h>
 
 #include <alljoyn.h>
@@ -37,10 +37,7 @@
 #include <aj_config.h>
 
 #ifndef NDEBUG
-#ifndef ER_DEBUG_AJPROPERTYSTORE
-#define ER_DEBUG_AJPROPERTYSTORE 0
-#endif
-static AJ_EXPORT uint8_t dbgAJPROPERTYSTORE = ER_DEBUG_AJPROPERTYSTORE;
+extern AJ_EXPORT uint8_t dbgAJSVCAPP;
 #endif
 
 const PropertyStoreEntry propertyStoreProperties[AJSVC_PROPERTY_STORE_NUMBER_OF_KEYS] =

@@ -14,10 +14,21 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+/**
+ * Per-module definition of the current module for debug logging.  Must be defined
+ * prior to first inclusion of aj_debug.h.
+ * The corresponding flag dbgAJSVCAPP is defined in the containing sample app.
+ */
+#define AJ_MODULE AJSVCAPP
+#include <aj_debug.h>
+
 #include <alljoyn/controlpanel/Common/ConstraintList.h>
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include "ControlPanelProvided.h"
 
+#ifndef NDEBUG
+extern AJ_EXPORT uint8_t dbgAJSVCAPP;
+#endif
 
 const char MyDeviceRootContainerObjectPath[] = "/ControlPanel/MyDevice/rootContainer";
 const char enMyDeviceRootContainerObjectPath[] = "/ControlPanel/MyDevice/rootContainer/en";
@@ -631,35 +642,35 @@ AJ_Status ExecuteAction(AJ_Message* msg, uint32_t msgId, ExecuteActionContext* c
     case EN_MYDEVICE_OVENACTION_EXEC:
     case DE_AT_MYDEVICE_OVENACTION_EXEC:
         {
-            AJ_Printf("Starting the Oven. Execute was called\n");
+            AJ_InfoPrintf(("Starting the Oven. Execute was called\n"));
         }
         break;
 
     case EN_MYDEVICE_LIGHTCONFIRM_EXEC_ACTION1:
     case DE_AT_MYDEVICE_LIGHTCONFIRM_EXEC_ACTION1:
         {
-            AJ_Printf("Execute Action1 was called\n");
+            AJ_InfoPrintf(("Execute Action1 was called\n"));
         }
         break;
 
     case EN_MYDEVICE_LIGHTCONFIRM_EXEC_ACTION2:
     case DE_AT_MYDEVICE_LIGHTCONFIRM_EXEC_ACTION2:
         {
-            AJ_Printf("Execute Action2 was called\n");
+            AJ_InfoPrintf(("Execute Action2 was called\n"));
         }
         break;
 
     case EN_MYDEVICE_LIGHTCONFIRM_EXEC_ACTION3:
     case DE_AT_MYDEVICE_LIGHTCONFIRM_EXEC_ACTION3:
         {
-            AJ_Printf("Execute Action3 was called\n");
+            AJ_InfoPrintf(("Execute Action3 was called\n"));
         }
         break;
 
     case EN_MYDEVICE_AREYOUSURE_EXEC_ACTION1:
     case DE_AT_MYDEVICE_AREYOUSURE_EXEC_ACTION1:
         {
-            AJ_Printf("Execute Action1 was called\n"); addDismissSignal(context, MYDEVICE_NOTIFICATION_ACTION_AREYOUSURE_SIGNAL_DISMISS);
+            AJ_InfoPrintf(("Execute Action1 was called\n"); addDismissSignal(context, MYDEVICE_NOTIFICATION_ACTION_AREYOUSURE_SIGNAL_DISMISS));
         }
         break;
 

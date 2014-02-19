@@ -14,6 +14,14 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+/**
+ * Per-module definition of the current module for debug logging.  Must be defined
+ * prior to first inclusion of aj_debug.h.
+ * The corresponding flag dbgAJSVCAPP is defined in the containing sample app.
+ */
+#define AJ_MODULE AJSVCAPP
+#include <aj_debug.h>
+
 #include "ControlPanelProvided.h"
 #include "ControlPanelGenerated.h"
 #include "alljoyn/controlpanel/Common/BaseWidget.h"
@@ -21,6 +29,10 @@
 
 #ifndef snprintf
 #include <stdio.h>
+#endif
+
+#ifndef NDEBUG
+extern AJ_EXPORT uint8_t dbgAJSVCAPP;
 #endif
 
 static uint16_t uint16Var = 0;
@@ -181,12 +193,12 @@ static const char* programString = "Program";
 
 void startOven()
 {
-    AJ_Printf("**************** Starting the Oven ****************\n");
+    AJ_InfoPrintf(("**************** Starting the Oven ****************\n"));
 }
 
 void stopOven()
 {
-    AJ_Printf("**************** Stopping the Oven ****************\n");
+    AJ_InfoPrintf(("**************** Stopping the Oven ****************\n"));
 }
 
 void*getTemperature()
