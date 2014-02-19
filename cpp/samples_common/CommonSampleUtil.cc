@@ -23,7 +23,6 @@ using namespace ajn;
 using namespace services;
 
 #define CHECK_RETURN(x) if ((status = x) != ER_OK) { return status; }
-qcc::String CommonSampleUtil::TAG = "CommonSampleUtil";
 
 BusAttachment* CommonSampleUtil::prepareBusAttachment(ajn::AuthListener* authListener)
 {
