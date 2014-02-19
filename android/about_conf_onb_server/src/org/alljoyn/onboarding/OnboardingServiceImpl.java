@@ -69,7 +69,6 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
 	// Stores the details of the target Wi-Fi. Uses volatile to verify that the
 	// broadcast receiver reads its content each time onReceive is called, thus
 	// "knowing" if the an API call to connect has been made
-
 	private volatile WifiConfiguration targetWifiConfiguration = null;
 	
     // Timer for checking completion of Wi-Fi tasks.
@@ -420,7 +419,6 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
 		case WEP: {
 
 			wifiConfiguration.SSID = "\"" + m_ssid + "\"";
-
             // check the validity of a WEP password
             Pair<Boolean, Boolean> wepCheckResult = checkWEPPassword(m_passphrase);
             if (!wepCheckResult.first) {//password not valid
@@ -428,11 +426,8 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
                 return;
             }
             Log.i(TAG, "connectToWifiAP [WEP] using " + (!wepCheckResult.second ? "ASCII" : "HEX"));
-            if (!wepCheckResult.second) {
-                wifiConfiguration.wepKeys[0] = "\"" + m_passphrase + "\"";
-            } else {
-                wifiConfiguration.wepKeys[0] = m_passphrase;
-            }
+            wifiConfiguration.wepKeys[0] = m_passphrase;
+
             wifiConfiguration.priority = 40;
             wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
             wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
@@ -684,12 +679,21 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
 		public short ConfigureWiFi(String ssid, String passphrase, short authType)
 				throws BusException {
 
-			// validate credentials
+			// validate credentials:
+			//If auth type is WEP, and valid WEP - > Leave it as is.
+			//Any other case - convert it to ASCII
 			AuthType authenticationType = AuthType.getAuthTypeById(authType);
 			switch (authenticationType) {
+			case WEP:
+				// check the validity of a WEP password
+	            Pair<Boolean, Boolean> wepCheckResult = checkWEPPassword(passphrase);
+	            if (!wepCheckResult.first) {//WEP password is not valid
+	                Log.i(TAG, "auth type = WEP: password " + passphrase + " invalid length or charecters");
+	                return -1;
+	            }
+	            break;
 			case ANY:
 			case OPEN:
-			case WEP:
 			case WPA_AUTO:
 			case WPA_TKIP:
 			case WPA_CCMP:	
@@ -697,6 +701,7 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
 			case WPA2_TKIP:
 			case WPA2_CCMP:
 			case WPS: {
+				passphrase = convertHexToString(passphrase);
 				break;
 			}
 			default: {
