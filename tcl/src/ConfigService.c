@@ -348,7 +348,7 @@ AJ_Status AJCFG_SetPasscodeHandler(AJ_Message* msg)
         return status;
     }
     if (newPasscode.typeId == AJ_ARG_BYTE) {
-        AJ_InfoPrintf(("Passcode %*%ds %d bytes long\n", newPasscode.len, "", newPasscode.len));
+        AJ_InfoPrintf(("Passcode %d bytes long\n", newPasscode.len));
         if (newPasscode.len > 0) { // Check passcode is not empty
             if (appSetPasscode) {
                 status = (appSetPasscode)(daemonRealm, (const uint8_t*)newPasscode.val.v_string, (uint8_t)newPasscode.len);
