@@ -670,7 +670,7 @@ AJ_Status ExecuteAction(AJ_Message* msg, uint32_t msgId, ExecuteActionContext* c
     case EN_MYDEVICE_AREYOUSURE_EXEC_ACTION1:
     case DE_AT_MYDEVICE_AREYOUSURE_EXEC_ACTION1:
         {
-            AJ_InfoPrintf(("Execute Action1 was called\n"); addDismissSignal(context, MYDEVICE_NOTIFICATION_ACTION_AREYOUSURE_SIGNAL_DISMISS));
+            AJ_InfoPrintf(("Execute Action1 was called\n")); addDismissSignal(context, MYDEVICE_NOTIFICATION_ACTION_AREYOUSURE_SIGNAL_DISMISS);
         }
         break;
 

@@ -36,8 +36,8 @@
 #ifndef NDEBUG
 #ifndef ER_DEBUG_AJSVCAPP
 #define ER_DEBUG_AJSVCAPP 0
-AJ_EXPORT uint8_t dbgAJSVCAPP = ER_DEBUG_AJSVCAPP;
 #endif
+AJ_EXPORT uint8_t dbgAJSVCAPP = ER_DEBUG_AJSVCAPP;
 #endif
 
 // Application wide globals
