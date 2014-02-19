@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
    <!--
 
-        Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+        Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
 
            Permission to use, copy, modify, and/or distribute this software for any
            purpose with or without fee is hereby granted, provided that the above
@@ -38,7 +38,7 @@
                 <label>
                   <value type="literal" language="en">Yes</value>
                 </label>
-                <executeCode>AJ_Printf("Execute Action1 was called\n");</executeCode>
+                <executeCode>AJ_InfoPrintf(("Execute Action1 was called\n"));</executeCode>
             </button>
         </dialog>
         <container languageSet="myLanguages">
@@ -96,7 +96,7 @@
                 <action>
                     <name>ovenAction</name>
                     <onAction>
-                        <executeCode>AJ_Printf("Starting the Oven. Execute was called\n");</executeCode>
+                        <executeCode>AJ_InfoPrintf(("Starting the Oven. Execute was called\n"));</executeCode>
                     </onAction>
                     <secured>false</secured>
                     <enabled>true</enabled>

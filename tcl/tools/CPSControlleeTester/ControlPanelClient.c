@@ -14,11 +14,23 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+/**
+ * Per-module definition of the current module for debug logging.  Must be defined
+ * prior to first inclusion of aj_debug.h.
+ * The corresponding flag dbgAJSVCAPP is defined in the containing sample app.
+ */
+#define AJ_MODULE AJSVCAPP
+#include <aj_debug.h>
+
 #include <stdlib.h>
 
 #include "ControlPanelClient.h"
 #include "alljoyn.h"
 #include <PropertyStoreOEMProvisioning.h>
+
+#ifndef NDEBUG
+extern AJ_EXPORT uint8_t dbgAJSVCAPP;
+#endif
 
 #define CPSC_CONNECT_TIMEOUT     (1000 * 60)
 #define CPSC_CONNECT_PAUSE       (1000 * 10)
@@ -103,11 +115,11 @@ const char** propertyStoreDefaultValues[AJSVC_PROPERTY_STORE_NUMBER_OF_KEYS] =
     DEFAULT_DATE_OF_MANUFACTURES,                   /*DateOfManufacture*/
     DEFAULT_SOFTWARE_VERSIONS,                      /*SoftwareVersion*/
     NULL,                                           /*AJSoftwareVersion*/
-    DEFAULT_HARDWARE_VERSIONS,                      /*HardwareVersion*/
-    DEFAULT_SUPPORT_URLS,                           /*SupportUrl*/
 #if defined CONFIG_SERVICE
     NULL,                                           /*MaxLength*/
 #endif
+    DEFAULT_HARDWARE_VERSIONS,                      /*HardwareVersion*/
+    DEFAULT_SUPPORT_URLS,                           /*SupportUrl*/
 // Add other about keys above this line
 };
 
@@ -273,21 +285,21 @@ AJ_Status CPS_StartService(AJ_BusAttachment* bus, const char* busAddress, uint32
 {
     AJ_Status status = AJ_OK;
     while (TRUE) {
-        AJ_Printf("Attempting to connect to bus '%s'\n", busAddress);
+        AJ_InfoPrintf(("Attempting to connect to bus '%s'\n", busAddress));
 
         status = AJ_Connect(bus, busAddress, timeout);
         if (status != AJ_OK) {
-            AJ_Printf("Failed to connect to bus '%s', sleeping for %d seconds...\n", busAddress, CPSC_CONNECT_PAUSE / 1000);
+            AJ_ErrPrintf(("Failed to connect to bus '%s', sleeping for %d seconds...\n", busAddress, CPSC_CONNECT_PAUSE / 1000));
             AJ_Sleep(CPSC_CONNECT_PAUSE);
             continue;
         }
 
-        AJ_Printf("Connected successfully\n");
+        AJ_InfoPrintf(("Connected successfully\n"));
         isBusConnected = TRUE;
 
         status = AJ_BusSetSignalRule(bus, CPSAnnounceMatch, AJ_BUS_SIGNAL_ALLOW);
         if (status != AJ_OK) {
-            AJ_Printf("Could not set Announcement Interface AddMatch\n");
+            AJ_ErrPrintf(("Could not set Announcement Interface AddMatch\n"));
             return status;
         }
         break;
@@ -304,7 +316,7 @@ void CPS_IdleConnectedHandler(AJ_BusAttachment*bus)
 
     if (runningTestNum == numTests) {
         runningTestNum = 0;
-        AJ_Printf("Finished running all the tests\n");
+        AJ_InfoPrintf(("Finished running all the tests\n"));
         exit(0);
     }
 
@@ -326,7 +338,7 @@ void CPS_IdleConnectedHandler(AJ_BusAttachment*bus)
         lastTestRun = runningTestNum;
     }
 
-    AJ_Printf("MakeMethodCall() test number %i resulted in a status of %s.\n", lastTestRun + 1, AJ_StatusText(status));
+    AJ_InfoPrintf(("MakeMethodCall() test number %i resulted in a status of %s.\n", lastTestRun + 1, AJ_StatusText(status)));
 }
 
 AJSVC_ServiceStatus CPS_NotifySessionAccepted(uint32_t sessionId, const char* sender)
@@ -337,14 +349,14 @@ AJSVC_ServiceStatus CPS_NotifySessionAccepted(uint32_t sessionId, const char* se
         if (*(sender + i) == announceSender[i]) {
             if (*(sender + i) == dot) {
                 CPSsessionId = sessionId;
-                AJ_Printf("Control Panel Service Connected Successfully to announce.\n");
+                AJ_InfoPrintf(("Control Panel Service Connected Successfully to announce.\n"));
                 return AJSVC_SERVICE_STATUS_HANDLED;
             }
             continue;
         }
         break;
     }
-    AJ_Printf("Could not connect.\n");
+    AJ_ErrPrintf(("Could not connect.\n"));
     CPSsessionId = 0;
     return AJSVC_SERVICE_STATUS_NOT_HANDLED;
 }
@@ -354,7 +366,7 @@ AJSVC_ServiceStatus CPS_MessageProcessor(AJ_BusAttachment* bus, AJ_Message* msg,
     AJSVC_ServiceStatus service_Status = AJSVC_SERVICE_STATUS_HANDLED;
     switch (msg->msgId) {
     case CONTROL_ANNOUNCE_SIGNAL_RECEIVED:
-        AJ_Printf("Received Announce Signal from %s.\n", msg->sender);
+        AJ_InfoPrintf(("Received Announce Signal from %s.\n", msg->sender));
         if (CPSsessionId == 0) {
             if (!isControlPanelAnnounce(msg)) {
                 break;
@@ -427,7 +439,7 @@ int AJ_Main(void)
         if (AJ_OK == status) {
             if  (msg.msgId == AJ_REPLY_ID(AJ_METHOD_JOIN_SESSION)) {
                 if (msg.hdr->msgType == AJ_MSG_ERROR) {
-                    AJ_Printf("Could not connect session.\n");
+                    AJ_ErrPrintf(("Could not connect session.\n"));
                 } else {
                     uint32_t replyCode;
 
@@ -448,7 +460,7 @@ int AJ_Main(void)
         AJ_CloseMsg(&msg);
 
         if (status == AJ_ERR_READ) {
-            AJ_Printf("AllJoyn disconnect.\n");
+            AJ_ErrPrintf(("AllJoyn disconnect.\n"));
             AJ_Disconnect(&busAttachment);
             isBusConnected = FALSE;
 
@@ -456,7 +468,7 @@ int AJ_Main(void)
             AJ_Sleep(CPSC_SLEEP_TIME);
         }
     }
-    AJ_Printf("Control Panel Sample exiting with status 0x%04x.\n", status);
+    AJ_InfoPrintf(("Control Panel Sample exiting with status 0x%04x.\n", status));
     return status;
 }
 
