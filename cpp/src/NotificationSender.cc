@@ -30,7 +30,7 @@ using namespace nsConsts;
 using namespace qcc;
 
 NotificationSender::NotificationSender(PropertyStore* propertyStore) :
-    m_PropertyStore(propertyStore), TAG(TAG_NOTSENDER)
+    m_PropertyStore(propertyStore)
 {
 
 }

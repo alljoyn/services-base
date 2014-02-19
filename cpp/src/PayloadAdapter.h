@@ -143,11 +143,6 @@ class PayloadAdapter {
      * static MessageId
      */
     static int32_t m_MessageId;
-
-    /**
-     * Tag for Logging
-     */
-    static qcc::String TAG;
 };
 } //namespace services
 } //namespace ajn

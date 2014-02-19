@@ -25,8 +25,6 @@ using namespace services;
 using namespace nsConsts;
 using namespace qcc;
 
-qcc::String NotificationDismisser::TAG(TAG_NOTIFICATION_DISMISSER);
-
 NotificationDismisser::NotificationDismisser(ajn::BusAttachment* bus, qcc::String const& objectPath, QStatus& status) :
     BusObject(objectPath.c_str()), m_SignalMethod(0), m_InterfaceDescription(NULL)
 {

@@ -30,8 +30,6 @@ using namespace nsConsts;
 
 int32_t PayloadAdapter::m_MessageId(0);
 
-String PayloadAdapter::TAG = TAG_PAYLOADADAPTER;
-
 QStatus PayloadAdapter::sendPayload(const char* deviceId, const char* deviceName,
                                     const uint8_t* appId, size_t appIdlen, const char* appName,
                                     NotificationMessageType messageType,

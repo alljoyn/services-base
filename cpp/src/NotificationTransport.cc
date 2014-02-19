@@ -25,8 +25,8 @@ using namespace nsConsts;
 using namespace qcc;
 
 NotificationTransport::NotificationTransport(ajn::BusAttachment* bus,
-                                             qcc::String const& servicePath, QStatus& status, String const& interfaceName, String const& tag) :
-    BusObject(servicePath.c_str()), m_SignalMethod(0), TAG(tag)
+                                             qcc::String const& servicePath, QStatus& status, String const& interfaceName) :
+    BusObject(servicePath.c_str()), m_SignalMethod(0)
 {
     InterfaceDescription* intf = NULL;
     status = bus->CreateInterface(interfaceName.c_str(), intf);

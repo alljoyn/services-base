@@ -26,7 +26,7 @@ using namespace nsConsts;
 using namespace qcc;
 
 NotificationAnnounceListener::NotificationAnnounceListener() :
-    AnnounceHandler(), TAG(TAG_NOTIFICATION_ANNOUNCE_LISTENER)
+    AnnounceHandler()
 {
 }
 

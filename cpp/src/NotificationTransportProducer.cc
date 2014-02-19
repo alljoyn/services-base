@@ -30,7 +30,7 @@ using namespace qcc;
 NotificationTransportProducer::NotificationTransportProducer(BusAttachment* bus,
                                                              String const& servicePath, QStatus& status,
                                                              qcc::String const& interfaceName, uint32_t serialNumber) :
-    NotificationTransport(bus, servicePath, status, interfaceName, TAG_TRANSPORT_PRODUCER),
+    NotificationTransport(bus, servicePath, status, interfaceName),
     m_SerialNumber(serialNumber), m_MsgId(0)
 {
 }

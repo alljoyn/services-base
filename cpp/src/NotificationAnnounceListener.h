@@ -50,12 +50,6 @@ class NotificationAnnounceListener : public ajn::services::AnnounceHandler {
     void Announce(uint16_t version, uint16_t port, const char* busName, const ObjectDescriptions& objectDescs, const AboutData& aboutData);
 
   private:
-
-    /**
-     * Tag used for logging
-     */
-    qcc::String TAG;
-
 };
 } //namespace services
 } //namespace ajn

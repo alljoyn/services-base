@@ -40,20 +40,6 @@ static const int16_t ANNOUNCMENT_PORT_NUMBER = 900;
 static const uint16_t NOTIFICATION_DISMISSER_VERSION = 1;
 static const uint16_t NOTIFICATION_PRODUCER_VERSION = 1;
 
-static const qcc::String TAG_NOTSERVICE = "NotificationService";
-static const qcc::String TAG_NOTSENDER = "NotificationSender";
-static const qcc::String TAG_TRANSPORT = "Transport";
-static const qcc::String TAG_PAYLOADADAPTER = "PayloadAdapter";
-static const qcc::String TAG_TRANSPORT_PRODUCER = "NotificationTransportProducer";
-static const qcc::String TAG_TRANSPORT_CONSUMER = "NotificationTransportConsumer";
-static const qcc::String TAG_TRANSPORT_SUPERAGENT = "NotificationTransportSuperAgent";
-static const qcc::String TAG_NOTIFICATION_RECEIVER = "NotificationReceiver";
-static const qcc::String TAG_NOTIFICATION_ANNOUNCE_LISTENER = "NotificationAnnounceListener";
-static const qcc::String TAG_NOTIFICATION = "Notification";
-static const qcc::String TAG_NOTIFICATION_DISMISSER = "NotificationDismisser";
-static const qcc::String TAG_NOTIFICATION_PRODUCER = "NotificationProducer";
-static const qcc::String TAG_NOTIFICATION_PRODUCER_LISTENER =  "NotificationProducerListener";
-
 static const qcc::String AJPARAM_BOOL = "b";
 static const qcc::String AJPARAM_UINT16 = "q";
 static const qcc::String AJPARAM_STR = "s";

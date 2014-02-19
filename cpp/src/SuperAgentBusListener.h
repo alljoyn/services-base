@@ -41,11 +41,6 @@ class SuperAgentBusListener : public BusListener {
     void SetBusUniqueName(const char* superAgentBusUniqueName) { m_SuperAgentBusUniqueName = superAgentBusUniqueName; }
   private:
     /**
-     * Tag used for logging
-     */
-    qcc::String TAG;
-
-    /**
      * BusAttachment
      */
     BusAttachment* m_Bus;

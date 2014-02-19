@@ -26,8 +26,6 @@ using namespace services;
 using namespace qcc;
 using namespace nsConsts;
 
-static qcc::String TAG(TAG_NOTIFICATION_PRODUCER_LISTENER);
-
 NotificationProducerListener::NotificationProducerListener() :
     SessionPortListener(), m_SessionPort(0)
 {

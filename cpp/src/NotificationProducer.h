@@ -61,10 +61,6 @@ class NotificationProducer : public ajn::BusObject {
     QStatus Set(const char* ifcName, const char* propName, MsgArg& val);
   protected:
     /**
-     * Tag used for logging
-     */
-    static qcc::String TAG;
-    /**
      *  pointer to InterfaceDescription
      */
     InterfaceDescription* m_InterfaceDescription;

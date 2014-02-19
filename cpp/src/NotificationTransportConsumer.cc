@@ -28,7 +28,7 @@ using namespace qcc;
 
 NotificationTransportConsumer::NotificationTransportConsumer(
     BusAttachment* bus, String const& servicePath, QStatus& status) :
-    NotificationTransport(bus, servicePath, status, AJ_NOTIFICATION_INTERFACE_NAME, TAG_TRANSPORT_CONSUMER),
+    NotificationTransport(bus, servicePath, status, AJ_NOTIFICATION_INTERFACE_NAME),
     m_IsStopping(false)
 {
     if (status != ER_OK) {

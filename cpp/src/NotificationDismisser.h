@@ -76,11 +76,6 @@ class NotificationDismisser : public ajn::BusObject {
     const ajn::InterfaceDescription::Member* m_SignalMethod;
 
     /**
-     * Tag used for Logging
-     */
-    static qcc::String TAG;
-
-    /**
      * message Id of the last message sent with this message type
      */
     int32_t m_MsgId;

@@ -68,10 +68,6 @@ class NotificationSender {
      * Device Id that will be sent with the Notifications
      */
     ajn::services::PropertyStore* m_PropertyStore;
-    /**
-     * Tag String for logging
-     */
-    qcc::String TAG;
 };
 } //namespace services
 } //namespace ajn

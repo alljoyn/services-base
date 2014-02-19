@@ -29,7 +29,7 @@ using namespace nsConsts;
 
 NotificationTransportSuperAgent::NotificationTransportSuperAgent(
     BusAttachment* bus, String const& servicePath, QStatus& status, bool isFirstSuperAgent)  :
-    NotificationTransport(bus, servicePath, status, AJ_SA_INTERFACE_NAME, TAG_TRANSPORT_SUPERAGENT),
+    NotificationTransport(bus, servicePath, status, AJ_SA_INTERFACE_NAME),
     m_IsFirstSuperAgent(isFirstSuperAgent)
 {
     if (status != ER_OK) {

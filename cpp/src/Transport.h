@@ -303,11 +303,6 @@ class Transport {
     bool m_IsListeningToSuperAgent;
 
     /**
-     * Tag for logging
-     */
-    qcc::String TAG;
-
-    /**
      * NotificationProducerSender
      */
     NotificationProducerSender* m_NotificationProducerSender;

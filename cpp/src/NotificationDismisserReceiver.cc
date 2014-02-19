@@ -146,7 +146,7 @@ QStatus NotificationDismisserReceiver::UnmarshalMessage(Message& in_message, int
     //Unmarshal appId
     uint8_t* appIdBin = NULL;
     size_t len;
-    status = Conversions::MsgArgToArrayOfBytes(appIdArg, &appIdBin, &len, NULL);
+    status = Conversions::MsgArgToArrayOfBytes(appIdArg, &appIdBin, &len);
     if (status != ER_OK) {
         QCC_LogError(status, ("UnmarshalMessage() - failed to get array of bytes."));
         return status;

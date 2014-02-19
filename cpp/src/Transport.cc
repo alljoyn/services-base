@@ -44,7 +44,7 @@ Transport* Transport::s_Instance(NULL);
 
 Transport::Transport() : m_Bus(0), m_Receiver(0), m_Consumer(0), m_SuperAgent(0), m_AnnounceListener(0), m_SuperAgentBusListener(0),
     m_IsSendingDisabled(false), m_IsReceivingDisabled(false), m_IsSuperAgentDisabled(false),
-    m_IsListeningToSuperAgent(false), TAG(TAG_TRANSPORT), m_NotificationProducerSender(0), m_NotificationProducerReceiver(0),
+    m_IsListeningToSuperAgent(false), m_NotificationProducerSender(0), m_NotificationProducerReceiver(0),
     m_NotificationProducerListener(0), m_NotificationDismisserSender(0), m_NotificationDismisserReceiver(0)
 {
     Notification::m_AsyncTaskQueue.Start();

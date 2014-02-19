@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -37,10 +37,9 @@ class NotificationTransport : public ajn::BusObject {
      * @param bus         - BusAttachment that is used
      * @param servicePath - servicePath of BusObject
      * @param status      - success/failure
-     * @param tag         - Tag used for logging
      */
     NotificationTransport(ajn::BusAttachment* bus, qcc::String const& servicePath,
-                          QStatus& status, qcc::String const& interfaceName, qcc::String const& tag);
+                          QStatus& status, qcc::String const& interfaceName);
 
     /**
      * Destructor for NotificationTransport
@@ -71,11 +70,6 @@ class NotificationTransport : public ajn::BusObject {
      * The pointer used to send signal/register Signal Handler
      */
     const ajn::InterfaceDescription::Member* m_SignalMethod;
-
-    /**
-     * Tag used for Logging
-     */
-    qcc::String TAG;
 };
 } //namespace services
 } //namespace ajn

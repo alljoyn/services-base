@@ -26,8 +26,6 @@ using namespace services;
 using namespace qcc;
 using namespace nsConsts;
 
-qcc::String NotificationProducer::TAG(TAG_NOTIFICATION_PRODUCER);
-
 NotificationProducer::NotificationProducer(ajn::BusAttachment* bus, QStatus& status) :
     BusObject(AJ_NOTIFICATION_PRODUCER_PATH.c_str()), m_InterfaceDescription(NULL), m_BusAttachment(bus)
 {
