@@ -140,7 +140,7 @@ public:
 			return ajn::services::AboutPropertyStoreImpl::ReadAll(languageTag, filter, all);
 		}
         
-		if (languageTag[0] != 0 || languageTag[0] != ' ') {
+		if (languageTag[0] != '\0' && languageTag[0] != ' ') {
 			[[[AJCFGConfigLogger sharedInstance] logger] debugTag:@"PropertyStoreImplAdapter" text:[NSString stringWithFormat:@"Language tag is not empty!! this may cause issues in the client!! lang tag is : '%s' returning invalid value", languageTag]];
             
             return ER_INVALID_VALUE;

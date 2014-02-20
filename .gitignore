@@ -22,3 +22,4 @@ gen
 lib
 local.properties
 obj*
+.DS_Store
