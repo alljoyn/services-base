@@ -100,7 +100,7 @@
 - (QStatus)Update:(const char *)name languageTag:(const char *)languageTag ajnMsgArg:(AJNMessageArgument *)value
 {
 	// Only the default lang work here
-    if (languageTag && (languageTag[0] != 0 || languageTag[0] != ' ')) {
+    if (languageTag && (languageTag[0] != 0 && languageTag[0] != ' ')) {
         [[[AJCFGConfigLogger sharedInstance] logger] debugTag:@"PropertyStoreImplAdapter" text:[NSString stringWithFormat:@"Language tag is not empty! [%s]. Using  an empty string instead.", languageTag]];
     }
     
@@ -155,7 +155,7 @@
 - (QStatus)reset:(const char *)name languageTag:(const char *)languageTag
 {
 	// Only the default lang work here
-    if (languageTag && (languageTag[0] != 0 || languageTag[0] != ' ')) {
+    if (languageTag && (languageTag[0] != 0 && languageTag[0] != ' ')) {
         [[[AJCFGConfigLogger sharedInstance] logger] debugTag:@"PropertyStoreImplAdapter" text:[NSString stringWithFormat:@"Language tag is not empty! [%s]. Using  an empty string instead.", languageTag]];
     }
     
