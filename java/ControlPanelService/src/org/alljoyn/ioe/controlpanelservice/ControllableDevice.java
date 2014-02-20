@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -192,11 +192,6 @@ public class ControllableDevice implements ConnManagerEventsListener {
 	public Status endSession() {
 		Log.i(TAG, "endSession has been called, leaving the session");
 
-		// Unregister the session relevant events
-		connMgr.unregisterEventListener(ConnManagerEventType.SESSION_JOINED, this);
-		connMgr.unregisterEventListener(ConnManagerEventType.SESSION_LOST, this);
-		connMgr.unregisterEventListener(ConnManagerEventType.SESSION_JOIN_FAIL, this);
-
 		if ( sessionId == null ) {
 			Log.w(TAG, "Fail to execute endSession, sessionId is NULL, returning Status of FAIL");
 			return Status.FAIL;
@@ -215,6 +210,11 @@ public class ControllableDevice implements ConnManagerEventsListener {
 		if ( status == Status.OK ) {
 			sessionId = null;
 			Log.i(TAG, logMsg);
+			
+			// Unregister the session relevant events
+			connMgr.unregisterEventListener(ConnManagerEventType.SESSION_JOINED, this);
+			connMgr.unregisterEventListener(ConnManagerEventType.SESSION_LOST, this);
+			connMgr.unregisterEventListener(ConnManagerEventType.SESSION_JOIN_FAIL, this);
 		}
 		else {
 			Log.w(TAG, logMsg);
