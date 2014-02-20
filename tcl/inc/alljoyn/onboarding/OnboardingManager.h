@@ -82,7 +82,7 @@ AJOBS_State AJOBS_GetState();
 void AJOBS_SetState(AJOBS_State state);
 
 /**
- * last error
+ * Last connection error
  */
 typedef enum _AJOBS_LastError {
     AJOBS_STATE_LAST_ERROR_VALIDATED = 0,
@@ -93,7 +93,7 @@ typedef enum _AJOBS_LastError {
 } AJOBS_LastError;
 
 /**
- * on boarding information
+ * Onboarding information
  */
 typedef struct _AJOBS_Info {
     char ssid[AJOBS_SSID_MAX_LENGTH + 1];
@@ -118,7 +118,7 @@ AJ_Status AJOBS_SetInfo(AJOBS_Info* info);
 const AJ_Time* AJOBS_GetLastScanTime();
 
 /**
- * on boarding scan information
+ * Onboarding scan information.
  */
 typedef struct _AJOBS_ScanInfo {
     char ssid[AJOBS_SSID_MAX_LENGTH + 1];
@@ -126,17 +126,17 @@ typedef struct _AJOBS_ScanInfo {
 } AJOBS_ScanInfo;
 
 /**
- * Onboarding scan infos variable.
+ * Onboarding scan infos variable getter.
  */
 const AJOBS_ScanInfo* AJOBS_GetScanInfos();
 
 /**
- * Onboarding scan infos count variable.
+ * Onboarding scan infos count variable getter.
  */
 uint8_t AJOBS_GetScanInfoCount();
 
 /**
- * on boarding error
+ * Onboarding error
  */
 typedef struct _AJOBS_Error {
     int16_t code;
@@ -149,24 +149,29 @@ typedef struct _AJOBS_Error {
 const AJOBS_Error* AJOBS_GetError();
 
 /**
- * read the onboarding information
+ * Prototype for a function that reads the onboarding information.
  * @return status
  */
 typedef AJ_Status (*AJOBS_ReadInfo)(AJOBS_Info* info);
 
 /**
- * write the onboarding information
+ * Protptype for a function that writes the onboarding information.
  * @return status
  */
 typedef AJ_Status (*AJOBS_WriteInfo)(const AJOBS_Info* info);
 
+/**
+ * Structure that holds all relevant configuration settings for:
+ * a) the SoftAP definition and
+ * b) parameter for the recovery/retry algorithm when connection attempts fail
+ */
 typedef struct _AJOBS_Settings {
     /**
      * Wait time for clients to connect to SoftAP station (ms)
      */
     const uint32_t AJOBS_WAIT_FOR_SOFTAP_CONNECTION; // 600000
     /**
-     * retry parameters after failed connection of already validated configuration.
+     * Number of retry attempts after failed attempt to connect to an already validated configuration.
      */
     const uint8_t AJOBS_MAX_RETRIES; // 2
     /**
@@ -190,11 +195,11 @@ typedef struct _AJOBS_Settings {
 #define AJOBS_DEFAULT_SETTINGS { 600000, 2, 180000, { 0 }, FALSE, NULL };
 
 /**
- * Start Onboarding service framework passing settings and persistence callbacks
+ * Start Onboarding service framework passing settings and persistence callbacks/
  * @param settings
  * @param readInfo
  * @param writeInfo
- * @return status
+ * @return aj_status
  */
 AJ_Status AJOBS_Start(const AJOBS_Settings* settings, AJOBS_ReadInfo readInfo, AJOBS_WriteInfo writeInfo);
 
@@ -213,45 +218,51 @@ AJ_Status AJOBS_Start(const AJOBS_Settings* settings, AJOBS_ReadInfo readInfo, A
 #define AJOBS_DEVICE_SERIAL_ID_LEN 7
 
 /**
- * clear onboarding information
- * @return status
+ * Clear onboarding information.
+ * @return aj_status
  */
 AJ_Status AJOBS_ClearInfo();
 
 /**
- * on connected
- * @param bus
+ * Called when router is connected.
+ * @param busAttachment
  * @return aj_status
  */
 AJ_Status AJOBS_ConnectedHandler(AJ_BusAttachment* busAttachment);
 
 /**
- * on disconnect
- * @param bus
+ * Called just before the router disconnects.
+ * @param busAttachment
+ * @return aj_status
  */
 AJ_Status AJOBS_DisconnectHandler(AJ_BusAttachment* busAttachment);
 
 /**
- * on messge to process
- * @param bus
+ * Called when a new incoming message requires processing.
+ * @param busAttachment
  * @param msg
- * @return processor status
+ * @param aj_status
+ * @return service_Status
  */
-AJSVC_ServiceStatus AJOBS_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* processorStatus);
+AJSVC_ServiceStatus AJOBS_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* msgStatus);
 
 /**
- * Disconnect
+ * Establish a WiFi connection either as:
+ * a) a SoftAP station with a connected client or
+ * b) as a client to the currently configured AP
  * @return aj_status
  */
 AJ_Status AJOBS_EstablishWiFi();
 
 /**
- * Switch to retry state
+ * Switch to retry state toggling between:
+ * a) waiting for an Onboarder application to connect to the SoftAP till timeout of AJOBS_WAIT_BETWEEN_RETRIES and
+ * b) attempting to reconnect using the current validated configuration
  */
 void AJOBS_SwitchToRetry();
 
 /**
- * Disconnect
+ * Disconnect from the current WiFi connection and go into Idle mode.
  * @return aj_status
  */
 AJ_Status AJOBS_DisconnectWiFi();
