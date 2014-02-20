@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -41,6 +41,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -50,7 +51,6 @@ import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -93,8 +93,6 @@ public class OnboardingActivity extends Activity {
 	private short m_networkAuthType;
 	private EditText m_networkNameEditText;
 	private EditText m_networkPasswordEditText;
-	private RadioGroup m_networkPasswordType;
-	protected boolean m_convertToHex;
 	private Spinner m_authTypeSpinner;
 	private ArrayAdapter<AuthType> m_authTypeAdapter;
 	private Button m_configureButton;
@@ -126,7 +124,7 @@ public class OnboardingActivity extends Activity {
 		
 		//Current Network 
 		m_currentNetwork = (TextView) findViewById(R.id.current_network_name);
-		String ssid = ((OnboardingApplication)getApplication()).getIskWifiManager().getCurrentNetworkSSID();
+		String ssid = m_application.getIskWifiManager().getCurrentNetworkSSID();
 		m_currentNetwork.setText(getString(R.string.current_network, ssid));
 		
 		//Version and other properties
@@ -144,7 +142,6 @@ public class OnboardingActivity extends Activity {
 		//Network elements
 		m_networkNameEditText = (EditText) findViewById(R.id.network_name);
 		m_networkPasswordEditText = (EditText)findViewById(R.id.network_password);
-		m_networkPasswordType = (RadioGroup)findViewById(R.id.onboarding_password_type);
 		m_authTypeSpinner = (Spinner) findViewById(R.id.auth_type);
 		
 		TextWatcher textWatcher = new TextWatcher() {
@@ -421,6 +418,7 @@ public class OnboardingActivity extends Activity {
 		
 		final AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>(){
 
+			private String finalPassword;
 
 			@Override
 			protected void onPreExecute() {
@@ -428,13 +426,31 @@ public class OnboardingActivity extends Activity {
 				//Take the user parameters from the UI:
 				m_networkName = m_networkNameEditText.getText().toString();
 				m_networkPassword = m_networkPasswordEditText.getText().toString();
-				int selectedId = m_networkPasswordType.getCheckedRadioButtonId();
-				m_convertToHex = (selectedId == R.id.password_type_ASCII);
-				
 				AuthType selectedAuthType = (AuthType) m_authTypeSpinner.getSelectedItem();
 				m_networkAuthType = selectedAuthType.getTypeId();
+				
+				//In case password is WEP and its format is HEX - leave it in HEX format.
+				//otherwise convert it from ASCII to HEX
+				finalPassword = m_networkPassword;
+				if(AuthType.WEP.equals(selectedAuthType)){
+					
+					Pair<Boolean, Boolean> wepCheckResult = m_application.getIskWifiManager().checkWEPPassword(finalPassword);
+					if (!wepCheckResult.first) {//Invalid WEP password
+		                Log.i(TAG, "Auth type = WEP: password " + finalPassword + " invalid length or charecters");
+		                
+		            }
+					else{
+						Log.i(TAG, "configure wifi [WEP] using " + (!wepCheckResult.second ? "ASCII" : "HEX"));
+						if (!wepCheckResult.second) {//ASCII. Convert it to HEX
+							finalPassword = m_application.getIskWifiManager().toHexadecimalString(finalPassword);
+						}
+					}
+				}
+				else{//Other auth type than WEP -> convert password to HEX
+					finalPassword = m_application.getIskWifiManager().toHexadecimalString(finalPassword);
+				}
+				
 				m_connectButton.setEnabled(true);
-
 				Log.d(TAG, "configure: onPreExecute");
 				showLoadingPopup("configuring network");				
 			}
@@ -442,11 +458,7 @@ public class OnboardingActivity extends Activity {
 			@Override
 			protected Void doInBackground(Void... params){
 				
-				String password = m_networkPassword;
-				if(m_convertToHex){
-					password = m_application.toHexadecimalString(m_networkPassword);
-				}
-				m_application.configureNetwork(m_networkName, password, m_networkAuthType);
+				m_application.configureNetwork(m_networkName, finalPassword, m_networkAuthType);
 				return null;
 			}
 
@@ -483,8 +495,7 @@ public class OnboardingActivity extends Activity {
 			@Override
 			protected void onPostExecute(Void result){
 				m_application.makeToast("Connect network done");
-				boolean isPasswordASCII = (m_convertToHex == true);//means the user choose ASCII option in the radio buttons.
-				((OnboardingApplication)getApplication()).getIskWifiManager().connectToAP(m_networkName, m_networkPassword, isPasswordASCII, (short)m_networkAuthType);
+				m_application.getIskWifiManager().connectToAP(m_networkName, m_networkPassword, (short)m_networkAuthType);
 				Log.d(TAG, "connect: onPostExecute");
 				m_tasksToPerform--;
 				dismissLoadingPopup();
@@ -687,7 +698,7 @@ public class OnboardingActivity extends Activity {
 			if(authType == null){
 				authType = AuthType.ANY; 
 			}
-
+			
 			// Search the authType in the list and make it the first selection.
 			int authTypePosition = 0;
 			AuthType[] values = AuthType.values();

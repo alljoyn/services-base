@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -19,8 +19,6 @@ package org.alljoyn.onboarding.test;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import org.alljoyn.onboarding.OnboardingService.AuthType;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
@@ -45,11 +43,9 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 
 
 /**
@@ -151,11 +147,6 @@ public class ScanWIFIActivity extends ListActivity {
 				alert.setMessage(R.string.enter_wifi_password_message); 
 				
 				View view = getLayoutInflater().inflate(R.layout.password_type_popup, null);
-				final RadioGroup passwordType = (RadioGroup)view.findViewById(R.id.password_popup_type);
-				AuthType securityMode = m_WifiManager.getScanResultSecurity(scanItem.capabilities);
-				if(!securityMode.equals(AuthType.WEP)){
-					passwordType.setVisibility(View.GONE);
-				}
 				final EditText input = (EditText)view.findViewById(R.id.passwordEditText);
 				final CheckBox showPassword = (CheckBox)view.findViewById(R.id.showPasswordCheckBox);
 				alert.setView(view);
@@ -177,10 +168,9 @@ public class ScanWIFIActivity extends ListActivity {
 						
 						showLoadingPopup(getString(R.string.connecting_to, scanItem.SSID));						
 						String pass = input.getText().toString();
-						int selectedId = passwordType.getCheckedRadioButtonId();
 						
 						//connect to the selected scan item. 
-						boolean succeeded = m_WifiManager.connectToAP(scanItem.SSID, pass, scanItem.capabilities, (selectedId == R.id.password_type_ASCII));
+						boolean succeeded = m_WifiManager.connectToAP(scanItem.SSID, pass, scanItem.capabilities);
 						if(succeeded){
 							goToDeviceListActivity(scanItem.SSID);
 						}

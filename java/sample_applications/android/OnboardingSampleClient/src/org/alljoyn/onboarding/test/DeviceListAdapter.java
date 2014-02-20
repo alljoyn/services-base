@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -71,15 +71,15 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
 			row = convertView;
 
 		final SoftAPDetails property = m_properties.get(position);
-		
-		//Property name
-		TextView propertyName = (TextView) row.findViewById(R.id.propertyName);
-		propertyName.setText(property.busName);
+		if(property != null){
+			//Property name
+			TextView propertyName = (TextView) row.findViewById(R.id.propertyName);
+			propertyName.setText(property.busName);
 
-		//Property value
-		TextView propertyValue = (TextView) row.findViewById(R.id.propertyValue);
-		propertyValue.setText(property.deviceFriendlyName);
-		
+			//Property value
+			TextView propertyValue = (TextView) row.findViewById(R.id.propertyValue);
+			propertyValue.setText(property.deviceFriendlyName);
+		}
 		return row;
 	}
 	//====================================================================
