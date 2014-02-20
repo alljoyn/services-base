@@ -481,8 +481,7 @@ static AJ_Status DoConnectWifi(AJOBS_Info* connectInfo)
         AJ_WarnPrintf(("Last error set to \"%s\" (code=%d)\n", obLastError.message, obLastError.code));
 
         if (obState == AJOBS_STATE_CONFIGURED_ERROR || obState == AJOBS_STATE_CONFIGURED_RETRY) {
-            retries++;
-            if (retries >= obSettings->AJOBS_MAX_RETRIES) {
+            if (retries++ >= obSettings->AJOBS_MAX_RETRIES) {
                 if (obState == AJOBS_STATE_CONFIGURED_ERROR && connectInfo->state == AJOBS_STATE_CONFIGURED_VALIDATING) {
                     if (connectInfo->authType < 0 && fallback > fallbackUntil) {
                         obLastError.code = AJOBS_STATE_LAST_ERROR_UNSUPPORTED_PROTOCOL;
