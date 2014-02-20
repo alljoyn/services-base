@@ -39,11 +39,14 @@ extern uint8_t dbgAJCPS;
 extern uint8_t dbgAJSVC;
 #endif
 
+/**
+ * Function prototype for return callback when a method call is completed.
+ */
 typedef void (*AJSVC_MethodCallCompleted)(AJ_Status status, void* context);
 
 /**
  * Service Status is an enum that signals whether a call was handled
- * or not handled within a service_message_processor function
+ * or not handled within an AJSVC_MessageProcessor function
  */
 typedef enum _AJSVC_ServiceStatus {
     AJSVC_SERVICE_STATUS_HANDLED,       //!< SERVICE_STATUS_HANDLED
@@ -100,7 +103,7 @@ uint8_t AJSVC_IsLanguageSupported(AJ_Message* msg, AJ_Message* reply, const char
 #define UUID_LENGTH 16
 
 /**
- * marshals the provided appId as an 'ay'
+ * Marshals the provided appId as an 'ay'.
  * @param msg   the message to marshal the appId into
  * @param appId the application id to marshal
  * @return status
@@ -108,7 +111,7 @@ uint8_t AJSVC_IsLanguageSupported(AJ_Message* msg, AJ_Message* reply, const char
 AJ_Status AJSVC_MarshalAppId(AJ_Message* msg, const char* appId);
 
 /**
- * unmarshals the appId from the provided message
+ * Unmarshals the appId from the provided message.
  * @param msg     the message to unmarshal the appId from
  * @param buf     the buffer where the application id is unmarshalled into
  * @param bufLen  the size of the provided buffer. Should be UUID_LENGTH * 2 + 1.
