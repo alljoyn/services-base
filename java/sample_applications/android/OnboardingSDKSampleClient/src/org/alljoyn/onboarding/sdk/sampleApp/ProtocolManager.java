@@ -31,10 +31,9 @@ import org.alljoyn.bus.SessionOpts;
 import org.alljoyn.bus.Status;
 import org.alljoyn.bus.Variant;
 import org.alljoyn.bus.alljoyn.DaemonInit;
-import org.alljoyn.onboarding.sdk.AllJoynManagmentCallback;
 import org.alljoyn.onboarding.sdk.OnboardingIllegalArgumentException;
 import org.alljoyn.onboarding.sdk.OnboardingIllegalStateException;
-import org.alljoyn.onboarding.sdk.OnboardingSDK;
+import org.alljoyn.onboarding.sdk.OnboardingManager;
 import org.alljoyn.services.android.security.AuthPasswordHandler;
 import org.alljoyn.services.android.security.SrpAnonymousKeyListener;
 import org.alljoyn.services.android.utils.AndroidLogger;
@@ -229,7 +228,7 @@ public class ProtocolManager implements AnnouncementHandler {
 
     /**
      * Creates new busAttachment, connect, register authListener and add
-     * addMatch rule to it. Starts about service. Update the OnboardingSDK with
+     * addMatch rule to it. Starts about service. Update the OnboardingManager with
      * the new busAttachment aboutClient objects.
      */
     public void connectToBus() {
@@ -292,7 +291,7 @@ public class ProtocolManager implements AnnouncementHandler {
         }
 
         try {
-            OnboardingSDK.getInstance().init(context, aboutService, busAttachment);
+            OnboardingManager.getInstance().init(context, aboutService, busAttachment);
         } catch (OnboardingIllegalArgumentException e) {
             e.printStackTrace();
         } catch (OnboardingIllegalStateException e) {

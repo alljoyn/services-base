@@ -33,8 +33,11 @@ import org.alljoyn.bus.Variant;
 import org.alljoyn.onboarding.OnboardingService.AuthType;
 import org.alljoyn.onboarding.client.OnboardingClient;
 import org.alljoyn.onboarding.client.OnboardingClientImpl;
-import org.alljoyn.onboarding.sdk.OnboardingSDK.DeviceResponse.ResponseCode;
+import org.alljoyn.onboarding.sdk.OnboardingManager.DeviceResponse.ResponseCode;
+import org.alljoyn.onboarding.transport.ConnectionResult;
+import org.alljoyn.onboarding.transport.ConnectionResultListener;
 import org.alljoyn.onboarding.transport.OnboardingTransport;
+import org.alljoyn.onboarding.transport.OnboardingTransport.ConfigureWifiMode;
 import org.alljoyn.services.common.AnnouncementHandler;
 import org.alljoyn.services.common.BusObjectDescription;
 import org.alljoyn.services.common.ClientBase;
@@ -102,7 +105,7 @@ import android.util.Pair;
  *<P>View sample code for SDK usage
  */
 
-public class OnboardingSDK {
+public class OnboardingManager {
 
     /**
      * Activity Action:WIFI has been connected
@@ -223,9 +226,14 @@ public class OnboardingSDK {
         ERROR_CONFIGURING_ONBOARDEE(17),
 
         /**
+         * Timeout while waiting for signal in two state configuring.
+         */
+        CONFIGURING_ONBOARDEE_WAITING_FOR_SIGNAL_TIMEOUT(18),
+
+        /**
          * Timeout while waiting to receive announcement from onboardee on target network.
          */
-        VERIFICATION_TIMEOUT(18),
+        VERIFICATION_TIMEOUT(19),
 
         /**
          *Failed ot offboard a device from target.
@@ -238,22 +246,22 @@ public class OnboardingSDK {
         INVALID_ANNOUNCE_DATA(21),
 
         /**
-         *Wi-Fi connection timeout {@link OnboardingSDK#connectToNetwork(WiFiNetworkConfiguration, long)}
+         *Wi-Fi connection timeout {@link OnboardingManager#connectToNetwork(WiFiNetworkConfiguration, long)}
          */
         OTHER_WIFI_TIMEOUT(30),
 
         /**
-         *Wi-Fi authentication error {@link OnboardingSDK#connectToNetwork(WiFiNetworkConfiguration, long)}
+         *Wi-Fi authentication error {@link OnboardingManager#connectToNetwork(WiFiNetworkConfiguration, long)}
          */
         OTHER_WIFI_AUTH(31),
 
         /**
-         *Wi-Fi connection timeout {@link OnboardingSDK#abortOnboarding()}
+         *Wi-Fi connection timeout {@link OnboardingManager#abortOnboarding()}
          */
         ORIGINAL_WIFI_TIMEOUT(32),
 
         /**
-         *Wi-Fi authentication error {@link OnboardingSDK#abortOnboarding()}
+         *Wi-Fi authentication error {@link OnboardingManager#abortOnboarding()}
          */
         ORIGINAL_WIFI_AUTH(33),
 
@@ -349,49 +357,54 @@ public class OnboardingSDK {
         CONFIGURING_ONBOARDEE(6),
 
         /**
+         * Waiting for signal from onboardee with two stage configuring
+         */
+        CONFIGURING_ONBOARDEE_WITH_SIGNAL(7),
+
+        /**
          * Onboardee received target credentials
          */
-        CONFIGURED_ONBOARDEE(7),
+        CONFIGURED_ONBOARDEE(8),
 
         /**
          * Connecting to WIFI target
          */
-        CONNECTING_TARGET_WIFI(8),
+        CONNECTING_TARGET_WIFI(9),
 
         /**
          * Wi-Fi connection with target established
          */
-        CONNECTED_TARGET_WIFI(9),
+        CONNECTED_TARGET_WIFI(10),
 
         /**
          * Wait for announcement from onboardee over target WIFI
          */
-        VERIFYING_ONBOARDED(10),
+        VERIFYING_ONBOARDED(11),
 
         /**
          * Announcement from onboardee over target WIFI has been received
          */
-        VERIFIED_ONBOARDED(11),
+        VERIFIED_ONBOARDED(12),
 
         /**
-         *Connecting  to the original network before calling {@link OnboardingSDK#runOnboarding(OnboardingConfiguration)}.
+         *Connecting  to the original network before calling {@link OnboardingManager#runOnboarding(OnboardingConfiguration)}.
          */
-        CONNECTING_ORIGINAL_WIFI(12),
+        CONNECTING_ORIGINAL_WIFI(13),
 
         /**
-         *Connected  to the original network before calling {@link OnboardingSDK#runOnboarding(OnboardingConfiguration)}.
+         *Connected  to the original network before calling {@link OnboardingManager#runOnboarding(OnboardingConfiguration)}.
          */
-        CONNECTED_ORIGINAL_WIFI(13),
+        CONNECTED_ORIGINAL_WIFI(14),
 
         /**
-         *Connecting  to the selected network {@link  OnboardingSDK#connectToNetwork(WiFiNetworkConfiguration, long)}.
+         *Connecting  to the selected network {@link  OnboardingManager#connectToNetwork(WiFiNetworkConfiguration, long)}.
          */
-        CONNECTING_OTHER_WIFI(14),
+        CONNECTING_OTHER_WIFI(15),
 
         /**
-         * Connected to the selected network {@link  OnboardingSDK#connectToNetwork(WiFiNetworkConfiguration, long)}.
+         * Connected to the selected network {@link  OnboardingManager#connectToNetwork(WiFiNetworkConfiguration, long)}.
          */
-        CONNECTED_OTHER_WIFI(15),
+        CONNECTED_OTHER_WIFI(16),
 
         /**
          * Aborting has been started.
@@ -445,7 +458,7 @@ public class OnboardingSDK {
 
 
     /**
-     * These enumeration values are used to filter Wi-Fi scan result {@link OnboardingSDK#scanWiFi()}
+     * These enumeration values are used to filter Wi-Fi scan result {@link OnboardingManager#scanWiFi()}
      */
     public static enum WifiFilter{
 
@@ -487,7 +500,11 @@ public class OnboardingSDK {
             /**
              * AllJoyn session creation error
              */
-            Status_ERROR_CANT_ESTABLISH_SESSION
+            Status_ERROR_CANT_ESTABLISH_SESSION,
+            /**
+             * AllJoyn transaction successful
+             */
+            Status_OK_CONNECT_SECOND_PHASE,
         }
 
         /**
@@ -549,7 +566,7 @@ public class OnboardingSDK {
     /**
      * TAG for debug information
      */
-    private final static String TAG = "OnboardingSDK";
+    private final static String TAG = "OnboardingManager";
 
     /**
      * Default timeout for Wi-Fi connection {@value #DEFAULT_WIFI_CONNECTION_TIMEOUT} msec
@@ -563,9 +580,9 @@ public class OnboardingSDK {
     public static final int DEFAULT_ANNOUNCEMENT_TIMEOUT = 25000;
 
     /**
-     * OnboardingSDK singleton
+     * OnboardingManager singleton
      */
-    private static OnboardingSDK onboardingSDK = null;
+    private static OnboardingManager onboardingManager = null;
 
     /**
      * Application context
@@ -575,10 +592,10 @@ public class OnboardingSDK {
     /**
      * HandlerThread for the state machine looper
      */
-    private static HandlerThread stateHandlerThread = new HandlerThread("OnboardingSDKLooper");
+    private static HandlerThread stateHandlerThread = new HandlerThread("OnboardingManagerLooper");
 
     /**
-     * Handler for OnboardingSDK state changing messages.
+     * Handler for OnboardingManager state changing messages.
      */
     private static Handler stateHandler = null;
 
@@ -626,8 +643,10 @@ public class OnboardingSDK {
      */
     private Timer announcementTimeout = new Timer();
 
+
+
     /**
-     * Stores the OnboardingSDK state machine state
+     * Stores the OnboardingManager state machine state
      */
     private  State currentState = State.IDLE;
 
@@ -771,7 +790,7 @@ public class OnboardingSDK {
 
     /**
      * These enumeration values are used to indicate the current internal state
-     * of the OnboardingSDK state machine.
+     * of the OnboardingManager state machine.
      */
     private static enum State {
         /**
@@ -803,6 +822,11 @@ public class OnboardingSDK {
          * Configuring onboardee with target credentials
          */
         CONFIGURING_ONBOARDEE(14),
+
+        /**
+         * Configuring onboardee with target credentials
+         */
+        CONFIGURING_ONBOARDEE_WITH_SIGNAL(15),
 
         /**
          * Connecting to target Wi-Fi AP
@@ -850,6 +874,11 @@ public class OnboardingSDK {
         ERROR_CONFIGURING_ONBOARDEE(114),
 
         /**
+         * Error waiting for configure onboardee signal
+         */
+        ERROR_WAITING_FOR_CONFIGURE_SIGNAL(115),
+
+        /**
          * Error connecting to target Wi-Fi AP
          */
         ERROR_CONNECTING_TO_TARGET_WIFI_AP(120),
@@ -883,17 +912,17 @@ public class OnboardingSDK {
 
 
     /**
-     * @return instance of the OnBoardingSDK
+     * @return instance of the OnboardingManager
      */
-    public static OnboardingSDK getInstance() {
-        if (onboardingSDK == null) {
-            onboardingSDK = new OnboardingSDK();
+    public static OnboardingManager getInstance() {
+        if (onboardingManager == null) {
+            onboardingManager = new OnboardingManager();
         }
-        return onboardingSDK;
+        return onboardingManager;
     }
 
 
-    private OnboardingSDK() {
+    private OnboardingManager() {
         wifiIntentFilter.addAction(WIFI_CONNECTED_BY_REQUEST_ACTION);
         wifiIntentFilter.addAction(WIFI_TIMEOUT_ACTION);
         wifiIntentFilter.addAction(WIFI_AUTHENTICATION_ERROR);
@@ -1032,7 +1061,7 @@ public class OnboardingSDK {
      * Handle the ONBOARDEE_ANNOUNCEMENT_RECEIVED state.
      * Stop the announcement timeout
      * timer and check that the board supports the 'org.alljoyn.Onboarding'
-     * interface if so move to next state otherwise return to IDLE state.
+     * interface if so move to next state otherwise move  to ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED state.
      *
      * @param announceData
      *            contains the information of the Announcement .
@@ -1089,21 +1118,94 @@ public class OnboardingSDK {
     /**
      * Handle the CONFIGURE_ONBOARDEE state.
      * Call onboardDevice to send target information to the board. in case
-     * successful moves to next step else return to IDLE state.
+     * successful moves to next step else move to ERROR_CONFIGURING_ONBOARDEE state.
      */
     private void handleConfigureOnboardeeState() {
         Bundle extras = new Bundle();
-        if (onboardDevice().getStatus() == ResponseCode.Status_OK) {
+        ResponseCode responseCode = onboardDevice().getStatus();
+        if (responseCode == ResponseCode.Status_OK) {
             extras.clear();
             extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONFIGURED_ONBOARDEE.toString());
             sendBroadcast(STATE_CHANGE_ACTION, extras);
             setState(State.CONNECTING_TO_TARGET_WIFI_AP);
+        } else if (responseCode == ResponseCode.Status_OK_CONNECT_SECOND_PHASE) {
+            extras.clear();
+            extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONFIGURING_ONBOARDEE_WITH_SIGNAL.toString());
+            sendBroadcast(STATE_CHANGE_ACTION, extras);
+            setState(State.CONFIGURING_ONBOARDEE_WITH_SIGNAL);
         } else {
             extras.clear();
             extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.ERROR_CONFIGURING_ONBOARDEE.toString());
             sendBroadcast(ERROR, extras);
             setState(State.ERROR_CONFIGURING_ONBOARDEE);
         }
+    }
+
+    /**
+     * Handle the CONFIGURING_ONBOARDEE_WITH_SIGNAL state.
+     * Register to receive oboarding siganl , start timeout
+     * if signal arrives in time  call {@link OnboardingClient#connectWiFi()}
+     * otherwise move to ERROR_WAITING_FOR_CONFIGURE_SIGNAL state .
+     */
+    private void handleConfigureWithSignalOnboardeeState() {
+
+        final Bundle extras = new Bundle();
+        final Timer configWifiSignalTimeout = new Timer();
+        final ConnectionResultListener listener = new ConnectionResultListener() {
+            @Override
+            public void onConnectionResult(ConnectionResult connectionResult) {
+                Log.d(TAG, "onConnectionResult recevied " + connectionResult.getConnectionResponseType() + " " + connectionResult.getMessage());
+                configWifiSignalTimeout.cancel();
+                configWifiSignalTimeout.purge();
+                try {
+                    onboardingClient.unRegisterConnectionResultListener(this);
+                    if (connectionResult.getConnectionResponseType() == ConnectionResult.ConnectionResponseType.VALIDATED) {
+                        onboardingClient.connectWiFi();
+                        extras.clear();
+                        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONFIGURED_ONBOARDEE.toString());
+                        sendBroadcast(STATE_CHANGE_ACTION, extras);
+                        setState(State.CONNECTING_TO_TARGET_WIFI_AP);
+                    } else {
+                        extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.ERROR_CONFIGURING_ONBOARDEE.toString());
+                        sendBroadcast(ERROR, extras);
+                        setState(State.ERROR_CONFIGURING_ONBOARDEE);
+                        return;
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "onConnectionResult error", e);
+                    extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.ERROR_CONFIGURING_ONBOARDEE.toString());
+                    sendBroadcast(ERROR, extras);
+                    setState(State.ERROR_CONFIGURING_ONBOARDEE);
+                }
+            }
+        };
+
+        try {
+            configWifiSignalTimeout.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    Log.e(TAG, "configWifiSignalTimeout  expired");
+                    onboardingClient.unRegisterConnectionResultListener(listener);
+                    configWifiSignalTimeout.cancel();
+                    configWifiSignalTimeout.purge();
+                    onboardingClient.unRegisterConnectionResultListener(listener);
+                    extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.CONFIGURING_ONBOARDEE_WAITING_FOR_SIGNAL_TIMEOUT.toString());
+                    sendBroadcast(ERROR, extras);
+                    setState(State.ERROR_WAITING_FOR_CONFIGURE_SIGNAL);
+                }
+            }, 30 * 1000);
+            onboardingClient.registerConnectionResultListener(listener);
+        } catch (Exception e) {
+            Log.e(TAG, "registerConnectionResultListener", e);
+            if (configWifiSignalTimeout != null) {
+                configWifiSignalTimeout.cancel();
+                configWifiSignalTimeout.purge();
+            }
+            extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.ERROR_CONFIGURING_ONBOARDEE.toString());
+            sendBroadcast(ERROR, extras);
+            setState(State.ERROR_CONFIGURING_ONBOARDEE); // send error
+        }
+
     }
 
 
@@ -1296,6 +1398,11 @@ public class OnboardingSDK {
             handleConfigureOnboardeeState();
             break;
 
+        case CONFIGURING_ONBOARDEE_WITH_SIGNAL:
+            currentState = State.CONFIGURING_ONBOARDEE_WITH_SIGNAL;
+            handleConfigureWithSignalOnboardeeState();
+            break;
+
         case CONNECTING_TO_TARGET_WIFI_AP:
             currentState = State.CONNECTING_TO_TARGET_WIFI_AP;
             handleConnectToTargetState();
@@ -1329,6 +1436,10 @@ public class OnboardingSDK {
 
         case ERROR_CONFIGURING_ONBOARDEE:
             currentState = State.ERROR_CONFIGURING_ONBOARDEE;
+            break;
+
+        case ERROR_WAITING_FOR_CONFIGURE_SIGNAL:
+            currentState = State.ERROR_WAITING_FOR_CONFIGURE_SIGNAL;
             break;
 
         case ERROR_CONNECTING_TO_TARGET_WIFI_AP:
@@ -1443,9 +1554,14 @@ public class OnboardingSDK {
             }
             Log.i(TAG, "before configureWiFi networkName = " + onboardingConfiguration.getTarget().getSSID() + " networkPass = " + passForConfigureNetwork + " selectedAuthType = "
                     + onboardingConfiguration.getTarget().getAuthType().getTypeId());
-            onboardingClient.configureWiFi(onboardingConfiguration.getTarget().getSSID(), passForConfigureNetwork, onboardingConfiguration.getTarget().getAuthType().getTypeId());
-            onboardingClient.connectWiFi();
-            return new DeviceResponse(ResponseCode.Status_OK);
+            ConfigureWifiMode res=onboardingClient.configureWiFi(onboardingConfiguration.getTarget().getSSID(), passForConfigureNetwork, onboardingConfiguration.getTarget().getAuthType());
+            Log.i(TAG, "configureWiFi result="+res);
+            if (res==ConfigureWifiMode.REGULAR){
+                onboardingClient.connectWiFi();
+                return new DeviceResponse(ResponseCode.Status_OK);
+            }else{
+                return new DeviceResponse(ResponseCode.Status_OK_CONNECT_SECOND_PHASE);
+            }
         } catch (BusException e) {
             Log.e(TAG, "onboarddDevice ", e);
             return new DeviceResponse(ResponseCode.Status_ERROR);
@@ -1825,6 +1941,10 @@ public class OnboardingSDK {
                 setState(State.CONFIGURING_ONBOARDEE);
                 break;
 
+            case ERROR_WAITING_FOR_CONFIGURE_SIGNAL:
+                setState(State.CONFIGURING_ONBOARDEE_WITH_SIGNAL);
+                break;
+
             case ERROR_CONNECTING_TO_TARGET_WIFI_AP:
                 setState(State.CONNECTING_TO_TARGET_WIFI_AP);
                 break;
@@ -1878,7 +1998,7 @@ public class OnboardingSDK {
     /**
      * Prepare the state machine for the onboarding process after abort has beeen requested.
      *
-     * Try restoring the connection to the original Wi-Fi access point prior to calling {@link OnboardingSDK#runOnboarding(OnboardingConfiguration)}
+     * Try restoring the connection to the original Wi-Fi access point prior to calling {@link OnboardingManager#runOnboarding(OnboardingConfiguration)}
      * <p>
      * Does the following :
      *  <ul>
@@ -2002,6 +2122,7 @@ public class OnboardingSDK {
         }
 
         new Thread() {
+            @Override
             public void run() {
                 DeviceResponse deviceResponse = offboardDevice(config.getServiceName(), config.getPort());
                 if (deviceResponse.getStatus() != ResponseCode.Status_OK) {

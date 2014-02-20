@@ -24,9 +24,9 @@ import org.alljoyn.onboarding.sdk.OffboardingConfiguration;
 import org.alljoyn.onboarding.sdk.OnboardingConfiguration;
 import org.alljoyn.onboarding.sdk.OnboardingIllegalArgumentException;
 import org.alljoyn.onboarding.sdk.OnboardingIllegalStateException;
-import org.alljoyn.onboarding.sdk.OnboardingSDK;
-import org.alljoyn.onboarding.sdk.OnboardingSDK.OnboardingState;
-import org.alljoyn.onboarding.sdk.OnboardingSDK.WifiFilter;
+import org.alljoyn.onboarding.sdk.OnboardingManager;
+import org.alljoyn.onboarding.sdk.OnboardingManager.OnboardingState;
+import org.alljoyn.onboarding.sdk.OnboardingManager.WifiFilter;
 import org.alljoyn.onboarding.sdk.WiFiNetwork;
 import org.alljoyn.onboarding.sdk.WiFiNetworkConfiguration;
 import org.alljoyn.onboarding.sdk.WifiDisabledException;
@@ -73,9 +73,9 @@ public class MainActivity extends Activity {
     private IntentFilter mainFilter;
 
     /**
-     * Listen to the two main OnboardingSDK Intents. Log intents with the action
-     * "OnboardingSDK.STATE_CHANGE_ACTION" in a list Display alert dialog for
-     * intents with the action "OnboardingSDK.ERROR".
+     * Listen to the two main OnboardingManager Intents. Log intents with the action
+     * "OnboardingManager.STATE_CHANGE_ACTION" in a list Display alert dialog for
+     * intents with the action "OnboardingManager.ERROR".
      */
     private final BroadcastReceiver mainReceiver = new BroadcastReceiver() {
         @Override
@@ -83,13 +83,13 @@ public class MainActivity extends Activity {
             Bundle extras = intent.getExtras();
             String intentString = "Action = " + intent.getAction() + (extras != null ? bundleToString(extras) : "");
             Log.i(TAG, intentString);
-            if (intent.getAction().equals(OnboardingSDK.STATE_CHANGE_ACTION)) {
+            if (intent.getAction().equals(OnboardingManager.STATE_CHANGE_ACTION)) {
 
                 logList.setAdapter(logListAdapter);
                 logListAdapter.add(intentString);
 
-                if (extras != null && extras.containsKey(OnboardingSDK.EXTRA_ONBOARDING_STATE)) {
-                    String value = extras.getString(OnboardingSDK.EXTRA_ONBOARDING_STATE);
+                if (extras != null && extras.containsKey(OnboardingManager.EXTRA_ONBOARDING_STATE)) {
+                    String value = extras.getString(OnboardingManager.EXTRA_ONBOARDING_STATE);
                     if (value != null && !value.isEmpty()) {
                         if (OnboardingState.ABORTED.toString().equals(value)) {
                             showSuccessMessage("Success", "Abort has been completed");
@@ -102,7 +102,7 @@ public class MainActivity extends Activity {
                     }
                 }
 
-            } else if (intent.getAction().equals(OnboardingSDK.ERROR)) {
+            } else if (intent.getAction().equals(OnboardingManager.ERROR)) {
 
                 showErrorMessage(getString(R.string.error), intentString);
             }
@@ -227,11 +227,11 @@ public class MainActivity extends Activity {
         logList = (ListView) findViewById(R.id.main_log_list);
         logListAdapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1);
 
-        // Creates new IntentFilter and add two main OnboardingSDK Actions to
+        // Creates new IntentFilter and add two main OnboardingManager Actions to
         // it.
         mainFilter = new IntentFilter();
-        mainFilter.addAction(OnboardingSDK.STATE_CHANGE_ACTION);
-        mainFilter.addAction(OnboardingSDK.ERROR);
+        mainFilter.addAction(OnboardingManager.STATE_CHANGE_ACTION);
+        mainFilter.addAction(OnboardingManager.ERROR);
     }
 
 
@@ -250,7 +250,7 @@ public class MainActivity extends Activity {
 
 
     /**
-     * shutdown the OnboardingSDK
+     * shutdown the OnboardingManager
      */
     @Override
     protected void onDestroy() {
@@ -258,11 +258,11 @@ public class MainActivity extends Activity {
 
         try {
 
-            OnboardingSDK.getInstance().shutDown();
+            OnboardingManager.getInstance().shutDown();
         } catch (OnboardingIllegalStateException e) {
             try {
-                OnboardingSDK.getInstance().abortOnboarding();
-                OnboardingSDK.getInstance().shutDown();
+                OnboardingManager.getInstance().abortOnboarding();
+                OnboardingManager.getInstance().shutDown();
             } catch (OnboardingIllegalStateException e1) {
                 e1.printStackTrace();
             }
@@ -273,7 +273,7 @@ public class MainActivity extends Activity {
 
 
     /**
-     * Perform Wi-Fi scanning using OnboardingSDK and display alert when done
+     * Perform Wi-Fi scanning using OnboardingManager and display alert when done
      */
     private void handleScanWifiOnClick() {
         final ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
@@ -293,11 +293,11 @@ public class MainActivity extends Activity {
             }
         };
 
-        IntentFilter wifiFilter = new IntentFilter(OnboardingSDK.WIFI_SCAN_RESULTS_AVAILABLE_ACTION);
+        IntentFilter wifiFilter = new IntentFilter(OnboardingManager.WIFI_SCAN_RESULTS_AVAILABLE_ACTION);
         registerReceiver(wifireceiver, wifiFilter);
 
         try {
-            OnboardingSDK.getInstance().scanWiFi();
+            OnboardingManager.getInstance().scanWiFi();
             progressDialog.show();
         } catch (WifiDisabledException e) {
             showErrorMessage(getString(R.string.alert_title_wifi_error), getString(R.string.alert_msg_wifi_disabled));
@@ -326,7 +326,7 @@ public class MainActivity extends Activity {
         final EditText passwordEditText = (EditText) networkCredentialsLayout.findViewById(R.id.network_credentials_password_editText);
         final Spinner authTypeSpinner = (Spinner) networkCredentialsLayout.findViewById(R.id.network_credentials_layout_authType_spinner);
         final EditText timeoutEditText = (EditText) networkCredentialsLayout.findViewById(R.id.network_credentials_timeout_editText);
-        timeoutEditText.setText(String.valueOf(OnboardingSDK.DEFAULT_WIFI_CONNECTION_TIMEOUT));
+        timeoutEditText.setText(String.valueOf(OnboardingManager.DEFAULT_WIFI_CONNECTION_TIMEOUT));
 
         // prepare authentication type spinner
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.auth_types, android.R.layout.simple_spinner_item);
@@ -350,7 +350,7 @@ public class MainActivity extends Activity {
 
                 WiFiNetworkConfiguration wifi = new WiFiNetworkConfiguration(ssid, authType, password);
                 try {
-                    OnboardingSDK.getInstance().connectToNetwork(wifi, timeout);
+                    OnboardingManager.getInstance().connectToNetwork(wifi, timeout);
                 } catch (WifiDisabledException e) {
                     showErrorMessage(getString(R.string.alert_title_wifi_error), getString(R.string.alert_msg_wifi_disabled));
                     e.printStackTrace();
@@ -370,7 +370,7 @@ public class MainActivity extends Activity {
      * Display list of all available networks.
      */
     private void handleGetAllNetworksOnClick() {
-        final List<WiFiNetwork> allNetworks = OnboardingSDK.getInstance().getWifiScanResults(WifiFilter.ALL);
+        final List<WiFiNetwork> allNetworks = OnboardingManager.getInstance().getWifiScanResults(WifiFilter.ALL);
         String[] ssid = new String[allNetworks.size()];
         for (int i = 0; i < ssid.length; i++) {
             WiFiNetwork network = allNetworks.get(i);
@@ -391,7 +391,7 @@ public class MainActivity extends Activity {
      */
 
     private void handleGetCandidateTargetOnClick() {
-        final List<WiFiNetwork> candidateTargetNetworks = OnboardingSDK.getInstance().getWifiScanResults(WifiFilter.TARGET);
+        final List<WiFiNetwork> candidateTargetNetworks = OnboardingManager.getInstance().getWifiScanResults(WifiFilter.TARGET);
         String[] ssid = new String[candidateTargetNetworks.size()];
         for (int i = 0; i < ssid.length; i++) {
             WiFiNetwork network = candidateTargetNetworks.get(i);
@@ -428,7 +428,7 @@ public class MainActivity extends Activity {
 
         WiFiNetwork current = null;
         try {
-            current = OnboardingSDK.getInstance().getCurrentNetwork();
+            current = OnboardingManager.getInstance().getCurrentNetwork();
         } catch (WifiDisabledException e) {
             showErrorMessage(getString(R.string.alert_title_wifi_error), getString(R.string.alert_msg_wifi_disabled));
             e.printStackTrace();
@@ -446,7 +446,7 @@ public class MainActivity extends Activity {
      * contains the following prefix AJ_ or suffix _AJ
      */
     private void handleGetOnboardableOnClick() {
-        final List<WiFiNetwork> onboardableDevices = OnboardingSDK.getInstance().getWifiScanResults(WifiFilter.ONBOARDABLE);
+        final List<WiFiNetwork> onboardableDevices = OnboardingManager.getInstance().getWifiScanResults(WifiFilter.ONBOARDABLE);
         String[] ssid = new String[onboardableDevices.size()];
         for (int i = 0; i < ssid.length; i++) {
             WiFiNetwork network = onboardableDevices.get(i);
@@ -479,7 +479,7 @@ public class MainActivity extends Activity {
     /**
      * Display AlertDialog Pre-filled with selected device from
      * "Get Onboardable Devices" list, Selected target from
-     * "Get Candidate Terget" list and default timeout from OnboardingSDK. Call
+     * "Get Candidate Terget" list and default timeout from OnboardingManager. Call
      * runOnboarding with the given parameters.
      */
     private void handleRunOnboardingOnClick() {
@@ -516,8 +516,8 @@ public class MainActivity extends Activity {
             AuthType authType = selectedOnboardDevice.getAuthType();
             onboardeeAuthTypeSpinner.setSelection(getIndexForAuthType(authType));
         }
-        onboardeeConnectionTimeoutEditText.setText(String.valueOf(OnboardingSDK.DEFAULT_WIFI_CONNECTION_TIMEOUT));
-        onboardeeAnnouncementTimeoutEditText.setText(String.valueOf(OnboardingSDK.DEFAULT_ANNOUNCEMENT_TIMEOUT));
+        onboardeeConnectionTimeoutEditText.setText(String.valueOf(OnboardingManager.DEFAULT_WIFI_CONNECTION_TIMEOUT));
+        onboardeeAnnouncementTimeoutEditText.setText(String.valueOf(OnboardingManager.DEFAULT_ANNOUNCEMENT_TIMEOUT));
 
         // Set default values for onboardee using the selectedTargetNetwork
         if (selectedTargetNetwork != null) {
@@ -525,8 +525,8 @@ public class MainActivity extends Activity {
             AuthType authType = selectedTargetNetwork.getAuthType();
             targetAuthTypeSpinner.setSelection(getIndexForAuthType(authType));
         }
-        targetConnectionTimeoutEditText.setText(String.valueOf(OnboardingSDK.DEFAULT_WIFI_CONNECTION_TIMEOUT));
-        targetAnnouncementTimeoutEditText.setText(String.valueOf(OnboardingSDK.DEFAULT_ANNOUNCEMENT_TIMEOUT));
+        targetConnectionTimeoutEditText.setText(String.valueOf(OnboardingManager.DEFAULT_WIFI_CONNECTION_TIMEOUT));
+        targetAnnouncementTimeoutEditText.setText(String.valueOf(OnboardingManager.DEFAULT_ANNOUNCEMENT_TIMEOUT));
 
         builder.setView(networkCredentialsLayout);
         builder.setNegativeButton(R.string.cancel, null);
@@ -543,18 +543,18 @@ public class MainActivity extends Activity {
                 String onboardeePassword = (onboardeePasswordEditText.getText() != null ? onboardeePasswordEditText.getText().toString() : "");
                 AuthType onboardeeAuthType = AuthType.valueOf((String) onboardeeAuthTypeSpinner.getSelectedItem());
                 int onboardeeWifiTimeout = (onboardeeConnectionTimeoutEditText.getText() != null && onboardeeConnectionTimeoutEditText.getText().length() > 0 ? Integer
-                        .valueOf(onboardeeConnectionTimeoutEditText.getText().toString()) : OnboardingSDK.DEFAULT_WIFI_CONNECTION_TIMEOUT);
+                        .valueOf(onboardeeConnectionTimeoutEditText.getText().toString()) : OnboardingManager.DEFAULT_WIFI_CONNECTION_TIMEOUT);
                 int onboardeeAnnouncementTimeout = (onboardeeAnnouncementTimeoutEditText.getText() != null && onboardeeAnnouncementTimeoutEditText.getText().length() > 0 ? Integer
-                        .valueOf(onboardeeAnnouncementTimeoutEditText.getText().toString()) : OnboardingSDK.DEFAULT_ANNOUNCEMENT_TIMEOUT);
+                        .valueOf(onboardeeAnnouncementTimeoutEditText.getText().toString()) : OnboardingManager.DEFAULT_ANNOUNCEMENT_TIMEOUT);
 
                 // Read the target parameters from the view fields.
                 String targetSsid = (targetSsidEditText.getText() != null ? targetSsidEditText.getText().toString() : "");
                 String targetPassword = (targetPasswordEditText.getText() != null ? targetPasswordEditText.getText().toString() : "");
                 AuthType targetAuthType = AuthType.valueOf((String) targetAuthTypeSpinner.getSelectedItem());
                 int targetWifiTimeout = (targetConnectionTimeoutEditText.getText() != null && targetConnectionTimeoutEditText.getText().length() > 0 ? Integer.valueOf(targetConnectionTimeoutEditText
-                        .getText().toString()) : OnboardingSDK.DEFAULT_WIFI_CONNECTION_TIMEOUT);
+                        .getText().toString()) : OnboardingManager.DEFAULT_WIFI_CONNECTION_TIMEOUT);
                 int targetAnnouncementTimeout = (targetAnnouncementTimeoutEditText.getText() != null && targetAnnouncementTimeoutEditText.getText().length() > 0 ? Integer
-                        .valueOf(targetAnnouncementTimeoutEditText.getText().toString()) : OnboardingSDK.DEFAULT_ANNOUNCEMENT_TIMEOUT);
+                        .valueOf(targetAnnouncementTimeoutEditText.getText().toString()) : OnboardingManager.DEFAULT_ANNOUNCEMENT_TIMEOUT);
 
                 // Call the runOnboarding function with the relevant
                 // parameters.
@@ -566,7 +566,7 @@ public class MainActivity extends Activity {
                 OnboardingConfiguration config = new OnboardingConfiguration(onboardee, onboardeeWifiTimeout, onboardeeAnnouncementTimeout, target, targetWifiTimeout, targetAnnouncementTimeout);
 
                 try {
-                    OnboardingSDK.getInstance().runOnboarding(config);
+                    OnboardingManager.getInstance().runOnboarding(config);
                 } catch (OnboardingIllegalArgumentException e) {
                     showErrorMessage(getString(R.string.alert_title_runonboarding_error), getString(R.string.alert_msg_invalid_configuration));
                     e.printStackTrace();
@@ -627,7 +627,7 @@ public class MainActivity extends Activity {
                     // done properly by the SDK.
                     OffboardingConfiguration config = new OffboardingConfiguration(busNameEditText.getText().toString(), Short.valueOf(portEditText.getText().toString()));
                     try {
-                        OnboardingSDK.getInstance().runOffboarding(config);
+                        OnboardingManager.getInstance().runOffboarding(config);
                     } catch (OnboardingIllegalArgumentException e) {
                         showErrorMessage(getString(R.string.alert_title_runoffboarding_error), getString(R.string.alert_msg_invalid_configuration));
                         e.printStackTrace();
@@ -649,12 +649,12 @@ public class MainActivity extends Activity {
 
 
     /**
-     * Call abortOnboarding at the OnboardingSDK
+     * Call abortOnboarding at the OnboardingManager
      */
     private void handleAbortOnboardingOnClick() {
 
         try {
-            OnboardingSDK.getInstance().abortOnboarding();
+            OnboardingManager.getInstance().abortOnboarding();
 
             // Clear the log list
             logListAdapter.clear();
