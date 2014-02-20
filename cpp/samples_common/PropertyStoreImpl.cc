@@ -132,14 +132,14 @@ QStatus PropertyStoreImpl::Update(const char* name, const char* languageTag, con
         return ER_FEATURE_NOT_AVAILABLE;
     }
 
-    QStatus status = ER_OK;
-    if (languageTag != NULL && strcmp(languageTag, "")) {
-        return ER_INVALID_VALUE;
+    if (propertyKey == DEFAULT_LANG || propertyKey == DEVICE_NAME) {
+        languageTag = NULL;
     }
 
-    /*if (languageTag != NULL) {         // check that the language is in the supported languages;
+    QStatus status = ER_OK;
+    if (languageTag != NULL) {         // check that the language is in the supported languages;
         CHECK_RETURN(isLanguageSupported(languageTag))
-       }*/
+    }
 
     //validate that the value is acceptable
     qcc::String languageString = languageTag ? languageTag : "";
@@ -199,14 +199,14 @@ QStatus PropertyStoreImpl::Delete(const char* name, const char* languageTag)
         return ER_FEATURE_NOT_AVAILABLE;
     }
 
-    QStatus status = ER_OK;
-    if (languageTag != NULL && strcmp(languageTag, "")) {
-        return ER_INVALID_VALUE;
+    if (propertyKey == DEFAULT_LANG || propertyKey == DEVICE_NAME) {
+        languageTag = NULL;
     }
 
-    /*if (languageTag != NULL) {         // check that the language is in the supported languages;
+    QStatus status = ER_OK;
+    if (languageTag != NULL) {         // check that the language is in the supported languages;
         CHECK_RETURN(isLanguageSupported(languageTag))
-       }*/
+    }
 
     bool deleted = false;
     std::pair<PropertyMap::iterator, PropertyMap::iterator> propertiesIter = m_Properties.equal_range(propertyKey);
