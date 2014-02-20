@@ -25,7 +25,7 @@
  */
 
 /**
- * field indices
+ * Field indices
  */
 typedef enum _AJSVC_PropertyStoreFieldIndices {
     AJSVC_PROPERTY_STORE_ERROR_FIELD_INDEX = -1,
@@ -67,22 +67,22 @@ typedef enum _AJSVC_PropertyStoreFieldIndices {
 } AJSVC_PropertyStoreFieldIndices;
 
 /**
- * get maximum value length for given key
+ * Get maximum value length for given key.
  * @param reply
  * @param fieldIndex
  * @param langIndex
- * @return status
+ * @return aj_status
  */
 uint8_t AJSVC_PropertyStore_GetMaxValueLength(AJSVC_PropertyStoreFieldIndices fieldIndex);
 
 /**
- * language indices
+ * Language indices
  */
 #define AJSVC_PROPERTY_STORE_ERROR_LANGUAGE_INDEX   -1
 #define AJSVC_PROPERTY_STORE_NO_LANGUAGE_INDEX       0
 
 /**
- * bitfield that defines the category to filter the properties
+ * Bitfield that defines the category to filter the properties
  */
 typedef struct _AJSVC_PropertyStoreCategoryFilter {
     uint8_t bit0About : 1;
@@ -93,34 +93,34 @@ typedef struct _AJSVC_PropertyStoreCategoryFilter {
 } AJSVC_PropertyStoreCategoryFilter;
 
 /**
- * read all properties
+ * Read all properties that match filter for given a language.
  * @param reply
  * @param filter
  * @param langIndex
- * @return status
+ * @return aj_status
  */
 AJ_Status AJSVC_PropertyStore_ReadAll(AJ_Message* reply, AJSVC_PropertyStoreCategoryFilter filter, int8_t langIndex);
 
 /**
- * update given property
+ * Update given property with value for given language.
  * @param key
  * @param langIndex
  * @param value
- * @return status
+ * @return aj_status
  */
 AJ_Status AJSVC_PropertyStore_Update(const char* key, int8_t langIndex, const char* value);
 
 /**
- * reset given property back to default
+ * Reset given property back to default for given language.
  * @param key
  * @param langIndex
- * @return status
+ * @return aj_status
  */
 AJ_Status AJSVC_PropertyStore_Reset(const char* key, int8_t langIndex);
 
 /**
- * reset all properties back to defaults
- * @return status
+ * Reset all properties back to defaults.
+ * @return aj_status
  */
 AJ_Status AJSVC_PropertyStore_ResetAll();
 
@@ -132,14 +132,14 @@ AJ_Status AJSVC_PropertyStore_ResetAll();
 const char* AJSVC_PropertyStore_GetFieldName(AJSVC_PropertyStoreFieldIndices fieldIndex);
 
 /**
- * get field index for given field name
+ * Get field index for given field name.
  * @param fieldName
  * @return fieldIndex
  */
 AJSVC_PropertyStoreFieldIndices AJSVC_PropertyStore_GetFieldIndex(const char* fieldName);
 
 /**
- * get value for given field index for given language index
+ * Get value for given field index for given language index.
  * @param fieldIndex
  * @param langIndex
  * @return value
@@ -147,14 +147,14 @@ AJSVC_PropertyStoreFieldIndices AJSVC_PropertyStore_GetFieldIndex(const char* fi
 const char* AJSVC_PropertyStore_GetValueForLang(AJSVC_PropertyStoreFieldIndices fieldIndex, int8_t langIndex);
 
 /**
- * get value for field index for default language
+ * Get value for field index for default language.
  * @param fieldIndex
  * @return value
  */
 const char* AJSVC_PropertyStore_GetValue(AJSVC_PropertyStoreFieldIndices fieldIndex);
 
 /**
- * set value for given field index for given language index
+ * Set value for given field index for given language index.
  * @param fieldIndex
  * @param langIndex
  * @param value
@@ -163,7 +163,7 @@ const char* AJSVC_PropertyStore_GetValue(AJSVC_PropertyStoreFieldIndices fieldIn
 uint8_t AJSVC_PropertyStore_SetValueForLang(AJSVC_PropertyStoreFieldIndices fieldIndex, int8_t langIndex, const char* value);
 
 /**
- * set value for given field index for the default language
+ * Set value for given field index for the default language.
  * @param fieldIndex
  * @param value
  * @return success
@@ -171,32 +171,34 @@ uint8_t AJSVC_PropertyStore_SetValueForLang(AJSVC_PropertyStoreFieldIndices fiel
 uint8_t AJSVC_PropertyStore_SetValue(AJSVC_PropertyStoreFieldIndices fieldIndex, const char* value);
 
 /**
- * get default language index among all languages indexes
+ * Get default language index among all languages indexes.
  * @return langIndex
  */
 int8_t AJSVC_PropertyStore_GetCurrentDefaultLanguageIndex();
 
 /**
- * get language name for given language index
+ * Get language name for given language index.
  * @param langIndex
  * @return languageName
  */
 const char* AJSVC_PropertyStore_GetLanguageName(int8_t langIndex);
 
 /**
- * get the language index for the given language name
+ * Get the language index for the given language name.
  * @param language
  * @return langIndex
  */
 int8_t AJSVC_PropertyStore_GetLanguageIndex(const char* const language);
 
 /**
- * load all persisted values
+ * Load all persisted values.
+ * @return aj_status
  */
 AJ_Status AJSVC_PropertyStore_LoadAll();
 
 /**
- * save all persisted values
+ * Save all persisted values.
+ * @return aj_status
  */
 AJ_Status AJSVC_PropertyStore_SaveAll();
 
