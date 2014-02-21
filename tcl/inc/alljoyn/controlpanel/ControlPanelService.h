@@ -77,28 +77,87 @@ typedef uint8_t (*AJCPS_IdentifyRootMsgOrPropId)(uint32_t identifier);
  * @param identifyMsgOrPropId
  * @param identifyMsgOrPropIdForSignal
  * @param identifyRootMsgOrPropId
- * @return status
+ * @return aj_status
  */
 AJ_Status AJCPS_Start(AJSVC_MessageProcessor generatedMessageProcessor, AJCPS_IdentifyMsgOrPropId identifyMsgOrPropId, AJCPS_IdentifyMsgOrPropIdForSignal identifyMsgOrPropIdForSignal, AJCPS_IdentifyRootMsgOrPropId identifyRootMsgOrPropId);
 
 /**
- * return the current session id
+ * Return the current session's id.
  * @return sessionId
  */
 uint32_t AJCPS_GetCurrentSessionId();
 
+/**
+ * Session request accept/reject function for service targetted session
+ * @param port
+ * @param sessionId
+ * @param joiner
+ */
 uint8_t AJCPS_CheckSessionAccepted(uint16_t port, uint32_t sessionId, char* joiner);
 
+/**
+ * Function called after busAttachment connects to router
+ * @param busAttachment
+ * @return aj_status
+ */
 AJ_Status AJCPS_ConnectedHandler(AJ_BusAttachment* busAttachment);
 
+/**
+ * MessageProcessor function for the producer
+ * @param busAttachment
+ * @param msg
+ * @param msgStatus
+ * @return serviceStatus - was message handled
+ */
 AJSVC_ServiceStatus AJCPS_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* msgStatus);
 
+/**
+ * Function called after busAttachment disconnects from router
+ * @param busAttachment
+ * @return aj_status
+ */
 AJ_Status AJCPS_DisconnectHandler(AJ_BusAttachment* busAttachment);
 
+/**
+ * Send the root url of controlpanel model in reply to the message request.
+ * @param msg
+ * @param msgId
+ * @return aj_status
+ */
 AJ_Status AJCPS_SendRootUrl(AJ_Message* msg, uint32_t msgId);
+
+/**
+ * Set the widget property for the given propId in the provided message.
+ * @param replyMsg
+ * @param propId
+ * @param context
+ * @return aj_status
+ */
 AJ_Status AJCPS_GetWidgetProperty(AJ_Message* replyMsg, uint32_t propId, void* context);
+
+/**
+ * Set the root property for the given propId in the provided message.
+ * @param replyMsg
+ * @param propId
+ * @param context
+ * @return aj_status
+ */
 AJ_Status AJCPS_GetRootProperty(AJ_Message* replyMsg, uint32_t propId, void* context);
+
+/**
+ * Send all the root properties for the given msgId in reply to the message request.
+ * @param msg
+ * @param msgId
+ * @return aj_status
+ */
 AJ_Status AJCPS_GetAllRootProperties(AJ_Message* msg, uint32_t msgId);
+
+/**
+ * Send all the widget properties for the given msgId in reply to the message request.
+ * @param msg
+ * @param msgId
+ * @return aj_status
+ */
 AJ_Status AJCPS_GetAllWidgetProperties(AJ_Message* msg, uint32_t msgId);
 
 #endif /* CONTROLPANELRESPONSES_H_ */
