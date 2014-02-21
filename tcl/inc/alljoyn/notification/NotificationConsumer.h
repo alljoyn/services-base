@@ -26,6 +26,10 @@
 #define NUMALLOWEDTEXTS                 10
 #define NUMALLOWEDRICHNOTS              10
 
+/**
+ * Published Notification Signal Receiver Proxy BusObjects and Interfaces.
+ */
+
 /*
  * Following definitions are read by the application.
  */
@@ -36,6 +40,9 @@
     { AJNS_NotificationProducerObjectPath,   AJNS_NotificationProducerInterfaces }, \
     { "*",  AJNS_NotificationDismisserInterfaces },
 
+/**
+ * Utility structure for saving a reference to a received notification.
+ */
 typedef struct _AJNS_Consumer_NotificationReference {
     uint16_t version;
     int32_t notificationId;

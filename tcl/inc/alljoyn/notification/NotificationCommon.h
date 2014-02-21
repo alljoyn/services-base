@@ -20,7 +20,7 @@
 #include <alljoyn.h>
 
 /**
- * Definitions
+ * Definitions of notification attribute keys.
  */
 #define AJNS_RICH_CONTENT_ICON_URL_ATTRIBUTE_KEY             0
 #define AJNS_RICH_CONTENT_AUDIO_URL_ATTRIBUTE_KEY            1
@@ -29,10 +29,13 @@
 #define AJNS_CONTROLPANELSERVICE_OBJECT_PATH_ATTRIBUTE_KEY   4
 #define AJNS_ORIGINAL_SENDER_NAME_ATTRIBUTE_KEY              5
 
+/**
+ * Number of message types.
+ */
 #define AJNS_NUM_MESSAGE_TYPES 3
 
 /**
- * Generic structure for key=value
+ * Generic structure for key value pairs.
  */
 typedef struct _AJNS_DictionaryEntry {
     const char* key;
@@ -113,17 +116,17 @@ extern const uint16_t AJNS_NOTIFICATION_TTL_MAX;
 /**
  * Notification Dismisser object for the Dismiss signal emitter
  */
-/*
+/**
  * Notification Dismisser interface name followed by the method signatures.
  *
  * See also .\inc\aj_introspect.h
  */
 extern const char* const AJNS_NotificationDismisserInterface[];
-/*
+/**
  * Notification Dismisser interface version property value
  */
 extern const uint16_t AJNS_NotificationDismisserVersion;
-/*
+/**
  * Notification Dismisser interface signal emitter
  */
 AJ_Status AJNS_SendDismissSignal(AJ_BusAttachment* busAttachment, int32_t msgId, const char* appId);
@@ -131,7 +134,7 @@ AJ_Status AJNS_SendDismissSignal(AJ_BusAttachment* busAttachment, int32_t msgId,
  * A NULL terminated collection of all NotificationDismisser interfaces.
  */
 extern const AJ_InterfaceDescription AJNS_NotificationDismisserInterfaces[];
-/*
+/**
  * Notification Dismisser signal emitter object path
  */
 extern char AJNS_NotificationDismisserObjectPath[];
@@ -172,4 +175,5 @@ extern const char AJNS_NotificationProducerObjectPath[];
  * The Notification service Producer port
  */
 extern const uint16_t AJNS_NotificationProducerPort;
+
 #endif /* _NOTIFICATIONCOMMON_H_ */
