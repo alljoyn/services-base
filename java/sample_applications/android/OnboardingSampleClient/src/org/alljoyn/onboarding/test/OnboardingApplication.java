@@ -32,8 +32,10 @@ import org.alljoyn.bus.SessionOpts;
 import org.alljoyn.bus.Status;
 import org.alljoyn.bus.Variant;
 import org.alljoyn.bus.alljoyn.DaemonInit;
+import org.alljoyn.onboarding.OnboardingService.AuthType;
 import org.alljoyn.onboarding.client.OnboardingClientImpl;
 import org.alljoyn.onboarding.transport.OBLastError;
+import org.alljoyn.onboarding.transport.OnboardingTransport.ConfigureWifiMode;
 import org.alljoyn.onboarding.transport.ScanInfo;
 import org.alljoyn.services.android.security.AuthPasswordHandler;
 import org.alljoyn.services.android.security.SrpAnonymousKeyListener;
@@ -531,7 +533,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
 				m_onboardingClient.connect();
 			}
 			Log.d(TAG, "ONBOARDING: connect() succeeded. before configureWiFi()");
-			short mode = m_onboardingClient.configureWiFi(networkName, networkPassword, networkAuthType);
+			ConfigureWifiMode mode = m_onboardingClient.configureWiFi(networkName, networkPassword, AuthType.getAuthTypeById(networkAuthType));
 			System.out.println(mode);
 			Log.d(TAG, "ONBOARDING: configureWiFi() succeeded. before disconnect()");
 
