@@ -34,25 +34,25 @@ public class OnboardingConfiguration {
      * Stores the timeout of establishing WIFI connection with the onboardee in
      * msec.
      */
-    private long onboardeeConnectionTimeout = OnboardingSDK.DEFAULT_WIFI_CONNECTION_TIMEOUT;
+    private long onboardeeConnectionTimeout = OnboardingManager.DEFAULT_WIFI_CONNECTION_TIMEOUT;
 
     /**
      * Stores the timeout of waiting for announcement from the onboardee after
      * establishing WIFI connection with the onboardee in msec.
      */
-    private long onboardeeAnnoucementTimeout = OnboardingSDK.DEFAULT_ANNOUNCEMENT_TIMEOUT;
+    private long onboardeeAnnoucementTimeout = OnboardingManager.DEFAULT_ANNOUNCEMENT_TIMEOUT;
 
     /**
      * Stores the timeout of establishing WIFI connection with the target in
      * msec.
      */
-    private long targetConnectionTimeout = OnboardingSDK.DEFAULT_WIFI_CONNECTION_TIMEOUT;
+    private long targetConnectionTimeout = OnboardingManager.DEFAULT_WIFI_CONNECTION_TIMEOUT;
 
     /**
      * Stores the timeout of waiting for announcement from the onboardee after
      * establishing WIFI connection with the target in msec.
      */
-    private long targetAnnoucementTimeout = OnboardingSDK.DEFAULT_ANNOUNCEMENT_TIMEOUT;
+    private long targetAnnoucementTimeout = OnboardingManager.DEFAULT_ANNOUNCEMENT_TIMEOUT;
 
     /**
      * Constructor of OnboardingConfiguration that receives all parameters

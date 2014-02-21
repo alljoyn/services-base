@@ -18,7 +18,7 @@ package org.alljoyn.onboarding.sdk;
 
 /**
  * AllJoynManagmentCallback is an interface implemented by the application and
- * enables the OnboardingSDK to connect To AllJoyn framework . disconnect From
+ * enables the OnboardingManager to connect To AllJoyn framework . disconnect From
  * AllJoyn framework, this is a temporary solution to overcome sync loss when Wi-Fi network switches.
  */
 public interface AllJoynManagmentCallback {

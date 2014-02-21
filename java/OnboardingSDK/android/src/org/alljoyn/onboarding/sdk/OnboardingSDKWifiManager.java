@@ -131,7 +131,7 @@ class OnboardingSDKWifiManager {
      * <ul>
      *   <li>{@link WifiManager#SCAN_RESULTS_AVAILABLE_ACTION} - Wi-Fi scan is complete. handled by {@link #processScanResults(List)}
      *    <li>{@link WifiManager#NETWORK_STATE_CHANGED_ACTION} - the handset connected to a Wi-Fi access point. handled by {@link #processChangeOfNetwork(WifiInfo)}
-     *    <li>{@link WifiManager#SUPPLICANT_STATE_CHANGED_ACTION} - authentication error. Will fire a {@link OnboardingSDK#WIFI_AUTHENTICATION_ERROR} intent.
+     *    <li>{@link WifiManager#SUPPLICANT_STATE_CHANGED_ACTION} - authentication error. Will fire a {@link OnboardingManager#WIFI_AUTHENTICATION_ERROR} intent.
      * </ul>
      * using synchronized to protect against concurrent onRecive(..) calls that set targetWifiConfiguration in a non steady state.
      */
@@ -179,8 +179,8 @@ class OnboardingSDKWifiManager {
                             stopWifiTimeoutTimer();
 
                             Bundle extras = new Bundle();
-                            extras.putParcelable(OnboardingSDK.EXTRA_WIFI_WIFICONFIGURATION, targetWifiConfiguration);
-                            sendBroadcast(OnboardingSDK.WIFI_AUTHENTICATION_ERROR, extras);
+                            extras.putParcelable(OnboardingManager.EXTRA_WIFI_WIFICONFIGURATION, targetWifiConfiguration);
+                            sendBroadcast(OnboardingManager.WIFI_AUTHENTICATION_ERROR, extras);
                             targetWifiConfiguration=null;
                         }
                     }
@@ -200,7 +200,7 @@ class OnboardingSDKWifiManager {
      * Filter out empty or duplicate access
      * point names, and normalize access point names, then split the results
      * between the onboardableAPlist and the nonOnboardableAPlist lists. After
-     * completion send {@link OnboardingSDK#WIFI_SCAN_RESULTS_AVAILABLE_ACTION}
+     * completion send {@link OnboardingManager#WIFI_SCAN_RESULTS_AVAILABLE_ACTION}
      * intent with onboardableAPlist,nonOnboardableAPlist as extra data.
      *
      * @param scans
@@ -245,10 +245,10 @@ class OnboardingSDKWifiManager {
 
             // broadcast a WIFI_SCAN_RESULTS_AVAILABLE_ACTION intent
             Bundle extras = new Bundle();
-            extras.putParcelableArrayList(OnboardingSDK.EXTRA_ONBOARDEES_AP, onboardableAPlist);
-            extras.putParcelableArrayList(OnboardingSDK.EXTRA_TARGETS_AP, nonOnboardableAPlist);
-            extras.putParcelableArrayList(OnboardingSDK.EXTRA_ALL_AP,allAPlist);
-            sendBroadcast(OnboardingSDK.WIFI_SCAN_RESULTS_AVAILABLE_ACTION, extras);
+            extras.putParcelableArrayList(OnboardingManager.EXTRA_ONBOARDEES_AP, onboardableAPlist);
+            extras.putParcelableArrayList(OnboardingManager.EXTRA_TARGETS_AP, nonOnboardableAPlist);
+            extras.putParcelableArrayList(OnboardingManager.EXTRA_ALL_AP,allAPlist);
+            sendBroadcast(OnboardingManager.WIFI_SCAN_RESULTS_AVAILABLE_ACTION, extras);
         }
     }
 
@@ -261,7 +261,7 @@ class OnboardingSDKWifiManager {
      *
      * <P>
      * If the connection was successful the
-     * {@link OnboardingSDK#WIFI_CONNECTED_BY_REQUEST_ACTION} intent will be
+     * {@link OnboardingManager#WIFI_CONNECTED_BY_REQUEST_ACTION} intent will be
      * sent
      *
      * @param wifiInfo
@@ -285,8 +285,8 @@ class OnboardingSDKWifiManager {
                     // timer should be cancelled
                     stopWifiTimeoutTimer();
 
-                    String intentAction = OnboardingSDK.WIFI_CONNECTED_BY_REQUEST_ACTION;
-                    extras.putParcelable(OnboardingSDK.EXTRA_WIFI_WIFICONFIGURATION, targetWifiConfiguration);
+                    String intentAction = OnboardingManager.WIFI_CONNECTED_BY_REQUEST_ACTION;
+                    extras.putParcelable(OnboardingManager.EXTRA_WIFI_WIFICONFIGURATION, targetWifiConfiguration);
                     sendBroadcast(intentAction, extras);
                     targetWifiConfiguration = null;
                 }
@@ -494,8 +494,8 @@ class OnboardingSDKWifiManager {
             if (!wepCheckResult.first) {
                 Log.i(TAG, "connectToWifiAP  auth type = WEP: password " + password + " invalid length or charecters");
                 Bundle extras = new Bundle();
-                extras.putParcelable(OnboardingSDK.EXTRA_WIFI_WIFICONFIGURATION, wifiConfiguration);
-                sendBroadcast(OnboardingSDK.WIFI_AUTHENTICATION_ERROR, extras);
+                extras.putParcelable(OnboardingManager.EXTRA_WIFI_WIFICONFIGURATION, wifiConfiguration);
+                sendBroadcast(OnboardingManager.WIFI_AUTHENTICATION_ERROR, extras);
                 return;
             }
             Log.i(TAG, "connectToWifiAP [WEP] using " + (!wepCheckResult.second ? "ASCII" : "HEX"));
@@ -553,8 +553,8 @@ class OnboardingSDKWifiManager {
         if (networkId < 0) {
             Log.d(TAG, "connectToWifiAP networkId <0  WIFI_AUTHENTICATION_ERROR");
             Bundle extras = new Bundle();
-            extras.putParcelable(OnboardingSDK.EXTRA_WIFI_WIFICONFIGURATION, wifiConfiguration);
-            sendBroadcast(OnboardingSDK.WIFI_AUTHENTICATION_ERROR, extras);
+            extras.putParcelable(OnboardingManager.EXTRA_WIFI_WIFICONFIGURATION, wifiConfiguration);
+            sendBroadcast(OnboardingManager.WIFI_AUTHENTICATION_ERROR, extras);
             return;
         }
         Log.d(TAG, "connectToWifiAP calling connect");
@@ -617,8 +617,8 @@ class OnboardingSDKWifiManager {
             public void run() {
                 Log.e(TAG, "Network Listener WIFI_TIMEOUT  when trying to connect to " + normalizeSSID(targetWifiConfiguration.SSID));
                 Bundle extras = new Bundle();
-                extras.putParcelable(OnboardingSDK.EXTRA_WIFI_WIFICONFIGURATION, wifiConfig);
-                sendBroadcast(OnboardingSDK.WIFI_TIMEOUT_ACTION, extras);
+                extras.putParcelable(OnboardingManager.EXTRA_WIFI_WIFICONFIGURATION, wifiConfig);
+                sendBroadcast(OnboardingManager.WIFI_TIMEOUT_ACTION, extras);
             }
         }, timeoutMsec);
 
