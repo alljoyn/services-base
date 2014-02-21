@@ -27,7 +27,6 @@
 #include <alljoyn/notification/NotificationProducer.h>
 #include <alljoyn/services_common/PropertyStore.h>
 #include <aj_crypto.h>
-#include <aj_debug.h>
 #include <aj_config.h>
 
 /*!
