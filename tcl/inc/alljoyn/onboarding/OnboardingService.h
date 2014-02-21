@@ -17,15 +17,16 @@
 #ifndef _ONBOARDINGSERVICE_H_
 #define _ONBOARDINGSERVICE_H_
 
-/** @defgroup Onboarding Service
+/** @defgroup Onboarding Service Framework
  *
  *  @{
  */
 
+#include <alljoyn.h>
 #include <alljoyn/services_common/Services_Common.h>
 
 /**
- * published Onboarding Service objects and interfaces
+ * Published Onboarding BusObjects and Interfaces.
  */
 extern const AJ_InterfaceDescription AJSVC_OnboardingInterfaces[];
 
@@ -38,6 +39,9 @@ extern const AJ_InterfaceDescription AJSVC_OnboardingInterfaces[];
 #define ONBOARDING_APPOBJECTS   \
     { "/Onboarding",         AJSVC_OnboardingInterfaces },
 
+/**
+ * List of Announced Onboarding BusObjects passed to the About feature for inclusion in the Announcement signal.
+ */
 #ifndef ONBOARDING_ANNOUNCEOBJECTS
 #define ONBOARDING_ANNOUNCEOBJECTS  ONBOARDING_APPOBJECTS
 #endif
@@ -63,11 +67,11 @@ extern const AJ_InterfaceDescription AJSVC_OnboardingInterfaces[];
 #define AJOBS_SSID_MAX_LENGTH 32
 
 /*
- * Onboarding Service API
+ * Onboarding Service Message Handlers
  */
 
 /**
- * handler for property getters associated with org.alljoyn.Onboarding
+ * Handler for property getters associated with org.alljoyn.Onboarding.
  * @param replyMsg
  * @param propId
  * @param context
@@ -76,7 +80,7 @@ extern const AJ_InterfaceDescription AJSVC_OnboardingInterfaces[];
 AJ_Status AJOBS_PropGetHandler(AJ_Message* replyMsg, uint32_t propId, void* context);
 
 /**
- * handler for property setters associated with org.alljoyn.Onboarding
+ * Handler for property setters associated with org.alljoyn.Onboarding.
  * @param replyMsg
  * @param propId
  * @param context
@@ -85,28 +89,28 @@ AJ_Status AJOBS_PropGetHandler(AJ_Message* replyMsg, uint32_t propId, void* cont
 AJ_Status AJOBS_PropSetHandler(AJ_Message* replyMsg, uint32_t propId, void* context);
 
 /**
- * handler for ConfigureWiFi request in org.alljoyn.Onboarding
+ * Handler for ConfigureWiFi request in org.alljoyn.Onboarding.
  * @param msg
  * @return aj_status
  */
 AJ_Status AJOBS_ConfigureWiFiHandler(AJ_Message* msg);
 
 /**
- * handler for ConnectWiFi request in org.alljoyn.Onboarding
+ * Handler for ConnectWiFi request in org.alljoyn.Onboarding.
  * @param msg
  * @return aj_status
  */
 AJ_Status AJOBS_ConnectWiFiHandler(AJ_Message* msg);
 
 /**
- * handler for OffboardWiFi request in org.alljoyn.Onboarding
+ * Handler for OffboardWiFi request in org.alljoyn.Onboarding.
  * @param msg
  * @return aj_status
  */
 AJ_Status AJOBS_OffboardWiFiHandler(AJ_Message* msg);
 
 /**
- * handler for GetScanInfo request in org.alljoyn.Onboarding
+ * Handler for GetScanInfo request in org.alljoyn.Onboarding.
  * @param msg
  * @return aj_status
  */
@@ -114,7 +118,7 @@ AJ_Status AJOBS_GetScanInfoHandler(AJ_Message* msg);
 
 /*
    //will be used in future versions
-   AJ_Status OBS_SendConnectionResult(AJ_BusAttachment* bus);
+   AJ_Status AJOBS_SendConnectionResult(AJ_BusAttachment* bus);
  */
 
 /** @} */
