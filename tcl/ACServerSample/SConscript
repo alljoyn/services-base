@@ -32,6 +32,12 @@ sersamp_env = env.Clone()
 
 Export('sersamp_env')
 
+if sersamp_env['VARIANT'] == 'debug':
+    sersamp_env.Append(CPPDEFINES = ['ER_DEBUG_AJSVCAPP=1'])
+    sersamp_env.Append(CPPDEFINES = ['ER_DEBUG_AJSERVICESHANDLERS=1'])
+    sersamp_env.Append(CPPDEFINES = ['ER_DEBUG_AJSVCALL=1'])
+    sersamp_env.Append(CPPDEFINES = ['AJ_DEBUG_RESTRICT=AJ_DEBUG_INFO'])
+
 sersamp_env.Append(CPPPATH = [Dir('../')])
 sersamp_env.Append(CPPPATH = [Dir('../../AppsCommon/inc')])
 sersamp_env.Append(CPPPATH = [Dir('../../AppsCommon/target/' + sersamp_env['TARG'])])
