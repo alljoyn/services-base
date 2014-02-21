@@ -17,7 +17,7 @@
 #ifndef _CONFIGSERVICE_H_
 #define _CONFIGSERVICE_H_
 
-/** @defgroup Config Service
+/** @defgroup Config Service Framework
  *
  *  @{
  */
@@ -26,7 +26,7 @@
 #include <alljoyn/services_common/Services_Common.h>
 
 /**
- * published Config Service objects and interfaces
+ * Published Config BusObjects and Interfaces.
  */
 extern const AJ_InterfaceDescription AJSVC_ConfigInterfaces[];
 
@@ -39,62 +39,68 @@ extern const AJ_InterfaceDescription AJSVC_ConfigInterfaces[];
 #define CONFIG_APPOBJECTS \
     { "/Config",             AJSVC_ConfigInterfaces },
 
+/**
+ * List of Announced Config BusObjects passed to the About feature for inclusion in the Announcement signal.
+ */
 #ifndef CONFIG_ANNOUNCEOBJECTS
 #define CONFIG_ANNOUNCEOBJECTS CONFIG_APPOBJECTS
 #endif
 
 /**
- * actions to perform when factory reset is requested
+ * Actions to perform when factory reset is requested.
+ * Performed by the application.
  * @return status
  */
 typedef AJ_Status (*AJCFG_FactoryReset)(void);
 
 /**
- * actions to perform when a device restart is requested
- * @return status
+ * Actions to perform when a device restart is requested.
+ * Performed by the application.
+ * @return aj_status
  */
 typedef AJ_Status (*AJCFG_Restart)(void);
 
 /**
- * actions to perform when a new device passcode is set
- * @param daemonRealm
+ * Actions to perform when a new device passcode is set.
+ * Performed by the application.
+ * @param routerRealm
  * @param newPasscode
  * @param newPasscodeLen
- * @return status
+ * @return aj_status
  */
-typedef AJ_Status (*AJCFG_SetPasscode)(const char* daemonRealm, const uint8_t* newPasscode, uint8_t newPasscodeLen);
+typedef AJ_Status (*AJCFG_SetPasscode)(const char* routerRealm, const uint8_t* newPasscode, uint8_t newPasscodeLen);
 
 /**
- * check whether the given value is valid for the given key
+ * Check whether the given value is valid for the given key.
  * @param key
  * @param value
  * @return isValid
  */
 typedef uint8_t (*AJCFG_IsValueValid)(const char* key, const char* value);
 
-/*
+/**
  * Config Service API
  */
 
 /**
- * Start Config service framework passing callbacks
+ * Start Config service framework passing callbacks.
  * @param factoryReset
  * @param restart
  * @param setPasscode
  * @param isValueValid
- * @return status
+ * @return aj_status
  */
 AJ_Status AJCFG_Start(AJCFG_FactoryReset factoryReset, AJCFG_Restart restart, AJCFG_SetPasscode setPasscode, AJCFG_IsValueValid isValueValid);
 
 /**
- * on connected service
+ * Called when router is connected.
  * @param bus
  * @return aj_status
  */
 AJ_Status AJCFG_ConnectedHandler(AJ_BusAttachment* busAttachment);
 
 /**
- * on processing message
+ * Called when a new incoming message requires processing.
  * @param bus
  * @param msg
  * @return aj_status
@@ -102,8 +108,8 @@ AJ_Status AJCFG_ConnectedHandler(AJ_BusAttachment* busAttachment);
 AJSVC_ServiceStatus AJCFG_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* msgStatus);
 
 /**
- * on disconnect service
- * @param bus
+ * Called just before the router disconnects.
+ * @param busAttachment
  * @return aj_status
  */
 AJ_Status AJCFG_DisconnectHandler(AJ_BusAttachment* busAttachment);

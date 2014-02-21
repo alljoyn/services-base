@@ -343,27 +343,28 @@ AJ_Status AJCFG_SetPasscodeHandler(AJ_Message* msg)
     if (status != AJ_OK) {
         return status;
     }
-    status = AJ_MarshalReplyMsg(msg, &reply);
-    if (status != AJ_OK) {
-        return status;
-    }
-    if (newPasscode.typeId == AJ_ARG_BYTE) {
-        AJ_InfoPrintf(("Passcode %d bytes long\n", newPasscode.len));
-        if (newPasscode.len > 0) { // Check passcode is not empty
-            if (appSetPasscode) {
-                status = (appSetPasscode)(daemonRealm, (const uint8_t*)newPasscode.val.v_string, (uint8_t)newPasscode.len);
-                if (status == AJ_ERR_RESOURCES) { // Check passcode is too long to persist
-                    AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_MAX_SIZE_EXCEEDED);
+    AJ_InfoPrintf(("Passcode=%d bytes long\n", newPasscode.len));
+    if (newPasscode.len > 0) { // Check passcode is not empty
+        status = AJ_MarshalReplyMsg(msg, &reply);
+        if (status != AJ_OK) {
+            return status;
+        }
+        if (appSetPasscode) {
+            status = (appSetPasscode)(daemonRealm, (const uint8_t*)newPasscode.val.v_string, (uint8_t)newPasscode.len);
+            if (status == AJ_ERR_RESOURCES) { // Check passcode is too long to persist
+                status = AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_MAX_SIZE_EXCEEDED);
+                if (status != AJ_OK) {
+                    return status;
                 }
-                forceRouterDisconnect = (status == AJ_ERR_READ);
             }
-        } else {
-            AJ_ErrPrintf(("Error - newPasscode cannot be empty!\n"));
-            AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_INVALID_VALUE);
+            forceRouterDisconnect = (status == AJ_ERR_READ);
         }
     } else {
-        AJ_ErrPrintf(("Error - newPasscode is not an 'ay' rather type '%c'!\n", newPasscode.typeId));
-        AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_INVALID_VALUE);
+        AJ_ErrPrintf(("Error - newPasscode cannot be empty!\n"));
+        status = AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_INVALID_VALUE);
+        if (status != AJ_OK) {
+            return status;
+        }
     }
     status = AJ_DeliverMsg(&reply);
 
