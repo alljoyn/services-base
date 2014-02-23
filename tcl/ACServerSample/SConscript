@@ -58,17 +58,17 @@ objs.extend(SConscript('../../../../notification/tcl/src/NotificationCommon/SCon
 srcs.extend(['ControlPanelGenerated.c', 'ControlPanelProvided.c', 'ControlPanelSample.c'])
 objs.extend(SConscript('../../../../controlpanel/tcl/SConscript', {'cps_env': sersamp_env}))
 
-objs.extend(sersamp_env.Object(srcs, variant_dir = 'obj', duplicate = 0))
+objs.extend(sersamp_env.Object(srcs))
 
 objs.extend(sersamp_env.SConscript('../../../../services_common/tcl/SConscript', {'services_common_env': sersamp_env}))
 
 objs.extend(sersamp_env.SConscript('../../../../../core/about_tcl/tcl/SConscript', {'about_env': sersamp_env}))
 
 prog = sersamp_env.Program(
-    target = 'obj/' + main_exe,
+    target = main_exe,
     source = [
               objs,
               sersamp_env['aj_obj'],
     ]
  )
-sersamp_env.Install('build', prog)
+sersamp_env.Install('../build', prog)
