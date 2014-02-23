@@ -45,6 +45,11 @@ cps_env = env.Clone()
 
 cps_env['CONTROLPANEL_DEFINE_STRING'] = 'CONTROLPANEL_SERVICE'
 cps_env.Append(CPPDEFINES = '$CONTROLPANEL_DEFINE_STRING')
+if cps_env['VARIANT'] == 'debug':
+    cps_env.Append(CPPDEFINES = ['ER_DEBUG_AJSVCAPP=1'])
+    cps_env.Append(CPPDEFINES = ['ER_DEBUG_AJSVCALL=1'])
+    cps_env.Append(CPPDEFINES = ['AJ_DEBUG_RESTRICT=AJ_DEBUG_INFO'])
+
 
 target_name = 'ControlPanelClient'
 source_files = [
