@@ -29,7 +29,7 @@
 #include <PropertyStoreOEMProvisioning.h>
 
 #ifndef NDEBUG
-extern AJ_EXPORT uint8_t dbgAJSVCAPP;
+AJ_EXPORT uint8_t dbgAJSVCAPP = 1;
 #endif
 
 #define CPSC_CONNECT_TIMEOUT     (1000 * 60)
@@ -43,21 +43,10 @@ uint8_t isBusConnected = FALSE;
 static char busAddress[] = "org.alljoyn.BusNode";
 uint32_t sessionId = 0;
 
-static const char* const AboutInterface[] = {
-    "org.alljoyn.About",
-    "!Announce >q >q >a(oas) >a{sv}",
-    NULL
-};
-
-const AJ_InterfaceDescription AboutInterfaces[] = {
-    AboutInterface,
-    NULL
-};
-
 AJ_Object AppObjects[] =
 {
+    ABOUT_APPOBJECTS
     CONTROLPANEL_APPOBJECTS
-    { "/About", AboutInterfaces },
     { NULL }
 };
 
@@ -65,7 +54,7 @@ const AJ_Object AnnounceObjects[] = {
     { NULL, NULL }
 };
 
-#define CONTROL_ANNOUNCE_SIGNAL_RECEIVED  AJ_PRX_MESSAGE_ID(NUM_CONTROLPANEL_OBJECTS, 0, 0)
+#define CONTROL_ANNOUNCE_SIGNAL_RECEIVED  AJ_PRX_MESSAGE_ID(0, 1, 3)
 
 const char* deviceManufactureName = "COMPANY";
 const char* deviceProductName = "GENERIC BOARD";
