@@ -193,12 +193,12 @@ static const char* programString = "Program";
 
 void startOven()
 {
-    AJ_InfoPrintf(("**************** Starting the Oven ****************\n"));
+    AJ_AlwaysPrintf(("**************** Starting the Oven ****************\n"));
 }
 
 void stopOven()
 {
-    AJ_InfoPrintf(("**************** Stopping the Oven ****************\n"));
+    AJ_AlwaysPrintf(("**************** Stopping the Oven ****************\n"));
 }
 
 void*getTemperature()

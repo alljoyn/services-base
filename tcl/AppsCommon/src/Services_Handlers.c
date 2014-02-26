@@ -92,10 +92,10 @@ static uint32_t PasswordCallback(uint8_t* buffer, uint32_t bufLen)
 
     hexPassword = AJSVC_PropertyStore_GetValue(AJSVC_PROPERTY_STORE_PASSCODE);
     if (hexPassword == NULL) {
-        AJ_ErrPrintf(("Password is NULL!\n"));
+        AJ_AlwaysPrintf(("Password is NULL!\n"));
         return len;
     }
-    AJ_InfoPrintf(("Retrieved password=%s\n", hexPassword));
+    AJ_AlwaysPrintf(("Retrieved password=%s\n", hexPassword));
     hexPasswordLen = strlen(hexPassword);
     len = hexPasswordLen / 2;
     status = AJ_HexToRaw(hexPassword, hexPasswordLen, buffer, bufLen);
@@ -153,15 +153,15 @@ uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* routerName
 #ifdef ONBOARDING_SERVICE
         status = AJOBS_EstablishWiFi();
         if (status != AJ_OK) {
-            AJ_ErrPrintf(("Failed to establish WiFi connectivity with status=%s\n", AJ_StatusText(status)));
+            AJ_AlwaysPrintf(("Failed to establish WiFi connectivity with status=%s\n", AJ_StatusText(status)));
             AJ_Sleep(AJAPP_CONNECT_PAUSE);
             return FALSE;
         }
 #endif
-        AJ_InfoPrintf(("Attempting to connect to bus '%s'\n", routerName));
+        AJ_AlwaysPrintf(("Attempting to connect to bus '%s'\n", routerName));
         status = AJ_FindBusAndConnect(busAttachment, routerName, AJAPP_CONNECT_TIMEOUT);
         if (status != AJ_OK) {
-            AJ_InfoPrintf(("Failed to connect to bus sleeping for %d seconds\n", AJAPP_CONNECT_PAUSE / 1000));
+            AJ_AlwaysPrintf(("Failed to connect to bus sleeping for %d seconds\n", AJAPP_CONNECT_PAUSE / 1000));
             AJ_Sleep(AJAPP_CONNECT_PAUSE);
 #ifdef ONBOARDING_SERVICE
             if (status == AJ_ERR_DHCP) {
@@ -172,10 +172,10 @@ uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* routerName
         }
         const char* busUniqueName = AJ_GetUniqueName(busAttachment);
         if (busUniqueName == NULL) {
-            AJ_ErrPrintf(("Failed to GetUniqueName() from newly connected bus, retrying\n"));
+            AJ_AlwaysPrintf(("Failed to GetUniqueName() from newly connected bus, retrying\n"));
             continue;
         }
-        AJ_InfoPrintf(("Connected to router with BusUniqueName=%s\n", busUniqueName));
+        AJ_AlwaysPrintf(("Connected to router with BusUniqueName=%s\n", busUniqueName));
         break;
     }
     return TRUE;
@@ -300,7 +300,7 @@ AJ_Status AJServices_ConnectedHandler(AJ_BusAttachment* busAttachment)
 
 ErrorExit:
 
-    AJ_ErrPrintf(("Service ConnectedHandler returned an error %s\n", (AJ_StatusText(status))));
+    AJ_AlwaysPrintf(("Service ConnectedHandler returned an error %s\n", (AJ_StatusText(status))));
     return status;
 }
 
@@ -402,7 +402,7 @@ AJSVC_ServiceStatus AJServices_MessageProcessor(AJ_BusAttachment* busAttachment,
         session_accepted |= AJServices_CheckSessionAccepted(port, sessionId, joiner);
 
         *status = AJ_BusReplyAcceptSession(msg, session_accepted);
-        AJ_InfoPrintf(("%s session session_id=%u joiner=%s for port %u\n", (session_accepted ? "Accepted" : "Rejected"), sessionId, joiner, port));
+        AJ_AlwaysPrintf(("%s session session_id=%u joiner=%s for port %u\n", (session_accepted ? "Accepted" : "Rejected"), sessionId, joiner, port));
         serviceStatus = AJSVC_SERVICE_STATUS_HANDLED;
     } else if (msg->msgId == AJ_REPLY_ID(AJ_METHOD_JOIN_SESSION)) {     // Process all incoming replies to join a session and pass session state change to all services
         uint32_t replyCode = 0;
@@ -410,18 +410,18 @@ AJSVC_ServiceStatus AJServices_MessageProcessor(AJ_BusAttachment* busAttachment,
         uint8_t sessionJoined = FALSE;
         uint32_t joinSessionReplySerialNum = msg->replySerial;
         if (msg->hdr->msgType == AJ_MSG_ERROR) {
-            AJ_InfoPrintf(("JoinSessionReply: AJ_METHOD_JOIN_SESSION: AJ_ERR_FAILURE\n"));
+            AJ_AlwaysPrintf(("JoinSessionReply: AJ_METHOD_JOIN_SESSION: AJ_ERR_FAILURE\n"));
             *status = AJ_ERR_FAILURE;
         } else {
             *status = AJ_UnmarshalArgs(msg, "uu", &replyCode, &sessionId);
             if (*status != AJ_OK) {
-                AJ_ErrPrintf(("JoinSessionReply: failed to unmarshal\n"));
+                AJ_AlwaysPrintf(("JoinSessionReply: failed to unmarshal\n"));
             } else {
                 if (replyCode == AJ_JOINSESSION_REPLY_SUCCESS) {
-                    AJ_InfoPrintf(("JoinSessionReply: AJ_JOINSESSION_REPLY_SUCCESS with sessionId=%u and replySerial=%u\n", sessionId, joinSessionReplySerialNum));
+                    AJ_AlwaysPrintf(("JoinSessionReply: AJ_JOINSESSION_REPLY_SUCCESS with sessionId=%u and replySerial=%u\n", sessionId, joinSessionReplySerialNum));
                     sessionJoined = TRUE;
                 } else {
-                    AJ_InfoPrintf(("JoinSessionReply: AJ_ERR_FAILURE\n"));
+                    AJ_AlwaysPrintf(("JoinSessionReply: AJ_ERR_FAILURE\n"));
                     *status = AJ_ERR_FAILURE;
                 }
             }
@@ -443,9 +443,9 @@ AJSVC_ServiceStatus AJServices_MessageProcessor(AJ_BusAttachment* busAttachment,
             *status = AJ_UnmarshalArgs(msg, "u", &sessionId);
         }
         if (*status != AJ_OK) {
-            AJ_ErrPrintf(("JoinSessionReply: failed to marshal\n"));
+            AJ_AlwaysPrintf(("JoinSessionReply: failed to marshal\n"));
         } else {
-            AJ_InfoPrintf(("Session lost: sessionId = %u, reason = %u\n", sessionId, reason));
+            AJ_AlwaysPrintf(("Session lost: sessionId = %u, reason = %u\n", sessionId, reason));
             serviceStatus = AJServices_SessionLostHandler(busAttachment, sessionId, reason);
             if (serviceStatus == AJSVC_SERVICE_STATUS_NOT_HANDLED) {
                 AJ_ResetArgs(msg);
@@ -545,7 +545,7 @@ AJ_Status AJApp_DisconnectHandler(AJ_BusAttachment* busAttachment, uint8_t resta
 
 uint8_t AJRouter_Disconnect(AJ_BusAttachment* busAttachment, uint8_t disconnectWiFi)
 {
-    AJ_InfoPrintf(("AllJoyn disconnect\n"));
+    AJ_AlwaysPrintf(("AllJoyn disconnect\n"));
     AJ_Sleep(AJAPP_SLEEP_TIME); // Sleep a little to let any pending requests to router to be sent
     AJ_Disconnect(busAttachment);
 #ifdef ONBOARDING_SERVICE

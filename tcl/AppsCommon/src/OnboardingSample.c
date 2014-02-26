@@ -86,7 +86,7 @@ AJ_Status OnboardingReadInfo(AJOBS_Info* info)
         if (sizeRead != sizeRead) {
             status = AJ_ERR_READ;
         } else {
-            AJ_InfoPrintf(("Read Info values: state=%d, ssid=%s authType=%d pc=%s\n", info->state, info->ssid, info->authType, info->pc));
+            AJ_AlwaysPrintf(("Read Info values: state=%d, ssid=%s authType=%d pc=%s\n", info->state, info->ssid, info->authType, info->pc));
         }
     }
 
@@ -102,7 +102,7 @@ AJ_Status OnboardingWriteInfo(AJOBS_Info* info)
         return AJ_ERR_NULL;
     }
 
-    AJ_InfoPrintf(("Going to write Info values: state=%d, ssid=%s authType=%d pc=%s\n", info->state, info->ssid, info->authType, info->pc));
+    AJ_AlwaysPrintf(("Going to write Info values: state=%d, ssid=%s authType=%d pc=%s\n", info->state, info->ssid, info->authType, info->pc));
 
     AJ_NV_DATASET* nvramHandle = AJ_NVRAM_Open(AJ_OBS_OBINFO_NV_ID, "w", size);
     if (nvramHandle != NULL) {
@@ -124,11 +124,11 @@ AJ_Status Onboarding_Init(const char* deviceManufactureName, const char* deviceP
     appDeviceManufactureName = deviceManufactureName;
     appDeviceProductName = deviceProductName;
     if (appDeviceManufactureName == NULL || appDeviceManufactureName[0] == '\0') {
-        AJ_ErrPrintf(("Onboarding_Init(): DeviceManufactureName is NULL or empty\n"));
+        AJ_AlwaysPrintf(("Onboarding_Init(): DeviceManufactureName is NULL or empty\n"));
         status = AJ_ERR_INVALID;
         goto Exit;
     } else if (appDeviceProductName == NULL || appDeviceProductName[0] == '\0') {
-        AJ_ErrPrintf(("Onboarding_Init(): DeviceProductName is NULL or empty\n"));
+        AJ_AlwaysPrintf(("Onboarding_Init(): DeviceProductName is NULL or empty\n"));
         status = AJ_ERR_INVALID;
         goto Exit;
     }

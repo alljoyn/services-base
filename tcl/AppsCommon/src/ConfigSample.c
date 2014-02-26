@@ -38,7 +38,7 @@ extern AJ_EXPORT uint8_t dbgAJSVCAPP;
 
 static AJ_Status FactoryReset()
 {
-    AJ_InfoPrintf(("GOT FACTORY RESET\n"));
+    AJ_AlwaysPrintf(("GOT FACTORY RESET\n"));
     AJ_Status status = AJ_OK;
 
     status = AJSVC_PropertyStore_ResetAll();
@@ -58,7 +58,7 @@ static AJ_Status FactoryReset()
 
 static AJ_Status Restart()
 {
-    AJ_InfoPrintf(("GOT RESTART REQUEST\n"));
+    AJ_AlwaysPrintf(("GOT RESTART REQUEST\n"));
     AJ_About_SetShouldAnnounce(TRUE); // Set flag for sending an updated Announcement
     return AJ_ERR_RESTART_APP; // Force disconnect of AJ and services and reconnection of WiFi on restart of app
 }

@@ -210,11 +210,11 @@ uint8_t checkForUpdatesToSend()
 
     modeOrTargetTempChanged = 0;
 
-    AJ_InfoPrintf(("In checkForUpdatesToSend, currentMode=%d, targetTemp=%d, currentTemperature=%d, fanSpeed=%d, triggerAnUpdate=%d \n", currentMode, targetTemp, currentTemperature, fanSpeed, triggerAnUpdate));
+    AJ_AlwaysPrintf(("In checkForUpdatesToSend, currentMode=%d, targetTemp=%d, currentTemperature=%d, fanSpeed=%d, triggerAnUpdate=%d \n", currentMode, targetTemp, currentTemperature, fanSpeed, triggerAnUpdate));
 
     // check if the target temperature has been changed & update accordingly
     if (targetTemp != prevTargetTemp) {
-        AJ_InfoPrintf(("##### targetTemp (%d) != prevTargetTemp (%d) \n", targetTemp, prevTargetTemp));
+        AJ_AlwaysPrintf(("##### targetTemp (%d) != prevTargetTemp (%d) \n", targetTemp, prevTargetTemp));
         modeOrTargetTempChanged = 1;
 
         prevTargetTemp = targetTemp;
@@ -277,7 +277,7 @@ uint8_t checkForUpdatesToSend()
 
     //check if the mode has been changed & update accordingly
     if (currentMode != previousMode) {
-        AJ_InfoPrintf(("##### currentMode (%d) != previousMode (%d) \n", currentMode, previousMode));
+        AJ_AlwaysPrintf(("##### currentMode (%d) != previousMode (%d) \n", currentMode, previousMode));
         modeOrTargetTempChanged = 1;
 
         previousMode = currentMode;
@@ -407,7 +407,7 @@ uint8_t checkForUpdatesToSend()
 
     // check if we need to simulate changing the temperature
     if (targetTemp != currentTemperature) {
-        AJ_InfoPrintf(("##### target temp (%d) != current temp (%d) \n", targetTemp, currentTemperature));
+        AJ_AlwaysPrintf(("##### target temp (%d) != current temp (%d) \n", targetTemp, currentTemperature));
 
         if (modeOrTargetTempChanged == 1) {
             modeOrTargetTempChanged = 0;

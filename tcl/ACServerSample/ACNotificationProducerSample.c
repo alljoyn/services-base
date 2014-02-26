@@ -81,7 +81,7 @@ void NotificationProducer_DoWork(AJ_BusAttachment* busAttachment)
         textToSend[0].key   = langEng;
         textToSend[0].value = getNotificationString();
 
-        AJ_InfoPrintf(("About to send Notification ==> %s \n", textToSend[0].value));
+        AJ_AlwaysPrintf(("About to send Notification ==> %s \n", textToSend[0].value));
         AJNS_Producer_SendNotification(busAttachment, &notificationContent, AJNS_NOTIFICATION_MESSAGE_TYPE_INFO, 20000, NULL);
     }
 }
