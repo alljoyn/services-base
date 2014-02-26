@@ -1,23 +1,47 @@
 
 
-AllJoyn Config Version 1.0.0 Release Notes
+AllJoyn Config Version 14.02 Release Notes
 ------------------------------------------
 
-Platform/Language Support
--------------------------
- 
-1) Compiled with Java 1.6
+Platform Support
+----------------
+ 1) Linux Ubuntu (32 and 64 bit x86)
+ 2) Android Gingerbread 2.3.4 (ARM7)
+ 3) Android Ice Cream Sandwich 4.0 (ARM7)
+ 4) Android JellyBean 4.1 (ARM7)
+ 5) iOS 7
+ 6) OpenWRT (trunk)
 
 
-Open issues in Version 1.0.0
----------------------------------
+Features added in Version 14.02
+-------------------------------
 
-MBUS-2179 - In any case wehre an attribute is set/get  that requires a language  , with an unsupported language , will result in ;
-W/System.err : org.alljoyn.bus.ErrorReplyBusException:org.alljoyn.Bus.ErStatus
-Instead of 
-org.alljoyn.Error.LanguageNotSupported
+Configuration and about fields are stored in device memory and uniquely identifies the AllJoyn device in use.  This information will be accessible by the Onboarding, Control Panel, and Notification services leveraging the configuration and about services.  The configuration service is a secure AllJoyn interface whereas the About service is a non-secure AllJoyn interface.   
+
+
+Known Issues
+------------
+
+AJCSF-105 ,AJAPPS-441 – CPP,TCACServerSample,TCServiceServerSample – SetConfig doesn’t fail where it should, when attempting to set a field that does not support a language with a language.
+
+AJCSF-106,107 – CPP,TC – DeviceName does not support multi languages.
+
+AJCSF-44- TC - Updating configuration to an unsupported field should throw org.alljoyn.Error.InvalidValue Exception.
+
+AJCSF-54 – TC- Exception is not sent when changing deviceName to empty. 
+
+AJCSF-55 – TC- Exception is not sent when changing the default language to empty. 
+
+AJCSF-56 – TC- Exception is not sent when changing the deviceId. 
+
+AJCSF-78 – CPP- org.alljoyn.Error.LanguageNotSupported exception  is not sent  when SetConfig is called with an Invalid language .
+
+
+Compatibility
+-------------
+
 
 Change history
 --------------
 
-1.0.0 - Initial Open Source Release
+14.02 - 1st AllSeen Alliance release
