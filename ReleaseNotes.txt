@@ -1,16 +1,43 @@
 
 
-AllJoyn Onboarding Service Version 1.0.0 Release Notes
---------------------------------------------------------
+AllJoyn Config Version 14.02 Release Notes
+------------------------------------------
 
 Platform Support
 ----------------
+ 1) Linux Ubuntu (32 and 64 bit x86)
+ 2) Android Gingerbread 2.3.4 (ARM7)
+ 3) Android Ice Cream Sandwich 4.0 (ARM7)
+ 4) Android JellyBean 4.1 (ARM7)
+ 5) iOS 7
+ 6) OpenWRT (trunk)
 
-1) Android Ice Cream Sandwich 4.0 (ARM7)
-2) Android JellyBean 4.1 (ARM7)
+
+Features added in Version 14.02
+-------------------------------
+
+Configuration and about fields are stored in device memory and uniquely identifies the AllJoyn device in use.  This information will be accessible by the Onboarding, Control Panel, and Notification services leveraging the configuration and about services.  The configuration service is a secure AllJoyn interface whereas the About service is a non-secure AllJoyn interface.   
+
+
+Known Issues
+------------
+
+AJOSF-37 – TPLink (trunk) , ACServerSample doesn’t revert to Soft AP when WIFI network is disconnected.
+
+AJOSF-43 -  TPLink (trunk), Onboarding to WIFI with WEP Shared Key fails. Irrespective of the onboarding service, joining a wep(shared) network doesn't work on the TP-link.
+
+AJOSF-48 -  CPP, wifi passwords with spaces are not handled properly.
+
+AJOSF-44 – CPP , There is no option in the config file to provision the Soft AP as hidden.
+
+AJOSF-75 – TPLink (trunk) -  The OpenWRT/TPLink842ND does not retain a unique Soft AP name. In 10-20% of the cases it shows a generic name that does not include the mac address id.
+
+
+Compatibility
+-------------
 
 
 Change history
 --------------
 
-1.0.0 - Initial Open Source Release
+14.02 - 1st AllSeen Alliance release
