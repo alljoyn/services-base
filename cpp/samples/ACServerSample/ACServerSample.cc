@@ -371,8 +371,7 @@ int main(int argc, char**argv, char**envArg) {
 #ifdef _CONTROLPANEL_
 
     controlPanelService = ControlPanelService::getInstance();
-    controlPanelService->setLogLevel(Log::LogLevel::LEVEL_INFO);
-
+    QCC_SetDebugLevel(logModules::CONTROLPANEL_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
     status = ControlPanelGenerated::PrepareWidgets(controlPanelControllee);
     if (status != ER_OK) {
         std::cout << "Could not prepare Widgets." << std::endl;

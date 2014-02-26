@@ -471,7 +471,7 @@ int main(int argc, char**argv, char**envArg) {
 #ifdef _CONTROLPANEL_
 
     controlPanelService = ControlPanelService::getInstance();
-    controlPanelService->setLogLevel(Log::LogLevel::LEVEL_DEBUG);
+    QCC_SetDebugLevel(logModules::CONTROLPANEL_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
 
     status = controlPanelService->initControllee(msgBus, controlPanelControllee);
     if (status != ER_OK) {
