@@ -1,16 +1,37 @@
 
-
-AllJoyn Control Panel Service Version 1.0.0 Release Notes
+AllJoyn Control Panel Service Version 14.02 Release Notes
 --------------------------------------------------------
 
 Platform Support
 ----------------
 
-1) Android Ice Cream Sandwich 4.0 (ARM7)
-2) Android JellyBean 4.1 (ARM7)
+ 1) Linux Ubuntu (32 and 64 bit x86)
+ 2) Android Gingerbread 2.3.4 (ARM7)
+ 3) Android Ice Cream Sandwich 4.0 (ARM7)
+ 4) Android JellyBean 4.1 (ARM7)
+ 5) iOS 7
+ 6) OpenWRT 
+
+Features added in Version 14.02
+-------------------------------
+
+The Control Service provides a simple interface that OEMs can adopt for control of their devices which would allow them to add additional value to their products.  It also provides a means for Application developers to explore home automation and create new application experiences that End-Users haven’t seen before. 
+
+The Control Service will also provide a mechanism to allow for a remote control panel that renders the UI based on the controlled device’s widget metadata.
+
+
+Issues Addressed in Version 14.02
+---------------------------------
+
+
+Known Issues
+------------
+
+Compatibility
+-------------
 
 
 Change history
 --------------
 
-1.0.0 - Initial Open Source Release
+14.02 - 1st AllSeen Alliance release
