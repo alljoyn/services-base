@@ -22,6 +22,14 @@ Configuration and about fields are stored in device memory and uniquely identifi
 Known Issues
 ------------
 
+AJCSF-11 – Android Server Sample App/Simulator – When resetting the DeviceName from a client , DeviceName is being reset to an empty string instead of being reset to the default DeviceName in the config file .
+
+AJCSF-12 – Android ServerSample App – Upon “Restart”   the ServerSample App is off boarded and returns to Soft AP. 
+
+AJCSF-97 – Android Simulator – Changing the Default Language changes the predefined DeviceName, where it needs to remain.
+
+AJCSF-98 – Android Simulator – Changing a language to an unsupported language gives “InvalidValue” error message instead of “LanguageNotSupported”
+
 AJCSF-105 ,AJAPPS-441 – CPP,TCACServerSample,TCServiceServerSample – SetConfig doesn’t fail where it should, when attempting to set a field that does not support a language with a language.
 
 AJCSF-106,107 – CPP,TC – DeviceName does not support multi languages.
