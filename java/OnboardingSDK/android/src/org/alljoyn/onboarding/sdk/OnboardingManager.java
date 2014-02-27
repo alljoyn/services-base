@@ -153,9 +153,29 @@ public class OnboardingManager {
     public static final String EXTRA_ERROR_DETAILS = "org.alljoyn.onboardingsdk.intent_keys.error";
 
     /**
-     * The lookup key for DEVICE_INFORMATION reported by the SDK
+     * The lookup key for EXTRA_DEVICE_BUS_NAME reported by the SDK ,used to report device service name during call {@link #offboardDevice(String, short)}
      */
-    public static final String EXTRA_DEVICE_INFORMATION = "org.alljoyn.onboardingsdk.intent_keys.deviceInfo";
+    public static final String EXTRA_DEVICE_BUS_NAME= "org.alljoyn.onboardingsdk.intent_keys.device_bus_name";
+
+    /**
+     * The lookup key for EXTRA_DEVICE_ONBOARDEE_SSID reported by the SDK after successful onboarding process ,reports the onboardee ssid name
+     */
+    public static final String EXTRA_DEVICE_ONBOARDEE_SSID = "org.alljoyn.onboardingsdk.intent_keys.device_onboardee_ssid";
+
+    /**
+     * The lookup key for EXTRA_DEVICE_TARGET_SSID reported by the SDK after successful onboarding process ,reports the target ssid name
+     */
+    public static final String EXTRA_DEVICE_TARGET_SSID = "org.alljoyn.onboardingsdk.intent_keys.device_target_ssid";
+
+    /**
+     *  The lookup key for EXTRA_DEVICE_APPID reported by the SDK after successful onboarding process ,reports the application id
+     */
+    public static final String EXTRA_DEVICE_APPID= "org.alljoyn.onboardingsdk.intent_keys.device_appid";
+
+    /**
+     *  The lookup key for EXTRA_DEVICE_DEVICEID reported by the SDK after successful onboarding process ,reports the  device id
+     */
+    public static final String EXTRA_DEVICE_DEVICEID="org.alljoyn.onboardingsdk.intent_keys.device_deviceid";
 
     /**
      * Activity Action: indicates that the WIFI scan has been completed
@@ -741,6 +761,7 @@ public class OnboardingManager {
             this.announceData = announceData;
             Map<String, Object> announceDataMap = TransportUtil.fromVariantMap(announceData.getServiceMetadata());
             appUUID = (UUID) announceDataMap.get(AboutKeys.ABOUT_APP_ID);
+            deviceID=(String)announceDataMap.get(AboutKeys.ABOUT_DEVICE_ID);
         }
 
         private AnnounceData announceData = null;
@@ -749,7 +770,13 @@ public class OnboardingManager {
             return appUUID;
         }
 
+        public String getDeviceID(){
+            return deviceID;
+        }
+
         private UUID appUUID = null;
+
+        private String deviceID=null;
 
     }
 
@@ -1296,9 +1323,19 @@ public class OnboardingManager {
         stopAnnouncementTimeout();
 
         Bundle extras = new Bundle();
-        extras.clear();
+        extras.putString(EXTRA_DEVICE_ONBOARDEE_SSID, onboardingConfiguration.getOnboardee().getSSID());
+        extras.putString(EXTRA_DEVICE_TARGET_SSID, onboardingConfiguration.getTarget().getSSID());
+        deviceData = new DeviceData();
+        try {
+            deviceData.setAnnounceData(announceData);
+            extras.putSerializable(EXTRA_DEVICE_APPID, deviceData.getAppUUID());
+            extras.putString(EXTRA_DEVICE_DEVICEID,deviceData.getDeviceID());
+        } catch (BusException e) {
+            Log.e(TAG, "handleTargetAnnouncementReceivedState unable to retrieve AppID/DeviceID ", e);
+        }
         extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.VERIFIED_ONBOARDED.toString());
         sendBroadcast(STATE_CHANGE_ACTION, extras);
+
 
         aboutService.removeAnnouncementHandler(announcementHandler);
         setState(State.IDLE);
@@ -1313,46 +1350,60 @@ public class OnboardingManager {
      * when ABORTING message is received handleAbortingState deletes all messages in the handlers queue .In case there are any messages there .
      * Due to the blocking nature of JOINING_SESSION state the ABORTING message can be handled only after it has completed!.
      */
-    private void handleAbortingState(){
+    private void handleAbortingState() {
         // store current State in initalState
-        State initalState=currentState;
+        State initalState = currentState;
 
-        //set state to State.ABORTING
-        currentState=State.ABORTING;
+        // set state to State.ABORTING
+        currentState = State.ABORTING;
 
         // remove all queued up messages in the stateHandler
         for (State s : State.values()) {
             stateHandler.removeMessages(s.value);
         }
 
-        if (initalState.getValue()>=State.ERROR_CONNECTING_TO_ONBOARDEE.getValue()){
+        // note ABORTING state can't be handled during JOINING_SESSION it is
+        // blocking!
+        switch (initalState) {
+
+        case CONNECTING_TO_ONBOARDEE:
+            context.unregisterReceiver(onboardingWifiBroadcastReceiver);
             abortStateCleanUp();
-        }
+            break;
 
+        case WAITING_FOR_ONBOARDEE_ANNOUNCEMENT:
+            stopAnnouncementTimeout();
+            abortStateCleanUp();
+            break;
 
-       // note ABORTING state can't be handled during JOINING_SESSION it is blocking!
-        switch (initalState){
+        case ONBOARDEE_ANNOUNCEMENT_RECEIVED:
+            abortStateCleanUp();
+            break;
 
-            case CONNECTING_TO_ONBOARDEE:
-                context.unregisterReceiver(onboardingWifiBroadcastReceiver);
-                abortStateCleanUp();
-                break;
+        case CONFIGURING_ONBOARDEE:
+            abortStateCleanUp();
+            break;
 
-            case WAITING_FOR_ONBOARDEE_ANNOUNCEMENT:
-                stopAnnouncementTimeout();
-                abortStateCleanUp();
-                break;
+        case ERROR_CONNECTING_TO_ONBOARDEE:
+        case ERROR_WAITING_FOR_ONBOARDEE_ANNOUNCEMENT:
+        case ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED:
+        case ERROR_JOINING_SESSION:
+        case ERROR_CONFIGURING_ONBOARDEE:
+        case ERROR_WAITING_FOR_CONFIGURE_SIGNAL:
+        case ERROR_CONNECTING_TO_TARGET_WIFI_AP:
+            abortStateCleanUp();
+            break;
 
-            case ONBOARDEE_ANNOUNCEMENT_RECEIVED:
-                abortStateCleanUp();
-                break;
+        case ERROR_WAITING_FOR_TARGET_ANNOUNCE:
+            Bundle extras = new Bundle();
+            onboardingSDKWifiManager.enableAllWifiNetworks();
+            setState(State.IDLE);
+            extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.ABORTED.toString());
+            sendBroadcast(STATE_CHANGE_ACTION, extras);
+            break;
 
-            case CONFIGURING_ONBOARDEE:
-                abortStateCleanUp();
-                break;
-
-            default:
-                break;
+        default:
+            break;
         }
     }
 
@@ -1583,7 +1634,7 @@ public class OnboardingManager {
      */
     private DeviceResponse offboardDevice(String serviceName, short port) {
         Bundle extras = new Bundle();
-        extras.putString(EXTRA_DEVICE_INFORMATION, serviceName);
+        extras.putString(EXTRA_DEVICE_BUS_NAME, serviceName);
         extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.JOINING_SESSION.toString());
         sendBroadcast(STATE_CHANGE_ACTION, extras);
 
@@ -1607,7 +1658,7 @@ public class OnboardingManager {
 
 
         extras.clear();
-        extras.putString(EXTRA_DEVICE_INFORMATION, serviceName);
+        extras.putString(EXTRA_DEVICE_BUS_NAME, serviceName);
         extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.SESSION_JOINED.toString());
         sendBroadcast(STATE_CHANGE_ACTION, extras);
 
@@ -1618,14 +1669,14 @@ public class OnboardingManager {
             }
 
             extras.clear();
-            extras.putString(EXTRA_DEVICE_INFORMATION, serviceName);
+            extras.putString(EXTRA_DEVICE_BUS_NAME, serviceName);
             extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONFIGURING_ONBOARDEE.toString());
             sendBroadcast(STATE_CHANGE_ACTION, extras);
 
             onboardingClient.offboard();
 
             extras.clear();
-            extras.putString(EXTRA_DEVICE_INFORMATION, serviceName);
+            extras.putString(EXTRA_DEVICE_BUS_NAME, serviceName);
             extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONFIGURED_ONBOARDEE.toString());
             sendBroadcast(STATE_CHANGE_ACTION, extras);
 
@@ -2032,7 +2083,6 @@ public class OnboardingManager {
         //Try to connect to orginal access point if existed.
         if (originalNetwork!=null)
         {
-            sendBroadcast(STATE_CHANGE_ACTION, extras);
             try{
                 onboardingSDKWifiManager.connectToWifiBySSID(originalNetwork,DEFAULT_WIFI_CONNECTION_TIMEOUT);
             }
@@ -2128,10 +2178,10 @@ public class OnboardingManager {
                 if (deviceResponse.getStatus() != ResponseCode.Status_OK) {
                     Bundle extras = new Bundle();
                     if (deviceResponse.getStatus() == ResponseCode.Status_ERROR_CANT_ESTABLISH_SESSION) {
-                        extras.putString(EXTRA_DEVICE_INFORMATION, config.getServiceName());
+                        extras.putString(EXTRA_DEVICE_BUS_NAME, config.getServiceName());
                         extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.JOIN_SESSION_ERROR.toString());
                     } else {
-                        extras.putString(EXTRA_DEVICE_INFORMATION, config.getServiceName());
+                        extras.putString(EXTRA_DEVICE_BUS_NAME, config.getServiceName());
                         extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.ERROR_CONFIGURING_ONBOARDEE.toString());
                     }
                     sendBroadcast(ERROR, extras);
