@@ -261,6 +261,32 @@ static void InitMandatoryPropertiesInRAM()
     }
 }
 
+/*
+ * This function is registered with About and handles property store read requests
+ */
+static AJ_Status AboutPropGetter(AJ_Message* msg, const char* language)
+{
+    AJ_Status status = AJ_ERR_INVALID;
+    int8_t langIndex;
+    AJSVC_PropertyStoreCategoryFilter filter;
+
+    memset(&filter, 0, sizeof(AJSVC_PropertyStoreCategoryFilter));
+
+    if (msg->msgId == AJ_SIGNAL_ABOUT_ANNOUNCE) {
+        filter.bit2Announce = TRUE;
+        langIndex = AJSVC_PropertyStore_GetLanguageIndex(language);
+        status = AJ_OK;
+    } else if (msg->msgId == AJ_REPLY_ID(AJ_METHOD_ABOUT_GET_ABOUT_DATA)) {
+        filter.bit0About = TRUE;
+        langIndex = AJSVC_PropertyStore_GetLanguageIndex(language);
+        status = (langIndex == AJSVC_PROPERTY_STORE_ERROR_LANGUAGE_INDEX) ? AJ_ERR_UNKNOWN : AJ_OK;
+    }
+    if (status == AJ_OK) {
+        status = AJSVC_PropertyStore_ReadAll(msg, filter, langIndex);
+    }
+    return status;
+}
+
 AJ_Status PropertyStore_Init()
 {
     AJ_Status status = AJ_OK;
@@ -268,6 +294,7 @@ AJ_Status PropertyStore_Init()
     status = AJSVC_PropertyStore_LoadAll();
 #endif
     InitMandatoryPropertiesInRAM();
+    AJ_AboutRegisterPropStoreGetter(AboutPropGetter);
     return status;
 }
 
@@ -358,7 +385,7 @@ AJ_Status AJSVC_PropertyStore_SaveAll()
             }
         }
     }
-    AJ_About_SetShouldAnnounce(TRUE); // Set flag for sending an updated Announcement
+    AJ_AboutSetShouldAnnounce(); // Set flag for sending an updated Announcement
 
     return status;
 }

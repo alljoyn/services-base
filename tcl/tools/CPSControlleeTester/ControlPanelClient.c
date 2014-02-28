@@ -45,13 +45,8 @@ uint32_t sessionId = 0;
 
 AJ_Object AppObjects[] =
 {
-    ABOUT_APPOBJECTS
     CONTROLPANEL_APPOBJECTS
     { NULL }
-};
-
-const AJ_Object AnnounceObjects[] = {
-    { NULL, NULL }
 };
 
 #define CONTROL_ANNOUNCE_SIGNAL_RECEIVED  AJ_PRX_MESSAGE_ID(0, 1, 3)
