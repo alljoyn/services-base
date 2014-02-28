@@ -37,14 +37,7 @@ extern const AJ_InterfaceDescription AJSVC_OnboardingInterfaces[];
 #define NUM_ONBOARDING_OBJECTS 1                                          /**< number of onboarding objects */
 
 #define ONBOARDING_APPOBJECTS   \
-    { "/Onboarding",         AJSVC_OnboardingInterfaces },            /**< onboarding interfaces */
-
-/**
- * List of Announced Onboarding BusObjects passed to the About feature for inclusion in the Announcement signal.
- */
-#ifndef ONBOARDING_ANNOUNCEOBJECTS
-#define ONBOARDING_ANNOUNCEOBJECTS  ONBOARDING_APPOBJECTS
-#endif
+    { "/Onboarding",         AJSVC_OnboardingInterfaces, AJ_OBJ_FLAG_ANNOUNCED },  /**< onboarding interfaces */
 
 /*
  * Message identifiers for the method calls this service implements
