@@ -20,8 +20,6 @@ if not os.path.isfile(ajtcl_root + '/SConscript'):
     exit(1)
 
 env = SConscript(ajtcl_root + '/SConscript')
-env['obj'] = env.SConscript('../../../core/about_tcl/tcl/SConscript', exports = {'about_env': env})
-
 if env['VARIANT'] == 'debug':
     env.Append(CPPDEFINES = ['ER_DEBUG_AJSVCAPP=1'])
     env.Append(CPPDEFINES = ['ER_DEBUG_AJSVCALL=1'])

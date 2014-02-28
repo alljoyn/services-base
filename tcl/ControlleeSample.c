@@ -101,6 +101,7 @@ typedef enum {
     INIT_SERVICES = INIT_START,
     INIT_SERVICES_PORT,
     INIT_ADVERTISE_NAME,
+    INIT_ABOUT,
     INIT_CHECK_ANNOUNCE,
     INIT_FINISHED = INIT_CHECK_ANNOUNCE
 } enum_init_state_t;
@@ -167,16 +168,21 @@ static AJ_Status AJApp_ConnectedHandler(AJ_BusAttachment* busAttachment)
                 if (status != AJ_OK) {
                     goto ErrorExit;
                 }
-                nextServicesInitializationState = INIT_CHECK_ANNOUNCE;
+                currentServicesInitializationState = nextServicesInitializationState = INIT_ABOUT;
+                break;
+
+            case INIT_ABOUT:
+                status = AJ_AboutInit(busAttachment, AJ_ABOUT_SERVICE_PORT);
+                if (status != AJ_OK) {
+                    goto ErrorExit;
+                }
+                currentServicesInitializationState = nextServicesInitializationState = INIT_CHECK_ANNOUNCE;
                 break;
 
             case INIT_CHECK_ANNOUNCE:
-                if (AJ_About_IsShouldAnnounce()) {
-                    status = AJ_About_Announce(busAttachment);
-                    if (status != AJ_OK) {
-                        goto ErrorExit;
-                    }
-                    AJ_About_SetShouldAnnounce(FALSE);
+                status = AJ_AboutAnnounce(busAttachment);
+                if (status != AJ_OK) {
+                    goto ErrorExit;
                 }
                 break;
 
@@ -239,7 +245,7 @@ static AJ_Status AJApp_DisconnectHandler(AJ_BusAttachment* busAttachment, uint8_
         AJ_BusUnbindSession(busAttachment, AJ_ABOUT_SERVICE_PORT);
     }
 
-    AJ_About_SetShouldAnnounce(TRUE);
+    AJ_AboutSetShouldAnnounce();
     currentServicesInitializationState = nextServicesInitializationState = INIT_START;
 
     status = AJSVC_DisconnectHandler(busAttachment);
@@ -263,12 +269,6 @@ static uint8_t AJRouter_Disconnect(AJ_BusAttachment* busAttachment, uint8_t disc
 AJ_Object AppObjects[] = {
     IOE_SERVICES_APPOBJECTS
     CONTROLPANELAPPOBJECTS
-    { NULL, NULL }
-};
-
-AJ_Object AnnounceObjects[] = {
-    IOE_SERVICES_ANNOUNCEOBJECTS
-    CONTROLPANELANNOUNCEOBJECTS
     { NULL, NULL }
 };
 
@@ -373,19 +373,6 @@ static const size_t aboutIconContentSize = sizeof(aboutIconContent);
 static const char* aboutIconUrl = { "https://www.alljoyn.org/sites/all/themes/at_alljoyn/images/img-alljoyn-logo.png" };
 
 /**
- * About Provisioning
- */
-
-static AJ_Status About_Init()
-{
-    AJ_Status status = AJ_About_Start(AJ_ABOUT_SERVICE_PORT, AnnounceObjects);
-    if (status == AJ_OK) {
-        status = AJ_AboutIcon_Start(aboutIconMimetype, aboutIconContent, aboutIconContentSize, aboutIconUrl);
-    }
-    return status;
-}
-
-/**
  * Controllee Provisioning
  * ControlPanel Model and Logic are in ControlPanelGenerated.c and ControlPanelProvided.c respectively.
  */
@@ -413,12 +400,9 @@ int AJ_Main(void)
 
     AJ_Initialize();
 
-    status = PropertyStore_Init();
-    if (status != AJ_OK) {
-        goto Exit;
-    }
+    AJ_AboutSetIcon(aboutIconContent, aboutIconContentSize, aboutIconMimetype, aboutIconUrl);
 
-    status = About_Init();
+    status = PropertyStore_Init();
     if (status != AJ_OK) {
         goto Exit;
     }

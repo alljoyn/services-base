@@ -29,7 +29,7 @@
 #include <aj_link_timeout.h>
 #include <alljoyn/services_common/Services_Common.h>
 #include <alljoyn/services_common/ServicesHandlers.h>
-//#include "PropertyStoreOEMProvisioning.h"
+#include "PropertyStoreOEMProvisioning.h"
 
 /*
  * Logger definition

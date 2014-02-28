@@ -67,8 +67,6 @@ objs.extend(sersamp_env.SConscript('../../AppsCommon/SConscript', variant_dir = 
 
 objs.extend(sersamp_env.SConscript('../../../../services_common/tcl/SConscript', variant_dir = 'services_common', duplicate = 1, exports = {'services_common_env': sersamp_env}))
 
-objs.extend(sersamp_env.SConscript('../../../../../core/about_tcl/tcl/SConscript', {'about_env': sersamp_env}))
-
 prog = sersamp_env.Program(
     target = main_exe,
     source = [

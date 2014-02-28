@@ -22,8 +22,14 @@
 
 /**
  * Initialize the Services. called at the start of the application
+ * @param aboutServicePort
+ * @param appObjects
+ * @param proxyObjects
+ * @param deviceManufactureName
+ * @param deviceProductName
+ * @return aj_status
  */
-AJ_Status AJServices_Init(AJ_Object* appObjects, AJ_Object* proxyObjects, AJ_Object* announceObjects, const char* deviceManufactureName, const char* deviceProductName);
+AJ_Status AJServices_Init(uint16_t aboutServicePort, AJ_Object* appObjects, AJ_Object* proxyObjects, const char* deviceManufactureName, const char* deviceProductName);
 
 /**
  * Connect to Router

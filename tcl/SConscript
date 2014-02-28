@@ -19,7 +19,6 @@ Import('samp_env')
 
 objs = []
 srcs = []
-objs.extend(samp_env['obj'])
 objs.extend(samp_env['aj_obj'])
 objs.extend(samp_env.SConscript('#../../services_common/tcl/SConscript', variant_dir = 'services_common', duplicate = 1, exports = {'services_common_env': samp_env}))
 

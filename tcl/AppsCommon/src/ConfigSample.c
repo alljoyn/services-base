@@ -59,7 +59,7 @@ static AJ_Status FactoryReset()
 static AJ_Status Restart()
 {
     AJ_AlwaysPrintf(("GOT RESTART REQUEST\n"));
-    AJ_About_SetShouldAnnounce(TRUE); // Set flag for sending an updated Announcement
+    AJ_AboutSetShouldAnnounce(); // Set flag for sending an updated Announcement
     return AJ_ERR_RESTART_APP; // Force disconnect of AJ and services and reconnection of WiFi on restart of app
 }
 

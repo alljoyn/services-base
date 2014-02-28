@@ -273,6 +273,32 @@ static void InitMandatoryPropertiesInRAM()
     }
 }
 
+/*
+ * This function is registered with About and handles property store read requests
+ */
+static AJ_Status AboutPropGetter(AJ_Message* msg, const char* language)
+{
+    AJ_Status status = AJ_ERR_INVALID;
+    int8_t langIndex;
+    AJSVC_PropertyStoreCategoryFilter filter;
+
+    memset(&filter, 0, sizeof(AJSVC_PropertyStoreCategoryFilter));
+
+    if (msg->msgId == AJ_SIGNAL_ABOUT_ANNOUNCE) {
+        filter.bit2Announce = TRUE;
+        langIndex = AJSVC_PropertyStore_GetLanguageIndex(language);
+        status = AJ_OK;
+    } else if (msg->msgId == AJ_REPLY_ID(AJ_METHOD_ABOUT_GET_ABOUT_DATA)) {
+        filter.bit0About = TRUE;
+        langIndex = AJSVC_PropertyStore_GetLanguageIndex(language);
+        status = (langIndex == AJSVC_PROPERTY_STORE_ERROR_LANGUAGE_INDEX) ? AJ_ERR_UNKNOWN : AJ_OK;
+    }
+    if (status == AJ_OK) {
+        status = AJSVC_PropertyStore_ReadAll(msg, filter, langIndex);
+    }
+    return status;
+}
+
 AJ_Status PropertyStore_Init()
 {
     AJ_Status status = AJ_OK;
@@ -280,6 +306,10 @@ AJ_Status PropertyStore_Init()
     status = AJSVC_PropertyStore_LoadAll();
 #endif
     InitMandatoryPropertiesInRAM();
+    /*
+     * About needs to get values from the property store
+     */
+    AJ_AboutRegisterPropStoreGetter(AboutPropGetter);
     return status;
 }
 
@@ -372,7 +402,7 @@ AJ_Status AJSVC_PropertyStore_SaveAll()
             }
         }
     }
-    AJ_About_SetShouldAnnounce(TRUE); // Set flag for sending an updated Announcement
+    AJ_AboutSetShouldAnnounce(); // Set flag for sending an updated Announcement
 
     return status;
 }
@@ -424,7 +454,7 @@ AJ_Status AJSVC_PropertyStore_ReadAll(AJ_Message* msg, AJSVC_PropertyStoreCatego
 #endif
             value = AJSVC_PropertyStore_GetValueForLang(fieldIndex, langIndex);
 
-            if (value == NULL && fieldIndex >= AJSVC_PROPERTY_STORE_NUMBER_OF_MANDATORY_KEYS) {     // Non existing values are skipped!
+            if (value == NULL || fieldIndex >= AJSVC_PROPERTY_STORE_NUMBER_OF_MANDATORY_KEYS) {     // Non existing values are skipped!
                 AJ_WarnPrintf(("PropertyStore_ReadAll - Failed to get value for field=(name=%s, index=%d) and language=(name=%s, index=%d), skipping.\n", AJSVC_PropertyStore_GetFieldName(fieldIndex), (int)fieldIndex, AJSVC_PropertyStore_GetLanguageName(langIndex), (int)langIndex));
             } else {
                 if (fieldIndex == AJSVC_PROPERTY_STORE_APP_ID) {

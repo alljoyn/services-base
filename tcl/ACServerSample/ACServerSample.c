@@ -21,7 +21,6 @@
 #include <aj_link_timeout.h>
 
 #include "PropertyStoreOEMProvisioning.h"
-#include <alljoyn/about/AboutSample.h>
 #ifdef ONBOARDING_SERVICE
     #include <alljoyn/onboarding/OnboardingManager.h>
 #endif
@@ -40,10 +39,14 @@
 AJ_EXPORT uint8_t dbgAJSVCAPP = ER_DEBUG_AJSVCAPP;
 #endif
 
-// Application wide globals
+/**
+ * Application wide globals
+ */
+
 #define ROUTER_NAME "org.alljoyn.BusNode"
 static uint8_t isBusConnected = FALSE;
 static AJ_BusAttachment busAttachment;
+#define AJ_ABOUT_SERVICE_PORT 900
 
 /*
  * Define timeout/pause values. Values are in milli seconds.
@@ -51,7 +54,9 @@ static AJ_BusAttachment busAttachment;
  */
 #define AJAPP_UNMARSHAL_TIMEOUT   (1000 * 1) // Override AJ_UNMARSHAL_TIMEOUT to be more responsive
 
-// Services Provisioning
+/**
+ * Services Provisioning
+ */
 
 AJ_Object AppObjects[] = {
     IOE_SERVICES_APPOBJECTS
@@ -61,12 +66,6 @@ AJ_Object AppObjects[] = {
 
 AJ_Object ProxyObjects[] = {
     IOE_SERVICES_PROXYOBJECTS
-    { NULL, NULL }
-};
-
-AJ_Object AnnounceObjects[] = {
-    IOE_SERVICES_ANNOUNCEOBJECTS
-    CONTROLPANELANNOUNCEOBJECTS
     { NULL, NULL }
 };
 
@@ -156,7 +155,9 @@ static uint32_t MyBusAuthPwdCB(uint8_t* buf, uint32_t bufLen)
     return (uint32_t)strlen(myRouterPwd);
 }
 
-// The AllJoyn Message Loop
+/**
+ * The AllJoyn Message Loop
+ */
 
 int AJ_Main(void)
 {
@@ -167,17 +168,14 @@ int AJ_Main(void)
 
     AJ_Initialize();
 
+    AJ_AboutSetIcon(aboutIconContent, aboutIconContentSize, aboutIconMimetype, aboutIconUrl);
+
     status = PropertyStore_Init();
     if (status != AJ_OK) {
         goto Exit;
     }
 
-    status = About_Init(AnnounceObjects, aboutIconMimetype, aboutIconContent, aboutIconContentSize, aboutIconUrl);
-    if (status != AJ_OK) {
-        goto Exit;
-    }
-
-    status = AJServices_Init(AppObjects, ProxyObjects, AnnounceObjects, deviceManufactureName, deviceProductName);
+    status = AJServices_Init(AJ_ABOUT_SERVICE_PORT, AppObjects, ProxyObjects, deviceManufactureName, deviceProductName);
     if (status != AJ_OK) {
         goto Exit;
     }

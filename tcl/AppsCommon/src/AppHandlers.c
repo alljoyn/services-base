@@ -28,7 +28,6 @@
 #include <alljoyn/services_common/Services_Common.h>
 #include <alljoyn/services_common/ServicesHandlers.h>
 #include <alljoyn/services_common/PropertyStore.h>
-#include <alljoyn/about/AboutSample.h>
 #ifdef CONFIG_SERVICE
     #include "ConfigSample.h"
 #endif
@@ -61,6 +60,7 @@ extern AJ_EXPORT uint8_t dbgAJSVCAPP;
 #define AJAPP_CONNECT_PAUSE       (1000 * 2) // Override AJ_CONNECT_PAUSE to be more responsive
 #define AJAPP_SLEEP_TIME          (1000 * 2) // A little pause to let things settle
 
+uint16_t servicePort = 0;
 const char SESSIONLESS_MATCH[] = "sessionless='t',type='error'"; //AddMatch to allow sessionless messages coming in
 
 #ifdef NOTIFICATION_SERVICE_CONSUMER
@@ -75,6 +75,7 @@ typedef enum {
     INIT_SERVICES_PORT,
     INIT_ADVERTISE_NAME,
     INIT_ADDSLMATCH,
+    INIT_ABOUT,
     INIT_CHECK_ANNOUNCE,
     INIT_FINISHED = INIT_CHECK_ANNOUNCE
 } enum_init_state_t;
@@ -108,10 +109,11 @@ static uint32_t PasswordCallback(uint8_t* buffer, uint32_t bufLen)
     return len;
 }
 
-AJ_Status AJServices_Init(AJ_Object* appObjects, AJ_Object* proxyObjects, AJ_Object* announceObjects, const char* deviceManufactureName, const char* deviceProductName)
+AJ_Status AJServices_Init(uint16_t aboutServicePort, AJ_Object* appObjects, AJ_Object* proxyObjects, const char* deviceManufactureName, const char* deviceProductName)
 {
     AJ_Status status = AJ_OK;
 
+    servicePort = aboutServicePort;
 #ifdef CONFIG_SERVICE
     status = Config_Init();
     if (status != AJ_OK) {
@@ -211,7 +213,7 @@ AJ_Status AJApp_ConnectedHandler(AJ_BusAttachment* busAttachment)
                 break;
 
             case INIT_SERVICES_PORT:
-                status = AJ_BusBindSessionPort(busAttachment, AJ_ABOUT_SERVICE_PORT, NULL, 0);
+                status = AJ_BusBindSessionPort(busAttachment, servicePort, NULL, 0);
                 if (status != AJ_OK) {
                     goto ErrorExit;
                 }
@@ -235,16 +237,21 @@ AJ_Status AJApp_ConnectedHandler(AJ_BusAttachment* busAttachment)
                 if (status != AJ_OK) {
                     goto ErrorExit;
                 }
-                nextServicesInitializationState = INIT_CHECK_ANNOUNCE;
+                currentServicesInitializationState = INIT_ABOUT;
+                break;
+
+            case INIT_ABOUT:
+                status = AJ_AboutInit(busAttachment, servicePort);
+                if (status != AJ_OK) {
+                    goto ErrorExit;
+                }
+                currentServicesInitializationState = nextServicesInitializationState = INIT_CHECK_ANNOUNCE;
                 break;
 
             case INIT_CHECK_ANNOUNCE:
-                if (AJ_About_IsShouldAnnounce()) {
-                    status = AJ_About_Announce(busAttachment);
-                    if (status != AJ_OK) {
-                        goto ErrorExit;
-                    }
-                    AJ_About_SetShouldAnnounce(FALSE);
+                status = AJ_AboutAnnounce(busAttachment);
+                if (status != AJ_OK) {
+                    goto ErrorExit;
                 }
                 break;
 
@@ -281,7 +288,7 @@ AJSVC_ServiceStatus AJApp_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_M
         AJ_UnmarshalArgs(msg, "qus", &port, &sessionId, &joiner);
         uint8_t session_accepted = FALSE;
 
-        session_accepted |= (port == AJ_ABOUT_SERVICE_PORT);
+        session_accepted |= (port == servicePort);
         session_accepted |= AJSVC_CheckSessionAccepted(port, sessionId, joiner);
 
         *status = AJ_BusReplyAcceptSession(msg, session_accepted);
@@ -317,7 +324,6 @@ AJSVC_ServiceStatus AJApp_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_M
 
 void AJApp_DoWork(AJ_BusAttachment* busAttachment)
 {
-    About_DoWork(busAttachment);
 #ifdef CONFIG_SERVICE
     Config_DoWork(busAttachment);
 #endif
@@ -341,10 +347,10 @@ AJ_Status AJApp_DisconnectHandler(AJ_BusAttachment* busAttachment, uint8_t resta
 
     if (restart) {
         AJ_BusAdvertiseName(busAttachment, AJ_GetUniqueName(busAttachment), AJ_TRANSPORT_ANY, AJ_BUS_STOP_ADVERTISING, 0);
-        AJ_BusUnbindSession(busAttachment, AJ_ABOUT_SERVICE_PORT);
+        AJ_BusUnbindSession(busAttachment, servicePort);
     }
 
-    AJ_About_SetShouldAnnounce(TRUE);
+    AJ_AboutSetShouldAnnounce();
     currentServicesInitializationState = nextServicesInitializationState = INIT_START;
     init_retries = 0;
 

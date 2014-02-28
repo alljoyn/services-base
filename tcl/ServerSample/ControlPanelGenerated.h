@@ -116,7 +116,7 @@ case DE_AT_MYDEVICE_AREYOUSURE_EXEC_ACTION3: \
 #define GET_URL_CASES \
 
 
-#define CONTROLPANELAPPOBJECTS     {  MyDeviceRootContainerObjectPath, ControlPanelInterfaces  }, \
+#define CONTROLPANELAPPOBJECTS     {  MyDeviceRootContainerObjectPath, ControlPanelInterfaces, AJ_OBJ_FLAG_ANNOUNCED  }, \
     {  enMyDeviceRootContainerObjectPath, ContainerInterfaces  }, \
     {  de_ATMyDeviceRootContainerObjectPath, ContainerInterfaces  }, \
     {  enMyDeviceCurrentTempObjectPath, LabelPropertyInterfaces  }, \
@@ -132,9 +132,6 @@ case DE_AT_MYDEVICE_AREYOUSURE_EXEC_ACTION3: \
     {  MyDeviceAreYouSureObjectPath, NotificationActionInterfaces  }, \
     {  enMyDeviceAreYouSureObjectPath, DialogInterfaces  }, \
     {  de_ATMyDeviceAreYouSureObjectPath, DialogInterfaces  }, \
-
-
-#define CONTROLPANELANNOUNCEOBJECTS     {  MyDeviceRootContainerObjectPath, ControlPanelInterfaces  }, \
 
 
 #define MAX_NUM_LANGUAGES 2

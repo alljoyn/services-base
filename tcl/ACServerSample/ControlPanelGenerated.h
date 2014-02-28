@@ -82,7 +82,7 @@ case EN_MYDEVICE_FAN_SPEED_SET_VALUE: \
 #define GET_URL_CASES \
 
 
-#define CONTROLPANELAPPOBJECTS     {  MyDeviceRootContainerObjectPath, ControlPanelInterfaces  }, \
+#define CONTROLPANELAPPOBJECTS     {  MyDeviceRootContainerObjectPath, ControlPanelInterfaces, AJ_OBJ_FLAG_ANNOUNCED  }, \
     {  enMyDeviceRootContainerObjectPath, ContainerInterfaces  }, \
     {  enMyDeviceTempAndHumidityContainerObjectPath, ContainerInterfaces  }, \
     {  enMyDeviceCurrentTempStringPropertyObjectPath, PropertyInterfaces  }, \
@@ -93,8 +93,6 @@ case EN_MYDEVICE_FAN_SPEED_SET_VALUE: \
     {  enMyDeviceSet_temperatureObjectPath, PropertyInterfaces  }, \
     {  enMyDeviceFan_speedObjectPath, PropertyInterfaces  }, \
 
-
-#define CONTROLPANELANNOUNCEOBJECTS     {  MyDeviceRootContainerObjectPath, ControlPanelInterfaces  }, \
 
 
 #define MAX_NUM_LANGUAGES 1
