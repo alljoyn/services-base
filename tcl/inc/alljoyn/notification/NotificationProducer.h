@@ -64,19 +64,10 @@ extern const char AJNS_NotificationObjectPathInfo[];
    \brief AllJoyn objects exposed by the NotificationProducer
  */
 #define NOTIFICATION_PRODUCER_APPOBJECTS \
-    { AJNS_NotificationObjectPathEmergency,     AJNS_NotificationInterfaces }, \
-    { AJNS_NotificationObjectPathWarning,       AJNS_NotificationInterfaces }, \
-    { AJNS_NotificationObjectPathInfo,          AJNS_NotificationInterfaces }, \
-    { AJNS_NotificationProducerObjectPath,      AJNS_NotificationProducerInterfaces },
-
-/*!
-   \brief AllJoyn objects announced by the NotificationProducer
- */
-#define NOTIFICATION_PRODUCER_ANNOUNCEOBJECTS  \
-    { AJNS_NotificationObjectPathEmergency,     AJNS_NotificationInterfaces }, \
-    { AJNS_NotificationObjectPathWarning,       AJNS_NotificationInterfaces }, \
-    { AJNS_NotificationObjectPathInfo,          AJNS_NotificationInterfaces }, \
-    { AJNS_NotificationProducerObjectPath,      AJNS_NotificationProducerInterfaces },
+    { AJNS_NotificationObjectPathEmergency,     AJNS_NotificationInterfaces, AJ_OBJ_FLAG_ANNOUNCED }, \
+    { AJNS_NotificationObjectPathWarning,       AJNS_NotificationInterfaces, AJ_OBJ_FLAG_ANNOUNCED }, \
+    { AJNS_NotificationObjectPathInfo,          AJNS_NotificationInterfaces, AJ_OBJ_FLAG_ANNOUNCED }, \
+    { AJNS_NotificationProducerObjectPath,      AJNS_NotificationProducerInterfaces, AJ_OBJ_FLAG_ANNOUNCED },
 
 /*!
    \brief Send a notification with the given content
