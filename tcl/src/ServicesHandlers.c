@@ -39,10 +39,6 @@ AJ_Status AJSVC_ConnectedHandler(AJ_BusAttachment* busAttachment)
 {
     AJ_Status status = AJ_OK;
 
-    status = AJ_About_ConnectedHandler(busAttachment);
-    if (status != AJ_OK) {
-        goto ErrorExit;
-    }
 #ifdef CONFIG_SERVICE
 
     status = AJCFG_ConnectedHandler(busAttachment);
@@ -192,9 +188,6 @@ AJSVC_ServiceStatus AJSVC_MessageProcessorAndDispatcher(AJ_BusAttachment* busAtt
             }
         }
     } else {
-        if (serviceStatus == AJSVC_SERVICE_STATUS_NOT_HANDLED) {
-            serviceStatus = AJ_About_MessageProcessor(busAttachment, msg, status);
-        }
 #ifdef CONFIG_SERVICE
         if (serviceStatus == AJSVC_SERVICE_STATUS_NOT_HANDLED) {
             serviceStatus = AJCFG_MessageProcessor(busAttachment, msg, status);
@@ -229,7 +222,6 @@ AJ_Status AJSVC_DisconnectHandler(AJ_BusAttachment* busAttachment)
 {
     AJ_Status status = AJ_OK;
 
-    AJ_About_DisconnectHandler(busAttachment);
 #ifdef CONFIG_SERVICE
     AJCFG_DisconnectHandler(busAttachment);
 #endif

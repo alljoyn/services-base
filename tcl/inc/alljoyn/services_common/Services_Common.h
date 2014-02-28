@@ -65,27 +65,28 @@ typedef AJSVC_ServiceStatus (*AJSVC_MessageProcessor)(AJ_BusAttachment* busAttac
 /**
  * UpdateNotAllowed Error Message for services
  */
-#define AJSVC_ERROR_UPDATE_NOT_ALLOWED         "org.alljoyn.Error.UpdateNotAllowed"
+#define AJSVC_ERROR_UPDATE_NOT_ALLOWED     AJ_ErrUpdateNotAllowed
 
 /**
  * InvalidValue Error Message for services
  */
-#define AJSVC_ERROR_INVALID_VALUE               "org.alljoyn.Error.InvalidValue"
+#define AJSVC_ERROR_INVALID_VALUE          AJ_ErrInvalidValue
 
 /**
  * FeatureNotAvailable Error Message for services
  */
-#define AJSVC_ERROR_FEATURE_NOT_AVAILABLE       "org.alljoyn.Error.FeatureNotAvailable"
+#define AJSVC_ERROR_FEATURE_NOT_AVAILABLE  AJ_ErrFeatureNotAvailable
 
 /**
  * MazSizeExceeded Error Message for services
  */
-#define AJSVC_ERROR_MAX_SIZE_EXCEEDED           "org.alljoyn.Error.MaxSizeExceeded"
+#define AJSVC_ERROR_MAX_SIZE_EXCEEDED      AJ_ErrMaxSizeExceeded
 
 /**
  * LanguageNotSupported Error Message for services
  */
-#define AJSVC_ERROR_LANGUAGE_NOT_SUPPORTED      "org.alljoyn.Error.LanguageNotSupported"
+#define AJSVC_ERROR_LANGUAGE_NOT_SUPPORTED AJ_ErrLanguageNotSuppored
+
 
 /**
  * returns the language index for the given language name possibly creating an error reply message if erred
@@ -133,16 +134,12 @@ AJ_Status AJSVC_UnmarshalAppId(AJ_Message* msg, char* buf, size_t bufLen);
 /*
  * Includes for all the services
  */
-#define NUM_PRE_ABOUT_OBJECTS 0
-#include "alljoyn/about/AboutService.h"
-
-#define NUM_PRE_CONFIG_OBJECTS                NUM_PRE_ABOUT_OBJECTS + NUM_ABOUT_OBJECTS
+#define NUM_PRE_CONFIG_OBJECTS                0
 #ifdef CONFIG_SERVICE
     #include "alljoyn/config/ConfigService.h"
 #else
     #define NUM_CONFIG_OBJECTS 0
     #define CONFIG_APPOBJECTS
-    #define CONFIG_ANNOUNCEOBJECTS
 #endif
 
 #define NUM_PRE_ONBOARDING_OBJECTS            NUM_PRE_CONFIG_OBJECTS + NUM_CONFIG_OBJECTS
@@ -151,7 +148,6 @@ AJ_Status AJSVC_UnmarshalAppId(AJ_Message* msg, char* buf, size_t bufLen);
 #else
     #define NUM_ONBOARDING_OBJECTS 0
     #define ONBOARDING_APPOBJECTS
-    #define ONBOARDING_ANNOUNCEOBJECTS
 #endif
 
 #define NUM_PRE_NOTIFICATION_COMMON_OBJECTS   NUM_PRE_ONBOARDING_OBJECTS + NUM_ONBOARDING_OBJECTS
@@ -168,7 +164,6 @@ AJ_Status AJSVC_UnmarshalAppId(AJ_Message* msg, char* buf, size_t bufLen);
 #else
     #define NUM_NOTIFICATION_PRODUCER_OBJECTS 0
     #define NOTIFICATION_PRODUCER_APPOBJECTS
-    #define NOTIFICATION_PRODUCER_ANNOUNCEOBJECTS
 #endif
 
 #define NUM_PRE_CONTROLPANEL_OBJECTS          NUM_PRE_NOTIFICATION_PRODUCER_OBJECTS + NUM_NOTIFICATION_PRODUCER_OBJECTS
@@ -177,7 +172,6 @@ AJ_Status AJSVC_UnmarshalAppId(AJ_Message* msg, char* buf, size_t bufLen);
 #else
     #define NUM_CONTROLPANEL_OBJECTS 0
     #define CONTROLPANEL_APPOBJECTS
-    #define CONTROLPANEL_ANNOUNCEOBJECTS
 #endif
 
 #define NUM_PRE_APPLICATION_OBJECTS (NUM_PRE_CONTROLPANEL_OBJECTS + NUM_CONTROLPANEL_OBJECTS)
@@ -203,7 +197,6 @@ AJ_Status AJSVC_UnmarshalAppId(AJ_Message* msg, char* buf, size_t bufLen);
  * services/notification/tcl/inc/alljoyn/notification/NotificationProducer.h
  */
 #define IOE_SERVICES_APPOBJECTS \
-    ABOUT_APPOBJECTS \
     CONFIG_APPOBJECTS \
     ONBOARDING_APPOBJECTS \
     NOTIFICATION_COMMON_APPOBJECTS \
@@ -211,14 +204,5 @@ AJ_Status AJSVC_UnmarshalAppId(AJ_Message* msg, char* buf, size_t bufLen);
 
 #define IOE_SERVICES_PROXYOBJECTS \
     NOTIFICATION_CONSUMER_PROXYOBJECTS
-
-/*
- * Define all objects to be announced
- */
-#define IOE_SERVICES_ANNOUNCEOBJECTS \
-    ABOUT_ANNOUNCEOBJECTS \
-    CONFIG_ANNOUNCEOBJECTS \
-    ONBOARDING_ANNOUNCEOBJECTS \
-    NOTIFICATION_PRODUCER_ANNOUNCEOBJECTS
 
 #endif /* _SERVICES_COMMON_H_ */
