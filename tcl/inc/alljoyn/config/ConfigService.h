@@ -43,14 +43,7 @@ extern const AJ_InterfaceDescription AJSVC_ConfigInterfaces[];
  * Config app objects
  */
 #define CONFIG_APPOBJECTS \
-    { "/Config",             AJSVC_ConfigInterfaces },
-
-/**
- * List of Announced Config BusObjects passed to the About feature for inclusion in the Announcement signal.
- */
-#ifndef CONFIG_ANNOUNCEOBJECTS
-#define CONFIG_ANNOUNCEOBJECTS CONFIG_APPOBJECTS
-#endif
+    { "/Config",             AJSVC_ConfigInterfaces, AJ_OBJ_FLAG_ANNOUNCED },
 
 /**
  * Actions to perform when factory reset is requested.

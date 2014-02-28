@@ -25,6 +25,7 @@
 
 #include <alljoyn.h>
 #include <alljoyn/config/ConfigService.h>
+#include <alljoyn/services_common/PropertyStore.h>
 
 /*
  * Message identifiers for the method calls this service implements
@@ -266,7 +267,7 @@ Exit:
 
     if (numOfUpdatedItems) {
         AJSVC_PropertyStore_SaveAll();
-        AJ_About_SetShouldAnnounce(TRUE);
+        AJ_AboutSetShouldAnnounce();
     }
 
     return status;
@@ -340,7 +341,7 @@ Exit:
 
     if (numOfDeletedItems) {
         AJSVC_PropertyStore_SaveAll();
-        AJ_About_SetShouldAnnounce(TRUE);
+        AJ_AboutSetShouldAnnounce();
     }
 
     return status;
