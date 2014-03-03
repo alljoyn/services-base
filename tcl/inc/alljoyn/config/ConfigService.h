@@ -30,12 +30,18 @@
  */
 extern const AJ_InterfaceDescription AJSVC_ConfigInterfaces[];
 
-/*
+/**
  * Following definitions are read by the application.
  */
 
+/**
+ * number of config objects
+ */
 #define NUM_CONFIG_OBJECTS 1
 
+/**
+ * Config app objects
+ */
 #define CONFIG_APPOBJECTS \
     { "/Config",             AJSVC_ConfigInterfaces },
 
@@ -94,15 +100,16 @@ AJ_Status AJCFG_Start(AJCFG_FactoryReset factoryReset, AJCFG_Restart restart, AJ
 
 /**
  * Called when router is connected.
- * @param bus
+ * @param busAttachment
  * @return aj_status
  */
 AJ_Status AJCFG_ConnectedHandler(AJ_BusAttachment* busAttachment);
 
 /**
  * Called when a new incoming message requires processing.
- * @param bus
+ * @param busAttachment
  * @param msg
+ * @param msgStatus
  * @return aj_status
  */
 AJSVC_ServiceStatus AJCFG_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* msgStatus);
