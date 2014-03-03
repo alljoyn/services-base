@@ -17,7 +17,7 @@
 #ifndef _ONBOARDINGMANAGER_H_
 #define _ONBOARDINGMANAGER_H_
 
-/** @defgroup OnboardingManager
+/** @defgroup OnboardingManager Manages Onboarding
  *
  *  @{
  */
@@ -33,8 +33,8 @@ uint8_t AJOBS_IsWiFiConnected();
 /*
  * Modify these variables to change the service's behavior
  */
-#define AJOBS_PASSCODE_MAX_LENGTH 128 //64 characters, hexified
-#define AJOBS_ERROR_MESSAGE_LEN 32
+#define AJOBS_PASSCODE_MAX_LENGTH 128 /**< 64 characters, hexified */
+#define AJOBS_ERROR_MESSAGE_LEN 32    /**< error message length */
 
 /**
  * maximum number of scan info results.
@@ -96,10 +96,10 @@ typedef enum _AJOBS_LastError {
  * Onboarding information
  */
 typedef struct _AJOBS_Info {
-    char ssid[AJOBS_SSID_MAX_LENGTH + 1];
-    char pc[AJOBS_PASSCODE_MAX_LENGTH + 1];
-    AJOBS_AuthType authType;
-    AJOBS_State state;
+    char ssid[AJOBS_SSID_MAX_LENGTH + 1];            /**< ssid */
+    char pc[AJOBS_PASSCODE_MAX_LENGTH + 1];          /**< pc */
+    AJOBS_AuthType authType;                         /**< authType */
+    AJOBS_State state;                               /**< state */
 } AJOBS_Info;
 
 /**
@@ -121,8 +121,8 @@ const AJ_Time* AJOBS_GetLastScanTime();
  * Onboarding scan information.
  */
 typedef struct _AJOBS_ScanInfo {
-    char ssid[AJOBS_SSID_MAX_LENGTH + 1];
-    AJOBS_AuthType authType;
+    char ssid[AJOBS_SSID_MAX_LENGTH + 1];            /**< ssid */
+    AJOBS_AuthType authType;                         /**< authType */
 } AJOBS_ScanInfo;
 
 /**
@@ -139,8 +139,8 @@ uint8_t AJOBS_GetScanInfoCount();
  * Onboarding error
  */
 typedef struct _AJOBS_Error {
-    int16_t code;
-    char message[AJOBS_ERROR_MESSAGE_LEN + 1];
+    int16_t code;                                /**< code */
+    char message[AJOBS_ERROR_MESSAGE_LEN + 1];   /**< message */
 } AJOBS_Error;
 
 /**
@@ -192,7 +192,7 @@ typedef struct _AJOBS_Settings {
     const char* AJOBS_SoftAPPassphrase; // NULL
 } AJOBS_Settings;
 
-#define AJOBS_DEFAULT_SETTINGS { 600000, 2, 180000, { 0 }, FALSE, NULL };
+#define AJOBS_DEFAULT_SETTINGS { 600000, 2, 180000, { 0 }, FALSE, NULL };             /**< jobs default settings */
 
 /**
  * Start Onboarding service framework passing settings and persistence callbacks/
@@ -241,7 +241,7 @@ AJ_Status AJOBS_DisconnectHandler(AJ_BusAttachment* busAttachment);
  * Called when a new incoming message requires processing.
  * @param busAttachment
  * @param msg
- * @param aj_status
+ * @param msgStatus
  * @return service_Status
  */
 AJSVC_ServiceStatus AJOBS_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* msgStatus);
@@ -267,5 +267,5 @@ void AJOBS_SwitchToRetry();
  */
 AJ_Status AJOBS_DisconnectWiFi();
 
-/** @} */
+/** @} */ //end of group 'OnboardingManager'
  #endif /* _ONBOARDINGMANAGER_H_ */

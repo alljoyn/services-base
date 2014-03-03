@@ -17,7 +17,7 @@
 #ifndef _ONBOARDINGSERVICE_H_
 #define _ONBOARDINGSERVICE_H_
 
-/** @defgroup Onboarding Service Framework
+/** @defgroup OnboardingService Service Framework
  *
  *  @{
  */
@@ -34,10 +34,10 @@ extern const AJ_InterfaceDescription AJSVC_OnboardingInterfaces[];
  * Following definitions are read by the application.
  */
 
-#define NUM_ONBOARDING_OBJECTS 1
+#define NUM_ONBOARDING_OBJECTS 1                                          /**< number of onboarding objects */
 
 #define ONBOARDING_APPOBJECTS   \
-    { "/Onboarding",         AJSVC_OnboardingInterfaces },
+    { "/Onboarding",         AJSVC_OnboardingInterfaces },            /**< onboarding interfaces */
 
 /**
  * List of Announced Onboarding BusObjects passed to the About feature for inclusion in the Announcement signal.
@@ -50,21 +50,21 @@ extern const AJ_InterfaceDescription AJSVC_OnboardingInterfaces[];
  * Message identifiers for the method calls this service implements
  */
 
-#define OBS_OBJECT_INDEX                                        NUM_PRE_ONBOARDING_OBJECTS
+#define OBS_OBJECT_INDEX                                        NUM_PRE_ONBOARDING_OBJECTS                                /**< number of pre onboarding objects */
 
-#define OBS_GET_PROP                                            AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 0, AJ_PROP_GET)
-#define OBS_SET_PROP                                            AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 0, AJ_PROP_SET)
+#define OBS_GET_PROP                                            AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 0, AJ_PROP_GET)       /**< property get */
+#define OBS_SET_PROP                                            AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 0, AJ_PROP_SET)       /**< property set */
 
-#define OBS_VERSION_PROP                                        AJ_APP_PROPERTY_ID(OBS_OBJECT_INDEX, 1, 0)
-#define OBS_STATE_PROP                                          AJ_APP_PROPERTY_ID(OBS_OBJECT_INDEX, 1, 1)
-#define OBS_LASTERROR_PROP                                      AJ_APP_PROPERTY_ID(OBS_OBJECT_INDEX, 1, 2)
-#define OBS_CONFIGURE_WIFI                                      AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 1, 3)
-#define OBS_CONNECT                                             AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 1, 4)
-#define OBS_OFFBOARD                                            AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 1, 5)
-#define OBS_GET_SCAN_INFO                                       AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 1, 6)
-#define OBS_CONNECTION_RESULT                                   AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 1, 7)
+#define OBS_VERSION_PROP                                        AJ_APP_PROPERTY_ID(OBS_OBJECT_INDEX, 1, 0)                /**< version property index */
+#define OBS_STATE_PROP                                          AJ_APP_PROPERTY_ID(OBS_OBJECT_INDEX, 1, 1)                /**< state property */
+#define OBS_LASTERROR_PROP                                      AJ_APP_PROPERTY_ID(OBS_OBJECT_INDEX, 1, 2)                /**< last error property */
+#define OBS_CONFIGURE_WIFI                                      AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 1, 3)                 /**< configure wifi */
+#define OBS_CONNECT                                             AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 1, 4)                 /**< connect */
+#define OBS_OFFBOARD                                            AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 1, 5)                 /**< offboard */
+#define OBS_GET_SCAN_INFO                                       AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 1, 6)                 /**< get scan info */
+#define OBS_CONNECTION_RESULT                                   AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 1, 7)                 /**< connection result */
 
-#define AJOBS_SSID_MAX_LENGTH 32
+#define AJOBS_SSID_MAX_LENGTH 32                     /**< ssid max length */
 
 /*
  * Onboarding Service Message Handlers
@@ -121,5 +121,5 @@ AJ_Status AJOBS_GetScanInfoHandler(AJ_Message* msg);
    AJ_Status AJOBS_SendConnectionResult(AJ_BusAttachment* bus);
  */
 
-/** @} */
+/** @} */ //End of group 'OnboardingService'
  #endif // _ONBOARDINGSERVICE_H_

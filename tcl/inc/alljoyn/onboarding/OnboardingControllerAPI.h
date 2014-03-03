@@ -17,7 +17,7 @@
 #ifndef _ONBOARDINGCONTROLLERAPI_H_
 #define _ONBOARDINGCONTROLLERAPI_H_
 
-/** @defgroup Onboarding Controller API
+/** @defgroup ControllerAPI Controller API
  *
  *  @{
  */
@@ -26,9 +26,14 @@
 #include <alljoyn/onboarding/OnboardingManager.h>
 
 /**
- * Onboarding state variable.
+ * Onboarding get state.
+ * @return state
  */
 AJOBS_State AJOBS_ControllerAPI_GetState();
+/**
+ * Onboarding set state.
+ * @param state
+ */
 void AJOBS_ControllerAPI_SetState(AJOBS_State state);
 
 /**
@@ -91,5 +96,5 @@ int8_t AJOBS_ControllerAPI_IsWiFiSoftAP();
  */
 int8_t AJOBS_ControllerAPI_IsWiFiClient();
 
-/** @} */
+/** @} */ // End of group 'ControllerAPI'
  #endif // _ONBOARDINGCONTROLLERAPI_H_
