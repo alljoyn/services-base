@@ -1846,7 +1846,7 @@ public class OnboardingManager {
 
                         if (OnboardingSDKWifiManager.normalizeSSID(network.getSSID()).equals(OnboardingSDKWifiManager.normalizeSSID(config.SSID))) {
                             extras.clear();
-                            extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTING_OTHER_WIFI.toString());
+                            extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTED_OTHER_WIFI.toString());
                             sendBroadcast(STATE_CHANGE_ACTION, extras);
                             return;
                         }
