@@ -19,7 +19,7 @@
 
 #include <alljoyn.h>
 
-/** @defgroup PropertyStore
+/** @defgroup PropertyStore property store
  *
  *  @{
  */
@@ -68,9 +68,7 @@ typedef enum _AJSVC_PropertyStoreFieldIndices {
 
 /**
  * Get maximum value length for given key.
- * @param reply
  * @param fieldIndex
- * @param langIndex
  * @return aj_status
  */
 uint8_t AJSVC_PropertyStore_GetMaxValueLength(AJSVC_PropertyStoreFieldIndices fieldIndex);
@@ -78,18 +76,18 @@ uint8_t AJSVC_PropertyStore_GetMaxValueLength(AJSVC_PropertyStoreFieldIndices fi
 /**
  * Language indices
  */
-#define AJSVC_PROPERTY_STORE_ERROR_LANGUAGE_INDEX   -1
-#define AJSVC_PROPERTY_STORE_NO_LANGUAGE_INDEX       0
+#define AJSVC_PROPERTY_STORE_ERROR_LANGUAGE_INDEX   -1  /**< error language index */
+#define AJSVC_PROPERTY_STORE_NO_LANGUAGE_INDEX       0  /**< no language index */
 
 /**
  * Bitfield that defines the category to filter the properties
  */
 typedef struct _AJSVC_PropertyStoreCategoryFilter {
-    uint8_t bit0About : 1;
+    uint8_t bit0About : 1;                               /**< about */
 #ifdef CONFIG_SERVICE
-    uint8_t bit1Config : 1;
+    uint8_t bit1Config : 1;                              /**< config */
 #endif
-    uint8_t bit2Announce : 1;
+    uint8_t bit2Announce : 1;                            /**< announce */
 } AJSVC_PropertyStoreCategoryFilter;
 
 /**
@@ -202,5 +200,5 @@ AJ_Status AJSVC_PropertyStore_LoadAll();
  */
 AJ_Status AJSVC_PropertyStore_SaveAll();
 
-/** @} */
+/** @} */ //End of group 'PropertyStore'
  #endif /* _PROPERTY_STORE_H_ */
