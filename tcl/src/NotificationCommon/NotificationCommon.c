@@ -35,15 +35,10 @@ const uint16_t AJNS_NotificationVersion = 2;
 const uint16_t AJNS_NOTIFICATION_TTL_MIN   = 30;
 const uint16_t AJNS_NOTIFICATION_TTL_MAX   = 43200;
 
-/**
- * The interface name followed by the method signatures.
- *
- * See also .\inc\aj_introspect.h
- */
 const char* AJNS_NotificationInterface[] = {
-    AJNS_NotificationInterfaceName,               /*The first entry is the interface name.*/
-    AJNS_NotificationSignalName,                  /*Signal at index 0 - See above for signature*/
-    AJNS_NotificationPropertyVersion,
+    AJNS_NotificationInterfaceName,               /**< The first entry is the interface name. */
+    AJNS_NotificationSignalName,                  /**< Signal at index 0 - See above for signature */
+    AJNS_NotificationPropertyVersion,             /**< Notification property version */
     NULL
 };
 

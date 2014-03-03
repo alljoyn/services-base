@@ -14,31 +14,29 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-/*! \addtogroup PRODUCER Notification Producer
- *
- * @{
- * \details Functions and variables that assist in writing Notification Producers
- * \example ProducerSample.c
- */
-
 #ifndef NOTIFICATIONPRODUCER_H_
 #define NOTIFICATIONPRODUCER_H_
 
 #include <alljoyn/notification/NotificationCommon.h>
 #include <alljoyn/services_common/Services_Common.h>
 
+/** @defgroup NotificationProducer Notification Producer
+ * details Functions and variables that assist in writing Notification Producers
+ *  @{
+ */
+
 /*!
-   \brief Constant for messageType  parameter to \ref SendNotification
+   \brief Constant for messageType
  */
 #define AJNS_NOTIFICATION_MESSAGE_TYPE_EMERGENCY 0
 
 /*!
-   \brief Constant for messageType  parameter to \ref SendNotification
+   \brief Constant for messageType
  */
 #define AJNS_NOTIFICATION_MESSAGE_TYPE_WARNING   1
 
 /*!
-   \brief Constant for messageType  parameter to \ref SendNotification
+   \brief Constant for messageType
  */
 #define AJNS_NOTIFICATION_MESSAGE_TYPE_INFO      2
 
@@ -83,6 +81,9 @@ extern const char AJNS_NotificationObjectPathInfo[];
 /*!
    \brief Send a notification with the given content
    \param busAttachment The bus through which the router is reached
+   \param content
+   \param messageType
+   \param ttl
    \param messageSerialNumber Returned serial number of the outgoing notification message. Use later when calling \ref AJNS_Producer_CancelNotification.
    \return AJ_Status
  */
@@ -91,7 +92,7 @@ AJ_Status AJNS_Producer_SendNotification(AJ_BusAttachment* busAttachment, AJNS_N
 /*!
    \brief Instruct the AllJoyn bus to remove last message of the specified message type from the bus
    \details
-   Effectively, this overrides the ttl parameter in the \ref SetNotification function
+   Effectively, this overrides the ttl parameter in the function
    \param busAttachment The bus through which the router is reached
    \param messageType One of \ref AJNS_NOTIFICATION_MESSAGE_TYPE_INFO, \ref AJNS_NOTIFICATION_MESSAGE_TYPE_WARNING, or \ref AJNS_NOTIFICATION_MESSAGE_TYPE_EMERGENCY
    \return AJ_Status
@@ -101,7 +102,7 @@ AJ_Status AJNS_Producer_DeleteLastNotification(AJ_BusAttachment* busAttachment, 
 /*!
    \brief Instruct the AllJoyn bus to remove message of the specified notification id the bus
    \details
-   Effectively, this overrides the ttl parameter in the \ref SetNotification function
+   Effectively, this overrides the ttl parameter in the function
    \param busAttachment The bus through which the router is reached
    \param messageSerialNumber The serial number of the notification to cancel on the daemon
    \return AJ_Status
@@ -111,7 +112,7 @@ AJ_Status AJNS_Producer_CancelNotification(AJ_BusAttachment* busAttachment, uint
 /*!
    \brief Implementation of Dismiss functionality canceling the message on daemon and sending a Dismiss SSL to recall received message
    \details
-   Effectively, this overrides the ttl parameter in the \ref SetNotification function
+   Effectively, this overrides the ttl parameter in the function
    \param busAttachment The bus through which the router is reached
    \param msg The received Dismiss request message to process
    \return AJ_Status
@@ -122,7 +123,6 @@ AJ_Status AJNS_Producer_DismissRequestHandler(AJ_BusAttachment* busAttachment, A
    \brief Implementation of GetProperty functionality for the notification objects
    \details
    Use this function to respond to Get Property events as a callback function passed to AJ_BusPropGet
-   \dontinclude ProducerSample.c
    \skip switch (msg->msgId)
    \until }
    \param replyMsg The reply message that will be sent
@@ -136,7 +136,6 @@ AJ_Status AJNS_Producer_PropGetHandler(AJ_Message* replyMsg, uint32_t propId, vo
    \brief Implementation of SetProperty functionality for the notification objects
    \details
    Use this function to respond to Set Property events as a callback function passed to AJ_BusPropSet
-   \dontinclude ProducerSample.c
    \skip switch (msg->msgId)
    \until }
    \param replyMsg The reply message that will be sent
@@ -176,5 +175,7 @@ AJSVC_ServiceStatus AJNS_Producer_MessageProcessor(AJ_BusAttachment* busAttachme
  * @return status
  */
 AJ_Status AJNS_Producer_DisconnectHandler(AJ_BusAttachment* busAttachment);
+
+/** @} */ // End of group 'NotificationProducer'
 
 #endif /* NOTIFICATIONPRODUCER_H_ */

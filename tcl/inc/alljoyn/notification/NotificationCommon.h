@@ -19,27 +19,32 @@
 
 #include <alljoyn.h>
 
+/** @defgroup NotificationCommon Notification Common
+ * details Functions and variables that assist in writing Notification Producers
+ *  @{
+ */
+
 /**
  * Definitions of notification attribute keys.
  */
-#define AJNS_RICH_CONTENT_ICON_URL_ATTRIBUTE_KEY             0
-#define AJNS_RICH_CONTENT_AUDIO_URL_ATTRIBUTE_KEY            1
-#define AJNS_RICH_CONTENT_ICON_OBJECT_PATH_ATTRIBUTE_KEY     2
-#define AJNS_RICH_CONTENT_AUDIO_OBJECT_PATH_ATTRIBUTE_KEY    3
-#define AJNS_CONTROLPANELSERVICE_OBJECT_PATH_ATTRIBUTE_KEY   4
-#define AJNS_ORIGINAL_SENDER_NAME_ATTRIBUTE_KEY              5
+#define AJNS_RICH_CONTENT_ICON_URL_ATTRIBUTE_KEY             0    /**< Content icon url */
+#define AJNS_RICH_CONTENT_AUDIO_URL_ATTRIBUTE_KEY            1    /**< Content audio url */
+#define AJNS_RICH_CONTENT_ICON_OBJECT_PATH_ATTRIBUTE_KEY     2    /**< Content icon object path */
+#define AJNS_RICH_CONTENT_AUDIO_OBJECT_PATH_ATTRIBUTE_KEY    3    /**< Content audio object path */
+#define AJNS_CONTROLPANELSERVICE_OBJECT_PATH_ATTRIBUTE_KEY   4    /**< Control panel service object path */
+#define AJNS_ORIGINAL_SENDER_NAME_ATTRIBUTE_KEY              5    /**< Original sender name */
 
 /**
  * Number of message types.
  */
-#define AJNS_NUM_MESSAGE_TYPES 3
+#define AJNS_NUM_MESSAGE_TYPES 3                                  /**< Number of message types */
 
 /**
  * Generic structure for key value pairs.
  */
 typedef struct _AJNS_DictionaryEntry {
-    const char* key;
-    const char* value;
+    const char* key;                           /**< key of dictionary */
+    const char* value;                         /**< value of dictionary */
 } AJNS_DictionaryEntry;
 
 /*!
@@ -71,7 +76,7 @@ typedef struct _AJNS_Notification {
     const char* deviceName;                     /**< device name of originating producer application */
     const char* appId;                          /**< application id of originating producer application */
     const char* appName;                        /**< application name of originating producer application */
-    AJNS_NotificationContent* content;
+    AJNS_NotificationContent* content;          /**< content of notification */
 } AJNS_Notification;
 
 /**
@@ -94,7 +99,7 @@ extern const uint16_t AJNS_NotificationVersion;
 /**
  * Notification interface name followed by the method signatures.
  *
- * See also .\inc\aj_introspect.h
+ * See also ".\inc\aj_introspect.h"
  */
 extern const char* AJNS_NotificationInterface[];
 
@@ -119,7 +124,7 @@ extern const uint16_t AJNS_NOTIFICATION_TTL_MAX;
 /**
  * Notification Dismisser interface name followed by the method signatures.
  *
- * See also .\inc\aj_introspect.h
+ * See also ".\inc\aj_introspect.h"
  */
 extern const char* const AJNS_NotificationDismisserInterface[];
 /**
@@ -140,23 +145,41 @@ extern const AJ_InterfaceDescription AJNS_NotificationDismisserInterfaces[];
 extern char AJNS_NotificationDismisserObjectPath[];
 
 /**
- * Dismisser Object description
+ * Number of notification common objects
  */
 #define NUM_NOTIFICATION_COMMON_OBJECTS 1
+
+/**
+ * Notification common app objects
+ */
 #define NOTIFICATION_COMMON_APPOBJECTS \
     { AJNS_NotificationDismisserObjectPath,   AJNS_NotificationDismisserInterfaces },
 
+/**
+ * Notification dismisser object index
+ */
 #define NOTIFICATION_DISMISSER_OBJECT_INDEX 0 + NUM_PRE_NOTIFICATION_COMMON_OBJECTS
+/**
+ * Notification dismisser get property
+ */
 #define NOTIFICATION_DISMISSER_GET_PROPERTY             AJ_APP_PROPERTY_ID(NOTIFICATION_DISMISSER_OBJECT_INDEX, 0, AJ_PROP_GET)
+/**
+ * Notification dismisser set property
+ */
 #define NOTIFICATION_DISMISSER_SET_PROPERTY             AJ_APP_PROPERTY_ID(NOTIFICATION_DISMISSER_OBJECT_INDEX, 0, AJ_PROP_SET)
-
+/**
+ * Notification dismisser emitter
+ */
 #define NOTIFICATION_DISMISSER_DISMISS_EMITTER          AJ_APP_MESSAGE_ID(NOTIFICATION_DISMISSER_OBJECT_INDEX, 1, 0)
+/**
+ * Notification dismisser version property
+ */
 #define GET_NOTIFICATION_DISMISSER_VERSION_PROPERTY     AJ_APP_PROPERTY_ID(NOTIFICATION_DISMISSER_OBJECT_INDEX, 1, 1)
 
 /**
  * Notification Producer interface name followed by the method signatures.
  *
- * See also .\inc\aj_introspect.h
+ * See also ".\inc\aj_introspect.h"
  */
 extern const char* const AJNS_NotificationProducerInterface[];
 /**
@@ -175,5 +198,5 @@ extern const char AJNS_NotificationProducerObjectPath[];
  * The Notification service Producer port
  */
 extern const uint16_t AJNS_NotificationProducerPort;
-
+/** @} */ // End of group 'NotificationCommon'
 #endif /* _NOTIFICATIONCOMMON_H_ */

@@ -21,20 +21,28 @@
 #include <alljoyn/services_common/Services_Common.h>
 #include <alljoyn/notification/NotificationCommon.h>
 
+/** @defgroup NotificationConsumer Notification Consumer
+ * details Functions and variables that assist in writing Notification Producers
+ *  @{
+ */
+
 /* Allowed limits on message content */
-#define NUMALLOWEDCUSTOMATTRIBUTES      10
-#define NUMALLOWEDTEXTS                 10
-#define NUMALLOWEDRICHNOTS              10
+#define NUMALLOWEDCUSTOMATTRIBUTES      10    /**< Number allowed custom attributes */
+#define NUMALLOWEDTEXTS                 10    /**< Number allowed test */
+#define NUMALLOWEDRICHNOTS              10    /**< Number allowed richnots */
 
 /**
  * Published Notification Signal Receiver Proxy BusObjects and Interfaces.
  */
 
-/*
+/**
  * Following definitions are read by the application.
  */
 #define NUM_NOTIFICATION_CONSUMER_PROXYOBJECTS 3
 
+/**
+ * Notification consumer proxy objects.
+ */
 #define NOTIFICATION_CONSUMER_PROXYOBJECTS  \
     { "*",   AJNS_NotificationInterfaces }, \
     { AJNS_NotificationProducerObjectPath,   AJNS_NotificationProducerInterfaces }, \
@@ -44,10 +52,10 @@
  * Utility structure for saving a reference to a received notification.
  */
 typedef struct _AJNS_Consumer_NotificationReference {
-    uint16_t version;
-    int32_t notificationId;
-    char appId[UUID_LENGTH * 2 + 1];
-    char originalSenderName[16];
+    uint16_t version;                        /**< version of notification */
+    int32_t notificationId;                  /**< id of notification */
+    char appId[UUID_LENGTH * 2 + 1];         /**< app id */
+    char originalSenderName[16];             /**< original sender name */
 } AJNS_Consumer_NotificationReference;
 
 /**
@@ -67,17 +75,17 @@ typedef AJ_Status (*AJNS_Consumer_OnDismiss)(int32_t notificationId, const char*
 
 /**
  * Start Notification service framework Consumer passing mode and callbacks
- * @param superAgentMode
+ * @param appSuperAgentMode
  * @param proxyObjects
- * @param onNotify
- * @param isValueValid
- * @return onDismiss
+ * @param appOnNotify
+ * @param appOnDismiss
+ * @return status
  */
 AJ_Status AJNS_Consumer_Start(uint8_t appSuperAgentMode, AJ_Object* proxyObjects, AJNS_Consumer_OnNotify appOnNotify, const AJNS_Consumer_OnDismiss appOnDismiss);
 
 /**
  * Consumer_SetSignalRules, to add the correct filter for the required interface
- * @param bus
+ * @param busAttachment
  * @param superAgentMode
  * @param senderBusName
  * @return status
@@ -109,7 +117,7 @@ AJ_Status AJNS_Consumer_DismissSignalHandler(AJ_Message* msg);
  * Consumer_DismissNotification - send a dismissal request to the producer of the given message, marshals the methodcall and delivers it
  * @param busAttachment
  * @param version               the message version
- * @param msdId                 the message id
+ * @param notificationId        the notification id
  * @param appId                 the application id of the message sender application
  * @param senderName            the bus unique name of the message sender
  * @param completedCallback     the callback to call when the Dismiss method reply is received
@@ -184,5 +192,5 @@ AJSVC_ServiceStatus AJNS_Consumer_SessionLostHandler(AJ_BusAttachment* busAttach
  * @return the Alljoyn status
  */
 AJ_Status AJNS_Consumer_DisconnectHandler(AJ_BusAttachment* busAttachment);
-
+/** @} */ // End of group 'NotificationConsumer'
 #endif /* NOTIFICATIONCONSUMER_H_ */

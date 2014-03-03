@@ -123,9 +123,12 @@
  */
 static uint32_t notificationId = 0;
 
+/**
+ * MessageTracking
+ */
 typedef struct _AJNS_MessageTracking {
-    uint32_t notificationId;
-    uint32_t serialNum;
+    uint32_t notificationId;     /**< notification id */
+    uint32_t serialNum;          /**< serial number */
 } AJNS_MessageTracking;
 
 static AJNS_MessageTracking lastSentNotifications[AJNS_NUM_MESSAGE_TYPES] = { { 0, 0 }, { 0, 0 }, { 0, 0 } };
