@@ -47,6 +47,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
     <string name="dismiss">Dismiss</string>
     <string name="alert_title_get_current_network">Current Network</string>
     <string name="alert_msg_get_current_network">SSID = %1$s \nAuthType = %2$s \nSignal Level = %3$s dBm</string>
+    <string name="getcurrentnetwork_returned_null">Get Current Network returned null.</string>
     <string name="alert_generic_network_item">SSID = %1$s \nAuthType = %2$s \nSignal Level = %3$s dBm</string>
     <string name="onboardable_devices">Onboardable Devices</string>
     <string name="select">Select</string>
