@@ -30,6 +30,7 @@
 #include <AnnounceHandlerImpl.h>
 #include <AsyncSessionJoiner.h>
 #include <SessionListenerImpl.h>
+#include <OnboardingSignalListenerImpl.h>
 #include <alljoyn/services_common/LogModulesNames.h>
 
 using namespace ajn;
@@ -252,8 +253,10 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
     }
 
     OnboardingClient* onboardingClient = NULL;
+    OnboardingSignalListenerImpl signalListener;
+
     if (isOnboardingInterface) {
-        onboardingClient = new    OnboardingClient(*busAttachment);
+        onboardingClient = new    OnboardingClient(*busAttachment, signalListener);
 
         std::cout << std::endl << busName.c_str() << " OnboardingClient GetVersion" << std::endl;
         std::cout << "-----------------------------------" << std::endl;

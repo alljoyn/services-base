@@ -25,6 +25,7 @@
 #include <alljoyn/MsgArg.h>
 #include <qcc/String.h>
 #include <alljoyn/onboarding/Onboarding.h>
+#include <alljoyn/onboarding/OnboardingClientListener.h>
 
 namespace ajn {
 namespace services {
@@ -41,7 +42,7 @@ class OnboardingClient {
      * Constructor of OnboardingClient
      * @param[in] bus is a reference to BusAttachment
      */
-    OnboardingClient(ajn::BusAttachment& bus);
+    OnboardingClient(ajn::BusAttachment& bus, ajn::services::OnboardingClientListener& handle);
 
     /**
      * Destruct OnboardingClient
