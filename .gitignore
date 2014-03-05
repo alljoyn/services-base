@@ -8,6 +8,7 @@
 .project
 .sconsign.dblite
 .settings/*
+cpp/.settings/*
 libs
 QA
 ajlite.nvram
@@ -21,3 +22,4 @@ gen
 lib
 local.properties
 obj*
+whitespace.db
