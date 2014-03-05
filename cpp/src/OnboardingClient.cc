@@ -17,6 +17,8 @@
 #include <alljoyn/onboarding/OnboardingClient.h>
 #include <alljoyn/AllJoynStd.h>
 #include <alljoyn/onboarding/LogModule.h>
+#include "HandleOnboardingSignals.h"
+
 
 #define CHECK_RETURN_STATUS(x) if ((status = x) != ER_OK) { return status; }
 #define CHECK_RETURN(x) if ((status = x) != ER_OK) { return; }
@@ -28,7 +30,11 @@ using namespace services;
 static const char* ONBOARDING_OBJECT_PATH = "/Onboarding";
 static const char* ONBOARDING_INTERFACE_NAME = "org.alljoyn.Onboarding";
 
-OnboardingClient::OnboardingClient(BusAttachment& bus) :
+// A helper class for handling signals.
+// This is not in the h file so that it is not exposed to the OnboardinfClient user
+static HandleOnboardingSignals* s_signalHandler = NULL;
+
+OnboardingClient::OnboardingClient(BusAttachment& bus, OnboardingClientListener& listener) :
     m_BusAttachment(&bus)
 {
     QCC_DbgTrace(("In OnboardingClient Constructor"));
@@ -51,14 +57,24 @@ OnboardingClient::OnboardingClient(BusAttachment& bus) :
             CHECK_RETURN(createIface->AddProperty("Version", "q", PROP_ACCESS_READ));
             CHECK_RETURN(createIface->AddSignal("ConnectionResult", "(ns)", "signalArg0", 0));
             createIface->Activate();
+
+            // set signal handling
+            const ajn::InterfaceDescription::Member* connectionResultSignalMethod = createIface->GetMember("ConnectionResult");
+
+            s_signalHandler = new HandleOnboardingSignals(&bus, &listener);
+            s_signalHandler->RegisterConnectionResultSignalHandler(connectionResultSignalMethod);
         }
     }
-
 }
 
 OnboardingClient::~OnboardingClient()
 {
     QCC_DbgTrace(("In OnboardingClient Destructor"));
+
+    if (s_signalHandler) {
+        delete s_signalHandler;
+        s_signalHandler = NULL;
+    }
 }
 
 QStatus OnboardingClient::GetScanInfo(const char* busName, unsigned short& age, ScanInfos& scanInfos,
