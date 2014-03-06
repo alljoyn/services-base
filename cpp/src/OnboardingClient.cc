@@ -265,7 +265,7 @@ QStatus OnboardingClient::GetVersion(const char* busName, int& version, ajn::Ses
         return ER_FAIL;
     }
     MsgArg arg;
-    if (ER_OK == proxyBusObj->IntrospectRemoteObject()) {
+    if (ER_OK == proxyBusObj->AddInterface(*ifc)) {
         status = proxyBusObj->GetProperty(ONBOARDING_INTERFACE_NAME, "Version", arg);
         if (ER_OK == status) {
             version = arg.v_variant.val->v_uint16;
@@ -292,7 +292,7 @@ QStatus OnboardingClient::GetState(const char* busName, short& state, ajn::Sessi
         return ER_FAIL;
     }
     MsgArg arg;
-    if (ER_OK == proxyBusObj->IntrospectRemoteObject()) {
+    if (ER_OK == proxyBusObj->AddInterface(*ifc)) {
         status = proxyBusObj->GetProperty(ONBOARDING_INTERFACE_NAME, "State", arg);
         if (ER_OK == status) {
             state = arg.v_variant.val->v_int16;
@@ -318,7 +318,7 @@ QStatus OnboardingClient::GetLastError(const char* busName, OBLastError& lastErr
         return ER_FAIL;
     }
     MsgArg arg;
-    if (ER_OK == proxyBusObj->IntrospectRemoteObject()) {
+    if (ER_OK == proxyBusObj->AddInterface(*ifc)) {
         status = proxyBusObj->GetProperty(ONBOARDING_INTERFACE_NAME, "LastError", arg);
         if (ER_OK == status) {
             char* tempMesage;
