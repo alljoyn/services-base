@@ -101,11 +101,10 @@ const char** propertyStoreDefaultValues[AJSVC_PROPERTY_STORE_NUMBER_OF_KEYS] =
     NULL,                           /*DeviceId*/
     NULL,                           /*AppId*/
     NULL,                           /*DeviceName*/
-// Add other persisted keys above this line
     &DEFAULT_LANGUAGE,              /*DefaultLanguage*/
     DEFAULT_PASSCODE,               /*Passcode*/
     NULL,                           /*RealmName*/
-// Add other configurable keys above this line
+// Add other runtime or configurable keys above this line
     DEFAULT_APP_NAME,               /*AppName*/
     DEFAULT_DESCRIPTION,            /*Description*/
     DEFAULT_MANUFACTURER,           /*Manufacturer*/
@@ -138,17 +137,16 @@ static char realmNameVar[KEY_VALUE_LENGTH + 1] = { 0 };
 static char* realmNameVars[] = { realmNameVar };
 #endif
 
-PropertyStoreConfigEntry propertyStoreRuntimeValues[AJSVC_PROPERTY_STORE_NUMBER_OF_CONFIG_KEYS] =
+PropertyStoreConfigEntry propertyStoreRuntimeValues[AJSVC_PROPERTY_STORE_NUMBER_OF_RUNTIME_KEYS] =
 {
 //  {"Buffers for Values per language", "Buffer Size"},                  "Key Name"
-    { machineIdVars,                    MACHINE_ID_LENGTH + 1 },        /*DeviceId*/
-    { machineIdVars,                    MACHINE_ID_LENGTH + 1 },        /*AppId*/
-    { deviceNameVars,                   DEVICE_NAME_VALUE_LENGTH + 1 }, /*DeviceName*/
-// Add other persisted keys above this line
+    { machineIdVars,             MACHINE_ID_LENGTH + 1 },               /*DeviceId*/
+    { machineIdVars,             MACHINE_ID_LENGTH + 1 },               /*AppId*/
+    { deviceNameVars,            DEVICE_NAME_VALUE_LENGTH + 1 },        /*DeviceName*/
 #ifdef CONFIG_SERVICE
-    { defaultLanguageVars,              LANG_VALUE_LENGTH + 1 },        /*AppName*/
-    { passcodeVars,                     PASSWORD_VALUE_LENGTH + 1 },    /*Description*/
-    { realmNameVars,                    KEY_VALUE_LENGTH + 1 },         /*Manufacturer*/
+    { defaultLanguageVars,       LANG_VALUE_LENGTH + 1 },               /*DefaultLanguage*/
+    { passcodeVars,              PASSWORD_VALUE_LENGTH + 1 },           /*Passcode*/
+    { realmNameVars,             KEY_VALUE_LENGTH + 1 },                /*RealmName*/
 #endif
 };
 
