@@ -15,7 +15,6 @@
  ******************************************************************************/
 
 #import <UIKit/UIKit.h>
-#import "GenericLogger.h"
 #import "AJSVCGenericLogger.h"
 
 /**

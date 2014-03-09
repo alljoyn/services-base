@@ -16,13 +16,12 @@
 
 #ifndef AJSVCGenericLoggerAdapter_H
 #define AJSVCGenericLoggerAdapter_H
-#import "GenericLogger.h"
 #import "AJSVCGenericLogger.h"
 
 /**
  AJSVCGenericLoggerAdapter enable bind the C++ GenericLogger API with an objective-c generic logger handle.
  */
-class AJSVCGenericLoggerAdapter : public ajn::services::GenericLogger {
+class AJSVCGenericLoggerAdapter {
 public:
 	/**
      Constructor
@@ -68,54 +67,6 @@ public:
      @param logText Text to be logged.
 	 */
 	void fatal(const char *Tag, const char *logText);
-    
-	/**
-     Log in Debug Level.
-     @param Tag Identifies area of code.
-     @param logText Text to be logged.
-	 */
-	void debug(qcc::String const& Tag, qcc::String const& logText);
-    
-	/**
-     Log in Info Level.
-     @param Tag Identifies area of code.
-     @param logText Text to be logged.
-	 */
-	void info(qcc::String const& Tag, qcc::String const& logText);
-    
-	/**
-     Log in Warn Level.
-     @param Tag Identifies area of code.
-     @param logText Text to be logged.
-	 */
-	void warn(qcc::String const& Tag, qcc::String const& logText);
-    
-	/**
-     Log in Error Level.
-     @param Tag Identifies area of code.
-     @param logText Text to be logged.
-	 */
-	void error(qcc::String const& Tag, qcc::String const& logText);
-    
-	/**
-     Log in Fatal Level.
-     @param Tag Identifies area of code.
-     @param logText Text to be logged.
-	 */
-	void fatal(qcc::String const& Tag, qcc::String const& logText);
-    
-	/**
-     Set log level filter for subsequent logging messages.
-     @param logLevel Enum value.
-     @return logLevel Enum value that was in effect prior to this change.
-	 */
-ajn::services::Log::LogLevel setLogLevel(ajn::services::Log::LogLevel logLevel);
-    
-	/**
-     Return the log level filter value currently in effect.
-     @return logLevel Enum value currently in effect.
-	 */
-ajn::services::Log::LogLevel getLogLevel();
     
 private:
 	// Objective-c generic logger handle.

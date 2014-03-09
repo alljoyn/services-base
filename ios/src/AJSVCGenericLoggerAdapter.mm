@@ -52,38 +52,4 @@ void AJSVCGenericLoggerAdapter::fatal(const char *Tag, const char *logText)
 	[kAJSVCGenericLogger fatalTag:[AJNConvertUtil convertConstCharToNSString:Tag] text:[AJNConvertUtil convertConstCharToNSString:logText]];
 }
 
-void AJSVCGenericLoggerAdapter::debug(qcc::String const& Tag, qcc::String const& logText)
-{
-	[kAJSVCGenericLogger debugTag:[AJNConvertUtil convertQCCStringtoNSString:Tag] text:[AJNConvertUtil convertQCCStringtoNSString:logText]];
-}
 
-void AJSVCGenericLoggerAdapter::info(qcc::String const& Tag, qcc::String const& logText)
-{
-	[kAJSVCGenericLogger infoTag:[AJNConvertUtil convertQCCStringtoNSString:Tag] text:[AJNConvertUtil convertQCCStringtoNSString:logText]];
-}
-
-void AJSVCGenericLoggerAdapter::warn(qcc::String const& Tag, qcc::String const& logText)
-{
-	[kAJSVCGenericLogger warnTag:[AJNConvertUtil convertQCCStringtoNSString:Tag] text:[AJNConvertUtil convertQCCStringtoNSString:logText]];
-}
-
-void AJSVCGenericLoggerAdapter::error(qcc::String const& Tag, qcc::String const& logText)
-{
-	[kAJSVCGenericLogger errorTag:[AJNConvertUtil convertQCCStringtoNSString:Tag] text:[AJNConvertUtil convertQCCStringtoNSString:logText]];
-}
-
-void AJSVCGenericLoggerAdapter::fatal(qcc::String const& Tag, qcc::String const& logText)
-{
-	[kAJSVCGenericLogger fatalTag:[AJNConvertUtil convertQCCStringtoNSString:Tag] text:[AJNConvertUtil convertQCCStringtoNSString:logText]];
-}
-
-ajn::services::Log::LogLevel AJSVCGenericLoggerAdapter::setLogLevel(ajn::services::Log::LogLevel logLevel)
-{
-	[kAJSVCGenericLogger setLogLevel:[AJSVCGenericLoggerUtil revertLogLevel:logLevel]];
-	return logLevel;
-}
-
-ajn::services::Log::LogLevel AJSVCGenericLoggerAdapter::getLogLevel()
-{
-	return [AJSVCGenericLoggerUtil convertQLogLevel:[kAJSVCGenericLogger logLevel]];
-}

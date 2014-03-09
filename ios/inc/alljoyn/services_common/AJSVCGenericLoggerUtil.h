@@ -15,7 +15,6 @@
  ******************************************************************************/
 
 #import <Foundation/Foundation.h>
-#import "GenericLogger.h"
 #import "AJSVCGenericLogger.h"
 
 /**
@@ -23,20 +22,6 @@
  It also offers a log level toString capability.
  */
 @interface AJSVCGenericLoggerUtil : NSObject
-
-/**
- Convert log level from QLogLevel(objective-c layer) to LogLevel(c++ layer).
- @param logLevel QLogLevel (objective-c layer).
- @return LogLevel (c++ layer).
- */
-+ (ajn ::services ::Log ::LogLevel)convertQLogLevel:(QLogLevel)logLevel;
-
-/**
- Revert log level from LogLevel(c++ layer) to QLogLevel(objective-c layer).
- @param logLevel LogLevel (c++ layer).
- @return QLogLevel (objective-c layer).
- */
-+ (QLogLevel)revertLogLevel:(ajn ::services ::Log ::LogLevel)logLevel;
 
 /**
  Convert QLogLevel(objective-c layer) to NSString.

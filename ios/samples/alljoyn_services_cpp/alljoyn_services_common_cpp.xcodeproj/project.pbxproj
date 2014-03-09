@@ -7,10 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		9A7351F3188D692A00717424 /* GenericLogger.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9A7351F0188D692A00717424 /* GenericLogger.cc */; };
-		9A7351F4188D692A00717424 /* ServicesLoggerImpl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9A7351F2188D692A00717424 /* ServicesLoggerImpl.cc */; };
-		9A7351F5188D693F00717424 /* GenericLogger.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9A7351ED188D692A00717424 /* GenericLogger.h */; };
-		9A7351F6188D694600717424 /* ServicesLoggerImpl.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9A7351EE188D692A00717424 /* ServicesLoggerImpl.h */; };
 		9AB3A6BE189E7E0100F152F7 /* Conversions.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9AB3A6BC189E7E0100F152F7 /* Conversions.cc */; };
 		9AB3A6BF189E7E0100F152F7 /* AsyncTaskQueue.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9AB3A6BD189E7E0100F152F7 /* AsyncTaskQueue.cc */; };
 		9AB3A6C0189E7E1400F152F7 /* AsyncTaskQueue.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9AB3A6BB189E7DF800F152F7 /* AsyncTaskQueue.h */; };
@@ -26,8 +22,6 @@
 			dstPath = inc/alljoyn/services_common;
 			dstSubfolderSpec = 16;
 			files = (
-				9A7351F5188D693F00717424 /* GenericLogger.h in CopyFiles */,
-				9A7351F6188D694600717424 /* ServicesLoggerImpl.h in CopyFiles */,
 				9AB3A6C0189E7E1400F152F7 /* AsyncTaskQueue.h in CopyFiles */,
 				9AB3A6C1189E7E1700F152F7 /* Conversions.h in CopyFiles */,
 				9AB3A6C2189E7E1A00F152F7 /* ServicesCommonConstants.h in CopyFiles */,
@@ -37,10 +31,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		9A7351ED188D692A00717424 /* GenericLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GenericLogger.h; sourceTree = "<group>"; };
-		9A7351EE188D692A00717424 /* ServicesLoggerImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServicesLoggerImpl.h; sourceTree = "<group>"; };
-		9A7351F0188D692A00717424 /* GenericLogger.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GenericLogger.cc; sourceTree = "<group>"; };
-		9A7351F2188D692A00717424 /* ServicesLoggerImpl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ServicesLoggerImpl.cc; sourceTree = "<group>"; };
 		9AB3A6B9189E7DF800F152F7 /* ServicesCommonConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServicesCommonConstants.h; sourceTree = "<group>"; };
 		9AB3A6BA189E7DF800F152F7 /* Conversions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Conversions.h; sourceTree = "<group>"; };
 		9AB3A6BB189E7DF800F152F7 /* AsyncTaskQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AsyncTaskQueue.h; sourceTree = "<group>"; };
@@ -105,8 +95,6 @@
 				9AB3A6B9189E7DF800F152F7 /* ServicesCommonConstants.h */,
 				9AB3A6BA189E7DF800F152F7 /* Conversions.h */,
 				9AB3A6BB189E7DF800F152F7 /* AsyncTaskQueue.h */,
-				9A7351ED188D692A00717424 /* GenericLogger.h */,
-				9A7351EE188D692A00717424 /* ServicesLoggerImpl.h */,
 			);
 			path = services_common;
 			sourceTree = "<group>";
@@ -116,8 +104,6 @@
 			children = (
 				9AB3A6BC189E7E0100F152F7 /* Conversions.cc */,
 				9AB3A6BD189E7E0100F152F7 /* AsyncTaskQueue.cc */,
-				9A7351F0188D692A00717424 /* GenericLogger.cc */,
-				9A7351F2188D692A00717424 /* ServicesLoggerImpl.cc */,
 			);
 			name = src;
 			path = ../../../../cpp/src;
@@ -219,8 +205,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				9AB3A6BE189E7E0100F152F7 /* Conversions.cc in Sources */,
-				9A7351F3188D692A00717424 /* GenericLogger.cc in Sources */,
-				9A7351F4188D692A00717424 /* ServicesLoggerImpl.cc in Sources */,
 				9AB3A6BF189E7E0100F152F7 /* AsyncTaskQueue.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
