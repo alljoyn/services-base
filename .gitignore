@@ -23,3 +23,6 @@ lib
 local.properties
 obj*
 .DS_Store
+xcuserdata
+xccheckout
+xcshareddata

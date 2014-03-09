@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -24,7 +24,6 @@
 
 @property ajn::services::ConfigService *handle;
 @property id <AJSVCGenericLogger> currentLogger;
-@property AJSVCGenericLoggerAdapter *prevLogger;
 @property AJSVCGenericLoggerAdapter *AJSVCGenericLoggerAdapter;
 
 @end
@@ -40,7 +39,6 @@
 		self.currentLogger = [[AJSVCGenericLoggerDefaultImpl alloc] init];
 		// Create and set a generic logger adapter adapter
 		self.AJSVCGenericLoggerAdapter = new AJSVCGenericLoggerAdapter(self.currentLogger);
-		self.handle->setLogger(self.AJSVCGenericLoggerAdapter);
 	}
 	return self;
 }
@@ -62,7 +60,6 @@
 		// Save the current logger
 		self.currentLogger = logger;
 		// Call setLoger with the adapter and save the prev Logger
-		self.prevLogger = (AJSVCGenericLoggerAdapter *)(self.handle->setLogger(self.AJSVCGenericLoggerAdapter));
 	}
 	else {
 		[self.currentLogger warnTag:([NSString stringWithFormat:@"%@", [[self class] description]]) text:@"Failed set a logger"];
