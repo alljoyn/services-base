@@ -23,7 +23,6 @@ gen
 lib
 local.properties
 obj*
-
 ios/samples/alljoyn_services_objc/alljoyn_services_common_objc.xcodeproj/xcuserdata
 ios/samples/alljoyn_services_cpp/alljoyn_services_common_cpp.xcodeproj/xcuserdata
 ios/samples/alljoyn_services_cpp/alljoyn_services_common_cpp.xcodeproj/project.xcworkspace/xcuserdata
