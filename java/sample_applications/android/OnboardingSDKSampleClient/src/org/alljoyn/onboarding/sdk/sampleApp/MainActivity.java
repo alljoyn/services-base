@@ -435,7 +435,13 @@ public class MainActivity extends Activity {
             return;
         }
         builder.setTitle(R.string.alert_title_get_current_network);
-        builder.setMessage(String.format(getString(R.string.alert_msg_get_current_network), current.getSSID(), current.getAuthType(), current.getLevel()));
+
+        if (current == null){
+            builder.setMessage(getString(R.string.getcurrentnetwork_returned_null));
+        }
+        else{
+            builder.setMessage(String.format(getString(R.string.alert_msg_get_current_network), current.getSSID(), current.getAuthType(), current.getLevel()));
+        }
         builder.setNegativeButton(R.string.dismiss, null);
         builder.show();
     }
