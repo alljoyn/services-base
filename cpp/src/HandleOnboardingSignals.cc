@@ -75,8 +75,8 @@ void HandleOnboardingSignals::ConnectionResultSignal(const ajn::InterfaceDescrip
         return;
     }
 
-    SignalMesssage originalMessage(message);
-    m_asyncTaskQueue->Enqueue(&originalMessage);
+    SignalMesssage* originalMessage = new SignalMesssage(message);
+    m_asyncTaskQueue->Enqueue(originalMessage);
 }
 
 ///////////////// AsyncTask Methods ////////////////////////
@@ -93,14 +93,13 @@ void HandleOnboardingSignals::OnTask(TaskData const* taskdata)
     size_t numArgs = 0;
     QStatus status;
 
-    size_t connectionResultCode;
+    short connectionResultCode;
     char*  connectionResultMessage;
 
     message->unwrap()->GetArgs(numArgs, args);
 
     if (numArgs == 1) {
         status = args[0].Get("(ns)", &connectionResultCode, &connectionResultMessage);
-
     } else {
         status = ER_BAD_ARG_COUNT;
     }
@@ -110,6 +109,7 @@ void HandleOnboardingSignals::OnTask(TaskData const* taskdata)
         return;
     }
 
-    m_userListener->ConnectionResultSignalReceived(connectionResultCode, connectionResultMessage);
+    qcc::String resultMessage(connectionResultMessage);
+    m_userListener->ConnectionResultSignalReceived(connectionResultCode, resultMessage);
 }
 

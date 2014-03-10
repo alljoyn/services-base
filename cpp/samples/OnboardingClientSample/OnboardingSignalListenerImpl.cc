@@ -28,7 +28,7 @@ OnboardingSignalListenerImpl::~OnboardingSignalListenerImpl()
 }
 
 
-void OnboardingSignalListenerImpl::ConnectionResultSignalReceived(int connectionResultCode, const qcc::String& connectionResultMessage)
+void OnboardingSignalListenerImpl::ConnectionResultSignalReceived(short connectionResultCode, const qcc::String& connectionResultMessage)
 {
     std::cout << "connectionResultCode=" << connectionResultCode << std::endl;
     std::cout << "connectionResultMessage=" << connectionResultMessage.c_str() << std::endl;

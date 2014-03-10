@@ -28,8 +28,7 @@ class OnboardingSignalListenerImpl : public ajn::services::OnboardingClientListe
 
     ~OnboardingSignalListenerImpl();
 
-    void ConnectionResultSignalReceived(int connectionResultCode, const qcc::String& connectionResultMessage);
-
+    void ConnectionResultSignalReceived(short connectionResultCode, const qcc::String& connectionResultMessage);
 };
 
 #endif /* ONBOARDINGSIGNALLISTENERIMPL_H_ */
