@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2014 AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -23,7 +23,6 @@
 @property (nonatomic) AJCPSControlPanelListenerAdapter *listenerAdapter;
 
 @property id <AJSVCGenericLogger> currentLogger;
-@property AJSVCGenericLoggerAdapter *prevLogger;
 @property AJSVCGenericLoggerAdapter *genericLoggerAdapter;
 @end
 
@@ -44,7 +43,6 @@
 {
 	self = [super init];
 	self.handle = ajn::services::ControlPanelService::getInstance();
-    self.handle->setLogLevel(Log::LEVEL_DEBUG);
 	return self;
 }
 
@@ -97,7 +95,6 @@
 		// save current logger
 		self.currentLogger = logger;
 		// call setLoger with the adapter and save the prev Logger
-		self.prevLogger = (AJSVCGenericLoggerAdapter *)(self.handle->setLogger(self.genericLoggerAdapter));
 	}
 	else {
 		[self.currentLogger warnTag:([NSString stringWithFormat:@"%@", [[self class] description]]) text:@"Failed set a logger"];
