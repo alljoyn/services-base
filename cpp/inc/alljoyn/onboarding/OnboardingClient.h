@@ -41,6 +41,7 @@ class OnboardingClient {
     /**
      * Constructor of OnboardingClient
      * @param[in] bus is a reference to BusAttachment
+     * @param[in] handle is a reference to the users implementation of  OnboardingClientListener
      */
     OnboardingClient(ajn::BusAttachment& bus, ajn::services::OnboardingClientListener& handle);
 

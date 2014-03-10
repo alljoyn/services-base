@@ -39,7 +39,7 @@ class OnboardingClientListener {
      *
      * Needs to be implemented by the user for the desired behaviour when receiving the ConnectResult Signal
      */
-    virtual void ConnectionResultSignalReceived(int connectionResultCode, const qcc::String& connectionResultMessage) = 0;
+    virtual void ConnectionResultSignalReceived(short connectionResultCode, const qcc::String& connectionResultMessage) = 0;
 };
 }
 }

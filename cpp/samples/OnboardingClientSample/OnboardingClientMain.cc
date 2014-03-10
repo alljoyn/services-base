@@ -253,10 +253,10 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
     }
 
     OnboardingClient* onboardingClient = NULL;
-    OnboardingSignalListenerImpl signalListener;
+    OnboardingSignalListenerImpl* signalListener = new OnboardingSignalListenerImpl();
 
     if (isOnboardingInterface) {
-        onboardingClient = new    OnboardingClient(*busAttachment, signalListener);
+        onboardingClient = new    OnboardingClient(*busAttachment, *signalListener);
 
         std::cout << std::endl << busName.c_str() << " OnboardingClient GetVersion" << std::endl;
         std::cout << "-----------------------------------" << std::endl;
@@ -325,6 +325,7 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
         } else {
             std::cout << "Call to OffboardFrom failed " << QCC_StatusText(status) << std::endl;
         }
+
     }
 
     status = busAttachment->LeaveSession(id);
@@ -347,6 +348,11 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
     if (onboardingClient) {
         delete onboardingClient;
         onboardingClient = NULL;
+    }
+
+    if (signalListener) {
+        delete signalListener;
+        signalListener = NULL;
     }
 }
 
