@@ -1,5 +1,3 @@
-ios/samples/sampleApp/NotificationService.xcodeproj/project.xcworkspace/xcshareddata/
-ios/samples/AllJoynFramework_iOS/AllJoynFramework_iOS.xcodeproj/project.xcworkspace/xcshareddata/
 *.developerprofile
 *.xcuserdatad
 *.a
@@ -35,3 +33,4 @@ ios/samples/.DS_Store
 .Trashes
 ehthumbs.db
 Thumbs.db
+xcshareddata
