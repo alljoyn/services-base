@@ -211,6 +211,7 @@ class OnboardingSDKWifiManager {
         if (scans != null) {
             onboardableAPlist.clear();
             nonOnboardableAPlist.clear();
+            allAPlist.clear();
 
             Set<String> tempset = new HashSet<String>(); // avoid duplicates
             StringBuffer buff = new StringBuffer(); // for logging
