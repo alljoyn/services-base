@@ -31,34 +31,34 @@ uint8_t getWriteableFunc();
 const char* getTestString(uint16_t language);
 const char* getUrlString();
 
-void* getDateProperty();
+void* getDateProperty(PropertyWidget* thisWidget);
 void setDateProperty(DatePropertyValue* datePropertyValue);
 
-void* getTimeProperty();
+void* getTimeProperty(PropertyWidget* thisWidget);
 void setTimeProperty(TimePropertyValue* timePropertyValue);
 
-void* getuint16Var();
+void* getuint16Var(PropertyWidget* thisWidget);
 void setuint16Var(uint16_t newuint16Var);
 
-void* getint16Var();
+void* getint16Var(PropertyWidget* thisWidget);
 void setint16Var(int16_t newint16Var);
 
-void* getuint32Var();
+void* getuint32Var(PropertyWidget* thisWidget);
 void setuint32Var(uint32_t newuint32Var);
 
-void* getint32Var();
+void* getint32Var(PropertyWidget* thisWidget);
 void setint32Var(int32_t newint32Var);
 
-void* getuint64Var();
+void* getuint64Var(PropertyWidget* thisWidget);
 void setuint64Var(uint64_t newuint64Var);
 
-void* getint64Var();
+void* getint64Var(PropertyWidget* thisWidget);
 void setint64Var(int64_t newint64Var);
 
-void* getdoubleVar();
+void* getdoubleVar(PropertyWidget* thisWidget);
 void setdoubleVar(double newdoubleVar);
 
-void* getStringVar();
+void* getStringVar(PropertyWidget* thisWidget);
 void setStringVar(const char* newStringVar);
 
 /* For Consistency with C++ code */
@@ -68,10 +68,10 @@ void setStringVar(const char* newStringVar);
 void startOven();
 void stopOven();
 
-void* getTemperature();
+void* getTemperature(PropertyWidget* thisWidget);
 void setTemperature(uint16_t temperature);
 
-void* getProgram();
+void* getProgram(PropertyWidget* thisWidget);
 void setProgram(uint16_t program);
 const char* getProgramString(uint16_t language);
 #endif /* CONTROLPANELPROVIDED_H_ */

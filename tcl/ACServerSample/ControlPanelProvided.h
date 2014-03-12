@@ -31,34 +31,34 @@
 //const char* getTestString(uint16_t language);
 //const char* getUrlString();
 //
-//void* getDateProperty();
+//void* getDateProperty(PropertyWidget* thisWidget);
 //void setDateProperty(DatePropertyValue* datePropertyValue);
 //
-//void* getTimeProperty();
+//void* getTimeProperty(PropertyWidget* thisWidget);
 //void setTimeProperty(TimePropertyValue* timePropertyValue);
 //
-//void* getuint16Var();
+//void* getuint16Var(PropertyWidget* thisWidget);
 //void setuint16Var(uint16_t newuint16Var);
 //
-//void* getint16Var();
+//void* getint16Var(PropertyWidget* thisWidget);
 //void setint16Var(int16_t newint16Var);
 //
-//void* getuint32Var();
+//void* getuint32Var(PropertyWidget* thisWidget);
 //void setuint32Var(uint32_t newuint32Var);
 //
-//void* getint32Var();
+//void* getint32Var(PropertyWidget* thisWidget);
 //void setint32Var(int32_t newint32Var);
 //
-//void* getuint64Var();
+//void* getuint64Var(PropertyWidget* thisWidget);
 //void setuint64Var(uint64_t newuint64Var);
 //
-//void* getint64Var();
+//void* getint64Var(PropertyWidget* thisWidget);
 //void setint64Var(int64_t newint64Var);
 //
-//void* getdoubleVar();
+//void* getdoubleVar(PropertyWidget* thisWidget);
 //void setdoubleVar(double newdoubleVar);
 //
-//void* getStringVar();
+//void* getStringVar(PropertyWidget* thisWidget);
 //void setStringVar(const char* newStringVar);
 
 //////////////////////////////////////////////////////
@@ -83,21 +83,21 @@ void setFanSpeedSelectorFieldUpdate();
 //char const* getCurrentTemperatureString(uint16_t lang);
 //char const* getCurrentHumidityString(uint16_t lang);
 
-void* getCurrentTemperatureString();
+void* getCurrentTemperatureString(PropertyWidget* thisWidget);
 void setCurrentTemperatureString(char const* newTemp);
-void* getCurrentHumidityString();
+void* getCurrentHumidityString(PropertyWidget* thisWidget);
 void setCurrentHumidityString(char const* newHumidity);
 
-void* getTargetTemperature();
+void* getTargetTemperature(PropertyWidget* thisWidget);
 void setTargetTemperature(uint16_t newTemp);
 
-void* getCurrentMode();
+void* getCurrentMode(PropertyWidget* thisWidget);
 void setCurrentMode(uint16_t newMode);
 
-void* getFanSpeed();
+void* getFanSpeed(PropertyWidget* thisWidget);
 void setFanSpeed(uint16_t newSpeed);
 
-void* getStatusString();
+void* getStatusString(PropertyWidget* thisWidget);
 void setStatusString(const char* newStatusString);
 
 //void simulateTemperatureChange();

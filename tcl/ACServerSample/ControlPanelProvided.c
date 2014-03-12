@@ -101,7 +101,7 @@ uint16_t getCurrentTemp()
 
 // -- for widgets --//
 
-void* getCurrentTemperatureString()
+void* getCurrentTemperatureString(PropertyWidget* thisWidget)
 {
     temperatureBuff[snprintf(temperatureString, sizeof(temperatureBuff), "%d F", currentTemperature)] = '\0';
     return &temperatureString;
@@ -112,7 +112,7 @@ void setCurrentTemperatureString(char const* newTemp)
     //do nothing
 }
 
-void* getCurrentHumidityString()
+void* getCurrentHumidityString(PropertyWidget* thisWidget)
 {
     humidityBuff[snprintf(humidityString, sizeof(humidityBuff), "%d %%", currentHumidity)] = '\0';
     return &humidityString;
@@ -123,7 +123,7 @@ void setCurrentHumidityString(char const* newHumidity)
     //do nothing
 }
 
-void* getTargetTemperature()
+void* getTargetTemperature(PropertyWidget* thisWidget)
 {
     return &targetTemp;
 }
@@ -132,7 +132,7 @@ void setTargetTemperature(uint16_t newTemp)
     targetTemp = newTemp;
 }
 
-void* getCurrentMode()
+void* getCurrentMode(PropertyWidget* thisWidget)
 {
     return &currentMode;
 }
@@ -142,7 +142,7 @@ void setCurrentMode(uint16_t newMode)
     currentMode = newMode;
 }
 
-void* getFanSpeed()
+void* getFanSpeed(PropertyWidget* thisWidget)
 {
     return &fanSpeed;
 }
@@ -152,7 +152,7 @@ void setFanSpeed(uint16_t newSpeed)
     fanSpeed = newSpeed;
 }
 
-void* getStatusString()
+void* getStatusString(PropertyWidget* thisWidget)
 {
     return &statusString;
 }
