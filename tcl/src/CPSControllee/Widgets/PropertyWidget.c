@@ -36,13 +36,13 @@ AJ_Status marshalPropertyValue(PropertyWidget* widget, AJ_Message* reply, uint16
 {
     switch (widget->propertyType) {
     case SINGLE_VALUE_PROPERTY:
-        return MarshalVariant(reply, widget->signature, widget->getValue());
+        return MarshalVariant(reply, widget->signature, widget->getValue(widget));
 
     case DATE_VALUE_PROPERTY:
-        return marshalDatePropertyValue(widget->getValue(), reply);
+        return marshalDatePropertyValue(widget->getValue(widget), reply);
 
     case TIME_VALUE_PROPERTY:
-        return marshalTimePropertyValue(widget->getValue(), reply);
+        return marshalTimePropertyValue(widget->getValue(widget), reply);
     }
     return AJ_ERR_UNEXPECTED;
 }
