@@ -99,8 +99,7 @@ class Generator:
         myObjectPath = self.ObjectPathPrefix + rootElement.name
         self.objectPathsDecl += "extern const char {0}[];\n".format(objectPathVar)
         self.objectPathsDef += "const char {0}[] = \"{1}\";\n".format(objectPathVar, myObjectPath)
-        self.appObjects += "    {0}  {1}, ControlPanelInterfaces  {2}, \\\n".format("{", objectPathVar, "}")
-        self.announceObjects += "    {0}  {1}, ControlPanelInterfaces  {2}, \\\n".format("{", objectPathVar, "}")
+        self.appObjects += "    {0}  {1}, ControlPanelInterfaces, AJ_OBJ_FLAG_ANNOUNCED  {2}, \\\n".format("{", objectPathVar, "}")
 
         self.defines += """#define {0}_GET_VALUE                  AJ_APP_MESSAGE_ID({1} + NUM_PRECEDING_OBJECTS, 0, AJ_PROP_GET)
 #define {0}_SET_VALUE                  AJ_APP_MESSAGE_ID({1} + NUM_PRECEDING_OBJECTS, 0, AJ_PROP_SET)
@@ -182,7 +181,6 @@ class Generator:
         self.headerFile = self.headerFile.replace("//DEFINES_GO_HERE", self.defines)
         self.headerFile = self.headerFile.replace("//OBJECTPATH_DECL_GO_HERE", self.objectPathsDecl)
         self.headerFile = self.headerFile.replace("//APPOBJECTS_GO_HERE", self.appObjects)
-        self.headerFile = self.headerFile.replace("//ANNOUNCEOBJECTS_GO_HERE", self.announceObjects)
         self.headerFile = self.headerFile.replace("//GETVALUES_GO_HERE", self.getValuesCases)
         self.headerFile = self.headerFile.replace("//SETVALUES_GO_HERE", self.setValuesCases)
         self.headerFile = self.headerFile.replace("//GETALLVALUES_GO_HERE", self.getAllCases)
