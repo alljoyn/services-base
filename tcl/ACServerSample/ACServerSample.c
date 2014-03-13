@@ -14,7 +14,6 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#include "Services_Handlers.h"
 #include <alljoyn.h>
 #include <aj_config.h>
 #include <aj_creds.h>
@@ -32,6 +31,7 @@
 
 #include <alljoyn/services_common/PropertyStore.h>
 #include <alljoyn/services_common/Services_Common.h>
+#include "AppHandlers.h"
 
 #ifndef NDEBUG
 #ifndef ER_DEBUG_AJSVCAPP
@@ -193,16 +193,17 @@ int AJ_Main(void)
         if (!isBusConnected) {
             isBusConnected = AJRouter_Connect(&busAttachment, ROUTER_NAME);
             if (isBusConnected) {
-                status = AJServices_ConnectedHandler(&busAttachment);
+                status = AJApp_ConnectedHandler(&busAttachment);
             } else { // Failed to connect to daemon.
                 continue; // Retry establishing connection to daemon.
             }
         }
 
-        if (status == AJ_OK) {
-            status = AJApp_ConnectedHandler(&busAttachment);
+#ifdef ONBOARDING_SERVICE
+        if (!AJOBS_IsWiFiConnected()) {
+            status = AJ_ERR_RESTART;
         }
-
+#endif
         if (status == AJ_OK) {
             status = AJ_UnmarshalMsg(&busAttachment, &msg, AJAPP_UNMARSHAL_TIMEOUT);
             isUnmarshalingSuccessful = (status == AJ_OK);
@@ -211,14 +212,16 @@ int AJ_Main(void)
                 if (AJ_ERR_LINK_TIMEOUT == AJ_BusLinkStateProc(&busAttachment)) {
                     status = AJ_ERR_READ;             // something's not right. force disconnect
                 } else {                              // nothing on bus, do our own thing
-                    AJServices_DoWork(&busAttachment);
+                    AJApp_DoWork(&busAttachment);
                     continue;
                 }
             }
 
             if (isUnmarshalingSuccessful) {
 
-                serviceStatus = AJServices_MessageProcessor(&busAttachment, &msg, &status);
+                if (serviceStatus == AJSVC_SERVICE_STATUS_NOT_HANDLED) {
+                    serviceStatus = AJApp_MessageProcessor(&busAttachment, &msg, &status);
+                }
                 if (serviceStatus == AJSVC_SERVICE_STATUS_NOT_HANDLED) {
                     //Pass to the built-in bus message handlers
                     status = AJ_BusHandleBusMessage(&msg);
@@ -233,7 +236,6 @@ int AJ_Main(void)
         if (status == AJ_ERR_READ || status == AJ_ERR_RESTART || status == AJ_ERR_RESTART_APP) {
             if (isBusConnected) {
                 AJApp_DisconnectHandler(&busAttachment, status != AJ_ERR_READ);
-                AJServices_DisconnectHandler();
                 isBusConnected = !AJRouter_Disconnect(&busAttachment, status != AJ_ERR_READ);
                 if (status == AJ_ERR_RESTART_APP) {
                     AJ_Reboot();

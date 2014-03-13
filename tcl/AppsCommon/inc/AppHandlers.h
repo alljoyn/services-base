@@ -14,8 +14,8 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#ifndef _SERVICES_HANDLERS_H_
-#define _SERVICES_HANDLERS_H_
+#ifndef _APP_HANDLERS_H_
+#define _APP_HANDLERS_H_
 
 #include <alljoyn.h>
 #include <alljoyn/services_common/Services_Common.h>
@@ -42,32 +42,20 @@ uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* routerName
 AJ_Status AJApp_ConnectedHandler(AJ_BusAttachment* busAttachment);
 
 /**
- * Functions to call after the Router is Connected
- * @param busAttachment
- * @return ajStatus - status of last request to Router
- */
-AJ_Status AJServices_ConnectedHandler(AJ_BusAttachment* busAttachment);
-
-/**
  * Process an incoming message
  * @param busAttachment
  * @param msg
  * @param status
  * @return servicestatus - shows if the message was processed or not
  */
-AJSVC_ServiceStatus AJServices_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* status);
+AJSVC_ServiceStatus AJApp_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* status);
 
 /**
  * Run when there is a timeout reading off the bus
  * application is idle
  * @param busAttachment
  */
-void AJServices_DoWork(AJ_BusAttachment* busAttachment);
-
-/**
- * Shutdown services. Should be called on bus disconnect
- */
-void AJServices_DisconnectHandler();
+void AJApp_DoWork(AJ_BusAttachment* busAttachment);
 
 /**
  * Run when the bus is disconnecting from the Router
@@ -86,4 +74,4 @@ AJ_Status AJApp_DisconnectHandler(AJ_BusAttachment* busAttachment, uint8_t resta
  */
 uint8_t AJRouter_Disconnect(AJ_BusAttachment* busAttachment, uint8_t disconnectWiFi);
 
-#endif /* _SERVICES_HANDLERS_H_ */
+#endif /* _APP_HANDLERS_H_ */
