@@ -187,6 +187,7 @@ AJ_Status AJCFG_UpdateConfigurationsHandler(AJ_Message* msg)
     char* language;
     int8_t langIndex = AJSVC_PROPERTY_STORE_ERROR_LANGUAGE_INDEX;
     uint8_t numOfUpdatedItems = 0;
+    uint8_t errorReply = FALSE;
 
     AJ_InfoPrintf(("Handling UpdateConfigurations request\n"));
 
@@ -195,11 +196,8 @@ AJ_Status AJCFG_UpdateConfigurationsHandler(AJ_Message* msg)
         goto Exit;
     }
     AJ_InfoPrintf(("Lang=%s\n", language));
-    if (AJSVC_IsLanguageSupported(msg, &reply, language, &langIndex)) {
-        status = AJ_MarshalReplyMsg(msg, &reply);
-        if (status != AJ_OK) {
-            goto Exit;
-        }
+    errorReply = AJSVC_IsLanguageSupported(msg, &reply, language, &langIndex);
+    if (!errorReply) {
         status = AJ_UnmarshalContainer(msg, &array, AJ_ARG_ARRAY);
         if (status != AJ_OK) {
             goto Exit;
@@ -227,10 +225,18 @@ AJ_Status AJCFG_UpdateConfigurationsHandler(AJ_Message* msg)
                 if (status == AJ_OK) {
                     numOfUpdatedItems++;
                 } else if (status == AJ_ERR_INVALID) {
-                    AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_INVALID_VALUE);
+                    if (!errorReply) {
+                        AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_INVALID_VALUE);
+                        errorReply = TRUE;
+                    }
                 } else if (status == AJ_ERR_FAILURE) {
-                    AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_UPDATE_NOT_ALLOWED);
+                    if (!errorReply) {
+                        AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_UPDATE_NOT_ALLOWED);
+                        errorReply = TRUE;
+                    }
                 }
+            } else {
+                errorReply = TRUE;
             }
             status = AJ_UnmarshalCloseContainer(msg, &dict);
             if (status != AJ_OK) {
@@ -241,6 +247,12 @@ AJ_Status AJCFG_UpdateConfigurationsHandler(AJ_Message* msg)
             goto Exit;
         }
         status = AJ_UnmarshalCloseContainer(msg, &array);
+        if (status != AJ_OK) {
+            goto Exit;
+        }
+    }
+    if (!errorReply) {
+        status = AJ_MarshalReplyMsg(msg, &reply);
         if (status != AJ_OK) {
             goto Exit;
         }
@@ -269,6 +281,7 @@ AJ_Status AJCFG_ResetConfigurationsHandler(AJ_Message* msg)
     char* language;
     int8_t langIndex = AJSVC_PROPERTY_STORE_ERROR_LANGUAGE_INDEX;
     uint8_t numOfDeletedItems = 0;
+    uint8_t errorReply = FALSE;
 
     AJ_InfoPrintf(("Handling ResetConfigurations request\n"));
 
@@ -277,11 +290,8 @@ AJ_Status AJCFG_ResetConfigurationsHandler(AJ_Message* msg)
         goto Exit;
     }
     AJ_InfoPrintf(("Lang=%s\n", language));
-    if (AJSVC_IsLanguageSupported(msg, &reply, language, &langIndex)) {
-        status = AJ_MarshalReplyMsg(msg, &reply);
-        if (status != AJ_OK) {
-            goto Exit;
-        }
+    errorReply = AJSVC_IsLanguageSupported(msg, &reply, language, &langIndex);
+    if (!errorReply) {
         status = AJ_UnmarshalContainer(msg, &array, AJ_ARG_ARRAY);
         if (status != AJ_OK) {
             goto Exit;
@@ -296,15 +306,27 @@ AJ_Status AJCFG_ResetConfigurationsHandler(AJ_Message* msg)
             if (status == AJ_OK) {
                 numOfDeletedItems++;
             } else if (status == AJ_ERR_INVALID) {
-                AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_INVALID_VALUE);
+                if (!errorReply) {
+                    AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_INVALID_VALUE);
+                    errorReply = TRUE;
+                }
             } else if (status == AJ_ERR_FAILURE) {
-                AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_UPDATE_NOT_ALLOWED);
+                if (!errorReply) {
+                    AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_UPDATE_NOT_ALLOWED);
+                    errorReply = TRUE;
+                }
             }
         }
         if (status != AJ_OK && status != AJ_ERR_NO_MORE) {
             goto Exit;
         }
         status = AJ_UnmarshalCloseContainer(msg, &array);
+        if (status != AJ_OK) {
+            goto Exit;
+        }
+    }
+    if (!errorReply) {
+        status = AJ_MarshalReplyMsg(msg, &reply);
         if (status != AJ_OK) {
             goto Exit;
         }
@@ -331,6 +353,7 @@ AJ_Status AJCFG_SetPasscodeHandler(AJ_Message* msg)
     AJ_Arg newPasscode;
     AJ_Message reply;
     uint8_t forceRouterDisconnect = FALSE;
+    uint8_t errorReply = FALSE;
 
     AJ_InfoPrintf(("Handling SetPasscode request\n"));
 
@@ -345,10 +368,6 @@ AJ_Status AJCFG_SetPasscodeHandler(AJ_Message* msg)
     }
     AJ_InfoPrintf(("Passcode=%d bytes long\n", newPasscode.len));
     if (newPasscode.len > 0) { // Check passcode is not empty
-        status = AJ_MarshalReplyMsg(msg, &reply);
-        if (status != AJ_OK) {
-            return status;
-        }
         if (appSetPasscode) {
             status = (appSetPasscode)(daemonRealm, (const uint8_t*)newPasscode.val.v_string, (uint8_t)newPasscode.len);
             if (status == AJ_ERR_RESOURCES) { // Check passcode is too long to persist
@@ -356,12 +375,20 @@ AJ_Status AJCFG_SetPasscodeHandler(AJ_Message* msg)
                 if (status != AJ_OK) {
                     return status;
                 }
+                errorReply = TRUE;
             }
             forceRouterDisconnect = (status == AJ_ERR_READ);
         }
     } else {
         AJ_ErrPrintf(("Error - newPasscode cannot be empty!\n"));
         status = AJ_MarshalErrorMsg(msg, &reply, AJSVC_ERROR_INVALID_VALUE);
+        if (status != AJ_OK) {
+            return status;
+        }
+        errorReply = TRUE;
+    }
+    if (!errorReply) {
+        status = AJ_MarshalReplyMsg(msg, &reply);
         if (status != AJ_OK) {
             return status;
         }
