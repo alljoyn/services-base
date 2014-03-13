@@ -41,5 +41,6 @@ public:
      * ConnectionResultSignalReceived
      * Forward the signal to the objective-c listener
      */
-    void ConnectionResultSignalReceived(int connectionResultCode, const qcc::String& connectionResultMessage);
+    
+    void ConnectionResultSignalReceived(short connectionResultCode, const qcc::String& connectionResultMessage);
 };

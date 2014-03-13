@@ -27,7 +27,7 @@ AJOBOnboardingClientListenerAdapter::~AJOBOnboardingClientListenerAdapter()
 {
 }
 
-void AJOBOnboardingClientListenerAdapter::ConnectionResultSignalReceived(int connectionResultCode, const qcc::String& connectionResultMessage)
+void AJOBOnboardingClientListenerAdapter::ConnectionResultSignalReceived(short connectionResultCode, const qcc::String& connectionResultMessage)
 {
     NSString* connectionResultMessageString;
     
