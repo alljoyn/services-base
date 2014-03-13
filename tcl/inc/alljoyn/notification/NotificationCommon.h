@@ -153,7 +153,7 @@ extern char AJNS_NotificationDismisserObjectPath[];
  * Notification common app objects
  */
 #define NOTIFICATION_COMMON_APPOBJECTS \
-    { AJNS_NotificationDismisserObjectPath,   AJNS_NotificationDismisserInterfaces },
+    { AJNS_NotificationDismisserObjectPath,   AJNS_NotificationDismisserInterfaces, AJ_OBJ_FLAG_ANNOUNCED },
 
 /**
  * Notification dismisser object index
