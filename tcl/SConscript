@@ -23,8 +23,8 @@ services_common_env.Append(CPPPATH = [
                            ])
 Export('services_common_env')
 
-variant_dir = 'obj'
 
-objs = SConscript('src/SConscript', variant_dir = variant_dir, duplicate = 0)
+
+objs = SConscript('src/SConscript')
 
 Return('objs')
