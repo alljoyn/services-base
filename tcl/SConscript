@@ -26,9 +26,9 @@ cps_env.Append(CPPPATH = [
 
 Export('cps_env')
 
-variant_dir = 'obj'
 
-objs = SConscript('src/CPSControllee/SConscript', variant_dir = variant_dir, duplicate = 0)
+
+objs = SConscript('src/CPSControllee/SConscript')
 
 Return('objs')
 
