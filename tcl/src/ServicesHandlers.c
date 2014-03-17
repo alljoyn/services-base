@@ -28,7 +28,9 @@
 #include <alljoyn/services_common/Services_Common.h>
 #include <alljoyn/services_common/PropertyStore.h>
 #include <alljoyn/services_common/ServicesHandlers.h>
+#ifdef ONBOARDING_SERVICE
 #include <alljoyn/onboarding/OnboardingManager.h>
+#endif
 
 #include <aj_config.h>
 #include <aj_link_timeout.h>
