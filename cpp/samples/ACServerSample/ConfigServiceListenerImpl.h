@@ -23,18 +23,45 @@
 
 //forward declaration
 class OnboardingControllerImpl;
-
+/**
+ * ConfigServiceListenerImpl
+ */
 class ConfigServiceListenerImpl : public ajn::services::ConfigService::Listener {
   public:
-
+    /**
+     * ConfigServiceListenerImpl
+     * @param store
+     * @param bus
+     * @param busListener
+     * @param obController
+     */
     ConfigServiceListenerImpl(PropertyStoreImpl& store, ajn::BusAttachment& bus, CommonBusListener& busListener, OnboardingControllerImpl* obController);
 
+    /**
+     * Method restart
+     * @return
+     */
     virtual QStatus Restart();
 
+    /**
+     * Method FactoryReset
+     * @return
+     */
     virtual QStatus FactoryReset();
 
+    /**
+     * SetPassphrase
+     * @param daemonRealm
+     * @param passcodeSize
+     * @param passcode
+     * @param sessionId
+     * @return
+     */
     virtual QStatus SetPassphrase(const char* daemonRealm, size_t passcodeSize, const char* passcode, ajn::SessionId sessionId);
 
+    /**
+     * destructor
+     */
     virtual ~ConfigServiceListenerImpl();
 
   private:

@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -22,17 +22,31 @@
 
 typedef void (*SessionJoinedCallback)(qcc::String const& busName, ajn::SessionId id);
 
-/*
- *
+/**
+ * class AsyncSessionJoiner
  */
 class AsyncSessionJoiner : public ajn::BusAttachment::JoinSessionAsyncCB {
 
   public:
-
+    /**
+     * Constructor
+     * @param name
+     * @param callback
+     */
     AsyncSessionJoiner(const char* name, SessionJoinedCallback callback = 0);
 
+    /**
+     * destructor
+     */
     virtual ~AsyncSessionJoiner();
 
+    /**
+     * JoinSessionCB
+     * @param status
+     * @param id
+     * @param opts
+     * @param context
+     */
     void JoinSessionCB(QStatus status, ajn::SessionId id, const ajn::SessionOpts& opts, void* context);
 
   private:

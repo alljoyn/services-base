@@ -22,6 +22,9 @@
 #include <alljoyn/SessionPortListener.h>
 #include <vector>
 
+/**
+ * class CommonBusListener
+ */
 class CommonBusListener : public ajn::BusListener, public ajn::SessionPortListener, public ajn::SessionListener {
 
   public:

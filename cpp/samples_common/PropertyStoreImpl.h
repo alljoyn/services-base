@@ -22,24 +22,65 @@
 #include <alljoyn/about/AboutServiceApi.h>
 #include <alljoyn/about/AboutPropertyStoreImpl.h>
 
-
+/**
+ * class PropertyStoreImpl
+ * Property store implementation
+ */
 class PropertyStoreImpl : public ajn::services::AboutPropertyStoreImpl {
 
   public:
+    /**
+     * PropertyStoreImpl - constructor
+     * @param factoryConfigFile
+     * @param configFile
+     */
     PropertyStoreImpl(const char* factoryConfigFile, const char* configFile);
 
+    /**
+     * FactoryReset
+     */
     void FactoryReset();
 
+    /**
+     * GetConfigFileName
+     * @return qcc::String&
+     */
     const qcc::String& GetConfigFileName();
 
+    /**
+     * virtual Destructor
+     */
     virtual ~PropertyStoreImpl();
 
+    /**
+     * virtual method ReadAll
+     * @param languageTag
+     * @param filter
+     * @param all
+     * @return QStatus
+     */
     virtual QStatus ReadAll(const char* languageTag, Filter filter, ajn::MsgArg& all);
 
+    /**
+     * virtual method Update
+     * @param name
+     * @param languageTag
+     * @param value
+     * @return QStatus
+     */
     virtual QStatus Update(const char* name, const char* languageTag, const ajn::MsgArg* value);
 
+    /**
+     * virtual method Delete
+     * @param name
+     * @param languageTag
+     * @return QStatus
+     */
     virtual QStatus Delete(const char* name, const char* languageTag);
 
+    /**
+     * method Initialize
+     */
     void Initialize();
 
   private:

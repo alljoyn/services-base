@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -23,16 +23,34 @@ typedef void (*BasicAnnounceHandlerCallback)(qcc::String const& busName, unsigne
 typedef void (*FullAnnounceHandlerCallback)(qcc::String const& busName, unsigned short version,
                                             unsigned short port, const ajn::services::AnnounceHandler::ObjectDescriptions& objectDescs,
                                             const ajn::services::AnnounceHandler::AboutData& aboutData);
-
+/**
+ * class AnnounceHandlerImpl
+ */
 class AnnounceHandlerImpl : public ajn::services::AnnounceHandler {
 
   public:
 
+    /**
+     * Announce
+     * @param version
+     * @param port
+     * @param busName
+     * @param objectDescs
+     * @param aboutData
+     */
     virtual void Announce(unsigned short version, unsigned short port, const char* busName, const ObjectDescriptions& objectDescs,
                           const AboutData& aboutData);
 
+    /**
+     * AnnounceHandlerImpl
+     * @param basicCallback
+     * @param fullCallback
+     */
     AnnounceHandlerImpl(BasicAnnounceHandlerCallback basicCallback = 0, FullAnnounceHandlerCallback fullCallback = 0);
 
+    /**
+     * ~AnnounceHandlerImpl
+     */
     ~AnnounceHandlerImpl();
 
   private:

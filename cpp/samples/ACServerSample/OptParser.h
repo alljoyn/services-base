@@ -24,44 +24,120 @@
  */
 class OptParser {
   public:
+    /**
+     * ParseResultCode
+     */
     enum ParseResultCode {
         PR_OK, PR_EXIT_NO_ERROR, PR_INVALID_OPTION, PR_MISSING_OPTION, PR_INVALID_APPID
     };
 
+    /**
+     * OptParser
+     * @param argc
+     * @param argv
+     */
     OptParser(int argc, char** argv);
 
+    /**
+     * ParseResult
+     * @return
+     */
     ParseResultCode ParseResult();
 
+    /**
+     * GetFactoryConfigFile
+     * @return
+     */
     qcc::String const& GetFactoryConfigFile() const;
 
+    /**
+     * GetConfigFile
+     * @return
+     */
     qcc::String const& GetConfigFile() const;
 
+    /**
+     * GetAppId
+     * @return
+     */
     qcc::String const& GetAppId() const;
 
+    /**
+     * GetAppName
+     * @return
+     */
     qcc::String const& GetAppName() const;
 
+    /**
+     * GetDeviceId
+     * @return
+     */
     qcc::String const& GetDeviceId() const;
 
+    /**
+     * GetDeviceName
+     * @return
+     */
     qcc::String const& GetDeviceName() const;
 
+    /**
+     * GetDefaultLanguage
+     * @return
+     */
     qcc::String const& GetDefaultLanguage() const;
 
+    /**
+     * GetScanFile
+     * @return
+     */
     qcc::String const& GetScanFile() const;
 
+    /**
+     * GetStateFile
+     * @return
+     */
     qcc::String const& GetStateFile() const;
 
+    /**
+     * GetErrorFile
+     * @return
+     */
     qcc::String const& GetErrorFile() const;
 
+    /**
+     * GetConfigureCmd
+     * @return
+     */
     qcc::String const& GetConfigureCmd() const;
 
+    /**
+     * GetConnectCmd
+     * @return
+     */
     qcc::String const& GetConnectCmd() const;
 
+    /**
+     * GetOffboardCmd
+     * @return
+     */
     qcc::String const& GetOffboardCmd() const;
 
+    /**
+     * GetConcurrency
+     * @return
+     */
     int GetConcurrency() const;
 
+    /**
+     * GetPort
+     * @return
+     */
     int GetPort() const;
 
+    /**
+     * ParseExternalXML
+     * @return
+     */
     bool ParseExternalXML();
 
   private:

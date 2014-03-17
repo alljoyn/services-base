@@ -36,7 +36,8 @@ class CommonSampleUtil {
     static ajn::BusAttachment* prepareBusAttachment(ajn::AuthListener* authListener = 0);
 
     /**
-     * static method preparePropertyStore
+     * static method fillPropertyStore
+     * @param propertyStore
      * @param appIdHex
      * @param appName
      * @param deviceId
@@ -69,7 +70,6 @@ class CommonSampleUtil {
      * static method aboutServiceDestory
      * @param bus
      * @param busListener
-     * @param port
      */
     static void aboutServiceDestroy(ajn::BusAttachment* bus, CommonBusListener* busListener);
 
