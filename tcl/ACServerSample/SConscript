@@ -46,7 +46,7 @@ sersamp_env.Append(CPPPATH = [Dir('../../../../notification/tcl/inc')])
 main_exe = 'ACServerSample'
 
 objs= []
-srcs = ['ACServerSample.c', '../../AppsCommon/src/PropertyStore.c', '../../AppsCommon/src/Services_Handlers.c']
+srcs = ['ACServerSample.c', '../../AppsCommon/src/PropertyStore.c', '../../AppsCommon/src/AppsHandlers.c']
 
 srcs.extend(['../../AppsCommon/src/ConfigSample.c'])
 objs.extend(sersamp_env.SConscript('../../../../config/tcl/SConscript', {'config_env': sersamp_env}))

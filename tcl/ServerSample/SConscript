@@ -72,7 +72,7 @@ else:
             main_exe = 'ServerSample'
 
 objs = []
-srcs = ['ServerSample.c', '../../AppsCommon/src/PropertyStore.c', '../../AppsCommon/src/Services_Handlers.c']
+srcs = ['ServerSample.c', '../../AppsCommon/src/PropertyStore.c', '../../AppsCommon/src/AppHandlers.c']
 
 if int(build_config):
     srcs.extend(['../../AppsCommon/src/ConfigSample.c'])
