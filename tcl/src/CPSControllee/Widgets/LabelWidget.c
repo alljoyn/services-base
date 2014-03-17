@@ -34,7 +34,7 @@ AJ_Status marshalLabelLabel(LabelWidget* widget, AJ_Message* reply, uint16_t lan
     }
 
     if (widget->getLabel) {
-        return AJ_MarshalArgs(reply, PROPERTY_TYPE_LABEL_SIG, widget->getLabel(language));
+        return AJ_MarshalArgs(reply, PROPERTY_TYPE_LABEL_SIG, widget->getLabel(widget, language));
     }
     return AJ_MarshalArgs(reply, PROPERTY_TYPE_LABEL_SIG, widget->label[language]);
 }

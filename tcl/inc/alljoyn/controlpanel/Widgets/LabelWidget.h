@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -21,11 +21,11 @@
 
 /////////////////////////*     LabelWidget     *//////////////////////////////////////
 
-typedef struct {
+typedef struct LabelWidget {
     BaseWidget base;
 
     const char* const* label;
-    const char* (*getLabel)(uint16_t);
+    const char* (*getLabel)(struct LabelWidget* thisWidget, uint16_t);
 } LabelWidget;
 
 void initializeLabelWidget(LabelWidget* widget);

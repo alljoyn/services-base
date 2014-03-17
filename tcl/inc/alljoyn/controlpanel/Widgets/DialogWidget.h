@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -21,13 +21,15 @@
 
 /////////////////////////* DialogWidget OptParams *//////////////////////////////////////
 
-typedef struct {
+struct DialogWidget;
+
+typedef struct DialogOptParams {
     const char* const* labelAction1;
-    const char* (*getLabelAction1)(uint16_t);
+    const char* (*getLabelAction1)(struct DialogWidget* thisWidget, uint16_t);
     const char* const* labelAction2;
-    const char* (*getLabelAction2)(uint16_t);
+    const char* (*getLabelAction2)(struct DialogWidget* thisWidget, uint16_t);
     const char* const* labelAction3;
-    const char* (*getLabelAction3)(uint16_t);
+    const char* (*getLabelAction3)(struct DialogWidget* thisWidget, uint16_t);
 
 } DialogOptParams;
 
@@ -35,10 +37,10 @@ void initializeDialogOptParam(DialogOptParams* optParam);
 
 /////////////////////////*     DialogWidget     *//////////////////////////////////////
 
-typedef struct {
+typedef struct DialogWidget {
     BaseWidget base;
     const char* const* message;
-    const char* (*getMessage)(uint16_t);
+    const char* (*getMessage)(struct DialogWidget* thisWidget, uint16_t);
     uint16_t numActions;
 
     DialogOptParams optParams;

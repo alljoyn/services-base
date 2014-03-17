@@ -26,11 +26,14 @@ typedef enum {
     DATE_VALUE_PROPERTY = 1,
     TIME_VALUE_PROPERTY = 2,
 } PropertyType;
+
+struct PropertyWidget;
+
 /////////////////////////* PropertyWidget OptParams *//////////////////////////////////////
 
 typedef struct {
     const char* const* unitOfMeasure;
-    const char* (*getUnitOfMeasure)(uint16_t);
+    const char* (*getUnitOfMeasure)(struct PropertyWidget* thisWidget, uint16_t);
 
     ConstraintList* constraintList;
     uint16_t numConstraints;

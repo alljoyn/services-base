@@ -93,7 +93,7 @@ AJ_Status marshalPropertyOptParam(BaseWidget* widget, AJ_Message* reply, uint16_
     }
 
     if (optParams->getUnitOfMeasure) {
-        const char* unitOfMeasure = optParams->getUnitOfMeasure(language);
+        const char* unitOfMeasure = optParams->getUnitOfMeasure((PropertyWidget*)widget, language);
         status = AddBasicOptionalParam(reply, PROPERTY_UNIT_OF_MEASURE, PROPERTY_UNIT_OF_MEASURE_SIG, &unitOfMeasure);
         if (status != AJ_OK) {
             return status;

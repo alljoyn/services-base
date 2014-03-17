@@ -63,10 +63,10 @@ AJ_Status marshalBaseVersion(BaseWidget* widget, AJ_Message* reply, uint16_t lan
 AJ_Status marshalBaseStates(BaseWidget* widget, AJ_Message* reply, uint16_t languages)
 {
     if (widget->getEnabled) {
-        setBaseEnabled(widget, widget->getEnabled());
+        setBaseEnabled(widget, widget->getEnabled(widget));
     }
     if (widget->getWritable) {
-        setBaseWritable(widget, widget->getWritable());
+        setBaseWritable(widget, widget->getWritable(widget));
     }
     return AJ_MarshalArgs(reply, PROPERTY_TYPE_STATES_SIG, widget->states);
 }
@@ -111,7 +111,7 @@ AJ_Status marshalBaseOptParam(BaseWidget* widget, AJ_Message* reply, uint16_t la
         return AJ_ERR_UNEXPECTED;
     }
     if (optParams->getLabel) {
-        const char* label = optParams->getLabel(language);
+        const char* label = optParams->getLabel(widget, language);
         status = AddBasicOptionalParam(reply, BASE_LABEL, BASE_LABEL_SIG, &label);
         if (status != AJ_OK) {
             return status;
@@ -125,7 +125,7 @@ AJ_Status marshalBaseOptParam(BaseWidget* widget, AJ_Message* reply, uint16_t la
     }
 
     if (optParams->getBgColor) {
-        uint32_t bgColor = optParams->getBgColor();
+        uint32_t bgColor = optParams->getBgColor(widget);
         status = AddBasicOptionalParam(reply, BASE_BG_COLOR, BASE_BG_COLOR_SIG, &bgColor);
         if (status != AJ_OK) {
             return status;

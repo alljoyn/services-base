@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -23,14 +23,16 @@
 #define UINT32_MAX      (4294967295U)
 #endif
 
+struct BaseWidget;
+
 /////////////////////////* BaseWidget OptParams *//////////////////////////////////////
 
 typedef struct {
     const char* const* label;
-    const char* (*getLabel)(uint16_t);
+    const char* (*getLabel)(struct BaseWidget* thisWidget, uint16_t);
 
     uint32_t bgColor;
-    uint32_t (*getBgColor)();
+    uint32_t (*getBgColor)(struct BaseWidget* thisWidget);
 
     uint16_t numHints;
     const uint16_t* hints;
@@ -41,14 +43,13 @@ void initializeBaseOptParam(BaseOptParams* optParam);
 
 /////////////////////////*     BaseWidget     *//////////////////////////////////////
 
-struct BaseWidget;
 typedef AJ_Status (*MarshalWidgetFptr)(struct BaseWidget*, AJ_Message*, uint16_t language);
 
 typedef struct BaseWidget {
     uint16_t interfaceVersion;
     uint32_t states;
-    uint8_t (*getEnabled)();
-    uint8_t (*getWritable)();
+    uint8_t (*getEnabled)(struct BaseWidget* thisWidget);
+    uint8_t (*getWritable)(struct BaseWidget* thisWidget);
 
     uint16_t numLanguages;
     BaseOptParams optParams;
