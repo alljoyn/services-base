@@ -45,12 +45,17 @@ const PropertyStoreEntry propertyStoreProperties[AJSVC_PROPERTY_STORE_NUMBER_OF_
 //  { "Key Name            ", W, A, M, I .. . . ., P },
     { "DeviceId",             0, 1, 0, 1, 0, 0, 0, 1 },
     { "AppId",                0, 1, 0, 1, 0, 0, 0, 1 },
+#ifndef CONFIG_SERVICE
+    { "DeviceName",           0, 1, 0, 1, 0, 0, 0, 1 },
+// Add other runtime keys above this line
+    { "DefaultLanguage",      0, 1, 0, 0, 0, 0, 0, 1 },
+#else
     { "DeviceName",           1, 1, 0, 1, 0, 0, 0, 1 },
-// Add other persisted keys above this line
     { "DefaultLanguage",      1, 1, 0, 0, 0, 0, 0, 1 },
     { "Passcode",             1, 0, 0, 0, 0, 0, 0, 0 },
     { "RealmName",            1, 0, 0, 0, 0, 0, 0, 0 },
-// Add other configurable keys above this line
+// Add other runtime keys above this line
+#endif
     { "AppName",              0, 1, 0, 0, 0, 0, 0, 1 },
     { "Description",          0, 0, 1, 0, 0, 0, 0, 1 },
     { "Manufacturer",         0, 1, 1, 0, 0, 0, 0, 1 },
@@ -58,8 +63,8 @@ const PropertyStoreEntry propertyStoreProperties[AJSVC_PROPERTY_STORE_NUMBER_OF_
     { "DateOfManufacture",    0, 0, 0, 0, 0, 0, 0, 1 },
     { "SoftwareVersion",      0, 0, 0, 0, 0, 0, 0, 1 },
     { "AJSoftwareVersion",    0, 0, 0, 0, 0, 0, 0, 1 },
-#if defined CONFIG_SERVICE
-    { "MaxLength",            0, 0, 1, 0, 0, 0, 0, 1 },
+#ifdef CONFIG_SERVICE
+    { "MaxLength",            0, 1, 0, 0, 0, 0, 0, 1 },
 #endif
 // Add other mandatory about keys above this line
     { "HardwareVersion",      0, 0, 0, 0, 0, 0, 0, 1 },
@@ -78,8 +83,10 @@ uint8_t AJSVC_PropertyStore_GetMaxValueLength(AJSVC_PropertyStoreFieldIndices fi
     case AJSVC_PROPERTY_STORE_DEFAULT_LANGUAGE:
         return LANG_VALUE_LENGTH;
 
+#ifdef CONFIG_SERVICE
     case AJSVC_PROPERTY_STORE_PASSCODE:
         return PASSWORD_VALUE_LENGTH;
+#endif
 
     default:
         return KEY_VALUE_LENGTH;

@@ -88,7 +88,11 @@ static uint32_t PasswordCallback(uint8_t* buffer, uint32_t bufLen)
     size_t hexPasswordLen;
     uint32_t len = 0;
 
+#ifdef CONFIG_SERVICE
     hexPassword = AJSVC_PropertyStore_GetValue(AJSVC_PROPERTY_STORE_PASSCODE);
+#else
+    hexPassword = "303030303030";
+#endif
     if (hexPassword == NULL) {
         AJ_AlwaysPrintf(("Password is NULL!\n"));
         return len;

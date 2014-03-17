@@ -87,7 +87,9 @@ const uint8_t AJSVC_PROPERTY_STORE_NUMBER_OF_LANGUAGES = sizeof(SUPPORTED_LANGUA
 /**
  * property array of structure with defaults
  */
+#if     defined CONFIG_SERVICE
 static const char* DEFAULT_PASSCODES[] = { "303030303030" }; // HEX encoded { '0', '0', '0', '0', '0', '0' }
+#endif
 #if     defined CONTROLPANEL_SERVICE
 static const char* DEFAULT_APP_NAMES[] = { "Controlee" };
 #elif   defined NOTIFICATION_SERVICE_PRODUCER
@@ -120,8 +122,10 @@ const char** propertyStoreDefaultValues[AJSVC_PROPERTY_STORE_NUMBER_OF_KEYS] =
     NULL,                                           /*AppId*/
     NULL,                                           /*DeviceName*/
     DEFAULT_LANGUAGES,                              /*DefaultLanguage*/
+#if defined CONFIG_SERVICE
     DEFAULT_PASSCODES,                              /*Passcode*/
     NULL,                                           /*RealmName*/
+#endif
 // Add other runtime or configurable keys above this line
     DEFAULT_APP_NAMES,                              /*AppName*/
     DEFAULT_DESCRIPTIONS,                           /*Description*/
