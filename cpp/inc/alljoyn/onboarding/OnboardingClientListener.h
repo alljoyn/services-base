@@ -19,14 +19,15 @@
 
 #include <qcc/String.h>
 
+namespace ajn {
+namespace services {
 /**
  * OnboardingClientListener
  *
  *  is a helper class used by an AllJoyn IoE client application to receive OnboardingService signal notification.
  * The user of the class need to implement virtual void ConnectionResultSignalReceived(...) function
  */
-namespace ajn {
-namespace services {
+
 class OnboardingClientListener {
   public:
     /**
@@ -36,8 +37,9 @@ class OnboardingClientListener {
 
     /**
      * ConnectionResultSignalReceived
-     *
      * Needs to be implemented by the user for the desired behaviour when receiving the ConnectResult Signal
+     * @param connectionResultCode
+     * @param connectionResultMessage
      */
     virtual void ConnectionResultSignalReceived(short connectionResultCode, const qcc::String& connectionResultMessage) = 0;
 };
