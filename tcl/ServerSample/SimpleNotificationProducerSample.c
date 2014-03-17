@@ -29,10 +29,10 @@
 #ifdef __linux
 #include <NotificationProducerSampleUtil.h>
 #else
-#define MESSAGES_INTERVAL 16
+#define MESSAGES_INTERVAL 60000
 #define Producer_GetNotificationFromUser(...) do { } while (0)
 #define Producer_SetupEnv(...) do { } while (0)
-#define Producer_PossiblyDeleteNotification(...) do { } while (0)
+#define Producer_GetShouldDeleteNotificationFromUser(...) do { } while (0)
 #define Producer_FreeNotification(...) do { } while (0)
 #endif
 
@@ -62,8 +62,8 @@ const static char* controlPanelServiceObjectPath = "/ControlPanel/MyDevice/areYo
 const static char* richIconObjectPath = "/icon/MyDevice";
 const static char* richAudioObjectPath = "/audio/MyDevice";
 static uint8_t inputMode = 0;
-static uint16_t isMessageTime = 0;
-static uint16_t nextMessageTime = MESSAGES_INTERVAL;
+static AJ_Time isMessageTime;
+static uint32_t nextMessageTime = MESSAGES_INTERVAL;
 AJNS_DictionaryEntry textToSend[NUM_TEXTS], customAttributesToSend[NUM_CUSTOMS], richAudioUrls[NUM_RICH_AUDIO];
 
 /**
@@ -107,43 +107,64 @@ AJ_Status NotificationProducer_Init()
     AJ_Status status = AJ_OK;
     Producer_SetupEnv(&inputMode);
     InitNotification();
+    AJ_InitTimer(&isMessageTime);
+    isMessageTime.seconds -= nextMessageTime; // Expire next message timer
     return status;
 }
 
 /**
- * Meant to simulate scenario where sometimes Notifications are set when
- * Send Notification is called and sometimes not.
- * Sets the notification every MESSAGES_INTERVAL time
+ * Meant to simulate scenario where sometimes Notifications are sent when
+ * DoWork is called and sometimes not and also toggle between a regular
+ * notification and a notication with action.
+ * Send the notification every MESSAGES_INTERVAL milliseconds.
  */
 static void PossiblySendNotification(AJ_BusAttachment* busAttachment)
 {
+    AJ_Status status;
     uint16_t messageType = AJNS_NOTIFICATION_MESSAGE_TYPE_INFO;
     uint32_t ttl = 20000;
     uint32_t serialNum;
 
-    if (isMessageTime == 0) {
+    if (AJ_GetElapsedTime(&isMessageTime, FALSE) >= nextMessageTime) {
         if (!inputMode) {
             notificationContent.controlPanelServiceObjectPath = ((notificationContent.controlPanelServiceObjectPath == NULL) ? controlPanelServiceObjectPath : NULL); // Toggle notification with action ON/OFF
         } else {
             Producer_GetNotificationFromUser(&notificationContent, &messageType, &ttl, &nextMessageTime);
         }
-        AJNS_Producer_SendNotification(busAttachment, &notificationContent, messageType, ttl, &serialNum);
+        status = AJNS_Producer_SendNotification(busAttachment, &notificationContent, messageType, ttl, &serialNum);
+        AJ_AlwaysPrintf(("Send Message Type: %d returned: '%s'\n", messageType, AJ_StatusText(status)));
         if (inputMode) {
             Producer_FreeNotification(&notificationContent);
         }
+        AJ_InitTimer(&isMessageTime);
     }
+}
 
-    if (++isMessageTime == nextMessageTime) {
-        isMessageTime = 0;
+/**
+ * Allow the user the possibility to delete sent Notifications when DoWork is called.
+ * Give the user an option to delete a notification a second after one was sent.
+ */
+static void PossiblyDeleteNotification(AJ_BusAttachment* busAttachment)
+{
+    AJ_Status status;
+    uint8_t delMsg = FALSE;
+    uint16_t delMsgType = AJNS_NOTIFICATION_MESSAGE_TYPE_INFO;
+
+    if (inputMode) {
+        if (AJ_GetElapsedTime(&isMessageTime, FALSE) >= 1000) {
+            Producer_GetShouldDeleteNotificationFromUser(busAttachment, &delMsg, &delMsgType);
+            if (delMsg) {
+                status = AJNS_Producer_DeleteLastNotification(busAttachment, delMsgType);
+                AJ_AlwaysPrintf(("Delete Last Message Type: %d returned: '%s'\n", delMsgType, AJ_StatusText(status)));
+            }
+        }
     }
 }
 
 void NotificationProducer_DoWork(AJ_BusAttachment* busAttachment)
 {
     PossiblySendNotification(busAttachment);
-    if (inputMode) {
-        Producer_PossiblyDeleteNotification(busAttachment, isMessageTime);
-    }
+    PossiblyDeleteNotification(busAttachment);
 }
 
 AJ_Status NotificationProducer_Finish()

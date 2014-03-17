@@ -19,11 +19,11 @@
 
 #include <alljoyn.h>
 
-#define MESSAGES_INTERVAL 16
+#define MESSAGES_INTERVAL 60000
 
 void Producer_SetupEnv(uint8_t* inputMode);
-void Producer_GetNotificationFromUser(AJNS_NotificationContent* notificationContent, uint16_t* messageType, uint32_t* ttl, uint16_t* nextMessageTime);
-void Producer_PossiblyDeleteNotification(AJ_BusAttachment* busAttachment, uint16_t isMessageTime);
+void Producer_GetNotificationFromUser(AJNS_NotificationContent* notificationContent, uint16_t* messageType, uint32_t* ttl, uint32_t* nextMessageTime);
+void Producer_GetShouldDeleteNotificationFromUser(AJ_BusAttachment* busAttachment, uint8_t* delMsg, uint16_t* delMsgType);
 void Producer_FreeNotification(AJNS_NotificationContent* notificationContent);
 #endif /* PRODUCER_SAMPLE_UTIL_H_ */
 
