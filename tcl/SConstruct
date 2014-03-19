@@ -24,17 +24,17 @@ env['obj'] = env.SConscript('../../../core/about_tcl/tcl/SConscript',exports = {
 
 if env['VARIANT'] == 'debug':
     env.Append(CPPDEFINES = ['ER_DEBUG_AJSVCAPP=1'])
-    env.Append(CPPDEFINES = ['ER_DEBUG_AJSERVICESHANDLERS=1'])
     env.Append(CPPDEFINES = ['ER_DEBUG_AJSVCALL=1'])
     env.Append(CPPDEFINES = ['AJ_DEBUG_RESTRICT=AJ_DEBUG_INFO'])
 
 env.Append(CPPPATH = [Dir('AppsCommon/inc')])
 env.Append(CPPPATH = [Dir('AppsCommon/target/' + env['TARG'])])
+env.Append(CPPPATH = [Dir('../../config/tcl/inc')])
 env.Append(CPPPATH = [Dir('../../notification/tcl/inc')])
 env.Append(CPPPATH = [Dir('../../controlpanel/tcl/inc')])
 env.Append(CPPPATH = [Dir('.')])
 
-samples = ['SampleConfig','SampleProducer','SampleConsumer','SampleCps']
+samples = ['ConfigSample','NotificationProducerSample','NotificationConsumerSample','ControlleeSample']
 
 for sample in samples:
     print ''

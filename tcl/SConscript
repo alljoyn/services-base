@@ -23,25 +23,25 @@ objs.extend(samp_env['obj'])
 objs.extend(samp_env['aj_obj'])
 objs.extend(samp_env.SConscript('#../../services_common/tcl/SConscript', variant_dir = 'services_common' , duplicate = 1, exports = {'services_common_env': samp_env}))
 
-if samp_env['variant_dirs'] == "SampleConfig":
+if samp_env['variant_dirs'] == "ConfigSample":
     objs.extend(samp_env.SConscript('AppsCommon/SConscript', duplicate = 1, exports = {'appsCommon_env': samp_env}))
-    srcs.extend(['SampleConfig.c'])
+    srcs.extend(['ConfigSample.c'])
     objs.extend(samp_env.SConscript('#../../config/tcl/SConscript', {'config_env': samp_env}))
 
-if samp_env['variant_dirs'] == "SampleProducer":
+if samp_env['variant_dirs'] == "NotificationProducerSample":
     objs.extend(samp_env.SConscript('AppsCommon/SConscript', duplicate = 1, exports = {'appsCommon_env': samp_env}))
-    srcs.extend(['SampleProducer.c'])
+    srcs.extend(['NotificationProducerSample.c'])
     objs.extend(samp_env.SConscript('#../../notification/tcl/src/NotificationCommon/SConscript', variant_dir = 'NotificationCommon' ,duplicate = 1,exports = {'notif_env': samp_env}))
     objs.extend(samp_env.SConscript('#../../notification/tcl/src/NotificationProducer/SConscript', variant_dir = 'NotificationProducer' , duplicate = 1, exports = {'notif_env': samp_env}))
 
-if samp_env['variant_dirs'] == "SampleConsumer":
-    srcs.extend(['SampleConsumer.c'])
+if samp_env['variant_dirs'] == "NotificationConsumerSample":
+    srcs.extend(['NotificationConsumerSample.c'])
     objs.extend(samp_env.SConscript('#../../notification/tcl/src/NotificationCommon/SConscript', variant_dir = 'NotificationCommon' ,duplicate = 1,exports = {'notif_env': samp_env}))
     objs.extend(samp_env.SConscript('#../../notification/tcl/src/NotificationConsumer/SConscript', variant_dir = 'NotificationConsumer' , duplicate = 1, exports = {'notif_env': samp_env}))
 
-if samp_env['variant_dirs'] == "SampleCps":
+if samp_env['variant_dirs'] == "ControlleeSample":
     objs.extend(samp_env.SConscript('AppsCommon/SConscript', duplicate = 1, exports = {'appsCommon_env': samp_env}))
-    srcs.extend(['SampleCps.c'])
+    srcs.extend(['ControlleeSample.c'])
     objs.extend(samp_env.SConscript('#../../controlpanel/tcl/SConscript', variant_dir = 'controlpanel', duplicate = 1, exports = {'cps_env': samp_env}))
     srcs.extend(['ControlPanelGenerated.c', 'ControlPanelProvided.c'])
 
