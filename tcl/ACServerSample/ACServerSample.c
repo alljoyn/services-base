@@ -187,15 +187,16 @@ int AJ_Main(void)
     while (TRUE) {
         AJ_Message msg;
         status = AJ_OK;
+        serviceStatus = AJSVC_SERVICE_STATUS_NOT_HANDLED;
 
         if (!isBusConnected) {
             isBusConnected = AJRouter_Connect(&busAttachment, ROUTER_NAME);
-            if (isBusConnected) {
-                status = AJApp_ConnectedHandler(&busAttachment);
-            } else { // Failed to connect to daemon.
+            if (isBusConnected) { // Failed to connect to daemon.
                 continue; // Retry establishing connection to daemon.
             }
         }
+
+        status = AJApp_ConnectedHandler(&busAttachment);
 
 #ifdef ONBOARDING_SERVICE
         if (!AJOBS_IsWiFiConnected()) {
@@ -216,7 +217,6 @@ int AJ_Main(void)
             }
 
             if (isUnmarshalingSuccessful) {
-
                 if (serviceStatus == AJSVC_SERVICE_STATUS_NOT_HANDLED) {
                     serviceStatus = AJApp_MessageProcessor(&busAttachment, &msg, &status);
                 }

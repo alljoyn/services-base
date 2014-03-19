@@ -34,7 +34,6 @@ Export('sersamp_env')
 
 if sersamp_env['VARIANT'] == 'debug':
     sersamp_env.Append(CPPDEFINES = ['ER_DEBUG_AJSVCAPP=1'])
-    sersamp_env.Append(CPPDEFINES = ['ER_DEBUG_AJSERVICESHANDLERS=1'])
     sersamp_env.Append(CPPDEFINES = ['ER_DEBUG_AJSVCALL=1'])
     sersamp_env.Append(CPPDEFINES = ['AJ_DEBUG_RESTRICT=AJ_DEBUG_INFO'])
 
@@ -46,7 +45,7 @@ sersamp_env.Append(CPPPATH = [Dir('../../../../notification/tcl/inc')])
 main_exe = 'ACServerSample'
 
 objs= []
-srcs = ['ACServerSample.c', '../../AppsCommon/src/PropertyStore.c', '../../AppsCommon/src/AppsHandlers.c']
+srcs = ['ACServerSample.c', '../../AppsCommon/src/PropertyStore.c', '../../AppsCommon/src/AppHandlers.c']
 
 srcs.extend(['../../AppsCommon/src/ConfigSample.c'])
 objs.extend(sersamp_env.SConscript('../../../../config/tcl/SConscript', {'config_env': sersamp_env}))

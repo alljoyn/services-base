@@ -209,43 +209,49 @@ static uint32_t MyBusAuthPwdCB(uint8_t* buf, uint32_t bufLen)
 
 int AJ_Main(void)
 {
-    static AJ_Status status = AJ_OK;
-    static uint8_t isUnmarshalingSuccessful = FALSE;
+    AJ_Status status = AJ_OK;
+    uint8_t isUnmarshalingSuccessful = FALSE;
     AJSVC_ServiceStatus serviceStatus;
+    AJ_Message msg;
 
     AJ_Initialize();
+
     status = PropertyStore_Init();
     if (status != AJ_OK) {
         goto Exit;
     }
+
     status = About_Init(AnnounceObjects, aboutIconMimetype, aboutIconContent, aboutIconContentSize, aboutIconUrl);
     if (status != AJ_OK) {
         goto Exit;
     }
+
     status = AJServices_Init(AppObjects, ProxyObjects, AnnounceObjects, deviceManufactureName, deviceProductName);
     if (status != AJ_OK) {
         goto Exit;
     }
+
     AJ_RegisterObjects(AppObjects, ProxyObjects);
     SetBusAuthPwdCallback(MyBusAuthPwdCB);
 
     while (TRUE) {
-        AJ_Message msg;
         status = AJ_OK;
+        serviceStatus = AJSVC_SERVICE_STATUS_NOT_HANDLED;
 
         if (!isBusConnected) {
             isBusConnected = AJRouter_Connect(&busAttachment, ROUTER_NAME);
-            if (isBusConnected) {
-                status = AJApp_ConnectedHandler(&busAttachment);
-            } else { // Failed to connect to daemon.
+            if (!isBusConnected) { // Failed to connect to daemon.
                 continue; // Retry establishing connection to daemon.
             }
         }
 
-        if (status == AJ_OK) {
-            status = AJApp_ConnectedHandler(&busAttachment);
-        }
+        status = AJApp_ConnectedHandler(&busAttachment);
 
+#ifdef ONBOARDING_SERVICE
+        if (!AJOBS_IsWiFiConnected()) {
+            status = AJ_ERR_RESTART;
+        }
+#endif
         if (status == AJ_OK) {
             status = AJ_UnmarshalMsg(&busAttachment, &msg, AJAPP_UNMARSHAL_TIMEOUT);
             isUnmarshalingSuccessful = (status == AJ_OK);
@@ -260,7 +266,6 @@ int AJ_Main(void)
             }
 
             if (isUnmarshalingSuccessful) {
-
                 if (serviceStatus == AJSVC_SERVICE_STATUS_NOT_HANDLED) {
                     serviceStatus = AJApp_MessageProcessor(&busAttachment, &msg, &status);
                 }

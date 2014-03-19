@@ -34,7 +34,6 @@ Export('sersamp_env')
 
 if sersamp_env['VARIANT'] == 'debug':
     sersamp_env.Append(CPPDEFINES = ['ER_DEBUG_AJSVCAPP=1'])
-    sersamp_env.Append(CPPDEFINES = ['ER_DEBUG_AJSERVICESHANDLERS=1'])
     sersamp_env.Append(CPPDEFINES = ['ER_DEBUG_AJSVCALL=1'])
     sersamp_env.Append(CPPDEFINES = ['AJ_DEBUG_RESTRICT=AJ_DEBUG_INFO'])
 
@@ -50,24 +49,24 @@ build_cps_default         = 0 # do NOT build by default
 
 build_all = ARGUMENTS.get('ALL', 0)
 if int(build_all):
-    build_config   	= 1
-    build_producer 	= 1
-    build_consumer 	= 1
-    build_cps      	= 1
+    build_config    = 1
+    build_producer  = 1
+    build_consumer  = 1
+    build_cps       = 1
 else:
-    build_config	= ARGUMENTS.get('CONFIG',      build_config_default)
+    build_config    = ARGUMENTS.get('CONFIG',      build_config_default)
     build_producer  = ARGUMENTS.get('PRODUCER',    build_producer_default)
     build_consumer  = ARGUMENTS.get('CONSUMER',    build_consumer_default)
     build_cps       = ARGUMENTS.get('CPS',         build_cps_default)
 
 if int(build_producer) and not int(build_consumer) and not int(build_cps):
-    main_exe = 'ProducerSample'
+    main_exe = 'NotificationProducerSample'
 else:
     if int(build_consumer) and not int(build_producer) and not int(build_cps):
-        main_exe = 'ConsumerSample'
+        main_exe = 'NotificationConsumerSample'
     else:
         if int(build_cps) and not int(build_consumer) and not int(build_producer):
-            main_exe = 'CpsSample'
+            main_exe = 'ControlleeSample'
         else:
             main_exe = 'ServerSample'
 

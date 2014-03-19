@@ -71,28 +71,28 @@ uint8_t addSessionLessMatch = FALSE;
 
 typedef enum {
     INIT_START = 0,
-    INIT_SERVICES_PORT = INIT_START,
+    INIT_SERVICES = INIT_START,
+    INIT_SERVICES_PORT,
     INIT_ADVERTISE_NAME,
     INIT_ADDSLMATCH,
-    INIT_FINISHED
+    INIT_CHECK_ANNOUNCE,
+    INIT_FINISHED = INIT_CHECK_ANNOUNCE
 } enum_init_state_t;
 
 static const uint8_t MAX_INIT_RETRIES = 5;
 static uint8_t init_retries = 0;
 
-
 static uint32_t PasswordCallback(uint8_t* buffer, uint32_t bufLen)
 {
     AJ_Status status = AJ_OK;
-    const char* hexPassword;
+#ifdef CONFIG_SERVICE
+    const char* hexPassword = AJSVC_PropertyStore_GetValue(AJSVC_PROPERTY_STORE_PASSCODE);
+#else
+    const char* hexPassword = "303030303030";
+#endif
     size_t hexPasswordLen;
     uint32_t len = 0;
 
-#ifdef CONFIG_SERVICE
-    hexPassword = AJSVC_PropertyStore_GetValue(AJSVC_PROPERTY_STORE_PASSCODE);
-#else
-    hexPassword = "303030303030";
-#endif
     if (hexPassword == NULL) {
         AJ_AlwaysPrintf(("Password is NULL!\n"));
         return len;
@@ -151,6 +151,7 @@ Exit:
 uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* routerName)
 {
     AJ_Status status = AJ_OK;
+    const char* busUniqueName;
     while (TRUE) {
 #ifdef ONBOARDING_SERVICE
         status = AJOBS_EstablishWiFi();
@@ -172,7 +173,7 @@ uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* routerName
 #endif
             continue;
         }
-        const char* busUniqueName = AJ_GetUniqueName(busAttachment);
+        busUniqueName = AJ_GetUniqueName(busAttachment);
         if (busUniqueName == NULL) {
             AJ_AlwaysPrintf(("Failed to GetUniqueName() from newly connected bus, retrying\n"));
             continue;
@@ -196,16 +197,20 @@ AJ_Status AJApp_ConnectedHandler(AJ_BusAttachment* busAttachment)
 {
     AJ_Status status = AJ_OK;
     if (AJ_GetUniqueName(busAttachment)) {
-        status = AJSVC_ConnectedHandler(&busAttachment);
-        if (status != AJ_OK) {
-            goto Exit;
-        }
         if (currentServicesInitializationState == nextServicesInitializationState) {
             switch (currentServicesInitializationState) {
+            case INIT_SERVICES:
+                status = AJSVC_ConnectedHandler(busAttachment);
+                if (status != AJ_OK) {
+                    goto ErrorExit;
+                }
+                currentServicesInitializationState = nextServicesInitializationState = INIT_SERVICES_PORT;
+                break;
+
             case INIT_SERVICES_PORT:
                 status = AJ_BusBindSessionPort(busAttachment, AJ_ABOUT_SERVICE_PORT, NULL, 0);
                 if (status != AJ_OK) {
-                    goto Exit;
+                    goto ErrorExit;
                 }
                 nextServicesInitializationState = INIT_ADVERTISE_NAME;
                 break;
@@ -213,7 +218,7 @@ AJ_Status AJApp_ConnectedHandler(AJ_BusAttachment* busAttachment)
             case INIT_ADVERTISE_NAME:
                 status = AJ_BusAdvertiseName(busAttachment, AJ_GetUniqueName(busAttachment), AJ_TRANSPORT_ANY, AJ_BUS_START_ADVERTISING, 0);
                 if (status != AJ_OK) {
-                    goto Exit;
+                    goto ErrorExit;
                 }
                 if (addSessionLessMatch) {
                     nextServicesInitializationState = INIT_ADDSLMATCH;
@@ -225,29 +230,40 @@ AJ_Status AJApp_ConnectedHandler(AJ_BusAttachment* busAttachment)
             case INIT_ADDSLMATCH:
                 status = AJ_BusSetSignalRule(busAttachment, SESSIONLESS_MATCH, AJ_BUS_SIGNAL_ALLOW);
                 if (status != AJ_OK) {
-                    goto Exit;
+                    goto ErrorExit;
                 }
                 nextServicesInitializationState = INIT_FINISHED;
                 break;
 
-            case INIT_FINISHED:
+            case INIT_CHECK_ANNOUNCE:
+                if (AJ_About_IsShouldAnnounce()) {
+                    status = AJ_About_Announce(busAttachment);
+                    if (status != AJ_OK) {
+                        goto ErrorExit;
+                    }
+                    AJ_About_SetShouldAnnounce(FALSE);
+                }
+                break;
+
             default:
                 break;
             }
         }
     }
+    return status;
 
-Exit:
+ErrorExit:
 
+    AJ_ErrPrintf(("Application ConnectedHandler returned an error %s\n", (AJ_StatusText(status))));
     if (status == AJ_ERR_RESOURCES) {
         init_retries++;
         if (init_retries > MAX_INIT_RETRIES) {
             status = AJ_ERR_READ; // Force disconnect
         } else {
+            AJ_ErrPrintf(("Application ConnectedHandler attempt %u of %u\n", init_retries, MAX_INIT_RETRIES));
             AJ_Sleep(AJAPP_SLEEP_TIME);
         }
     }
-
     return status;
 }
 
@@ -331,7 +347,6 @@ AJ_Status AJApp_DisconnectHandler(AJ_BusAttachment* busAttachment, uint8_t resta
     init_retries = 0;
 
     status = AJSVC_DisconnectHandler(busAttachment);
-
     return status;
 }
 
