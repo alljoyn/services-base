@@ -32,5 +32,5 @@ if env.get('ALLJOYN_DISTDIR'):
 
 env['bindings'] = set([ b.strip() for b in env['BINDINGS'].split(',') ])
 
-env.SConscript('SConscript',variant_dir = 'obj', duplicate = '0')
+env.SConscript('SConscript')
 
