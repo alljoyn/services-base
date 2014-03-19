@@ -101,8 +101,9 @@ typedef enum {
 
 static uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* routerName)
 {
+    AJ_Status status;
+    const char* busUniqueName;
     while (TRUE) {
-        AJ_Status status = AJ_OK;
         AJ_InfoPrintf(("Attempting to connect to bus '%s'\n", routerName));
         status = AJ_FindBusAndConnect(busAttachment, routerName, AJAPP_CONNECT_TIMEOUT);
         if (status != AJ_OK) {
@@ -110,7 +111,7 @@ static uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* rou
             AJ_Sleep(AJAPP_CONNECT_PAUSE);
             continue;
         }
-        const char* busUniqueName = AJ_GetUniqueName(busAttachment);
+        busUniqueName = AJ_GetUniqueName(busAttachment);
         if (busUniqueName == NULL) {
             AJ_ErrPrintf(("Failed to GetUniqueName() from newly connected bus, retrying\n"));
             continue;
@@ -168,7 +169,7 @@ ErrorExit:
 
 static AJSVC_ServiceStatus AJApp_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* status)
 {
-    AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_NOT_HANDLED;
+    AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_HANDLED;
 
     switch (currentServicesInitializationState) {
     case INIT_ADDSLMATCH:
@@ -319,8 +320,8 @@ int AJ_Main(void)
 
         if (!isBusConnected) {
             isBusConnected = AJRouter_Connect(&busAttachment, ROUTER_NAME);
-            if (isBusConnected) { // Failed to connect to daemon.
-                continue; // Retry establishing connection to daemon.
+            if (!isBusConnected) { // Failed to connect to router?
+                continue; // Retry establishing connection to router.
             }
         }
 

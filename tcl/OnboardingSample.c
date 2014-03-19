@@ -209,7 +209,7 @@ ErrorExit:
 
 static AJSVC_ServiceStatus AJApp_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* status)
 {
-    AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_NOT_HANDLED;
+    AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_HANDLED;
 
     if (msg->msgId == AJ_METHOD_ACCEPT_SESSION) {    // Process all incoming request to join a session and pass request for acceptance by all services
         uint16_t port;
@@ -223,7 +223,6 @@ static AJSVC_ServiceStatus AJApp_MessageProcessor(AJ_BusAttachment* busAttachmen
 
         *status = AJ_BusReplyAcceptSession(msg, session_accepted);
         AJ_AlwaysPrintf(("%s session session_id=%u joiner=%s for port %u\n", (session_accepted ? "Accepted" : "Rejected"), sessionId, joiner, port));
-        serviceStatus = AJSVC_SERVICE_STATUS_HANDLED;
     } else {
         switch (currentServicesInitializationState) {
         case INIT_SERVICES_PORT:
@@ -621,8 +620,8 @@ int AJ_Main(void)
 
         if (!isBusConnected) {
             isBusConnected = AJRouter_Connect(&busAttachment, ROUTER_NAME);
-            if (!isBusConnected) { // Failed to connect to daemon.
-                continue; // Retry establishing connection to daemon.
+            if (!isBusConnected) { // Failed to connect to router?
+                continue; // Retry establishing connection to router.
             }
         }
 

@@ -103,8 +103,9 @@ typedef enum {
 
 static uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* routerName)
 {
+    AJ_Status status;
+    const char* busUniqueName;
     while (TRUE) {
-        AJ_Status status = AJ_OK;
         AJ_InfoPrintf(("Attempting to connect to bus '%s'\n", routerName));
         status = AJ_FindBusAndConnect(busAttachment, routerName, AJAPP_CONNECT_TIMEOUT);
         if (status != AJ_OK) {
@@ -112,7 +113,7 @@ static uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* rou
             AJ_Sleep(AJAPP_CONNECT_PAUSE);
             continue;
         }
-        const char* busUniqueName = AJ_GetUniqueName(busAttachment);
+        busUniqueName = AJ_GetUniqueName(busAttachment);
         if (busUniqueName == NULL) {
             AJ_ErrPrintf(("Failed to GetUniqueName() from newly connected bus, retrying\n"));
             continue;
@@ -171,9 +172,6 @@ static AJ_Status AJApp_ConnectedHandler(AJ_BusAttachment* busAttachment)
                     AJ_About_SetShouldAnnounce(FALSE);
                 }
                 break;
-
-            default:
-                break;
             }
         }
     }
@@ -187,7 +185,7 @@ ErrorExit:
 
 static AJSVC_ServiceStatus AJApp_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* status)
 {
-    AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_NOT_HANDLED;
+    AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_HANDLED;
 
     if (msg->msgId == AJ_METHOD_ACCEPT_SESSION) {    // Process all incoming request to join a session and pass request for acceptance by all services
         uint16_t port;
@@ -201,7 +199,6 @@ static AJSVC_ServiceStatus AJApp_MessageProcessor(AJ_BusAttachment* busAttachmen
 
         *status = AJ_BusReplyAcceptSession(msg, session_accepted);
         AJ_AlwaysPrintf(("%s session session_id=%u joiner=%s for port %u\n", (session_accepted ? "Accepted" : "Rejected"), sessionId, joiner, port));
-        serviceStatus = AJSVC_SERVICE_STATUS_HANDLED;
     } else {
         switch (currentServicesInitializationState) {
         case INIT_SERVICES_PORT:
@@ -384,7 +381,6 @@ static AJ_Status About_Init()
 #define NUM_CUSTOMS 2
 #define NUM_TEXTS   2
 #define NUM_RICH_AUDIO 2
-#define MESSAGES_INTERVAL 60000
 
 /**
  * Static non consts - sample application specific
@@ -480,7 +476,7 @@ int AJ_Main(void)
 
         if (!isBusConnected) {
             isBusConnected = AJRouter_Connect(&busAttachment, ROUTER_NAME);
-            if (isBusConnected) { // Failed to connect to router?
+            if (!isBusConnected) { // Failed to connect to router?
                 continue; // Retry establishing connection to router
             }
         }
@@ -526,7 +522,7 @@ int AJ_Main(void)
         }
     }     // while (TRUE)
 
-    AJ_Sleep(10000);
+    AJ_Sleep(10000); // Give the notification message a chance to reach a peer Consumer before exiting.
     return 0;
 
 Exit:

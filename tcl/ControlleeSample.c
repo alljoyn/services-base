@@ -67,6 +67,13 @@ static AJ_BusAttachment busAttachment;
  * Application wide callbacks
  */
 
+static uint32_t MyBusAuthPwdCB(uint8_t* buf, uint32_t bufLen)
+{
+    const char* myRouterPwd = "000000";
+    strncpy((char*)buf, myRouterPwd, bufLen);
+    return (uint32_t)strlen(myRouterPwd);
+}
+
 static uint32_t PasswordCallback(uint8_t* buffer, uint32_t bufLen)
 {
     AJ_Status status = AJ_OK;
@@ -85,13 +92,6 @@ static uint32_t PasswordCallback(uint8_t* buffer, uint32_t bufLen)
     return len;
 }
 
-static uint32_t MyBusAuthPwdCB(uint8_t* buf, uint32_t bufLen)
-{
-    const char* myRouterPwd = "000000";
-    strncpy((char*)buf, myRouterPwd, bufLen);
-    return (uint32_t)strlen(myRouterPwd);
-}
-
 /**
  * Application handlers
  */
@@ -107,8 +107,9 @@ typedef enum {
 
 static uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* routerName)
 {
+    AJ_Status status;
+    const char* busUniqueName;
     while (TRUE) {
-        AJ_Status status = AJ_OK;
         AJ_InfoPrintf(("Attempting to connect to bus '%s'\n", routerName));
         status = AJ_FindBusAndConnect(busAttachment, routerName, AJAPP_CONNECT_TIMEOUT);
         if (status != AJ_OK) {
@@ -116,7 +117,7 @@ static uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* rou
             AJ_Sleep(AJAPP_CONNECT_PAUSE);
             continue;
         }
-        const char* busUniqueName = AJ_GetUniqueName(busAttachment);
+        busUniqueName = AJ_GetUniqueName(busAttachment);
         if (busUniqueName == NULL) {
             AJ_ErrPrintf(("Failed to GetUniqueName() from newly connected bus, retrying\n"));
             continue;
@@ -147,7 +148,7 @@ static AJ_Status AJApp_ConnectedHandler(AJ_BusAttachment* busAttachment)
                 if (status != AJ_OK) {
                     goto ErrorExit;
                 }
-                nextServicesInitializationState = INIT_SERVICES_PORT;
+                currentServicesInitializationState = nextServicesInitializationState = INIT_SERVICES_PORT;
                 break;
 
             case INIT_SERVICES_PORT:
@@ -163,11 +164,10 @@ static AJ_Status AJApp_ConnectedHandler(AJ_BusAttachment* busAttachment)
                 if (status != AJ_OK) {
                     goto ErrorExit;
                 }
-                nextServicesInitializationState = INIT_FINISHED;
-
+                nextServicesInitializationState = INIT_CHECK_ANNOUNCE;
                 break;
 
-            case INIT_FINISHED:
+            case INIT_CHECK_ANNOUNCE:
                 if (AJ_About_IsShouldAnnounce()) {
                     status = AJ_About_Announce(busAttachment);
                     if (status != AJ_OK) {
@@ -189,7 +189,7 @@ ErrorExit:
 
 static AJSVC_ServiceStatus AJApp_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* status)
 {
-    AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_NOT_HANDLED;
+    AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_HANDLED;
 
     if (msg->msgId == AJ_METHOD_ACCEPT_SESSION) {    // Process all incoming request to join a session and pass request for acceptance by all services
         uint16_t port;
@@ -203,7 +203,6 @@ static AJSVC_ServiceStatus AJApp_MessageProcessor(AJ_BusAttachment* busAttachmen
 
         *status = AJ_BusReplyAcceptSession(msg, session_accepted);
         AJ_AlwaysPrintf(("%s session session_id=%u joiner=%s for port %u\n", (session_accepted ? "Accepted" : "Rejected"), sessionId, joiner, port));
-        serviceStatus = AJSVC_SERVICE_STATUS_HANDLED;
     } else {
         switch (currentServicesInitializationState) {
         case INIT_SERVICES_PORT:
@@ -336,7 +335,7 @@ PropertyStoreConfigEntry propertyStoreRuntimeValues[AJSVC_PROPERTY_STORE_NUMBER_
     { machineIdVars,             MACHINE_ID_LENGTH + 1 },               /*DeviceId*/
     { machineIdVars,             MACHINE_ID_LENGTH + 1 },               /*AppId*/
     { deviceNameVars,            DEVICE_NAME_VALUE_LENGTH + 1 },        /*DeviceName*/
-// Add other persisted keys above this line
+// Add other runtime keys above this line
 };
 
 /**
@@ -415,7 +414,7 @@ int AJ_Main(void)
         goto Exit;
     }
 
-    status = About_Init(AnnounceObjects, aboutIconMimetype, aboutIconContent, aboutIconContentSize, aboutIconUrl);
+    status = About_Init();
     if (status != AJ_OK) {
         goto Exit;
     }
@@ -434,8 +433,8 @@ int AJ_Main(void)
 
         if (!isBusConnected) {
             isBusConnected = AJRouter_Connect(&busAttachment, ROUTER_NAME);
-            if (isBusConnected) { // Failed to connect to daemon.
-                continue; // Retry establishing connection to daemon.
+            if (!isBusConnected) { // Failed to connect to router?
+                continue; // Retry establishing connection to router.
             }
         }
 
@@ -448,8 +447,6 @@ int AJ_Main(void)
             if (status == AJ_ERR_TIMEOUT) {
                 if (AJ_ERR_LINK_TIMEOUT == AJ_BusLinkStateProc(&busAttachment)) {
                     status = AJ_ERR_READ;             // something's not right. force disconnect
-                } else {                              // nothing on bus, do our own thing
-                    continue;
                 }
             }
 
