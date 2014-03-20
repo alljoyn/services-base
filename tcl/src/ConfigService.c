@@ -196,7 +196,7 @@ AJ_Status AJCFG_UpdateConfigurationsHandler(AJ_Message* msg)
         goto Exit;
     }
     AJ_InfoPrintf(("Lang=%s\n", language));
-    errorReply = AJSVC_IsLanguageSupported(msg, &reply, language, &langIndex);
+    errorReply = !AJSVC_IsLanguageSupported(msg, &reply, language, &langIndex);
     if (!errorReply) {
         status = AJ_UnmarshalContainer(msg, &array, AJ_ARG_ARRAY);
         if (status != AJ_OK) {
@@ -290,7 +290,7 @@ AJ_Status AJCFG_ResetConfigurationsHandler(AJ_Message* msg)
         goto Exit;
     }
     AJ_InfoPrintf(("Lang=%s\n", language));
-    errorReply = AJSVC_IsLanguageSupported(msg, &reply, language, &langIndex);
+    errorReply = !AJSVC_IsLanguageSupported(msg, &reply, language, &langIndex);
     if (!errorReply) {
         status = AJ_UnmarshalContainer(msg, &array, AJ_ARG_ARRAY);
         if (status != AJ_OK) {
