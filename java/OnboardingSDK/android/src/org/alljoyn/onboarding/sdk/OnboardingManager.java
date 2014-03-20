@@ -710,7 +710,13 @@ public class OnboardingManager {
             }
 
             switch (currentState) {
-
+            case ERROR_WAITING_FOR_ONBOARDEE_ANNOUNCEMENT:
+                if (isSeviceSupported(objectDescriptions, OnboardingTransport.INTERFACE_NAME)) {
+                    setState(State.ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT, new AnnounceData(serviceName, port, objectDescriptions, serviceMetadata));
+                }else{
+                    Log.e(TAG, "onAnnouncement: for device UUID "+deviceData.getAppUUID()+ " doesn't support onboarding interface");
+                }
+                break;
             case WAITING_FOR_ONBOARDEE_ANNOUNCEMENT:
                 if (isSeviceSupported(objectDescriptions, OnboardingTransport.INTERFACE_NAME)) {
                     setState(State.ONBOARDEE_ANNOUNCEMENT_RECEIVED, new AnnounceData(serviceName, port, objectDescriptions, serviceMetadata));
@@ -886,24 +892,29 @@ public class OnboardingManager {
         ERROR_WAITING_FOR_ONBOARDEE_ANNOUNCEMENT(111),
 
         /**
+         * Error annnouncemnet has been received from onboardee after timeout expired
+         */
+        ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT(112),
+
+        /**
          * Error announcement received on onboardee Wi-Fi
          */
-        ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED(112),
+        ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED(113),
 
         /**
          * Error joining AllJoyn session
          */
-        ERROR_JOINING_SESSION(113),
+        ERROR_JOINING_SESSION(114),
 
         /**
          * Error configuring onboardee with target credentials
          */
-        ERROR_CONFIGURING_ONBOARDEE(114),
+        ERROR_CONFIGURING_ONBOARDEE(115),
 
         /**
          * Error waiting for configure onboardee signal
          */
-        ERROR_WAITING_FOR_CONFIGURE_SIGNAL(115),
+        ERROR_WAITING_FOR_CONFIGURE_SIGNAL(116),
 
         /**
          * Error connecting to target Wi-Fi AP
@@ -1084,11 +1095,42 @@ public class OnboardingManager {
     }
 
 
+
+    /**
+     * Handle the ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT state.
+     * Verifies that Announcement is valid if so stay on ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT state ,otherwise moves to state  ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED.
+     * This state is only for continuing from state ERROR_WAITING_FOR_ONBOARDEE_ANNOUNCEMENT if the Announcement has been received while the timer has expired.
+     *
+     * @param announceData
+     *            contains the information of the Announcement .
+     */
+    private void handleErrorOnboardeeAnnouncementReceivedAfterTimeoutState(AnnounceData announceData) {
+
+        Bundle extras = new Bundle();
+        extras.clear();
+        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.FOUND_ONBOARDEE.toString());
+        sendBroadcast(STATE_CHANGE_ACTION, extras);
+
+        deviceData = new DeviceData();
+        try {
+            deviceData.setAnnounceData(announceData);
+        } catch (BusException e) {
+            Log.e(TAG, "handleOnboardeeAnnouncementReceivedState DeviceData.setAnnounceObject failed with BusException. ", e);
+            extras.clear();
+            extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.INVALID_ANNOUNCE_DATA.toString());
+            sendBroadcast(ERROR, extras);
+            setState(State.ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED);
+        }
+    }
+
+
+
+
+
     /**
      * Handle the ONBOARDEE_ANNOUNCEMENT_RECEIVED state.
-     * Stop the announcement timeout
-     * timer and check that the board supports the 'org.alljoyn.Onboarding'
-     * interface if so move to next state otherwise move  to ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED state.
+     * Stop the announcement timeout timer,
+     * Verifies that Announcement is valid if so moves to state JOINING_SESSION,otherwise moves to state  ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED
      *
      * @param announceData
      *            contains the information of the Announcement .
@@ -1380,12 +1422,14 @@ public class OnboardingManager {
             abortStateCleanUp();
             break;
 
+
         case CONFIGURING_ONBOARDEE:
             abortStateCleanUp();
             break;
 
         case ERROR_CONNECTING_TO_ONBOARDEE:
         case ERROR_WAITING_FOR_ONBOARDEE_ANNOUNCEMENT:
+        case ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT:
         case ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED:
         case ERROR_JOINING_SESSION:
         case ERROR_CONFIGURING_ONBOARDEE:
@@ -1394,6 +1438,9 @@ public class OnboardingManager {
             abortStateCleanUp();
             break;
 
+        case WAITING_FOR_TARGET_ANNOUNCE:
+            stopAnnouncementTimeout();
+            // no need for break
         case ERROR_WAITING_FOR_TARGET_ANNOUNCE:
             Bundle extras = new Bundle();
             onboardingSDKWifiManager.enableAllWifiNetworks();
@@ -1471,6 +1518,11 @@ public class OnboardingManager {
 
         case ERROR_CONNECTING_TO_ONBOARDEE:
             currentState = State.ERROR_CONNECTING_TO_ONBOARDEE;
+            break;
+
+        case ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT:
+            currentState = State.ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT;
+            handleErrorOnboardeeAnnouncementReceivedAfterTimeoutState((AnnounceData) msg.obj);
             break;
 
         case ERROR_WAITING_FOR_ONBOARDEE_ANNOUNCEMENT:
@@ -1981,9 +2033,12 @@ public class OnboardingManager {
                 setState(State.WAITING_FOR_ONBOARDEE_ANNOUNCEMENT);
                 break;
 
+
+
             case ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED:
                 throw new OnboardingIllegalStateException("The device doesn't comply with onboarding service");
 
+            case ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT:
             case ERROR_JOINING_SESSION:
                 setState(State.JOINING_SESSION, deviceData.getAnnounceData());
                 break;
@@ -2034,7 +2089,6 @@ public class OnboardingManager {
         }
 
         if (currentState == State.CONNECTING_TO_TARGET_WIFI_AP ||
-            currentState == State.WAITING_FOR_TARGET_ANNOUNCE ||
             currentState ==State.TARGET_ANNOUNCEMENT_RECEIVED){
             throw new OnboardingIllegalStateException("Can't abort");
         }
