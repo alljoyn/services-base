@@ -44,7 +44,7 @@ static uint8_t processingAction = FALSE;
 
 static AJNS_Consumer_NotificationReference savedNotification;
 
-AJ_Status ApplicationHandleNotify(AJNS_Notification* notification)
+static AJ_Status ApplicationHandleNotify(AJNS_Notification* notification)
 {
     AJ_AlwaysPrintf(("******************** Begin New Message Received ********************\n"));
 
@@ -109,7 +109,7 @@ AJ_Status ApplicationHandleNotify(AJNS_Notification* notification)
     return AJ_OK;
 }
 
-AJ_Status ApplicationHandleDismiss(int32_t notificationId, const char* appId)
+static AJ_Status ApplicationHandleDismiss(int32_t notificationId, const char* appId)
 {
     AJ_AlwaysPrintf(("******************** Begin New Dismiss Received ********************\n"));
     AJ_AlwaysPrintf(("Notification Id: %d\nApp Id: %s\n", notificationId, appId));

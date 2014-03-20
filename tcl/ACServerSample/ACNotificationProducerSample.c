@@ -35,7 +35,6 @@ extern AJ_EXPORT uint8_t dbgAJSVCAPP;
 #define NUM_CUSTOMS 0
 #define NUM_TEXTS   1
 #define NUM_RICH_AUDIO 0
-#define MESSAGES_INTERVAL 16
 
 /**
  * Static non consts - sample application specirfic
