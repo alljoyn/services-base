@@ -603,10 +603,6 @@ class OnboardingSDKWifiManager {
         Log.i(TAG, "connect  SSID=" + wifiConfig.SSID + " within " + timeoutMsec);
         boolean res;
 
-        // this is the opposite of the needed acquireMulticastLock.
-        // Processing extra multicast packets can cause a noticeable battery
-        // drain and should be disabled when not needed.
-        releaseMulticastLock();
 
         synchronized (this) {
             targetWifiConfiguration = wifiConfig;
@@ -717,22 +713,11 @@ class OnboardingSDKWifiManager {
         }
 
         multicastLock = wifi.createMulticastLock("multicastLock");
+        multicastLock.setReferenceCounted(false);
         multicastLock.acquire();
     }
 
 
-    /**
-     * Release the Multicast lock that was obtained by acquireMulticastLock.
-     * Processing multicast packets can cause a noticeable battery drain and
-     * should be disabled when not needed.
-     */
-    private void releaseMulticastLock() {
-        Log.d(TAG, "releaseMulticastLock");
-        if (multicastLock != null) {
-            multicastLock.release();
-            multicastLock = null;
-        }
-    }
 
 
     /**
