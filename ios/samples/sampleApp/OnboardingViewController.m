@@ -19,6 +19,7 @@
 #import "SystemConfiguration/CaptiveNetwork.h"
 
 static NSString * const SOFT_AP_PREFIX = @"AJ_";
+static NSString * const SOFT_AP_SUFFIX = @"_AJ";
 
 @interface OnboardingViewController () <AJOBOnboardingClientListener>
 @property (strong, nonatomic) AJOBSOnboardingClient *onboardingClient;
@@ -136,7 +137,7 @@ static NSString * const SOFT_AP_PREFIX = @"AJ_";
         currentSSID = dict[@"SSID"];
         NSLog(@"Current SSID: %@", currentSSID);
     }
-    return [currentSSID hasPrefix:SOFT_AP_PREFIX];
+    return [currentSSID hasPrefix:SOFT_AP_PREFIX] | [currentSSID hasSuffix:SOFT_AP_SUFFIX];
 }
 
 -(void)updateStatusLabel:(NSString *)status
