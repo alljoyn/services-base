@@ -150,7 +150,7 @@ Exit:
 
 uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* routerName)
 {
-    AJ_Status status = AJ_OK;
+    AJ_Status status;
     const char* busUniqueName;
     while (TRUE) {
 #ifdef ONBOARDING_SERVICE
@@ -223,7 +223,7 @@ AJ_Status AJApp_ConnectedHandler(AJ_BusAttachment* busAttachment)
                 if (addSessionLessMatch) {
                     nextServicesInitializationState = INIT_ADDSLMATCH;
                 } else {
-                    nextServicesInitializationState = INIT_FINISHED;
+                    nextServicesInitializationState = INIT_CHECK_ANNOUNCE;
                 }
                 break;
 
@@ -232,7 +232,7 @@ AJ_Status AJApp_ConnectedHandler(AJ_BusAttachment* busAttachment)
                 if (status != AJ_OK) {
                     goto ErrorExit;
                 }
-                nextServicesInitializationState = INIT_FINISHED;
+                nextServicesInitializationState = INIT_CHECK_ANNOUNCE;
                 break;
 
             case INIT_CHECK_ANNOUNCE:
@@ -269,7 +269,7 @@ ErrorExit:
 
 AJSVC_ServiceStatus AJApp_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* status)
 {
-    AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_NOT_HANDLED;
+    AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_HANDLED;
 
     if (msg->msgId == AJ_METHOD_ACCEPT_SESSION) {    // Process all incoming request to join a session and pass request for acceptance by all services
         uint16_t port;
@@ -283,7 +283,6 @@ AJSVC_ServiceStatus AJApp_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_M
 
         *status = AJ_BusReplyAcceptSession(msg, session_accepted);
         AJ_AlwaysPrintf(("%s session session_id=%u joiner=%s for port %u\n", (session_accepted ? "Accepted" : "Rejected"), sessionId, joiner, port));
-        serviceStatus = AJSVC_SERVICE_STATUS_HANDLED;
     } else {
         switch (currentServicesInitializationState) {
         case INIT_SERVICES_PORT:
@@ -305,10 +304,10 @@ AJSVC_ServiceStatus AJApp_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_M
             break;
 
         default:
+            serviceStatus = AJSVC_MessageProcessorAndDispatcher(busAttachment, msg, status);
             break;
         }
     }
-    serviceStatus = AJSVC_MessageProcessorAndDispatcher(busAttachment, &msg, &status);
 
     return serviceStatus;
 }

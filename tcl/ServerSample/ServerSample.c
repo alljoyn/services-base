@@ -91,7 +91,7 @@ const uint8_t AJSVC_PROPERTY_STORE_NUMBER_OF_LANGUAGES = sizeof(SUPPORTED_LANGUA
 static const char* DEFAULT_PASSCODES[] = { "303030303030" }; // HEX encoded { '0', '0', '0', '0', '0', '0' }
 #endif
 #if     defined CONTROLPANEL_SERVICE
-static const char* DEFAULT_APP_NAMES[] = { "Controlee" };
+static const char* DEFAULT_APP_NAMES[] = { "Controllee" };
 #elif   defined NOTIFICATION_SERVICE_PRODUCER
 static const char* DEFAULT_APP_NAMES[] = { "Notifier" };
 #elif   defined ONBOARDING_SERVICE
@@ -240,8 +240,8 @@ int AJ_Main(void)
 
         if (!isBusConnected) {
             isBusConnected = AJRouter_Connect(&busAttachment, ROUTER_NAME);
-            if (!isBusConnected) { // Failed to connect to daemon.
-                continue; // Retry establishing connection to daemon.
+            if (!isBusConnected) { // Failed to connect to router?
+                continue; // Retry establishing connection to router.
             }
         }
 

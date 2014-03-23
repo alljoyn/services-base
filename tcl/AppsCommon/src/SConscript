@@ -14,9 +14,11 @@
 
 Import('appsCommon_env')
 
-src = ['PropertyStore.c' ]
+srcs = ['PropertyStore.c']
+if 'common_samples_srcs' in appsCommon_env:
+    srcs.extend(appsCommon_env['common_samples_srcs'])
 
-objs = appsCommon_env.Object(src)
+objs = appsCommon_env.Object(srcs)
 
 Return('objs')
 
