@@ -15,8 +15,8 @@
  ******************************************************************************/
 
 #import "AJNSNotificationService.h"
-#import "AJSVCGenericLogger.h"
-#import "AJSVCGenericLoggerDefaultImpl.h"
+#import "alljoyn/services_common/AJSVCGenericLogger.h"
+#import "alljoyn/services_common/AJSVCGenericLoggerDefaultImpl.h"
 
 @interface AJNSNotificationService ()
 
