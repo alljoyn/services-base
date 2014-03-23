@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import "AJCFGConfigLogger.h"
-#import "AJSVCGenericLoggerDefaultImpl.h"
+#import "alljoyn/services_common/AJSVCGenericLoggerDefaultImpl.h"
 
 @interface AJCFGConfigLogger ()
 

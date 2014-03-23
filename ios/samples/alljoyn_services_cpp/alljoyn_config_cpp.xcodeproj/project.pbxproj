@@ -317,9 +317,9 @@
 				HEADER_SEARCH_PATHS = (
 					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/\"",
 					"$(inherited)",
-					"\"$(SRCROOT)/../../../../../services\"/**",
-					"\"$(SRCROOT)/../../../../../applications\"/**",
+					"\"$(SRCROOT)/../../../../../services/config/cpp/inc\"",
 					"\"$(SRCROOT)/../../../../../core/alljoyn/services/about/cpp/inc\"",
+					"\"$(SRCROOT)/../../../../../services/services_common/cpp/inc\"",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/../../../../../build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib\"";
@@ -358,9 +358,9 @@
 				HEADER_SEARCH_PATHS = (
 					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/\"",
 					"$(inherited)",
-					"\"$(SRCROOT)/../../../../../services\"/**",
-					"\"$(SRCROOT)/../../../../../applications\"/**",
+					"\"$(SRCROOT)/../../../../../services/config/cpp/inc\"",
 					"\"$(SRCROOT)/../../../../../core/alljoyn/services/about/cpp/inc\"",
+					"\"$(SRCROOT)/../../../../../services/services_common/cpp/inc\"",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/../../../../../build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib\"";
