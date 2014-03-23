@@ -25,8 +25,8 @@
 #include <stdlib.h>
 
 #include "ControlPanelClient.h"
-#include "alljoyn.h"
-#include <PropertyStoreOEMProvisioning.h>
+#include <alljoyn.h>
+#include "PropertyStoreOEMProvisioning.h"
 
 #ifndef NDEBUG
 AJ_EXPORT uint8_t dbgAJSVCAPP = 1;
@@ -50,10 +50,6 @@ AJ_Object AppObjects[] =
     { NULL }
 };
 
-const AJ_Object AnnounceObjects[] = {
-    { NULL, NULL }
-};
-
 #define CONTROL_ANNOUNCE_SIGNAL_RECEIVED  AJ_PRX_MESSAGE_ID(0, 1, 3)
 
 const char* deviceManufactureName = "COMPANY";
@@ -69,8 +65,7 @@ const uint8_t AJSVC_PROPERTY_STORE_NUMBER_OF_LANGUAGES = sizeof(SUPPORTED_LANGUA
 /**
  * property array of structure with defaults
  */
-static const char* DEFAULT_PASSCODES[] = { "000000" };
-static const char* DEFAULT_APP_NAMES[] = { "Controler" };
+static const char* DEFAULT_APP_NAMES[] = { "Controller" };
 static const char* DEFAULT_DEVICE_NAMES[] = { "CPSTESTER" };
 static const char DEFAULT_DESCRIPTION_LANG1[] = "AC IOE device";
 static const char DEFAULT_DESCRIPTION_LANG2[] = "Mein erstes IOE Geraet";
@@ -92,11 +87,8 @@ const char** propertyStoreDefaultValues[AJSVC_PROPERTY_STORE_NUMBER_OF_KEYS] =
     NULL,                                           /*DeviceId*/
     NULL,                                           /*AppId*/
     DEFAULT_DEVICE_NAMES,                           /*DeviceName*/
-// Add other persisted keys above this line
+// Add other runtime keys above this line
     DEFAULT_LANGUAGES,                              /*DefaultLanguage*/
-    DEFAULT_PASSCODES,                              /*Passcode*/
-    NULL,                                           /*RealmName*/
-// Add other configurable keys above this line
     DEFAULT_APP_NAMES,                              /*AppName*/
     DEFAULT_DESCRIPTIONS,                           /*Description*/
     DEFAULT_MANUFACTURERS,                          /*Manufacturer*/
@@ -104,9 +96,7 @@ const char** propertyStoreDefaultValues[AJSVC_PROPERTY_STORE_NUMBER_OF_KEYS] =
     DEFAULT_DATE_OF_MANUFACTURES,                   /*DateOfManufacture*/
     DEFAULT_SOFTWARE_VERSIONS,                      /*SoftwareVersion*/
     NULL,                                           /*AJSoftwareVersion*/
-#if defined CONFIG_SERVICE
-    NULL,                                           /*MaxLength*/
-#endif
+// Add other mandatory keys above this line
     DEFAULT_HARDWARE_VERSIONS,                      /*HardwareVersion*/
     DEFAULT_SUPPORT_URLS,                           /*SupportUrl*/
 // Add other about keys above this line
@@ -116,27 +106,14 @@ static char machineIdVar[MACHINE_ID_LENGTH + 1] = { 0 };
 static char* machineIdVars[] = { machineIdVar };
 static char deviceNameVar[DEVICE_NAME_VALUE_LENGTH + 1] = { 0 };
 static char* deviceNameVars[] = { deviceNameVar };
-#ifdef CONFIG_SERVICE
-static char defaultLanguageVar[LANG_VALUE_LENGTH + 1] = { 0 };
-static char* defaultLanguageVars[] = { defaultLanguageVar };
-static char passcodeVar[PASSWORD_VALUE_LENGTH + 1] = { 0 };
-static char* passcodeVars[] = { passcodeVar };
-static char realmNameVar[KEY_VALUE_LENGTH + 1] = { 0 };
-static char* realmNameVars[] = { realmNameVar };
-#endif
 
-PropertyStoreConfigEntry propertyStoreRuntimeValues[AJSVC_PROPERTY_STORE_NUMBER_OF_CONFIG_KEYS] =
+PropertyStoreConfigEntry propertyStoreRuntimeValues[AJSVC_PROPERTY_STORE_NUMBER_OF_RUNTIME_KEYS] =
 {
 //  {"Buffers for Values per language", "Buffer Size"},                  "Key Name"
     { machineIdVars,             MACHINE_ID_LENGTH + 1 },               /*DeviceId*/
     { machineIdVars,             MACHINE_ID_LENGTH + 1 },               /*AppId*/
     { deviceNameVars,            DEVICE_NAME_VALUE_LENGTH + 1 },        /*DeviceName*/
-// Add other persisted keys above this line
-#ifdef CONFIG_SERVICE
-    { defaultLanguageVars,       LANG_VALUE_LENGTH + 1 },               /*AppName*/
-    { passcodeVars,              PASSWORD_VALUE_LENGTH + 1 },           /*Description*/
-    { realmNameVars,             KEY_VALUE_LENGTH + 1 },                /*Manufacturer*/
-#endif
+// Add other runtime keys above this line
 };
 
 const char* aboutIconMimetype = { "image/png" };
@@ -411,7 +388,7 @@ int AJ_Main(void)
 
     while (TRUE) {
 
-        /* Aljoyn related section */
+        /* AllJoyn related section */
         AJ_Message msg;
 
         if (!isBusConnected) {

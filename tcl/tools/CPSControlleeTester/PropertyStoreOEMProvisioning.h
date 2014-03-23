@@ -85,10 +85,10 @@ typedef struct _PropertyStoreRuntimeEntry {
 /**
  * properties runtime array variable with runtime values of dynamically initialized and configurable properties
  */
-extern PropertyStoreConfigEntry propertyStoreRuntimeValues[AJSVC_PROPERTY_STORE_NUMBER_OF_CONFIG_KEYS];
+extern PropertyStoreConfigEntry propertyStoreRuntimeValues[AJSVC_PROPERTY_STORE_NUMBER_OF_RUNTIME_KEYS];
 
 #define AJ_PROPERTIES_NV_ID_BEGIN (AJ_NVRAM_ID_CREDS_MAX + 1)
-#define AJ_PROPERTIES_NV_ID_END   (AJ_PROPERTIES_NV_ID_BEGIN + (int)AJSVC_PROPERTY_STORE_NUMBER_OF_CONFIG_KEYS * (int)AJSVC_PROPERTY_STORE_NUMBER_OF_LANGUAGES - 1)
+#define AJ_PROPERTIES_NV_ID_END   (AJ_PROPERTIES_NV_ID_BEGIN + (int)AJSVC_PROPERTY_STORE_NUMBER_OF_RUNTIME_KEYS * (int)AJSVC_PROPERTY_STORE_NUMBER_OF_LANGUAGES - 1)
 
 AJ_Status PropertyStore_Init();
 
