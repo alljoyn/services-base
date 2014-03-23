@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import <Foundation/Foundation.h>
-#import "OnboardingClientListener.h"
+#import "alljoyn/onboarding/OnboardingClientListener.h"
 #import "AJOBOnboardingClientListener.h"
 
 /**

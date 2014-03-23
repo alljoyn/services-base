@@ -15,8 +15,8 @@
  ******************************************************************************/
 
 #import "AJOBSOnboardingClient.h"
-#import "OnboardingClient.h"
-#import "Onboarding.h"
+#import "alljoyn/onboarding/OnboardingClient.h"
+#import "alljoyn/onboarding/Onboarding.h"
 #import "alljoyn/about/AJNConvertUtil.h"
 #import "AJOBOnboardingClientListenerAdapter.h"
 

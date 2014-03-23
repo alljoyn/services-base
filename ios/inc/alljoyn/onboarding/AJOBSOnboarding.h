@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import <Foundation/Foundation.h>
-#import "Onboarding.h"
+#import "alljoyn/onboarding/Onboarding.h"
 #import "AJOBEnums.h"
 
 #define MAX_SSID_SIZE 32

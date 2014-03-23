@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import "OnboardingViewController.h"
-#import "AJOBSOnboardingClient.h"
+#import "alljoyn/onboarding/AJOBSOnboardingClient.h"
 #import "SystemConfiguration/CaptiveNetwork.h"
 
 static NSString * const SOFT_AP_PREFIX = @"AJ_";

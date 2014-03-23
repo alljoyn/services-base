@@ -12,6 +12,9 @@
 		195D32E018B10A6D00AC1C21 /* AJOBSOnboardingClient.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 195D32DE18B10A6D00AC1C21 /* AJOBSOnboardingClient.h */; };
 		195D32E118B10A6D00AC1C21 /* AJOBSOnboarding.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 195D32DF18B10A6D00AC1C21 /* AJOBSOnboarding.h */; };
 		19C8887118C8C3AC00B3471A /* AJOBOnboardingClientListenerAdapter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 19C8887018C8C3AC00B3471A /* AJOBOnboardingClientListenerAdapter.mm */; };
+		9A156EB918DEDA0100B7B5BC /* AJOBOnboardingClientListenerAdapter.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 19C8886D18C8C39E00B3471A /* AJOBOnboardingClientListenerAdapter.h */; };
+		9A156EBA18DEDA0100B7B5BC /* AJOBOnboardingClientListener.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 19C8886A18C8C38A00B3471A /* AJOBOnboardingClientListener.h */; };
+		9A156EBB18DEDA0100B7B5BC /* AJOBEnums.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9A76170018C8BC250016BF6E /* AJOBEnums.h */; };
 		9AA935ED1854BC2B00378361 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AA935EC1854BC2B00378361 /* Foundation.framework */; };
 		9AA935FB1854BC2B00378361 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AA935FA1854BC2B00378361 /* XCTest.framework */; };
 		9AA935FC1854BC2B00378361 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AA935EC1854BC2B00378361 /* Foundation.framework */; };
@@ -38,6 +41,9 @@
 			dstPath = inc/alljoyn/onboarding;
 			dstSubfolderSpec = 16;
 			files = (
+				9A156EB918DEDA0100B7B5BC /* AJOBOnboardingClientListenerAdapter.h in CopyFiles */,
+				9A156EBA18DEDA0100B7B5BC /* AJOBOnboardingClientListener.h in CopyFiles */,
+				9A156EBB18DEDA0100B7B5BC /* AJOBEnums.h in CopyFiles */,
 				195D32E018B10A6D00AC1C21 /* AJOBSOnboardingClient.h in CopyFiles */,
 				195D32E118B10A6D00AC1C21 /* AJOBSOnboarding.h in CopyFiles */,
 			);
@@ -415,14 +421,11 @@
 				GCC_PREFIX_HEADER = "alljoyn_services_objc/alljoyn_onboarding_objc-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
-					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"/**",
-					"\"$(SRCROOT)/../../../../../services\"/**",
-					"\"$(SRCROOT)/../../../../../common/inc\"",
 					"\"$(SRCROOT)/../../../../../core/alljoyn/alljoyn_objc/AllJoynFramework/AllJoynFramework\"",
-					"\"$(SRCROOT)/../../../../../applications\"/**",
 					"\"$(SRCROOT)/../../../../../services/notification/cpp/inc/alljoyn/notification/\"",
 					"\"$(SRCROOT)/../../../../../core/alljoyn/services/about/ios/inc\"",
 					"\"$(SRCROOT)/../../../../../core/alljoyn/services/about/cpp/inc\"",
+					"\"$(SRCROOT)/../../../../../services/onboarding/cpp/inc\"",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
@@ -448,14 +451,11 @@
 				GCC_PREFIX_HEADER = "alljoyn_services_objc/alljoyn_onboarding_objc-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
-					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"/**",
-					"\"$(SRCROOT)/../../../../../services\"/**",
-					"\"$(SRCROOT)/../../../../../common/inc\"",
 					"\"$(SRCROOT)/../../../../../core/alljoyn/alljoyn_objc/AllJoynFramework/AllJoynFramework\"",
-					"\"$(SRCROOT)/../../../../../applications\"/**",
 					"\"$(SRCROOT)/../../../../../services/notification/cpp/inc/alljoyn/notification/\"",
 					"\"$(SRCROOT)/../../../../../core/alljoyn/services/about/ios/inc\"",
 					"\"$(SRCROOT)/../../../../../core/alljoyn/services/about/cpp/inc\"",
+					"\"$(SRCROOT)/../../../../../services/onboarding/cpp/inc\"",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (

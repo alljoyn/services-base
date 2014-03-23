@@ -9,36 +9,23 @@
 /* Begin PBXBuildFile section */
 		195D32B818B1055200AC1C21 /* OnboardingClient.cc in Sources */ = {isa = PBXBuildFile; fileRef = 195D32B718B1055200AC1C21 /* OnboardingClient.cc */; };
 		19C8886018C89FFA00B3471A /* HandleOnboardingSignals.cc in Sources */ = {isa = PBXBuildFile; fileRef = 19C8885E18C89FFA00B3471A /* HandleOnboardingSignals.cc */; };
+		9A156EB618DED9E700B7B5BC /* OnboardingClientListener.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 19C8885D18C89FD300B3471A /* OnboardingClientListener.h */; };
+		9A156EB718DED9E700B7B5BC /* Onboarding.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 195D32B918B1056500AC1C21 /* Onboarding.h */; };
+		9A156EB818DED9E700B7B5BC /* OnboardingClient.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 195D32BA18B1056500AC1C21 /* OnboardingClient.h */; };
 		9AB9CDD618547B37004660C5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AB9CDD518547B37004660C5 /* Foundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		9AA93A7C1855C1B200378361 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = inc/alljoyn/services_common;
-			dstSubfolderSpec = 16;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		9AA93A7F1855C1F600378361 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = inc/alljoyn/config;
+			dstPath = inc/alljoyn/onboarding;
 			dstSubfolderSpec = 16;
 			files = (
+				9A156EB618DED9E700B7B5BC /* OnboardingClientListener.h in CopyFiles */,
+				9A156EB718DED9E700B7B5BC /* Onboarding.h in CopyFiles */,
+				9A156EB818DED9E700B7B5BC /* OnboardingClient.h in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		9AB9CDD018547B37004660C5 /* Copy Files */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = inc/alljoyn/about;
-			dstSubfolderSpec = 16;
-			files = (
-			);
-			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -175,8 +162,6 @@
 			buildPhases = (
 				9AB9CDCE18547B37004660C5 /* Sources */,
 				9AB9CDCF18547B37004660C5 /* Frameworks */,
-				9AB9CDD018547B37004660C5 /* Copy Files */,
-				9AA93A7C1855C1B200378361 /* CopyFiles */,
 				9AA93A7F1855C1F600378361 /* CopyFiles */,
 			);
 			buildRules = (
@@ -314,9 +299,9 @@
 				HEADER_SEARCH_PATHS = (
 					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/\"",
 					"$(inherited)",
-					"\"$(SRCROOT)/../../../../../services\"/**",
-					"\"$(SRCROOT)/../../../../../applications\"/**",
+					"\"$(SRCROOT)/../../../../../services/onboarding/cpp/inc\"",
 					"\"$(SRCROOT)/../../../../../core/alljoyn/services/about/cpp/inc\"",
+					"\"$(SRCROOT)/../../../../../services/services_common/cpp/inc\"",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				ONLY_ACTIVE_ARCH = NO;
@@ -350,9 +335,9 @@
 				HEADER_SEARCH_PATHS = (
 					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/\"",
 					"$(inherited)",
-					"\"$(SRCROOT)/../../../../../services\"/**",
-					"\"$(SRCROOT)/../../../../../applications\"/**",
+					"\"$(SRCROOT)/../../../../../services/onboarding/cpp/inc\"",
 					"\"$(SRCROOT)/../../../../../core/alljoyn/services/about/cpp/inc\"",
+					"\"$(SRCROOT)/../../../../../services/services_common/cpp/inc\"",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				OTHER_CFLAGS = (
