@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import <Foundation/Foundation.h>
-#import "ActionWithDialog.h"
+#import "alljoyn/controlpanel/ActionWithDialog.h"
 #import "AJCPSWidget.h"
 #import "AJCPSDialog.h"
 

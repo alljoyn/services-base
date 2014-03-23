@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import "AJCPSActionWithDialog.h"
-#import "ActionWithDialog.h"
+#import "alljoyn/controlpanel/ActionWithDialog.h"
 #import "alljoyn/about/AJNConvertUtil.h"
 #import "AJCPSControlPanelDevice.h"
 

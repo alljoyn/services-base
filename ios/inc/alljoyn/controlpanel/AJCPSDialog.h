@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import <Foundation/Foundation.h>
-#import "Dialog.h"
+#import "alljoyn/controlpanel/Dialog.h"
 #import "AJCPSRootWidget.h"
 
 /**

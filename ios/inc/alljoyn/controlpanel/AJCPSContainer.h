@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 #import "AJCPSRootWidget.h"
-#import "Container.h"
+#import "alljoyn/controlpanel/Container.h"
 
 /**
  * AJCPSContainer class is used to represent a container widget,

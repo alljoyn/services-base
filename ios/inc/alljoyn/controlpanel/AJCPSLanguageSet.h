@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import <Foundation/Foundation.h>
-#import "LanguageSet.h"
+#import "alljoyn/controlpanel/LanguageSet.h"
 
 /**
  * AJCPSLanguageSet is used to define a LanguageSet

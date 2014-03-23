@@ -17,7 +17,7 @@
 #import <Foundation/Foundation.h>
 #import "alljoyn/Status.h"
 #import "AJNBusAttachment.h"
-#import "ControlPanel.h"
+#import "alljoyn/controlpanel/ControlPanel.h"
 #import "AJCPSLanguageSet.h"
 #import "AJCPSControlPanelDevice.h"
 #import "AJCPSContainer.h"

@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import <Foundation/Foundation.h>
-#import "ConstraintList.h"
+#import "alljoyn/controlpanel/ConstraintList.h"
 #import "AJCPSControlPanelEnums.h"
 
 /**

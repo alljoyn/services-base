@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import <Foundation/Foundation.h>
-#import "Action.h"
+#import "alljoyn/controlpanel/Action.h"
 #import "AJCPSWidget.h"
 
 /**

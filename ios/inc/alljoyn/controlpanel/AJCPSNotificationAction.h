@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import <Foundation/Foundation.h>
-#import "NotificationAction.h"
+#import "alljoyn/controlpanel/NotificationAction.h"
 #import "AJCPSLanguageSet.h"
 #import "AJCPSRootWidget.h"
 

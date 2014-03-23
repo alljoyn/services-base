@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import <Foundation/Foundation.h>
-#import "CPSTime.h"
+#import "alljoyn/controlpanel/CPSTime.h"
 
 /**
  * AJCPSCPSTime allows sending of a Time as a Property

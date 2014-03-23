@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import <Foundation/Foundation.h>
-#import "CPSDate.h"
+#import "alljoyn/controlpanel/CPSDate.h"
 
 /**
  * AJCPSCPSDate allows sending of a Date as a Property

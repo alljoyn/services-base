@@ -20,7 +20,7 @@
 #import "AJCPSLanguageSet.h"
 #import "AJCPSControlPanelEnums.h"
 #import "AJCPSControlPanelEnums.h"
-#import "Widget.h"
+#import "alljoyn/controlpanel/Widget.h"
 
 @class AJCPSControlPanelDevice;
 

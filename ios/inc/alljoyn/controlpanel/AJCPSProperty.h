@@ -16,10 +16,10 @@
 
 #import <Foundation/Foundation.h>
 #import "AJCPSWidget.h"
-#import "Property.h"
+#import "alljoyn/controlpanel/Property.h"
 #import "AJCPSConstraintRange.h"
-#import "CPSDate.h"
-#import "CPSTime.h"
+#import "alljoyn/controlpanel/CPSDate.h"
+#import "alljoyn/controlpanel/CPSTime.h"
 #import "AJCPSCPSDate.h"
 #import "AJCPSCPSTime.h"
 
