@@ -97,7 +97,7 @@ static uint32_t PasswordCallback(uint8_t* buffer, uint32_t bufLen)
         AJ_AlwaysPrintf(("Password is NULL!\n"));
         return len;
     }
-    AJ_AlwaysPrintf(("Retrieved password=%s\n", hexPassword));
+    AJ_AlwaysPrintf(("Configured password=%s\n", hexPassword));
     hexPasswordLen = strlen(hexPassword);
     len = hexPasswordLen / 2;
     status = AJ_HexToRaw(hexPassword, hexPasswordLen, buffer, bufLen);
@@ -152,6 +152,7 @@ uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* routerName
 {
     AJ_Status status;
     const char* busUniqueName;
+
     while (TRUE) {
 #ifdef ONBOARDING_SERVICE
         status = AJOBS_EstablishWiFi();
@@ -179,14 +180,15 @@ uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* routerName
             continue;
         }
         AJ_AlwaysPrintf(("Connected to router with BusUniqueName=%s\n", busUniqueName));
-
-        /* Setup password based authentication listener for secured peer to peer connections */
-        AJ_BusSetPasswordCallback(busAttachment, PasswordCallback);
-        /* Configure timeout for the link to the Router bus */
-        AJ_SetBusLinkTimeout(busAttachment, 60);     // 60 seconds
-
         break;
     }
+
+    /* Setup password based authentication listener for secured peer to peer connections */
+    AJ_BusSetPasswordCallback(busAttachment, PasswordCallback);
+
+    /* Configure timeout for the link to the Router bus */
+    AJ_SetBusLinkTimeout(busAttachment, 60);     // 60 seconds
+
     return TRUE;
 }
 
@@ -196,6 +198,7 @@ static enum_init_state_t nextServicesInitializationState = INIT_START;
 AJ_Status AJApp_ConnectedHandler(AJ_BusAttachment* busAttachment)
 {
     AJ_Status status = AJ_OK;
+
     if (AJ_GetUniqueName(busAttachment)) {
         if (currentServicesInitializationState == nextServicesInitializationState) {
             switch (currentServicesInitializationState) {
