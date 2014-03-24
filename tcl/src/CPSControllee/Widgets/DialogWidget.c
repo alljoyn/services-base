@@ -22,8 +22,8 @@ void initializeDialogWidget(DialogWidget* widget)
 {
     initializeBaseWidget(&widget->base);
     widget->numActions = 0;
-    widget->message = 0;
-    widget->getMessage = 0;
+    widget->message = NULL;
+    widget->getMessage = NULL;
 
     widget->base.marshalOptParam = &marshalDialogOptParam;
     widget->base.marshalAllProp = &marshalAllDialogProperties;
@@ -50,12 +50,12 @@ AJ_Status marshalDialogNumActions(DialogWidget* widget, AJ_Message* reply, uint1
 
 void initializeDialogOptParam(DialogOptParams* optParam)
 {
-    optParam->labelAction1 = 0;
-    optParam->getLabelAction1 = 0;
-    optParam->labelAction2 = 0;
-    optParam->getLabelAction2 = 0;
-    optParam->labelAction3 = 0;
-    optParam->getLabelAction3 = 0;
+    optParam->labelAction1 = NULL;
+    optParam->getLabelAction1 = NULL;
+    optParam->labelAction2 = NULL;
+    optParam->getLabelAction2 = NULL;
+    optParam->labelAction3 = NULL;
+    optParam->getLabelAction3 = NULL;
 }
 
 AJ_Status marshalDialogOptParam(BaseWidget* widget, AJ_Message* reply, uint16_t language)

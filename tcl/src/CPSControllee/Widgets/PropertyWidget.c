@@ -21,8 +21,8 @@
 void initializePropertyWidget(PropertyWidget* widget)
 {
     initializeBaseWidget(&widget->base);
-    widget->signature = 0;
-    widget->getValue = 0;
+    widget->signature = NULL;
+    widget->getValue = NULL;
     widget->propertyType = SINGLE_VALUE_PROPERTY;
 
     initializePropertyOptParam(&widget->optParams);
@@ -66,10 +66,10 @@ AJ_Status unmarshalPropertyValue(PropertyWidget* widget, AJ_Message* message, vo
 
 void initializePropertyOptParam(PropertyOptParams* optParams)
 {
-    optParams->unitOfMeasure = 0;
-    optParams->getUnitOfMeasure = 0;
+    optParams->unitOfMeasure = NULL;
+    optParams->getUnitOfMeasure = NULL;
 
-    optParams->constraintList = 0;
+    optParams->constraintList = NULL;
     optParams->numConstraints = 0;
 
     optParams->constraintRangeDefined = FALSE;

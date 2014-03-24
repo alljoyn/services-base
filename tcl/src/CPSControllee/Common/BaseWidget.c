@@ -24,8 +24,8 @@
 void initializeBaseWidget(BaseWidget* widget)
 {
     widget->states = 0;
-    widget->getEnabled = 0;
-    widget->getWritable = 0;
+    widget->getEnabled = NULL;
+    widget->getWritable = NULL;
     widget->numLanguages = 0;
     widget->interfaceVersion = 1;
 
@@ -73,13 +73,13 @@ AJ_Status marshalBaseStates(BaseWidget* widget, AJ_Message* reply, uint16_t lang
 
 void initializeBaseOptParam(BaseOptParams* optParam)
 {
-    optParam->label = 0;
-    optParam->getLabel = 0;
+    optParam->label = NULL;
+    optParam->getLabel = NULL;
 
     optParam->bgColor = UINT32_MAX;
-    optParam->getBgColor = 0;
+    optParam->getBgColor = NULL;
 
-    optParam->hints = 0;
+    optParam->hints = NULL;
     optParam->numHints = 0;
 }
 

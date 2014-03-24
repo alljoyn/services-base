@@ -19,9 +19,9 @@
 
 void initializeConstraintRange(ConstraintRange* constraints)
 {
-    constraints->minValue = 0;
-    constraints->maxValue = 0;
-    constraints->increment = 0;
+    constraints->minValue = NULL;
+    constraints->maxValue = NULL;
+    constraints->increment = NULL;
 }
 
 AJ_Status marshalConstraintRange(ConstraintRange* constraints, AJ_Message* reply)

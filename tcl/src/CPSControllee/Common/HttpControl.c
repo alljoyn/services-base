@@ -20,8 +20,8 @@
 
 void initializeHttpControl(HttpControl* httpControl)
 {
-    httpControl->url = 0;
-    httpControl->getUrl = 0;
+    httpControl->url = NULL;
+    httpControl->getUrl = NULL;
 }
 
 AJ_Status marshalHttpControlUrl(HttpControl* httpControl, AJ_Message* reply, uint16_t language)

@@ -21,8 +21,8 @@
 void initializeLabelWidget(LabelWidget* widget)
 {
     initializeBaseWidget(&widget->base);
-    widget->label = 0;
-    widget->getLabel = 0;
+    widget->label = NULL;
+    widget->getLabel = NULL;
 
     widget->base.marshalAllProp = &marshalAllLabelProperties;
 }
