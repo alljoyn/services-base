@@ -62,7 +62,10 @@ AJ_Status AJOBS_Start(const AJOBS_Settings* settings, AJOBS_ReadInfo readInfo, A
     obWriteInfo = writeInfo;
 
     if (obSettings == NULL || obSettings->AJOBS_SoftAPSSID == NULL || (obSettings->AJOBS_SoftAPSSID)[0] == '\0') {
-        AJ_ErrPrintf(("AJOBS_Start(): No SoftAP SSID was provided!"));
+        AJ_ErrPrintf(("AJOBS_Start(): No SoftAP SSID was provided!\n"));
+        status = AJ_ERR_INVALID;
+    } else if (obSettings->AJOBS_SoftAPPassphrase != NULL && strlen(obSettings->AJOBS_SoftAPPassphrase) < 8) {
+        AJ_ErrPrintf(("AJOBS_Start(): SoftAP Passphrase is too short! Needs to 8 to 63 characters long\n"));
         status = AJ_ERR_INVALID;
     }
 

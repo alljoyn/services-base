@@ -187,7 +187,7 @@ typedef struct _AJOBS_Settings {
      */
     const uint8_t AJOBS_SoftAPIsHidden; // FALSE
     /**
-     * SoftAP passpharse. If NULL means OPEN network otherwise assumes WPA2 up to 63 characters.
+     * SoftAP passpharse. If NULL means OPEN network otherwise assumes WPA2 8 to 63 characters long.
      */
     const char* AJOBS_SoftAPPassphrase; // NULL
 } AJOBS_Settings;
