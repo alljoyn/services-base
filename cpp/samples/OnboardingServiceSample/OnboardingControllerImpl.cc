@@ -88,7 +88,8 @@ OnboardingControllerImpl::OnboardingControllerImpl(qcc::String scanFile,
     m_errorFile(errorFile),
     m_configureCmd(configureCmd),
     m_connectCmd(connectCmd),
-    m_offboardCmd(offboardCmd)
+    m_offboardCmd(offboardCmd),
+    m_concurrency(concurrency)
 {
     // Ignore SIGCHLD so we do not have to wait on the child processes
     //signal(SIGCHLD, SIG_IGN);
@@ -97,6 +98,12 @@ OnboardingControllerImpl::OnboardingControllerImpl(qcc::String scanFile,
     GetState();
     GetLastError();
     ParseScanInfo();
+
+    // if the m_concurrency values are out of range, set it to min
+    if (m_concurrency < OBConcurrency::CONCURRENCY_MIN || m_concurrency > OBConcurrency::CONCURRENCY_MAX) {
+        m_concurrency = OBConcurrency::CONCURRENCY_MIN;
+    }
+
 }
 
 OnboardingControllerImpl::~OnboardingControllerImpl()
