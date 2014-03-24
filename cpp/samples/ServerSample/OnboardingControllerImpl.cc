@@ -78,8 +78,8 @@ OnboardingControllerImpl::OnboardingControllerImpl(qcc::String scanFile,
                                                    qcc::String configureCmd,
                                                    qcc::String connectCmd,
                                                    qcc::String offboardCmd,
-                                                   OBConcurrency concurrency,
-                                                   BusAttachment& busAttachment) :
+                                                   ajn::services::OBConcurrency concurrency,
+                                                   ajn::BusAttachment& busAttachment) :
     m_state(0),
     m_ScanArray(NULL),
     m_BusAttachment(&busAttachment),
@@ -337,7 +337,7 @@ void OnboardingControllerImpl::ParseScanInfo()
  * and output arguments. This method is empty, the developer should fill it with
  * the developer's implementation of the GetScanInfo method handler.
  *-----------------------------------------------------------------------------*/
-void OnboardingControllerImpl::GetScanInfo(unsigned short& age, OBScanInfo*& scanList, size_t& scanListNumElements) {
+void OnboardingControllerImpl::GetScanInfo(unsigned short& age,  ajn::services::OBScanInfo*& scanList, size_t& scanListNumElements) {
     printf("entered %s\n", __FUNCTION__);
     ParseScanInfo();
 

@@ -24,7 +24,7 @@
 using namespace ajn;
 using namespace services;
 
-ConfigServiceListenerImpl::ConfigServiceListenerImpl(PropertyStoreImpl& store, BusAttachment& bus,
+ConfigServiceListenerImpl::ConfigServiceListenerImpl(PropertyStoreImpl& store, ajn::BusAttachment& bus,
                                                      CommonBusListener& busListener, OnboardingControllerImpl* obController) :
     ConfigService::Listener(), m_PropertyStore(&store), m_Bus(&bus), m_BusListener(&busListener), m_OnboardingController(obController)
 {
@@ -53,7 +53,7 @@ QStatus ConfigServiceListenerImpl::FactoryReset()
     return ER_OK;
 }
 
-QStatus ConfigServiceListenerImpl::SetPassphrase(const char* daemonRealm, size_t passcodeSize, const char* passcode, SessionId sessionId)
+QStatus ConfigServiceListenerImpl::SetPassphrase(const char* daemonRealm, size_t passcodeSize, const char* passcode, ajn::SessionId sessionId)
 {
     qcc::String passCodeString(passcode, passcodeSize);
     printf("SetPassphrase has been called daemonRealm=%s passcode=%s passcodeLength=%lu\n", daemonRealm,
