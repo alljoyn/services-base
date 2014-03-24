@@ -85,7 +85,7 @@ static uint32_t PasswordCallback(uint8_t* buffer, uint32_t bufLen)
         AJ_ErrPrintf(("Password is NULL!\n"));
         return len;
     }
-    AJ_InfoPrintf(("Retrieved password=%s\n", hexPassword));
+    AJ_InfoPrintf(("Configured password=%s\n", hexPassword));
     hexPasswordLen = strlen(hexPassword);
     len = hexPasswordLen / 2;
     status = AJ_HexToRaw(hexPassword, hexPasswordLen, buffer, bufLen);
@@ -113,6 +113,7 @@ static uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* rou
 {
     AJ_Status status;
     const char* busUniqueName;
+
     while (TRUE) {
         AJ_InfoPrintf(("Attempting to connect to bus '%s'\n", routerName));
         status = AJ_FindBusAndConnect(busAttachment, routerName, AJAPP_CONNECT_TIMEOUT);
@@ -127,14 +128,15 @@ static uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* rou
             continue;
         }
         AJ_InfoPrintf(("Connected to router with BusUniqueName=%s\n", busUniqueName));
-
-        /* Setup password based authentication listener for secured peer to peer connections */
-        AJ_BusSetPasswordCallback(busAttachment, PasswordCallback);
-
-        /* Configure timeout for the link to the Router bus */
-        AJ_SetBusLinkTimeout(busAttachment, 60);     // 60 seconds
         break;
     }
+
+    /* Setup password based authentication listener for secured peer to peer connections */
+    AJ_BusSetPasswordCallback(busAttachment, PasswordCallback);
+
+    /* Configure timeout for the link to the Router bus */
+    AJ_SetBusLinkTimeout(busAttachment, 60);     // 60 seconds
+
     return TRUE;
 }
 
@@ -144,6 +146,7 @@ static enum_init_state_t nextServicesInitializationState = INIT_START;
 static AJ_Status AJApp_ConnectedHandler(AJ_BusAttachment* busAttachment)
 {
     AJ_Status status = AJ_OK;
+
     if (AJ_GetUniqueName(busAttachment)) {
         if (currentServicesInitializationState == nextServicesInitializationState) {
             switch (currentServicesInitializationState) {
@@ -197,17 +200,15 @@ ErrorExit:
 static AJSVC_ServiceStatus AJApp_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* status)
 {
     AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_HANDLED;
+    uint16_t port;
+    char* joiner;
+    uint32_t sessionId = 0;
+    AJ_UnmarshalArgs(msg, "qus", &port, &sessionId, &joiner);
+    uint8_t session_accepted = FALSE;
 
     if (msg->msgId == AJ_METHOD_ACCEPT_SESSION) {    // Process all incoming request to join a session and pass request for acceptance by all services
-        uint16_t port;
-        char* joiner;
-        uint32_t sessionId = 0;
-        AJ_UnmarshalArgs(msg, "qus", &port, &sessionId, &joiner);
-        uint8_t session_accepted = FALSE;
-
         session_accepted |= (port == AJ_ABOUT_SERVICE_PORT);
         session_accepted |= AJSVC_CheckSessionAccepted(port, sessionId, joiner);
-
         *status = AJ_BusReplyAcceptSession(msg, session_accepted);
         AJ_AlwaysPrintf(("%s session session_id=%u joiner=%s for port %u\n", (session_accepted ? "Accepted" : "Rejected"), sessionId, joiner, port));
     } else {
@@ -406,9 +407,9 @@ static AJ_Status About_Init()
 
 static AJ_Status FactoryReset()
 {
-    AJ_InfoPrintf(("GOT FACTORY RESET\n"));
     AJ_Status status = AJ_OK;
 
+    AJ_InfoPrintf(("GOT FACTORY RESET\n"));
     status = AJSVC_PropertyStore_ResetAll();
     if (status != AJ_OK) {
         return status;
@@ -427,8 +428,8 @@ static AJ_Status Restart()
 static AJ_Status SetPasscode(const char* daemonRealm, const uint8_t* newPasscode, uint8_t newPasscodeLen)
 {
     AJ_Status status = AJ_OK;
-
     char newStringPasscode[PASSWORD_VALUE_LENGTH + 1];
+
     status = AJ_RawToHex(newPasscode, newPasscodeLen, newStringPasscode, sizeof(newStringPasscode), FALSE);
     if (status != AJ_OK) {
         return status;

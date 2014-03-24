@@ -38,9 +38,9 @@ extern AJ_EXPORT uint8_t dbgAJSVCAPP;
 
 static AJ_Status FactoryReset()
 {
-    AJ_AlwaysPrintf(("GOT FACTORY RESET\n"));
     AJ_Status status = AJ_OK;
 
+    AJ_AlwaysPrintf(("GOT FACTORY RESET\n"));
     status = AJSVC_PropertyStore_ResetAll();
     if (status != AJ_OK) {
         return status;
@@ -66,8 +66,8 @@ static AJ_Status Restart()
 static AJ_Status SetPasscode(const char* daemonRealm, const uint8_t* newPasscode, uint8_t newPasscodeLen)
 {
     AJ_Status status = AJ_OK;
-
     char newStringPasscode[PASSWORD_VALUE_LENGTH + 1];
+
     status = AJ_RawToHex(newPasscode, newPasscodeLen, newStringPasscode, sizeof(newStringPasscode), FALSE);
     if (status != AJ_OK) {
         return status;

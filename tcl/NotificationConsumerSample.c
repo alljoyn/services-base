@@ -70,7 +70,7 @@ static uint32_t PasswordCallback(uint8_t* buffer, uint32_t bufLen)
     size_t hexPasswordLen;
     uint32_t len = 0;
 
-    AJ_AlwaysPrintf(("Retrieved password=%s\n", hexPassword));
+    AJ_AlwaysPrintf(("Configured password=%s\n", hexPassword));
     hexPasswordLen = strlen(hexPassword);
     len = hexPasswordLen / 2;
     status = AJ_HexToRaw(hexPassword, hexPasswordLen, buffer, bufLen);
@@ -103,6 +103,7 @@ static uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* rou
 {
     AJ_Status status;
     const char* busUniqueName;
+
     while (TRUE) {
         AJ_InfoPrintf(("Attempting to connect to bus '%s'\n", routerName));
         status = AJ_FindBusAndConnect(busAttachment, routerName, AJAPP_CONNECT_TIMEOUT);
@@ -117,14 +118,15 @@ static uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* rou
             continue;
         }
         AJ_InfoPrintf(("Connected to router with BusUniqueName=%s\n", busUniqueName));
-
-        /* Setup password based authentication listener for secured peer to peer connections */
-        AJ_BusSetPasswordCallback(busAttachment, PasswordCallback);
-
-        /* Configure timeout for the link to the Router bus */
-        AJ_SetBusLinkTimeout(busAttachment, 60);     // 60 seconds
         break;
     }
+
+    /* Setup password based authentication listener for secured peer to peer connections */
+    AJ_BusSetPasswordCallback(busAttachment, PasswordCallback);
+
+    /* Configure timeout for the link to the Router bus */
+    AJ_SetBusLinkTimeout(busAttachment, 60);     // 60 seconds
+
     return TRUE;
 }
 
@@ -134,6 +136,7 @@ static enum_init_state_t nextServicesInitializationState = INIT_START;
 static AJ_Status AJApp_ConnectedHandler(AJ_BusAttachment* busAttachment)
 {
     AJ_Status status = AJ_OK;
+
     if (AJ_GetUniqueName(busAttachment)) {
         if (currentServicesInitializationState == nextServicesInitializationState) {
             switch (currentServicesInitializationState) {
@@ -234,6 +237,8 @@ int8_t AJSVC_PropertyStore_GetCurrentDefaultLanguageIndex() {
 
 static AJ_Status ApplicationHandleNotify(AJNS_Notification* notification)
 {
+    int8_t indx;
+
     AJ_AlwaysPrintf(("******************** Begin New Message Received ********************\n"));
 
     if (notification == 0) {
@@ -243,7 +248,6 @@ static AJ_Status ApplicationHandleNotify(AJNS_Notification* notification)
 
     AJ_AlwaysPrintf(("Message Id: %d\nVersion: %u\nDevice Id: %s\nDevice Name: %s\nApp Id: %s\nApp Name: %s\nMessage Type: %d\n",
                      notification->notificationId, notification->version, notification->deviceId, notification->deviceName, notification->appId, notification->appName, notification->messageType));
-    int8_t indx;
 
     if (notification->originalSenderName != 0 && strlen(notification->originalSenderName) > 0) {
         AJ_AlwaysPrintf(("OriginalSender bus unique name: %s\n", notification->originalSenderName));

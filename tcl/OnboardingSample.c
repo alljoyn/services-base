@@ -89,7 +89,7 @@ static uint32_t PasswordCallback(uint8_t* buffer, uint32_t bufLen)
         AJ_ErrPrintf(("Password is NULL!\n"));
         return len;
     }
-    AJ_InfoPrintf(("Retrieved password=%s\n", hexPassword));
+    AJ_InfoPrintf(("Configured password=%s\n", hexPassword));
     hexPasswordLen = strlen(hexPassword);
     len = hexPasswordLen / 2;
     status = AJ_HexToRaw(hexPassword, hexPasswordLen, buffer, bufLen);
@@ -115,39 +115,32 @@ typedef enum {
 
 static uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* routerName)
 {
-    AJ_Status status = AJ_OK;
+    AJ_Status status;
     const char* busUniqueName;
+
     while (TRUE) {
-        status = AJOBS_EstablishWiFi();
-        if (status != AJ_OK) {
-            AJ_AlwaysPrintf(("Failed to establish WiFi connectivity with status=%s\n", AJ_StatusText(status)));
-            AJ_Sleep(AJAPP_CONNECT_PAUSE);
-            return FALSE;
-        }
-        AJ_AlwaysPrintf(("Attempting to connect to bus '%s'\n", routerName));
+        AJ_InfoPrintf(("Attempting to connect to bus '%s'\n", routerName));
         status = AJ_FindBusAndConnect(busAttachment, routerName, AJAPP_CONNECT_TIMEOUT);
         if (status != AJ_OK) {
-            AJ_AlwaysPrintf(("Failed attempt to connect to bus, sleeping for %d seconds\n", AJAPP_CONNECT_PAUSE / 1000));
+            AJ_InfoPrintf(("Failed to connect to bus sleeping for %d seconds\n", AJAPP_CONNECT_PAUSE / 1000));
             AJ_Sleep(AJAPP_CONNECT_PAUSE);
-            if (status == AJ_ERR_DHCP) {
-                AJOBS_SwitchToRetry();
-            }
             continue;
         }
         busUniqueName = AJ_GetUniqueName(busAttachment);
         if (busUniqueName == NULL) {
-            AJ_AlwaysPrintf(("Failed to GetUniqueName() from newly connected bus, retrying\n"));
+            AJ_ErrPrintf(("Failed to GetUniqueName() from newly connected bus, retrying\n"));
             continue;
         }
         AJ_InfoPrintf(("Connected to router with BusUniqueName=%s\n", busUniqueName));
-
-        /* Setup password based authentication listener for secured peer to peer connections */
-        AJ_BusSetPasswordCallback(busAttachment, PasswordCallback);
-
-        /* Configure timeout for the link to the Router bus */
-        AJ_SetBusLinkTimeout(busAttachment, 60);     // 60 seconds
         break;
     }
+
+    /* Setup password based authentication listener for secured peer to peer connections */
+    AJ_BusSetPasswordCallback(busAttachment, PasswordCallback);
+
+    /* Configure timeout for the link to the Router bus */
+    AJ_SetBusLinkTimeout(busAttachment, 60);     // 60 seconds
+
     return TRUE;
 }
 
@@ -210,17 +203,15 @@ ErrorExit:
 static AJSVC_ServiceStatus AJApp_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* status)
 {
     AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_HANDLED;
+    uint16_t port;
+    char* joiner;
+    uint32_t sessionId = 0;
+    AJ_UnmarshalArgs(msg, "qus", &port, &sessionId, &joiner);
+    uint8_t session_accepted = FALSE;
 
     if (msg->msgId == AJ_METHOD_ACCEPT_SESSION) {    // Process all incoming request to join a session and pass request for acceptance by all services
-        uint16_t port;
-        char* joiner;
-        uint32_t sessionId = 0;
-        AJ_UnmarshalArgs(msg, "qus", &port, &sessionId, &joiner);
-        uint8_t session_accepted = FALSE;
-
         session_accepted |= (port == AJ_ABOUT_SERVICE_PORT);
         session_accepted |= AJSVC_CheckSessionAccepted(port, sessionId, joiner);
-
         *status = AJ_BusReplyAcceptSession(msg, session_accepted);
         AJ_AlwaysPrintf(("%s session session_id=%u joiner=%s for port %u\n", (session_accepted ? "Accepted" : "Rejected"), sessionId, joiner, port));
     } else {
@@ -417,15 +408,21 @@ static AJ_Status About_Init()
 
 static const char* GenerateSoftAPSSID(char* obSoftAPssid)
 {
+    const char* deviceId;
+    size_t deviceIdLen;
+    char manufacture[AJOBS_DEVICE_MANUFACTURE_NAME_LEN + 1] = { 0 };
+    size_t manufacureLen;
+    char product[AJOBS_DEVICE_PRODUCT_NAME_LEN + 1] = { 0 };
+    size_t productLen;
+    char serialId[AJOBS_DEVICE_SERIAL_ID_LEN + 1] = { 0 };
+    size_t serialIdLen;
+
     if (obSoftAPssid[0] == '\0') {
-        const char* deviceId = AJSVC_PropertyStore_GetValue(AJSVC_PROPERTY_STORE_DEVICE_ID);
-        size_t deviceIdLen = strlen(deviceId);
-        char manufacture[AJOBS_DEVICE_MANUFACTURE_NAME_LEN + 1] = { 0 };
-        size_t manufacureLen = min(strlen(deviceManufactureName), AJOBS_DEVICE_MANUFACTURE_NAME_LEN);
-        char product[AJOBS_DEVICE_PRODUCT_NAME_LEN + 1] = { 0 };
-        size_t productLen = min(strlen(deviceProductName), AJOBS_DEVICE_PRODUCT_NAME_LEN);
-        size_t serialIdLen = min(deviceIdLen, AJOBS_DEVICE_SERIAL_ID_LEN);
-        char serialId[AJOBS_DEVICE_SERIAL_ID_LEN + 1] = { 0 };
+        deviceId = AJSVC_PropertyStore_GetValue(AJSVC_PROPERTY_STORE_DEVICE_ID);
+        deviceIdLen = strlen(deviceId);
+        manufacureLen = min(strlen(deviceManufactureName), AJOBS_DEVICE_MANUFACTURE_NAME_LEN);
+        productLen = min(strlen(deviceProductName), AJOBS_DEVICE_PRODUCT_NAME_LEN);
+        serialIdLen = min(deviceIdLen, AJOBS_DEVICE_SERIAL_ID_LEN);
         memcpy(manufacture, deviceManufactureName, manufacureLen);
         manufacture[manufacureLen] = '\0';
         memcpy(product, deviceProductName, productLen);
@@ -438,15 +435,18 @@ static const char* GenerateSoftAPSSID(char* obSoftAPssid)
         snprintf(obSoftAPssid, AJOBS_SSID_MAX_LENGTH + 1, "AJ_%s_%s_%s", manufacture, product, serialId);
 #endif
     }
+
     return obSoftAPssid;
 }
 
 #define AJ_OBS_OBINFO_NV_ID (AJ_PROPERTIES_NV_ID_END + 1)
 
-static AJ_Status OnboardingReadInfo(AJOBS_Info* info)
+AJ_Status OnboardingReadInfo(AJOBS_Info* info)
 {
     AJ_Status status = AJ_OK;
     size_t size = sizeof(AJOBS_Info);
+    AJ_NV_DATASET* nvramHandle;
+    int sizeRead;
 
     if (NULL == info) {
         return AJ_ERR_NULL;
@@ -457,9 +457,9 @@ static AJ_Status OnboardingReadInfo(AJOBS_Info* info)
         return AJ_ERR_INVALID;
     }
 
-    AJ_NV_DATASET* nvramHandle = AJ_NVRAM_Open(AJ_OBS_OBINFO_NV_ID, "r", 0);
+    nvramHandle = AJ_NVRAM_Open(AJ_OBS_OBINFO_NV_ID, "r", 0);
     if (nvramHandle != NULL) {
-        int sizeRead = AJ_NVRAM_Read(info, size, nvramHandle);
+        sizeRead = AJ_NVRAM_Read(info, size, nvramHandle);
         status = AJ_NVRAM_Close(nvramHandle);
         if (sizeRead != sizeRead) {
             status = AJ_ERR_READ;
@@ -471,10 +471,12 @@ static AJ_Status OnboardingReadInfo(AJOBS_Info* info)
     return status;
 }
 
-static AJ_Status OnboardingWriteInfo(AJOBS_Info* info)
+AJ_Status OnboardingWriteInfo(AJOBS_Info* info)
 {
     AJ_Status status = AJ_OK;
     size_t size = sizeof(AJOBS_Info);
+    AJ_NV_DATASET* nvramHandle;
+    int sizeWritten;
 
     if (NULL == info) {
         return AJ_ERR_NULL;
@@ -482,9 +484,9 @@ static AJ_Status OnboardingWriteInfo(AJOBS_Info* info)
 
     AJ_AlwaysPrintf(("Going to write Info values: state=%d, ssid=%s authType=%d pc=%s\n", info->state, info->ssid, info->authType, info->pc));
 
-    AJ_NV_DATASET* nvramHandle = AJ_NVRAM_Open(AJ_OBS_OBINFO_NV_ID, "w", size);
+    nvramHandle = AJ_NVRAM_Open(AJ_OBS_OBINFO_NV_ID, "w", size);
     if (nvramHandle != NULL) {
-        int sizeWritten = AJ_NVRAM_Write(info, size, nvramHandle);
+        sizeWritten = AJ_NVRAM_Write(info, size, nvramHandle);
         status = AJ_NVRAM_Close(nvramHandle);
         if (sizeWritten != size) {
             status = AJ_ERR_WRITE;
@@ -521,9 +523,9 @@ AJ_Status Onboarding_Finish()
 
 static AJ_Status FactoryReset()
 {
-    AJ_InfoPrintf(("GOT FACTORY RESET\n"));
     AJ_Status status = AJ_OK;
 
+    AJ_InfoPrintf(("GOT FACTORY RESET\n"));
     status = AJSVC_PropertyStore_ResetAll();
     if (status != AJ_OK) {
         return status;
@@ -542,8 +544,8 @@ static AJ_Status Restart()
 static AJ_Status SetPasscode(const char* daemonRealm, const uint8_t* newPasscode, uint8_t newPasscodeLen)
 {
     AJ_Status status = AJ_OK;
-
     char newStringPasscode[PASSWORD_VALUE_LENGTH + 1];
+
     status = AJ_RawToHex(newPasscode, newPasscodeLen, newStringPasscode, sizeof(newStringPasscode), FALSE);
     if (status != AJ_OK) {
         return status;

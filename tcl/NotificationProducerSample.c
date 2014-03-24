@@ -70,7 +70,7 @@ static uint32_t PasswordCallback(uint8_t* buffer, uint32_t bufLen)
     size_t hexPasswordLen;
     uint32_t len = 0;
 
-    AJ_InfoPrintf(("Retrieved password=%s\n", hexPassword));
+    AJ_InfoPrintf(("Configured password=%s\n", hexPassword));
     hexPasswordLen = strlen(hexPassword);
     len = hexPasswordLen / 2;
     status = AJ_HexToRaw(hexPassword, hexPasswordLen, buffer, bufLen);
@@ -105,6 +105,7 @@ static uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* rou
 {
     AJ_Status status;
     const char* busUniqueName;
+
     while (TRUE) {
         AJ_InfoPrintf(("Attempting to connect to bus '%s'\n", routerName));
         status = AJ_FindBusAndConnect(busAttachment, routerName, AJAPP_CONNECT_TIMEOUT);
@@ -119,14 +120,15 @@ static uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* rou
             continue;
         }
         AJ_InfoPrintf(("Connected to router with BusUniqueName=%s\n", busUniqueName));
-
-        /* Setup password based authentication listener for secured peer to peer connections */
-        AJ_BusSetPasswordCallback(busAttachment, PasswordCallback);
-
-        /* Configure timeout for the link to the Router bus */
-        AJ_SetBusLinkTimeout(busAttachment, 60);     // 60 seconds
         break;
     }
+
+    /* Setup password based authentication listener for secured peer to peer connections */
+    AJ_BusSetPasswordCallback(busAttachment, PasswordCallback);
+
+    /* Configure timeout for the link to the Router bus */
+    AJ_SetBusLinkTimeout(busAttachment, 60);     // 60 seconds
+
     return TRUE;
 }
 
@@ -136,6 +138,7 @@ static enum_init_state_t nextServicesInitializationState = INIT_START;
 static AJ_Status AJApp_ConnectedHandler(AJ_BusAttachment* busAttachment)
 {
     AJ_Status status = AJ_OK;
+
     if (AJ_GetUniqueName(busAttachment)) {
         if (currentServicesInitializationState == nextServicesInitializationState) {
             switch (currentServicesInitializationState) {
@@ -172,6 +175,9 @@ static AJ_Status AJApp_ConnectedHandler(AJ_BusAttachment* busAttachment)
                     AJ_About_SetShouldAnnounce(FALSE);
                 }
                 break;
+
+            default:
+                break;
             }
         }
     }
@@ -186,17 +192,15 @@ ErrorExit:
 static AJSVC_ServiceStatus AJApp_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* status)
 {
     AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_HANDLED;
+    uint16_t port;
+    char* joiner;
+    uint32_t sessionId = 0;
+    AJ_UnmarshalArgs(msg, "qus", &port, &sessionId, &joiner);
+    uint8_t session_accepted = FALSE;
 
     if (msg->msgId == AJ_METHOD_ACCEPT_SESSION) {    // Process all incoming request to join a session and pass request for acceptance by all services
-        uint16_t port;
-        char* joiner;
-        uint32_t sessionId = 0;
-        AJ_UnmarshalArgs(msg, "qus", &port, &sessionId, &joiner);
-        uint8_t session_accepted = FALSE;
-
         session_accepted |= (port == AJ_ABOUT_SERVICE_PORT);
         session_accepted |= AJSVC_CheckSessionAccepted(port, sessionId, joiner);
-
         *status = AJ_BusReplyAcceptSession(msg, session_accepted);
         AJ_AlwaysPrintf(("%s session session_id=%u joiner=%s for port %u\n", (session_accepted ? "Accepted" : "Rejected"), sessionId, joiner, port));
     } else {
@@ -452,6 +456,7 @@ int AJ_Main(void)
     uint8_t isUnmarshalingSuccessful = FALSE;
     AJSVC_ServiceStatus serviceStatus;
     AJ_Message msg;
+    uint8_t sent = FALSE;
 
     AJ_Initialize();
 
@@ -492,7 +497,7 @@ int AJ_Main(void)
                     status = AJ_ERR_READ;             // something's not right. force disconnect
                 } else {                              // nothing on bus, do our own thing
                     SendNotification(&busAttachment);
-                    break;
+                    sent = TRUE;
                 }
             }
 
@@ -511,6 +516,13 @@ int AJ_Main(void)
             AJ_CloseMsg(&msg);
         }
 
+        if (sent) {
+            AJ_Sleep(10000); // Give the notification message a chance to reach a peer Consumer before exiting.
+            AJApp_DisconnectHandler(&busAttachment, TRUE);
+            AJRouter_Disconnect(&busAttachment, TRUE);
+            break;
+        }
+
         if (status == AJ_ERR_READ || status == AJ_ERR_RESTART || status == AJ_ERR_RESTART_APP) {
             if (isBusConnected) {
                 AJApp_DisconnectHandler(&busAttachment, status != AJ_ERR_READ);
@@ -522,7 +534,6 @@ int AJ_Main(void)
         }
     }     // while (TRUE)
 
-    AJ_Sleep(10000); // Give the notification message a chance to reach a peer Consumer before exiting.
     return 0;
 
 Exit:
