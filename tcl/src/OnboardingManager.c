@@ -62,7 +62,10 @@ AJ_Status AJOBS_Start(const AJOBS_Settings* settings, AJOBS_ReadInfo readInfo, A
     obWriteInfo = writeInfo;
 
     if (obSettings == NULL || obSettings->AJOBS_SoftAPSSID == NULL || (obSettings->AJOBS_SoftAPSSID)[0] == '\0') {
-        AJ_ErrPrintf(("AJOBS_Start(): No SoftAP SSID was provided!"));
+        AJ_ErrPrintf(("AJOBS_Start(): No SoftAP SSID was provided!\n"));
+        status = AJ_ERR_INVALID;
+    } else if (obSettings->AJOBS_SoftAPPassphrase != NULL && strlen(obSettings->AJOBS_SoftAPPassphrase) < 8) {
+        AJ_ErrPrintf(("AJOBS_Start(): SoftAP Passphrase is too short! Needs to 8 to 63 characters long\n"));
         status = AJ_ERR_INVALID;
     }
 
@@ -582,60 +585,6 @@ AJ_Status AJOBS_ClearInfo()
 AJ_Status AJOBS_ControllerAPI_DoOffboardWiFi()
 {
     return (AJOBS_ClearInfo());
-}
-
-AJ_Status AJOBS_ConnectedHandler(AJ_BusAttachment* bus)
-{
-    AJ_Status status = AJ_OK;
-    return status;
-}
-
-AJSVC_ServiceStatus AJOBS_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* msgStatus)
-{
-    AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_HANDLED;
-
-    if (*msgStatus == AJ_OK) {
-        switch (msg->msgId) {
-
-        case OBS_GET_PROP:
-            *msgStatus = AJ_BusPropGet(msg, AJOBS_PropGetHandler, NULL);
-            break;
-
-        case OBS_SET_PROP:
-            *msgStatus = AJ_BusPropSet(msg, AJOBS_PropSetHandler, NULL);
-            break;
-
-        case OBS_CONFIGURE_WIFI:
-            *msgStatus = AJOBS_ConfigureWiFiHandler(msg);
-            break;
-
-        case OBS_CONNECT:
-            *msgStatus = AJOBS_ConnectWiFiHandler(msg);
-            break;
-
-        case OBS_OFFBOARD:
-            *msgStatus = AJOBS_OffboardWiFiHandler(msg);
-            break;
-
-        case OBS_GET_SCAN_INFO:
-            *msgStatus = AJOBS_GetScanInfoHandler(msg);
-            break;
-
-        default:
-            serviceStatus = AJSVC_SERVICE_STATUS_NOT_HANDLED;
-            break;
-        }
-    } else {
-        serviceStatus = AJSVC_SERVICE_STATUS_NOT_HANDLED;
-    }
-
-    return serviceStatus;
-}
-
-AJ_Status AJOBS_DisconnectHandler(AJ_BusAttachment* bus)
-{
-    AJ_Status status = AJ_OK;
-    return status;
 }
 
 AJ_Status AJOBS_EstablishWiFi()

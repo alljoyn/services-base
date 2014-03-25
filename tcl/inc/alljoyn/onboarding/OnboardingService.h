@@ -121,5 +121,28 @@ AJ_Status AJOBS_GetScanInfoHandler(AJ_Message* msg);
    AJ_Status AJOBS_SendConnectionResult(AJ_BusAttachment* bus);
  */
 
+/**
+ * Called when router is connected.
+ * @param busAttachment
+ * @return aj_status
+ */
+AJ_Status AJOBS_ConnectedHandler(AJ_BusAttachment* busAttachment);
+
+/**
+ * Called just before the router disconnects.
+ * @param busAttachment
+ * @return aj_status
+ */
+AJ_Status AJOBS_DisconnectHandler(AJ_BusAttachment* busAttachment);
+
+/**
+ * Called when a new incoming message requires processing.
+ * @param busAttachment
+ * @param msg
+ * @param msgStatus
+ * @return service_Status
+ */
+AJSVC_ServiceStatus AJOBS_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* msgStatus);
+
 /** @} */ //End of group 'OnboardingService'
  #endif // _ONBOARDINGSERVICE_H_

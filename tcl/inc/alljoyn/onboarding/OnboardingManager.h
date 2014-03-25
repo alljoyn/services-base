@@ -187,7 +187,7 @@ typedef struct _AJOBS_Settings {
      */
     const uint8_t AJOBS_SoftAPIsHidden; // FALSE
     /**
-     * SoftAP passpharse. If NULL means OPEN network otherwise assumes WPA2 up to 63 characters.
+     * SoftAP passpharse. If NULL means OPEN network otherwise assumes WPA2 8 to 63 characters long.
      */
     const char* AJOBS_SoftAPPassphrase; // NULL
 } AJOBS_Settings;
@@ -222,29 +222,6 @@ AJ_Status AJOBS_Start(const AJOBS_Settings* settings, AJOBS_ReadInfo readInfo, A
  * @return aj_status
  */
 AJ_Status AJOBS_ClearInfo();
-
-/**
- * Called when router is connected.
- * @param busAttachment
- * @return aj_status
- */
-AJ_Status AJOBS_ConnectedHandler(AJ_BusAttachment* busAttachment);
-
-/**
- * Called just before the router disconnects.
- * @param busAttachment
- * @return aj_status
- */
-AJ_Status AJOBS_DisconnectHandler(AJ_BusAttachment* busAttachment);
-
-/**
- * Called when a new incoming message requires processing.
- * @param busAttachment
- * @param msg
- * @param msgStatus
- * @return service_Status
- */
-AJSVC_ServiceStatus AJOBS_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* msgStatus);
 
 /**
  * Establish a WiFi connection either as:
