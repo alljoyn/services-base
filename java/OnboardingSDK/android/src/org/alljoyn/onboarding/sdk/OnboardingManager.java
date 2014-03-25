@@ -1709,16 +1709,18 @@ public class OnboardingManager {
         }
 
 
-        extras.clear();
-        extras.putString(EXTRA_DEVICE_BUS_NAME, serviceName);
-        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.SESSION_JOINED.toString());
-        sendBroadcast(STATE_CHANGE_ACTION, extras);
-
         try {
             ResponseCode connectToDeviceStatus = connectToDevice(onboardingClient).getStatus();
             if (connectToDeviceStatus != ResponseCode.Status_OK) {
                 return new DeviceResponse(ResponseCode.Status_ERROR_CANT_ESTABLISH_SESSION, connectToDeviceStatus.name());
             }
+
+
+            extras.clear();
+            extras.putString(EXTRA_DEVICE_BUS_NAME, serviceName);
+            extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.SESSION_JOINED.toString());
+            sendBroadcast(STATE_CHANGE_ACTION, extras);
+
 
             extras.clear();
             extras.putString(EXTRA_DEVICE_BUS_NAME, serviceName);
