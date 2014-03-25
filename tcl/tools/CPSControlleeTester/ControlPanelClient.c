@@ -45,7 +45,6 @@ uint32_t sessionId = 0;
 
 AJ_Object AppObjects[] =
 {
-    ABOUT_APPOBJECTS
     CONTROLPANEL_APPOBJECTS
     { NULL }
 };

@@ -16,7 +16,6 @@ Import('env')
 import os
 
 services_common_root_default = '../../../../services_common/tcl'
-about_root_default           = '../../../../../core/about_tcl/tcl'
 
 vars = Variables()
 if not env.has_key('SERVICES_COMMON_ROOT'):
@@ -27,19 +26,6 @@ vars.Update(env)
 if env.has_key('SERVICES_COMMON_ROOT_FROM_COMPONENT'):
     env.Replace(SERVICES_COMMON_ROOT = env['SERVICES_COMMON_ROOT_FROM_COMPONENT'])
 Help(vars.GenerateHelpText(env))
-
-if not env.has_key('ABOUT_ROOT'):
-    vars.Add('ABOUT_ROOT', 'Root directory of About service', about_root_default)
-vars.Update(env)
-
-# if ABOUT_ROOT passed in via the env., use it:
-if env.has_key('ABOUT_ROOT_FROM_COMPONENT'):
-    env.Replace(ABOUT_ROOT = env['ABOUT_ROOT_FROM_COMPONENT'])
-Help(vars.GenerateHelpText(env))
-
-if not os.path.isfile(env['ABOUT_ROOT'] + '/SConscript'):
-    print "SConscript in 'ABOUT_ROOT=" + env['ABOUT_ROOT'] + "' not found; aborting.\n"
-    exit(1)
 
 cps_env = env.Clone()
 
@@ -65,9 +51,6 @@ cps_env.Append(CPPPATH = [
 
 objs = cps_env.Object(source_files)
 cps_obj = cps_env.SConscript('../../src/CPSControllee/SConscript', {'cps_env': cps_env })
-
-about_objs = cps_env.SConscript('$ABOUT_ROOT/SConscript', {'about_env': cps_env})
-objs.extend(about_objs)
 
 services_common_objs = cps_env.SConscript('$SERVICES_COMMON_ROOT/SConscript', {'services_common_env': cps_env})
 objs.extend(services_common_objs)
