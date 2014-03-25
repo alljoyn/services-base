@@ -39,15 +39,21 @@ static const char* appDeviceProductName = NULL;
 
 static const char* GenerateSoftAPSSID(char* obSoftAPssid)
 {
+    const char* deviceId;
+    size_t deviceIdLen;
+    char manufacture[AJOBS_DEVICE_MANUFACTURE_NAME_LEN + 1] = { 0 };
+    size_t manufacureLen;
+    char product[AJOBS_DEVICE_PRODUCT_NAME_LEN + 1] = { 0 };
+    size_t productLen;
+    char serialId[AJOBS_DEVICE_SERIAL_ID_LEN + 1] = { 0 };
+    size_t serialIdLen;
+
     if (obSoftAPssid[0] == '\0') {
-        const char* deviceId = AJSVC_PropertyStore_GetValue(AJSVC_PROPERTY_STORE_DEVICE_ID);
-        size_t deviceIdLen = strlen(deviceId);
-        char manufacture[AJOBS_DEVICE_MANUFACTURE_NAME_LEN + 1] = { 0 };
-        size_t manufacureLen = min(strlen(deviceManufactureName), AJOBS_DEVICE_MANUFACTURE_NAME_LEN);
-        char product[AJOBS_DEVICE_PRODUCT_NAME_LEN + 1] = { 0 };
-        size_t productLen = min(strlen(deviceProductName), AJOBS_DEVICE_PRODUCT_NAME_LEN);
-        size_t serialIdLen = min(deviceIdLen, AJOBS_DEVICE_SERIAL_ID_LEN);
-        char serialId[AJOBS_DEVICE_SERIAL_ID_LEN + 1] = { 0 };
+        deviceId = AJSVC_PropertyStore_GetValue(AJSVC_PROPERTY_STORE_DEVICE_ID);
+        deviceIdLen = strlen(deviceId);
+        manufacureLen = min(strlen(deviceManufactureName), AJOBS_DEVICE_MANUFACTURE_NAME_LEN);
+        productLen = min(strlen(deviceProductName), AJOBS_DEVICE_PRODUCT_NAME_LEN);
+        serialIdLen = min(deviceIdLen, AJOBS_DEVICE_SERIAL_ID_LEN);
         memcpy(manufacture, deviceManufactureName, manufacureLen);
         manufacture[manufacureLen] = '\0';
         memcpy(product, deviceProductName, productLen);
@@ -60,6 +66,7 @@ static const char* GenerateSoftAPSSID(char* obSoftAPssid)
         snprintf(obSoftAPssid, AJOBS_SSID_MAX_LENGTH + 1, "AJ_%s_%s_%s", manufacture, product, serialId);
 #endif
     }
+
     return obSoftAPssid;
 }
 
@@ -69,6 +76,8 @@ AJ_Status OnboardingReadInfo(AJOBS_Info* info)
 {
     AJ_Status status = AJ_OK;
     size_t size = sizeof(AJOBS_Info);
+    AJ_NV_DATASET* nvramHandle;
+    int sizeRead;
 
     if (NULL == info) {
         return AJ_ERR_NULL;
@@ -79,9 +88,9 @@ AJ_Status OnboardingReadInfo(AJOBS_Info* info)
         return AJ_ERR_INVALID;
     }
 
-    AJ_NV_DATASET* nvramHandle = AJ_NVRAM_Open(AJ_OBS_OBINFO_NV_ID, "r", 0);
+    nvramHandle = AJ_NVRAM_Open(AJ_OBS_OBINFO_NV_ID, "r", 0);
     if (nvramHandle != NULL) {
-        int sizeRead = AJ_NVRAM_Read(info, size, nvramHandle);
+        sizeRead = AJ_NVRAM_Read(info, size, nvramHandle);
         status = AJ_NVRAM_Close(nvramHandle);
         if (sizeRead != sizeRead) {
             status = AJ_ERR_READ;
@@ -97,6 +106,8 @@ AJ_Status OnboardingWriteInfo(AJOBS_Info* info)
 {
     AJ_Status status = AJ_OK;
     size_t size = sizeof(AJOBS_Info);
+    AJ_NV_DATASET* nvramHandle;
+    int sizeWritten;
 
     if (NULL == info) {
         return AJ_ERR_NULL;
@@ -104,9 +115,9 @@ AJ_Status OnboardingWriteInfo(AJOBS_Info* info)
 
     AJ_AlwaysPrintf(("Going to write Info values: state=%d, ssid=%s authType=%d pc=%s\n", info->state, info->ssid, info->authType, info->pc));
 
-    AJ_NV_DATASET* nvramHandle = AJ_NVRAM_Open(AJ_OBS_OBINFO_NV_ID, "w", size);
+    nvramHandle = AJ_NVRAM_Open(AJ_OBS_OBINFO_NV_ID, "w", size);
     if (nvramHandle != NULL) {
-        int sizeWritten = AJ_NVRAM_Write(info, size, nvramHandle);
+        sizeWritten = AJ_NVRAM_Write(info, size, nvramHandle);
         status = AJ_NVRAM_Close(nvramHandle);
         if (sizeWritten != size) {
             status = AJ_ERR_WRITE;
@@ -121,6 +132,7 @@ static AJOBS_Settings obSettings = AJOBS_DEFAULT_SETTINGS;
 AJ_Status Onboarding_Init(const char* deviceManufactureName, const char* deviceProductName)
 {
     AJ_Status status = AJ_OK;
+
     appDeviceManufactureName = deviceManufactureName;
     appDeviceProductName = deviceProductName;
     if (appDeviceManufactureName == NULL || appDeviceManufactureName[0] == '\0') {

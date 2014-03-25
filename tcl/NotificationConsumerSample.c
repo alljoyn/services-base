@@ -70,7 +70,7 @@ static uint32_t PasswordCallback(uint8_t* buffer, uint32_t bufLen)
     size_t hexPasswordLen;
     uint32_t len = 0;
 
-    AJ_AlwaysPrintf(("Retrieved password=%s\n", hexPassword));
+    AJ_AlwaysPrintf(("Configured password=%s\n", hexPassword));
     hexPasswordLen = strlen(hexPassword);
     len = hexPasswordLen / 2;
     status = AJ_HexToRaw(hexPassword, hexPasswordLen, buffer, bufLen);
@@ -101,8 +101,10 @@ typedef enum {
 
 static uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* routerName)
 {
+    AJ_Status status;
+    const char* busUniqueName;
+
     while (TRUE) {
-        AJ_Status status = AJ_OK;
         AJ_InfoPrintf(("Attempting to connect to bus '%s'\n", routerName));
         status = AJ_FindBusAndConnect(busAttachment, routerName, AJAPP_CONNECT_TIMEOUT);
         if (status != AJ_OK) {
@@ -110,20 +112,21 @@ static uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* rou
             AJ_Sleep(AJAPP_CONNECT_PAUSE);
             continue;
         }
-        const char* busUniqueName = AJ_GetUniqueName(busAttachment);
+        busUniqueName = AJ_GetUniqueName(busAttachment);
         if (busUniqueName == NULL) {
             AJ_ErrPrintf(("Failed to GetUniqueName() from newly connected bus, retrying\n"));
             continue;
         }
         AJ_InfoPrintf(("Connected to router with BusUniqueName=%s\n", busUniqueName));
-
-        /* Setup password based authentication listener for secured peer to peer connections */
-        AJ_BusSetPasswordCallback(busAttachment, PasswordCallback);
-
-        /* Configure timeout for the link to the Router bus */
-        AJ_SetBusLinkTimeout(busAttachment, 60);     // 60 seconds
         break;
     }
+
+    /* Setup password based authentication listener for secured peer to peer connections */
+    AJ_BusSetPasswordCallback(busAttachment, PasswordCallback);
+
+    /* Configure timeout for the link to the Router bus */
+    AJ_SetBusLinkTimeout(busAttachment, 60);     // 60 seconds
+
     return TRUE;
 }
 
@@ -133,6 +136,7 @@ static enum_init_state_t nextServicesInitializationState = INIT_START;
 static AJ_Status AJApp_ConnectedHandler(AJ_BusAttachment* busAttachment)
 {
     AJ_Status status = AJ_OK;
+
     if (AJ_GetUniqueName(busAttachment)) {
         if (currentServicesInitializationState == nextServicesInitializationState) {
             switch (currentServicesInitializationState) {
@@ -168,7 +172,7 @@ ErrorExit:
 
 static AJSVC_ServiceStatus AJApp_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* status)
 {
-    AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_NOT_HANDLED;
+    AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_HANDLED;
 
     switch (currentServicesInitializationState) {
     case INIT_ADDSLMATCH:
@@ -233,6 +237,8 @@ int8_t AJSVC_PropertyStore_GetCurrentDefaultLanguageIndex() {
 
 static AJ_Status ApplicationHandleNotify(AJNS_Notification* notification)
 {
+    int8_t indx;
+
     AJ_AlwaysPrintf(("******************** Begin New Message Received ********************\n"));
 
     if (notification == 0) {
@@ -242,7 +248,6 @@ static AJ_Status ApplicationHandleNotify(AJNS_Notification* notification)
 
     AJ_AlwaysPrintf(("Message Id: %d\nVersion: %u\nDevice Id: %s\nDevice Name: %s\nApp Id: %s\nApp Name: %s\nMessage Type: %d\n",
                      notification->notificationId, notification->version, notification->deviceId, notification->deviceName, notification->appId, notification->appName, notification->messageType));
-    int8_t indx;
 
     if (notification->originalSenderName != 0 && strlen(notification->originalSenderName) > 0) {
         AJ_AlwaysPrintf(("OriginalSender bus unique name: %s\n", notification->originalSenderName));
@@ -319,8 +324,8 @@ int AJ_Main(void)
 
         if (!isBusConnected) {
             isBusConnected = AJRouter_Connect(&busAttachment, ROUTER_NAME);
-            if (isBusConnected) { // Failed to connect to daemon.
-                continue; // Retry establishing connection to daemon.
+            if (!isBusConnected) { // Failed to connect to router?
+                continue; // Retry establishing connection to router.
             }
         }
 

@@ -97,7 +97,7 @@ static uint32_t PasswordCallback(uint8_t* buffer, uint32_t bufLen)
         AJ_AlwaysPrintf(("Password is NULL!\n"));
         return len;
     }
-    AJ_AlwaysPrintf(("Retrieved password=%s\n", hexPassword));
+    AJ_AlwaysPrintf(("Configured password=%s\n", hexPassword));
     hexPasswordLen = strlen(hexPassword);
     len = hexPasswordLen / 2;
     status = AJ_HexToRaw(hexPassword, hexPasswordLen, buffer, bufLen);
@@ -150,8 +150,9 @@ Exit:
 
 uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* routerName)
 {
-    AJ_Status status = AJ_OK;
+    AJ_Status status;
     const char* busUniqueName;
+
     while (TRUE) {
 #ifdef ONBOARDING_SERVICE
         status = AJOBS_EstablishWiFi();
@@ -179,14 +180,15 @@ uint8_t AJRouter_Connect(AJ_BusAttachment* busAttachment, const char* routerName
             continue;
         }
         AJ_AlwaysPrintf(("Connected to router with BusUniqueName=%s\n", busUniqueName));
-
-        /* Setup password based authentication listener for secured peer to peer connections */
-        AJ_BusSetPasswordCallback(busAttachment, PasswordCallback);
-        /* Configure timeout for the link to the Router bus */
-        AJ_SetBusLinkTimeout(busAttachment, 60);     // 60 seconds
-
         break;
     }
+
+    /* Setup password based authentication listener for secured peer to peer connections */
+    AJ_BusSetPasswordCallback(busAttachment, PasswordCallback);
+
+    /* Configure timeout for the link to the Router bus */
+    AJ_SetBusLinkTimeout(busAttachment, 60);     // 60 seconds
+
     return TRUE;
 }
 
@@ -196,6 +198,7 @@ static enum_init_state_t nextServicesInitializationState = INIT_START;
 AJ_Status AJApp_ConnectedHandler(AJ_BusAttachment* busAttachment)
 {
     AJ_Status status = AJ_OK;
+
     if (AJ_GetUniqueName(busAttachment)) {
         if (currentServicesInitializationState == nextServicesInitializationState) {
             switch (currentServicesInitializationState) {
@@ -223,7 +226,7 @@ AJ_Status AJApp_ConnectedHandler(AJ_BusAttachment* busAttachment)
                 if (addSessionLessMatch) {
                     nextServicesInitializationState = INIT_ADDSLMATCH;
                 } else {
-                    nextServicesInitializationState = INIT_FINISHED;
+                    nextServicesInitializationState = INIT_CHECK_ANNOUNCE;
                 }
                 break;
 
@@ -232,7 +235,7 @@ AJ_Status AJApp_ConnectedHandler(AJ_BusAttachment* busAttachment)
                 if (status != AJ_OK) {
                     goto ErrorExit;
                 }
-                nextServicesInitializationState = INIT_FINISHED;
+                nextServicesInitializationState = INIT_CHECK_ANNOUNCE;
                 break;
 
             case INIT_CHECK_ANNOUNCE:
@@ -269,7 +272,7 @@ ErrorExit:
 
 AJSVC_ServiceStatus AJApp_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_Message* msg, AJ_Status* status)
 {
-    AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_NOT_HANDLED;
+    AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_HANDLED;
 
     if (msg->msgId == AJ_METHOD_ACCEPT_SESSION) {    // Process all incoming request to join a session and pass request for acceptance by all services
         uint16_t port;
@@ -283,7 +286,6 @@ AJSVC_ServiceStatus AJApp_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_M
 
         *status = AJ_BusReplyAcceptSession(msg, session_accepted);
         AJ_AlwaysPrintf(("%s session session_id=%u joiner=%s for port %u\n", (session_accepted ? "Accepted" : "Rejected"), sessionId, joiner, port));
-        serviceStatus = AJSVC_SERVICE_STATUS_HANDLED;
     } else {
         switch (currentServicesInitializationState) {
         case INIT_SERVICES_PORT:
@@ -305,10 +307,10 @@ AJSVC_ServiceStatus AJApp_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_M
             break;
 
         default:
+            serviceStatus = AJSVC_MessageProcessorAndDispatcher(busAttachment, msg, status);
             break;
         }
     }
-    serviceStatus = AJSVC_MessageProcessorAndDispatcher(busAttachment, &msg, &status);
 
     return serviceStatus;
 }

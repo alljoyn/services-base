@@ -70,11 +70,13 @@ else:
         else:
             main_exe = 'ServerSample'
 
+srcs = ['ServerSample.c']
+
 objs = []
-srcs = ['ServerSample.c', '../../AppsCommon/src/PropertyStore.c', '../../AppsCommon/src/AppHandlers.c']
+common_samples_srcs = ['AppHandlers.c']
 
 if int(build_config):
-    srcs.extend(['../../AppsCommon/src/ConfigSample.c'])
+    common_samples_srcs.extend(['ConfigSample.c'])
     objs.extend(sersamp_env.SConscript('../../../../config/tcl/SConscript', {'config_env': sersamp_env}))
     
 if int(build_producer):
@@ -94,7 +96,10 @@ if int(build_cps):
 
 objs.extend(sersamp_env.Object(srcs))
 
-objs.extend(sersamp_env.SConscript('../../../../services_common/tcl/SConscript', {'services_common_env': sersamp_env}))
+sersamp_env['common_samples_srcs'] = common_samples_srcs
+objs.extend(sersamp_env.SConscript('../../AppsCommon/SConscript', variant_dir = 'AppsCommon', duplicate = 1, exports = {'appsCommon_env': sersamp_env}))
+
+objs.extend(sersamp_env.SConscript('../../../../services_common/tcl/SConscript', variant_dir = 'services_common', duplicate = 1, exports = {'services_common_env': sersamp_env}))
 
 objs.extend(sersamp_env.SConscript('../../../../../core/about_tcl/tcl/SConscript', {'about_env': sersamp_env}))
 

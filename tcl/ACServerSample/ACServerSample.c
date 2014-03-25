@@ -55,9 +55,7 @@ static AJ_BusAttachment busAttachment;
 
 AJ_Object AppObjects[] = {
     IOE_SERVICES_APPOBJECTS
-#ifdef CONTROLPANEL_SERVICE
     CONTROLPANELAPPOBJECTS
-#endif
     { NULL, NULL }
 };
 
@@ -68,9 +66,7 @@ AJ_Object ProxyObjects[] = {
 
 AJ_Object AnnounceObjects[] = {
     IOE_SERVICES_ANNOUNCEOBJECTS
-#ifdef CONTROLPANEL_SERVICE
     CONTROLPANELANNOUNCEOBJECTS
-#endif
     { NULL, NULL }
 };
 
@@ -86,7 +82,7 @@ const uint8_t AJSVC_PROPERTY_STORE_NUMBER_OF_LANGUAGES = 1;
  * properties array of default values
  */
 static const char* DEFAULT_PASSCODE[] = { "303030303030" }; // HEX encoded { '0', '0', '0', '0', '0', '0' }
-static const char* DEFAULT_APP_NAME[] = { "Controlee" };
+static const char* DEFAULT_APP_NAME[] = { "Controllee" };
 static const char* DEFAULT_DESCRIPTION[] = { "AC IOE device" };
 static const char* DEFAULT_MANUFACTURER[] = { "Company A(EN)" };
 static const char* DEFAULT_DEVICE_MODEL[] = { "0.0.1" };
@@ -164,35 +160,39 @@ static uint32_t MyBusAuthPwdCB(uint8_t* buf, uint32_t bufLen)
 
 int AJ_Main(void)
 {
-    static AJ_Status status = AJ_OK;
-    static uint8_t isUnmarshalingSuccessful = FALSE;
+    AJ_Status status = AJ_OK;
+    uint8_t isUnmarshalingSuccessful = FALSE;
     AJSVC_ServiceStatus serviceStatus;
+    AJ_Message msg;
 
     AJ_Initialize();
+
     status = PropertyStore_Init();
     if (status != AJ_OK) {
         goto Exit;
     }
+
     status = About_Init(AnnounceObjects, aboutIconMimetype, aboutIconContent, aboutIconContentSize, aboutIconUrl);
     if (status != AJ_OK) {
         goto Exit;
     }
+
     status = AJServices_Init(AppObjects, ProxyObjects, AnnounceObjects, deviceManufactureName, deviceProductName);
     if (status != AJ_OK) {
         goto Exit;
     }
+
     AJ_RegisterObjects(AppObjects, ProxyObjects);
     SetBusAuthPwdCallback(MyBusAuthPwdCB);
 
     while (TRUE) {
-        AJ_Message msg;
         status = AJ_OK;
         serviceStatus = AJSVC_SERVICE_STATUS_NOT_HANDLED;
 
         if (!isBusConnected) {
             isBusConnected = AJRouter_Connect(&busAttachment, ROUTER_NAME);
-            if (isBusConnected) { // Failed to connect to daemon.
-                continue; // Retry establishing connection to daemon.
+            if (!isBusConnected) { // Failed to connect to router?
+                continue; // Retry establishing connection to router.
             }
         }
 
