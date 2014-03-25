@@ -1320,9 +1320,6 @@ public class OnboardingManager {
         };// receiver
         context.registerReceiver(onboardingWifiBroadcastReceiver, wifiIntentFilter);
         extras.clear();
-        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTING_ONBOARDEE_WIFI.toString());
-        sendBroadcast(STATE_CHANGE_ACTION, extras);
-        extras.clear();
         extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTING_TARGET_WIFI.toString());
         sendBroadcast(STATE_CHANGE_ACTION, extras);
         onboardingSDKWifiManager.connectToWifiAP(onboardingConfiguration.getTarget().getSSID(), onboardingConfiguration.getTarget().getAuthType(), onboardingConfiguration.getTarget().getPassword(),
@@ -1461,8 +1458,9 @@ public class OnboardingManager {
      * @param msg
      */
     private void onHandleCommandMessage(Message msg) {
-        if (msg == null)
+        if (msg == null) {
             return;
+        }
 
         Log.d(TAG,"onHandleCommandMessage "+State.getStateByValue(msg.what).toString());
         switch (State.getStateByValue(msg.what)) {
@@ -1589,7 +1587,7 @@ public class OnboardingManager {
     }
 
 
- /**
+    /**
      * Establish an AllJoyn session with the device.
      * @param announceData the Announcement data.
      * @return status of operation.
@@ -1823,11 +1821,11 @@ public class OnboardingManager {
     }
 
 
-/**
- *  Retrieves list of access points after scan was complete.
- * @param filter of Wi-Fi list type {@link WifiFilter}
- * @return list of Wi-Fi access points {@link #scanWiFi()}
- */
+    /**
+     *  Retrieves list of access points after scan was complete.
+     * @param filter of Wi-Fi list type {@link WifiFilter}
+     * @return list of Wi-Fi access points {@link #scanWiFi()}
+     */
     public List<WiFiNetwork> getWifiScanResults(WifiFilter filter){
         if (filter == WifiFilter.ALL) {
             return onboardingSDKWifiManager.getAllAccessPoints();
@@ -1879,7 +1877,7 @@ public class OnboardingManager {
         }
 
         if (network==null || network.getSSID()==null || network.getSSID().isEmpty() ||
-           (network.getAuthType()!=AuthType.OPEN && (network.getPassword()==null || network.getPassword().isEmpty()))){
+                (network.getAuthType()!=AuthType.OPEN && (network.getPassword()==null || network.getPassword().isEmpty()))){
             throw new OnboardingIllegalArgumentException();
         }
 
@@ -2068,28 +2066,28 @@ public class OnboardingManager {
     }
 
 
-  /**
-   * Abort the onboarding process.
-   *
-   * <ul>
-   *    <li>Send the following intents.
-   *    <li>{@link #STATE_CHANGE_ACTION} action with this extra
-   *          <ul>
-   *            <li> {@link OnboardingState#ABORTING} when starting the abort process.
-   *          </ul>
-   * </ul>
-   * <p>see also {@link #abortStateCleanUp()}
-   * @throws OnboardingIllegalStateException in case the state machine is in state IDLE,ABORTING (No need to Abort)
-   *    in case the state machine is in state CONNECTING_TO_TARGET_WIFI_AP,WAITING_FOR_TARGET_ANNOUNCE,TARGET_ANNOUNCEMENT_RECEIVED (can't abort ,in final stages of onboarding)
-   */
+    /**
+     * Abort the onboarding process.
+     *
+     * <ul>
+     *    <li>Send the following intents.
+     *    <li>{@link #STATE_CHANGE_ACTION} action with this extra
+     *          <ul>
+     *            <li> {@link OnboardingState#ABORTING} when starting the abort process.
+     *          </ul>
+     * </ul>
+     * <p>see also {@link #abortStateCleanUp()}
+     * @throws OnboardingIllegalStateException in case the state machine is in state IDLE,ABORTING (No need to Abort)
+     *    in case the state machine is in state CONNECTING_TO_TARGET_WIFI_AP,WAITING_FOR_TARGET_ANNOUNCE,TARGET_ANNOUNCEMENT_RECEIVED (can't abort ,in final stages of onboarding)
+     */
     public void abortOnboarding() throws OnboardingIllegalStateException {
         if (currentState == State.IDLE ||
-            currentState == State.ABORTING ){
+                currentState == State.ABORTING ){
             throw new OnboardingIllegalStateException("Can't abort ,already ABORTED");
         }
 
         if (currentState == State.CONNECTING_TO_TARGET_WIFI_AP ||
-            currentState ==State.TARGET_ANNOUNCEMENT_RECEIVED){
+                currentState ==State.TARGET_ANNOUNCEMENT_RECEIVED){
             throw new OnboardingIllegalStateException("Can't abort");
         }
         Bundle extras =new Bundle();
@@ -2260,8 +2258,9 @@ public class OnboardingManager {
                 String[] interfaces = objectDescriptions[i].getInterfaces();
                 for (int j = 0; j < interfaces.length; j++) {
                     String currentInterface = interfaces[j];
-                    if (currentInterface.startsWith(service))
+                    if (currentInterface.startsWith(service)) {
                         return true;
+                    }
                 }
             }
         }
