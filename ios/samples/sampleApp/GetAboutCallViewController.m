@@ -20,7 +20,7 @@
 #import "alljoyn/about/AJNAboutDataConverter.h"
 #import "ViewController.h"
 #import "GetAboutCallViewController.h"
-#import "AJCFGConfigLogger.h"
+#import "alljoyn/config/AJCFGConfigLogger.h"
 
 #define CLIENTDEFAULTLANG @""
 

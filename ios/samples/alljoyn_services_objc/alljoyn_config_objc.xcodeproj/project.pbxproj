@@ -55,24 +55,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		9AA93AA41855CCC900378361 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = inc/alljoyn/services_common;
-			dstSubfolderSpec = 16;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		9AA93AA91855CD0F00378361 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = inc/alljoyn/samples_common;
-			dstSubfolderSpec = 16;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -256,8 +238,6 @@
 				9AA935E51854BC2B00378361 /* Sources */,
 				9AA935E61854BC2B00378361 /* Frameworks */,
 				9AA93A981855CC8E00378361 /* CopyFiles */,
-				9AA93AA41855CCC900378361 /* CopyFiles */,
-				9AA93AA91855CD0F00378361 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -448,11 +428,13 @@
 				GCC_PREFIX_HEADER = "alljoyn_services_objc/alljoyn_config_objc-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
-					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"/**",
-					"\"$(SRCROOT)/../../../../../services\"/**",
+					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"",
+					"\"$(SRCROOT)/../../../../../services/config/ios/inc\"",
 					"\"$(SRCROOT)/../../../../../core/alljoyn/alljoyn_objc/AllJoynFramework/AllJoynFramework\"",
 					"\"$(SRCROOT)/../../../../../core/alljoyn/services/about/ios/inc\"",
 					"\"$(SRCROOT)/../../../../../core/alljoyn/services/about/cpp/inc\"",
+					"\"$(SRCROOT)/../../../../../services/config/cpp/inc\"",
+					"\"$(SRCROOT)/../../../../../services/services_common/ios/inc\"",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
@@ -478,13 +460,13 @@
 				GCC_PREFIX_HEADER = "alljoyn_services_objc/alljoyn_config_objc-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
-					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"/**",
-					"\"$(SRCROOT)/../../../../../services\"/**",
-					"\"$(SRCROOT)/../../../../../common/inc\"",
+					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"",
+					"\"$(SRCROOT)/../../../../../services/config/ios/inc\"",
 					"\"$(SRCROOT)/../../../../../core/alljoyn/alljoyn_objc/AllJoynFramework/AllJoynFramework\"",
-					"\"$(SRCROOT)/../../../../../services/notification/cpp/inc/alljoyn/notification/\"",
 					"\"$(SRCROOT)/../../../../../core/alljoyn/services/about/ios/inc\"",
 					"\"$(SRCROOT)/../../../../../core/alljoyn/services/about/cpp/inc\"",
+					"\"$(SRCROOT)/../../../../../services/config/cpp/inc\"",
+					"\"$(SRCROOT)/../../../../../services/services_common/ios/inc\"",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (

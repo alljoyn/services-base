@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 #import "AJNBusAttachment.h"
-#import "AJSVCGenericLogger.h"
+#import "alljoyn/services_common/AJSVCGenericLogger.h"
 
 /**
  AJCFGConfigClient is a helper class used by an AllJoyn IoE client application to communicate with ConfigService that implements the org.alljoyn.Config .

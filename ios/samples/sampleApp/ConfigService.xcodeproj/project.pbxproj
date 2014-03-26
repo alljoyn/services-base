@@ -413,7 +413,6 @@
 				HEADER_SEARCH_PATHS = (
 					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
 					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"",
-					"$(SRCROOT)/../../../../../services/**",
 					"$(SRCROOT)/../../../../../common/inc",
 					"\"$(SRCROOT)/../../../../../core/alljoyn/alljoyn_objc/AllJoynFramework/AllJoynFramework/\"",
 					"$(BUILT_PRODUCTS_DIR)/inc/**",
@@ -460,12 +459,11 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ConfigService/ConfigService-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
-					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"",
 					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
+					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"",
+					"$(SRCROOT)/../../../../../common/inc",
 					"\"$(SRCROOT)/../../../../../core/alljoyn/alljoyn_objc/AllJoynFramework/AllJoynFramework/\"",
-					"$(SRCROOT)/../../../../../services/**",
 					"$(BUILT_PRODUCTS_DIR)/inc/**",
-					"$(SRCROOT)/../../../../../applications/**",
 					"\"$(SRCROOT)/../../../../../core/alljoyn/services/about/ios/inc\"",
 				);
 				INFOPLIST_FILE = "ConfigService/ConfigService-Info.plist";

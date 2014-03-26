@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -18,11 +18,11 @@
 #import "AJNVersion.h"
 #import "AJNPasswordManager.h"
 #import "alljoyn/about/AJNAboutServiceApi.h"
-#import "AJCFGPropertyStoreImpl.h"
-#import "AJCFGConfigService.h"
-#import "AJCFGConfigServiceListenerImpl.h"
-#import "AJSVCGenericLoggerDefaultImpl.h"
-#import "AJCFGConfigLogger.h"
+#import "alljoyn/config/AJCFGPropertyStoreImpl.h"
+#import "alljoyn/config/AJCFGConfigService.h"
+#import "alljoyn/config/AJCFGConfigServiceListenerImpl.h"
+#import "alljoyn/services_common/AJSVCGenericLoggerDefaultImpl.h"
+#import "alljoyn/config/AJCFGConfigLogger.h"
 #import "ConfigServiceListener.h"
 #import "CommonBusListener.h"
 

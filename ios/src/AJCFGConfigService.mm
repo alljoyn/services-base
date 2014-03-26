@@ -16,9 +16,9 @@
 
 #import "AJCFGConfigService.h"
 #import "AJNSessionOptions.h"
-#import "ConfigService.h"
-#import "AJSVCGenericLoggerAdapter.h"
-#import "AJSVCGenericLoggerDefaultImpl.h"
+#import "alljoyn/config/ConfigService.h"
+#import "alljoyn/services_common/AJSVCGenericLoggerAdapter.h"
+#import "alljoyn/services_common/AJSVCGenericLoggerDefaultImpl.h"
 
 @interface AJCFGConfigService ()
 

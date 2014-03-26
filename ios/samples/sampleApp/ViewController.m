@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -20,9 +20,9 @@
 #import "alljoyn/about/AJNAnnouncement.h"
 #import "alljoyn/about/AJNAnnouncementReceiver.h"
 #import "AJNPasswordManager.h"
-#import "AJSVCGenericLoggerDefaultImpl.h"
-#import "AJCFGConfigClient.h"
-#import "AJCFGConfigLogger.h"
+#import "alljoyn/services_common/AJSVCGenericLoggerDefaultImpl.h"
+#import "alljoyn/config/AJCFGConfigClient.h"
+#import "alljoyn/config/AJCFGConfigLogger.h"
 #import "ConfigSetupViewController.h"
 #import "AnnounceTextViewController.h"
 #import "GetAboutCallViewController.h"

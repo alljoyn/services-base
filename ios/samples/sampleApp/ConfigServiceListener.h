@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -17,8 +17,8 @@
 #import <Foundation/Foundation.h>
 #import "alljoyn/Status.h"
 #import "AJNBusAttachment.h"
-#import "AJCFGConfigServiceListener.h"
-#import "AJCFGPropertyStoreImpl.h"
+#import "alljoyn/config/AJCFGConfigServiceListener.h"
+#import "alljoyn/config/AJCFGPropertyStoreImpl.h"
 
 /**
  ConfigServiceListener is the sample implementation. it creates and initialize a Config service Listener to handle Config service callbacks.

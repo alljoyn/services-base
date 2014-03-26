@@ -15,9 +15,9 @@
  ******************************************************************************/
 
 #import "AJCFGConfigClient.h"
-#import "ConfigClient.h"
-#import "AJSVCGenericLoggerAdapter.h"
-#import "AJSVCGenericLoggerDefaultImpl.h"
+#import "alljoyn/config/ConfigClient.h"
+#import "alljoyn/services_common/AJSVCGenericLoggerAdapter.h"
+#import "alljoyn/services_common/AJSVCGenericLoggerDefaultImpl.h"
 #import "alljoyn/about/AJNConvertUtil.h"
 #import "alljoyn/about/AJNAboutDataConverter.h"
 
