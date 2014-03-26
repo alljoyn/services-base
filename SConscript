@@ -1,4 +1,4 @@
-# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+# Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
@@ -19,14 +19,17 @@ Import('env')
 env['_ALLJOYN_SERVER_SAMPLE_'] = True
 
 build_all = ARGUMENTS.get('ALL', 0)
-if 'java' in env['bindings'] :
+if 'java' in env['bindings']:
     build_all = 1
 
 if int(build_all):
     build_config       = 1
     build_notification = 1
     build_cps          = 1
-    build_onboarding   = 1
+    if not 'cpp' in env['bindings']:
+        build_onboarding = 1
+    else:
+        build_onboarding = 0
 else:
     build_config       = int(ARGUMENTS.get('CONFIG',       0))
     build_notification = int(ARGUMENTS.get('NOTIFICATION', 0))
