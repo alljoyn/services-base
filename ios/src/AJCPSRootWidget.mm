@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import "AJCPSRootWidget.h"
-#import "RootWidget.h"
+#import "alljoyn/controlpanel/RootWidget.h"
 
 @interface AJCPSRootWidget ()
 

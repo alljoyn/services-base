@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import <Foundation/Foundation.h>
-#import "ConstraintRange.h"
+#import "alljoyn/controlpanel/ConstraintRange.h"
 #import "AJCPSControlPanelEnums.h"
 
 typedef union {

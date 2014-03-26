@@ -15,8 +15,8 @@
  ******************************************************************************/
 
 #import "AJCPSContainer.h"
-#import "Container.h"
-#import "Widget.h"
+#import "alljoyn/controlpanel/Container.h"
+#import "alljoyn/controlpanel/Widget.h"
 #import "AJCPSControlPanelDevice.h"
 #import "AJCPSAction.h"
 #import "AJCPSActionWithDialog.h"

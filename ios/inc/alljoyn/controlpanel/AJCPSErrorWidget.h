@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import <Foundation/Foundation.h>
-#import "ErrorWidget.h"
+#import "alljoyn/controlpanel/ErrorWidget.h"
 #import "AJCPSWidget.h"
 
 /**

@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 #import "alljoyn/Status.h"
-#import "ControlPanelControllerUnit.h"
+#import "alljoyn/controlpanel/ControlPanelControllerUnit.h"
 #import "AJCPSHttpControl.h"
 
 

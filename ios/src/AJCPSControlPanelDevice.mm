@@ -16,7 +16,7 @@
 
 #import "AJCPSControlPanelDevice.h"
 #import "alljoyn/about/AJNConvertUtil.h"
-#import "ControlPanelControllerUnit.h"
+#import "alljoyn/controlpanel/ControlPanelControllerUnit.h"
 #import "AJCPSControlPanelListenerAdapter.h"
 #import "AJCPSControlPanel.h"
 

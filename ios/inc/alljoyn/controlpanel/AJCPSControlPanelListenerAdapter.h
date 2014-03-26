@@ -14,7 +14,7 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#import "ControlPanelListener.h"
+#import "alljoyn/controlpanel/ControlPanelListener.h"
 #import "AJCPSControlPanelListener.h"
 #import "alljoyn/about/AJNConvertUtil.h"
 

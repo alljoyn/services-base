@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 #import "AJNBusAttachment.h"
-#import "HttpControl.h"
+#import "alljoyn/controlpanel/HttpControl.h"
 #import "AJCPSControlPanelEnums.h"
 
 @class AJCPSControlPanelDevice;

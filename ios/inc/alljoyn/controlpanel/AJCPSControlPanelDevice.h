@@ -17,7 +17,7 @@
 #import <Foundation/Foundation.h>
 #import "alljoyn/Status.h"
 #import "AJNSessionOptions.h"
-#import "ControlPanelDevice.h"
+#import "alljoyn/controlpanel/ControlPanelDevice.h"
 #import "AJCPSControlPanelControllerUnit.h"
 #import "AJCPSNotificationAction.h"
 #import "AJCPSControlPanelListener.h"

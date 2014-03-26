@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import <Foundation/Foundation.h>
-#import "LanguageSets.h"
+#import "alljoyn/controlpanel/LanguageSets.h"
 #import "AJCPSLanguageSet.h"
 
 /**

@@ -23,7 +23,7 @@
 #import "ClientInformation.h"
 #import "AnnounceTextViewController.h"
 #import "GetAboutCallViewController.h"
-#import "AJCPSGetControlPanelViewController.h"
+#import "alljoyn/controlpanel/AJCPSGetControlPanelViewController.h"
 #import "AuthenticationListenerImpl.h"
 #include <qcc/Log.h>
 

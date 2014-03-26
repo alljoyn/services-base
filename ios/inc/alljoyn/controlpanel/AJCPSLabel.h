@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import <Foundation/Foundation.h>
-#import "Label.h"
+#import "alljoyn/controlpanel/Label.h"
 #import "AJCPSWidget.h"
 
 /**
