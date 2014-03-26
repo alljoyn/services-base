@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -123,10 +123,6 @@ class OnboardingControllerImpl : public ajn::services::OnboardingControllerAPI {
      */
     ajn::services::OBLastError m_oBLastError;
 
-    /*
-     * Concurrency state
-     */
-    ajn::services::OBConcurrency m_concurrency;
 
     /**
      * Map of SSIDs to the ScanInfo with best quality for that SSID
@@ -152,6 +148,11 @@ class OnboardingControllerImpl : public ajn::services::OnboardingControllerAPI {
     qcc::String m_configureCmd;
     qcc::String m_connectCmd;
     qcc::String m_offboardCmd;
+
+    /*
+     * Concurrency state
+     */
+    ajn::services::OBConcurrency m_concurrency;
 };
 
 #endif

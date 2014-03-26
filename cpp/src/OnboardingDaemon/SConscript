@@ -1,4 +1,4 @@
-# Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
+# Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
@@ -36,19 +36,19 @@ if local_env['BR'] == 'on' and local_env.has_key('brobj') and local_env.has_key(
     # Build apps with bundled daemon support
     local_env.Prepend(LIBS = [local_env['brobj'], local_env['ajrlib']])
 
+# copy the wifi_scan_results to the dist for easier debug
+local_env.Install('$ONBOARDING_DISTDIR/bin', 'wifi_scan_results')
+
 local_env.Append(CPPPATH = local_env.Dir('$APP_COMMON_DIR/cpp/samples_common').srcnode())
 local_env.VariantDir('AppCommon', '$APP_COMMON_DIR/cpp/samples_common/', duplicate = 0)
 cobjs = local_env.SConscript('AppCommon/SConscript', {'env': local_env})
 
-# Sample programs
+srcs = local_env.Glob('*.cc')
+objs = local_env.Object(srcs)
+objs.extend(cobjs)
 
-sample_dirs = [
-    'OnboardingClientSample'
-    ]
+local_env.Install('$ONBOARDING_DISTDIR/bin', 'FactoryOnboardingService.conf')
+local_env.Install('$ONBOARDING_DISTDIR/bin', 'OnboardingService.conf')
+prog = local_env.Program('onboarding-daemon', objs)
 
-exports = { 'env': local_env, 'cobjs': cobjs }
-
-progs = [ local_env.SConscript('%s/SConscript' % sampleapp, exports = exports) for sampleapp in sample_dirs ]
-
-Return('progs')
-
+Return('prog')
