@@ -61,20 +61,12 @@ extern AJ_EXPORT uint8_t dbgAJSVCAPP;
 #define AJAPP_SLEEP_TIME          (1000 * 2) // A little pause to let things settle
 
 uint16_t servicePort = 0;
-const char SESSIONLESS_MATCH[] = "sessionless='t',type='error'"; //AddMatch to allow sessionless messages coming in
-
-#ifdef NOTIFICATION_SERVICE_CONSUMER
-uint8_t addSessionLessMatch = TRUE;
-#else
-uint8_t addSessionLessMatch = FALSE;
-#endif
 
 typedef enum {
     INIT_START = 0,
     INIT_SERVICES = INIT_START,
     INIT_SERVICES_PORT,
     INIT_ADVERTISE_NAME,
-    INIT_ADDSLMATCH,
     INIT_ABOUT,
     INIT_CHECK_ANNOUNCE,
     INIT_FINISHED = INIT_CHECK_ANNOUNCE
@@ -225,19 +217,7 @@ AJ_Status AJApp_ConnectedHandler(AJ_BusAttachment* busAttachment)
                 if (status != AJ_OK) {
                     goto ErrorExit;
                 }
-                if (addSessionLessMatch) {
-                    nextServicesInitializationState = INIT_ADDSLMATCH;
-                } else {
-                    nextServicesInitializationState = INIT_ABOUT;
-                }
-                break;
-
-            case INIT_ADDSLMATCH:
-                status = AJ_BusSetSignalRule(busAttachment, SESSIONLESS_MATCH, AJ_BUS_SIGNAL_ALLOW);
-                if (status != AJ_OK) {
-                    goto ErrorExit;
-                }
-                currentServicesInitializationState = INIT_ABOUT;
+                nextServicesInitializationState = INIT_ABOUT;
                 break;
 
             case INIT_ABOUT:
@@ -303,12 +283,6 @@ AJSVC_ServiceStatus AJApp_MessageProcessor(AJ_BusAttachment* busAttachment, AJ_M
 
         case INIT_ADVERTISE_NAME:
             if (msg->msgId == AJ_REPLY_ID(AJ_METHOD_ADVERTISE_NAME)) {
-                currentServicesInitializationState = nextServicesInitializationState;
-            }
-            break;
-
-        case INIT_ADDSLMATCH:
-            if (msg->msgId == AJ_REPLY_ID(AJ_METHOD_ADD_MATCH)) {
                 currentServicesInitializationState = nextServicesInitializationState;
             }
             break;

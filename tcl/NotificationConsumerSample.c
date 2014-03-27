@@ -57,7 +57,6 @@ AJ_EXPORT uint8_t dbgAJSVCAPP = ER_DEBUG_AJSVCAPP;
 #define ROUTER_NAME "org.alljoyn.BusNode"
 static uint8_t isBusConnected = FALSE;
 static AJ_BusAttachment busAttachment;
-static const char SESSIONLESS_MATCH[] = "sessionless='t',type='error'"; //AddMatch to allow sessionless messages coming in
 
 /**
  * Application wide callbacks
@@ -95,7 +94,6 @@ static uint32_t MyBusAuthPwdCB(uint8_t* buf, uint32_t bufLen)
 typedef enum {
     INIT_START = 0,
     INIT_SERVICES = INIT_START,
-    INIT_ADDSLMATCH,
     INIT_FINISHED
 } enum_init_state_t;
 
@@ -145,15 +143,7 @@ static AJ_Status AJApp_ConnectedHandler(AJ_BusAttachment* busAttachment)
                 if (status != AJ_OK) {
                     goto ErrorExit;
                 }
-                currentServicesInitializationState = nextServicesInitializationState = INIT_ADDSLMATCH;
-                break;
-
-            case INIT_ADDSLMATCH:
-                status = AJ_BusSetSignalRule(busAttachment, SESSIONLESS_MATCH, AJ_BUS_SIGNAL_ALLOW);
-                if (status != AJ_OK) {
-                    goto ErrorExit;
-                }
-                nextServicesInitializationState = INIT_FINISHED;
+                currentServicesInitializationState = nextServicesInitializationState = INIT_FINISHED;
                 break;
 
             case INIT_FINISHED:
@@ -175,12 +165,6 @@ static AJSVC_ServiceStatus AJApp_MessageProcessor(AJ_BusAttachment* busAttachmen
     AJSVC_ServiceStatus serviceStatus = AJSVC_SERVICE_STATUS_HANDLED;
 
     switch (currentServicesInitializationState) {
-    case INIT_ADDSLMATCH:
-        if (msg->msgId == AJ_REPLY_ID(AJ_METHOD_ADD_MATCH)) {
-            currentServicesInitializationState = nextServicesInitializationState;
-        }
-        break;
-
     default:
         serviceStatus = AJSVC_MessageProcessorAndDispatcher(busAttachment, msg, status);
         break;
