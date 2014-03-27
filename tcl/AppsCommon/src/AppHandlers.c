@@ -228,7 +228,7 @@ AJ_Status AJApp_ConnectedHandler(AJ_BusAttachment* busAttachment)
                 if (addSessionLessMatch) {
                     nextServicesInitializationState = INIT_ADDSLMATCH;
                 } else {
-                    nextServicesInitializationState = INIT_CHECK_ANNOUNCE;
+                    nextServicesInitializationState = INIT_ABOUT;
                 }
                 break;
 
