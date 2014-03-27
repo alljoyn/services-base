@@ -71,10 +71,10 @@ case NOTIFICATION_SIGNAL_PROD3
  * Static constants.
  */
 static const char SuperagentInterfaceName[]  = "org.alljoyn.Notification.Superagent";
-static const char notificationMatch[] = "interface='org.alljoyn.Notification'";
-static const char superAgentMatch[] = "interface='org.alljoyn.Notification.Superagent'";
-static const char superAgentFilterMatch[] = "interface='org.alljoyn.Notification.Superagent',sender='";
-static const char dismisserMatch[] = "interface='org.alljoyn.Notification.Dismisser'";
+static const char notificationMatch[] = "interface='org.alljoyn.Notification',sessionless='t'";
+static const char superAgentMatch[] = "interface='org.alljoyn.Notification.Superagent',sessionless='t'";
+static const char superAgentFilterMatch[] = "interface='org.alljoyn.Notification.Superagent',sessionless='t',sender='";
+static const char dismisserMatch[] = "interface='org.alljoyn.Notification.Dismisser',sessionless='t'";
 
 static const char* SuperagentInterface[] = {
     SuperagentInterfaceName,
