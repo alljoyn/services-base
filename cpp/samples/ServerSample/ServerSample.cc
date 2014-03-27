@@ -43,12 +43,6 @@
 #include <alljoyn/controlpanel/LanguageSets.h>
 #endif
 
-#ifdef _ONBOARDING_
-#include <alljoyn/onboarding/Onboarding.h>
-#include <alljoyn/onboarding/OnboardingService.h>
-#include <OnboardingControllerImpl.h>
-#endif
-
 using namespace ajn;
 using namespace services;
 
@@ -80,10 +74,6 @@ NotificationSender* sender = NULL;
 #ifdef _CONTROLPANEL_
 ControlPanelService* controlPanelService = NULL;
 ControlPanelControllee* controlPanelControllee = NULL;
-#endif
-
-#ifdef _ONBOARDING_
-static OnboardingControllerImpl* obController = NULL;
 #endif
 
 static void SigIntHandler(int sig) {
@@ -148,13 +138,6 @@ static void cleanup() {
     }
     if (controlPanelService) {
         delete controlPanelService;
-    }
-#endif
-
-#ifdef _ONBOARDING_
-    if (obController) {
-        delete obController;
-        obController = NULL;
     }
 #endif
 
@@ -400,44 +383,9 @@ int main(int argc, char**argv, char**envArg) {
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    //OnboardingService
-#ifdef _ONBOARDING_
-    obController = new OnboardingControllerImpl(opts.GetScanFile(),
-                                                opts.GetStateFile(),
-                                                opts.GetErrorFile(),
-                                                opts.GetConfigureCmd(),
-                                                opts.GetConnectCmd(),
-                                                opts.GetOffboardCmd(),
-                                                (OBConcurrency) opts.GetConcurrency(),
-                                                *msgBus);
-    OnboardingService onboardingService(*msgBus, *obController);
-
-    interfaces.clear();
-    interfaces.push_back("org.alljoyn.Onboarding");
-    aboutService->AddObjectDescription("/Onboarding", interfaces);
-
-    status = onboardingService.Register();
-    if (status != ER_OK) {
-        std::cout << "Could not register the OnboardingService." << std::endl;
-        cleanup();
-        return 1;
-    }
-
-    status = msgBus->RegisterBusObject(onboardingService);
-    if (status != ER_OK) {
-        std::cout << "Could not register the OnboardingService BusObject." << std::endl;
-        cleanup();
-        return 1;
-    }
-#endif
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
     //ConfigService
 #ifdef _CONFIG_
-#ifdef _ONBOARDING_
-    configServiceListenerImpl = new ConfigServiceListenerImpl(*propertyStoreImpl, *msgBus, *busListener, obController);
-#else
-    configServiceListenerImpl = new ConfigServiceListenerImpl(*propertyStoreImpl, *msgBus, *busListener, NULL);
-#endif
+    configServiceListenerImpl = new ConfigServiceListenerImpl(*propertyStoreImpl, *msgBus, *busListener);
     configService = new ConfigService(*msgBus, *propertyStoreImpl, *configServiceListenerImpl);
     configFile = opts.GetConfigFile().c_str();
     keyListener->setGetPassCode(readPassword);

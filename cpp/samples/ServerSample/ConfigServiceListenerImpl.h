@@ -21,9 +21,6 @@
 #include <PropertyStoreImpl.h>
 #include <CommonBusListener.h>
 
-//forward declaration
-class OnboardingControllerImpl;
-
 /**
  * class ConfigServiceListenerImpl
  * Config service Listener implementation
@@ -35,9 +32,8 @@ class ConfigServiceListenerImpl : public ajn::services::ConfigService::Listener 
      * @param store
      * @param bus
      * @param busListener
-     * @param obController
      */
-    ConfigServiceListenerImpl(PropertyStoreImpl& store, ajn::BusAttachment& bus, CommonBusListener& busListener, OnboardingControllerImpl* obController);
+    ConfigServiceListenerImpl(PropertyStoreImpl& store, ajn::BusAttachment& bus, CommonBusListener& busListener);
 
     /**
      * Method Restart
@@ -73,8 +69,6 @@ class ConfigServiceListenerImpl : public ajn::services::ConfigService::Listener 
     ajn::BusAttachment* m_Bus;
 
     CommonBusListener* m_BusListener;
-
-    OnboardingControllerImpl* m_OnboardingController;
 
     void PersistPassword(const char* daemonRealm, const char* passcode);
 };
