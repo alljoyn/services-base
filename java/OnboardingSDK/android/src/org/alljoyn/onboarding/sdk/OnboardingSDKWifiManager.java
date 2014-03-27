@@ -335,7 +335,7 @@ class OnboardingSDKWifiManager {
     /**
      * @return current connected AP  if connected to Wi-Fi else returns null.
      */
-     WiFiNetwork getCurrentConnectedAP() {
+    WiFiNetwork getCurrentConnectedAP() {
         Log.d(TAG, "getCurrentSSID: SupplicantState =  " + wifi.getConnectionInfo().getSupplicantState());
 
         // Check if we're still negotiating with the access point
@@ -569,23 +569,23 @@ class OnboardingSDKWifiManager {
      * @param timeout
      * @throws OnboardingIllegalArgumentException in case SSID not found in configured access points.
      */
-     void connectToWifiBySSID(String SSID,long timeout) throws OnboardingIllegalArgumentException{
+    void connectToWifiBySSID(String SSID,long timeout) throws OnboardingIllegalArgumentException{
 
-         final List<WifiConfiguration> wifiConfigs = wifi.getConfiguredNetworks();
+        final List<WifiConfiguration> wifiConfigs = wifi.getConfiguredNetworks();
 
-         WifiConfiguration wifiConfig=null;
+        WifiConfiguration wifiConfig=null;
 
-         for (WifiConfiguration w : wifiConfigs) {
-             if (w.SSID != null && isSsidEquals(w.SSID, SSID)) {
-                 wifiConfig=w;
-                 break;
-             }
-         }
-         if (wifiConfig!=null){
-             connect(wifiConfig,wifiConfig.networkId,timeout);
-         }else{
-             throw new OnboardingIllegalArgumentException("unable to find "+ SSID +" in list of configured networks");
-         }
+        for (WifiConfiguration w : wifiConfigs) {
+            if (w.SSID != null && isSsidEquals(w.SSID, SSID)) {
+                wifiConfig=w;
+                break;
+            }
+        }
+        if (wifiConfig!=null){
+            connect(wifiConfig,wifiConfig.networkId,timeout);
+        }else{
+            throw new OnboardingIllegalArgumentException("unable to find "+ SSID +" in list of configured networks");
+        }
     }
 
 
@@ -622,6 +622,8 @@ class OnboardingSDKWifiManager {
         if (wifi.getConnectionInfo().getSupplicantState() == SupplicantState.DISCONNECTED) {
             wifi.disconnect();
         }
+
+        wifi.saveConfiguration();
 
         res = wifi.enableNetwork(networkId, false);
         Log.d(TAG, "connect enableNetwork [false] status=" + res);
@@ -756,8 +758,9 @@ class OnboardingSDKWifiManager {
      * @return true if equals else false
      */
     static boolean isSsidEquals(String ssid1, String ssid2) {
-        if (ssid1 == null || ssid1.length() == 0 || ssid2 == null || ssid2.length() == 0)
+        if (ssid1 == null || ssid1.length() == 0 || ssid2 == null || ssid2.length() == 0) {
             return false;
+        }
         return normalizeSSID(ssid1).equals(normalizeSSID(ssid2));
     }
 
