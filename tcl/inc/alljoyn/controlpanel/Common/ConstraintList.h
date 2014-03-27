@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -17,17 +17,34 @@
 #ifndef CONSTRAINTLIST_H_
 #define CONSTRAINTLIST_H_
 
+/** @defgroup ConstraintList
+ *
+ *  @{
+ */
+
 #include <alljoyn/controlpanel/Definitions.h>
 #include <alljoyn.h>
 
+/**
+ * ConstraintList structure
+ */
 typedef struct {
-    const void* value;
-    const char* const* display;
-    const char* (*getDisplay)(uint16_t);
+    const void* value;                   //!< The constraint value
+    const char* const* display;          //!< The constraint display text
+    const char* (*getDisplay)(uint16_t); //!< Getter for the display text
 
 } ConstraintList;
 
+/**
+ * Marshal ConstraintList into given reply message
+ * @param constraints
+ * @param reply
+ * @param numConstraints
+ * @param signature
+ * @param language
+ */
 AJ_Status marshalConstraintList(ConstraintList* constraints, AJ_Message* reply, uint16_t numConstraints,
                                 const char* signature, uint16_t language);
 
+/** @} */
 #endif /* CONTRAINTVALUES_H_ */

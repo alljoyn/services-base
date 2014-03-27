@@ -17,55 +17,106 @@
 #ifndef PROPERTYWIDGET_H_
 #define PROPERTYWIDGET_H_
 
+/** @defgroup PropertyWidget
+ *
+ *  @{
+ */
+
 #include <alljoyn/controlpanel/Common/BaseWidget.h>
 #include <alljoyn/controlpanel/Common/ConstraintList.h>
 #include <alljoyn/controlpanel/Common/ConstraintRange.h>
 
+/**
+ * PropertyType enumeration
+ */
 typedef enum {
-    SINGLE_VALUE_PROPERTY = 0,
-    DATE_VALUE_PROPERTY = 1,
-    TIME_VALUE_PROPERTY = 2,
+    SINGLE_VALUE_PROPERTY = 0, //!< SINGLE_VALUE_PROPERTY - Property has a simple scalar value
+    DATE_VALUE_PROPERTY = 1,   //!< DATE_VALUE_PROPERTY   - Property has a Date value (DatePropertyValue)
+    TIME_VALUE_PROPERTY = 2,   //!< TIME_VALUE_PROPERTY   - Property has a Time value (TimePropertyValue)
 } PropertyType;
 
 struct PropertyWidget;
 
 /////////////////////////* PropertyWidget OptParams *//////////////////////////////////////
 
+/**
+ * PropertyOptParams structure
+ */
 typedef struct {
-    const char* const* unitOfMeasure;
-    const char* (*getUnitOfMeasure)(struct PropertyWidget* thisWidget, uint16_t);
+    const char* const* unitOfMeasure;                                             //!< The unit of measurement e.g. "cm"
+    const char* (*getUnitOfMeasure)(struct PropertyWidget* thisWidget, uint16_t); //!< Getter for the unit of measurement
 
-    ConstraintList* constraintList;
-    uint16_t numConstraints;
+    ConstraintList* constraintList;                                               //!< The list of Constraints defined for the Property's value
+    uint16_t numConstraints;                                                      //!< The number of Constraints in the list
 
-    ConstraintRange constraintRange;
-    uint8_t constraintRangeDefined;
+    ConstraintRange constraintRange;                                              //!< ConstraintRange defined for the Property's value
+    uint8_t constraintRangeDefined;                                               //!< Flag indicating the presence of Range definition for the Constraint
 
 } PropertyOptParams;
 
+/**
+ * Initialize PropertyOptParam
+ */
 void initializePropertyOptParam(PropertyOptParams* widget);
 
 /////////////////////////*     PropertyWidget     *//////////////////////////////////////
 
+/**
+ * PropertyWidget structure
+ */
 typedef struct PropertyWidget {
-    BaseWidget base;
-    PropertyType propertyType;
+    BaseWidget base;                                      //!< Internal BaseWidget
 
-    const char* signature;
-    void* (*getValue)(struct PropertyWidget* thisWidget);
+    PropertyType propertyType;                            //!< The PropertyType
 
-    PropertyOptParams optParams;
+    const char* signature;                                //!< The Property's signature
+    void* (*getValue)(struct PropertyWidget* thisWidget); //!< Getter for the Property's value
 
+    PropertyOptParams optParams;                          //!< Property optional parameters
 } PropertyWidget;
 
+/**
+ * Initialize PropertyWidget
+ * @param widget - assumed to be a PropertyWidget
+ */
 void initializePropertyWidget(PropertyWidget* widget);
 
+/**
+ * Marshal PropertyValue into given reply message
+ * @param widget - assumed to be a PropertyWidget
+ * @param reply
+ * @param language
+ * @return aj_status
+ */
 AJ_Status marshalPropertyValue(PropertyWidget* widget, AJ_Message* reply, uint16_t language);
 
+/**
+ * Unmarshal PropertyValue from given message
+ * @param widget - assumed to be a PropertyWidget
+ * @param message
+ * @param newValue
+ * @param lockerId
+ * @return aj_status
+ */
 AJ_Status unmarshalPropertyValue(PropertyWidget* widget, AJ_Message* message, void* newValue, const char* lockerId);
 
+/**
+ * Marshal PropertyOptParam into given reply message
+ * @param widget
+ * @param reply
+ * @param language
+ * @return aj_status
+ */
 AJ_Status marshalPropertyOptParam(BaseWidget* widget, AJ_Message* reply, uint16_t language);
 
+/**
+ * Marshal All Property Properties from given widget into given reply message
+ * @param widget
+ * @param reply
+ * @param language
+ * @return aj_status
+ */
 AJ_Status marshalAllPropertyProperties(BaseWidget* widget, AJ_Message* reply, uint16_t language);
 
+/** @} */
 #endif /* PROPERTYWIDGET_H_ */

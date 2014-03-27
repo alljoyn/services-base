@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -17,14 +17,27 @@
 #ifndef CONTAINERWIDGET_H_
 #define CONTAINERWIDGET_H_
 
+/** @defgroup ContainerWidget
+ *
+ *  @{
+ */
+
 #include <alljoyn/controlpanel/Common/BaseWidget.h>
 
 /////////////////////////*     ContainerWidget     *//////////////////////////////////////
 
+/**
+ * ContainerWidget structure
+ */
 typedef struct {
-    BaseWidget base;
+    BaseWidget base; //!< Internal BaseWidget
 } ContainerWidget;
 
+/**
+ * Initialize ContainerWidget
+ * @param widget - assumed to be a ContainerWidget
+ */
 void initializeContainerWidget(ContainerWidget* widget);
 
+/** @} */
 #endif /* CONTAINERWIDGET_H_ */

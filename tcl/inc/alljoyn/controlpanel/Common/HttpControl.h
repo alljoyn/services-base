@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -17,15 +17,30 @@
 #ifndef HTTPCONTROL_H_
 #define HTTPCONTROL_H_
 
+/** @defgroup HttpControl
+ *
+ *  @{
+ */
+
 #include <alljoyn.h>
 
+/**
+ * HttpControl structure
+ */
 typedef struct {
-    const char* url;
-    const char* (*getUrl)();
+    const char* url;         //!< The url of the Http control
+    const char* (*getUrl)(); //!< Getter for the url of the Http control
 } HttpControl;
 
+/**
+ * Initialize HttpControl
+ */
 void initializeHttpControl(HttpControl* httpControl);
 
+/**
+ * Marshal HttpControlUrl into given reply message
+ */
 AJ_Status marshalHttpControlUrl(HttpControl* httpControl, AJ_Message* reply, uint16_t language);
 
+/** @} */
 #endif /* HTTPCONTROL_H_ */
