@@ -16,12 +16,15 @@
 
 #include <alljoyn/controlpanel/Common/ConstraintList.h>
 #include <alljoyn/controlpanel/Common/ControlMarshalUtil.h>
+#include <alljoyn/controlpanel/Widgets/PropertyWidget.h>
 
-AJ_Status marshalConstraintList(ConstraintList* constraints, AJ_Message* reply, uint16_t numConstraints,
+AJ_Status marshalConstraintList(BaseWidget* widget, ConstraintList* constraints, AJ_Message* reply, uint16_t numConstraints,
                                 const char* signature, uint16_t language)
 {
     AJ_Status status;
     AJ_Arg arrayArg, opParams;
+    uint16_t cnt;
+    PropertyWidget* propWidget = (PropertyWidget*)widget;
 
     status = StartComplexOptionalParam(reply, &opParams, PROPERTY_CONSTRAINT_LIST, PROPERTY_CONSTRAINT_LIST_SIG);
     if (status != AJ_OK) {
@@ -33,18 +36,21 @@ AJ_Status marshalConstraintList(ConstraintList* constraints, AJ_Message* reply, 
         return status;
     }
 
-    uint16_t cnt;
     for (cnt = 0; cnt < numConstraints; cnt++) {
-        if (constraints[cnt].getDisplay != 0) {
-            status = AddConstraintValue(reply, signature, constraints[cnt].value, constraints[cnt].getDisplay(language));
-            if (status != AJ_OK) {
-                return status;
-            }
+        const void* value;
+        const char* display;
+        if (propWidget->optParams.getConstraint) {
+            display = propWidget->optParams.getConstraint(propWidget, cnt, &value, language);
+        } else if (constraints[cnt].getDisplay != 0) {
+            value = constraints[cnt].value;
+            display = constraints[cnt].getDisplay(language);
         } else {
-            status = AddConstraintValue(reply, signature, constraints[cnt].value, constraints[cnt].display[language]);
-            if (status != AJ_OK) {
-                return status;
-            }
+            value = constraints[cnt].value;
+            display = constraints[cnt].display[language];
+        }
+        status = AddConstraintValue(reply, signature, value, display);
+        if (status != AJ_OK) {
+            return status;
         }
     }
 

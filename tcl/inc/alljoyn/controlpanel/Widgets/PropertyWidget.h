@@ -47,6 +47,18 @@ typedef struct {
     const char* const* unitOfMeasure;                                             //!< The unit of measurement e.g. "cm"
     const char* (*getUnitOfMeasure)(struct PropertyWidget* thisWidget, uint16_t); //!< Getter for the unit of measurement
 
+    /**
+     * Optional function that provices an alternative way to lookup constraint information. If this function pointer is non-NULL this
+     * function is called to obtain contraint information and the contstraintList is ignored
+     *
+     * @param thisWidget Identifies the property widget that has constraints.
+     * @param index      The index of the constraint value requested
+     * @param val        A pointer to return the constraint value
+     * @param language   Specifies the language index for the returned text label.
+     *
+     * @return Returns the text label for the requested constraint.
+     */
+    const char* (*getConstraint)(struct PropertyWidget* thisWidget, uint16_t index, const void** val, uint16_t language);
     ConstraintList* constraintList;                                               //!< The list of Constraints defined for the Property's value
     uint16_t numConstraints;                                                      //!< The number of Constraints in the list
 

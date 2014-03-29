@@ -66,13 +66,7 @@ AJ_Status unmarshalPropertyValue(PropertyWidget* widget, AJ_Message* message, vo
 
 void initializePropertyOptParam(PropertyOptParams* optParams)
 {
-    optParams->unitOfMeasure = NULL;
-    optParams->getUnitOfMeasure = NULL;
-
-    optParams->constraintList = NULL;
-    optParams->numConstraints = 0;
-
-    optParams->constraintRangeDefined = FALSE;
+    memset(optParams, 0, sizeof(PropertyOptParams));
     initializeConstraintRange(&optParams->constraintRange);
 }
 
@@ -106,8 +100,8 @@ AJ_Status marshalPropertyOptParam(BaseWidget* widget, AJ_Message* reply, uint16_
         }
     }
 
-    if (optParams->constraintList && optParams->numConstraints) {
-        status = marshalConstraintList(optParams->constraintList, reply, optParams->numConstraints, ((PropertyWidget*)widget)->signature, language);
+    if ((optParams->constraintList || optParams->getConstraint) && optParams->numConstraints) {
+        status = marshalConstraintList(widget, optParams->constraintList, reply, optParams->numConstraints, ((PropertyWidget*)widget)->signature, language);
         if (status != AJ_OK) {
             return status;
         }

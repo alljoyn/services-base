@@ -23,6 +23,7 @@
  */
 
 #include <alljoyn/controlpanel/Definitions.h>
+#include "BaseWidget.h"
 #include <alljoyn.h>
 
 /**
@@ -31,19 +32,20 @@
 typedef struct {
     const void* value;                   //!< The constraint value
     const char* const* display;          //!< The constraint display text
-    const char* (*getDisplay)(uint16_t); //!< Getter for the display text
+    const char* (*getDisplay)(uint16_t language); //!< Getter for the display text
 
 } ConstraintList;
 
 /**
  * Marshal ConstraintList into given reply message
+ * @param widget
  * @param constraints
  * @param reply
  * @param numConstraints
  * @param signature
  * @param language
  */
-AJ_Status marshalConstraintList(ConstraintList* constraints, AJ_Message* reply, uint16_t numConstraints,
+AJ_Status marshalConstraintList(BaseWidget* widget, ConstraintList* constraints, AJ_Message* reply, uint16_t numConstraints,
                                 const char* signature, uint16_t language);
 
 /** @} */
