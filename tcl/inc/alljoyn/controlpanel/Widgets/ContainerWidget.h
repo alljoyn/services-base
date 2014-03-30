@@ -17,7 +17,7 @@
 #ifndef CONTAINERWIDGET_H_
 #define CONTAINERWIDGET_H_
 
-/** @defgroup ContainerWidget
+/** @defgroup ContainerWidget Container Widget
  *
  *  @{
  */

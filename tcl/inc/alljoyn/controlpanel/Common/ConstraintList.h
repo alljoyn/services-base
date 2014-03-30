@@ -17,7 +17,7 @@
 #ifndef CONSTRAINTLIST_H_
 #define CONSTRAINTLIST_H_
 
-/** @defgroup ConstraintList
+/** @defgroup ConstraintList Contraint List
  *
  *  @{
  */

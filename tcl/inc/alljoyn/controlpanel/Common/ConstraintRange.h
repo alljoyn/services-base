@@ -17,7 +17,7 @@
 #ifndef CONSTRAINTRANGE_H_
 #define CONSTRAINTRANGE_H_
 
-/** @defgroup ConstraintRange
+/** @defgroup ConstraintRange Contraint Range
  *
  *  @{
  */

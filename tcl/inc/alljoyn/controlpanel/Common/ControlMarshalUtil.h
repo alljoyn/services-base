@@ -17,10 +17,21 @@
 #ifndef CONTROL_MARSHAL_UTIL_H_
 #define CONTROL_MARSHAL_UTIL_H_
 
+/** @defgroup ControlMarshalUtil Control Marshaling Utilities
+ * details Functions that assist in Marshaling Controls.
+ *  @{
+ */
+
 #include <alljoyn.h>
 #include <alljoyn/controlpanel/Definitions.h>
 #include <alljoyn/controlpanel/Common/BaseWidget.h>
 
+/**
+ * StartOptionalParams - Start Marshaling the Optional Parameters' container array.
+ * @param reply
+ * @param arg
+ * @return aj_status
+ */
 #define StartOptionalParams(reply, arg) AJ_MarshalContainer(reply, arg, AJ_ARG_ARRAY)
 
 /**
@@ -84,7 +95,7 @@ AJ_Status AddBasicOptionalParam(AJ_Message* reply, uint16_t key, const char* sig
  * @return aj_status
  */
 AJ_Status AddPropertyForGetAll(AJ_Message* reply, char* key, const char* sig,
-                               BaseWidget* widget, uint16_t lang, MarshalWidgetFptr functionPtr);
+                               BaseWidget* widget, uint16_t language, MarshalWidgetFptr functionPtr);
 
 /**
  * Helper functions. Receives sig value and void* and does the marshalling
@@ -109,4 +120,5 @@ AJ_Status MarshalAllRootProperties(AJ_Message* reply);
  */
 AJ_Status MarshalVersionRootProperties(AJ_Message* reply);
 
+/** @} */
 #endif /* CONTROL_SERVICE_H_ */

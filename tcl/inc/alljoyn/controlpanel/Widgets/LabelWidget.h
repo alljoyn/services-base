@@ -17,7 +17,7 @@
 #ifndef LABELWIDGET_H_
 #define LABELWIDGET_H_
 
-/** @defgroup PropertyWidget
+/** @defgroup LabelWidget Label Widget
  *
  *  @{
  */

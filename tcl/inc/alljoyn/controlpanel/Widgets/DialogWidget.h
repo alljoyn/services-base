@@ -17,8 +17,9 @@
 #ifndef DIALOGWIDGET_H_
 #define DIALOGWIDGET_H_
 
-/** @defgroup ActionWidget
- *
+/** @defgroup DialogWidget Dialog Widget
+ * details Dialog Widget Struct and Functions that assist in Un/Marshaling
+ * Dialog Widget from/to a message.
  *  @{
  */
 

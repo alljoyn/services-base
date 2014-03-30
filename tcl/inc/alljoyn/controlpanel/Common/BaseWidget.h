@@ -17,8 +17,9 @@
 #ifndef BASEWIDGET_H_
 #define BASEWIDGET_H_
 
-/** @defgroup ConstraintList
- *
+/** @defgroup BaseWidget Base Widget
+ * details Base Widget struct and Functions that assist in Un/Marshaling
+ * Widgets from/to a message.
  *  @{
  */
 

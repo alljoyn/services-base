@@ -17,8 +17,9 @@
 #ifndef DATETIMEUTIL_H_
 #define DATETIMEUTIL_H_
 
-/** @defgroup DateTimeUtil
- *
+/** @defgroup DateTimeUtil Date and Time Utilities
+ * details Structs and Functions that assist in Un/Marshaling
+ * Date and Time Properties from/to a message.
  *  @{
  */
 

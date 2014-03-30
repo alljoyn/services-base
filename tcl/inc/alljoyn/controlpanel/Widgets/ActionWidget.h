@@ -17,8 +17,9 @@
 #ifndef ACTIONWIDGET_H_
 #define ACTIONWIDGET_H_
 
-/** @defgroup ActionWidget
- *
+/** @defgroup ActionWidget Action Widget
+ * details Action Widget Struct and Functions that assist in Un/Marshaling
+ * Action Widget from/to a message.
  *  @{
  */
 

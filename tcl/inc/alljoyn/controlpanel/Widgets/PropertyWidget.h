@@ -17,8 +17,9 @@
 #ifndef PROPERTYWIDGET_H_
 #define PROPERTYWIDGET_H_
 
-/** @defgroup PropertyWidget
- *
+/** @defgroup PropertyWidget Property Widget
+ * details Property Widget Struct and Functions that assist in Un/Marshaling
+ * Property from/to a message.
  *  @{
  */
 

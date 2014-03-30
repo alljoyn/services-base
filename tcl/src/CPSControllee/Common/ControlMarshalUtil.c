@@ -122,7 +122,7 @@ AJ_Status AddBasicOptionalParam(AJ_Message* reply, uint16_t key, const char* sig
 }
 
 AJ_Status AddPropertyForGetAll(AJ_Message* reply, char* key, const char* sig,
-                               BaseWidget* widget, uint16_t lang, MarshalWidgetFptr functionPtr)
+                               BaseWidget* widget, uint16_t language, MarshalWidgetFptr functionPtr)
 {
     AJ_Status status;
     AJ_Arg dictArg;
@@ -139,7 +139,7 @@ AJ_Status AddPropertyForGetAll(AJ_Message* reply, char* key, const char* sig,
     if (status != AJ_OK) {
         return status;
     }
-    status = functionPtr(widget, reply, lang);
+    status = functionPtr(widget, reply, language);
     if (status != AJ_OK) {
         return status;
     }

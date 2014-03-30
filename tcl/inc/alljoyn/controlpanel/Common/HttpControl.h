@@ -17,8 +17,9 @@
 #ifndef HTTPCONTROL_H_
 #define HTTPCONTROL_H_
 
-/** @defgroup HttpControl
- *
+/** @defgroup HttpControl Http Control
+ * details Http Control Struct and Functions that assist in Marshaling
+ * HttpControl into a message.
  *  @{
  */
 
