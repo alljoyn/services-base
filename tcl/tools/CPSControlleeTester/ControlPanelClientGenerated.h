@@ -24,7 +24,7 @@
 #include <alljoyn/controlpanel/Widgets/LabelWidget.h>
 #include <alljoyn/controlpanel/Widgets/DialogWidget.h>
 #include <alljoyn/controlpanel/Common/HttpControl.h>
-#include <alljoyn/services_common/Services_Common.h>
+#include <alljoyn/services_common/ServicesCommon.h>
 
 /**
  * Defines and objectPaths

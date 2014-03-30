@@ -21,7 +21,7 @@
 #include <alljoyn/controlpanel/Definitions.h>
 
 #ifdef CONTROLPANEL_SERVICE
-#include <alljoyn/services_common/Services_Common.h>
+#include <alljoyn/services_common/ServicesCommon.h>
 #else
 #define NUM_PRE_CONTROLPANEL_OBJECTS 0
 #include "ControlPanelClientGenerated.h"
