@@ -28,7 +28,7 @@
  * @param reply
  * @param hints
  * @param numHints
- * @return status
+ * @return aj_status
  */
 AJ_Status AddHints(AJ_Message* reply, const uint16_t hints[], uint16_t numHints);
 
@@ -38,7 +38,7 @@ AJ_Status AddHints(AJ_Message* reply, const uint16_t hints[], uint16_t numHints)
  * @param sig
  * @param value
  * @param displayValue
- * @return status
+ * @return aj_status
  */
 AJ_Status AddConstraintValue(AJ_Message* reply, const char* sig, const void* value, const char* displayValue);
 
@@ -49,7 +49,7 @@ AJ_Status AddConstraintValue(AJ_Message* reply, const char* sig, const void* val
  * @param min
  * @param max
  * @param increment
- * @return status
+ * @return aj_status
  */
 AJ_Status AddConstraintRange(AJ_Message* reply, const char* valueSig, const void* min, const void* max, const void* increment);
 
@@ -59,7 +59,7 @@ AJ_Status AddConstraintRange(AJ_Message* reply, const char* valueSig, const void
  * @param arg
  * @param key
  * @param sig
- * @return status
+ * @return aj_status
  */
 AJ_Status StartComplexOptionalParam(AJ_Message* reply, AJ_Arg* arg, uint16_t key, const char* sig);
 
@@ -69,7 +69,7 @@ AJ_Status StartComplexOptionalParam(AJ_Message* reply, AJ_Arg* arg, uint16_t key
  * @param key
  * @param sig
  * @param value
- * @return status
+ * @return aj_status
  */
 AJ_Status AddBasicOptionalParam(AJ_Message* reply, uint16_t key, const char* sig, const void* value);
 
@@ -81,7 +81,7 @@ AJ_Status AddBasicOptionalParam(AJ_Message* reply, uint16_t key, const char* sig
  * @param widget
  * @param language
  * @param functionPtr
- * @return status
+ * @return aj_status
  */
 AJ_Status AddPropertyForGetAll(AJ_Message* reply, char* key, const char* sig,
                                BaseWidget* widget, uint16_t lang, MarshalWidgetFptr functionPtr);
@@ -98,14 +98,14 @@ AJ_Status MarshalVariant(AJ_Message* reply, const char* sig, const void* value);
 /**
  * MarshalAllRootProperties - includes only version
  * @param reply
- * @return status
+ * @return aj_status
  */
 AJ_Status MarshalAllRootProperties(AJ_Message* reply);
 
 /**
  * Marshal Version Property for root interfaces
  * @param reply
- * @return status
+ * @return aj_status
  */
 AJ_Status MarshalVersionRootProperties(AJ_Message* reply);
 

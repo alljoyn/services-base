@@ -17,22 +17,49 @@
 #ifndef LABELWIDGET_H_
 #define LABELWIDGET_H_
 
+/** @defgroup PropertyWidget
+ *
+ *  @{
+ */
+
 #include <alljoyn/controlpanel/Common/BaseWidget.h>
 
 /////////////////////////*     LabelWidget     *//////////////////////////////////////
 
+/**
+ * LabelWidget structure
+ */
 typedef struct LabelWidget {
-    BaseWidget base;
+    BaseWidget base;                                                   //!< Internal BaseWidget
 
-    const char* const* label;
-    const char* (*getLabel)(struct LabelWidget* thisWidget, uint16_t);
+    const char* const* label;                                          //!< The label text
+    const char* (*getLabel)(struct LabelWidget* thisWidget, uint16_t); //!< Getter to the label text
 } LabelWidget;
 
+/**
+ * Initialize LabelWidget
+ * @param widget - assumed to be a LabelWidget
+ */
 void initializeLabelWidget(LabelWidget* widget);
 
+/**
+ * Marshal Label of given widget into given reply message
+ * @param widget - assumed to be a LabelWidget
+ * @param reply
+ * @param language
+ * @return aj_status
+ */
 AJ_Status marshalLabelLabel(LabelWidget* widget, AJ_Message* reply, uint16_t language);
 
+/**
+ * Marshal All LabelProperties of given widget into given reply message
+ * @param widget
+ * @param reply
+ * @param language
+ * @return aj_status
+ */
 AJ_Status marshalAllLabelProperties(BaseWidget* widget, AJ_Message* reply, uint16_t language);
 
+/** @} */
 #endif /* LABELWIDGET_H_ */
 

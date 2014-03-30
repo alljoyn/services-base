@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -17,15 +17,28 @@
 #ifndef ACTIONWIDGET_H_
 #define ACTIONWIDGET_H_
 
+/** @defgroup ActionWidget
+ *
+ *  @{
+ */
+
 #include <alljoyn/controlpanel/Common/BaseWidget.h>
 
 /////////////////////////*     ActionWidget     *//////////////////////////////////////
 
+/**
+ * ActionWidget structure
+ */
 typedef struct ActionWidget {
-    BaseWidget base;
+    BaseWidget base; //!< Internal BaseWidget
 } ActionWidget;
 
+/**
+ * Initialize ActionWidget
+ * @param widget - assumed to be an ActionWidget
+ */
 void initializeActionWidget(ActionWidget* widget);
 
+/** @} */
 #endif /* ACTIONWIDGET_H_ */
 
