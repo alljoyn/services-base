@@ -32,7 +32,7 @@
 #include <alljoyn/onboarding/OnboardingService.h>
 #include <alljoyn/onboarding/OnboardingManager.h>
 #include <alljoyn/services_common/PropertyStore.h>
-#include <alljoyn/services_common/Services_Common.h>
+#include <alljoyn/services_common/ServicesCommon.h>
 #include <alljoyn/services_common/ServicesHandlers.h>
 #include <aj_nvram.h>
 

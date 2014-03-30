@@ -18,7 +18,7 @@
 #define _APP_HANDLERS_H_
 
 #include <alljoyn.h>
-#include <alljoyn/services_common/Services_Common.h>
+#include <alljoyn/services_common/ServicesCommon.h>
 
 /**
  * Initialize the Services. called at the start of the application

@@ -26,7 +26,7 @@
 #include <errno.h>
 #include "PropertyStoreOEMProvisioning.h"
 #include <alljoyn/services_common/PropertyStore.h>
-#include <alljoyn/services_common/Services_Common.h>
+#include <alljoyn/services_common/ServicesCommon.h>
 #ifdef ONBOARDING_SERVICE
     #include <alljoyn/onboarding/OnboardingManager.h>
 #endif

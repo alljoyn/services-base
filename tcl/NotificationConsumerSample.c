@@ -27,7 +27,7 @@
 #include <aj_creds.h>
 #include <aj_nvram.h>
 #include <aj_link_timeout.h>
-#include <alljoyn/services_common/Services_Common.h>
+#include <alljoyn/services_common/ServicesCommon.h>
 #include <alljoyn/services_common/ServicesHandlers.h>
 #include "PropertyStoreOEMProvisioning.h"
 
