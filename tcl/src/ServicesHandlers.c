@@ -17,15 +17,15 @@
 /**
  * Per-module definition of the current module for debug logging.  Must be defined
  * prior to first inclusion of aj_debug.h.
- * The corresponding flag dbgAJSVC is defined in services_common.h and implemented
- * in services_common.c.
+ * The corresponding flag dbgAJSVC is defined in ServicesCommon.h and implemented
+ * in ServicesCommon.c.
  */
 #define AJ_MODULE AJSVC
 #include <aj_debug.h>
 
 #include <alljoyn.h>
 
-#include <alljoyn/services_common/Services_Common.h>
+#include <alljoyn/services_common/ServicesCommon.h>
 #include <alljoyn/services_common/PropertyStore.h>
 #include <alljoyn/services_common/ServicesHandlers.h>
 #ifdef ONBOARDING_SERVICE

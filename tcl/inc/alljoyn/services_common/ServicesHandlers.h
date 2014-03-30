@@ -18,7 +18,7 @@
 #define _SERVICES_HANDLERS_H_
 
 #include <alljoyn.h>
-#include <alljoyn/services_common/Services_Common.h>
+#include <alljoyn/services_common/ServicesCommon.h>
 
 /**
  * Functions to call after the Router is Connected
