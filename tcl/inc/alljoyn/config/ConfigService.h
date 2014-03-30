@@ -17,7 +17,7 @@
 #ifndef _CONFIGSERVICE_H_
 #define _CONFIGSERVICE_H_
 
-/** @defgroup Config Service Framework
+/** @defgroup ConfigService Config Service Framework
  *
  *  @{
  */
