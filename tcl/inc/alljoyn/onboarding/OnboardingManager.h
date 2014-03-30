@@ -17,7 +17,7 @@
 #ifndef _ONBOARDINGMANAGER_H_
 #define _ONBOARDINGMANAGER_H_
 
-/** @defgroup OnboardingManager Manages Onboarding
+/** @defgroup OnboardingManager Onboarding State Management
  *
  *  @{
  */
@@ -26,7 +26,7 @@
 #include <alljoyn/onboarding/OnboardingService.h>
 
 /**
- * Is there a WiFi connection?
+ * Is there a Wi-Fi connection?
  */
 uint8_t AJOBS_IsWiFiConnected();
 
@@ -37,7 +37,7 @@ uint8_t AJOBS_IsWiFiConnected();
 #define AJOBS_ERROR_MESSAGE_LEN 32    /**< error message length */
 
 /**
- * maximum number of scan info results.
+ * Maximum number of scan info results.
  */
 #define AJOBS_MAX_SCAN_INFOS 5
 
@@ -60,7 +60,7 @@ typedef enum _AJOBS_AuthType {
 } AJOBS_AuthType;
 
 /**
- * onboarding states
+ * Onboarding states
  */
 typedef enum _AJOBS_State {
     AJOBS_STATE_NOT_CONFIGURED = 0,
@@ -224,7 +224,7 @@ AJ_Status AJOBS_Start(const AJOBS_Settings* settings, AJOBS_ReadInfo readInfo, A
 AJ_Status AJOBS_ClearInfo();
 
 /**
- * Establish a WiFi connection either as:
+ * Establish a Wi-Fi connection either as:
  * a) a SoftAP station with a connected client or
  * b) as a client to the currently configured AP
  * @return aj_status
@@ -239,7 +239,7 @@ AJ_Status AJOBS_EstablishWiFi();
 void AJOBS_SwitchToRetry();
 
 /**
- * Disconnect from the current WiFi connection and go into Idle mode.
+ * Disconnect from the current Wi-Fi connection and go into Idle mode.
  * @return aj_status
  */
 AJ_Status AJOBS_DisconnectWiFi();

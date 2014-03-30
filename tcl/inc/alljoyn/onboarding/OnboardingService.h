@@ -17,7 +17,7 @@
 #ifndef _ONBOARDINGSERVICE_H_
 #define _ONBOARDINGSERVICE_H_
 
-/** @defgroup OnboardingService Service Framework
+/** @defgroup OnboardingService Onboarding Service Framework
  *
  *  @{
  */
@@ -34,30 +34,30 @@ extern const AJ_InterfaceDescription AJSVC_OnboardingInterfaces[];
  * Following definitions are read by the application.
  */
 
-#define NUM_ONBOARDING_OBJECTS 1                                          /**< number of onboarding objects */
+#define NUM_ONBOARDING_OBJECTS 1                                                    /**< number of onboarding objects */
 
 #define ONBOARDING_APPOBJECTS   \
-    { "/Onboarding",         AJSVC_OnboardingInterfaces, AJ_OBJ_FLAG_ANNOUNCED },  /**< onboarding interfaces */
+    { "/Onboarding",           AJSVC_OnboardingInterfaces, AJ_OBJ_FLAG_ANNOUNCED }, /**< onboarding interfaces */
 
 /*
  * Message identifiers for the method calls this service implements
  */
 
-#define OBS_OBJECT_INDEX                                        NUM_PRE_ONBOARDING_OBJECTS                                /**< number of pre onboarding objects */
+#define OBS_OBJECT_INDEX       NUM_PRE_ONBOARDING_OBJECTS                           /**< number of pre onboarding objects */
 
-#define OBS_GET_PROP                                            AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 0, AJ_PROP_GET)       /**< property get */
-#define OBS_SET_PROP                                            AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 0, AJ_PROP_SET)       /**< property set */
+#define OBS_GET_PROP           AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 0, AJ_PROP_GET)  /**< property get */
+#define OBS_SET_PROP           AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 0, AJ_PROP_SET)  /**< property set */
 
-#define OBS_VERSION_PROP                                        AJ_APP_PROPERTY_ID(OBS_OBJECT_INDEX, 1, 0)                /**< version property index */
-#define OBS_STATE_PROP                                          AJ_APP_PROPERTY_ID(OBS_OBJECT_INDEX, 1, 1)                /**< state property */
-#define OBS_LASTERROR_PROP                                      AJ_APP_PROPERTY_ID(OBS_OBJECT_INDEX, 1, 2)                /**< last error property */
-#define OBS_CONFIGURE_WIFI                                      AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 1, 3)                 /**< configure wifi */
-#define OBS_CONNECT                                             AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 1, 4)                 /**< connect */
-#define OBS_OFFBOARD                                            AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 1, 5)                 /**< offboard */
-#define OBS_GET_SCAN_INFO                                       AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 1, 6)                 /**< get scan info */
-#define OBS_CONNECTION_RESULT                                   AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 1, 7)                 /**< connection result */
+#define OBS_VERSION_PROP       AJ_APP_PROPERTY_ID(OBS_OBJECT_INDEX, 1, 0)           /**< version property index */
+#define OBS_STATE_PROP         AJ_APP_PROPERTY_ID(OBS_OBJECT_INDEX, 1, 1)           /**< state property */
+#define OBS_LASTERROR_PROP     AJ_APP_PROPERTY_ID(OBS_OBJECT_INDEX, 1, 2)           /**< last error property */
+#define OBS_CONFIGURE_WIFI     AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 1, 3)            /**< configure wifi */
+#define OBS_CONNECT            AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 1, 4)            /**< connect */
+#define OBS_OFFBOARD           AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 1, 5)            /**< offboard */
+#define OBS_GET_SCAN_INFO      AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 1, 6)            /**< get scan info */
+#define OBS_CONNECTION_RESULT  AJ_APP_MESSAGE_ID(OBS_OBJECT_INDEX, 1, 7)            /**< connection result */
 
-#define AJOBS_SSID_MAX_LENGTH 32                     /**< ssid max length */
+#define AJOBS_SSID_MAX_LENGTH  32                                                   /**< ssid max length */
 
 /*
  * Onboarding Service Message Handlers
