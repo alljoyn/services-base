@@ -23,7 +23,7 @@
  */
 
 #include <alljoyn.h>
-#include <alljoyn/services_common/Services_Common.h>
+#include <alljoyn/services_common/ServicesCommon.h>
 
 /**
  * Published Onboarding BusObjects and Interfaces.
