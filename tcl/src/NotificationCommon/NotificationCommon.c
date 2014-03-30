@@ -17,14 +17,14 @@
 /**
  * Per-module definition of the current module for debug logging.  Must be defined
  * prior to first inclusion of aj_debug.h.
- * The corresponding flag dbgAJNS is defined in services_common.h and implemented
- * in services_common.c.
+ * The corresponding flag dbgAJNS is defined in ServicesCommon.h and implemented
+ * in ServicesCommon.c.
  */
 #define AJ_MODULE AJNS
 #include <aj_debug.h>
 
 #include <alljoyn/notification/NotificationCommon.h>
-#include <alljoyn/services_common/Services_Common.h>
+#include <alljoyn/services_common/ServicesCommon.h>
 
 const char AJNS_NotificationInterfaceName[]   = "org.alljoyn.Notification";
 const char AJNS_NotificationSignalName[]      = "!notify >q >i >q >s >s >ay >s >a{iv} >a{ss} >a(ss)";

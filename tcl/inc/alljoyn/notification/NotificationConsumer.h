@@ -18,7 +18,7 @@
 #define NOTIFICATIONCONSUMER_H_
 
 #include <alljoyn.h>
-#include <alljoyn/services_common/Services_Common.h>
+#include <alljoyn/services_common/ServicesCommon.h>
 #include <alljoyn/notification/NotificationCommon.h>
 
 /** @defgroup NotificationConsumer Notification Consumer
