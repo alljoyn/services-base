@@ -111,7 +111,7 @@ class OnboardingControllerImpl : public ajn::services::OnboardingControllerAPI {
     /**
      * execute configure cmd
      */
-    int execute_configure(const char*SSID, const char*authText, const char*passphrase);
+    int execute_configure(const char*SSID, const int authText, const char*passphrase);
 
     /**
      * Holds the last state

@@ -166,7 +166,8 @@ void OnboardingControllerImpl::ConfigureWiFi(qcc::String SSID, qcc::String passp
                         }
                     }
 
-                    if (!execute_configure(("'" + SSID + "'").c_str(), AuthText(authType), passphrase.c_str())) {
+
+                    if (!execute_configure(("'" + SSID + "'").c_str(), authType, ("'" + passphrase + "'").c_str())) {
                         return;
                     }
                 }
@@ -176,7 +177,7 @@ void OnboardingControllerImpl::ConfigureWiFi(qcc::String SSID, qcc::String passp
         }
     }
 
-    execute_configure(("'" + SSID + "'").c_str(), AuthText(authType), passphrase.c_str());
+    execute_configure(("'" + SSID + "'").c_str(), authType, ("'" + passphrase + "'").c_str());
 } /* ConfigureWiFi() */
 
 /*------------------------------------------------------------------------------
@@ -400,12 +401,13 @@ const OBLastError& OnboardingControllerImpl::GetLastError() {
     return m_oBLastError;
 }
 
-int OnboardingControllerImpl::execute_configure(const char* SSID, const char* authText, const char* passphrase)
+int OnboardingControllerImpl::execute_configure(const char* SSID, const int authType, const char* passphrase)
 {
     std::cout << "entered " << __FUNCTION__ << std::endl;
 #ifdef _OPEN_WRT_
     char cmd[CMD_SIZE] = { 0 };
-    snprintf(cmd, CMD_SIZE, m_configureCmd.c_str(), SSID, authText, passphrase);
+    qcc::String authTypeString = qcc::String("'") + AuthText(authType) + qcc::String("'");
+    snprintf(cmd, CMD_SIZE, m_configureCmd.c_str(), SSID, authTypeString.c_str(), passphrase);
     return execute_system(cmd);
 #else
     return 0;
