@@ -317,7 +317,7 @@ AJ_Status AJNS_Consumer_NotifySignalHandler(AJ_Message* msg)
             } else {
                 break;
             }
-        } else if (status) {
+        } else if (status == AJ_OK) {
             goto Exit;
         }
 
@@ -416,7 +416,7 @@ AJ_Status AJNS_Consumer_NotifySignalHandler(AJ_Message* msg)
                         } else {
                             break;
                         }
-                    } else if (status) {
+                    } else if (status == AJ_OK) {
                         goto Exit;
                     }
 
@@ -471,7 +471,7 @@ AJ_Status AJNS_Consumer_NotifySignalHandler(AJ_Message* msg)
             } else {
                 break;
             }
-        } else if (status) {
+        } else if (status == AJ_OK) {
             goto Exit;
         }
 
@@ -511,7 +511,7 @@ AJ_Status AJNS_Consumer_NotifySignalHandler(AJ_Message* msg)
             } else {
                 break;
             }
-        } else if (status) {
+        } else if (status == AJ_OK) {
             goto Exit;
         }
 
