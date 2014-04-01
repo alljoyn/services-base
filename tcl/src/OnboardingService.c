@@ -17,8 +17,8 @@
 /**
  * Per-module definition of the current module for debug logging.  Must be defined
  * prior to first inclusion of aj_debug.h.
- * The corresponding flag dbgAJOBS is defined in services_common.h and implemented
- * in services_common.c.
+ * The corresponding flag dbgAJOBS is defined in ServicesCommon.h and implemented
+ * in ServicesCommon.c.
  */
 #define AJ_MODULE AJOBS
 #include <aj_debug.h>
