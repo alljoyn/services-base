@@ -157,7 +157,7 @@ AJ_Status AJCPS_GetAllRootProperties(AJ_Message* msg, uint32_t msgId)
         return ReturnErrorMessage(msg, AJ_ErrServiceUnknown);
     }
     status = MarshalAllRootProperties(&reply);
-    if (status) {
+    if (status == AJ_OK) {
         return ReturnErrorMessage(msg, AJ_ErrServiceUnknown);
     }
     return AJ_DeliverMsg(&reply);
@@ -179,7 +179,7 @@ AJ_Status AJCPS_GetAllWidgetProperties(AJ_Message* msg, uint32_t msgId)
         return ReturnErrorMessage(msg, AJ_ErrServiceUnknown);
     }
     status = widget->marshalAllProp(widget, &reply, language);
-    if (status) {
+    if (status == AJ_OK) {
         return ReturnErrorMessage(msg, AJ_ErrServiceUnknown);
     }
     return AJ_DeliverMsg(&reply);
