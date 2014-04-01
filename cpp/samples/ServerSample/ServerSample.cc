@@ -17,18 +17,11 @@
 #include <signal.h>
 #include <SrpKeyXListener.h>
 #include <CommonSampleUtil.h>
-#include <PropertyStoreImpl.h>
-#include <IniParser.h>
-#include <OptParser.h>
+#include <GuidUtil.h>
 #include <alljoyn/services_common/LogModulesNames.h>
 
 #include <alljoyn/about/AboutIconService.h>
 #include <alljoyn/about/AboutServiceApi.h>
-
-#ifdef _CONFIG_
-#include <alljoyn/config/ConfigService.h>
-#include "ConfigServiceListenerImpl.h"
-#endif
 
 #ifdef _NOTIFICATION_
 #include <alljoyn/notification/NotificationService.h>
@@ -43,34 +36,27 @@
 #include <alljoyn/controlpanel/LanguageSets.h>
 #endif
 
-#ifdef _ONBOARDING_
-#include <alljoyn/onboarding/Onboarding.h>
-#include <alljoyn/onboarding/OnboardingService.h>
-#include <OnboardingControllerImpl.h>
-#endif
-
 using namespace ajn;
 using namespace services;
 
 #define SERVICE_EXIT_OK       0
 #define SERVICE_OPTION_ERROR  1
-#define SERVICE_CONFIG_ERROR  2
 
 /** static variables need for sample */
 static BusAttachment* msgBus = NULL;
 static SrpKeyXListener* keyListener = NULL;
 static AboutIconService* aboutIconService = NULL;
-static PropertyStoreImpl* propertyStoreImpl = NULL;
+static AboutPropertyStoreImpl* propertyStoreImpl = NULL;
 static CommonBusListener* busListener = NULL;
 
-static SessionPort SERVICE_PORT;
-static qcc::String configFile;
 static volatile sig_atomic_t s_interrupt = false;
 
-#ifdef _CONFIG_
-static ConfigService* configService = NULL;
-static ConfigServiceListenerImpl* configServiceListenerImpl = NULL;
-#endif
+// values for property store and AboutService
+static qcc::String appName = "ACServerSample";
+static qcc::String deviceName = "MyDeviceName";
+static SessionPort servicePort = 900;
+static qcc::String deviceId;
+static qcc::String appId;
 
 #ifdef _NOTIFICATION_
 NotificationService* prodService = NULL;
@@ -80,10 +66,6 @@ NotificationSender* sender = NULL;
 #ifdef _CONTROLPANEL_
 ControlPanelService* controlPanelService = NULL;
 ControlPanelControllee* controlPanelControllee = NULL;
-#endif
-
-#ifdef _ONBOARDING_
-static OnboardingControllerImpl* obController = NULL;
 #endif
 
 static void SigIntHandler(int sig) {
@@ -117,18 +99,6 @@ static void cleanup() {
         busListener = NULL;
     }
 
-#ifdef _CONFIG_
-    if (configService) {
-        delete configService;
-        configService = NULL;
-    }
-
-    if (configServiceListenerImpl) {
-        delete configServiceListenerImpl;
-        configServiceListenerImpl = NULL;
-    }
-#endif
-
 #ifdef _NOTIFICATION_
     if (prodService) {
         prodService->shutdown();
@@ -151,30 +121,9 @@ static void cleanup() {
     }
 #endif
 
-#ifdef _ONBOARDING_
-    if (obController) {
-        delete obController;
-        obController = NULL;
-    }
-#endif
-
     /* Clean up msg bus */
     delete msgBus;
     msgBus = NULL;
-}
-
-const char* readPassword() {
-    std::map<std::string, std::string> data;
-    if (!IniParser::ParseFile(configFile.c_str(), data)) {
-        return NULL;
-    }
-
-    std::map<std::string, std::string>::iterator iter = data.find("passcode");
-    if (iter == data.end()) {
-        return NULL;
-    }
-
-    return iter->second.c_str();
 }
 
 /** Advertise the service name, report the result to stdout, and return the status code. */
@@ -265,7 +214,7 @@ QStatus fillPropertyStore(AboutPropertyStoreImpl* propertyStore, qcc::String con
     return status;
 }
 
-int main(int argc, char**argv, char**envArg) {
+int main() {
 
     QStatus status = ER_OK;
     printf("AllJoyn Library version: %s\n", ajn::GetVersion());
@@ -273,32 +222,7 @@ int main(int argc, char**argv, char**envArg) {
     QCC_SetLogLevels("ALLJOYN_ABOUT_SERVICE=7;");
     QCC_SetLogLevels("ALLJOYN_ABOUT_ICON_SERVICE=7;");
 
-    OptParser opts(argc, argv);
-    OptParser::ParseResultCode parseCode(opts.ParseResult());
-    switch (parseCode) {
-    case OptParser::PR_OK:
-        break;
-
-    case OptParser::PR_EXIT_NO_ERROR:
-        return SERVICE_EXIT_OK;
-
-    default:
-        return SERVICE_OPTION_ERROR;
-    }
-
-    SERVICE_PORT = opts.GetPort();
-    printf("using port %d\n", opts.GetPort());
-
-    if (!opts.GetConfigFile().empty()) {
-        printf("using Config-file %s\n", opts.GetConfigFile().c_str());
-        if (!opts.ParseExternalXML()) {
-            return 1;
-        }
-    }
-
-    if (!opts.GetAppId().empty()) {
-        printf("using appID %s\n", opts.GetAppId().c_str());
-    }
+    printf("using port %d\n", servicePort);
 
     /* Install SIGINT handler so Ctrl + C deallocates memory properly */
     signal(SIGINT, SigIntHandler);
@@ -318,7 +242,7 @@ int main(int argc, char**argv, char**envArg) {
     }
 
     busListener = new CommonBusListener(msgBus);
-    busListener->setSessionPort(SERVICE_PORT);
+    busListener->setSessionPort(servicePort);
 
 #ifdef _CONTROLPANEL_
     status = ControlPanelGenerated::PrepareWidgets(controlPanelControllee);
@@ -329,17 +253,18 @@ int main(int argc, char**argv, char**envArg) {
     }
 #endif
 
-    propertyStoreImpl = new PropertyStoreImpl(opts.GetFactoryConfigFile().c_str(), opts.GetConfigFile().c_str());
-    status = fillPropertyStore(propertyStoreImpl, opts.GetAppId(), opts.GetAppName(), opts.GetDeviceId(),
-                               opts.GetDeviceName(), opts.GetDefaultLanguage());
-    propertyStoreImpl->Initialize();
+    GuidUtil::GetInstance()->GetDeviceIdString(&deviceId);
+    GuidUtil::GetInstance()->GenerateGUID(&appId);
+
+    propertyStoreImpl = new AboutPropertyStoreImpl();
+    status = CommonSampleUtil::fillPropertyStore(propertyStoreImpl, appId, appName, deviceId, deviceName);
     if (status != ER_OK) {
         std::cout << "Could not fill PropertyStore." << std::endl;
         cleanup();
         return 1;
     }
 
-    status = CommonSampleUtil::prepareAboutService(msgBus, propertyStoreImpl, busListener, SERVICE_PORT);
+    status = CommonSampleUtil::prepareAboutService(msgBus, propertyStoreImpl, busListener, servicePort);
     if (status != ER_OK) {
         std::cout << "Could not set up the AboutService." << std::endl;
         cleanup();
@@ -400,68 +325,6 @@ int main(int argc, char**argv, char**envArg) {
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-    //OnboardingService
-#ifdef _ONBOARDING_
-    obController = new OnboardingControllerImpl(opts.GetScanFile(),
-                                                opts.GetStateFile(),
-                                                opts.GetErrorFile(),
-                                                opts.GetConfigureCmd(),
-                                                opts.GetConnectCmd(),
-                                                opts.GetOffboardCmd(),
-                                                (OBConcurrency) opts.GetConcurrency(),
-                                                *msgBus);
-    OnboardingService onboardingService(*msgBus, *obController);
-
-    interfaces.clear();
-    interfaces.push_back("org.alljoyn.Onboarding");
-    aboutService->AddObjectDescription("/Onboarding", interfaces);
-
-    status = onboardingService.Register();
-    if (status != ER_OK) {
-        std::cout << "Could not register the OnboardingService." << std::endl;
-        cleanup();
-        return 1;
-    }
-
-    status = msgBus->RegisterBusObject(onboardingService);
-    if (status != ER_OK) {
-        std::cout << "Could not register the OnboardingService BusObject." << std::endl;
-        cleanup();
-        return 1;
-    }
-#endif
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    //ConfigService
-#ifdef _CONFIG_
-#ifdef _ONBOARDING_
-    configServiceListenerImpl = new ConfigServiceListenerImpl(*propertyStoreImpl, *msgBus, *busListener, obController);
-#else
-    configServiceListenerImpl = new ConfigServiceListenerImpl(*propertyStoreImpl, *msgBus, *busListener, NULL);
-#endif
-    configService = new ConfigService(*msgBus, *propertyStoreImpl, *configServiceListenerImpl);
-    configFile = opts.GetConfigFile().c_str();
-    keyListener->setGetPassCode(readPassword);
-
-    interfaces.clear();
-    interfaces.push_back("org.alljoyn.Config");
-    aboutService->AddObjectDescription("/Config", interfaces);
-
-    status = configService->Register();
-    if (status != ER_OK) {
-        std::cout << "Could not register the ConfigService." << std::endl;
-        cleanup();
-        return 1;
-    }
-
-    status = msgBus->RegisterBusObject(*configService);
-    if (status != ER_OK) {
-        std::cout << "Could not register the ConfigService BusObject." << std::endl;
-        cleanup();
-        return 1;
-    }
-#endif
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-
     const TransportMask SERVICE_TRANSPORT_TYPE = TRANSPORT_ANY;
     if (ER_OK == status) {
         status = AdvertiseName(SERVICE_TRANSPORT_TYPE);

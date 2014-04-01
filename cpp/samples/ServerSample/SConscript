@@ -15,7 +15,7 @@
 Import('env', 'cobjs')
 local_env = env.Clone()
 
-srcs = ['ServerSample.cc', 'OptParser.cc']
+srcs = ['ServerSample.cc']
 objs = local_env.Object(srcs)                      
 objs.extend(cobjs)
 
@@ -39,8 +39,6 @@ if '_ONBOARDING_' in local_env["CPPDEFINES"] :
     onboardingObjs = local_env.Object(onboardingSrcs)                      
     objs.extend(onboardingObjs)
 
-local_env.Install('$SAMPLE_APPS_DISTDIR/bin', 'FactoryServerSample.conf')
-local_env.Install('$SAMPLE_APPS_DISTDIR/bin', 'ServerSample.conf')
 prog = local_env.Program('ServerSample', objs)
 
 Return('prog')
