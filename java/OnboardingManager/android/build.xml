@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="OnboardingSDK" default="jar">
+<project name="OnboardingManager" default="jar">
     <property file="ant.properties" />
     <property environment="env" />
     <condition property="sdk.dir" value="${env.ANDROID_HOME}">
@@ -17,7 +17,7 @@
     <property name="classes.dir" value="${build.dir}/classes" />
     <property name="deploy.dir"  value="${build.dir}/deploy" />
     <property name="andr.compile.dir" value="${sdk.dir}/platforms/${target}"/>
-    <property name="onboardingsdk" value="alljoyn_onboarding_sdk" /> 
+    <property name="onboardingmanager" value="alljoyn_onboarding_manager" /> 
     <target name="clean">
         <echo message="Cleaning ${ant.project.name} ${build.dir} directory..."/>
         <delete dir="${build.dir}" includeemptydirs="true" quiet="true"/>
@@ -46,6 +46,6 @@
      </target>   
      <target name="jar" depends="compile">
            <echo message="${ant.project.name} Creates compiled JAR file"/>
-           <jar destfile="${deploy.dir}/${onboardingsdk}.jar" basedir="${classes.dir}" />
+           <jar destfile="${deploy.dir}/${onboardingmanager}.jar" basedir="${classes.dir}" />
       </target>
 </project>
