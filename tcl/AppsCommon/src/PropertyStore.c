@@ -437,6 +437,7 @@ AJ_Status AJSVC_PropertyStore_ReadAll(AJ_Message* msg, AJSVC_PropertyStoreCatego
     uint8_t rawValue[16];
     uint8_t index;
     const char* ajVersion;
+    AJSVC_PropertyStoreFieldIndices fieldIndex = 0;
 
     AJ_InfoPrintf(("PropertyStore_ReadAll()\n"));
 
@@ -445,7 +446,6 @@ AJ_Status AJSVC_PropertyStore_ReadAll(AJ_Message* msg, AJSVC_PropertyStoreCatego
         return status;
     }
 
-    AJSVC_PropertyStoreFieldIndices fieldIndex = 0;
     for (; fieldIndex < AJSVC_PROPERTY_STORE_NUMBER_OF_KEYS; fieldIndex++) {
 #ifdef CONFIG_SERVICE
         if (propertyStoreProperties[fieldIndex].mode7Public && (filter.bit0About || (filter.bit1Config && propertyStoreProperties[fieldIndex].mode0Write) || (filter.bit2Announce && propertyStoreProperties[fieldIndex].mode1Announce))) {
@@ -454,7 +454,7 @@ AJ_Status AJSVC_PropertyStore_ReadAll(AJ_Message* msg, AJSVC_PropertyStoreCatego
 #endif
             value = AJSVC_PropertyStore_GetValueForLang(fieldIndex, langIndex);
 
-            if (value == NULL || fieldIndex >= AJSVC_PROPERTY_STORE_NUMBER_OF_MANDATORY_KEYS) {     // Non existing values are skipped!
+            if (value == NULL && (int8_t)fieldIndex >= (int8_t)AJSVC_PROPERTY_STORE_NUMBER_OF_MANDATORY_KEYS) {     // Non existing values are skipped!
                 AJ_WarnPrintf(("PropertyStore_ReadAll - Failed to get value for field=(name=%s, index=%d) and language=(name=%s, index=%d), skipping.\n", AJSVC_PropertyStore_GetFieldName(fieldIndex), (int)fieldIndex, AJSVC_PropertyStore_GetLanguageName(langIndex), (int)langIndex));
             } else {
                 if (fieldIndex == AJSVC_PROPERTY_STORE_APP_ID) {
