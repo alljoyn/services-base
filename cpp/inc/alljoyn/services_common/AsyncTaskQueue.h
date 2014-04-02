@@ -20,7 +20,6 @@
 
 #include <pthread.h>
 #include <queue>
-#include <qcc/String.h>
 
 namespace ajn {
 namespace services {
@@ -50,6 +49,7 @@ class AsyncTask {
     virtual void OnEmptyQueue() = 0;
     /**
      * OnEmptyQueue - handling 'queue got new message' events.
+     *  @param taskdata - pointer to the data that currently processed.
      */
     virtual void OnTask(TaskData const* taskdata) = 0;
 };
@@ -61,8 +61,10 @@ class AsyncTaskQueue {
   public:
     /**
      * AsyncTaskQueue constructor
+     *  @param asyncTask - pointer to the class which callbacks will be called.
+     *  @param ownersheap - if true, the queue will delete the data after calling to callbacks.
      */
-    AsyncTaskQueue(AsyncTask* asyncTask);
+    AsyncTaskQueue(AsyncTask* asyncTask, bool ownersheap = true);
     /**
      * AsyncTaskQueue destructor
      */
@@ -121,6 +123,10 @@ class AsyncTaskQueue {
      */
     AsyncTask* m_AsyncTask;
 
+    /**
+     * is the thread is the owner of the objects in the queue and those will delete them.
+     */
+    bool m_ownersheap;
 };
 
 } //namespace services

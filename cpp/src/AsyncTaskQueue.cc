@@ -17,19 +17,16 @@
 #include "alljoyn/services_common/AsyncTaskQueue.h"
 #include <pthread.h>
 #include <queue>
-#include <qcc/String.h>
 
 using namespace ajn;
 using namespace services;
-using namespace qcc;
-
 
 TaskData::~TaskData() {
 
 }
 
-AsyncTaskQueue::AsyncTaskQueue(AsyncTask* asyncTask) :
-    m_IsStopping(true), m_AsyncTask(asyncTask)
+AsyncTaskQueue::AsyncTaskQueue(AsyncTask* asyncTask, bool ownersheap) :
+    m_IsStopping(true), m_AsyncTask(asyncTask), m_ownersheap(ownersheap)
 {
 
 }
@@ -92,23 +89,19 @@ void* AsyncTaskQueue::ReceiverThreadWrapper(void* context)
 void AsyncTaskQueue::Receiver()
 {
     pthread_mutex_lock(&m_Lock);
-    while (true) {
-        if (m_IsStopping) {
-            break;
-        }
-
-        if (m_MessageQueue.empty()) {
-            m_AsyncTask->OnEmptyQueue();
-            pthread_cond_wait(&m_QueueChanged, &m_Lock);
-            if (m_IsStopping) {
-                break;
+    while (!m_IsStopping) {
+        while (!m_MessageQueue.empty()) {
+            TaskData const* taskData = m_MessageQueue.front();
+            m_MessageQueue.pop();
+            pthread_mutex_unlock(&m_Lock);
+            m_AsyncTask->OnTask(taskData);
+            if (m_ownersheap) {
+                delete taskData;
             }
+            pthread_mutex_lock(&m_Lock);
         }
-
-        TaskData const* taskData = m_MessageQueue.front();
-        m_AsyncTask->OnTask(taskData);
-        delete taskData;
-        m_MessageQueue.pop();
+        m_AsyncTask->OnEmptyQueue();
+        pthread_cond_wait(&m_QueueChanged, &m_Lock);
     }
     pthread_mutex_unlock(&m_Lock);
 }
