@@ -1,0 +1,39 @@
+
+AllJoyn Notification Service Version 14.02 Release Notes
+--------------------------------------------------------
+
+Platform Support
+----------------
+
+ 1) Linux Ubuntu (32 and 64 bit x86)
+ 2) Android Gingerbread 2.3.4 (ARM7)
+ 3) Android Ice Cream Sandwich 4.0 (ARM7)
+ 4) Android JellyBean 4.1 (ARM7)
+ 5) iOS 7
+ 6) OpenWRT 
+
+Features added in Version 14.02
+-------------------------------
+
+The Notification Service provides manufacturer’s of connected-devices with a standardized interface for sending simple, human-readable, Notifications from headless “AllJoyn Producer” devices to their more intelligent “AllJoyn Consumer” devices, for display to the End-User.
+The notification service enables Alljoyn producer devices to send notifications to AJ consumer devices. 
+The notification service is provided as an AJ core service for use across multiple application developers.
+
+This was tested with 5 Producers and 5 Consumers.
+
+Issues Addressed in Version 14.02
+---------------------------------
+
+Known Issues
+------------
+AJNSF-105 – IOS Sample App , Only on ipads it is not possible to scroll down to the bottom notification and perform an action .
+
+
+Compatibility
+-------------
+
+
+Change history
+--------------
+
+14.02 - 1st AllSeen Alliance release
