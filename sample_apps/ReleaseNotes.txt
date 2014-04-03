@@ -1,0 +1,38 @@
+
+
+AllJoyn Sample Application for Services Version 14.02 Release Notes
+--------------------------------------------------------
+
+Platform Support
+----------------
+ 1) Linux Ubuntu (32 and 64 bit x86)
+ 2) Android Gingerbread 2.3.4 (ARM7)
+ 3) Android Ice Cream Sandwich 4.0 (ARM7)
+ 4) Android JellyBean 4.1 (ARM7)
+ 5) iOS 7
+ 6) OpenWRT (trunk)
+
+
+Features added in Version 14.02
+-------------------------------
+
+The sample applications project provides the developer two sample application, for standard client in cpp and thin client in c, that demonstrate how to write an AllJoyn application using services.
+The Server sample application demonstrate how to write an application using the following services: About, Config, Onboarding, Notification (Producer and Consumer) and Control Panel.
+The ACServerSample is an application that simulates the behaviour of an air-condition using the following services: About, Config, Onboarding, Notification (Producer Only) and Control Panel.
+
+Known Issues
+------------
+
+AJNSF-104 – Thin Client Server Sample Controlee freezes when producer is waiting for user input
+
+AJOSF-56, AJCSF-84- CPP ,AJAPPS-410 ServerSample Apps only receive two parameters :  --config-file and --factory-config-file
+
+    
+Compatibility
+-------------
+
+
+Change history
+--------------
+
+14.02 - 1st AllSeen Alliance release

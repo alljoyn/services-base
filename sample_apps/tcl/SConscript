@@ -1,0 +1,51 @@
+# Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
+#
+#    Permission to use, copy, modify, and/or distribute this software for any
+#    purpose with or without fee is hereby granted, provided that the above
+#    copyright notice and this permission notice appear in all copies.
+#
+#    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+#    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+#    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+#    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+#    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+#    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+#    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+
+import os
+
+Import('samp_env')
+
+objs = []
+srcs = []
+objs.extend(samp_env['aj_obj'])
+objs.extend(samp_env.SConscript('#../../services_common/tcl/SConscript', variant_dir = 'services_common', duplicate = 1, exports = {'services_common_env': samp_env}))
+
+if samp_env['variant_dirs'] == "ConfigSample":
+    objs.extend(samp_env.SConscript('AppsCommon/SConscript', duplicate = 1, exports = {'appsCommon_env': samp_env}))
+    srcs.extend(['ConfigSample.c'])
+    objs.extend(samp_env.SConscript('#../../config/tcl/SConscript', {'config_env': samp_env}))
+
+if samp_env['variant_dirs'] == "NotificationProducerSample":
+    objs.extend(samp_env.SConscript('AppsCommon/SConscript', duplicate = 1, exports = {'appsCommon_env': samp_env}))
+    srcs.extend(['NotificationProducerSample.c'])
+    objs.extend(samp_env.SConscript('#../../notification/tcl/src/NotificationCommon/SConscript', variant_dir = 'NotificationCommon', duplicate = 1, exports = {'notif_env': samp_env}))
+    objs.extend(samp_env.SConscript('#../../notification/tcl/src/NotificationProducer/SConscript', variant_dir = 'NotificationProducer', duplicate = 1, exports = {'notif_env': samp_env}))
+
+if samp_env['variant_dirs'] == "NotificationConsumerSample":
+    srcs.extend(['NotificationConsumerSample.c'])
+    objs.extend(samp_env.SConscript('#../../notification/tcl/src/NotificationCommon/SConscript', variant_dir = 'NotificationCommon', duplicate = 1, exports = {'notif_env': samp_env}))
+    objs.extend(samp_env.SConscript('#../../notification/tcl/src/NotificationConsumer/SConscript', variant_dir = 'NotificationConsumer', duplicate = 1, exports = {'notif_env': samp_env}))
+
+if samp_env['variant_dirs'] == "ControlleeSample":
+    objs.extend(samp_env.SConscript('AppsCommon/SConscript', duplicate = 1, exports = {'appsCommon_env': samp_env}))
+    srcs.extend(['ControlleeSample.c'])
+    objs.extend(samp_env.SConscript('#../../controlpanel/tcl/SConscript', variant_dir = 'controlpanel', duplicate = 1, exports = {'cps_env': samp_env}))
+    srcs.extend(['ControlPanelGenerated.c', 'ControlPanelProvided.c'])
+
+objs.extend(samp_env.Object(srcs))
+prog = samp_env.Program(
+    target = '#build/' + samp_env['variant_dirs'],
+    source = [objs]
+ )
