@@ -1,4 +1,4 @@
-# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+# Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
@@ -14,7 +14,7 @@
 
 import os
 
-env = SConscript('../../core/alljoyn/build_core/SConscript')
+env = SConscript('../../../core/alljoyn/build_core/SConscript')
 
 vars = Variables()
 vars.Add('BINDINGS', 'Bindings to build (comma separated list): cpp, java', 'cpp,java')
