@@ -664,6 +664,7 @@ public class OnboardingManager {
     private Timer announcementTimeout = new Timer();
 
 
+    private   static  volatile  boolean internalAnnouncementFindFlag;
 
     /**
      * Stores the OnboardingManager state machine state
@@ -706,7 +707,7 @@ public class OnboardingManager {
                 Log.e(TAG, "onAnnouncement: received null device uuid!! ignoring.");
                 return;
             } else {
-                Log.d(TAG, "onAnnouncement: received UUID " + uniqueId);
+                Log.d(TAG, "onAnnouncement: UUID=" + uniqueId +", busName="+serviceName+", port="+port);
             }
 
             switch (currentState) {
@@ -1191,9 +1192,10 @@ public class OnboardingManager {
      */
     private void handleConfigureOnboardeeState() {
         Bundle extras = new Bundle();
+        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONFIGURING_ONBOARDEE.toString());
+        sendBroadcast(STATE_CHANGE_ACTION, extras);
         ResponseCode responseCode = onboardDevice().getStatus();
         if (responseCode == ResponseCode.Status_OK) {
-            extras.clear();
             extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONFIGURED_ONBOARDEE.toString());
             sendBroadcast(STATE_CHANGE_ACTION, extras);
             setState(State.CONNECTING_TO_TARGET_WIFI_AP);
@@ -1278,6 +1280,34 @@ public class OnboardingManager {
     }
 
 
+    private void findAnnouncements(){
+        Log.d( TAG, "findAnnouncements");
+        internalAnnouncementFindFlag=false;
+        new Thread (){
+            @Override
+            public void run(){
+                for(int i = 0; i < 60; i++ ) {
+                    if (internalAnnouncementFindFlag) {
+                        Log.d( TAG, "internalAnnouncementFindFlag is true");
+                        break;
+                    }
+                    bus.cancelFindAdvertisedName(":");
+                    bus.findAdvertisedName("org.alljoyn.sl");
+                    try{
+                        Thread.sleep(500);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                    bus.cancelFindAdvertisedName("org.alljoyn.sl");
+                    bus.findAdvertisedName(":");
+                }
+            }
+        }.start();
+    }
+    private void clearAnnouncements(){
+        Log.d( TAG, "clearAnnouncements");
+        internalAnnouncementFindFlag=true;
+    }
     /**
      * Handle the CONNECT_TO_TARGET state.
      * Listen to WIFI intents from OnboardingsdkWifiManager Requests from
@@ -1395,7 +1425,7 @@ public class OnboardingManager {
 
         // set state to State.ABORTING
         currentState = State.ABORTING;
-
+        clearAnnouncements();
         // remove all queued up messages in the stateHandler
         for (State s : State.values()) {
             stateHandler.removeMessages(s.value);
@@ -1475,12 +1505,14 @@ public class OnboardingManager {
             break;
 
         case WAITING_FOR_ONBOARDEE_ANNOUNCEMENT:
+            findAnnouncements();
             currentState = State.WAITING_FOR_ONBOARDEE_ANNOUNCEMENT;
             handleWaitForOnboardeeAnnounceState();
             break;
 
         case ONBOARDEE_ANNOUNCEMENT_RECEIVED:
             currentState = State.ONBOARDEE_ANNOUNCEMENT_RECEIVED;
+            clearAnnouncements();
             handleOnboardeeAnnouncementReceivedState((AnnounceData) msg.obj);
             break;
 
@@ -1505,11 +1537,13 @@ public class OnboardingManager {
             break;
 
         case WAITING_FOR_TARGET_ANNOUNCE:
+            findAnnouncements();
             currentState = State.WAITING_FOR_TARGET_ANNOUNCE;
             handleWaitForTargetAnnounceState();
             break;
 
         case TARGET_ANNOUNCEMENT_RECEIVED:
+            clearAnnouncements();
             currentState = State.TARGET_ANNOUNCEMENT_RECEIVED;
             handleTargetAnnouncementReceivedState((AnnounceData) msg.obj);
             break;
@@ -1520,6 +1554,7 @@ public class OnboardingManager {
 
         case ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT:
             currentState = State.ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT;
+            clearAnnouncements();
             handleErrorOnboardeeAnnouncementReceivedAfterTimeoutState((AnnounceData) msg.obj);
             break;
 
@@ -1683,6 +1718,7 @@ public class OnboardingManager {
      * @return result of action
      */
     private DeviceResponse offboardDevice(String serviceName, short port) {
+        Log.d(TAG,"offboardDevice serviceName:["+ serviceName + "] port:["+port+"]");
         Bundle extras = new Bundle();
         extras.putString(EXTRA_DEVICE_BUS_NAME, serviceName);
         extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.JOINING_SESSION.toString());
@@ -2224,7 +2260,7 @@ public class OnboardingManager {
         if (currentState != State.IDLE) {
             throw new OnboardingIllegalStateException("onboarding process is already running");
         }
-
+        Log.d(TAG, "runOffboarding serviceName"+config.getServiceName() + " port"+ config.getPort());
         new Thread() {
             @Override
             public void run() {
@@ -2357,5 +2393,4 @@ public class OnboardingManager {
         }
         context.sendBroadcast(intent);
     }
-
 }
