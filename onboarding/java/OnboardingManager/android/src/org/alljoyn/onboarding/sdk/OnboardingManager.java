@@ -981,9 +981,9 @@ public class OnboardingManager {
      * Registers AnnouncementHandler to receive announcements
      *
      * @param context
-     *            The application context
-     * @param allJoynManagmentCallback
-     *            a callback for invoking BusAttachment recycling.
+     *            The application context.
+     * @param aboutService The user application's About service.
+     * @param bus The user application's bus attachment.
      * @throws OnboardingIllegalArgumentException
      *             if either of the parameters is null.
      * @throws OnboardingIllegalStateException
