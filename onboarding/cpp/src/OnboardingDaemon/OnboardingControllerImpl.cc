@@ -144,7 +144,7 @@ void OnboardingControllerImpl::ConfigureWiFi(qcc::String SSID, qcc::String passp
             } else {
                 // Try WPA2, WPA, WEP if the passphrase has a chance of working
                 // stop when we succeed
-                for (authType = WPA2_AUTO; authType > OPEN; --authType) {
+                for (authType = WPS; authType >= WPA2_AUTO; --authType) {
                     switch (authType) {
                     case WPA2_AUTO:
                     case WPA_AUTO:
