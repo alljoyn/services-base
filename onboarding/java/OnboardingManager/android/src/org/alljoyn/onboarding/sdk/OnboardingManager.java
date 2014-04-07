@@ -1191,6 +1191,8 @@ public class OnboardingManager {
      */
     private void handleConfigureOnboardeeState() {
         Bundle extras = new Bundle();
+        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONFIGURING_ONBOARDEE.toString());
+        sendBroadcast(STATE_CHANGE_ACTION, extras);
         ResponseCode responseCode = onboardDevice().getStatus();
         if (responseCode == ResponseCode.Status_OK) {
             extras.clear();
@@ -2088,8 +2090,10 @@ public class OnboardingManager {
             throw new OnboardingIllegalStateException("Can't abort ,already ABORTED");
         }
 
-        if (currentState == State.CONNECTING_TO_TARGET_WIFI_AP ||
-                currentState ==State.TARGET_ANNOUNCEMENT_RECEIVED){
+        if (currentState == State.CONNECTING_TO_TARGET_WIFI_AP || 
+                currentState == State.TARGET_ANNOUNCEMENT_RECEIVED || 
+                currentState == State.CONFIGURING_ONBOARDEE ||
+                currentState == State.CONFIGURING_ONBOARDEE_WITH_SIGNAL) {
             throw new OnboardingIllegalStateException("Can't abort");
         }
         Bundle extras =new Bundle();
