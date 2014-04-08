@@ -83,5 +83,6 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
     <string name="alert_title_runonboarding_error">RunOnboarding error</string>
     <string name="alert_title_init_error">Init error</string>
     <string name="alert_msg_invalid_arguments">invalid arguments</string>
+    <string name="hidden_network">Hidden network</string>
 
 </resources>
