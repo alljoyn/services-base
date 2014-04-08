@@ -55,7 +55,7 @@ qcc::String const& OptParser::GetAppName() const {
 }
 
 qcc::String const& OptParser::GetFactoryConfigFile() const {
-    return configFile;
+    return factoryConfigFile;
 }
 
 qcc::String const& OptParser::GetConfigFile() const {
