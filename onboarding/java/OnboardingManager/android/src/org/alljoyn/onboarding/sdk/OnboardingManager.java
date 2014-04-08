@@ -1280,6 +1280,13 @@ public class OnboardingManager {
     }
 
 
+    /**
+     * This is a workaround for a case where WhoHas is being sent too soon after Android had switched
+     * to a new network. This WhoHas might not get answered by the Onboardee and the OnboardingManager
+     * will time out waiting for the Onboardee's announcement.
+     * The workaround explicitly sends WhoHas messages by calling FindAvertisedName and CancelFindAvertisedName
+     * with the sessionless signal WKN prefix (org.alljoyn.sl) in a loop with a 500ms delay.
+     */
     private void findAnnouncements(){
         Log.d( TAG, "findAnnouncements");
         internalAnnouncementFindFlag=false;
@@ -1304,10 +1311,12 @@ public class OnboardingManager {
             }
         }.start();
     }
-    private void clearAnnouncements(){
-        Log.d( TAG, "clearAnnouncements");
+
+    private void cancelFindAnnouncements(){
+        Log.d( TAG, "cancelFindAnnouncements");
         internalAnnouncementFindFlag=true;
     }
+
     /**
      * Handle the CONNECT_TO_TARGET state.
      * Listen to WIFI intents from OnboardingsdkWifiManager Requests from
@@ -1425,7 +1434,7 @@ public class OnboardingManager {
 
         // set state to State.ABORTING
         currentState = State.ABORTING;
-        clearAnnouncements();
+        cancelFindAnnouncements();
         // remove all queued up messages in the stateHandler
         for (State s : State.values()) {
             stateHandler.removeMessages(s.value);
@@ -1512,7 +1521,7 @@ public class OnboardingManager {
 
         case ONBOARDEE_ANNOUNCEMENT_RECEIVED:
             currentState = State.ONBOARDEE_ANNOUNCEMENT_RECEIVED;
-            clearAnnouncements();
+            cancelFindAnnouncements();
             handleOnboardeeAnnouncementReceivedState((AnnounceData) msg.obj);
             break;
 
@@ -1543,7 +1552,7 @@ public class OnboardingManager {
             break;
 
         case TARGET_ANNOUNCEMENT_RECEIVED:
-            clearAnnouncements();
+            cancelFindAnnouncements();
             currentState = State.TARGET_ANNOUNCEMENT_RECEIVED;
             handleTargetAnnouncementReceivedState((AnnounceData) msg.obj);
             break;
@@ -1554,7 +1563,7 @@ public class OnboardingManager {
 
         case ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT:
             currentState = State.ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT;
-            clearAnnouncements();
+            cancelFindAnnouncements();
             handleErrorOnboardeeAnnouncementReceivedAfterTimeoutState((AnnounceData) msg.obj);
             break;
 
@@ -2124,8 +2133,8 @@ public class OnboardingManager {
             throw new OnboardingIllegalStateException("Can't abort ,already ABORTED");
         }
 
-        if (currentState == State.CONNECTING_TO_TARGET_WIFI_AP || 
-                currentState == State.TARGET_ANNOUNCEMENT_RECEIVED || 
+        if (currentState == State.CONNECTING_TO_TARGET_WIFI_AP ||
+                currentState == State.TARGET_ANNOUNCEMENT_RECEIVED ||
                 currentState == State.CONFIGURING_ONBOARDEE ||
                 currentState == State.CONFIGURING_ONBOARDEE_WITH_SIGNAL) {
             throw new OnboardingIllegalStateException("Can't abort");
