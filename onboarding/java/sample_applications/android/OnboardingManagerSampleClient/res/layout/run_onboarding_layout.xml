@@ -39,12 +39,13 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:orientation="horizontal" >
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                android:layout_marginTop="5dp"
+                android:gravity="center"
                 android:text="@string/onboarding_ssid"
                 android:textColor="#848482"
                 android:textSize="15sp" />
@@ -54,21 +55,31 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:layout_marginTop="5dp"
+                android:contentDescription="run_onboarding_onboardee_ssid_editText"
                 android:imeOptions="actionNext"
                 android:inputType="textNoSuggestions"
-                android:contentDescription="run_onboarding_onboardee_ssid_editText"
                 android:singleLine="true" />
         </LinearLayout>
+
+        <CheckBox
+            android:id="@+id/onboardee_hidden"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="@string/hidden_network"
+            android:textColor="#aeaeae"
+            android:textSize="15sp" />
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:orientation="horizontal" >
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                android:layout_marginTop="5dp"
+                android:gravity="center"
                 android:text="@string/onboarding_authentication"
                 android:textColor="#848482"
                 android:textSize="15sp" />
@@ -77,23 +88,24 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
                 android:id="@+id/run_onboarding_onboardee_authType_spinner"
                 android:layout_width="fill_parent"
                 android:layout_height="44dp"
+                android:contentDescription="run_onboarding_onboardee_authType_spinner"
                 android:drawablePadding="0dp"
                 android:dropDownHorizontalOffset="0dp"
                 android:dropDownVerticalOffset="1dp"
                 android:dropDownWidth="fill_parent"
-                android:contentDescription="run_onboarding_onboardee_authType_spinner"
                 android:spinnerMode="dropdown" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:orientation="horizontal" >
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                android:layout_marginTop="5dp"
+                android:gravity="center"
                 android:text="@string/onboarding_password"
                 android:textColor="#848482"
                 android:textSize="15sp" />
@@ -102,22 +114,22 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
                 android:id="@+id/run_onboarding_onboardee_password_editText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
+                android:contentDescription="run_onboarding_onboardee_password_editText"
                 android:imeOptions="actionNext"
                 android:inputType="textNoSuggestions"
-                android:contentDescription="run_onboarding_onboardee_password_editText"
                 android:singleLine="true" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:orientation="horizontal" >
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                android:layout_marginTop="5dp"
+                android:gravity="center"
                 android:text="@string/onboarding_connection_timeout"
                 android:textColor="#848482"
                 android:textSize="15sp" />
@@ -126,22 +138,22 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
                 android:id="@+id/run_onboarding_onboardeeConnectionTimeoutMsec"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
+                android:contentDescription="run_onboarding_onboardeeConnectionTimeoutMsec"
                 android:imeOptions="actionNext"
                 android:inputType="number"
-                android:contentDescription="run_onboarding_onboardeeConnectionTimeoutMsec"
                 android:singleLine="true" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:orientation="horizontal" >
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                android:layout_marginTop="5dp"
+                android:gravity="center"
                 android:text="@string/onboarding_annoucement_timeout"
                 android:textColor="#848482"
                 android:textSize="15sp" />
@@ -150,10 +162,9 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
                 android:id="@+id/run_onboarding_onboardeeAnnoucementTimeoutMsec"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
+                android:contentDescription="run_onboarding_onboardeeAnnoucementTimeoutMsec"
                 android:imeOptions="actionNext"
                 android:inputType="number"
-                android:contentDescription="run_onboarding_onboardeeAnnoucementTimeoutMsec"
                 android:singleLine="true" />
         </LinearLayout>
 
@@ -175,11 +186,13 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:orientation="horizontal" >
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
+                android:gravity="center"
                 android:text="@string/onboarding_ssid"
                 android:textColor="#848482"
                 android:textSize="15sp" />
@@ -188,22 +201,31 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
                 android:id="@+id/run_onboarding_target_ssid_editText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
+                android:contentDescription="run_onboarding_target_ssid_editText"
                 android:imeOptions="actionNext"
                 android:inputType="textNoSuggestions"
-                android:contentDescription="run_onboarding_target_ssid_editText"
                 android:singleLine="true" />
         </LinearLayout>
+
+        <CheckBox
+            android:id="@+id/target_hidden"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="false"
+            android:text="@string/hidden_network"
+            android:textColor="#aeaeae"
+            android:textSize="15sp" />
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:orientation="horizontal" >
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                android:layout_marginTop="5dp"
+                android:gravity="center"
                 android:text="@string/onboarding_authentication"
                 android:textColor="#848482"
                 android:textSize="15sp" />
@@ -212,23 +234,24 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
                 android:id="@+id/run_onboarding_target_authType_spinner"
                 android:layout_width="fill_parent"
                 android:layout_height="44dp"
+                android:contentDescription="run_onboarding_target_authType_spinner"
                 android:drawablePadding="0dp"
                 android:dropDownHorizontalOffset="0dp"
                 android:dropDownVerticalOffset="1dp"
                 android:dropDownWidth="fill_parent"
-                android:contentDescription="run_onboarding_target_authType_spinner"
                 android:spinnerMode="dropdown" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:orientation="horizontal" >
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                android:layout_marginTop="5dp"
+                android:gravity="center"
                 android:text="@string/onboarding_password"
                 android:textColor="#848482"
                 android:textSize="15sp" />
@@ -237,22 +260,22 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
                 android:id="@+id/run_onboarding_target_password_editText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
+                android:contentDescription="run_onboarding_target_password_editText"
                 android:imeOptions="actionNext"
                 android:inputType="textNoSuggestions"
-                android:contentDescription="run_onboarding_target_password_editText"
                 android:singleLine="true" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:orientation="horizontal" >
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                android:layout_marginTop="5dp"
+                android:gravity="center"
                 android:text="@string/onboarding_connection_timeout"
                 android:textColor="#848482"
                 android:textSize="15sp" />
@@ -261,22 +284,22 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
                 android:id="@+id/run_onboarding_targrt_connection_timeout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
+                android:contentDescription="run_onboarding_targrt_connection_timeout"
                 android:imeOptions="actionNext"
                 android:inputType="number"
-                android:contentDescription="run_onboarding_targrt_connection_timeout"
                 android:singleLine="true" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:orientation="horizontal" >
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                android:layout_marginTop="5dp"
+                android:gravity="center"
                 android:text="@string/onboarding_annoucement_timeout"
                 android:textColor="#848482"
                 android:textSize="15sp" />
@@ -285,10 +308,9 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
                 android:id="@+id/run_onboarding_targrt_anoucement_timeout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
+                android:contentDescription="run_onboarding_targrt_anoucement_timeout"
                 android:imeOptions="actionDone"
                 android:inputType="number"
-                android:contentDescription="run_onboarding_targrt_anoucement_timeout"
                 android:singleLine="true" />
         </LinearLayout>
     </LinearLayout>

@@ -31,6 +31,10 @@ public class WiFiNetworkConfiguration extends WiFiNetwork implements Parcelable 
      * WIFI password
      */
     private String password = null;
+    /**
+     * WIFI SSID hidden
+     */
+    private boolean hidden = false;
 
     /**
      * Constructor with SSID,authType,password,cipher
@@ -46,6 +50,13 @@ public class WiFiNetworkConfiguration extends WiFiNetwork implements Parcelable 
 
     }
 
+    public WiFiNetworkConfiguration(String SSID, AuthType authType, String password, boolean isHidden) {
+        super.setSSID(SSID);
+        this.password = password;
+        this.authType = authType;
+        this.hidden = isHidden;
+    }
+
     /**
      * Constructor from a Parcel
      *
@@ -55,6 +66,7 @@ public class WiFiNetworkConfiguration extends WiFiNetwork implements Parcelable 
         SSID = in.readString();
         password = in.readString();
         authType = AuthType.getAuthTypeById((short) in.readInt());
+        hidden = (in.readByte() != 0);
     }
 
     @Override
@@ -70,6 +82,7 @@ public class WiFiNetworkConfiguration extends WiFiNetwork implements Parcelable 
         dest.writeString(SSID);
         dest.writeString(password);
         dest.writeInt(authType.getTypeId());
+        dest.writeByte((byte) (hidden ? 1 : 0));
     }
 
     public static final Parcelable.Creator<WiFiNetworkConfiguration> CREATOR = new Parcelable.Creator<WiFiNetworkConfiguration>() {
@@ -93,6 +106,8 @@ public class WiFiNetworkConfiguration extends WiFiNetwork implements Parcelable 
         return password;
     }
 
-
+    public boolean isHidden() {
+        return hidden;
+    }
 
 }

@@ -420,15 +420,15 @@ class OnboardingSDKWifiManager {
      *  <li> Call {@link #connect(WifiConfiguration, int, long)}.
      *</ul>
      *
-     * @param ssid
-     *            Wi-Fi access point
+     * @param ssid Wi-Fi access point
      * @param authType
      * @param password
-     * @param connectionTimeout
-     *            in milliseconds
+     * @param connectionTimeout in milliseconds
+     * @param isHidden
+     *
      */
-    void connectToWifiAP(String ssid, AuthType authType, String password, long connectionTimeout) {
-        Log.d(TAG, "connectToWifiAP SSID = " + ssid + " authtype = " + authType.toString());
+    void connectToWifiAP(String ssid, AuthType authType, String password, boolean isHidden,long connectionTimeout) {
+        Log.d(TAG, "connectToWifiAP SSID = " + ssid + " authtype = " + authType.toString()+ " is hidden = "+ isHidden);
 
         // if networkPass is null set it to ""
         if (password == null) {
@@ -474,6 +474,10 @@ class OnboardingSDKWifiManager {
         AuthType verrifiedWifiAuthType = getSSIDAuthType(ssid);
         if (verrifiedWifiAuthType != null) {
             authType = verrifiedWifiAuthType;
+        }
+
+        if (isHidden){
+            wifiConfiguration.hiddenSSID=true;
         }
 
         Log.i(TAG, "connectToWifiAP selectedAuthType = " + authType);

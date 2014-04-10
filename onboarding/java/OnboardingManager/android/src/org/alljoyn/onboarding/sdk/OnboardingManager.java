@@ -1072,7 +1072,7 @@ public class OnboardingManager {
         extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTING_ONBOARDEE_WIFI.toString());
         sendBroadcast(STATE_CHANGE_ACTION, extras);
         onboardingSDKWifiManager.connectToWifiAP(onboardingConfiguration.getOnboardee().getSSID(), onboardingConfiguration.getOnboardee().getAuthType(), onboardingConfiguration.getOnboardee()
-                .getPassword(), onboardingConfiguration.getOnboardeeConnectionTimeout());
+                .getPassword(), onboardingConfiguration.getOnboardee().isHidden(),onboardingConfiguration.getOnboardeeConnectionTimeout());
     }
 
 
@@ -1362,7 +1362,7 @@ public class OnboardingManager {
         extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTING_TARGET_WIFI.toString());
         sendBroadcast(STATE_CHANGE_ACTION, extras);
         onboardingSDKWifiManager.connectToWifiAP(onboardingConfiguration.getTarget().getSSID(), onboardingConfiguration.getTarget().getAuthType(), onboardingConfiguration.getTarget().getPassword(),
-                onboardingConfiguration.getTargetConnectionTimeout());
+                onboardingConfiguration.getTarget().isHidden(),onboardingConfiguration.getTargetConnectionTimeout());
     }
 
 
@@ -1979,7 +1979,7 @@ public class OnboardingManager {
             connectionTimeout = DEFAULT_WIFI_CONNECTION_TIMEOUT;
         }
 
-        onboardingSDKWifiManager.connectToWifiAP(network.getSSID(), network.getAuthType(), network.getPassword(), connectionTimeout);
+        onboardingSDKWifiManager.connectToWifiAP(network.getSSID(), network.getAuthType(), network.getPassword(),network.isHidden(),connectionTimeout);
     }
 
 

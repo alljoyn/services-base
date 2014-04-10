@@ -47,6 +47,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -73,9 +74,9 @@ public class MainActivity extends Activity {
     private IntentFilter mainFilter;
 
     /**
-     * Listen to the two main OnboardingManager Intents. Log intents with the action
-     * "OnboardingManager.STATE_CHANGE_ACTION" in a list Display alert dialog for
-     * intents with the action "OnboardingManager.ERROR".
+     * Listen to the two main OnboardingManager Intents. Log intents with the
+     * action "OnboardingManager.STATE_CHANGE_ACTION" in a list Display alert
+     * dialog for intents with the action "OnboardingManager.ERROR".
      */
     private final BroadcastReceiver mainReceiver = new BroadcastReceiver() {
         @Override
@@ -118,7 +119,6 @@ public class MainActivity extends Activity {
         }
     }
 
-
     /**
      * Display alert dialog informing error message.
      */
@@ -126,11 +126,9 @@ public class MainActivity extends Activity {
         showMessage(title, message, R.drawable.error);
     }
 
-
     private void showSuccessMessage(String title, String message) {
         showMessage(title, message, R.drawable.success);
     }
-
 
     private void showMessage(String title, String message, int resourceID) {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -140,7 +138,6 @@ public class MainActivity extends Activity {
         builder.setNegativeButton(R.string.dismiss, null);
         builder.show();
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -227,13 +224,13 @@ public class MainActivity extends Activity {
         logList = (ListView) findViewById(R.id.main_log_list);
         logListAdapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1);
 
-        // Creates new IntentFilter and add two main OnboardingManager Actions to
+        // Creates new IntentFilter and add two main OnboardingManager Actions
+        // to
         // it.
         mainFilter = new IntentFilter();
         mainFilter.addAction(OnboardingManager.STATE_CHANGE_ACTION);
         mainFilter.addAction(OnboardingManager.ERROR);
     }
-
 
     @Override
     public void onPause() {
@@ -241,13 +238,11 @@ public class MainActivity extends Activity {
         unregisterReceiver(mainReceiver);
     }
 
-
     @Override
     public void onResume() {
         super.onResume();
         registerReceiver(mainReceiver, mainFilter);
     }
-
 
     /**
      * shutdown the OnboardingManager
@@ -271,9 +266,9 @@ public class MainActivity extends Activity {
         ProtocolManager.getInstance().disconnectFromBus();
     }
 
-
     /**
-     * Perform Wi-Fi scanning using OnboardingManager and display alert when done
+     * Perform Wi-Fi scanning using OnboardingManager and display alert when
+     * done
      */
     private void handleScanWifiOnClick() {
         final ProgressDialog progressDialog = new ProgressDialog(MainActivity.this);
@@ -305,7 +300,6 @@ public class MainActivity extends Activity {
             e.printStackTrace();
         }
     }
-
 
     /**
      * Display alert dialog that will receive data and call the connectToNetwork
@@ -364,8 +358,6 @@ public class MainActivity extends Activity {
 
     }
 
-
-
     /**
      * Display list of all available networks.
      */
@@ -383,7 +375,6 @@ public class MainActivity extends Activity {
         builder.setNegativeButton(R.string.dismiss, null);
         builder.show();
     }
-
 
     /**
      * Display list of the candidate onboarding target network (Wi-Fi access
@@ -419,7 +410,6 @@ public class MainActivity extends Activity {
         builder.show();
     }
 
-
     /**
      * Display AlertDialog with info about the current connected network.
      */
@@ -436,16 +426,14 @@ public class MainActivity extends Activity {
         }
         builder.setTitle(R.string.alert_title_get_current_network);
 
-        if (current == null){
+        if (current == null) {
             builder.setMessage(getString(R.string.getcurrentnetwork_returned_null));
-        }
-        else{
+        } else {
             builder.setMessage(String.format(getString(R.string.alert_msg_get_current_network), current.getSSID(), current.getAuthType(), current.getLevel()));
         }
         builder.setNegativeButton(R.string.dismiss, null);
         builder.show();
     }
-
 
     /**
      * Display list of onboardable access points (Wi-Fi access point name that
@@ -481,12 +469,11 @@ public class MainActivity extends Activity {
         builder.show();
     }
 
-
     /**
      * Display AlertDialog Pre-filled with selected device from
      * "Get Onboardable Devices" list, Selected target from
-     * "Get Candidate Terget" list and default timeout from OnboardingManager. Call
-     * runOnboarding with the given parameters.
+     * "Get Candidate Terget" list and default timeout from OnboardingManager.
+     * Call runOnboarding with the given parameters.
      */
     private void handleRunOnboardingOnClick() {
 
@@ -508,6 +495,9 @@ public class MainActivity extends Activity {
         final Spinner targetAuthTypeSpinner = (Spinner) networkCredentialsLayout.findViewById(R.id.run_onboarding_target_authType_spinner);
         final EditText targetAnnouncementTimeoutEditText = (EditText) networkCredentialsLayout.findViewById(R.id.run_onboarding_targrt_anoucement_timeout);
         final EditText targetConnectionTimeoutEditText = (EditText) networkCredentialsLayout.findViewById(R.id.run_onboarding_targrt_connection_timeout);
+
+        final CheckBox onboardeeHidden = (CheckBox) networkCredentialsLayout.findViewById(R.id.onboardee_hidden);
+        final CheckBox targetHidden = (CheckBox) networkCredentialsLayout.findViewById(R.id.target_hidden);
 
         // prepare adapter for the Authentication type spinners
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.auth_types, android.R.layout.simple_spinner_item);
@@ -567,8 +557,8 @@ public class MainActivity extends Activity {
                 // We don't verify the arguments legality, to verify
                 // it's done
                 // properly by the SDK.
-                WiFiNetworkConfiguration onboardee = new WiFiNetworkConfiguration(onboardeeSsid, onboardeeAuthType, onboardeePassword);
-                WiFiNetworkConfiguration target = new WiFiNetworkConfiguration(targetSsid, targetAuthType, targetPassword);
+                WiFiNetworkConfiguration onboardee = new WiFiNetworkConfiguration(onboardeeSsid, onboardeeAuthType, onboardeePassword, onboardeeHidden.isChecked());
+                WiFiNetworkConfiguration target = new WiFiNetworkConfiguration(targetSsid, targetAuthType, targetPassword, targetHidden.isChecked());
                 OnboardingConfiguration config = new OnboardingConfiguration(onboardee, onboardeeWifiTimeout, onboardeeAnnouncementTimeout, target, targetWifiTimeout, targetAnnouncementTimeout);
 
                 try {
@@ -587,7 +577,6 @@ public class MainActivity extends Activity {
         });
         builder.show();
     }
-
 
     /**
      * Display a list represent all the available onboarded devices on the
@@ -644,15 +633,13 @@ public class MainActivity extends Activity {
                         showErrorMessage(getString(R.string.alert_title_wifi_error), getString(R.string.alert_msg_wifi_disabled));
                         e.printStackTrace();
                     }
-                }
-                else{
+                } else {
                     showErrorMessage(getString(R.string.alert_title_runoffboarding_error), getString(R.string.alert_msg_invalid_configuration));
                 }
             }
         });
         builder.show();
     }
-
 
     /**
      * Call abortOnboarding at the OnboardingManager
@@ -669,7 +656,6 @@ public class MainActivity extends Activity {
             e.printStackTrace();
         }
     }
-
 
     /**
      * receive AuthType and return this AuthType index in the authTypeNames
@@ -691,7 +677,6 @@ public class MainActivity extends Activity {
         }
         return -1;
     }
-
 
     /**
      * Utility to flatten bundle to String. Required for the log list.
