@@ -42,6 +42,8 @@ import org.alljoyn.services.common.BusObjectDescription;
 import org.alljoyn.services.common.utils.TransportUtil;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 
 /**
@@ -279,6 +281,13 @@ public class ProtocolManager implements AnnouncementHandler {
                 @Override
                 public void completed(String mechanism, String authPeer, boolean authenticated) {
                     Log.d(TAG, "Auth completed: mechanism = " + mechanism + " authPeer= " + authPeer + " --> " + authenticated);
+                    if (!authenticated) {
+                        Intent AuthErrorIntent = new Intent(OnboardingManager.ERROR);
+                        Bundle extra = new Bundle();
+                        extra.putString(OnboardingManager.EXTRA_ERROR_DETAILS, String.format(context.getString(R.string.auth_failed_msg), mechanism, authPeer));
+                        AuthErrorIntent.putExtras(extra);
+                        context.sendBroadcast(AuthErrorIntent);
+                    }
                 }
 
             }, new AndroidLogger());
@@ -302,7 +311,6 @@ public class ProtocolManager implements AnnouncementHandler {
         busAttachment.addMatch(SESSIONLESS_MATCH_RULE);
         Log.i(TAG, " connectToBus Done");
     }
-
 
     /**
      * Remove Match from Alljoyn bus attachment, Stop about client and cancel
@@ -332,7 +340,6 @@ public class ProtocolManager implements AnnouncementHandler {
         Log.i(TAG, "bus disconnected");
         deviceList.clear();
     }
-
 
     public boolean isConnectedToBus() {
         if (busAttachment == null) {
