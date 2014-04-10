@@ -307,9 +307,9 @@
 				GCC_PREFIX_HEADER = "alljoyn_services_cpp/alljoyn_services_common_cpp-Prefix.pch";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				HEADER_SEARCH_PATHS = (
-					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/\"",
+					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/\"",
 					"$(inherited)",
-					"\"$(SRCROOT)/../../../../../services/services_common/cpp/inc/\"",
+					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/services_common/cpp/inc/\"",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/../../../../../build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib\"";
@@ -342,9 +342,9 @@
 				GCC_PREFIX_HEADER = "alljoyn_services_cpp/alljoyn_services_common_cpp-Prefix.pch";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				HEADER_SEARCH_PATHS = (
-					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/\"",
+					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/\"",
 					"$(inherited)",
-					"\"$(SRCROOT)/../../../../../services/services_common/cpp/inc/\"",
+					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/services_common/cpp/inc/\"",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/../../../../../build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib\"";

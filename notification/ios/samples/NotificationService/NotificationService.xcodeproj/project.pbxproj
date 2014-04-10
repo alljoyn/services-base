@@ -416,17 +416,17 @@
 				GCC_PREFIX_HEADER = "NotificationService/NotificationService-Prefix.pch";
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = (
-					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
-					"\"$(SRCROOT)/../../../../../core/alljoyn/alljoyn_objc/AllJoynFramework/AllJoynFramework/\"",
+					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/alljoyn_objc/AllJoynFramework/AllJoynFramework/\"",
 					"$(BUILT_PRODUCTS_DIR)/inc/**",
-					"\"$(SRCROOT)/../../../../../services/services_common/cpp/inc\"",
+					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/services_common/cpp/inc\"",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/NotificationService/NotificationService-Info.plist";
 				INSTALL_PATH = "$(LOCAL_APPS_DIR)";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib",
+					"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib",
 					"$(OPENSSL_ROOT)/build/$(CONFIGURATION)-$(PLATFORM_NAME)",
 				);
 				ONLY_ACTIVE_ARCH = YES;
@@ -469,8 +469,8 @@
 				GCC_PREFIX_HEADER = "NotificationService/NotificationService-Prefix.pch";
 				GCC_VERSION = "";
 				HEADER_SEARCH_PATHS = (
-					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
-					"\"$(SRCROOT)/../../../../../core/alljoyn/alljoyn_objc/AllJoynFramework/AllJoynFramework/\"",
+					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/alljoyn_objc/AllJoynFramework/AllJoynFramework/\"",
 					"$(BUILT_PRODUCTS_DIR)/inc/**",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/NotificationService/NotificationService-Info.plist";
@@ -478,7 +478,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib",
+					"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib",
 					"$(OPENSSL_ROOT)/build/$(CONFIGURATION)-$(PLATFORM_NAME)",
 				);
 				ONLY_ACTIVE_ARCH = YES;
