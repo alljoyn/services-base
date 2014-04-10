@@ -46,9 +46,9 @@ public interface OnboardingTransport extends BusObject {
         REGULAR((short) 1),
 
         /**
-         * Wi-Fi fast channel mode
+         * Wi-Fi fast channel switching mode
          */
-        FAST_CHANNNEL((short) 2);
+        FAST_CHANNEL_SWITCHING((short) 2);
 
         private final short value;
 

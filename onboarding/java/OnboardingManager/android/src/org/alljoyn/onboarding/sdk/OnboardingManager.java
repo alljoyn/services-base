@@ -1701,11 +1701,16 @@ public class OnboardingManager {
                     + onboardingConfiguration.getTarget().getAuthType().getTypeId());
             ConfigureWifiMode res=onboardingClient.configureWiFi(onboardingConfiguration.getTarget().getSSID(), passForConfigureNetwork, onboardingConfiguration.getTarget().getAuthType());
             Log.i(TAG, "configureWiFi result="+res);
-            if (res==ConfigureWifiMode.REGULAR){
+            switch(res) {
+            case REGULAR:
                 onboardingClient.connectWiFi();
                 return new DeviceResponse(ResponseCode.Status_OK);
-            }else{
+            case FAST_CHANNEL_SWITCHING:
+                // wait for a ConnectionResult signal from the device before calling connectWifi
                 return new DeviceResponse(ResponseCode.Status_OK_CONNECT_SECOND_PHASE);
+            default:
+                Log.e(TAG, "configureWiFi returned an unexpected result: " + res);
+                return new DeviceResponse(ResponseCode.Status_ERROR);
             }
         } catch (BusException e) {
             Log.e(TAG, "onboarddDevice ", e);
