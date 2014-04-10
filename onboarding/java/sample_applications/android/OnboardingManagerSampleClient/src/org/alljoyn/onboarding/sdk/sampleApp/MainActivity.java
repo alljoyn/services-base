@@ -584,7 +584,6 @@ public class MainActivity extends Activity {
      * device.
      */
     private void handleRunOffboardingOnClick() {
-        isOffboarding = true;
         final List<Device> devicesList = ProtocolManager.getInstance().getDeviceList();
         String[] deviceArray = new String[devicesList.size()];
         for (int i = 0; i < deviceArray.length; i++) {
@@ -633,6 +632,7 @@ public class MainActivity extends Activity {
                         showErrorMessage(getString(R.string.alert_title_wifi_error), getString(R.string.alert_msg_wifi_disabled));
                         e.printStackTrace();
                     }
+                    isOffboarding = true;
                 } else {
                     showErrorMessage(getString(R.string.alert_title_runoffboarding_error), getString(R.string.alert_msg_invalid_configuration));
                 }
