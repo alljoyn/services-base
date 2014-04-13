@@ -16,6 +16,7 @@
 
 package org.alljoyn.onboarding.sdk.sampleApp;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -584,7 +585,8 @@ public class MainActivity extends Activity {
      * device.
      */
     private void handleRunOffboardingOnClick() {
-        final List<Device> devicesList = ProtocolManager.getInstance().getDeviceList();
+        isOffboarding = true;
+        final List<Device> devicesList = new ArrayList<Device>(ProtocolManager.getInstance().getDeviceList()); // clone the list, so that UI has an immutable copy.
         String[] deviceArray = new String[devicesList.size()];
         for (int i = 0; i < deviceArray.length; i++) {
             Device currDevice = devicesList.get(i);
