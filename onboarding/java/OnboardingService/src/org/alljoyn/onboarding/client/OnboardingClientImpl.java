@@ -19,6 +19,7 @@ package org.alljoyn.onboarding.client;
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.BusObject;
+import org.alljoyn.bus.ErrorReplyBusException;
 import org.alljoyn.bus.ProxyBusObject;
 import org.alljoyn.bus.Status;
 import org.alljoyn.bus.annotation.BusSignalHandler;
@@ -107,8 +108,7 @@ public class OnboardingClientImpl extends ClientBaseImpl implements OnboardingCl
         ConfigureWifiMode ret=ConfigureWifiMode.getConfigureWifiModeByValue(val);
         //in case the result of the ConfigureWiFi is not REGULAR /FAST_CHANNNEL set it to be REGULAR.
         if (ret==null){
-            ret=ConfigureWifiMode.REGULAR;
-        }
+            throw new ErrorReplyBusException("org.alljoyn.Error.InvalidValue", "configureWiFi returned an invalid value: " + ret);        }
         return ret;
     }
 
