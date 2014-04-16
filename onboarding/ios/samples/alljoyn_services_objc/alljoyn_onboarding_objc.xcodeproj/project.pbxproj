@@ -420,12 +420,12 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "alljoyn_services_objc/alljoyn_onboarding_objc-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
-					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
-					"\"$(SRCROOT)/../../../../../core/alljoyn/alljoyn_objc/AllJoynFramework/AllJoynFramework\"",
-					"\"$(SRCROOT)/../../../../../services/notification/cpp/inc/alljoyn/notification/\"",
-					"\"$(SRCROOT)/../../../../../core/alljoyn/services/about/ios/inc\"",
-					"\"$(SRCROOT)/../../../../../core/alljoyn/services/about/cpp/inc\"",
-					"\"$(SRCROOT)/../../../../../services/onboarding/cpp/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/alljoyn_objc/AllJoynFramework/AllJoynFramework\"",
+					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/notification/cpp/inc/alljoyn/notification/\"",
+					"\"$(ALLJOYN_SDK_ROOT)/services/about/ios/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/services/about/cpp/inc\"",
+					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/onboarding/cpp/inc\"",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
@@ -450,12 +450,12 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "alljoyn_services_objc/alljoyn_onboarding_objc-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
-					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
-					"\"$(SRCROOT)/../../../../../core/alljoyn/alljoyn_objc/AllJoynFramework/AllJoynFramework\"",
-					"\"$(SRCROOT)/../../../../../services/notification/cpp/inc/alljoyn/notification/\"",
-					"\"$(SRCROOT)/../../../../../core/alljoyn/services/about/ios/inc\"",
-					"\"$(SRCROOT)/../../../../../core/alljoyn/services/about/cpp/inc\"",
-					"\"$(SRCROOT)/../../../../../services/onboarding/cpp/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/alljoyn_objc/AllJoynFramework/AllJoynFramework\"",
+					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/notification/cpp/inc/alljoyn/notification/\"",
+					"\"$(ALLJOYN_SDK_ROOT)/services/about/ios/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/services/about/cpp/inc\"",
+					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/onboarding/cpp/inc\"",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
@@ -486,11 +486,11 @@
 				HEADER_SEARCH_PATHS = (
 					"\"$(SRCROOT)/../../../../../build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
 					"\"$(SRCROOT)/../../../../../build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"/**",
-					"\"$(SRCROOT)/../../../../../services\"/**",
+					"\"$(ALLSEEN_BASE_SERVICES_ROOT)\"/**",
 					"\"$(SRCROOT)/../../../../../common/inc\"",
 					"\"$(SRCROOT)/../../../../../alljoyn_objc/AllJoynFramework/AllJoynFramework\"",
 					"\"$(SRCROOT)/../../../../../applications\"/**",
-					"\"$(SRCROOT)/../../../../../services/notification/cpp/inc/alljoyn/notification/",
+					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/notification/cpp/inc/alljoyn/notification/",
 				);
 				INFOPLIST_FILE = "alljoyn_services_objcTests/alljoyn_onboarding_objcTests-Info.plist";
 				PRODUCT_NAME = alljoyn_onboarding_objcTests;
@@ -511,7 +511,7 @@
 				HEADER_SEARCH_PATHS = (
 					"\"$(SRCROOT)/../../../../../build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
 					"\"$(SRCROOT)/../../../../../build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"/**",
-					"\"$(SRCROOT)/../../../../../services\"/**",
+					"\"$(ALLSEEN_BASE_SERVICES_ROOT)\"/**",
 					"\"$(SRCROOT)/../../../../../common/inc\"",
 					"\"$(SRCROOT)/../../../../../alljoyn_objc/AllJoynFramework/AllJoynFramework\"",
 					"\"$(SRCROOT)/../../../../../applications\"/**",

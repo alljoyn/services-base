@@ -427,14 +427,14 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "alljoyn_services_objc/alljoyn_config_objc-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
-					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
-					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"",
-					"\"$(SRCROOT)/../../../../../services/config/ios/inc\"",
-					"\"$(SRCROOT)/../../../../../core/alljoyn/alljoyn_objc/AllJoynFramework/AllJoynFramework\"",
-					"\"$(SRCROOT)/../../../../../core/alljoyn/services/about/ios/inc\"",
-					"\"$(SRCROOT)/../../../../../core/alljoyn/services/about/cpp/inc\"",
-					"\"$(SRCROOT)/../../../../../services/config/cpp/inc\"",
-					"\"$(SRCROOT)/../../../../../services/services_common/ios/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"",
+					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/config/ios/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/alljoyn_objc/AllJoynFramework/AllJoynFramework\"",
+					"\"$(ALLJOYN_SDK_ROOT)/services/about/ios/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/services/about/cpp/inc\"",
+					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/config/cpp/inc\"",
+					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/services_common/ios/inc\"",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
@@ -459,14 +459,14 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "alljoyn_services_objc/alljoyn_config_objc-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
-					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
-					"\"$(SRCROOT)/../../../../../core/alljoyn/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"",
-					"\"$(SRCROOT)/../../../../../services/config/ios/inc\"",
-					"\"$(SRCROOT)/../../../../../core/alljoyn/alljoyn_objc/AllJoynFramework/AllJoynFramework\"",
-					"\"$(SRCROOT)/../../../../../core/alljoyn/services/about/ios/inc\"",
-					"\"$(SRCROOT)/../../../../../core/alljoyn/services/about/cpp/inc\"",
-					"\"$(SRCROOT)/../../../../../services/config/cpp/inc\"",
-					"\"$(SRCROOT)/../../../../../services/services_common/ios/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"",
+					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/config/ios/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/alljoyn_objc/AllJoynFramework/AllJoynFramework\"",
+					"\"$(ALLJOYN_SDK_ROOT)/services/about/ios/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/services/about/cpp/inc\"",
+					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/config/cpp/inc\"",
+					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/services_common/ios/inc\"",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
