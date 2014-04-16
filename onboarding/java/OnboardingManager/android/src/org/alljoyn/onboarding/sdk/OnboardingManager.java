@@ -691,17 +691,17 @@ public class OnboardingManager {
             Map<String, Object> announceDataMap = null;
             try {
                 announceDataMap = TransportUtil.fromVariantMap(serviceMetadata);
-                if (announceDataMap == null) {
-                    // ignoring error. will be handled by announcement timeout
-                    Log.e(TAG, "onAnnouncement: invalid announcement");
-                    return;
-                }
-
             } catch (BusException e) {
                 // ignoring error. will be handled by announcement timeout
                 Log.e(TAG, "onAnnouncement: invalid announcement", e);
+                return;
             }
 
+            if (announceDataMap == null) {
+                // ignoring error. will be handled by announcement timeout
+                Log.e(TAG, "onAnnouncement: invalid announcement");
+                return;
+            }
             UUID uniqueId = (UUID) announceDataMap.get(AboutKeys.ABOUT_APP_ID);
             if (uniqueId == null) {
                 Log.e(TAG, "onAnnouncement: received null device uuid!! ignoring.");
@@ -1501,8 +1501,9 @@ public class OnboardingManager {
             return;
         }
 
-        Log.d(TAG,"onHandleCommandMessage "+State.getStateByValue(msg.what).toString());
-        switch (State.getStateByValue(msg.what)) {
+        State stateByValue = State.getStateByValue(msg.what);
+        Log.d(TAG,"onHandleCommandMessage "+stateByValue);
+        switch (stateByValue) {
 
         case IDLE:
             currentState = State.IDLE;

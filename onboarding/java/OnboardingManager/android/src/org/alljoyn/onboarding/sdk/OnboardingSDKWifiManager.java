@@ -280,7 +280,8 @@ class OnboardingSDKWifiManager {
 
             if (targetWifiConfiguration != null) {
                 // check if it's the network that we tried to connect to
-                if (((wifiInfo != null) && isSsidEquals(targetWifiConfiguration.SSID, wifiInfo.getSSID())) || isSsidEquals(targetWifiConfiguration.SSID, getCurrentConnectedAP().getSSID())) {
+                if (((wifiInfo != null) && isSsidEquals(targetWifiConfiguration.SSID, wifiInfo.getSSID())) ||
+                        (getCurrentConnectedAP() != null && isSsidEquals(targetWifiConfiguration.SSID, getCurrentConnectedAP().getSSID()))) {
                     Bundle extras = new Bundle();
                     // it was the SDK that initiated the Wi-Fi change, hence the
                     // timer should be cancelled
