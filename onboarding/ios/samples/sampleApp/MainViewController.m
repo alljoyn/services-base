@@ -54,15 +54,12 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 // About Client strings
 @property (strong, nonatomic) NSString *ajconnect;
 @property (strong, nonatomic) NSString *ajdisconnect;
-@property (strong, nonatomic) NSString *defaultBusName;
 @property (strong, nonatomic) NSString *annSubvTitleLabelDefaultTxt;
 
 // About Client alerts
-@property (strong, nonatomic) UIAlertView *busNameAlert;
 @property (strong, nonatomic) UIAlertView *disconnectAlert;
 @property (strong, nonatomic) UIAlertView *announcementOptionsAlert;
 @property (strong, nonatomic) UIAlertView *onboardingOptionsAlert;
-@property (strong, nonatomic) UITextField *alertDefaultBusName;
 
 @property (strong, nonatomic) AuthenticationListenerImpl *authenticationListenerImpl;
 
@@ -132,18 +129,7 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 // Get the user's input from the alert dialog
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-	if (alertView == self.busNameAlert) {
-		if (buttonIndex == 1) { // User pressed OK
-			self.realmBusName = [[alertView textFieldAtIndex:0] text];
-            
-			NSLog(@"[%@] [%@] realmBusName: %@", @"DEBUG", [[self class] description], self.realmBusName);
-            
-			[self startAboutClient];
-		}
-		else {   // User pressed Cancel
-		}
-	}
-	else if (alertView == self.disconnectAlert) {
+	if (alertView == self.disconnectAlert) {
 		if (buttonIndex == 1) { // User pressed OK
 			[self stopAboutClient];
 		}
@@ -184,12 +170,9 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 #pragma mark - IBAction Methods
 - (IBAction)connectButtonDidTouchUpInside:(id)sender
 {
-	// Present the dialog box - to get the bus name
+	// Connect to the bus with the default realm bus name
 	if (!self.isAboutClientConnected) {
-		// Set default text for realm bus name
-		[self.alertDefaultBusName setText:self.defaultBusName];
-		[self.alertDefaultBusName setFont:([UIFont fontWithName:@"System" size:8.0])];
-		[self.busNameAlert show]; // Event is forward to alertView: clickedButtonAtIndex:
+		[self startAboutClient];
 	}
 	else {
 		// Present a dialog box - are you sure?
@@ -347,7 +330,7 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 	// Set About Client strings
 	self.ajconnect = @"Connect to AllJoyn";
 	self.ajdisconnect = @"Disconnect from AllJoyn";
-	self.defaultBusName = @"org.alljoyn.BusNode.onboardingClient";
+	self.realmBusName = @"org.alljoyn.BusNode.onboardingClient";
 	self.annSubvTitleLabelDefaultTxt = @"Announcement of ";
 	// Set About Client connect button
 	self.connectButton.backgroundColor = [UIColor darkGrayColor]; //button bg color
@@ -361,11 +344,6 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 //  Initialize alerts
 - (void)prepareAlerts
 {
-	// BusNameAlert.tag = 1
-	self.busNameAlert = [[UIAlertView alloc] initWithTitle:@"" message:@"Set realm name" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"OK", nil];
-	self.busNameAlert.alertViewStyle = UIAlertViewStylePlainTextInput;
-	self.alertDefaultBusName = [self.busNameAlert textFieldAtIndex:0]; //connect the UITextField with the alert
-    
 	// disconnectAlert.tag = 2
 	self.disconnectAlert = [[UIAlertView alloc] initWithTitle:@"" message:@"Are you sure you want to disconnect from alljoyn?" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"OK", nil];
 	self.disconnectAlert.alertViewStyle = UIAlertViewStyleDefault;
@@ -410,6 +388,15 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 	}
 }
 
+- (void)AlertAndLog:(NSString *)level message:(NSString *)message status:(QStatus)status
+{
+    NSString *alertText = [NSString stringWithFormat:@"%@ (%@)",message, [AJNStatus descriptionForStatusCode:status]];
+    NSLog(@"[%@] [%@] %@", level, [[self class] description], alertText);
+    
+    [[[UIAlertView alloc] initWithTitle:@"Startup Error" message:alertText delegate:nil cancelButtonTitle:@"OK" otherButtonTitles: nil] show];
+}
+
+
 #pragma mark - AboutClient
 #pragma mark start AboutClient
 
@@ -426,37 +413,41 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 	// Start AJNBusAttachment
 	status = [self.clientBusAttachment start];
 	if (status != ER_OK) {
-         NSLog(@"[%@] [%@] Unable to connect to Start - exiting application", @"FATAL", [[self class] description]);
-
-		exit(1);
+        [self AlertAndLog:@"FATAL" message:@"Failed AJNBusAttachment start" status:status];
+        [self stopAboutClient];
+        return;
 	}
     
     // for tcl
     status = [AJNPasswordManager setCredentialsForAuthMechanism:@"ALLJOYN_PIN_KEYX" usingPassword:@"000000"];
 	if (status != ER_OK) {
-        NSLog(@"[%@] [%@] Failed to SetCredentials %@", @"FATAL", [[self class] description],[AJNStatus descriptionForStatusCode:status]);
-        
-		exit(1);
+        [self AlertAndLog:@"FATAL" message:@"Failed to SetCredentials" status:status];
+        [self stopAboutClient];
+
+        return;
 	}
     
 	// Connect AJNBusAttachment
 	status = [self.clientBusAttachment connectWithArguments:@""];
 	if (status != ER_OK) {
-         NSLog(@"[%@] [%@] Failed to connect - exiting application", @"FATAL", [[self class] description]);
+        [self AlertAndLog:@"FATAL" message:@"Failed AJNBusAttachment connectWithArguments" status:status];
+        [self stopAboutClient];
 
-		exit(1);
+        return;
 	}
-     NSLog(@"[%@] [%@] Create aboutClientListener", @"DEBUG", [[self class] description]);
- NSLog(@"[%@] [%@] Register aboutClientListener", @"DEBUG", [[self class] description]);
+    
+    NSLog(@"[%@] [%@] Create aboutClientListener", @"DEBUG", [[self class] description]);
+    NSLog(@"[%@] [%@] Register aboutClientListener", @"DEBUG", [[self class] description]);
 
 	[self.clientBusAttachment registerBusListener:self];
     
 	self.announcementReceiver = [[AJNAnnouncementReceiver alloc] initWithAnnouncementListener:self andBus:self.clientBusAttachment];
 	status = [self.announcementReceiver registerAnnouncementReceiver];
 	if (status != ER_OK) {
-        NSLog(@"[%@] [%@] Failed to registerAnnouncementReceiver - exiting application", @"FATAL", [[self class] description]);
+        [self AlertAndLog:@"FATAL" message:@"Failed to registerAnnouncementReceiver" status:status];
+        [self stopAboutClient];
 
-        exit(1);
+        return;
 	}
     
 	// Create a dictionary to contain announcements using a key in the format of: "announcementUniqueName + announcementObj"
@@ -465,9 +456,10 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 	// AddMatchRule
 	status = [self.clientBusAttachment addMatchRule:@"sessionless='t',type='error'"]; // This is added because we want to listen to the about announcements which are sessionless
 	if (status != ER_OK) {
-        NSLog(@"[%@] [%@] Failed at addMatchRule - exiting application", @"FATAL", [[self class] description]);
+        [self AlertAndLog:@"FATAL" message:@"Failed at addMatchRule" status:status];
+        [self stopAboutClient];
 
-		exit(1);
+        return;
 	}
     
 	// Advertise Daemon for tcl
@@ -481,20 +473,25 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
         
 		status = [self.clientBusAttachment advertiseName:[NSString stringWithFormat:@"%@%@", DAEMON_QUIET_PREFIX, self.realmBusName] withTransportMask:kAJNTransportMaskAny];
 		if (status != ER_OK) {
-            NSLog(@"[%@] [%@] Failed to advertise name - exiting application %@", @"FATAL", [[self class] description],[AJNStatus descriptionForStatusCode:status]);
+            
+            [self AlertAndLog:@"FATAL" message:@"Failed to advertise name" status:status];
 
 			status = [self.clientBusAttachment releaseWellKnownName:self.realmBusName];
             
-			exit(1);
+            [self stopAboutClient];
+            
+            return;
 		}
 		else {
             NSLog(@"[%@] [%@] Successfully advertised: %@%@", @"DEBUG", [[self class] description], DAEMON_QUIET_PREFIX, self.realmBusName);
 		}
 	}
 	else {
-        NSLog(@"[%@] [%@] Failed to requestWellKnownName - exiting application %@", @"FATAL", [[self class] description],[AJNStatus descriptionForStatusCode:status]);
+        [self AlertAndLog:@"FATAL" message:@"Failed to requestWellKnownName" status:status];
+        [self stopAboutClient];
+        
+        return;
 
-		exit(1);
 	}
     
     // Enable Client Security
