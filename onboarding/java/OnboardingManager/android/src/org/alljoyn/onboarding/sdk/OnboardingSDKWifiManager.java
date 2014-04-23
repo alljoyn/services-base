@@ -160,6 +160,9 @@ class OnboardingSDKWifiManager {
                         // the wifiInfo extra indicates that the new state is
                         // CONNECTED, and provides the SSID.
                         WifiInfo wifiInfo = intent.getParcelableExtra(WifiManager.EXTRA_WIFI_INFO);
+                        if (wifiInfo == null) {
+                            wifiInfo = wifi.getConnectionInfo();
+                        }
                         if (wifiInfo != null) {
                             processChangeOfNetwork(wifiInfo);
                         }
