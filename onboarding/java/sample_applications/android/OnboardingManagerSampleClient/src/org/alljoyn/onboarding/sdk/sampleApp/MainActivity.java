@@ -98,8 +98,7 @@ public class MainActivity extends Activity {
                         } else if (OnboardingState.VERIFIED_ONBOARDED.toString().equals(value)) {
                             showSuccessMessage("Success", "Onboarding process completed");
                         } else if (OnboardingState.CONFIGURED_ONBOARDEE.toString().equals(value) && isOffboarding) {
-                            showSuccessMessage("Success", "Offboarding process completed");
-                            isOffboarding = false;
+                            showSuccessMessage("Success", "Offboarding process completed");                          
                         }
                     }
                 }
@@ -564,6 +563,7 @@ public class MainActivity extends Activity {
 
                 try {
                     OnboardingManager.getInstance().runOnboarding(config);
+                    isOffboarding = false;
                 } catch (OnboardingIllegalArgumentException e) {
                     showErrorMessage(getString(R.string.alert_title_runonboarding_error), getString(R.string.alert_msg_invalid_configuration));
                     e.printStackTrace();
@@ -584,8 +584,7 @@ public class MainActivity extends Activity {
      * current network. Select item will allow the user to offboard the selected
      * device.
      */
-    private void handleRunOffboardingOnClick() {
-        isOffboarding = true;
+    private void handleRunOffboardingOnClick() {       
         final List<Device> devicesList = new ArrayList<Device>(ProtocolManager.getInstance().getDeviceList()); // clone the list, so that UI has an immutable copy.
         String[] deviceArray = new String[devicesList.size()];
         for (int i = 0; i < deviceArray.length; i++) {
@@ -624,6 +623,7 @@ public class MainActivity extends Activity {
                     OffboardingConfiguration config = new OffboardingConfiguration(busNameEditText.getText().toString(), Short.valueOf(portEditText.getText().toString()));
                     try {
                         OnboardingManager.getInstance().runOffboarding(config);
+                        isOffboarding = true;
                     } catch (OnboardingIllegalArgumentException e) {
                         showErrorMessage(getString(R.string.alert_title_runoffboarding_error), getString(R.string.alert_msg_invalid_configuration));
                         e.printStackTrace();
@@ -634,7 +634,7 @@ public class MainActivity extends Activity {
                         showErrorMessage(getString(R.string.alert_title_wifi_error), getString(R.string.alert_msg_wifi_disabled));
                         e.printStackTrace();
                     }
-                    isOffboarding = true;
+                   
                 } else {
                     showErrorMessage(getString(R.string.alert_title_runoffboarding_error), getString(R.string.alert_msg_invalid_configuration));
                 }
