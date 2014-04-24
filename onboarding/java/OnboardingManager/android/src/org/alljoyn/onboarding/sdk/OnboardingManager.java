@@ -663,7 +663,14 @@ public class OnboardingManager {
      */
     private Timer announcementTimeout = new Timer();
 
+    /**
+     * Indicates a special case when  {@link #abortOnboarding()} is in state {@link State#JOINING_SESSION}
+     */
+    private final int ABORTING_INTERRUPT_FLAG=0x100;
 
+    /**
+     * Indicator flag to stop findAnnouncements
+     */
     private   static  volatile  boolean internalAnnouncementFindFlag;
 
     /**
@@ -1435,6 +1442,13 @@ public class OnboardingManager {
         // set state to State.ABORTING
         currentState = State.ABORTING;
         cancelFindAnnouncements();
+
+        // in case State.JOINING_SESSION push ABORTING_INTERRUPT_FLAG into the stateHandler queue.
+        if (initalState==State.JOINING_SESSION){
+            stateHandler.sendMessageDelayed(stateHandler.obtainMessage(ABORTING_INTERRUPT_FLAG),60*60*10000);
+            return;
+        }
+
         // remove all queued up messages in the stateHandler
         for (State s : State.values()) {
             stateHandler.removeMessages(s.value);
@@ -1497,11 +1511,20 @@ public class OnboardingManager {
      * @param msg
      */
     private void onHandleCommandMessage(Message msg) {
+
         if (msg == null) {
             return;
         }
-
+        // in case ABORTING_INTERRUPT_FLAG has been found in the queue remove it and call abortStateCleanUp
+        if (stateHandler.hasMessages(ABORTING_INTERRUPT_FLAG)){
+            stateHandler.removeMessages(ABORTING_INTERRUPT_FLAG);
+            abortStateCleanUp();
+            return;
+        }
         State stateByValue = State.getStateByValue(msg.what);
+        if  (stateByValue==null){
+            return;
+        }
         Log.d(TAG,"onHandleCommandMessage "+stateByValue);
         switch (stateByValue) {
 
@@ -2134,15 +2157,16 @@ public class OnboardingManager {
      *    in case the state machine is in state CONNECTING_TO_TARGET_WIFI_AP,WAITING_FOR_TARGET_ANNOUNCE,TARGET_ANNOUNCEMENT_RECEIVED (can't abort ,in final stages of onboarding)
      */
     public void abortOnboarding() throws OnboardingIllegalStateException {
-        if (currentState == State.IDLE ||
-                currentState == State.ABORTING ){
+
+        Log.d(TAG,"abortOnboarding in "+currentState.toString());
+        if (currentState == State.IDLE ||currentState == State.ABORTING ){
             throw new OnboardingIllegalStateException("Can't abort ,already ABORTED");
         }
 
         if (currentState == State.CONNECTING_TO_TARGET_WIFI_AP ||
-                currentState == State.TARGET_ANNOUNCEMENT_RECEIVED ||
-                currentState == State.CONFIGURING_ONBOARDEE ||
-                currentState == State.CONFIGURING_ONBOARDEE_WITH_SIGNAL) {
+            currentState == State.TARGET_ANNOUNCEMENT_RECEIVED ||
+            currentState == State.CONFIGURING_ONBOARDEE ||
+            currentState == State.CONFIGURING_ONBOARDEE_WITH_SIGNAL) {
             throw new OnboardingIllegalStateException("Can't abort");
         }
         Bundle extras =new Bundle();
@@ -2182,6 +2206,11 @@ public class OnboardingManager {
      */
     private void abortStateCleanUp(){
 
+        // in case ABORTING_INTERRUPT_FLAG found in stateHandler remove it.
+        if (stateHandler.hasMessages(ABORTING_INTERRUPT_FLAG)){
+            stateHandler.removeMessages(ABORTING_INTERRUPT_FLAG);
+        }
+
         if (onboardingConfiguration!=null && onboardingConfiguration.getOnboardee()!=null && onboardingConfiguration.getOnboardee().getSSID()!=null){
             onboardingSDKWifiManager.removeWifiAP(onboardingConfiguration.getOnboardee().getSSID());
         }
@@ -2205,6 +2234,7 @@ public class OnboardingManager {
             }
 
             extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTING_ORIGINAL_WIFI.toString());
+            sendBroadcast(STATE_CHANGE_ACTION, extras);
 
             onboardingWifiBroadcastReceiver = new BroadcastReceiver() {
                 @Override
