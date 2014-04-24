@@ -1593,7 +1593,7 @@ public class OnboardingManager {
             break;
 
         case ERROR_WAITING_FOR_TARGET_ANNOUNCE:
-            currentState = State.ERROR_CONNECTING_TO_TARGET_WIFI_AP;
+            currentState = State.ERROR_WAITING_FOR_TARGET_ANNOUNCE;
             break;
 
         case ABORTING:
