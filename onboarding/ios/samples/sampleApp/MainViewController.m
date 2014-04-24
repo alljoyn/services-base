@@ -34,6 +34,7 @@ static NSString * const APPNAME = @"AboutClientMain"; // About Client - default 
 static NSString * const DAEMON_QUIET_PREFIX  = @"quiet@";   // About Client - quiet advertising
 static NSString * const ONBOARDING_OBJECT_PATH = @"/Onboarding";
 static NSString * const ONBOARDING_INTERFACE_NAME = @"org.alljoyn.Onboarding";
+static NSString * const DEFAULT_REALM_BUS_NAME = @"org.alljoyn.BusNode.onboardingClient";
 
 static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 
@@ -330,7 +331,7 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 	// Set About Client strings
 	self.ajconnect = @"Connect to AllJoyn";
 	self.ajdisconnect = @"Disconnect from AllJoyn";
-	self.realmBusName = @"org.alljoyn.BusNode.onboardingClient";
+	self.realmBusName = DEFAULT_REALM_BUS_NAME;
 	self.annSubvTitleLabelDefaultTxt = @"Announcement of ";
 	// Set About Client connect button
 	self.connectButton.backgroundColor = [UIColor darkGrayColor]; //button bg color
@@ -462,21 +463,21 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
         return;
 	}
     
+    NSUUID *UUID = [NSUUID UUID];
+    NSString *stringUUID = [UUID UUIDString];
+    
+    self.realmBusName = [NSString stringWithFormat:@"%@-%@", DEFAULT_REALM_BUS_NAME, stringUUID];
+    
 	// Advertise Daemon for tcl
 	status = [self.clientBusAttachment requestWellKnownName:self.realmBusName withFlags:kAJNBusNameFlagDoNotQueue];
 	if (status == ER_OK) {
 		// Advertise the name with a quite prefix for TC to find it
-		NSUUID *UUID = [NSUUID UUID];
-		NSString *stringUUID = [UUID UUIDString];
-        
-		self.realmBusName = [self.realmBusName stringByAppendingFormat:@"-%@", stringUUID];
-        
 		status = [self.clientBusAttachment advertiseName:[NSString stringWithFormat:@"%@%@", DAEMON_QUIET_PREFIX, self.realmBusName] withTransportMask:kAJNTransportMaskAny];
 		if (status != ER_OK) {
             
             [self AlertAndLog:@"FATAL" message:@"Failed to advertise name" status:status];
-
-			status = [self.clientBusAttachment releaseWellKnownName:self.realmBusName];
+            
+            NSLog(@"[%@] [%@] Failed advertising: %@%@", @"ERROR", [[self class] description], DAEMON_QUIET_PREFIX, self.realmBusName);
             
             [self stopAboutClient];
             
@@ -568,15 +569,28 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 	status = [self.clientBusAttachment cancelAdvertisedName:[NSString stringWithFormat:@"%@%@", DAEMON_QUIET_PREFIX, self.realmBusName] withTransportMask:kAJNTransportMaskAny];
 	if (status == ER_OK) {
          NSLog(@"[%@] [%@] Successfully cancel advertised name", @"DEBUG", [[self class] description]);
-	}
+	} else {
+        NSLog(@"[%@] [%@]  Failed cancel advertised name, error:%@", @"DEBUG", [[self class] description],[AJNStatus descriptionForStatusCode:status]);
+
+    }
+    
 	status = [self.clientBusAttachment releaseWellKnownName:self.realmBusName];
 	if (status == ER_OK) {
          NSLog(@"[%@] [%@] Successfully release WellKnownName", @"DEBUG", [[self class] description]);
-	}
+	} else {
+        NSLog(@"[%@] [%@]  Failed release WellKnownName, error:%@", @"DEBUG", [[self class] description],[AJNStatus descriptionForStatusCode:status]);
+        
+    }
+    
+    
+    
 	status = [self.clientBusAttachment removeMatchRule:@"sessionless='t',type='error'"];
 	if (status == ER_OK) {
          NSLog(@"[%@] [%@] Successfully remove MatchRule", @"DEBUG", [[self class] description]);
-	}
+	} else {
+        NSLog(@"[%@] [%@]  Failed remove MatchRule, error:%@", @"DEBUG", [[self class] description],[AJNStatus descriptionForStatusCode:status]);
+        
+    }
     
 	// Cancel advertise name for each announcement bus
 	for (NSString *key in[self.clientInformationDict allKeys]) {
@@ -584,14 +598,17 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 		status = [self.clientBusAttachment cancelFindAdvertisedName:[[clientInfo announcement] busName]];
 		if (status != ER_OK) {
              NSLog(@"[%@] [%@] failed to cancelAdvertisedName for %@. status:%@", @"ERROR", [[self class] description],key, [AJNStatus descriptionForStatusCode:status]);
-		}
+		} 
 	}
 	self.clientInformationDict = nil;
     
 	status = [self.announcementReceiver unRegisterAnnouncementReceiver];
 	if (status == ER_OK) {
          NSLog(@"[%@] [%@] Successfully unregistered AnnouncementReceiver", @"DEBUG", [[self class] description]);
-	}
+	} else {
+        NSLog(@"[%@] [%@]  Failed unregistered AnnouncementReceiver, error:%@", @"DEBUG", [[self class] description],[AJNStatus descriptionForStatusCode:status]);
+        
+    }
     
 	self.announcementReceiver = nil;
     
@@ -599,7 +616,11 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 	status = [self.clientBusAttachment stop];
 	if (status == ER_OK) {
          NSLog(@"[%@] [%@] Successfully stopped bus", @"DEBUG", [[self class] description]);
+    } else {
+        NSLog(@"[%@] [%@]  Failed stopping bus, error:%@", @"DEBUG", [[self class] description],[AJNStatus descriptionForStatusCode:status]);
+        
     }
+    
 	self.clientBusAttachment = nil;
     
 	// Set flag
