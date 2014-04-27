@@ -370,7 +370,7 @@ public class MainActivity extends Activity {
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.candidate_targets);
+        builder.setTitle(R.string.get_all_networks);
         builder.setItems(ssid, null);
         builder.setNegativeButton(R.string.dismiss, null);
         builder.show();
