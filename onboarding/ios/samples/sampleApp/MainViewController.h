@@ -25,4 +25,6 @@
 @property (weak, nonatomic) IBOutlet UITableView *servicesTable;
 
 - (IBAction)connectButtonDidTouchUpInside:(id)sender;
+@property (weak, nonatomic) IBOutlet UILabel *instructionsLabel;
+
 @end

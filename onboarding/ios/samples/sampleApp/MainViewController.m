@@ -102,8 +102,16 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 //        NSLog(@"    %@:%@", interfaceName, interfaceInformation);
         NSDictionary *dict = interfaceInformation;
         NSString *title = [NSString stringWithFormat:@"Devices on: %@",dict[@"SSID"]];
+        
+        // Set the instructions Label text according to the network type
+        if ([dict[@"SSID"] hasPrefix:SOFT_AP_PREFIX] || [dict[@"SSID"] hasSuffix:SOFT_AP_SUFFIX]) {
+            self.instructionsLabel.text = @"You are currently connected to a device SoftAP.\n\nPress \"Connect to AllJoyn\" to see the device in the list above.\n\nPress on the device name->onboarding to start onboarding.";
+        } else {
+            self.instructionsLabel.text =  @"To onboard a new device:\nConnect to the device's Wi-Fi SoftAP by going to Settings -> Wi-Fi\n\nTo see the devices on this network:\nPress \"Connect to AllJoyn\"";
+        }
+        
         if (![self.title isEqualToString:title]) {
-            if (![dict[@"SSID"] hasPrefix:@"AJ_"] && ![dict[@"SSID"] isEqualToString:[[NSUserDefaults standardUserDefaults]valueForKey:@"lastVisitedNetwork"]]) {
+            if ((![dict[@"SSID"] hasPrefix:SOFT_AP_PREFIX] && ![dict[@"SSID"] hasSuffix:SOFT_AP_SUFFIX]) && ![dict[@"SSID"] isEqualToString:[[NSUserDefaults standardUserDefaults]valueForKey:@"lastVisitedNetwork"]]) {
                 NSLog(@"setting lastVisitedNetwork to: %@", dict[@"SSID"]);
                 [[NSUserDefaults standardUserDefaults] setValue:dict[@"SSID"] forKey:@"lastVisitedNetwork"];
                 [[NSUserDefaults standardUserDefaults] synchronize];
@@ -112,7 +120,8 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
             self.title = title;
             if (self.isAboutClientConnected) {
                 NSLog(@"changing network to %@ trigger a restart", dict[@"SSID"]);
-                [[[UIAlertView alloc]initWithTitle:@"Network Change" message:@"The WiFi network changed. You have been disconnected, please connect again" delegate:Nil cancelButtonTitle:@"OK" otherButtonTitles: nil] show];
+                [[[UIAlertView alloc]initWithTitle:@"Wi-Fi network changed" message:@"Please reconnect to AllJoyn" delegate:Nil cancelButtonTitle:@"OK" otherButtonTitles: nil] show];
+                [self.navigationController popViewControllerAnimated:YES];
                 [self stopAboutClient];
             }
         }
@@ -130,12 +139,7 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 // Get the user's input from the alert dialog
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-	if (alertView == self.disconnectAlert) {
-		if (buttonIndex == 1) { // User pressed OK
-			[self stopAboutClient];
-		}
-	}
-	else if (alertView == self.announcementOptionsAlert) {
+    if (alertView == self.announcementOptionsAlert) {
 		[self performAnnouncementAction:buttonIndex];
 	}
 	else if (alertView == self.onboardingOptionsAlert) {
@@ -174,10 +178,8 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 	// Connect to the bus with the default realm bus name
 	if (!self.isAboutClientConnected) {
 		[self startAboutClient];
-	}
-	else {
-		// Present a dialog box - are you sure?
-		[self.disconnectAlert show]; // Event is forward to alertView: clickedButtonAtIndex:
+	} else {
+        [self stopAboutClient];
 	}
 }
 
@@ -334,21 +336,16 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 	self.realmBusName = DEFAULT_REALM_BUS_NAME;
 	self.annSubvTitleLabelDefaultTxt = @"Announcement of ";
 	// Set About Client connect button
-	self.connectButton.backgroundColor = [UIColor darkGrayColor]; //button bg color
-	[self.connectButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal]; //button font color
+//	self.connectButton.backgroundColor = [UIColor darkGrayColor]; //button bg color
+//	[self.connectButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal]; //button font color
 	[self.connectButton setTitle:self.ajconnect forState:UIControlStateNormal]; //default text
     
 	[self prepareAlerts];
-    
 }
 
 //  Initialize alerts
 - (void)prepareAlerts
 {
-	// disconnectAlert.tag = 2
-	self.disconnectAlert = [[UIAlertView alloc] initWithTitle:@"" message:@"Are you sure you want to disconnect from alljoyn?" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"OK", nil];
-	self.disconnectAlert.alertViewStyle = UIAlertViewStyleDefault;
-    
 	// announcementOptionsAlert.tag = 3
 	self.announcementOptionsAlert = [[UIAlertView alloc] initWithTitle:@"Choose option:" message:@"" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Show Announce", @"About", nil];
 	self.announcementOptionsAlert.alertViewStyle = UIAlertViewStyleDefault;

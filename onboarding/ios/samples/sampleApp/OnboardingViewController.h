@@ -18,6 +18,9 @@
 #import "AJNBusAttachment.h"
 #import "ClientInformation.h"
 
+static NSString * const SOFT_AP_PREFIX = @"AJ_";
+static NSString * const SOFT_AP_SUFFIX = @"_AJ";
+
 @interface OnboardingViewController : UIViewController
 @property (strong, nonatomic) AJNBusAttachment *clientBusName;
 @property (weak, nonatomic) ClientInformation *clientInformation;
@@ -31,6 +34,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *ssidLbl;
 @property (weak, nonatomic) IBOutlet UILabel *ssidPassLbl;
 @property (weak, nonatomic) IBOutlet UILabel *statusLbl;
+@property (weak, nonatomic) IBOutlet UILabel *instructLbl;
 
 - (IBAction)configureBtnDidTouchUpInside:(id)sender;
 
