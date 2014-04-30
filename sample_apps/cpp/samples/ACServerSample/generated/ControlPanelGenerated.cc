@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -36,6 +36,10 @@ MyDeviceAc_mode* ControlPanelGenerated::myDeviceAc_mode = 0;
 MyDeviceStatusStringProperty* ControlPanelGenerated::myDeviceStatusStringProperty = 0;
 MyDeviceSet_temperature* ControlPanelGenerated::myDeviceSet_temperature = 0;
 MyDeviceFan_speed* ControlPanelGenerated::myDeviceFan_speed = 0;
+NotificationAction* ControlPanelGenerated::myDeviceTurnFanOnNotificationAction = 0;
+MyDeviceTurnFanOn* ControlPanelGenerated::myDeviceTurnFanOn = 0;
+NotificationAction* ControlPanelGenerated::myDeviceTurnFanOffNotificationAction = 0;
+MyDeviceTurnFanOff* ControlPanelGenerated::myDeviceTurnFanOff = 0;
 
 
 #define CHECK(x) if ((status = x) != ER_OK) { return status; }
@@ -267,6 +271,58 @@ QStatus ControlPanelGenerated::PrepareWidgets(ControlPanelControllee*& controlPa
 
     myDeviceFan_speed->setConstraintList(myDeviceFan_speedConstraintListVec);
 
+    myDeviceTurnFanOnNotificationAction = NotificationAction::createNotificationAction(LanguageSets::get("myDeviceMyLanguages"));
+    if (!myDeviceTurnFanOnNotificationAction) {
+        return ER_FAIL;
+    }
+    CHECK(myDeviceUnit->addNotificationAction(myDeviceTurnFanOnNotificationAction));
+
+    myDeviceTurnFanOn = new MyDeviceTurnFanOn("TurnFanOn", NULL);
+    CHECK(myDeviceTurnFanOnNotificationAction->setRootWidget(myDeviceTurnFanOn));
+
+    myDeviceTurnFanOn->setEnabled(true);
+    myDeviceTurnFanOn->setIsSecured(false);
+
+    std::vector<qcc::String> myDeviceTurnFanOnmessageVec;
+    myDeviceTurnFanOnmessageVec.push_back("Turn fan on ?");
+    myDeviceTurnFanOn->setMessages(myDeviceTurnFanOnmessageVec);
+    myDeviceTurnFanOn->setNumActions(2);
+    myDeviceTurnFanOn->setBgColor(0x789);
+
+    std::vector<qcc::String> myDeviceTurnFanOnLabelAction1Vec;
+    myDeviceTurnFanOnLabelAction1Vec.push_back("Yes");
+    myDeviceTurnFanOn->setLabelsAction1(myDeviceTurnFanOnLabelAction1Vec);
+
+    std::vector<qcc::String> myDeviceTurnFanOnLabelAction2Vec;
+    myDeviceTurnFanOnLabelAction2Vec.push_back("No");
+    myDeviceTurnFanOn->setLabelsAction2(myDeviceTurnFanOnLabelAction2Vec);
+
+    myDeviceTurnFanOffNotificationAction = NotificationAction::createNotificationAction(LanguageSets::get("myDeviceMyLanguages"));
+    if (!myDeviceTurnFanOffNotificationAction) {
+        return ER_FAIL;
+    }
+    CHECK(myDeviceUnit->addNotificationAction(myDeviceTurnFanOffNotificationAction));
+
+    myDeviceTurnFanOff = new MyDeviceTurnFanOff("TurnFanOff", NULL);
+    CHECK(myDeviceTurnFanOffNotificationAction->setRootWidget(myDeviceTurnFanOff));
+
+    myDeviceTurnFanOff->setEnabled(true);
+    myDeviceTurnFanOff->setIsSecured(false);
+
+    std::vector<qcc::String> myDeviceTurnFanOffmessageVec;
+    myDeviceTurnFanOffmessageVec.push_back("Turn fan off ?");
+    myDeviceTurnFanOff->setMessages(myDeviceTurnFanOffmessageVec);
+    myDeviceTurnFanOff->setNumActions(2);
+    myDeviceTurnFanOff->setBgColor(0x789);
+
+    std::vector<qcc::String> myDeviceTurnFanOffLabelAction1Vec;
+    myDeviceTurnFanOffLabelAction1Vec.push_back("Yes");
+    myDeviceTurnFanOff->setLabelsAction1(myDeviceTurnFanOffLabelAction1Vec);
+
+    std::vector<qcc::String> myDeviceTurnFanOffLabelAction2Vec;
+    myDeviceTurnFanOffLabelAction2Vec.push_back("No");
+    myDeviceTurnFanOff->setLabelsAction2(myDeviceTurnFanOffLabelAction2Vec);
+
     return status;
 }
 
@@ -315,6 +371,22 @@ void ControlPanelGenerated::Shutdown()
     if (myDeviceFan_speed) {
         delete (myDeviceFan_speed);
         myDeviceFan_speed = 0;
+    }
+    if (myDeviceTurnFanOnNotificationAction) {
+        delete (myDeviceTurnFanOnNotificationAction);
+        myDeviceTurnFanOnNotificationAction = 0;
+    }
+    if (myDeviceTurnFanOn) {
+        delete (myDeviceTurnFanOn);
+        myDeviceTurnFanOn = 0;
+    }
+    if (myDeviceTurnFanOffNotificationAction) {
+        delete (myDeviceTurnFanOffNotificationAction);
+        myDeviceTurnFanOffNotificationAction = 0;
+    }
+    if (myDeviceTurnFanOff) {
+        delete (myDeviceTurnFanOff);
+        myDeviceTurnFanOff = 0;
     }
 
 }

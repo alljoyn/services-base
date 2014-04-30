@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -19,7 +19,7 @@
 #include <qcc/String.h>
 #include <iostream>     // std::cout
 #include <sstream>      // std::stringstream
-
+#include <ctime>        //  std::time_t
 ////////////////////////////////////////////////////////////////
 
 static uint16_t currentHumidity = 40;
@@ -41,6 +41,10 @@ static char* notificationString = notificationText;
 static uint16_t sendANotification = 0;
 static uint8_t signalsToSend = 0;
 static uint8_t modeOrTargetTempChanged = 0;
+static bool offerToTurnOnTheFan = false;
+static bool offerToTurnOffTheFan = false;
+static std::time_t fanIsActiveFromSec = 0;
+static const uint16_t waitBeforeOfferToTurnOffFanSec = 15;
 
 void disableFan()
 {
@@ -71,6 +75,33 @@ const char* getNotificationString()
 uint16_t isThereANotificationToSend()
 {
     return sendANotification;
+}
+
+bool getOfferToTurnOnTheFan()
+{
+    return offerToTurnOnTheFan;
+}
+
+void setOfferToTurnOnTheFan(bool turnOnTheFan)
+{
+    printf("setOfferToTurnOnTheFan(%s)\n", turnOnTheFan ? "true" : "false");
+    offerToTurnOnTheFan = turnOnTheFan;
+}
+
+void resetOfferToTurnOffTheFan()
+{
+    offerToTurnOffTheFan = false;
+    fanIsActiveFromSec = std::time(NULL);
+}
+
+void checkOfferToTurnOffTheFan()
+{
+    if (fanIsActiveFromSec != 0) {
+        std::time_t currentTimeSec = std::time(NULL);
+        if (currentTimeSec > fanIsActiveFromSec + waitBeforeOfferToTurnOffFanSec) {
+            setOfferToTurnOffTheFan(true);
+        }
+    }
 }
 
 // -- for string properties -- //
@@ -164,23 +195,35 @@ void checkTargetTempReached()
         setStatusFieldUpdate();
         snprintf(notificationString, sizeof(notificationText), "Target temperature of %d F reached \n", targetTemp);
         sendANotification = 1;
+        if (getCurrentMode() == 1) { //on cool mode
+            setOfferToTurnOnTheFan(true);
+        }
     }
 }
 
-void setTemperatureFieldUpdate() {
+void setTemperatureFieldUpdate()
+{
     signalsToSend |= 1 << 0;
 }
 
-void setStatusFieldUpdate() {
+void setStatusFieldUpdate()
+{
     signalsToSend |= 1 << 1;
 }
 
-void setTempSelectorFieldUpdate() {
+void setTempSelectorFieldUpdate()
+{
     signalsToSend |= 1 << 2;
 }
 
-void setFanSpeedSelectorFieldUpdate() {
+void setFanSpeedSelectorFieldUpdate()
+{
     signalsToSend |= 1 << 3;
+}
+
+void setModeFieldUpdate()
+{
+    signalsToSend |= 1 << 4;
 }
 
 uint8_t checkForUpdatesToSend()
@@ -201,6 +244,7 @@ uint8_t checkForUpdatesToSend()
     // 0010 == need to update the status text field
     // 0100 == need to update the state of temperature selector
     // 1000 == need to update the state of fan speed selector
+    // 10000 == need to update the value of mode selector
 
     modeOrTargetTempChanged = 0;
 
@@ -276,6 +320,7 @@ uint8_t checkForUpdatesToSend()
 
         previousMode = currentMode;
         setStatusFieldUpdate();
+        setModeFieldUpdate();
 
         if (currentMode == 0) {
             // auto mode
@@ -337,6 +382,7 @@ uint8_t checkForUpdatesToSend()
             setTempSelectorFieldUpdate();
             setFanSpeedSelectorFieldUpdate();
         } else if (currentMode == 3) {
+            resetOfferToTurnOffTheFan();
             // In fan mode
             //0==low
             //1==medium
@@ -376,6 +422,7 @@ uint8_t checkForUpdatesToSend()
     }
 
     if (currentMode == 3) {
+        checkOfferToTurnOffTheFan();
         // In fan mode
         //0==low
         //1==medium
@@ -446,15 +493,44 @@ uint8_t checkForUpdatesToSend()
     }
 
     return signalsToSend;
+}
 
-//  if(triggerAnUpdate == 1) {
-//    AJ_Printf("##### Something changed in fan mode, temperature, or status, so need to trigger an update \n");
-//    triggerAnUpdate = 0;
-//    return 1;
-//  }
-//  else {
-//    AJ_Printf("##### Nothing changed, NOT triggering an update \n");
-//    return 0;
-//  }
+void OnTurnFanOnButton(bool chooseYes) {
+    if (chooseYes) {
+        setCurrentMode(3); //Fan
+    }
+
+    QStatus status = ControlPanelGenerated::myDeviceTurnFanOn->SendDismissSignal();
+    if (status != ER_OK) {
+        printf("ERROR - myDeviceTurnFunOn->SendDismissSignal() failed !\n");
+    } else {
+        printf("myDeviceTurnFunOn->SendDismissSignal() sent successfully !\n");
+    }
+}
+
+void OnTurnFanOffButton(bool chooseYes)
+{
+    if (chooseYes) {
+        setCurrentMode(4); //Off
+    }
+
+    QStatus status = ControlPanelGenerated::myDeviceTurnFanOff->SendDismissSignal();
+    if (status != ER_OK) {
+        printf("ERROR - myDeviceTurnFunOff->SendDismissSignal() failed !\n");
+    } else {
+        printf("myDeviceTurnFunOff->SendDismissSignal() sent successfully !\n");
+    }
+}
+
+void setOfferToTurnOffTheFan(bool turnOffTheFan)
+{
+    printf("setOfferToTurnOffTheFan(%s)\n", turnOffTheFan ? "true" : "false");
+    offerToTurnOffTheFan = turnOffTheFan;
+    fanIsActiveFromSec = 0;
+}
+
+bool getOfferToTurnOffTheFan()
+{
+    return offerToTurnOffTheFan;
 }
 

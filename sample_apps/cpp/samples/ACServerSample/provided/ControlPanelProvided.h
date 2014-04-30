@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -22,7 +22,6 @@
 #include <alljoyn/controlpanel/CPSDate.h>
 #include <alljoyn/controlpanel/CPSTime.h>
 
-
 void disableFan();
 void enableFan();
 void disableTempSelect();
@@ -32,16 +31,12 @@ const char* getNotificationString();
 uint16_t isThereANotificationToSend();
 
 uint16_t getCurrentTargetTemp();
-
 void checkTargetTempReached();
 
 void setTemperatureFieldUpdate();
 void setStatusFieldUpdate();
 void setTempSelectorFieldUpdate();
 void setFanSpeedSelectorFieldUpdate();
-
-//char const* getCurrentTemperatureString(uint16_t lang);
-//char const* getCurrentHumidityString(uint16_t lang);
 
 char const* getCurrentTemperatureString();
 void setCurrentTemperatureString(char const* newTemp);
@@ -60,7 +55,15 @@ void setFanSpeed(uint16_t newSpeed);
 const char* getStatusString();
 void setStatusString(const char* newStatusString);
 
-//void simulateTemperatureChange();
 uint8_t checkForUpdatesToSend();
+
+void OnTurnFanOnButton(bool chooseYes);
+void OnTurnFanOffButton(bool chooseYes);
+
+bool getOfferToTurnOffTheFan();
+void setOfferToTurnOffTheFan(bool turnOffTheFan);
+
+bool getOfferToTurnOnTheFan();
+void setOfferToTurnOnTheFan(bool turnOnTheFan);
 
 #endif /* CONTROLPANELPROVIDED_H_ */

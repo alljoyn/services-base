@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
    <!--
 
-        Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+        Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
 
            Permission to use, copy, modify, and/or distribute this software for any
            purpose with or without fee is hereby granted, provided that the above
@@ -17,67 +17,33 @@
 
   -->
 <controlPanelDevice xmlns="http://www.alljoyn.org/controlpanel/gen">
-    <name>MyDevice</name>
-    <headerCode>#include "ControlPanelProvided.h"</headerCode>
-    <languageSet name="myLanguages">
-        <language>en</language>     
-    </languageSet>
-    <controlPanels>
-        <controlPanel languageSet="myLanguages">
-            <rootContainer>
-                <name>rootContainer</name>
-                <secured>false</secured>
-                <enabled>true</enabled>
-                <bgcolor>0x1e90ff</bgcolor>
-            <!--    <label>
-                    <value type="literal" language="en">Root Container</value>
-                </label>
-			-->	
-                <hints>
-                    <hint>vertical_linear</hint>
-                    <hint>horizontal_linear</hint>
-                </hints>
+	<name>MyDevice</name>
+	<headerCode>#include "ControlPanelProvided.h"</headerCode>
+	<languageSet name="myLanguages">
+		<language>en</language>
+	</languageSet>
+
+	<controlPanels>
+		<controlPanel languageSet="myLanguages">
+			<rootContainer>
+				<name>rootContainer</name>
+				<secured>false</secured>
+				<enabled>true</enabled>
+				<bgcolor>0x1e90ff</bgcolor>
+				<hints>
+					<hint>vertical_linear</hint>
+					<hint>horizontal_linear</hint>
+				</hints>
 				<elements>
-				
 					<container>
 						<name>tempAndHumidityContainer</name>
 						<secured>false</secured>
 						<enabled>true</enabled>
 						<bgcolor>0x200</bgcolor>
-					<!--	<label>
-							<value type="literal" language="en">Temperature and Humidity Container</value>
-						</label>
-					-->	
 						<hints>
 							<hint>vertical_linear</hint>
 						</hints>
 						<elements>
-							
-						<!--	<labelProperty>
-								<name>CurrentTemp</name>
-								<enabled>true</enabled>
-								<label>
-									<code>getCurrentTemperatureString</code>
-								</label>
-								<bgcolor>0x98765</bgcolor>
-								<hints>
-									<hint>textlabel</hint>
-								</hints>            
-							</labelProperty>
-							
-							<labelProperty>
-								<name>CurrentHumidity</name>
-								<enabled>true</enabled>
-								<label>
-									<code>getCurrentHumidityString</code>
-								</label>
-								<bgcolor>0x98765</bgcolor>
-								<hints>
-									<hint>textlabel</hint>
-								</hints>            
-							</labelProperty>
-						-->
-						
 							<stringProperty>
 							   <name>CurrentTempStringProperty</name>
 							   <getCode>getCurrentTemperatureString</getCode>
@@ -109,26 +75,18 @@
 								  <hint>textview</hint>
 							   </hints>
 							</stringProperty>
-					
-					
 						</elements>
-					</container>	
-								
-					
+					</container>
+
 					<container>
 						<name>controlsContainer</name>
 						<secured>false</secured>
 						<enabled>true</enabled>
 						<bgcolor>0x200</bgcolor>
-					<!--	<label>
-							<value type="literal" language="en">Controls Container</value>
-						</label>
-					-->	
 						<hints>
 							<hint>horizontal_linear</hint>
 						</hints>
 						<elements>
-					
 							<scalarProperty dataType="UINT16">
 								<name>ac_mode</name>
 								<getCode>getCurrentMode</getCode>
@@ -177,25 +135,8 @@
 										</constraint>
 									</constraintVals>
 								</constraintDefs>
-						<!--	<unitMeasure>
-								  <value type="literal" language="en">Degrees</value>
-								</unitMeasure>
-						-->		
 							</scalarProperty>
-							
-						<!--	<labelProperty>
-								<name>StatusString</name>
-								<enabled>true</enabled>
-								<label>
-									<code>getStatusString</code>
-								</label>
-								<bgcolor>0x98765</bgcolor>
-								<hints>
-									<hint>textlabel</hint>
-								</hints>            
-							</labelProperty>
-						-->	
-							
+
 							<stringProperty>
 							   <name>statusStringProperty</name>
 							   <getCode>getStatusString</getCode>
@@ -210,42 +151,36 @@
 							   <hints>
 								  <hint>textview</hint>
 							   </hints>
-							</stringProperty> 
-
-							
-					
-							
-					
+							</stringProperty>
 						</elements>
 					</container>
-					
-					
+
 					<scalarProperty dataType="UINT16">
-                        <name>set_temperature</name>
-                        <getCode>getTargetTemperature</getCode>
-                        <setCode>setTargetTemperature(%s)</setCode>
-                        <secured>false</secured>
-                        <enabled>false</enabled>
-                        <writable>true</writable>
-                        <label>
-                            <value type="literal" language="en">Temperature</value>
-                        </label>
-                        <bgcolor>0x008000</bgcolor>
-                        <hints>
-                            <hint>slider</hint>
-                        </hints>
-                        <constraintDefs>
-                        	<constraintRange>
+						<name>set_temperature</name>
+						<getCode>getTargetTemperature</getCode>
+						<setCode>setTargetTemperature(%s)</setCode>
+						<secured>false</secured>
+						<enabled>false</enabled>
+						<writable>true</writable>
+						<label>
+							<value type="literal" language="en">Temperature</value>
+						</label>
+						<bgcolor>0x008000</bgcolor>
+						<hints>
+							<hint>slider</hint>
+						</hints>
+						<constraintDefs>
+							<constraintRange>
 								<min>50</min>
 								<max>90</max>
 								<increment>1</increment >
 							</constraintRange>
-                        </constraintDefs>
-                        <unitMeasure>
-                          <value type="literal" language="en">Degrees</value>
-                        </unitMeasure>
-                    </scalarProperty>
-					
+						</constraintDefs>
+						<unitMeasure>
+							<value type="literal" language="en">Degrees</value>
+						</unitMeasure>
+					</scalarProperty>
+
 					<scalarProperty dataType="UINT16">
 						<name>fan_speed</name>
 						<getCode>getFanSpeed</getCode>
@@ -282,121 +217,57 @@
 								</constraint>
 							</constraintVals>
 						</constraintDefs>
-					<!--	<unitMeasure>
-						  <value type="literal" language="en">Degrees</value>
-						</unitMeasure>
-					-->	
 					</scalarProperty>
-					
-					
-<!--					<container>
-						<name>smartSettingsContainer</name>
-						<secured>false</secured>
-						<enabled>true</enabled>
-						<bgcolor>0x200</bgcolor>
-						<label>
-							<value type="literal" language="en">Smart Settings Container</value>
-						</label>
-						
-						<hints>
-							<hint>horizontal_linear</hint>
-						</hints>
-						<elements>
-						
-							<scalarProperty dbusType="UINT16">
-								<name>ac_profile</name>
-								<getCode>getuint16Var</getCode>
-								<setCode>setuint16Var(%s)</setCode>
-								<secured>false</secured>
-								<enabled>true</enabled>
-								<writable>true</writable>
-								<label>
-									<value type="literal" language="en">Profile</value>
-								</label>
-								<bgcolor>0xffd700</bgcolor>
-								<hints>
-									<hint>spinner</hint>
-								</hints>
-								<constraintDefs>
-									<constraintVals>
-										<constraint>
-											<display>
-												<value type="literal" language="en">Away</value>
-											</display>
-											<value>0</value>
-										</constraint>
-										<constraint>
-											<display>
-												<value type="literal" language="en">Home</value>
-											</display>
-											<value>1</value>
-										</constraint>
-										<constraint>
-											<display>
-												<value type="literal" language="en">Awake</value>
-											</display>
-											<value>2</value>
-										</constraint>
-										<constraint>
-											<display>
-												<value type="literal" language="en">Sleep</value>
-											</display>
-											<value>3</value>
-										</constraint>
-									</constraintVals>
-								</constraintDefs>
-							<unitMeasure>
-								  <value type="literal" language="en">Degrees</value>
-								</unitMeasure>		
-							</scalarProperty>
-						
-						
-							<timeProperty>
-								<name>myTimeProperty</name>
-								<getCode>getTimeProperty</getCode>
-								<setCode>setTimeProperty(%s)</setCode>
-								<secured>false</secured>
-								<enabled>true</enabled>
-								<writable>true</writable>
-								<label>
-									<value type="literal" language="en">Start Time</value>
-								</label>
-							</timeProperty>
-						
-						
-							<scalarProperty dbusType="UINT16">
-								<name>profile_temp</name>
-								<getCode>getuint16Var</getCode>
-								<setCode>setuint16Var(%s)</setCode>
-								<secured>false</secured>
-								<enabled>true</enabled>
-								<writable>true</writable>
-								<label>
-									<value type="literal" language="en">Temperature</value>
-								</label>
-								<bgcolor>0xffd700</bgcolor>
-								<hints>
-									<hint>numberpicker</hint>
-								</hints>
-								<constraintDefs>
-									<constraintRange>
-										<min>50</min>
-										<max>90</max>
-										<increment>1</increment >
-									</constraintRange>
-								</constraintDefs>
-								<unitMeasure>
-								  <value type="literal" language="en">Degrees</value>
-								</unitMeasure>		
-							</scalarProperty>
-							
-						
-						</elements>
-					</container> -->
+				</elements>
+			</rootContainer>
+		</controlPanel>
+	</controlPanels>
 
-                </elements>
-            </rootContainer>
-        </controlPanel>
-    </controlPanels>
+	<notificationActions>
+		<dialog languageSet="myLanguages">
+			<name>TurnFanOn</name>
+			<secured>false</secured>
+			<enabled>true</enabled>
+			<message>
+				<value type="literal" language="en">Turn fan on ?</value>
+			</message>
+			<bgcolor>0x789</bgcolor>
+			<button>
+				<label>
+					<value type="literal" language="en">Yes</value>
+				</label>
+				<executeCode>OnTurnFanOnButton(true);</executeCode>
+			</button>
+			<button>
+				<label>
+					<value type="literal" language="en">No</value>
+				</label>
+				<executeCode>OnTurnFanOnButton(false);</executeCode>
+			</button>
+		</dialog>
+
+		<dialog languageSet="myLanguages">
+			<name>TurnFanOff</name>
+			<secured>false</secured>
+			<enabled>true</enabled>
+			<message>
+				<value type="literal" language="en">Turn fan off ?</value>
+			</message>
+			<bgcolor>0x789</bgcolor>
+			<button>
+				<label>
+					<value type="literal" language="en">Yes</value>
+				</label>
+				<executeCode>OnTurnFanOffButton(true);</executeCode>
+			</button>
+			<button>
+				<label>
+					<value type="literal" language="en">No</value>
+				</label>
+				<executeCode>OnTurnFanOffButton(false);</executeCode>
+			</button>
+		</dialog>
+
+	</notificationActions>
 </controlPanelDevice>
 
