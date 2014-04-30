@@ -358,7 +358,7 @@
 					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/\"",
 					"$(inherited)",
 					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/config/cpp/inc\"",
-					"\"$(ALLJOYN_SDK_ROOT)/core/alljoyn/services/about/cpp/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/services/about/cpp/inc\"",
 					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/services_common/cpp/inc\"",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
