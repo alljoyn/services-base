@@ -44,6 +44,7 @@ OptParser::OptParser(int argc, char** argv) :
     configureCmd.assign("");
     connectCmd.assign("");
     offboardCmd.assign("");
+    m_scanCmd.assign("");
 }
 
 qcc::String const& OptParser::GetAppId() const {
@@ -104,6 +105,10 @@ qcc::String const& OptParser::GetConnectCmd() const {
 
 qcc::String const& OptParser::GetOffboardCmd() const {
     return offboardCmd;
+}
+
+qcc::String const& OptParser::GetScanCmd() const {
+    return m_scanCmd;
 }
 
 bool OptParser::ParseExternalXML() {
@@ -168,6 +173,11 @@ bool OptParser::ParseExternalXML() {
     iter = data.find("offboard_cmd");
     if (iter != data.end()) {
         offboardCmd = iter->second.c_str();
+    }
+
+    iter = data.find("scan_cmd");
+    if (iter != data.end()) {
+        m_scanCmd = iter->second.c_str();
     }
 
     return true;

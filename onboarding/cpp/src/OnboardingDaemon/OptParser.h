@@ -58,6 +58,8 @@ class OptParser {
 
     qcc::String const& GetOffboardCmd() const;
 
+    qcc::String const& GetScanCmd() const;
+
     int GetConcurrency() const;
 
     int GetPort() const;
@@ -85,6 +87,7 @@ class OptParser {
     qcc::String configureCmd;
     qcc::String connectCmd;
     qcc::String offboardCmd;
+    qcc::String m_scanCmd;
     int port;
     int concurrency;
 };

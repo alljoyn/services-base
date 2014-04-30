@@ -1,4 +1,3 @@
-
 /******************************************************************************
  * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
@@ -35,13 +34,20 @@
 #include <alljoyn/onboarding/OnboardingService.h>
 #include <OnboardingControllerImpl.h>
 #include <alljoyn/AllJoynStd.h>
+#include <alljoyn/onboarding/LogModule.h>
 
 #define CMD_SIZE 255
+#define CLOCKID CLOCK_REALTIME
+#define SIG SIGUSR1
+#define SCAN_WIFI_MAX_TIME_IN_SEC 30
+
 
 using namespace ajn;
 using namespace services;
 
 static int execute_system(const char*op);
+static void TimerDone(int sig, siginfo_t*si, void*uc);
+static void* ScanWifiThread(void* context);
 
 typedef enum {
     CIPHER_NONE,
@@ -50,7 +56,7 @@ typedef enum {
     CIPHER_BOTH
 }GroupCiphers;
 
-
+#ifdef _OPEN_WRT_
 #define CASE(_auth) case _auth: return # _auth
 static const char* AuthText(short authType)
 {
@@ -71,6 +77,7 @@ static const char* AuthText(short authType)
         return "OPEN";
     }
 }
+#endif
 
 OnboardingControllerImpl::OnboardingControllerImpl(qcc::String scanFile,
                                                    qcc::String stateFile,
@@ -78,6 +85,7 @@ OnboardingControllerImpl::OnboardingControllerImpl(qcc::String scanFile,
                                                    qcc::String configureCmd,
                                                    qcc::String connectCmd,
                                                    qcc::String offboardCmd,
+                                                   qcc::String scanCmd,
                                                    OBConcurrency concurrency,
                                                    BusAttachment& busAttachment) :
     m_state(0),
@@ -89,7 +97,10 @@ OnboardingControllerImpl::OnboardingControllerImpl(qcc::String scanFile,
     m_configureCmd(configureCmd),
     m_connectCmd(connectCmd),
     m_offboardCmd(offboardCmd),
-    m_concurrency(concurrency)
+    m_scanCmd(scanCmd),
+    m_concurrency(concurrency),
+    m_scanWifiThreadIsRunning(false),
+    m_scanWifiTimerId(0)
 {
     // Ignore SIGCHLD so we do not have to wait on the child processes
     //signal(SIGCHLD, SIG_IGN);
@@ -125,7 +136,7 @@ OnboardingControllerImpl::~OnboardingControllerImpl()
  * it with the developer's implementation of the ConfigureWiFi method handler.
  *-----------------------------------------------------------------------------*/
 void OnboardingControllerImpl::ConfigureWiFi(qcc::String SSID, qcc::String passphrase, short authType, short& status, qcc::String&  error, qcc::String& errorMessage) {
-    std::cout << "entered ConfigureWiFi" << std::endl;
+    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
 
     // Set the return value based on presence of fast switching feature
     status = m_concurrency;
@@ -188,7 +199,7 @@ void OnboardingControllerImpl::ConfigureWiFi(qcc::String SSID, qcc::String passp
  *-----------------------------------------------------------------------------*/
 void OnboardingControllerImpl::Connect() {
 /* Fill in method handler implementation here. */
-    std::cout << "entered Connect" << std::endl;
+    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
     CancelAdvertise();
     execute_system(m_connectCmd.c_str());
     AdvertiseAndAnnounce();
@@ -335,14 +346,86 @@ void OnboardingControllerImpl::ParseScanInfo()
     }
 }
 
+void OnboardingControllerImpl::StartScanWifiTimer()
+{
+    struct sigaction sa;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_SIGINFO;
+    sa.sa_sigaction = TimerDone;
+    if (sigaction(SIGRTMAX, &sa, NULL) < 0) {
+        return;
+    }
+
+    sigevent sigev;
+
+    memset(&sigev, 0, sizeof(sigev));
+
+    sigev.sigev_notify          = SIGEV_SIGNAL;
+    sigev.sigev_signo           = SIGRTMAX;
+    sigev.sigev_value.sival_ptr = &m_scanWifiTimerId;
+
+    if (timer_create(CLOCK_REALTIME, &sigev, &m_scanWifiTimerId) == 0) {
+        struct itimerspec itval, oitval;
+
+        itval.it_value.tv_sec = SCAN_WIFI_MAX_TIME_IN_SEC;
+        itval.it_value.tv_nsec = 0;
+        itval.it_interval.tv_sec = 0;
+        itval.it_interval.tv_nsec = 0;
+
+
+        if (timer_settime(m_scanWifiTimerId, 0, &itval, &oitval) != 0) {
+            return;
+        }
+    } else {
+        QCC_DbgTrace(("error creating timer"));
+    }
+}
+
+static void TimerDone(int sig, siginfo_t*si, void*context)
+{
+    OnboardingControllerImpl* thisClass = reinterpret_cast<OnboardingControllerImpl*>(context);
+    thisClass->ScanWifiTimerDone();
+}
+
+void OnboardingControllerImpl::ScanWifiTimerDone()
+{
+    if (m_scanWifiThreadIsRunning) {
+        int retval;
+        pthread_cancel(m_scanWifiThread);
+        pthread_join(m_scanWifiThread, (void**)&retval);
+        m_scanWifiThreadIsRunning = false;
+        QCC_DbgTrace(("ScanWifi timed out and is being canceled"));
+    }
+}
+
+void OnboardingControllerImpl::StartScanWifi()
+{
+    m_scanWifiThreadIsRunning = true;
+    execute_system(m_scanCmd.c_str());
+    timer_delete(m_scanWifiTimerId);
+    m_scanWifiThreadIsRunning = false;
+}
+
+/*
+ * ScanWifiThread
+ * A method called when m_scanWifiThread completes
+ */
+static void* ScanWifiThread(void* context)
+{
+    OnboardingControllerImpl* thisClass = reinterpret_cast<OnboardingControllerImpl*>(context);
+    thisClass->StartScanWifi();
+    return NULL;
+}
+
 /*------------------------------------------------------------------------------
  * METHOD: GetScanInfo()
  * This method is called by the GetScanInfoHandler with the corresponding input
  * and output arguments. This method is empty, the developer should fill it with
  * the developer's implementation of the GetScanInfo method handler.
  *-----------------------------------------------------------------------------*/
-void OnboardingControllerImpl::GetScanInfo(unsigned short& age, OBScanInfo*& scanList, size_t& scanListNumElements) {
-    std::cout << "entered " << __FUNCTION__ << std::endl;
+void OnboardingControllerImpl::GetScanInfo(unsigned short& age, OBScanInfo*& scanList, size_t& scanListNumElements)
+{
+    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
     ParseScanInfo();
 
     scanListNumElements = m_ScanList.size();
@@ -355,6 +438,13 @@ void OnboardingControllerImpl::GetScanInfo(unsigned short& age, OBScanInfo*& sca
     } else {
         age = 0xFFFF;
     }
+
+    // Spawn a thread to scan the wifi and update the wifi_scan_results
+    if (!m_scanWifiThreadIsRunning) {
+        StartScanWifiTimer();
+        pthread_create(&m_scanWifiThread, NULL, ScanWifiThread, this);
+    }
+
 } /* GetScanInfo() */
 
 /*------------------------------------------------------------------------------
@@ -363,16 +453,18 @@ void OnboardingControllerImpl::GetScanInfo(unsigned short& age, OBScanInfo*& sca
  * output arguments. This method is empty, the developer should fill it with the
  * developer's implementation of the Offboard method handler.
  *-----------------------------------------------------------------------------*/
-void OnboardingControllerImpl::Offboard() {
-    std::cout << "entered " << __FUNCTION__ << std::endl;
+void OnboardingControllerImpl::Offboard()
+{
+    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
     CancelAdvertise();
     execute_system(m_offboardCmd.c_str());
     AdvertiseAndAnnounce();
 
 } /* Offboard() */
 
-short OnboardingControllerImpl::GetState() {
-    std::cout << "entered " << __FUNCTION__ << std::endl;
+short OnboardingControllerImpl::GetState()
+{
+    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
     std::ifstream stateFile(m_stateFile.c_str());
     if (stateFile.is_open()) {
         std::string line;
@@ -384,8 +476,9 @@ short OnboardingControllerImpl::GetState() {
     return m_state;
 }
 
-const OBLastError& OnboardingControllerImpl::GetLastError() {
-    std::cout << "entered " << __FUNCTION__ << std::endl;
+const OBLastError& OnboardingControllerImpl::GetLastError()
+{
+    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
     std::ifstream errorFile(m_errorFile.c_str());
     if (errorFile.is_open()) {
         std::string line;
@@ -393,7 +486,7 @@ const OBLastError& OnboardingControllerImpl::GetLastError() {
         std::istringstream iss(line);
         iss >> m_oBLastError.validationState;
         getline(errorFile, line);
-        std::cout << line.c_str() << std::endl;
+        QCC_DbgHLPrintf(("%s", line.c_str()));
         m_oBLastError.message.assign(line.c_str());
         errorFile.close();
     }
@@ -401,9 +494,8 @@ const OBLastError& OnboardingControllerImpl::GetLastError() {
     return m_oBLastError;
 }
 
-int OnboardingControllerImpl::execute_configure(const char* SSID, const int authType, const char* passphrase)
-{
-    std::cout << "entered " << __FUNCTION__ << std::endl;
+int OnboardingControllerImpl::execute_configure(const char* SSID, const int authType, const char* passphrase) {
+    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
 #ifdef _OPEN_WRT_
     char cmd[CMD_SIZE] = { 0 };
     qcc::String authTypeString = qcc::String("'") + AuthText(authType) + qcc::String("'");
@@ -416,43 +508,44 @@ int OnboardingControllerImpl::execute_configure(const char* SSID, const int auth
 
 void OnboardingControllerImpl::CancelAdvertise()
 {
-    std::cout << "entered " << __FUNCTION__ << std::endl;
+    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
     m_BusAttachment->EnableConcurrentCallbacks();
     if (m_BusAttachment->IsConnected() && m_BusAttachment->GetUniqueName().size() > 0) {
         QStatus status = m_BusAttachment->CancelAdvertiseName(m_BusAttachment->GetUniqueName().c_str(), TRANSPORT_ANY);
-        std::cout << "CancelAdvertiseName for " << m_BusAttachment->GetUniqueName().c_str() << " = " << QCC_StatusText(status) << std::endl;
+        QCC_DbgHLPrintf(("CancelAdvertiseName for %s = %s", m_BusAttachment->GetUniqueName().c_str(), QCC_StatusText(status)));
     }
 }
 
 void OnboardingControllerImpl::AdvertiseAndAnnounce()
 {
-    std::cout << "entered " << __FUNCTION__ << std::endl;
+    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
     m_BusAttachment->EnableConcurrentCallbacks();
     if (m_BusAttachment->IsConnected() && m_BusAttachment->GetUniqueName().size() > 0) {
         QStatus status = m_BusAttachment->AdvertiseName(m_BusAttachment->GetUniqueName().c_str(), TRANSPORT_ANY);
-        std::cout << "AdvertiseName for " << m_BusAttachment->GetUniqueName().c_str() << " = " << QCC_StatusText(status) << std::endl;
+        QCC_DbgHLPrintf(("AdvertiseName for %s = %s", m_BusAttachment->GetUniqueName().c_str(), QCC_StatusText(status)));
     }
 
     AboutServiceApi* aboutService = AboutServiceApi::getInstance();
     if (aboutService) {
         QStatus status = aboutService->Announce();
-        std::cout << "Announce for " << m_BusAttachment->GetUniqueName().c_str() << " = " << QCC_StatusText(status) << std::endl;
+        QCC_DbgHLPrintf(("Announce for %s = %s", m_BusAttachment->GetUniqueName().c_str(), QCC_StatusText(status)));
     }
 }
 
 static int execute_system(const char*cmd)
 {
-    std::cout << "entered " << __FUNCTION__ << std::endl;
+    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
+
 #ifdef _OPEN_WRT_
     if (!cmd) {
         return -1;
     }
-    std::cout << "executing " << cmd << std::endl;
+    QCC_DbgHLPrintf(("executing %s", cmd));
     int result = system(cmd);
     result = WEXITSTATUS(result);
-    std::cout << "system result=" << result << std::endl;
+    QCC_DbgHLPrintf(("system result=%d", result));
     if (-1 == result) {
-        std::cout << "Error executing system: " << strerror(errno) << std::endl;
+        QCC_DbgHLPrintf(("Error executing system: %d", strerror(errno)));
     }
     return result;
 #else
