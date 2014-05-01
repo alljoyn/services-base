@@ -143,7 +143,6 @@ class OnboardingSDKWifiManager {
             public void onReceive(Context context, Intent intent) {
 
                 Log.d(TAG, "WiFi BroadcastReceiver onReceive: " + intent.getAction());
-
                 if (WifiManager.SCAN_RESULTS_AVAILABLE_ACTION.equals(intent.getAction())) {
                     // Wi-Fi scan is complete
                     List<ScanResult> scans = wifi.getScanResults();
@@ -188,6 +187,7 @@ class OnboardingSDKWifiManager {
                         }
                     }
                 }
+
             }
         };
         IntentFilter filter = new IntentFilter();
@@ -212,47 +212,49 @@ class OnboardingSDKWifiManager {
     private void processScanResults(List<ScanResult> scans) {
         Log.d(TAG, "processScanResults");
         if (scans != null) {
-            onboardableAPlist.clear();
-            nonOnboardableAPlist.clear();
-            allAPlist.clear();
+            synchronized (wifi) {
+                onboardableAPlist.clear();
+                nonOnboardableAPlist.clear();
+                allAPlist.clear();
 
-            Set<String> tempset = new HashSet<String>(); // avoid duplicates
-            StringBuffer buff = new StringBuffer(); // for logging
-            for (ScanResult scan : scans) {
+                Set<String> tempset = new HashSet<String>(); // avoid duplicates
+                StringBuffer buff = new StringBuffer(); // for logging
+                for (ScanResult scan : scans) {
 
-                // remove extra quotes from network SSID
-                scan.SSID = normalizeSSID(scan.SSID);
-                // a scan may contain results with no SSID
-                if (scan.SSID == null || scan.SSID.isEmpty()) {
-                    Log.i(TAG, "processScanResults currentScan was empty,skipping");
-                    continue;
-                }
-                // avoid duplicates
-                if (tempset.contains(scan.SSID)) {
-                    Log.i(TAG, "processScanResults currentScan " + scan.SSID + " already seen ,skipping");
-                    continue;
+                    // remove extra quotes from network SSID
+                    scan.SSID = normalizeSSID(scan.SSID);
+                    // a scan may contain results with no SSID
+                    if (scan.SSID == null || scan.SSID.isEmpty()) {
+                        Log.i(TAG, "processScanResults currentScan was empty,skipping");
+                        continue;
+                    }
+                    // avoid duplicates
+                    if (tempset.contains(scan.SSID)) {
+                        Log.i(TAG, "processScanResults currentScan " + scan.SSID + " already seen ,skipping");
+                        continue;
+                    }
+
+                    // store the new SSID
+                    tempset.add(scan.SSID);
+                    WiFiNetwork wiFiNetwork = new WiFiNetwork(scan.SSID, scan.capabilities, scan.level);
+                    if (scan.SSID.startsWith(ONBOARDABLE_PREFIX) || scan.SSID.endsWith(ONBOARDABLE_SUFFIX)) {
+                        onboardableAPlist.add(wiFiNetwork);
+                    } else {
+                        nonOnboardableAPlist.add(wiFiNetwork);
+                    }
+                    allAPlist.add(wiFiNetwork);
+                    buff.append(scan.SSID).append(",");
                 }
 
-                // store the new SSID
-                tempset.add(scan.SSID);
-                WiFiNetwork wiFiNetwork = new WiFiNetwork(scan.SSID, scan.capabilities, scan.level);
-                if (scan.SSID.startsWith(ONBOARDABLE_PREFIX) || scan.SSID.endsWith(ONBOARDABLE_SUFFIX)) {
-                    onboardableAPlist.add(wiFiNetwork);
-                } else {
-                    nonOnboardableAPlist.add(wiFiNetwork);
-                }
-                allAPlist.add(wiFiNetwork);
-                buff.append(scan.SSID).append(",");
+                Log.i(TAG, "processScanResults " + (buff.length() > 0 ? buff.toString().substring(0, buff.length() - 1) : " empty"));
+
+                // broadcast a WIFI_SCAN_RESULTS_AVAILABLE_ACTION intent
+                Bundle extras = new Bundle();
+                extras.putParcelableArrayList(OnboardingManager.EXTRA_ONBOARDEES_AP, onboardableAPlist);
+                extras.putParcelableArrayList(OnboardingManager.EXTRA_TARGETS_AP, nonOnboardableAPlist);
+                extras.putParcelableArrayList(OnboardingManager.EXTRA_ALL_AP, allAPlist);
+                sendBroadcast(OnboardingManager.WIFI_SCAN_RESULTS_AVAILABLE_ACTION, extras);
             }
-
-            Log.i(TAG, "processScanResults " + (buff.length() > 0 ? buff.toString().substring(0, buff.length() - 1) : " empty"));
-
-            // broadcast a WIFI_SCAN_RESULTS_AVAILABLE_ACTION intent
-            Bundle extras = new Bundle();
-            extras.putParcelableArrayList(OnboardingManager.EXTRA_ONBOARDEES_AP, onboardableAPlist);
-            extras.putParcelableArrayList(OnboardingManager.EXTRA_TARGETS_AP, nonOnboardableAPlist);
-            extras.putParcelableArrayList(OnboardingManager.EXTRA_ALL_AP,allAPlist);
-            sendBroadcast(OnboardingManager.WIFI_SCAN_RESULTS_AVAILABLE_ACTION, extras);
         }
     }
 
@@ -316,7 +318,9 @@ class OnboardingSDKWifiManager {
      *         with "_AJ"
      */
     List<WiFiNetwork> getOnboardableAccessPoints() {
-        return onboardableAPlist;
+        synchronized (wifi) {
+            return onboardableAPlist;
+        }
     }
 
 
@@ -325,14 +329,18 @@ class OnboardingSDKWifiManager {
      *         and doesn't end with "_AJ".
      */
     List<WiFiNetwork> getNonOnboardableAccessPoints() {
-        return nonOnboardableAPlist;
+        synchronized (wifi) {
+            return nonOnboardableAPlist;
+        }
     }
 
     /**
      * @return list of all the access points found by the Wi-Fi scan.
      */
     List<WiFiNetwork> getAllAccessPoints() {
-        return allAPlist;
+        synchronized (wifi) {
+            return allAPlist;
+        }
     }
 
 
@@ -341,31 +349,32 @@ class OnboardingSDKWifiManager {
      */
     WiFiNetwork getCurrentConnectedAP() {
         Log.d(TAG, "getCurrentSSID: SupplicantState =  " + wifi.getConnectionInfo().getSupplicantState());
+        synchronized (wifi) {
 
-        // Check if we're still negotiating with the access point
-        if (wifi.getConnectionInfo().getSupplicantState() != SupplicantState.COMPLETED) {
-            Log.w(TAG, "getCurrentSSID: SupplicantState not COMPLETED, return null");
-            return null;
-        }
-        if (wifi.getConnectionInfo()==null || wifi.getConnectionInfo().getSSID()==null)
-        {
-            return null;
-        }
-
-        String currentSSID =normalizeSSID( wifi.getConnectionInfo().getSSID());
-        Log.d(TAG, "getCurrentSSID =" + currentSSID);
-
-        for (int i=0;i<onboardableAPlist.size();i++){
-            if(onboardableAPlist.get(i).SSID.equals(currentSSID)){
-                return onboardableAPlist.get(i);
+            // Check if we're still negotiating with the access point
+            if (wifi.getConnectionInfo().getSupplicantState() != SupplicantState.COMPLETED) {
+                Log.w(TAG, "getCurrentSSID: SupplicantState not COMPLETED, return null");
+                return null;
             }
-        }
-        for (int i=0;i<nonOnboardableAPlist.size();i++){
-            if(nonOnboardableAPlist.get(i).SSID.equals(currentSSID)){
-                return nonOnboardableAPlist.get(i);
+            if (wifi.getConnectionInfo() == null || wifi.getConnectionInfo().getSSID() == null) {
+                return null;
             }
+
+            String currentSSID = normalizeSSID(wifi.getConnectionInfo().getSSID());
+            Log.d(TAG, "getCurrentSSID =" + currentSSID);
+
+            for (int i = 0; i < onboardableAPlist.size(); i++) {
+                if (onboardableAPlist.get(i).SSID.equals(currentSSID)) {
+                    return onboardableAPlist.get(i);
+                }
+            }
+            for (int i = 0; i < nonOnboardableAPlist.size(); i++) {
+                if (nonOnboardableAPlist.get(i).SSID.equals(currentSSID)) {
+                    return nonOnboardableAPlist.get(i);
+                }
+            }
+            return new WiFiNetwork(currentSSID);
         }
-        return new WiFiNetwork(currentSSID);
     }
 
 
