@@ -18,6 +18,8 @@
 #define _ONBOARDINGCONTROLLERIMPL_H
 
 #include <alljoyn/onboarding/OnboardingControllerAPI.h>
+#include <pthread.h>
+#include <time.h>
 
 /**
  *  OnboardingControllerAPI  interface class that is implemented  by the Application and controls the WIFI of the system.
@@ -36,6 +38,7 @@ class OnboardingControllerImpl : public ajn::services::OnboardingControllerAPI {
                              qcc::String configureCmd,
                              qcc::String connectCmd,
                              qcc::String offboardCmd,
+                             qcc::String scanCmd,
                              ajn::services::OBConcurrency concurency,
                              ajn::BusAttachment& busAttachment);
     /**
@@ -82,6 +85,17 @@ class OnboardingControllerImpl : public ajn::services::OnboardingControllerAPI {
      * @return OBLastError
      */
     virtual const ajn::services::OBLastError& GetLastError();
+
+    /*
+     * Method that calls the system scanCmd
+     */
+    void StartScanWifi();
+
+    /*
+     * Method called when scan wifi timer is done
+     */
+    void ScanWifiTimerDone();
+
 
   private:
     /**
@@ -148,11 +162,33 @@ class OnboardingControllerImpl : public ajn::services::OnboardingControllerAPI {
     qcc::String m_configureCmd;
     qcc::String m_connectCmd;
     qcc::String m_offboardCmd;
+    qcc::String m_scanCmd;
 
     /*
      * Concurrency state
      */
     ajn::services::OBConcurrency m_concurrency;
+
+    /**
+     * Thread that scans the wifi and creates the wifi_scan_results file
+     */
+    pthread_t m_scanWifiThread;
+
+    /**
+     * flag stating if scanWifiThreadIsRunning
+     */
+    bool m_scanWifiThreadIsRunning;
+
+    /*
+     * Method that starts a timer to stop scan wifi if it takes too long
+     */
+    void StartScanWifiTimer();
+
+    /*
+     *  the timer handle
+     */
+    timer_t m_scanWifiTimerId;
+
 };
 
 #endif

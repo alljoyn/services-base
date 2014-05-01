@@ -281,6 +281,7 @@ int main(int argc, char**argv, char**envArg) {
                                                 opts.GetConfigureCmd(),
                                                 opts.GetConnectCmd(),
                                                 opts.GetOffboardCmd(),
+                                                opts.GetScanCmd(),
                                                 (OBConcurrency)opts.GetConcurrency(),
                                                 *msgBus);
     OnboardingService onboardingService(*msgBus, *obController);
