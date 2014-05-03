@@ -14,10 +14,10 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#ifndef MYDEVICECURRENTHUMIDITYSTRINGPROPERTY_H_
-#define MYDEVICECURRENTHUMIDITYSTRINGPROPERTY_H_
+#ifndef MYDEVICETURNFANOFF_H_
+#define MYDEVICETURNFANOFF_H_
 
-#include <alljoyn/controlpanel/Property.h>
+#include <alljoyn/controlpanel/Dialog.h>
 
 namespace ajn {
 namespace services {
@@ -25,14 +25,16 @@ namespace services {
 /**
  * Generated class
  */
-class MyDeviceCurrentHumidityStringProperty : public ajn::services::Property {
+class MyDeviceTurnFanOff : public ajn::services::Dialog {
   public:
-    MyDeviceCurrentHumidityStringProperty(qcc::String name, Widget* rootWidget, PropertyType propertyType);
-    virtual ~MyDeviceCurrentHumidityStringProperty();
+    MyDeviceTurnFanOff(qcc::String name, Widget* rootWidget);
+    virtual ~MyDeviceTurnFanOff();
 
-    QStatus setValue(const char* value);
+    bool executeAction1CallBack();
+    bool executeAction2CallBack();
+    bool executeAction3CallBack();
 };
 } //namespace services
 } //namespace ajn
 
-#endif /* MYDEVICECURRENTHUMIDITYSTRINGPROPERTY_H_ */
+#endif /* MYDEVICETURNFANOFF_H_ */

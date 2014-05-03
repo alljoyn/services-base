@@ -14,25 +14,46 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#ifndef MYDEVICECURRENTHUMIDITYSTRINGPROPERTY_H_
-#define MYDEVICECURRENTHUMIDITYSTRINGPROPERTY_H_
+#include "MyDeviceTurnFanOff.h"
+#include "ControlPanelProvided.h"
 
-#include <alljoyn/controlpanel/Property.h>
 
 namespace ajn {
 namespace services {
 
-/**
- * Generated class
- */
-class MyDeviceCurrentHumidityStringProperty : public ajn::services::Property {
-  public:
-    MyDeviceCurrentHumidityStringProperty(qcc::String name, Widget* rootWidget, PropertyType propertyType);
-    virtual ~MyDeviceCurrentHumidityStringProperty();
+MyDeviceTurnFanOff::MyDeviceTurnFanOff(qcc::String name, Widget* rootWidget) : Dialog(name, rootWidget)
+{
 
-    QStatus setValue(const char* value);
-};
-} //namespace services
-} //namespace ajn
+}
 
-#endif /* MYDEVICECURRENTHUMIDITYSTRINGPROPERTY_H_ */
+MyDeviceTurnFanOff::~MyDeviceTurnFanOff()
+{
+
+}
+
+bool MyDeviceTurnFanOff::executeAction1CallBack()
+{
+    OnTurnFanOffButton(true);
+
+    //by default return success
+    return true;
+}
+
+bool MyDeviceTurnFanOff::executeAction2CallBack()
+{
+    OnTurnFanOffButton(false);
+
+    //by default return success
+    return true;
+}
+
+bool MyDeviceTurnFanOff::executeAction3CallBack()
+{
+    return executeActionNotDefined();
+
+    //by default return success
+    return true;
+}
+
+} /* namespace services */
+} /* namespace ajn */

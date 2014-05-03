@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -27,6 +27,8 @@
 #include "../generated/MyDeviceStatusStringProperty.h"
 #include "../generated/MyDeviceSet_temperature.h"
 #include "../generated/MyDeviceFan_speed.h"
+#include "../generated/MyDeviceTurnFanOn.h"
+#include "../generated/MyDeviceTurnFanOff.h"
 
 
 /**
@@ -64,6 +66,14 @@ class ControlPanelGenerated {
     static ajn::services::MyDeviceSet_temperature* myDeviceSet_temperature;
 
     static ajn::services::MyDeviceFan_speed* myDeviceFan_speed;
+
+    static ajn::services::NotificationAction* myDeviceTurnFanOnNotificationAction;
+
+    static ajn::services::MyDeviceTurnFanOn* myDeviceTurnFanOn;
+
+    static ajn::services::NotificationAction* myDeviceTurnFanOffNotificationAction;
+
+    static ajn::services::MyDeviceTurnFanOff* myDeviceTurnFanOff;
 
 
 };
