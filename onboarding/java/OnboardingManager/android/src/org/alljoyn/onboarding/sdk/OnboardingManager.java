@@ -79,6 +79,7 @@ import android.util.Pair;
  *      <li> WAITING_FOR_ONBOARDEE_ANNOUNCEMENT state moves to state ONBOARDEE_ANNOUNCEMENT_RECEIVED after a valid announce message has been received.
  *      <li> ONBOARDEE_ANNOUNCEMENT_RECEIVED state moves to CONFIGURING_ONBOARDEE if the onboardee supports onboarding service.
  *      <li> CONFIGURING_ONBOARDEE state moves to  CONNECTING_TO_TARGET_WIFI_AP if passing the target credentials to the onboardee was successful.
+ *      <li> CONFIGURING_ONBOARDEE_WAITING_FOR_SIGNAL_TIMEOUT state moves to  CONNECTING_TO_TARGET_WIFI_AP if passing the target credentials to the onboardee was successful.
  *      <li> CONNECTING_TO_TARGET_WIFI_AP moves to WAITING_FOR_TARGET_ANNOUNCE after Wi-Fi connection has been established with target .
  *      <li> WAITING_FOR_TARGET_ANNOUNCE moves to TARGET_ANNOUNCEMENT_RECEIVED after after a valid announce message has been received.
  *  </ul>
@@ -612,7 +613,7 @@ public class OnboardingManager {
     /**
      * HandlerThread for the state machine looper
      */
-    private static HandlerThread stateHandlerThread = new HandlerThread("OnboardingManagerLooper");
+    private static HandlerThread stateHandlerThread ;
 
     /**
      * Handler for OnboardingManager state changing messages.
@@ -694,7 +695,7 @@ public class OnboardingManager {
     private final AnnouncementHandler announcementHandler=new AnnouncementHandler() {
         @Override
         public void onAnnouncement(final String serviceName, final short port, final BusObjectDescription[] objectDescriptions, final Map<String, Variant> serviceMetadata) {
-            Log.d(TAG, "onAnnouncement: received ");
+            Log.d(TAG, "onAnnouncement: received  state "+currentState.toString());
             Map<String, Object> announceDataMap = null;
             try {
                 announceDataMap = TransportUtil.fromVariantMap(serviceMetadata);
@@ -718,27 +719,41 @@ public class OnboardingManager {
             }
 
             switch (currentState) {
-            case ERROR_WAITING_FOR_ONBOARDEE_ANNOUNCEMENT:
-                if (isSeviceSupported(objectDescriptions, OnboardingTransport.INTERFACE_NAME)) {
-                    setState(State.ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT, new AnnounceData(serviceName, port, objectDescriptions, serviceMetadata));
-                }else{
-                    Log.e(TAG, "onAnnouncement: for device UUID "+deviceData.getAppUUID()+ " doesn't support onboarding interface");
-                }
-                break;
+            case CONNECTING_TO_ONBOARDEE:
+                context.unregisterReceiver(onboardingWifiBroadcastReceiver);
+                // no need for break
             case WAITING_FOR_ONBOARDEE_ANNOUNCEMENT:
                 if (isSeviceSupported(objectDescriptions, OnboardingTransport.INTERFACE_NAME)) {
                     setState(State.ONBOARDEE_ANNOUNCEMENT_RECEIVED, new AnnounceData(serviceName, port, objectDescriptions, serviceMetadata));
-                }else{
-                    Log.e(TAG, "onAnnouncement: for device UUID "+deviceData.getAppUUID()+ " doesn't support onboarding interface");
+                } else {
+                    Log.e(TAG, "onAnnouncement: for device UUID " + deviceData.getAppUUID() + " doesn't support onboarding interface");
                 }
                 break;
 
+            case ERROR_WAITING_FOR_ONBOARDEE_ANNOUNCEMENT:
+                if (isSeviceSupported(objectDescriptions, OnboardingTransport.INTERFACE_NAME)) {
+                    setState(State.ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT, new AnnounceData(serviceName, port, objectDescriptions, serviceMetadata));
+                } else {
+                    Log.e(TAG, "onAnnouncement: for device UUID " + deviceData.getAppUUID() + " doesn't support onboarding interface");
+                }
+                break;
+
+            case CONNECTING_TO_TARGET_WIFI_AP:
+                context.unregisterReceiver(onboardingWifiBroadcastReceiver);
+                // no need for break
             case WAITING_FOR_TARGET_ANNOUNCE:
                 if (deviceData != null && deviceData.getAnnounceData() != null && deviceData.getAppUUID() != null) {
-                    Log.e(TAG, "onAnnouncement: device  UUID " + deviceData.getAppUUID());
                     if (deviceData.getAppUUID().compareTo(uniqueId) == 0) {
                         setState(State.TARGET_ANNOUNCEMENT_RECEIVED, new AnnounceData(serviceName, port, objectDescriptions, serviceMetadata));
                     }
+                }
+                break;
+
+            case ERROR_WAITING_FOR_TARGET_ANNOUNCE:
+                if (isSeviceSupported(objectDescriptions, OnboardingTransport.INTERFACE_NAME)) {
+                    setState(State.ERROR_TARGET_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT, new AnnounceData(serviceName, port, objectDescriptions, serviceMetadata));
+                } else {
+                    Log.e(TAG, "onAnnouncement: for device UUID " + deviceData.getAppUUID() + " doesn't support onboarding interface");
                 }
                 break;
 
@@ -932,7 +947,13 @@ public class OnboardingManager {
         /**
          * Error waiting for announcement on target Wi-Fi from onboardee
          */
-        ERROR_WAITING_FOR_TARGET_ANNOUNCE(121);
+        ERROR_WAITING_FOR_TARGET_ANNOUNCE(121),
+
+        /**
+         * Error annnouncemnet has been received from target after timeout expired
+         */
+        ERROR_TARGET_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT(122);
+
 
         private int value;
 
@@ -962,7 +983,11 @@ public class OnboardingManager {
      */
     public static OnboardingManager getInstance() {
         if (onboardingManager == null) {
-            onboardingManager = new OnboardingManager();
+            synchronized (TAG) {
+                if (onboardingManager == null) {
+                    onboardingManager = new OnboardingManager();
+                }
+            }
         }
         return onboardingManager;
     }
@@ -972,7 +997,7 @@ public class OnboardingManager {
         wifiIntentFilter.addAction(WIFI_CONNECTED_BY_REQUEST_ACTION);
         wifiIntentFilter.addAction(WIFI_TIMEOUT_ACTION);
         wifiIntentFilter.addAction(WIFI_AUTHENTICATION_ERROR);
-
+        stateHandlerThread  = new HandlerThread("OnboardingManagerLooper");
         stateHandlerThread.start();
         stateHandler = new Handler(stateHandlerThread.getLooper()) {
             @Override
@@ -997,17 +1022,18 @@ public class OnboardingManager {
      *             if already initialized.
      */
     public void init(Context context, AboutService aboutService, BusAttachment bus) throws OnboardingIllegalArgumentException, OnboardingIllegalStateException {
-        if (context == null || aboutService == null ||  bus==null) {
-            throw new OnboardingIllegalArgumentException();
+        synchronized (TAG) {
+            if (context == null || aboutService == null ||  bus==null) {
+                throw new OnboardingIllegalArgumentException();
+            }
+            if (this.context != null || this.aboutService!=null || this.bus!=null) {
+                throw new OnboardingIllegalStateException();
+            }
+            this.context = context;
+            this.onboardingSDKWifiManager = new OnboardingSDKWifiManager(this.context);
+            this.bus = bus;
+            this.aboutService=aboutService;
         }
-        if (this.context != null || this.aboutService!=null || this.bus!=null) {
-            throw new OnboardingIllegalStateException();
-        }
-        this.context = context;
-        this.onboardingSDKWifiManager = new OnboardingSDKWifiManager(this.context);
-        this.bus = bus;
-        this.aboutService=aboutService;
-
     }
 
 
@@ -1016,16 +1042,18 @@ public class OnboardingManager {
      * @throws OnboardingIllegalStateException if not in IDLE state ,need to abort first.
      */
     public void shutDown() throws OnboardingIllegalStateException {
-        if (currentState==State.IDLE){
-            this.context=null;
-            this.bus=null;
-            this.aboutService=null;
-            this.onboardingSDKWifiManager=null;
-            if (aboutService!=null){
-                aboutService.removeAnnouncementHandler(announcementHandler);
+        synchronized (TAG){
+            if (currentState==State.IDLE){
+                this.context=null;
+                this.bus=null;
+                this.aboutService=null;
+                this.onboardingSDKWifiManager=null;
+                if (aboutService!=null){
+                    aboutService.removeAnnouncementHandler(announcementHandler);
+                }
+            }else{
+                throw new OnboardingIllegalStateException("Not in IDLE state ,please Abort first");
             }
-        }else{
-            throw new OnboardingIllegalStateException("Not in IDLE state ,please Abort first");
         }
     }
 
@@ -1103,6 +1131,28 @@ public class OnboardingManager {
     }
 
 
+    /**
+     * Handle the ERROR_TARGETR_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT state.
+     * Verifies that Announcement is valid if so stay on ERROR_TARGER_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT state ,otherwise moves to state  ERROR_WAITING_FOR_TARGET_ANNOUNCE.
+     * This state is only for continuing from state ERROR_WAITING_FOR_TARGET_ANNOUNCEMENT if the Announcement has been received while the timer has expired.
+     *
+     * @param announceData
+     *            contains the information of the Announcement .
+     */
+    private void handleErrorTargetAnnouncementReceivedAfterTimeoutState(AnnounceData announceData) {
+        deviceData = new DeviceData();
+        try {
+            Log.d(TAG,"handleErrorTargetAnnouncementReceivedAfterTimeoutState" + announceData.getServiceName()+ " "+announceData.getPort());
+            deviceData.setAnnounceData(announceData);
+        } catch (BusException e) {
+            Log.e(TAG, "handleErrorTargetAnnouncementReceivedAfterTimeoutState DeviceData.setAnnounceObject failed with BusException. ", e);
+            Bundle extras = new Bundle();
+            extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.INVALID_ANNOUNCE_DATA.toString());
+            sendBroadcast(ERROR, extras);
+            setState(State.ERROR_WAITING_FOR_TARGET_ANNOUNCE);
+        }
+    }
+
 
     /**
      * Handle the ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT state.
@@ -1113,7 +1163,6 @@ public class OnboardingManager {
      *            contains the information of the Announcement .
      */
     private void handleErrorOnboardeeAnnouncementReceivedAfterTimeoutState(AnnounceData announceData) {
-
         Bundle extras = new Bundle();
         extras.clear();
         extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.FOUND_ONBOARDEE.toString());
@@ -1130,9 +1179,6 @@ public class OnboardingManager {
             setState(State.ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED);
         }
     }
-
-
-
 
 
     /**
@@ -1218,6 +1264,7 @@ public class OnboardingManager {
             setState(State.ERROR_CONFIGURING_ONBOARDEE);
         }
     }
+
 
     /**
      * Handle the CONFIGURING_ONBOARDEE_WITH_SIGNAL state.
@@ -1319,10 +1366,12 @@ public class OnboardingManager {
         }.start();
     }
 
+
     private void cancelFindAnnouncements(){
         Log.d( TAG, "cancelFindAnnouncements");
         internalAnnouncementFindFlag=true;
     }
+
 
     /**
      * Handle the CONNECT_TO_TARGET state.
@@ -1491,9 +1540,12 @@ public class OnboardingManager {
         case WAITING_FOR_TARGET_ANNOUNCE:
             stopAnnouncementTimeout();
             // no need for break
+        case ERROR_TARGET_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT:
+            // no need for break
         case ERROR_WAITING_FOR_TARGET_ANNOUNCE:
             Bundle extras = new Bundle();
             onboardingSDKWifiManager.enableAllWifiNetworks();
+            aboutService.removeAnnouncementHandler(announcementHandler);
             setState(State.IDLE);
             extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.ABORTED.toString());
             sendBroadcast(STATE_CHANGE_ACTION, extras);
@@ -1617,6 +1669,12 @@ public class OnboardingManager {
 
         case ERROR_WAITING_FOR_TARGET_ANNOUNCE:
             currentState = State.ERROR_WAITING_FOR_TARGET_ANNOUNCE;
+            break;
+
+        case ERROR_TARGET_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT:
+            currentState = State.ERROR_TARGET_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT;
+            cancelFindAnnouncements();
+            handleErrorTargetAnnouncementReceivedAfterTimeoutState((AnnounceData) msg.obj);
             break;
 
         case ABORTING:
@@ -1902,7 +1960,7 @@ public class OnboardingManager {
      * @param filter of Wi-Fi list type {@link WifiFilter}
      * @return list of Wi-Fi access points {@link #scanWiFi()}
      */
-    public List<WiFiNetwork> getWifiScanResults(WifiFilter filter){
+    public  List<WiFiNetwork> getWifiScanResults(WifiFilter filter){
         if (filter == WifiFilter.ALL) {
             return onboardingSDKWifiManager.getAllAccessPoints();
         } else if (filter == WifiFilter.TARGET) {
@@ -2084,60 +2142,64 @@ public class OnboardingManager {
             throw new OnboardingIllegalArgumentException();
         }
 
-        aboutService.addAnnouncementHandler(announcementHandler);
-        onboardingConfiguration = config;
+        synchronized (TAG){
+            onboardingConfiguration = config;
+            aboutService.addAnnouncementHandler(announcementHandler);
 
-        if (currentState == State.IDLE) {
+            if (currentState == State.IDLE) {
 
-            if (onboardingSDKWifiManager.getCurrentConnectedAP()!=null){
-                originalNetwork=onboardingSDKWifiManager.getCurrentConnectedAP().getSSID();
-            }
+                if (onboardingSDKWifiManager.getCurrentConnectedAP()!=null){
+                    originalNetwork=onboardingSDKWifiManager.getCurrentConnectedAP().getSSID();
+                }
 
 
-            setState(State.CONNECTING_TO_ONBOARDEE);
-        } else if (currentState.getValue() >= State.ERROR_CONNECTING_TO_ONBOARDEE.getValue()) {
-
-            switch (currentState) {
-
-            case ERROR_CONNECTING_TO_ONBOARDEE:
                 setState(State.CONNECTING_TO_ONBOARDEE);
-                break;
+            } else if (currentState.getValue() >= State.ERROR_CONNECTING_TO_ONBOARDEE.getValue()) {
 
-            case ERROR_WAITING_FOR_ONBOARDEE_ANNOUNCEMENT:
-                setState(State.WAITING_FOR_ONBOARDEE_ANNOUNCEMENT);
-                break;
+                switch (currentState) {
 
+                case ERROR_CONNECTING_TO_ONBOARDEE:
+                    setState(State.CONNECTING_TO_ONBOARDEE);
+                    break;
 
+                case ERROR_WAITING_FOR_ONBOARDEE_ANNOUNCEMENT:
+                    setState(State.WAITING_FOR_ONBOARDEE_ANNOUNCEMENT);
+                    break;
 
-            case ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED:
-                throw new OnboardingIllegalStateException("The device doesn't comply with onboarding service");
+                case ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED:
+                    throw new OnboardingIllegalStateException("The device doesn't comply with onboarding service");
 
-            case ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT:
-            case ERROR_JOINING_SESSION:
-                setState(State.JOINING_SESSION, deviceData.getAnnounceData());
-                break;
+                case ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT:
+                case ERROR_JOINING_SESSION:
+                    setState(State.JOINING_SESSION, deviceData.getAnnounceData());
+                    break;
 
-            case ERROR_CONFIGURING_ONBOARDEE:
-                setState(State.CONFIGURING_ONBOARDEE);
-                break;
+                case ERROR_CONFIGURING_ONBOARDEE:
+                    setState(State.CONFIGURING_ONBOARDEE);
+                    break;
 
-            case ERROR_WAITING_FOR_CONFIGURE_SIGNAL:
-                setState(State.CONFIGURING_ONBOARDEE_WITH_SIGNAL);
-                break;
+                case ERROR_WAITING_FOR_CONFIGURE_SIGNAL:
+                    setState(State.CONFIGURING_ONBOARDEE_WITH_SIGNAL);
+                    break;
 
-            case ERROR_CONNECTING_TO_TARGET_WIFI_AP:
-                setState(State.CONNECTING_TO_TARGET_WIFI_AP);
-                break;
+                case ERROR_CONNECTING_TO_TARGET_WIFI_AP:
+                    setState(State.CONNECTING_TO_TARGET_WIFI_AP);
+                    break;
 
-            case ERROR_WAITING_FOR_TARGET_ANNOUNCE:
-                setState(State.WAITING_FOR_TARGET_ANNOUNCE);
-                break;
+                case ERROR_WAITING_FOR_TARGET_ANNOUNCE:
+                    setState(State.WAITING_FOR_TARGET_ANNOUNCE);
+                    break;
 
-            default:
-                break;
+                case ERROR_TARGET_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT:
+                    setState(State.TARGET_ANNOUNCEMENT_RECEIVED,deviceData.getAnnounceData());
+                    break;
+
+                default:
+                    break;
+                }
+            } else {
+                throw new OnboardingIllegalStateException("onboarding process is already running");
             }
-        } else {
-            throw new OnboardingIllegalStateException("onboarding process is already running");
         }
     }
 
@@ -2157,23 +2219,24 @@ public class OnboardingManager {
      *    in case the state machine is in state CONNECTING_TO_TARGET_WIFI_AP,WAITING_FOR_TARGET_ANNOUNCE,TARGET_ANNOUNCEMENT_RECEIVED (can't abort ,in final stages of onboarding)
      */
     public void abortOnboarding() throws OnboardingIllegalStateException {
+        synchronized (TAG){
+            if (currentState == State.IDLE ||currentState == State.ABORTING ){
+                throw new OnboardingIllegalStateException("Can't abort ,already ABORTED");
+            }
 
-        Log.d(TAG,"abortOnboarding in "+currentState.toString());
-        if (currentState == State.IDLE ||currentState == State.ABORTING ){
-            throw new OnboardingIllegalStateException("Can't abort ,already ABORTED");
+            if (currentState == State.CONNECTING_TO_TARGET_WIFI_AP ||
+                currentState == State.TARGET_ANNOUNCEMENT_RECEIVED ||
+                currentState == State.CONFIGURING_ONBOARDEE ||
+                currentState == State.CONFIGURING_ONBOARDEE_WITH_SIGNAL) {
+                throw new OnboardingIllegalStateException("Can't abort");
+            }
+            Bundle extras =new Bundle();
+            extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.ABORTING.toString());
+            sendBroadcast(STATE_CHANGE_ACTION, extras);
+
+            setState(State.ABORTING);
         }
 
-        if (currentState == State.CONNECTING_TO_TARGET_WIFI_AP ||
-            currentState == State.TARGET_ANNOUNCEMENT_RECEIVED ||
-            currentState == State.CONFIGURING_ONBOARDEE ||
-            currentState == State.CONFIGURING_ONBOARDEE_WITH_SIGNAL) {
-            throw new OnboardingIllegalStateException("Can't abort");
-        }
-        Bundle extras =new Bundle();
-        extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.ABORTING.toString());
-        sendBroadcast(STATE_CHANGE_ACTION, extras);
-
-        setState(State.ABORTING);
     }
 
 
@@ -2302,29 +2365,32 @@ public class OnboardingManager {
         if (config == null || config.getServiceName() == null || config.getServiceName().isEmpty() || config.getPort() == 0) {
             throw new OnboardingIllegalArgumentException();
         }
-        // in case the SDK is in onboarding mode the runOffboarding can't
-        // continue
-        if (currentState != State.IDLE) {
-            throw new OnboardingIllegalStateException("onboarding process is already running");
-        }
-        Log.d(TAG, "runOffboarding serviceName"+config.getServiceName() + " port"+ config.getPort());
-        new Thread() {
-            @Override
-            public void run() {
-                DeviceResponse deviceResponse = offboardDevice(config.getServiceName(), config.getPort());
-                if (deviceResponse.getStatus() != ResponseCode.Status_OK) {
-                    Bundle extras = new Bundle();
-                    if (deviceResponse.getStatus() == ResponseCode.Status_ERROR_CANT_ESTABLISH_SESSION) {
-                        extras.putString(EXTRA_DEVICE_BUS_NAME, config.getServiceName());
-                        extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.JOIN_SESSION_ERROR.toString());
-                    } else {
-                        extras.putString(EXTRA_DEVICE_BUS_NAME, config.getServiceName());
-                        extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.ERROR_CONFIGURING_ONBOARDEE.toString());
-                    }
-                    sendBroadcast(ERROR, extras);
-                }
+
+        synchronized (TAG){
+            // in case the SDK is in onboarding mode the runOffboarding can't
+            // continue
+            if (currentState != State.IDLE) {
+                throw new OnboardingIllegalStateException("onboarding process is already running");
             }
-        }.start();
+            Log.d(TAG, "runOffboarding serviceName"+config.getServiceName() + " port"+ config.getPort());
+            new Thread() {
+                @Override
+                public void run() {
+                    DeviceResponse deviceResponse = offboardDevice(config.getServiceName(), config.getPort());
+                    if (deviceResponse.getStatus() != ResponseCode.Status_OK) {
+                        Bundle extras = new Bundle();
+                        if (deviceResponse.getStatus() == ResponseCode.Status_ERROR_CANT_ESTABLISH_SESSION) {
+                            extras.putString(EXTRA_DEVICE_BUS_NAME, config.getServiceName());
+                            extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.JOIN_SESSION_ERROR.toString());
+                        } else {
+                            extras.putString(EXTRA_DEVICE_BUS_NAME, config.getServiceName());
+                            extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.ERROR_CONFIGURING_ONBOARDEE.toString());
+                        }
+                        sendBroadcast(ERROR, extras);
+                    }
+                }
+            }.start();
+        }
     }
 
 
