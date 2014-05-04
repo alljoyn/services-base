@@ -328,7 +328,7 @@ QStatus Transport::startReceiverTransport(BusAttachment* bus)
             goto exit;
         }
 
-        String AJ_NOTIFICATION_INTERFACE_MATCH = "interface='" + AJ_NOTIFICATION_INTERFACE_NAME + "'";
+        String AJ_NOTIFICATION_INTERFACE_MATCH = "type='signal',sessionless='t',interface='" + AJ_NOTIFICATION_INTERFACE_NAME + "'";
         QCC_DbgPrintf(("Match String is: %s", AJ_NOTIFICATION_INTERFACE_MATCH.c_str()));
 
         status = m_Bus->AddMatch(AJ_NOTIFICATION_INTERFACE_MATCH.c_str());
@@ -352,7 +352,7 @@ QStatus Transport::startReceiverTransport(BusAttachment* bus)
             goto exit;
         }
 
-        String AJ_SUPERAGENT_INTERFACE_MATCH = "interface='" + AJ_SA_INTERFACE_NAME + "'";
+        String AJ_SUPERAGENT_INTERFACE_MATCH = "type='signal',sessionless='t',interface='" + AJ_SA_INTERFACE_NAME + "'";
         QCC_DbgPrintf(("SuperAgent Match String is: %s", AJ_SUPERAGENT_INTERFACE_MATCH.c_str()));
 
         status = m_Bus->AddMatch(AJ_SUPERAGENT_INTERFACE_MATCH.c_str());
@@ -390,7 +390,7 @@ QStatus Transport::startReceiverTransport(BusAttachment* bus)
             goto exit;
         }
 
-        String AJ_DISMISSER_INTERFACE_MATCH = "interface='" + AJ_NOTIFICATION_DISMISSER_INTERFACE + "'";
+        String AJ_DISMISSER_INTERFACE_MATCH = "type='signal',sessionless='t',interface='" + AJ_NOTIFICATION_DISMISSER_INTERFACE + "'";
         QCC_DbgPrintf(("NotificationDismisserReceiver Match String is: %s", AJ_DISMISSER_INTERFACE_MATCH.c_str()));
 
         status = m_Bus->AddMatch(AJ_DISMISSER_INTERFACE_MATCH.c_str());
@@ -472,7 +472,7 @@ QStatus Transport::listenToSuperAgent(const char* senderId)
     cleanupAnnouncementListener(true);
 
     { //add mach sender id
-        String AJ_SA_ADD_MATCH = "sender='" + String(senderId) + "'";
+        String AJ_SA_ADD_MATCH = "type='signal',sessionless='t',sender='" + String(senderId) + "'";
         QCC_DbgPrintf(("SuperAgent add match:%s", AJ_SA_ADD_MATCH.c_str()));
 
         status = m_Bus->AddMatch(AJ_SA_ADD_MATCH.c_str());
@@ -520,7 +520,7 @@ QStatus Transport::cancelListenToSuperAgent(const char* senderId)
     }
     startReceiverTransport(m_Bus);
 
-    String AJ_SUPERAGENT_INTERFACE_MATCH = "interface='" + AJ_SA_INTERFACE_NAME + "'";
+    String AJ_SUPERAGENT_INTERFACE_MATCH = "type='signal',sessionless='t',interface='" + AJ_SA_INTERFACE_NAME + "'";
     QCC_DbgPrintf(("SuperAgent Match String is: %s", AJ_SUPERAGENT_INTERFACE_MATCH.c_str()));
 
     status = m_Bus->AddMatch(AJ_SUPERAGENT_INTERFACE_MATCH.c_str());
