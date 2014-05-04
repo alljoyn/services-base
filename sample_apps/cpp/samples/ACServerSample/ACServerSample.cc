@@ -17,11 +17,17 @@
 #include <signal.h>
 #include <SrpKeyXListener.h>
 #include <CommonSampleUtil.h>
-#include <GuidUtil.h>
+#include <PropertyStoreImpl.h>
+#include <IniParser.h>
+#include <OptParser.h>
 #include <alljoyn/services_common/LogModulesNames.h>
 
 #include <alljoyn/about/AboutIconService.h>
 #include <alljoyn/about/AboutServiceApi.h>
+#ifdef _CONFIG_
+#include <alljoyn/config/ConfigService.h>
+#include "ConfigServiceListenerImpl.h"
+#endif
 
 #ifdef _NOTIFICATION_
 #include <alljoyn/notification/NotificationService.h>
@@ -42,23 +48,23 @@ using namespace services;
 
 #define SERVICE_EXIT_OK       0
 #define SERVICE_OPTION_ERROR  1
+#define SERVICE_CONFIG_ERROR  2
 
 /** static variables need for sample */
 static BusAttachment* msgBus = NULL;
 static SrpKeyXListener* keyListener = NULL;
 static AboutIconService* aboutIconService = NULL;
-static AboutPropertyStoreImpl* propertyStoreImpl = NULL;
+static PropertyStoreImpl* propertyStoreImpl = NULL;
 static CommonBusListener* busListener = NULL;
 
-
+static SessionPort SERVICE_PORT;
+static qcc::String configFile;
 static volatile sig_atomic_t s_interrupt = false;
 
-// values for property store and AboutService
-static qcc::String appName = "ACServerSample";
-static qcc::String deviceName = "MyDeviceName";
-static SessionPort servicePort = 900;
-static qcc::String deviceId;
-static qcc::String appId;
+#ifdef _CONFIG_
+static ConfigService* configService = NULL;
+static ConfigServiceListenerImpl* configServiceListenerImpl = NULL;
+#endif
 
 #ifdef _NOTIFICATION_
 NotificationService* prodService = NULL;
@@ -102,6 +108,18 @@ static void cleanup()
         busListener = NULL;
     }
 
+#ifdef _CONFIG_
+    if (configService) {
+        delete configService;
+        configService = NULL;
+    }
+
+    if (configServiceListenerImpl) {
+        delete configServiceListenerImpl;
+        configServiceListenerImpl = NULL;
+    }
+#endif
+
 #ifdef _NOTIFICATION_
     if (prodService) {
         prodService->shutdown();
@@ -129,6 +147,20 @@ static void cleanup()
     msgBus = NULL;
 }
 
+const char* readPassword() {
+    std::map<std::string, std::string> data;
+    if (!IniParser::ParseFile(configFile.c_str(), data)) {
+        return NULL;
+    }
+
+    std::map<std::string, std::string>::iterator iter = data.find("passcode");
+    if (iter == data.end()) {
+        return NULL;
+    }
+
+    return iter->second.c_str();
+}
+
 /** Advertise the service name, report the result to stdout, and return the status code. */
 QStatus AdvertiseName(TransportMask mask) {
     QStatus status = ER_BUS_ESTABLISH_FAILED;
@@ -139,7 +171,7 @@ QStatus AdvertiseName(TransportMask mask) {
     return status;
 }
 
-int main() {
+int main(int argc, char**argv, char**envArg) {
 
     QStatus status = ER_OK;
     printf("AllJoyn Library version: %s\n", ajn::GetVersion());
@@ -147,8 +179,32 @@ int main() {
     QCC_SetLogLevels("ALLJOYN_ABOUT_SERVICE=7;");
     QCC_SetLogLevels("ALLJOYN_ABOUT_ICON_SERVICE=7;");
 
+    OptParser opts(argc, argv);
+    OptParser::ParseResultCode parseCode(opts.ParseResult());
+    switch (parseCode) {
+    case OptParser::PR_OK:
+        break;
 
-    printf("using port %d\n", servicePort);
+    case OptParser::PR_EXIT_NO_ERROR:
+        return SERVICE_EXIT_OK;
+
+    default:
+        return SERVICE_OPTION_ERROR;
+    }
+
+    SERVICE_PORT = opts.GetPort();
+    printf("using port %d\n", opts.GetPort());
+
+    if (!opts.GetConfigFile().empty()) {
+        printf("using Config-file %s\n", opts.GetConfigFile().c_str());
+        if (!opts.ParseExternalXML()) {
+            return 1;
+        }
+    }
+
+    if (!opts.GetAppId().empty()) {
+        printf("using appID %s\n", opts.GetAppId().c_str());
+    }
 
     /* Install SIGINT handler so Ctrl + C deallocates memory properly */
     signal(SIGINT, SigIntHandler);
@@ -168,20 +224,19 @@ int main() {
     }
 
     busListener = new CommonBusListener(msgBus);
-    busListener->setSessionPort(servicePort);
+    busListener->setSessionPort(SERVICE_PORT);
 
-    GuidUtil::GetInstance()->GetDeviceIdString(&deviceId);
-    GuidUtil::GetInstance()->GenerateGUID(&appId);
-
-    propertyStoreImpl = new AboutPropertyStoreImpl();
-    status = CommonSampleUtil::fillPropertyStore(propertyStoreImpl, appId, appName, deviceId, deviceName);
+    propertyStoreImpl = new PropertyStoreImpl(opts.GetFactoryConfigFile().c_str(), opts.GetConfigFile().c_str());
+    status = CommonSampleUtil::fillPropertyStore(propertyStoreImpl, opts.GetAppId(), opts.GetAppName(), opts.GetDeviceId(),
+                                                 opts.GetDeviceName(), opts.GetDefaultLanguage());
+    propertyStoreImpl->Initialize();
     if (status != ER_OK) {
         std::cout << "Could not fill PropertyStore." << std::endl;
         cleanup();
         return 1;
     }
 
-    status = CommonSampleUtil::prepareAboutService(msgBus, propertyStoreImpl, busListener, servicePort);
+    status = CommonSampleUtil::prepareAboutService(msgBus, propertyStoreImpl, busListener, SERVICE_PORT);
     if (status != ER_OK) {
         std::cout << "Could not set up the AboutService." << std::endl;
         cleanup();
@@ -221,7 +276,32 @@ int main() {
         return 1;
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    //ConfigService
+#ifdef _CONFIG_
+    configServiceListenerImpl = new ConfigServiceListenerImpl(*propertyStoreImpl, *msgBus, *busListener);
+    configService = new ConfigService(*msgBus, *propertyStoreImpl, *configServiceListenerImpl);
+    configFile = opts.GetConfigFile().c_str();
+    keyListener->setGetPassCode(readPassword);
 
+    interfaces.clear();
+    interfaces.push_back("org.alljoyn.Config");
+    aboutService->AddObjectDescription("/Config", interfaces);
+
+    status = configService->Register();
+    if (status != ER_OK) {
+        std::cout << "Could not register the ConfigService." << std::endl;
+        cleanup();
+        return 1;
+    }
+
+    status = msgBus->RegisterBusObject(*configService);
+    if (status != ER_OK) {
+        std::cout << "Could not register the ConfigService BusObject." << std::endl;
+        cleanup();
+        return 1;
+    }
+#endif
     ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     const TransportMask SERVICE_TRANSPORT_TYPE = TRANSPORT_ANY;
@@ -284,8 +364,8 @@ int main() {
             NotificationMessageType messageType = NotificationMessageType(INFO);
             std::vector<NotificationText> vecMessages;
             uint16_t ttl = 600;
+
             NotificationText textToSend("en", getNotificationString());
-
             vecMessages.push_back(textToSend);
             Notification notification(messageType, vecMessages);
 
@@ -295,49 +375,6 @@ int main() {
                 std::cout << "Notification sent " << std::endl;
             }
         }
-
-        if (getOfferToTurnOnTheFan()) {
-            std::cout << "Going to send notification with offer to turn on the fan." << std::endl;
-            NotificationMessageType messageType = NotificationMessageType(INFO);
-            std::vector<NotificationText> vecMessages;
-            uint16_t ttl = 600;
-            NotificationText textToSend("en", "Temperature is reached");
-            static const qcc::String controlPanelServiceObjectPath("/ControlPanel/MyDevice/TurnFanOn");
-
-            vecMessages.push_back(textToSend);
-            Notification notification(messageType, vecMessages);
-
-            notification.setControlPanelServiceObjectPath(controlPanelServiceObjectPath.c_str());
-            setOfferToTurnOnTheFan(false);
-
-            if (sender->send(notification, ttl) != ER_OK) {
-                std::cout << "Could not send the message successfully" << std::endl;
-            } else {
-                std::cout << "Notification sent " << std::endl;
-            }
-        }
-
-        if (getOfferToTurnOffTheFan()) {
-            std::cout << "Going to send notification with offer to turn off the fan." << std::endl;
-            NotificationMessageType messageType = NotificationMessageType(INFO);
-            std::vector<NotificationText> vecMessages;
-            uint16_t ttl = 600;
-            NotificationText textToSend("en", "Fan is still running");
-            static const qcc::String controlPanelServiceObjectPath("/ControlPanel/MyDevice/TurnFanOff");
-
-            vecMessages.push_back(textToSend);
-            Notification notification(messageType, vecMessages);
-
-            notification.setControlPanelServiceObjectPath(controlPanelServiceObjectPath.c_str());
-            setOfferToTurnOffTheFan(false);
-
-            if (sender->send(notification, ttl) != ER_OK) {
-                std::cout << "Could not send the message successfully" << std::endl;
-            } else {
-                std::cout << "Notification sent " << std::endl;
-            }
-        }
-
     #endif
         uint8_t sendUpdates = checkForUpdatesToSend();
         if (sendUpdates > 0) {
@@ -346,7 +383,6 @@ int main() {
             // 0010 == need to update the status text field
             // 0100 == need to update the state of temperature selector
             // 1000 == need to update the state of fan speed selector
-            // 10000 == need to update the mode
 
             if ((sendUpdates & (1 << 0)) != 0) {
                 printf("##### Sending update signal: temperature string field \n");
@@ -364,11 +400,6 @@ int main() {
                 printf("##### Sending update signal: fan speed selector state \n");
                 ControlPanelGenerated::myDeviceFan_speed->SendPropertyChangedSignal();
             }
-            if ((sendUpdates & (1 << 4)) != 0) {
-                printf("##### Sending update signal: mode selector field \n");
-                ControlPanelGenerated::myDeviceAc_mode->SendValueChangedSignal();
-            }
-
         }
 #endif
         sleep(2);

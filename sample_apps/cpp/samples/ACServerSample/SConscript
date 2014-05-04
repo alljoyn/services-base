@@ -15,13 +15,13 @@
 Import('env', 'cobjs')
 local_env = env.Clone()
 
-srcs = ['ACServerSample.cc']
-objs = local_env.Object(srcs)                      
+srcs = ['ACServerSample.cc', 'OptParser.cc']
+objs = local_env.Object(srcs)
 objs.extend(cobjs)
 
 if '_CONFIG_' in local_env["CPPDEFINES"] :
     configSrcs = 'ConfigServiceListenerImpl.cc'
-    configObjs = local_env.Object(configSrcs)                      
+    configObjs = local_env.Object(configSrcs)
     objs.extend(configObjs)
 
 if '_CONTROLPANEL_' in local_env["CPPDEFINES"] : 
@@ -36,9 +36,11 @@ if '_CONTROLPANEL_' in local_env["CPPDEFINES"] :
     
 if '_ONBOARDING_' in local_env["CPPDEFINES"] :
     onboardingSrcs = 'OnboardingControllerImpl.cc'
-    onboardingObjs = local_env.Object(onboardingSrcs)                      
+    onboardingObjs = local_env.Object(onboardingSrcs)
     objs.extend(onboardingObjs)
 
+local_env.Install('$SAMPLE_APPS_DISTDIR/bin', 'FactoryACServerSample.conf')
+local_env.Install('$SAMPLE_APPS_DISTDIR/bin', 'ACServerSample.conf')
 prog = local_env.Program('ACServerSample', objs)
 
 Return('prog')
