@@ -45,42 +45,59 @@ SrpKeyXListener* srpKeyXListener = 0;
 NotificationService* prodService = 0;
 NotificationSender* sender = 0;
 
-void exitApp(int32_t signum)
-{
-    std::cout << "Program Finished" << std::endl;
+static volatile sig_atomic_t s_interrupt = false;
 
+static volatile sig_atomic_t s_restart = false;
+
+static void SigIntHandler(int sig)
+{
+    s_interrupt = true;
+}
+
+static void daemonDisconnectCB()
+{
+    s_restart = true;
+}
+
+void cleanup()
+{
     CommonSampleUtil::aboutServiceDestroy(bus, controlpanelBusListener);
     if (controlPanelService) {
         controlPanelService->shutdownControllee();
     }
     if (prodService) {
         prodService->shutdown();
+        prodService = NULL;
     }
     ControlPanelGenerated::Shutdown();
     if (sender) {
         delete sender;
+        sender = NULL;
     }
     if (controlPanelControllee) {
         delete controlPanelControllee;
+        controlPanelControllee = NULL;
     }
     if (controlpanelBusListener) {
         delete controlpanelBusListener;
+        controlpanelBusListener = NULL;
     }
     if (propertyStoreImpl) {
-        delete (propertyStoreImpl);
+        delete propertyStoreImpl;
+        propertyStoreImpl = NULL;
     }
     if (controlPanelService) {
         delete controlPanelService;
+        controlPanelService = NULL;
     }
     if (srpKeyXListener) {
         delete srpKeyXListener;
+        srpKeyXListener = NULL;
     }
     if (bus) {
         delete bus;
+        bus = NULL;
     }
-
-    std::cout << "Goodbye!" << std::endl;
-    exit(signum);
 }
 
 int32_t main()
@@ -88,7 +105,7 @@ int32_t main()
     QStatus status;
 
     // Allow CTRL+C to end application
-    signal(SIGINT, exitApp);
+    signal(SIGINT, SigIntHandler);
     std::cout << "Beginning ControlPanel Application. (Press CTRL+C to end application)" << std::endl;
 
     // Initialize Service objects
@@ -96,21 +113,33 @@ int32_t main()
     PasswordManager::SetCredentials("ALLJOYN_PIN_KEYX", "000000");
 #endif
 
-    controlpanelBusListener = new CommonBusListener();;
+start:
     controlPanelService = ControlPanelService::getInstance();
     QCC_SetDebugLevel(logModules::CONTROLPANEL_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
 
     // Initialize Service object and Sender Object
     prodService = NotificationService::getInstance();
 
-
     srpKeyXListener = new SrpKeyXListener();
 
-    bus = CommonSampleUtil::prepareBusAttachment(srpKeyXListener);
+    /* Connect to the daemon */
+    uint16_t retry = 0;
+    do {
+        bus = CommonSampleUtil::prepareBusAttachment(srpKeyXListener);
+        if (bus == NULL) {
+            std::cout << "Could not initialize BusAttachment. Retrying" << std::endl;
+            sleep(1);
+            retry++;
+        }
+    } while (bus == NULL && retry != 180 && !s_interrupt);
+
     if (bus == NULL) {
         std::cout << "Could not initialize BusAttachment." << std::endl;
-        exitApp(1);
+        cleanup();
+        return 1;
     }
+
+    controlpanelBusListener = new CommonBusListener(bus, daemonDisconnectCB);
 
     qcc::String device_id, app_id;
     qcc::String app_name = "testappName", device_name = "testdeviceName";
@@ -121,38 +150,44 @@ int32_t main()
     status = CommonSampleUtil::fillPropertyStore(propertyStoreImpl, app_id, app_name, device_id, device_name);
     if (status != ER_OK) {
         std::cout << "Could not fill PropertyStore." << std::endl;
-        exitApp(1);
+        cleanup();
+        return 1;
     }
 
     status = CommonSampleUtil::prepareAboutService(bus, propertyStoreImpl,
                                                    controlpanelBusListener, SERVICE_PORT);
     if (status != ER_OK) {
         std::cout << "Could not register bus object." << std::endl;
-        exitApp(1);
+        cleanup();
+        return 1;
     }
 
     status = ControlPanelGenerated::PrepareWidgets(controlPanelControllee);
     if (status != ER_OK) {
         std::cout << "Could not prepare Widgets." << std::endl;
-        exitApp(1);
+        cleanup();
+        return 1;
     }
 
     status = controlPanelService->initControllee(bus, controlPanelControllee);
     if (status != ER_OK) {
         std::cout << "Could not initialize Controllee." << std::endl;
-        exitApp(1);
+        cleanup();
+        return 1;
     }
 
     sender = prodService->initSend(bus, propertyStoreImpl);
     if (!sender) {
         std::cout << "Could not initialize Sender - exiting application" << std::endl;
-        exitApp(1);
+        cleanup();
+        return 1;
     }
 
     status = CommonSampleUtil::aboutServiceAnnounce();
     if (status != ER_OK) {
         std::cout << "Could not announce." << std::endl;
-        exitApp(1);
+        cleanup();
+        return 1;
     }
 
     std::cout << "Sent announce, waiting for Contollers" << std::endl;
@@ -163,7 +198,7 @@ int32_t main()
     qcc::String defaultControlPanelServiceObjectPath = "/ControlPanel/MyDevice/areYouSure";
 
     getline(std::cin, input);
-    while (!std::cin.eof()) {
+    while (s_interrupt == false && s_restart == false && !std::cin.eof()) {
         controlPanelServiceObjectPath = input.length() ? input.c_str() : defaultControlPanelServiceObjectPath;
 
         NotificationMessageType messageType = INFO;
@@ -183,7 +218,14 @@ int32_t main()
         std::cout << "Enter in the ControlPanelService object path or press 'enter' to use default:" << std::endl;
         getline(std::cin, input);
     }
-    std::cout << "Exiting in 10 seconds" << std::endl;
+
+    std::cout << "Cleaning up in 10 seconds" << std::endl;
     sleep(10);
-    exitApp(0);
+
+    if (s_restart) {
+        s_restart = false;
+        goto start;
+    }
+
+    return 0;
 }

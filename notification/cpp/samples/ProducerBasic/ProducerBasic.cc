@@ -59,32 +59,47 @@ NotificationSender* Sender = 0;
 BusAttachment* bus = 0;
 AboutPropertyStoreImpl* propertyStoreImpl = 0;
 CommonBusListener*  busListener = 0;
+static volatile sig_atomic_t s_interrupt = false;
 
 void cleanup()
 {
     // Clean up
     if (prodService) {
         prodService->shutdown();
+        prodService = NULL;
     }
     if (bus && busListener) {
         CommonSampleUtil::aboutServiceDestroy(bus, busListener);
     }
     if (busListener) {
         delete busListener;
+        busListener = NULL;
     }
     if (propertyStoreImpl) {
-        delete (propertyStoreImpl);
+        delete propertyStoreImpl;
+        propertyStoreImpl = NULL;
     }
     if (bus) {
         delete bus;
+        bus = NULL;
     }
     std::cout << "Goodbye!" << std::endl;
 }
 
 void signal_callback_handler(int32_t signum)
 {
-    cleanup();
-    exit(signum);
+    std::cout << "got signal_callback_handler" << std::endl;
+    s_interrupt = true;
+}
+
+void WaitForSigInt() {
+    while (s_interrupt == false) {
+#ifdef _WIN32
+        Sleep(100);
+#else
+        usleep(100 * 1000);
+#endif
+    }
 }
 
 int main()
@@ -190,15 +205,12 @@ int main()
     }
 
     std::cout << "Notification sent! " << std::endl;
+    std::cout << "Hit Ctrl+C to exit the application" << std::endl;
 
+    WaitForSigInt();
 
-    std::string input;
-    do {
-        std::cout << "To exit please push 'c' character:" << std::endl;
-        getline(std::cin, input);
-    } while (input != "c");
-
-    std::cout << "Exiting the application deletes the bus connection." << std::endl;
+    std::cout << "Exiting the application and deleting the bus connection." << std::endl;
     cleanup();
+
     return 0;
 }

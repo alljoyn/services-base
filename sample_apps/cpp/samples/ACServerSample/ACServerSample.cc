@@ -50,8 +50,8 @@ static AboutIconService* aboutIconService = NULL;
 static AboutPropertyStoreImpl* propertyStoreImpl = NULL;
 static CommonBusListener* busListener = NULL;
 
-
 static volatile sig_atomic_t s_interrupt = false;
+static volatile sig_atomic_t s_restart = false;
 
 // values for property store and AboutService
 static qcc::String appName = "ACServerSample";
@@ -73,6 +73,11 @@ ControlPanelControllee* controlPanelControllee = NULL;
 static void SigIntHandler(int sig)
 {
     s_interrupt = true;
+}
+
+static void daemonDisconnectCB()
+{
+    s_restart = true;
 }
 
 static void cleanup()
@@ -97,7 +102,9 @@ static void cleanup()
     }
 
     if (busListener) {
-        msgBus->UnregisterBusListener(*busListener);
+        if (msgBus) {
+            msgBus->UnregisterBusListener(*busListener);
+        }
         delete busListener;
         busListener = NULL;
     }
@@ -105,9 +112,11 @@ static void cleanup()
 #ifdef _NOTIFICATION_
     if (prodService) {
         prodService->shutdown();
+        prodService = NULL;
     }
     if (sender) {
         delete sender;
+        sender = NULL;
     }
 #endif
 
@@ -118,15 +127,19 @@ static void cleanup()
     ControlPanelGenerated::Shutdown();
     if (controlPanelControllee) {
         delete controlPanelControllee;
+        controlPanelControllee = NULL;
     }
     if (controlPanelService) {
         delete controlPanelService;
+        controlPanelService = NULL;
     }
 #endif
 
     /* Clean up msg bus */
-    delete msgBus;
-    msgBus = NULL;
+    if (msgBus) {
+        delete msgBus;
+        msgBus = NULL;
+    }
 }
 
 /** Advertise the service name, report the result to stdout, and return the status code. */
@@ -158,16 +171,28 @@ int main() {
     PasswordManager::SetCredentials("ALLJOYN_PIN_KEYX", "000000");
     #endif
 
+start:
+    std::cout << "Initializing application." << std::endl;
+
     /* Create message bus */
     keyListener = new SrpKeyXListener();
-    msgBus = CommonSampleUtil::prepareBusAttachment(keyListener);
+    uint16_t retry = 0;
+    do {
+        msgBus = CommonSampleUtil::prepareBusAttachment(keyListener);
+        if (msgBus == NULL) {
+            std::cout << "Could not initialize BusAttachment. Retrying" << std::endl;
+            sleep(1);
+            retry++;
+        }
+    } while (msgBus == NULL && retry != 180 && !s_interrupt);
+
     if (msgBus == NULL) {
         std::cout << "Could not initialize BusAttachment." << std::endl;
-        delete keyListener;
+        cleanup();
         return 1;
     }
 
-    busListener = new CommonBusListener(msgBus);
+    busListener = new CommonBusListener(msgBus, daemonDisconnectCB);
     busListener->setSessionPort(servicePort);
 
     GuidUtil::GetInstance()->GetDeviceIdString(&deviceId);
@@ -276,7 +301,7 @@ int main() {
     std::cout << "Sent announce, waiting for Remote Devices" << std::endl;
 
     //Run in loop until interrupt is true
-    while (s_interrupt == false) {
+    while (s_interrupt == false && s_restart == false) {
 
 #ifdef _CONTROLPANEL_
     #ifdef _NOTIFICATION_
@@ -375,6 +400,12 @@ int main() {
     }
 
     cleanup();
+
+    if (s_restart) {
+        s_restart = false;
+        goto start;
+    }
+
     return 0;
 } /* main() */
 

@@ -49,22 +49,17 @@ void cleanup()
 void signal_callback_handler(int32_t signum)
 {
     std::cout << "got signal_callback_handler" << std::endl;
-    cleanup();
     s_interrupt = true;
-    std::cout << "Goodbye!" << std::endl;
-    exit(signum);
 }
 
-bool WaitForSigInt(int32_t sleepTime) {
-    if (s_interrupt == false) {
+void WaitForSigInt() {
+    while (s_interrupt == false) {
 #ifdef _WIN32
         Sleep(100);
 #else
-        sleep(sleepTime);
+        usleep(100 * 1000);
 #endif
-        return false;
     }
-    return true;
 }
 
 int main()
@@ -118,10 +113,8 @@ int main()
 
     std::cout << "Waiting for notifications." << std::endl;
 
-    int32_t sleepTime = 5;
-    while (!WaitForSigInt(sleepTime)) ;
+    WaitForSigInt();
 
-
-
+    cleanup();
     return 0;
 }
