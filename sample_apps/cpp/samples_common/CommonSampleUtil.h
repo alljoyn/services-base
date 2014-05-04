@@ -73,13 +73,6 @@ class CommonSampleUtil {
      */
     static void aboutServiceDestroy(ajn::BusAttachment* bus, CommonBusListener* busListener);
 
-    /**
-     * adds appropriate addMatch to Consumer application
-     * @param bus
-     * @return status - success/fail
-     */
-    static QStatus addSessionlessMatch(ajn::BusAttachment*bus);
-
   private:
 
     /**

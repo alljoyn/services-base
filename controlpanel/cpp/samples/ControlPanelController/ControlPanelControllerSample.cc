@@ -133,12 +133,6 @@ int main()
         exitApp(1);
     }
 
-    status = CommonSampleUtil::addSessionlessMatch(bus);
-    if (status != ER_OK) {
-        std::cout << "Could not add Sessionless Match" << std::endl;
-        exitApp(1);
-    }
-
     std::cout << "Finished setup. Waiting for Contollees" << std::endl;
     while (1) {
         sleep(1);

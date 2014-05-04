@@ -157,15 +157,6 @@ void CommonSampleUtil::aboutServiceDestroy(BusAttachment* bus,
     return;
 }
 
-QStatus CommonSampleUtil::addSessionlessMatch(BusAttachment*bus)
-{
-    if (!bus) {
-        return ER_BAD_ARG_1;
-    }
-
-    return bus->AddMatch("sessionless='t',type='error'");
-}
-
 QStatus CommonSampleUtil::EnableSecurity(BusAttachment* bus, AuthListener* authListener)
 {
     QStatus status = bus->EnablePeerSecurity("ALLJOYN_PIN_KEYX ALLJOYN_SRP_KEYX", authListener);
