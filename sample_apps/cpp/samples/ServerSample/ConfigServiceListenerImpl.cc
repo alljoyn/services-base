@@ -35,11 +35,19 @@ QStatus ConfigServiceListenerImpl::Restart()
 QStatus ConfigServiceListenerImpl::FactoryReset()
 {
     printf("FactoryReset has been called!!!\n");
+
+    QStatus status = ER_OK;
     m_PropertyStore->FactoryReset();
     printf("Clearing Key Store\n");
     m_Bus->ClearKeyStore();
 
-    return ER_OK;
+    AboutServiceApi* aboutService = AboutServiceApi::getInstance();
+    if (aboutService) {
+        status = aboutService->Announce();
+        std::cout << "Announce for " << m_Bus->GetUniqueName().c_str() << " = " << QCC_StatusText(status) << std::endl;
+    }
+
+    return status;
 }
 
 QStatus ConfigServiceListenerImpl::SetPassphrase(const char* daemonRealm, size_t passcodeSize, const char* passcode, ajn::SessionId sessionId)
