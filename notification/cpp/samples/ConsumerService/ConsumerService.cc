@@ -109,13 +109,6 @@ int main()
         return 1;
     }
 
-    status = CommonSampleUtil::addSessionlessMatch(busAttachment);
-    if (status != ER_OK) {
-        std::cout << "Could not add sessionless match." << std::endl;
-        cleanup();
-        return 1;
-    }
-
     std::cout << "Waiting for notifications." << std::endl;
 
     int32_t sleepTime = 5;

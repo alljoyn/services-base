@@ -217,13 +217,6 @@ bool initReceive(std::map<qcc::String, qcc::String>& params)
         return false;
     }
 
-    QStatus status = ER_OK;
-    status = CommonSampleUtil::addSessionlessMatch(testBus);
-    if (status != ER_OK) {
-        std::cout << "Could not add sessionless match." << std::endl;
-        return false;
-    }
-
     didInitReceive = true;
 
     std::cout << "Receiver Initialized" << std::endl;
