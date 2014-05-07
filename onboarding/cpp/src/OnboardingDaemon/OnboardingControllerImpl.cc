@@ -17,7 +17,6 @@
 #include <stdlib.h>
 #include <iostream>
 #include <stdio.h>
-#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <sys/stat.h>
@@ -27,8 +26,7 @@
 #include <time.h>
 #include <errno.h>
 #include <unistd.h>
-#include <json/json.h>
-#include <signal.h>
+#include <algorithm>
 
 #include <alljoyn/about/AboutServiceApi.h>
 #include <alljoyn/onboarding/OnboardingService.h>
@@ -208,10 +206,8 @@ void OnboardingControllerImpl::Connect() {
 OBAuthType TranslateToOBAuthType(int authNum, GroupCiphers theCiphers)
 {
     switch (authNum) {
-    case 0:
-        return OPEN;
 
-    case 1:
+    case WPA_AUTO:
         switch (theCiphers) {
         case CIPHER_NONE:
         case CIPHER_BOTH:
@@ -225,8 +221,7 @@ OBAuthType TranslateToOBAuthType(int authNum, GroupCiphers theCiphers)
         }
         break;
 
-    case 2:
-    case 3:
+    case WPA2_AUTO:
         switch (theCiphers) {
         case CIPHER_NONE:
         case CIPHER_BOTH:
@@ -246,7 +241,6 @@ OBAuthType TranslateToOBAuthType(int authNum, GroupCiphers theCiphers)
     return ANY;
 }
 
-
 long GetMinElapsedFromLastScan(const char* filename)
 {
     long minutes = -1;
@@ -263,78 +257,81 @@ long GetMinElapsedFromLastScan(const char* filename)
 void OnboardingControllerImpl::ParseScanInfo()
 {
     // Scan records are already sorted by signal strength
-    // Read and parse
-    std::ifstream scanFile(m_scanFile.c_str());
-    if (!scanFile.is_open()) {
-        return;
-    }
-    std::string scanString((std::istreambuf_iterator<char>(scanFile)), std::istreambuf_iterator<char>());
-    scanFile.close();
-    json_object*jroot = json_tokener_parse(scanString.c_str());
-    if (NULL == jroot) {
+    std::ifstream scanFile;
+
+    scanFile.open(m_scanFile.c_str());
+    if (scanFile.fail()) {
         return;
     }
 
-    // Parse complete, now clear out the map and delete array
+    //get lines in file which is the number of ssid's scanned
+    //when done, return to the beginning of the file
+    int length = std::count(std::istreambuf_iterator<char>(scanFile), std::istreambuf_iterator<char>(), '\n');
+    scanFile.clear();
+    scanFile.seekg(0, std::ios::beg);
+
+    // Clear out the map and delete array and initialize with the new length
     m_ScanList.clear();
 
     if (m_ScanArray != NULL) {
         delete [] m_ScanArray;
         m_ScanArray = NULL;
     }
-
-    // Rebuild scan result cache
-    int length = json_object_array_length(jroot);
     m_ScanArray = new OBScanInfo[length];
-    json_object*scanrec;
+
+    // start parsing the scan file
+    std::string line;
     int current = 0;
-    for (int i = 0; i < length; ++i) {
 
-        // Build an OBScanInfo from record
-        scanrec = json_object_array_get_idx(jroot, i);
-        json_object_object_foreach(scanrec, key, val) {
-            if (!strcmp(key, "ssid")) {
-                const char*ssid = json_object_get_string(val);
-                m_ScanArray[current].SSID.append(ssid);
-            } else if (!strcmp(key, "encryption")) {
-                const char*gcipher;
-                int wpa = -1;
-                GroupCiphers GCiphers = CIPHER_NONE;
-                json_object_object_foreach(val, ekey, eval) {
-                    if (!strcmp(ekey, "wep")) {
-                        if (json_object_get_boolean(eval)) {
-                            m_ScanArray[current].authType = WEP;
-                        }
-                    } else if (!strcmp(ekey, "wpa")) {
-                        wpa = json_object_get_int(eval);
-                    } else if (!strcmp(ekey, "group_ciphers")) {
-                        int length = json_object_array_length(eval);
-                        if (length > 1) {
-                            GCiphers = CIPHER_BOTH;
-                        } else {
-                            json_object* cipher_obj = json_object_array_get_idx(eval, 0);
-                            gcipher = json_object_get_string(cipher_obj);
-                            if (!gcipher) {
-                                GCiphers = CIPHER_NONE;
-                            } else if (!strcmp(gcipher, "TKIP")) {
-                                GCiphers = CIPHER_TKIP;
-                            } else if (!strcmp(gcipher, "CCMP")) {
-                                GCiphers = CIPHER_CCMP;
-                            }
-                        }
-                    }
-                }
+    while (std::getline(scanFile, line)) {
+        std::stringstream currLine(line);
 
-                // If wep element was true, leave it intact.
-                if (m_ScanArray[current].authType != WEP) {
-                    m_ScanArray[current].authType = TranslateToOBAuthType(wpa, GCiphers);
-                }
-            }
+        char* ssid = strtok((char*)line.c_str(), "\t");
+        char* auth = strtok(NULL, "\t");
+
+        if (!ssid) {
+            continue;
         }
 
-        // If SSID was not found in the scan record, move on to next.
-        if (m_ScanArray[current].SSID.empty()) {
-            continue;
+        char* authType = strtok(auth, "-");
+        char* firstCipher = strtok(NULL, "-");
+        char* secondCipher = strtok(NULL, "-");
+
+        m_ScanArray[current].SSID = ssid;
+
+        // get auth type
+        if (!strcmp(authType, "WEP")) {
+            m_ScanArray[current].authType = WEP;
+        } else if (!strcmp(authType, "Open")) {
+            m_ScanArray[current].authType = OPEN;
+        } else if (!strcmp(authType, "WPA2")) {
+            m_ScanArray[current].authType = WPA2_AUTO;
+        } else if (!strcmp(authType, "WPA")) {
+            m_ScanArray[current].authType = WPA_AUTO;
+        }
+
+        // still need to set the ciphers for WPA and WPA2
+        if ((m_ScanArray[current].authType == WPA_AUTO) || (m_ScanArray[current].authType == WPA2_AUTO)) {
+            // example:
+            // One cipher CCMP would look like "WPA2-CCMP--PSK"
+            // Two ciphers CCMP and TKIP "WPA2-CCMP-TKIP-PSK" we dont know the order of CCMP and TKIP
+
+            GroupCiphers GCiphers = CIPHER_NONE;
+            if (!strcmp(firstCipher, "PSK")) {
+                GCiphers = CIPHER_NONE;
+            } else if (!strcmp(firstCipher, "CCMP")) {
+                GCiphers = CIPHER_CCMP;
+                if (!strcmp(secondCipher, "TKIP")) {
+                    GCiphers = CIPHER_BOTH;
+                }
+            } else if (!strcmp(firstCipher, "TKIP")) {
+                GCiphers = CIPHER_TKIP;
+                if (!strcmp(secondCipher, "CCMP")) {
+                    GCiphers = CIPHER_BOTH;
+                }
+            }
+
+            m_ScanArray[current].authType = TranslateToOBAuthType(m_ScanArray[current].authType, GCiphers);
         }
 
         // add parsed record to array and map if SSID not duplicated
@@ -344,6 +341,8 @@ void OnboardingControllerImpl::ParseScanInfo()
             ++current;
         }
     }
+
+    scanFile.close();
 }
 
 void OnboardingControllerImpl::StartScanWifiTimer()
