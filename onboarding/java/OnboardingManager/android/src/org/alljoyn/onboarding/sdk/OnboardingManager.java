@@ -675,6 +675,11 @@ public class OnboardingManager {
     private   static  volatile  boolean internalAnnouncementFindFlag;
 
     /**
+     * Indicator flag to listen to incoming Announcements
+     */
+    private static volatile boolean listenToAnnouncementsFlag;
+
+    /**
      * Stores the OnboardingManager state machine state
      */
     private  State currentState = State.IDLE;
@@ -695,7 +700,16 @@ public class OnboardingManager {
     private final AnnouncementHandler announcementHandler=new AnnouncementHandler() {
         @Override
         public void onAnnouncement(final String serviceName, final short port, final BusObjectDescription[] objectDescriptions, final Map<String, Variant> serviceMetadata) {
+
+            synchronized (TAG) {
+                if (!listenToAnnouncementsFlag){
+                    Log.w(TAG, "AnnouncementHandler not in listeneing mode");
+                    return;
+                }
+            }
             Log.d(TAG, "onAnnouncement: received  state "+currentState.toString());
+
+
             Map<String, Object> announceDataMap = null;
             try {
                 announceDataMap = TransportUtil.fromVariantMap(serviceMetadata);
@@ -1029,6 +1043,12 @@ public class OnboardingManager {
             if (this.context != null || this.aboutService!=null || this.bus!=null) {
                 throw new OnboardingIllegalStateException();
             }
+
+            synchronized (TAG) {
+                listenToAnnouncementsFlag=false;
+            }
+
+            aboutService.addAnnouncementHandler(announcementHandler);
             this.context = context;
             this.onboardingSDKWifiManager = new OnboardingSDKWifiManager(this.context);
             this.bus = bus;
@@ -1471,7 +1491,9 @@ public class OnboardingManager {
         sendBroadcast(STATE_CHANGE_ACTION, extras);
 
 
-        aboutService.removeAnnouncementHandler(announcementHandler);
+        synchronized (TAG) {
+           listenToAnnouncementsFlag=false;
+        }
         setState(State.IDLE);
         onboardingSDKWifiManager.enableAllWifiNetworks();
     }
@@ -1521,8 +1543,8 @@ public class OnboardingManager {
             abortStateCleanUp();
             break;
 
-
         case CONFIGURING_ONBOARDEE:
+        case CONFIGURING_ONBOARDEE_WITH_SIGNAL:
             abortStateCleanUp();
             break;
 
@@ -1545,7 +1567,11 @@ public class OnboardingManager {
         case ERROR_WAITING_FOR_TARGET_ANNOUNCE:
             Bundle extras = new Bundle();
             onboardingSDKWifiManager.enableAllWifiNetworks();
-            aboutService.removeAnnouncementHandler(announcementHandler);
+
+            synchronized (TAG) {
+                listenToAnnouncementsFlag=false;
+             }
+
             setState(State.IDLE);
             extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.ABORTED.toString());
             sendBroadcast(STATE_CHANGE_ACTION, extras);
@@ -2144,7 +2170,7 @@ public class OnboardingManager {
 
         synchronized (TAG){
             onboardingConfiguration = config;
-            aboutService.addAnnouncementHandler(announcementHandler);
+            listenToAnnouncementsFlag=true;
 
             if (currentState == State.IDLE) {
 
@@ -2278,7 +2304,11 @@ public class OnboardingManager {
             onboardingSDKWifiManager.removeWifiAP(onboardingConfiguration.getOnboardee().getSSID());
         }
         final Bundle extras =new Bundle();
-        aboutService.removeAnnouncementHandler(announcementHandler);
+
+        synchronized (TAG) {
+            listenToAnnouncementsFlag=false;
+         }
+
         //Try to connect to orginal access point if existed.
         if (originalNetwork!=null)
         {
