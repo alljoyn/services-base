@@ -20,8 +20,8 @@
 #include "NotificationConstants.h"
 #include "Transport.h"
 #include <alljoyn/MsgArg.h>
-#include <alljoyn/services_common/Conversions.h>
 #include <alljoyn/notification/LogModule.h>
+#include <qcc/StringUtil.h>
 
 using namespace ajn;
 using namespace services;
@@ -146,13 +146,20 @@ QStatus NotificationDismisserReceiver::UnmarshalMessage(Message& in_message, int
     //Unmarshal appId
     uint8_t* appIdBin = NULL;
     size_t len;
-    status = Conversions::MsgArgToArrayOfBytes(appIdArg, &appIdBin, &len);
-    if (status != ER_OK) {
-        QCC_LogError(status, ("UnmarshalMessage() - failed to get array of bytes."));
+    if (appIdArg->typeId != ALLJOYN_BYTE_ARRAY) {
+        status = ER_BUS_BAD_VALUE_TYPE;
+        QCC_LogError(status, ("ERROR- Problem receiving message: Can not unmarshal this array of bytes argument."));
+        return status;
+    }
+
+    status = appIdArg->Get(AJPARAM_ARR_BYTE.c_str(), &len, &appIdBin);
+    if (len != UUID_LENGTH) {
+        status = ER_BUS_BAD_VALUE;
+        QCC_LogError(status, ("ERROR- Array of bytes length is not equal to %d  but to %d", UUID_LENGTH * 2, len));
         return status;
     }
 
     //convert bytes to qcc::String
-    Conversions::ArrayOfBytesToString(&appIdBin, len, &appId);
+    appId = BytesToHexString(appIdBin, len);
     return status;
 }

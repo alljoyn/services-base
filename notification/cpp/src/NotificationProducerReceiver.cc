@@ -21,8 +21,8 @@
 #include <sstream>
 #include <iostream>
 #include "NotificationDismisserSender.h"
-#include <alljoyn/services_common/Conversions.h>
 #include <alljoyn/notification/LogModule.h>
+#include <qcc/StringUtil.h>
 
 using namespace ajn;
 using namespace services;
@@ -179,7 +179,7 @@ QStatus NotificationProducerReceiver::sendDismissSignal(int32_t msgId)
     size_t len;
     m_AppIdArg.Get(AJPARAM_ARR_BYTE.c_str(), &len, &appIdBin);
 
-    Conversions::ArrayOfBytesToString(&appIdBin, len, &appId);
+    appId = BytesToHexString(appIdBin, len);
 
     std::ostringstream stm;
     stm << abs(msgId);
