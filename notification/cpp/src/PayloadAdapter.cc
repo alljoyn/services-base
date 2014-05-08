@@ -144,6 +144,11 @@ QStatus PayloadAdapter::sendPayload(PropertyStore* propertyStore,
         return ER_BAD_ARG_1;
     }
 
+    if (appIdArg.v_scalarArray.numElements == 0) {
+        QCC_LogError(ER_BAD_ARG_1, ("ApplicationId argument cannot be empty"));
+        return ER_BAD_ARG_1;
+    }
+
     if (appNameArg.typeId != ALLJOYN_STRING) {
         QCC_LogError(ER_BAD_ARG_1, ("ApplicationName argument is not correct type."));
         return ER_BAD_ARG_1;
