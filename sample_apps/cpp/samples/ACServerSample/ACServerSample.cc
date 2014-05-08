@@ -390,8 +390,8 @@ start:
             NotificationMessageType messageType = NotificationMessageType(INFO);
             std::vector<NotificationText> vecMessages;
             uint16_t ttl = 600;
-
             NotificationText textToSend("en", getNotificationString());
+
             vecMessages.push_back(textToSend);
             Notification notification(messageType, vecMessages);
 
@@ -401,6 +401,49 @@ start:
                 std::cout << "Notification sent " << std::endl;
             }
         }
+
+        if (getOfferToTurnOnTheFan()) {
+            std::cout << "Going to send notification with offer to turn on the fan." << std::endl;
+            NotificationMessageType messageType = NotificationMessageType(INFO);
+            std::vector<NotificationText> vecMessages;
+            uint16_t ttl = 600;
+            NotificationText textToSend("en", "Temperature is reached");
+            static const qcc::String controlPanelServiceObjectPath("/ControlPanel/MyDevice/TurnFanOn");
+
+            vecMessages.push_back(textToSend);
+            Notification notification(messageType, vecMessages);
+
+            notification.setControlPanelServiceObjectPath(controlPanelServiceObjectPath.c_str());
+            setOfferToTurnOnTheFan(false);
+
+            if (sender->send(notification, ttl) != ER_OK) {
+                std::cout << "Could not send the message successfully" << std::endl;
+            } else {
+                std::cout << "Notification sent " << std::endl;
+            }
+        }
+
+        if (getOfferToTurnOffTheFan()) {
+            std::cout << "Going to send notification with offer to turn off the fan." << std::endl;
+            NotificationMessageType messageType = NotificationMessageType(INFO);
+            std::vector<NotificationText> vecMessages;
+            uint16_t ttl = 600;
+            NotificationText textToSend("en", "Fan is still running");
+            static const qcc::String controlPanelServiceObjectPath("/ControlPanel/MyDevice/TurnFanOff");
+
+            vecMessages.push_back(textToSend);
+            Notification notification(messageType, vecMessages);
+
+            notification.setControlPanelServiceObjectPath(controlPanelServiceObjectPath.c_str());
+            setOfferToTurnOffTheFan(false);
+
+            if (sender->send(notification, ttl) != ER_OK) {
+                std::cout << "Could not send the message successfully" << std::endl;
+            } else {
+                std::cout << "Notification sent " << std::endl;
+            }
+        }
+
     #endif
         uint8_t sendUpdates = checkForUpdatesToSend();
         if (sendUpdates > 0) {
@@ -409,6 +452,7 @@ start:
             // 0010 == need to update the status text field
             // 0100 == need to update the state of temperature selector
             // 1000 == need to update the state of fan speed selector
+            // 10000 == need to update the mode
 
             if ((sendUpdates & (1 << 0)) != 0) {
                 printf("##### Sending update signal: temperature string field \n");
@@ -426,6 +470,11 @@ start:
                 printf("##### Sending update signal: fan speed selector state \n");
                 ControlPanelGenerated::myDeviceFan_speed->SendPropertyChangedSignal();
             }
+            if ((sendUpdates & (1 << 4)) != 0) {
+                printf("##### Sending update signal: mode selector field \n");
+                ControlPanelGenerated::myDeviceAc_mode->SendValueChangedSignal();
+            }
+
         }
 #endif
         sleep(2);
