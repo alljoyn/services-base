@@ -31,9 +31,10 @@ class CommonBusListener : public ajn::BusListener, public ajn::SessionPortListen
 
     /**
      * Constructor of CommonBusListener
-     * @param bus - optional. the bus to use if a SessionListener should be set
+     * @param bus - used to set a session Listener
+     * @param daemonDisconnectCB - used to set a callback for when the daemon is disconnected
      */
-    CommonBusListener(ajn::BusAttachment* bus = 0);
+    CommonBusListener(ajn::BusAttachment* bus = NULL, void(*daemonDisconnectCB)() = NULL);
 
     /**
      * Destructor of CommonBusListener
@@ -82,6 +83,11 @@ class CommonBusListener : public ajn::BusListener, public ajn::SessionPortListen
      */
     const std::vector<ajn::SessionId>& getSessionIds() const;
 
+    /**
+     * Function when Bus has been disconnected
+     */
+    void BusDisconnected();
+
   private:
 
     /**
@@ -98,6 +104,12 @@ class CommonBusListener : public ajn::BusListener, public ajn::SessionPortListen
      * The sessionIds for the port
      */
     std::vector<ajn::SessionId> m_SessionIds;
+
+    /**
+     * Callback when daemon is disconnected
+     */
+    void (*m_DaemonDisconnectCB)();
+
 };
 
 #endif /* COMMONBUSLISTENER_H_ */

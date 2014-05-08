@@ -60,6 +60,7 @@ static CommonBusListener* busListener = NULL;
 static SessionPort SERVICE_PORT;
 static qcc::String configFile;
 static volatile sig_atomic_t s_interrupt = false;
+static volatile sig_atomic_t s_restart = false;
 
 #ifdef _CONFIG_
 static ConfigService* configService = NULL;
@@ -78,6 +79,11 @@ ControlPanelControllee* controlPanelControllee = NULL;
 
 static void SigIntHandler(int sig) {
     s_interrupt = true;
+}
+
+static void daemonDisconnectCB()
+{
+    s_restart = true;
 }
 
 static void cleanup() {
@@ -102,7 +108,9 @@ static void cleanup() {
     }
 
     if (busListener) {
-        msgBus->UnregisterBusListener(*busListener);
+        if (msgBus) {
+            msgBus->UnregisterBusListener(*busListener);
+        }
         delete busListener;
         busListener = NULL;
     }
@@ -122,9 +130,11 @@ static void cleanup() {
 #ifdef _NOTIFICATION_
     if (prodService) {
         prodService->shutdown();
+        prodService = NULL;
     }
     if (sender) {
         delete sender;
+        sender = NULL;
     }
 #endif
 
@@ -135,15 +145,19 @@ static void cleanup() {
     ControlPanelGenerated::Shutdown();
     if (controlPanelControllee) {
         delete controlPanelControllee;
+        controlPanelControllee = NULL;
     }
     if (controlPanelService) {
         delete controlPanelService;
+        controlPanelService = NULL;
     }
 #endif
 
     /* Clean up msg bus */
-    delete msgBus;
-    msgBus = NULL;
+    if (msgBus) {
+        delete msgBus;
+        msgBus = NULL;
+    }
 }
 
 const char* readPassword() {
@@ -171,7 +185,7 @@ QStatus AdvertiseName(TransportMask mask) {
 }
 
 bool WaitForSigInt(int32_t sleepTime) {
-    if (s_interrupt == false) {
+    if (s_interrupt == false && s_restart == false) {
 #ifdef _WIN32
         Sleep(100);
 #else
@@ -291,16 +305,27 @@ int main(int argc, char**argv, char**envArg) {
     PasswordManager::SetCredentials("ALLJOYN_PIN_KEYX", "000000");
     #endif
 
+start:
+    std::cout << "Initializing application." << std::endl;
+
     /* Create message bus */
     keyListener = new SrpKeyXListener();
-    msgBus = CommonSampleUtil::prepareBusAttachment(keyListener);
+    uint16_t retry = 0;
+    do {
+        msgBus = CommonSampleUtil::prepareBusAttachment(keyListener);
+        if (msgBus == NULL) {
+            std::cout << "Could not initialize BusAttachment. Retrying" << std::endl;
+            sleep(1);
+            retry++;
+        }
+    } while (msgBus == NULL && retry != 180 && !s_interrupt);
     if (msgBus == NULL) {
         std::cout << "Could not initialize BusAttachment." << std::endl;
-        delete keyListener;
+        cleanup();
         return 1;
     }
 
-    busListener = new CommonBusListener(msgBus);
+    busListener = new CommonBusListener(msgBus, daemonDisconnectCB);
     busListener->setSessionPort(SERVICE_PORT);
 
 #ifdef _CONTROLPANEL_
@@ -480,6 +505,11 @@ int main(int argc, char**argv, char**envArg) {
     //////////////////////////////////////////////////////////////////////////////////////////////////// controlpanel
 
     cleanup();
+
+    if (s_restart) {
+        s_restart = false;
+        goto start;
+    }
 
     return 0;
 } /* main() */
