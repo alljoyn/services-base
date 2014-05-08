@@ -252,13 +252,14 @@ QStatus ConfigClient::ResetConfigurations(const char* busName, const char* langu
         MsgArg args[2];
         CHECK_BREAK(args[0].Set("s", languageTag))
         if (!(configNames.size() == 0)) {
-            const char* tempKeys[configNames.size()];
+            std::vector<const char*> tempKeys(configNames.size());
+
             int i = 0;
             for (std::vector<qcc::String>::const_iterator it = configNames.begin(); it != configNames.end(); ++it) {
                 tempKeys[i] = it->c_str();
                 i++;
             }
-            CHECK_BREAK(args[1].Set("as", i, tempKeys))
+            CHECK_BREAK(args[1].Set("as", i, tempKeys.data()))
             status = proxyBusObj->MethodCall(CONFIG_INTERFACE_NAME, "ResetConfigurations", args, 2, replyMsg);
             if (status == ER_BUS_REPLY_IS_ERROR_MESSAGE) {
 #if !defined(NDEBUG)
