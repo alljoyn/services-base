@@ -44,11 +44,15 @@ AnnounceHandlerImpl* announceHandler = 0;
 NotificationService* conService = 0;
 ControllerNotificationReceiver* receiver = 0;
 qcc::String ControlPanelPrefix = "/ControlPanel/";
+static volatile sig_atomic_t s_interrupt = false;
 
-void exitApp(int32_t signum)
+static void SigIntHandler(int sig)
 {
-    std::cout << "Program Finished" << std::endl;
+    s_interrupt = true;
+}
 
+void cleanup()
+{
     if (bus && announceHandler) {
         AnnouncementRegistrar::UnRegisterAnnounceHandler(*bus, *announceHandler);
     }
@@ -56,31 +60,36 @@ void exitApp(int32_t signum)
     if (controlPanelService) {
         controlPanelService->shutdownController();
         delete controlPanelService;
+        controlPanelService = NULL;
     }
     if (controlPanelController) {
         delete controlPanelController;
+        controlPanelController = NULL;
     }
     if (controlPanelListener) {
         delete controlPanelListener;
+        controlPanelListener = NULL;
     }
     if (announceHandler) {
         delete announceHandler;
+        announceHandler = NULL;
     }
     if (srpKeyXListener) {
         delete srpKeyXListener;
+        srpKeyXListener = NULL;
     }
     if (conService) {
         conService->shutdown();
+        conService = NULL;
     }
     if (receiver) {
         delete receiver;
+        receiver = NULL;
     }
     if (bus) {
         delete bus;
+        bus = NULL;
     }
-
-    std::cout << "Goodbye!" << std::endl;
-    exit(signum);
 }
 
 static void announceHandlerCallback(qcc::String const& busName, unsigned short version, unsigned short port,
@@ -89,12 +98,22 @@ static void announceHandlerCallback(qcc::String const& busName, unsigned short v
     controlPanelController->createControllableDevice(busName, objectDescs);
 }
 
+void WaitForSigInt(void) {
+    while (s_interrupt == false) {
+#ifdef _WIN32
+        Sleep(100);
+#else
+        usleep(100 * 1000);
+#endif
+    }
+}
+
 int main()
 {
     QStatus status;
 
     // Allow CTRL+C to end application
-    signal(SIGINT, exitApp);
+    signal(SIGINT, SigIntHandler);
     std::cout << "Beginning ControlPanel Application. (Press CTRL+C to end application)" << std::endl;
 
     // Initialize Service objects
@@ -110,7 +129,8 @@ int main()
     bus = CommonSampleUtil::prepareBusAttachment(srpKeyXListener);
     if (bus == NULL) {
         std::cout << "Could not initialize BusAttachment." << std::endl;
-        exitApp(1);
+        cleanup();
+        return 1;
     }
 
     controlPanelController = new ControlPanelController();
@@ -119,7 +139,8 @@ int main()
     status = controlPanelService->initController(bus, controlPanelController, controlPanelListener);
     if (status != ER_OK) {
         std::cout << "Could not initialize Controllee." << std::endl;
-        exitApp(1);
+        cleanup();
+        return 1;
     }
 
     announceHandler = new AnnounceHandlerImpl(NULL, announceHandlerCallback);
@@ -130,13 +151,16 @@ int main()
     status = conService->initReceive(bus, receiver);
     if (status != ER_OK) {
         std::cout << "Could not initialize receiver." << std::endl;
-        exitApp(1);
+        cleanup();
+        return 1;
     }
 
     std::cout << "Finished setup. Waiting for Contollees" << std::endl;
-    while (1) {
-        sleep(1);
-    }
+
+    WaitForSigInt();
+    cleanup();
+
+    return 0;
 }
 
 

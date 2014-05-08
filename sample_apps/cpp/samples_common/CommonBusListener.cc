@@ -20,8 +20,8 @@
 
 using namespace ajn;
 
-CommonBusListener::CommonBusListener(ajn::BusAttachment* bus) :
-    BusListener(), SessionPortListener(), m_SessionPort(0), m_Bus(bus)
+CommonBusListener::CommonBusListener(ajn::BusAttachment* bus, void(*daemonDisconnectCB)()) :
+    BusListener(), SessionPortListener(), m_SessionPort(0), m_Bus(bus), m_DaemonDisconnectCB(daemonDisconnectCB)
 {
 }
 
@@ -64,6 +64,14 @@ void CommonBusListener::SessionLost(SessionId sessionId, SessionLostReason reaso
     std::vector<SessionId>::iterator it = std::find(m_SessionIds.begin(), m_SessionIds.end(), sessionId);
     if (it != m_SessionIds.end()) {
         m_SessionIds.erase(it);
+    }
+}
+
+void CommonBusListener::BusDisconnected()
+{
+    std::cout << "Bus has been disconnected" << std::endl;
+    if (m_DaemonDisconnectCB) {
+        m_DaemonDisconnectCB();
     }
 }
 

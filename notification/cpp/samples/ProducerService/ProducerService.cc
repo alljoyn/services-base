@@ -41,6 +41,7 @@ BusAttachment* bus = 0;
 CommonBusListener* notificationBusListener = 0;
 AboutPropertyStoreImpl* propertyStoreImpl = 0;
 NotificationSender* Sender = 0;
+static volatile sig_atomic_t s_interrupt = false;
 
 enum states {
     BeginNewNotification,
@@ -296,29 +297,33 @@ void cleanup()
 {
     if (prodService) {
         prodService->shutdown();
+        prodService = NULL;
     }
     if (Sender) {
         delete Sender;
+        Sender = NULL;
     }
     if (bus && notificationBusListener) {
         CommonSampleUtil::aboutServiceDestroy(bus, notificationBusListener);
     }
     if (notificationBusListener) {
         delete notificationBusListener;
+        notificationBusListener = NULL;
     }
     if (propertyStoreImpl) {
-        delete (propertyStoreImpl);
+        delete propertyStoreImpl;
+        propertyStoreImpl = NULL;
     }
     if (bus) {
         delete bus;
+        bus = NULL;
     }
     std::cout << "Goodbye!" << std::endl;
 }
 
 void signal_callback_handler(int32_t signum)
 {
-    cleanup();
-    exit(signum);
+    s_interrupt = true;
 }
 
 int main()
@@ -338,7 +343,7 @@ int main()
 
     QCC_SetDebugLevel(logModules::NOTIFICATION_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
 
-    std::cout << "Begin Producer Application. (Press CTRL+C to end application)" << std::endl;
+    std::cout << "Begin Producer Application. (Press CTRL+D to end application)" << std::endl;
 
     bus = CommonSampleUtil::prepareBusAttachment();
     if (bus == NULL) {
@@ -352,8 +357,8 @@ int main()
     qcc::String app_id;
     GuidUtil::GetInstance()->GenerateGUID(&app_id);
 
-    //Run in loop until press enter
-    while (1) {
+    //Run in loop unless ctrl+c has been hit
+    while (s_interrupt == false) {
         qcc::String device_name, app_name;
         qcc::String richIconUrl = "";
         qcc::String richIconObjectPath = "";
@@ -447,3 +452,4 @@ int main()
     cleanup();
     return 0;
 }
+

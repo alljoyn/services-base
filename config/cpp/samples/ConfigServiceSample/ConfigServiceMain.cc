@@ -61,8 +61,15 @@ static qcc::String configFile;
 
 static volatile sig_atomic_t s_interrupt = false;
 
+static volatile sig_atomic_t s_restart = false;
+
 static void SigIntHandler(int sig) {
     s_interrupt = true;
+}
+
+static void daemonDisconnectCB()
+{
+    s_restart = true;
 }
 
 static void cleanup() {
@@ -103,9 +110,10 @@ static void cleanup() {
     }
 
     /* Clean up msg bus */
-    delete msgBus;
-    msgBus = NULL;
-
+    if (msgBus) {
+        delete msgBus;
+        msgBus = NULL;
+    }
 }
 
 const char* readPassword() {
@@ -133,7 +141,7 @@ QStatus AdvertiseName(TransportMask mask) {
 }
 
 void WaitForSigInt(void) {
-    while (s_interrupt == false) {
+    while (s_interrupt == false && s_restart == false) {
 #ifdef _WIN32
         Sleep(100);
 #else
@@ -186,19 +194,32 @@ int main(int argc, char**argv, char**envArg) {
     PasswordManager::SetCredentials("ALLJOYN_PIN_KEYX", "000000");
     #endif
 
+start:
+    std::cout << "Initializing application." << std::endl;
+
     /* Create message bus */
     keyListener = new SrpKeyXListener();
     keyListener->setPassCode(DEFAULTPASSCODE);
     keyListener->setGetPassCode(readPassword);
 
-    msgBus = CommonSampleUtil::prepareBusAttachment(keyListener);
+    /* Connect to the daemon */
+    uint16_t retry = 0;
+    do {
+        msgBus = CommonSampleUtil::prepareBusAttachment(keyListener);
+        if (msgBus == NULL) {
+            std::cout << "Could not initialize BusAttachment. Retrying" << std::endl;
+            sleep(1);
+            retry++;
+        }
+    } while (msgBus == NULL && retry != 180 && !s_interrupt);
+
     if (msgBus == NULL) {
         std::cout << "Could not initialize BusAttachment." << std::endl;
-        delete keyListener;
+        cleanup();
         return 1;
     }
 
-    busListener = new CommonBusListener(msgBus);
+    busListener = new CommonBusListener(msgBus, daemonDisconnectCB);
     busListener->setSessionPort(SERVICE_PORT);
 
     propertyStore = new PropertyStoreImpl(opts.GetFactoryConfigFile().c_str(), opts.GetConfigFile().c_str());
@@ -299,6 +320,11 @@ int main(int argc, char**argv, char**envArg) {
     }
 
     cleanup();
+
+    if (s_restart) {
+        s_restart = false;
+        goto start;
+    }
 
     return 0;
 } /* main() */

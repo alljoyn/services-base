@@ -9,6 +9,7 @@
 .sconsign.dblite
 .settings/*
 */.settings/*
+*/whitespace.db
 libs
 QA
 ajlite.nvram
