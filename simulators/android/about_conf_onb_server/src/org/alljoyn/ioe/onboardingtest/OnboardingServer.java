@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -59,415 +59,417 @@ import android.util.Log;
  */
 public class OnboardingServer extends Service implements AuthPasswordHandler, SetPasswordHandler
 {
-	private static final String TAG = "ioe" + OnboardingServer.class.getSimpleName();
+    private static final String TAG = "ioe" + OnboardingServer.class.getSimpleName();
 
-	// Reference to the AllJoyn bus
-	BusAttachment m_bus;
-	GenericLogger m_logger = new AndroidLogger();
+    // Reference to the AllJoyn bus
+    BusAttachment m_bus;
+    GenericLogger m_logger = new AndroidLogger();
 
-	// Reference to AboutConfigService
-	OnboardingService m_onboardingService;
-	private AsyncHandler m_asyncHandler;
+    // Reference to AboutConfigService
+    OnboardingService m_onboardingService;
+    private AsyncHandler m_asyncHandler;
 
-	// the property store used by About and Config services
-	private PropertyStore m_propertyStore;
+    // the property store used by About and Config services
+    private PropertyStore m_propertyStore;
 
-	public String m_keyStoreFileName;
+    public String m_keyStoreFileName;
 
-	// listener for bus security requests. Both Config and Onboarding services are secure
-	public SrpAnonymousKeyListener m_authListener;
+    // listener for bus security requests. Both Config and Onboarding services are secure
+    public SrpAnonymousKeyListener m_authListener;
 
-	// the password for secured sessions
-	private char[] m_myPass;
-	
-	// load the native alljoyn_java library.
-	static {
-		System.loadLibrary("alljoyn_java");
-	}
+    // the password for secured sessions
+    private char[] m_myPass;
 
-	public OnboardingServer()
-	{
-	}
+    // load the native alljoyn_java library.
+    static {
+        System.loadLibrary("alljoyn_java");
+    }
 
-	/* (non-Javadoc)
-	 * @see android.app.Service#onBind(android.content.Intent)
-	 */
-	@Override
-	public IBinder onBind(Intent intent)
-	{
-		// TODO: Return the communication channel to the service.
-		throw new UnsupportedOperationException("Not yet implemented");
-	}
+    public OnboardingServer()
+    {
+    }
 
-	/* (non-Javadoc)
-	 * @see android.app.Service#onCreate()
-	 */
-	@Override
-	public void onCreate() {
-		m_logger.debug(TAG, "onCreate");
-		super.onCreate();
+    /* (non-Javadoc)
+     * @see android.app.Service#onBind(android.content.Intent)
+     */
+    @Override
+    public IBinder onBind(Intent intent)
+    {
+        // TODO: Return the communication channel to the service.
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
 
-		// create a handler 
-		HandlerThread busThread = new HandlerThread("BusHandler");
-		busThread.start();
-		m_asyncHandler = new AsyncHandler(busThread.getLooper());
-		
-		// initialize the state machine
-		m_asyncHandler.sendEmptyMessage(AsyncHandler.CONNECT);
-	}
+    /* (non-Javadoc)
+     * @see android.app.Service#onCreate()
+     */
+    @Override
+    public void onCreate() {
+        m_logger.debug(TAG, "onCreate");
+        super.onCreate();
 
-	/* (non-Javadoc)
-	 * @see android.app.Service#onStartCommand(android.content.Intent, int, int)
-	 */
-	@Override    
-	public int onStartCommand(Intent intent, int flags, int startId) 
-	{        
-		// Continue running until explicitly being stopped.        
-		return START_STICKY;    
-	}
+        // create a handler
+        HandlerThread busThread = new HandlerThread("BusHandler");
+        busThread.start();
+        m_asyncHandler = new AsyncHandler(busThread.getLooper());
 
-	/* (non-Javadoc)
-	 * @see android.app.Service#onDestroy()
-	 */
-	@Override
-	public void onDestroy() 
-	{
-		m_logger.debug(TAG, "onDestroy");
-		
-		// Disconnect to prevent any resource leaks
-		m_asyncHandler.shutdown();
-		m_asyncHandler.getLooper().quit();
+        // initialize the state machine
+        m_asyncHandler.sendEmptyMessage(AsyncHandler.CONNECT);
+    }
 
-		super.onDestroy();
+    /* (non-Javadoc)
+     * @see android.app.Service#onStartCommand(android.content.Intent, int, int)
+     */
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId)
+    {
+        // Continue running until explicitly being stopped.
+        return START_STICKY;
+    }
 
-	}
+    /* (non-Javadoc)
+     * @see android.app.Service#onDestroy()
+     */
+    @Override
+    public void onDestroy()
+    {
+        m_logger.debug(TAG, "onDestroy");
 
-	/**
-	 * Handles all callbacks from UI and AllJoyn
-	 */
-	class AsyncHandler extends Handler implements RestartHandler, ConfigChangeListener, FactoryResetHandler, PassphraseChangedListener
-	{
+        // Disconnect to prevent any resource leaks
+        m_asyncHandler.shutdown();
+        m_asyncHandler.getLooper().quit();
 
-		public static final int CONNECT = 1;
-		public static final int DISCONNECT = 2;
+        super.onDestroy();
 
-		public AsyncHandler(Looper looper) {
-			super(looper);
-		}
-		@Override
-		public void handleMessage(Message msg) {
-			switch (msg.what) {
+    }
 
-			// connect to the bus and start our service
-			case CONNECT: { 
-				connect();
-				break;
-			}
+    /**
+     * Handles all callbacks from UI and AllJoyn
+     */
+    class AsyncHandler extends Handler implements RestartHandler, ConfigChangeListener, FactoryResetHandler, PassphraseChangedListener
+    {
 
-			// release all resources acquired in connect
-			case DISCONNECT: {
-				disconnect();
-				break;   
-			}
+        public static final int CONNECT = 1;
+        public static final int DISCONNECT = 2;
 
-			default:
-				break;
-			}
-		}
-		
-		// ------------------------ Connect --------------------------------
+        public AsyncHandler(Looper looper) {
+            super(looper);
+        }
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
 
-		/**
-		 * Connect to the bus and start our services. 
-		 */
-		private void connect() 
-		{
-			m_logger.debug(TAG, "connect");
-			// All Service use the same AllJoyn BusAttachment 
-			m_bus = new BusAttachment(getPackageName(), BusAttachment.RemoteMessage.Receive);
-			m_bus.connect();
+            // connect to the bus and start our service
+            case CONNECT: {
+                connect();
+                break;
+            }
 
-			// Pump up the daemon debug level
-			/*
+            // release all resources acquired in connect
+            case DISCONNECT: {
+                disconnect();
+                break;
+            }
+
+            default:
+                break;
+            }
+        }
+
+        // ------------------------ Connect --------------------------------
+
+        /**
+         * Connect to the bus and start our services.
+         */
+        private void connect()
+        {
+            m_logger.debug(TAG, "connect");
+            // All Service use the same AllJoyn BusAttachment
+            m_bus = new BusAttachment(getPackageName(), BusAttachment.RemoteMessage.Receive);
+            m_bus.connect();
+
+            // Pump up the daemon debug level
+            /*
 			m_Bus.setDaemonDebug("ALL", 7);
 			m_Bus.setLogLevels("ALL=7");
 			m_Bus.useOSLogging(true);
-			 */		
+             */
 
-			 // initialize the PropertyStore
+            // initialize the PropertyStore
             m_propertyStore = new PropertyStoreImpl(getApplicationContext());
 
             // initialize AboutService
             // it will expose the board's properties to clients
-           try {
-            	AboutServiceImpl.getInstance().startAboutServer((short)1080, m_propertyStore, m_bus);
+            try {
+                AboutServiceImpl.getInstance().startAboutServer((short)1080, m_propertyStore, m_bus);
             }
             catch (Exception e)
             {
-                   m_logger.error(TAG, "AboutService failed, Error: " + e.getMessage());
+                m_logger.error(TAG, "AboutService failed, Error: " + e.getMessage());
             }
 
             // initialize ConfigService
             // it will expose the board's configurable properties to clients
             try{
-            	ConfigServiceImpl.getInstance().startConfigServer(m_propertyStore, this, this, this, this, m_bus);
-            	ConfigServiceImpl.getInstance().setSetPasswordHandler(OnboardingServer.this);
+                ConfigServiceImpl.getInstance().startConfigServer(m_propertyStore, this, this, this, this, m_bus);
+                ConfigServiceImpl.getInstance().setSetPasswordHandler(OnboardingServer.this);
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
-                   e.printStackTrace();
+                e.printStackTrace();
             }
-            
+
             // initialize IconService
             // it will expose the board's icon to clients
             try{
-            	
-            	// serialize a png file into a byte array
-            	
-            	InputStream ims = getAssets().open("img-alljoyn-logo.png");
-            	BufferedInputStream bis = new BufferedInputStream(ims);
-            	int offset = 0;
-				int count = 0;
-				int bufferSize = 1024*10;
-				byte[] buffer = new byte[bufferSize];
-            	
-            	ByteArrayBuffer tempArray = new ByteArrayBuffer(bufferSize);
-				try {
-					while ((count = bis.read(buffer, offset, bufferSize)) != -1) {
-						tempArray.append(buffer, offset, count);
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				int size = tempArray.length();
-				byte[] resultBytes = new byte[(int) size];
-				System.arraycopy(tempArray.buffer(), 0, resultBytes, 0, (int) size);
-				
-				// register the byte array as the board's icon. The AboutService will expose it
-            	AboutServiceImpl.getInstance().registerIcon("image/png", 
-            			"https://www.alljoyn.org/sites/all/themes/at_alljoyn/images/img-alljoyn-logo.png", 
-            			resultBytes);
-            }
-            catch (Exception e) 
-            {
-                   e.printStackTrace();
-            }
-            
 
-			// initialize OnboardingService
+                // serialize a png file into a byte array
+
+                InputStream ims = getAssets().open("img-alljoyn-logo.png");
+                BufferedInputStream bis = new BufferedInputStream(ims);
+                int offset = 0;
+                int count = 0;
+                int bufferSize = 1024*10;
+                byte[] buffer = new byte[bufferSize];
+
+                ByteArrayBuffer tempArray = new ByteArrayBuffer(bufferSize);
+                try {
+                    while ((count = bis.read(buffer, offset, bufferSize)) != -1) {
+                        tempArray.append(buffer, offset, count);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                int size = tempArray.length();
+                byte[] resultBytes = new byte[size];
+                System.arraycopy(tempArray.buffer(), 0, resultBytes, 0, size);
+
+                // register the byte array as the board's icon. The AboutService will expose it
+                AboutServiceImpl.getInstance().registerIcon("image/png",
+                        "https://www.alljoyn.org/sites/all/themes/at_alljoyn/images/img-alljoyn-logo.png",
+                        resultBytes);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+
+
+            // initialize OnboardingService
             // it will let clients onboard/offboard this board with the home network
-			m_onboardingService = OnboardingServiceImpl.getInstance();
-			((OnboardingServiceImpl) m_onboardingService).initContext(OnboardingServer.this);
-			try{
-				m_onboardingService.startOnboardingServer(m_bus);
-			}
-			catch (Exception e) 
-            {
-                   e.printStackTrace();
+            m_onboardingService = OnboardingServiceImpl.getInstance();
+            ((OnboardingServiceImpl) m_onboardingService).initContext(OnboardingServer.this);
+            try{
+                m_onboardingService.startOnboardingServer(m_bus);
             }
-			
-			// register authentication listener. This is needed as Config and Onboarding services are secure
-			m_keyStoreFileName = getFileStreamPath("alljoyn_keystore").getAbsolutePath();
-			m_authListener = new SrpAnonymousKeyListener(OnboardingServer.this, m_logger);
-			Status authStatus = m_bus.registerAuthListener("ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX", m_authListener, m_keyStoreFileName);
-			m_logger.debug(TAG, "BusAttachment.registerAuthListener status = " + authStatus);
-			if (authStatus != Status.OK) 
-			{
-				m_logger.debug(TAG, "Failed to register Auth listener status = " + authStatus.toString());
-			}
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
 
-			// Add configService to About announcement. 
+            // register authentication listener. This is needed as Config and Onboarding services are secure
+            m_keyStoreFileName = getFileStreamPath("alljoyn_keystore").getAbsolutePath();
+            m_authListener = new SrpAnonymousKeyListener(OnboardingServer.this, m_logger);
+            Status authStatus = m_bus.registerAuthListener("ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX", m_authListener, m_keyStoreFileName);
+            m_logger.debug(TAG, "BusAttachment.registerAuthListener status = " + authStatus);
+            if (authStatus != Status.OK)
+            {
+                m_logger.debug(TAG, "Failed to register Auth listener status = " + authStatus.toString());
+            }
+
+            // Add configService to About announcement.
             AboutServiceImpl.getInstance().addObjectDescription(OnboardingTransport.OBJ_PATH, new String[] {OnboardingTransport.INTERFACE_NAME});
-			AboutServiceImpl.getInstance().addObjectDescription(ConfigTransport.OBJ_PATH, new String[] {ConfigTransport.INTERFACE_NAME});
+            AboutServiceImpl.getInstance().addObjectDescription(ConfigTransport.OBJ_PATH, new String[] {ConfigTransport.INTERFACE_NAME});
 
-			// this is not a TCP/IP port. It's AllJoyn specific
+            // this is not a TCP/IP port. It's AllJoyn specific
             bindSessionPort((short)1080);
-            
+
             // send an announcement to notify clients of the existence of this board, and let them know the services that it supports
             AboutServiceImpl.getInstance().announce();
-			
-		}
 
-		// ------------------------ Disconnect --------------------------------
+        }
 
-		/**
-		 * Release all resources acquired in connect.
-		 */
-		private void disconnect() 
-		{
-			
-			m_logger.debug(TAG, "disconnect");
-			try
-			{
-				OnboardingServiceImpl.getInstance().stopOnboardingServer();
-				AboutServiceImpl.getInstance().unregisterIcon();
-				ConfigServiceImpl.getInstance().stopConfigServer();
-				AboutServiceImpl.getInstance().stopAboutServer();
-			} catch (Exception e)
-			{
-				m_logger.error(TAG, "disconnect failed: " + e.getMessage());
-			}
-			m_bus.disconnect();
-			m_bus.release();
-			m_bus = null;
-		}
+        // ------------------------ Disconnect --------------------------------
 
-		// ------------------------ Shutdown --------------------------------
-		
-		private void shutdown()
-		{
-			try
-			{
-				AboutServiceImpl.getInstance().stopAboutServer();
-				ConfigServiceImpl.getInstance().stopConfigServer();
-				AboutServiceImpl.getInstance().unregisterIcon();
-				m_bus.disconnect();
-				m_bus.release();
-			} catch (Exception e)
-			{
-				m_logger.error(TAG, "Shutdown failed to stop service, Error: " + e.getMessage());
-			}
-		}
-		
-		// ------------------------ ConfigService callbacks --------------------------------
-		
-		/* (non-Javadoc)
-		 * @see org.alljoyn.config.server.PassphraseChangedListener#onPassphraseChanged(byte[])
-		 */
-		@Override
-		public void onPassphraseChanged(byte[] passphrase)
-		{
-			showToast(TAG + ": Passphrase Changed");
-		}
-		
-		/* (non-Javadoc)
-		 * @see org.alljoyn.config.server.FactoryResetHandler#doFactoryReset()
-		 */
-		@Override
-		public void doFactoryReset()
-		{
-			m_myPass = SrpAnonymousKeyListener.DEFAULT_PINCODE; // restart the password to default. 
-			m_bus.clearKeyStore();
-			((OnboardingServiceImpl)m_onboardingService).reset(); // go back to soft AP. 
-			showToast(TAG + ": Factory Reset");
-		}
-		
-		/* (non-Javadoc)
-		 * @see org.alljoyn.config.server.ConfigChangeListener#onConfigChanged(java.util.Map, java.lang.String)
-		 */
-		@Override
-		public void onConfigChanged(Map<String, Variant> arg0, String arg1)
-		{
-			showToast(TAG + ": Configuration Changed");
-			AboutServiceImpl.getInstance().announce();
-		}
-		
-		/* (non-Javadoc)
-		 * @see org.alljoyn.config.server.RestartHandler#restart()
-		 */
-		@Override
-		public void restart()
-		{
-			
-			try {
-				m_asyncHandler.sendEmptyMessage(AsyncHandler.DISCONNECT);
-				m_asyncHandler.sendEmptyMessage(AsyncHandler.CONNECT);
-				showToast(TAG + ": Restart. AJ disconnected");
-				
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+        /**
+         * Release all resources acquired in connect.
+         */
+        private void disconnect()
+        {
 
-		/* (non-Javadoc)
-		 * @see org.alljoyn.config.server.ConfigChangeListener#onResetConfiguration(java.lang.String, java.lang.String[])
-		 */
-		@Override
-		public void onResetConfiguration(String language, String[] fieldsToRemove) {
-			showToast(TAG + ": onResetConfiguration happaned");
-			AboutServiceImpl.getInstance().announce();
-		}
-	}
+            m_logger.debug(TAG, "disconnect");
+            try
+            {
+                OnboardingServiceImpl.getInstance().stopOnboardingServer();
+                AboutServiceImpl.getInstance().unregisterIcon();
+                ConfigServiceImpl.getInstance().stopConfigServer();
+                AboutServiceImpl.getInstance().stopAboutServer();
+            } catch (Exception e)
+            {
+                m_logger.error(TAG, "disconnect failed: " + e.getMessage());
+            }
+            m_bus.disconnect();
+            m_bus.release();
+            m_bus = null;
+        }
 
-	public void showToast(String text)
-	{	
-		System.out.println(text);
-//		Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
-	}
+        // ------------------------ Shutdown --------------------------------
 
-	private String bindSessionPort(final short port)
-    {
-           /*
-           * Create a new session listening on the contact port of the about/config service.
-           */
-           Mutable.ShortValue contactPort = new Mutable.ShortValue(port);
+        private void shutdown()
+        {
+            try
+            {
+                AboutServiceImpl.getInstance().stopAboutServer();
+                ConfigServiceImpl.getInstance().stopConfigServer();
+                AboutServiceImpl.getInstance().unregisterIcon();
+                m_bus.disconnect();
+                m_bus.release();
+            } catch (Exception e)
+            {
+                m_logger.error(TAG, "Shutdown failed to stop service, Error: " + e.getMessage());
+            }
+        }
 
-           SessionOpts sessionOpts = new SessionOpts();
-           sessionOpts.traffic = SessionOpts.TRAFFIC_MESSAGES;
-           sessionOpts.isMultipoint = true;
-           sessionOpts.proximity = SessionOpts.PROXIMITY_ANY;
-           sessionOpts.transports = SessionOpts.TRANSPORT_ANY;
+        // ------------------------ ConfigService callbacks --------------------------------
 
-           Status status = m_bus.bindSessionPort(contactPort, sessionOpts, new SessionPortListener() {
-                  @Override
-                  public boolean acceptSessionJoiner(short sessionPort, String joiner, SessionOpts sessionOpts) {
-                        if (sessionPort == port) {
-                               return true;
-                        } else {
-                               return false;
-                        }
-                  }
-                  public void sessionJoined(short sessionPort, int id, String joiner){
-                        Log.i(TAG, String.format("SessionPortListener.sessionJoined(%d, %d, %s)", sessionPort, id, joiner));
+        /* (non-Javadoc)
+         * @see org.alljoyn.config.server.PassphraseChangedListener#onPassphraseChanged(byte[])
+         */
+        @Override
+        public void onPassphraseChanged(byte[] passphrase)
+        {
+            showToast(TAG + ": Passphrase Changed");
+        }
 
-                  }
-           });
+        /* (non-Javadoc)
+         * @see org.alljoyn.config.server.FactoryResetHandler#doFactoryReset()
+         */
+        @Override
+        public void doFactoryReset()
+        {
+            m_myPass = SrpAnonymousKeyListener.DEFAULT_PINCODE; // restart the password to default.
+            m_bus.clearKeyStore();
+            ((OnboardingServiceImpl)m_onboardingService).reset(); // go back to soft AP.
+            showToast(TAG + ": Factory Reset");
+        }
 
-           String logMessage = String.format("BusAttachment.bindSessionPort(%d, %s): %s",
-                        contactPort.value, sessionOpts.toString(),status);
-           Log.d(TAG, logMessage);
-           if (status != Status.OK) {
-                  return "";
-           }
+        /* (non-Javadoc)
+         * @see org.alljoyn.config.server.ConfigChangeListener#onConfigChanged(java.util.Map, java.lang.String)
+         */
+        @Override
+        public void onConfigChanged(Map<String, Variant> arg0, String arg1)
+        {
+            showToast(TAG + ": Configuration Changed");
+            AboutServiceImpl.getInstance().announce();
+        }
 
-           String serviceName = m_bus.getUniqueName();
+        /* (non-Javadoc)
+         * @see org.alljoyn.config.server.RestartHandler#restart()
+         */
+        @Override
+        public void restart()
+        {
 
-           status = m_bus.advertiseName(serviceName, SessionOpts.TRANSPORT_ANY);
-           Log.d(TAG, String.format("BusAttachement.advertiseName(%s): %s", serviceName, status));
+            try {
+                m_asyncHandler.sendEmptyMessage(AsyncHandler.DISCONNECT);
+                m_asyncHandler.sendEmptyMessage(AsyncHandler.CONNECT);
+                showToast(TAG + ": Restart. AJ disconnected");
 
-           return serviceName;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        /* (non-Javadoc)
+         * @see org.alljoyn.config.server.ConfigChangeListener#onResetConfiguration(java.lang.String, java.lang.String[])
+         */
+        @Override
+        public void onResetConfiguration(String language, String[] fieldsToRemove) {
+            showToast(TAG + ": onResetConfiguration happaned");
+            AboutServiceImpl.getInstance().announce();
+        }
     }
 
-	// ------------------------ Authentication callbacks --------------------------------
-	// Called by AllJoyn when we access secure interfaces like the Config and Onboarding services
+    public void showToast(String text)
+    {
+        System.out.println(text);
+        //		Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+    }
 
-	/* (non-Javadoc)
-	 * @see org.alljoyn.login.dashboard.security.AuthPasswordHandler#getPassword(java.lang.String)
-	 */
-	@Override
-	public char[] getPassword(String peerName) {
-		return m_myPass != null ?  m_myPass : SrpAnonymousKeyListener.DEFAULT_PINCODE;
-	}
+    private String bindSessionPort(final short port)
+    {
+        /*
+         * Create a new session listening on the contact port of the about/config service.
+         */
+        Mutable.ShortValue contactPort = new Mutable.ShortValue(port);
 
-	/* (non-Javadoc)
-	 * @see org.alljoyn.config.server.SetPasswordHandler#setPassword(java.lang.String, char[])
-	 */
-	@Override
-	public void setPassword(String realmName, char[] password) {
-		m_myPass = password;
-		m_bus.clearKeyStore(); //remove all encryption keys.
-	}
+        SessionOpts sessionOpts = new SessionOpts();
+        sessionOpts.traffic = SessionOpts.TRAFFIC_MESSAGES;
+        sessionOpts.isMultipoint = true;
+        sessionOpts.proximity = SessionOpts.PROXIMITY_ANY;
+        sessionOpts.transports = SessionOpts.TRANSPORT_ANY;
 
-	/* (non-Javadoc)
-	 * @see org.alljoyn.login.dashboard.security.AuthPasswordHandler#completed(java.lang.String, java.lang.String, boolean)
-	 */
-	@Override
-	public void completed(String mechanism, String authPeer, boolean authenticated) {
-		
-		if(!authenticated)
-			m_logger.info(TAG, " ** " + authPeer + " failed to authenticate");
-		else
-			m_logger.info(TAG, " ** " + authPeer + " successfully authenticated");
-	}
+        Status status = m_bus.bindSessionPort(contactPort, sessionOpts, new SessionPortListener() {
+            @Override
+            public boolean acceptSessionJoiner(short sessionPort, String joiner, SessionOpts sessionOpts) {
+                if (sessionPort == port) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            @Override
+            public void sessionJoined(short sessionPort, int id, String joiner){
+                Log.i(TAG, String.format("SessionPortListener.sessionJoined(%d, %d, %s)", sessionPort, id, joiner));
+                ((OnboardingServiceImpl) OnboardingServiceImpl.getInstance()).setSessionParameters(id, joiner);
+            }
+        });
+
+        String logMessage = String.format("BusAttachment.bindSessionPort(%d, %s): %s",
+                contactPort.value, sessionOpts.toString(),status);
+        Log.d(TAG, logMessage);
+        if (status != Status.OK) {
+            return "";
+        }
+
+        String serviceName = m_bus.getUniqueName();
+
+        status = m_bus.advertiseName(serviceName, SessionOpts.TRANSPORT_ANY);
+        Log.d(TAG, String.format("BusAttachement.advertiseName(%s): %s", serviceName, status));
+
+        return serviceName;
+    }
+
+    // ------------------------ Authentication callbacks --------------------------------
+    // Called by AllJoyn when we access secure interfaces like the Config and Onboarding services
+
+    /* (non-Javadoc)
+     * @see org.alljoyn.login.dashboard.security.AuthPasswordHandler#getPassword(java.lang.String)
+     */
+    @Override
+    public char[] getPassword(String peerName) {
+        return m_myPass != null ?  m_myPass : SrpAnonymousKeyListener.DEFAULT_PINCODE;
+    }
+
+    /* (non-Javadoc)
+     * @see org.alljoyn.config.server.SetPasswordHandler#setPassword(java.lang.String, char[])
+     */
+    @Override
+    public void setPassword(String realmName, char[] password) {
+        m_myPass = password;
+        m_bus.clearKeyStore(); //remove all encryption keys.
+    }
+
+    /* (non-Javadoc)
+     * @see org.alljoyn.login.dashboard.security.AuthPasswordHandler#completed(java.lang.String, java.lang.String, boolean)
+     */
+    @Override
+    public void completed(String mechanism, String authPeer, boolean authenticated) {
+
+        if(!authenticated) {
+            m_logger.info(TAG, " ** " + authPeer + " failed to authenticate");
+        } else {
+            m_logger.info(TAG, " ** " + authPeer + " successfully authenticated");
+        }
+    }
 
 }
