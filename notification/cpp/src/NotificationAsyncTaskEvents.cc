@@ -23,9 +23,9 @@
 #include "NotificationDismisserSender.h"
 #include <alljoyn/notification/Notification.h>
 #include <alljoyn/notification/NotificationService.h>
-#include <alljoyn/services_common/Conversions.h>
 #include <sstream>
 #include <alljoyn/notification/LogModule.h>
+#include <qcc/StringUtil.h>
 
 using namespace ajn;
 using namespace services;
@@ -99,7 +99,7 @@ void NotificationAsyncTaskEvents::sendDismissSignal(TaskData const* taskData)
     }
 
     uint8_t AppId[16];
-    Conversions::HexStringToBytes(notificationMsg->m_AppId, AppId, 16);
+    HexStringToBytes(notificationMsg->m_AppId, AppId, 16);
     status = appIdArg.Set(nsConsts::AJPARAM_ARR_BYTE.c_str(), 16, AppId);
     if (status != ER_OK) {
         return;
