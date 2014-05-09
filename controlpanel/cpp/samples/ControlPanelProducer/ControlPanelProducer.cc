@@ -142,12 +142,14 @@ start:
     controlpanelBusListener = new CommonBusListener(bus, daemonDisconnectCB);
 
     qcc::String device_id, app_id;
-    qcc::String app_name = "testappName", device_name = "testdeviceName";
+    qcc::String app_name = "testappName";
+    DeviceNamesType deviceNames;
+    deviceNames.insert(std::pair<qcc::String, qcc::String>("testDeviceName", "en"));
     GuidUtil::GetInstance()->GetDeviceIdString(&device_id);
     GuidUtil::GetInstance()->GenerateGUID(&app_id);
 
     propertyStoreImpl = new AboutPropertyStoreImpl();
-    status = CommonSampleUtil::fillPropertyStore(propertyStoreImpl, app_id, app_name, device_id, device_name);
+    status = CommonSampleUtil::fillPropertyStore(propertyStoreImpl, app_id, app_name, device_id, deviceNames);
     if (status != ER_OK) {
         std::cout << "Could not fill PropertyStore." << std::endl;
         cleanup();

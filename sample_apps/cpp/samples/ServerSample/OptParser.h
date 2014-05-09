@@ -19,6 +19,8 @@
 
 #include <alljoyn/about/AboutServiceApi.h>
 
+typedef std::map<qcc::String, qcc::String> DeviceNamesType;
+
 /**
  * Class to parse arguments
  */
@@ -75,10 +77,10 @@ class OptParser {
     qcc::String const& GetDeviceId() const;
 
     /**
-     * GetDeviceName
+     * GetDeviceNames
      * @return
      */
-    qcc::String const& GetDeviceName() const;
+    DeviceNamesType const& GetDeviceNames() const;
 
     /**
      * GetDefaultLanguage
@@ -148,6 +150,8 @@ class OptParser {
 
     void PrintUsage();
 
+    bool FillDeviceNames();
+
     qcc::String factoryConfigFile;
     qcc::String configFile;
     qcc::String appGUID;
@@ -163,6 +167,7 @@ class OptParser {
     qcc::String offboardCmd;
     int port;
     int concurrency;
+    DeviceNamesType deviceNames;
 };
 
 #endif /* OPTPARSER_H_ */

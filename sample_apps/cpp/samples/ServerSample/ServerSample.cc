@@ -209,7 +209,7 @@ void FillNotification(NotificationMessageType& messageType, std::vector<Notifica
 
 #define CHECK_RETURN(x) if ((status = x) != ER_OK) { return status; }
 QStatus fillPropertyStore(AboutPropertyStoreImpl* propertyStore, qcc::String const& appIdHex,
-                          qcc::String const& appName, qcc::String const& deviceId, qcc::String const& deviceName,
+                          qcc::String const& appName, qcc::String const& deviceId, DeviceNamesType const& deviceNames,
                           qcc::String const& defaultLanguage)
 {
     if (!propertyStore) {
@@ -219,7 +219,6 @@ QStatus fillPropertyStore(AboutPropertyStoreImpl* propertyStore, qcc::String con
     QStatus status = ER_OK;
 
     CHECK_RETURN(propertyStore->setDeviceId(deviceId))
-    CHECK_RETURN(propertyStore->setDeviceName(deviceName))
     CHECK_RETURN(propertyStore->setAppId(appIdHex))
     CHECK_RETURN(propertyStore->setAppName(appName))
 
@@ -247,6 +246,27 @@ QStatus fillPropertyStore(AboutPropertyStoreImpl* propertyStore, qcc::String con
     languagesVec[1] = "de-AT";
     languagesVec[2] = "zh-Hans-CN";
 #endif
+
+    DeviceNamesType::const_iterator iter = deviceNames.find(languagesVec[0]);
+    if (iter != deviceNames.end()) {
+        CHECK_RETURN(propertyStore->setDeviceName(iter->second.c_str(), languagesVec[0]));
+    } else {
+        CHECK_RETURN(propertyStore->setDeviceName("My device name", languagesVec[0]));
+    }
+
+    iter = deviceNames.find(languagesVec[1]);
+    if (iter != deviceNames.end()) {
+        CHECK_RETURN(propertyStore->setDeviceName(iter->second.c_str(), languagesVec[1]));
+    } else {
+        CHECK_RETURN(propertyStore->setDeviceName("Mein Gerätname", languagesVec[1]));
+    }
+
+    iter = deviceNames.find(languagesVec[2]);
+    if (iter != deviceNames.end()) {
+        CHECK_RETURN(propertyStore->setDeviceName(iter->second.c_str(), languagesVec[2]));
+    } else {
+        CHECK_RETURN(propertyStore->setDeviceName("我的設備名稱", languagesVec[2]));
+    }
 
     CHECK_RETURN(propertyStore->setSupportedLangs(languagesVec))
     CHECK_RETURN(propertyStore->setDefaultLang(defaultLanguage))
@@ -339,7 +359,7 @@ start:
 
     propertyStoreImpl = new PropertyStoreImpl(opts.GetFactoryConfigFile().c_str(), opts.GetConfigFile().c_str());
     status = fillPropertyStore(propertyStoreImpl, opts.GetAppId(), opts.GetAppName(), opts.GetDeviceId(),
-                               opts.GetDeviceName(), opts.GetDefaultLanguage());
+                               opts.GetDeviceNames(), opts.GetDefaultLanguage());
     propertyStoreImpl->Initialize();
     if (status != ER_OK) {
         std::cout << "Could not fill PropertyStore." << std::endl;

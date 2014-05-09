@@ -250,7 +250,7 @@ start:
 
     propertyStore = new PropertyStoreImpl(opts.GetFactoryConfigFile().c_str(), opts.GetConfigFile().c_str());
     status = CommonSampleUtil::fillPropertyStore(propertyStore, opts.GetAppId(), opts.GetAppName(), opts.GetDeviceId(),
-                                                 opts.GetDeviceName(), opts.GetDefaultLanguage());
+                                                 opts.GetDeviceNames(), opts.GetDefaultLanguage());
     propertyStore->Initialize();
     if (status != ER_OK) {
         std::cout << "Could not fill PropertyStore." << std::endl;

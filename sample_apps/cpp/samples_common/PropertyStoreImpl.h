@@ -93,7 +93,7 @@ class PropertyStoreImpl : public ajn::services::AboutPropertyStoreImpl {
 
     qcc::String m_factoryConfigFileName;
 
-    bool persistUpdate(const char* key, const char* value);
+    bool persistUpdate(const char* key, const char* value, const char* languageTag = NULL);
 
     ajn::services::PropertyStoreKey getPropertyStoreKeyFromName(qcc::String const& propertyStoreName);
 };

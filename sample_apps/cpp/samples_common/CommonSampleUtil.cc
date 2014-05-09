@@ -54,7 +54,7 @@ BusAttachment* CommonSampleUtil::prepareBusAttachment(ajn::AuthListener* authLis
 }
 
 QStatus CommonSampleUtil::fillPropertyStore(AboutPropertyStoreImpl* propertyStore, qcc::String const& appIdHex,
-                                            qcc::String const& appName, qcc::String const& deviceId, qcc::String const& deviceName,
+                                            qcc::String const& appName, qcc::String const& deviceId, DeviceNamesType const& deviceNames,
                                             qcc::String const& defaultLanguage)
 {
     if (!propertyStore) {
@@ -64,7 +64,6 @@ QStatus CommonSampleUtil::fillPropertyStore(AboutPropertyStoreImpl* propertyStor
     QStatus status = ER_OK;
 
     CHECK_RETURN(propertyStore->setDeviceId(deviceId))
-    CHECK_RETURN(propertyStore->setDeviceName(deviceName))
     CHECK_RETURN(propertyStore->setAppId(appIdHex))
     CHECK_RETURN(propertyStore->setAppName(appName))
 
@@ -80,6 +79,27 @@ QStatus CommonSampleUtil::fillPropertyStore(AboutPropertyStoreImpl* propertyStor
     CHECK_RETURN(propertyStore->setSoftwareVersion("12.20.44 build 44454"))
     CHECK_RETURN(propertyStore->setAjSoftwareVersion(ajn::GetVersion()))
     CHECK_RETURN(propertyStore->setHardwareVersion("355.499. b"))
+
+    DeviceNamesType::const_iterator iter = deviceNames.find(languages[0]);
+    if (iter != deviceNames.end()) {
+        CHECK_RETURN(propertyStore->setDeviceName(iter->second.c_str(), languages[0]));
+    } else {
+        CHECK_RETURN(propertyStore->setDeviceName("My device name", "en"));
+    }
+
+    iter = deviceNames.find(languages[1]);
+    if (iter != deviceNames.end()) {
+        CHECK_RETURN(propertyStore->setDeviceName(iter->second.c_str(), languages[1]));
+    } else {
+        CHECK_RETURN(propertyStore->setDeviceName("Mi nombre de dispositivo", "sp"));
+    }
+
+    iter = deviceNames.find(languages[2]);
+    if (iter != deviceNames.end()) {
+        CHECK_RETURN(propertyStore->setDeviceName(iter->second.c_str(), languages[2]));
+    } else {
+        CHECK_RETURN(propertyStore->setDeviceName("Mon nom de l'appareil", "fr"));
+    }
 
     CHECK_RETURN(propertyStore->setDescription("This is an Alljoyn Application", "en"))
     CHECK_RETURN(propertyStore->setDescription("Esta es una Alljoyn aplicacion", "sp"))

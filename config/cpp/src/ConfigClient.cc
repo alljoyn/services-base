@@ -162,6 +162,7 @@ QStatus ConfigClient::GetConfigurations(const char* busName, const char* languag
                 int languageTagNumElements;
                 MsgArg* tempconfigMapDictEntries;
                 CHECK_BREAK(returnArgs[0].Get("a{sv}", &languageTagNumElements, &tempconfigMapDictEntries))
+                configs.clear();
                 for (int i = 0; i < languageTagNumElements; i++) {
                     char* tempKey;
                     MsgArg* tempValue;

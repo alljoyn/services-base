@@ -108,9 +108,12 @@ bool initSend(std::map<qcc::String, qcc::String>& params)
     qcc::String appid;
     GuidUtil::GetInstance()->GenerateGUID(&appid);
 
+    DeviceNamesType deviceNames;
+    deviceNames.insert(std::pair<qcc::String, qcc::String>(params["device_name"], "en"));
+
     QStatus status;
     status = CommonSampleUtil::fillPropertyStore(propertyStoreImpl, appid, params["app_name"].c_str(),
-                                                 deviceid, params["device_name"].c_str());
+                                                 deviceid, deviceNames);
     if (status != ER_OK) {
         std::cout << "Could not fill PropertyStore." << std::endl;
         return false;

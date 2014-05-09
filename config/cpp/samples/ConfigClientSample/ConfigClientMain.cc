@@ -298,7 +298,7 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
                 std::pair<qcc::String, ajn::MsgArg>("DeviceName",
                                                     MsgArg("s", "This is my new English name ! ! ! !")));
 
-            if ((status = configClient->UpdateConfigurations(busName.c_str(), NULL, updateConfigurations, id)) == ER_OK) {
+            if ((status = configClient->UpdateConfigurations(busName.c_str(), "en", updateConfigurations, id)) == ER_OK) {
                 std::cout << "UpdateConfigurations succeeded" << std::endl;
             } else {
                 std::cout << "Call to UpdateConfigurations failed: " << QCC_StatusText(status) << std::endl;
