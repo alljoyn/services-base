@@ -149,10 +149,22 @@ public class WiFiNetwork implements Parcelable {
      */
     private AuthType capabilitiesToAuthType(String capabilities) {
         if (capabilities.contains("WPA2")) {
-            return AuthType.WPA2_AUTO;
+            if (capabilities.contains("TKIP")) {
+                return AuthType.WPA2_TKIP;
+            } else if (capabilities.contains("CCMP")) {
+                return AuthType.WPA2_CCMP;
+            } else {
+                return AuthType.WPA2_AUTO;
+            }
         }
         if (capabilities.contains("WPA")) {
-            return AuthType.WPA_AUTO;
+            if (capabilities.contains("TKIP")) {
+                return AuthType.WPA_TKIP;
+            } else if (capabilities.contains("CCMP")) {
+                return AuthType.WPA_CCMP;
+            } else {
+                return AuthType.WPA_AUTO;
+            }
         }
         if (capabilities.contains(AuthType.WEP.name())) {
             return AuthType.WEP;
