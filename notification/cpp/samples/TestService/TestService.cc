@@ -55,6 +55,7 @@ bool didInitSend = false;
 bool didInitReceive = false;
 uint16_t ttl = 0;
 int32_t sleepTime;
+static volatile sig_atomic_t s_interrupt = false;
 
 void resetParams()
 {
@@ -566,13 +567,7 @@ void Usage(TestFunction*testFunctions, qcc::String funcName = "", int32_t*functi
 
 void signal_callback_handler(int32_t signum)
 {
-    std::map<qcc::String, qcc::String> params;
-
-    // clean up
-    shutdown(params);
-    std::cout << "Goodbye!" << std::endl;
-
-    exit(signum);
+    s_interrupt = true;
 }
 
 bool checkRequiredSteps(TestFunction& test, TestFunction*testFunctions, int32_t*functionIndex)
@@ -678,6 +673,8 @@ bool processInput(const qcc::String& input, qcc::String& funcName, std::map<qcc:
 
 int main(int argc, char* argv[])
 {
+    std::cout << "Beginning TestService Application. (Press CTRL+C and Enter to end application)" << std::endl;
+
     TestFunction testFunctions[NUM_OF_FUNCTIONS];
     createListOfFunctions(testFunctions);
     Usage(testFunctions);
@@ -688,7 +685,7 @@ int main(int argc, char* argv[])
     // Allow CTRL+C to end application
     signal(SIGINT, signal_callback_handler);
 
-    while (1) {
+    while (!s_interrupt) {
         std::cout << "> ";
         std::string input;
         qcc::String funcName;
@@ -705,9 +702,14 @@ int main(int argc, char* argv[])
                     }
                 }
             }
-        } else {
+        } else if (!s_interrupt) {
             Usage(testFunctions, funcName, &functionIndex);
         }
     }
+
+    std::map<qcc::String, qcc::String> params;
+    // clean up
+    shutdown(params);
+    std::cout << "Goodbye!" << std::endl;
     return 0;
 }

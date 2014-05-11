@@ -106,7 +106,7 @@ int32_t main()
 
     // Allow CTRL+C to end application
     signal(SIGINT, SigIntHandler);
-    std::cout << "Beginning ControlPanel Application. (Press CTRL+C to end application)" << std::endl;
+    std::cout << "Beginning ControlPanel Application. (Press CTRL+C and enter or CTRL+D to end application)" << std::endl;
 
     // Initialize Service objects
 #ifdef QCC_USING_BD
