@@ -96,6 +96,17 @@ class OnboardingControllerImpl : public ajn::services::OnboardingControllerAPI {
      */
     void ScanWifiTimerDone();
 
+    /**
+     * static function to connect device to ap
+     * @param obsArg - instance of onboarding controller passed in as arg
+     */
+    static void* OBS_Connect(void* obsArg);
+
+    /**
+     * static function to offboard device
+     * @param obsArg - instance of onboarding controller passed in as arg
+     */
+    static void* OBS_Offboard(void* obsArg);
 
   private:
     /**
