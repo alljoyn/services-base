@@ -36,12 +36,15 @@ void cleanup()
     std::cout << "cleanup() - start" << std::endl;
     if (conService) {
         conService->shutdown();
+        conService = NULL;
     }
     if (Receiver) {
         delete Receiver;
+        Receiver = NULL;
     }
     if (busAttachment) {
         delete busAttachment;
+        busAttachment = NULL;
     }
     std::cout << "cleanup() - end" << std::endl;
 }

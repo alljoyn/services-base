@@ -104,7 +104,9 @@ void NotificationTransportConsumer::ReceiverThread()
             PayloadAdapter::receivePayload(message);
             pthread_mutex_lock(&m_Lock);
         }
-        pthread_cond_wait(&m_QueueChanged, &m_Lock);
+        if (!m_IsStopping) {
+            pthread_cond_wait(&m_QueueChanged, &m_Lock);
+        }
     }
     pthread_mutex_unlock(&m_Lock);
 }
