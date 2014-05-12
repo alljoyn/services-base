@@ -166,9 +166,7 @@ void ConfigService::UpdateConfigurationsHandler(const InterfaceDescription::Memb
         char* languageTag;
         CHECK_BREAK(args[0].Get("s", &languageTag))
         CHECK_BREAK(args[1].Get("a{sv}", &configMapNumElements, &configMapDictEntries))
-        if (languageTag[0] == 0) {
-            languageTag = NULL;
-        }
+
         for (unsigned int i = 0; i < configMapNumElements; i++) {
             char* tempKey;
             MsgArg* tempValue;
@@ -220,10 +218,7 @@ void ConfigService::ResetConfigurationsHandler(const InterfaceDescription::Membe
         char* languageTag;
         CHECK_BREAK(args[0].Get("s", &languageTag))
 
-        if (languageTag[0] == 0) {
-            languageTag = NULL;
-        }
-        const MsgArg* stringArray;
+        const MsgArg * stringArray;
         size_t fieldListNumElements;
         CHECK_BREAK(args[1].Get("as", &fieldListNumElements, &stringArray))
         for (unsigned int i = 0; i < fieldListNumElements; i++) {
