@@ -406,7 +406,7 @@ public class PropertyStoreImpl implements PropertyStore
 		
 		if(AboutKeys.ABOUT_DEFAULT_LANGUAGE.equals(key) && !m_supportedLanguages.contains(newValue.toString()))
 		{
-			throw new PropertyStoreException(PropertyStoreException.INVALID_VALUE);
+			throw new PropertyStoreException(PropertyStoreException.UNSUPPORTED_LANGUAGE);
 		}
 
 		languageTag = validateLanguageTag(languageTag, property);
