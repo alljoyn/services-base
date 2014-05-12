@@ -38,7 +38,10 @@ ASABASE-108 – Connecting WiFi network with Gingerbread Android version handset c
 Compatibility
 -------------
 
-Android Onboarding Manager is compatible with 
+The Android Onboarding Manager is incompatible with 14.02 C++ Onboardee implementation (Openwrt). 
+
+The Android Onboarding Manager is compatible with 14.02 Thin Client Onboardee implementation. 
+
 
 Change history
 --------------
