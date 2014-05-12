@@ -389,20 +389,24 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
     }
 
     // Add an AllJoyn device to the application
-    private void addDevice(UUID deviceId, String busName, short port, String deviceFriendlyName, BusObjectDescription[] interfaces, Map<String, Object> aboutMap) {
+    private void addDevice(UUID deviceId, String busName, short port, String deviceFriendlyName, String defaultLang,
+    							BusObjectDescription[] interfaces, Map<String, Object> aboutMap) {
+    	
         Device oldDevice = devicesMap.get(deviceId);
 
         if (oldDevice != null) {// device already exist. update the fields that
             // might have changed.
 
-            oldDevice.busName = busName;
-            oldDevice.aboutMap = aboutMap;
-            oldDevice.deviceName = deviceFriendlyName;
-            oldDevice.port = port;
-            oldDevice.interfaces = interfaces;
+            oldDevice.busName        = busName;
+            oldDevice.aboutMap       = aboutMap;
+            oldDevice.deviceName     = deviceFriendlyName;
+            oldDevice.configLanguage = defaultLang;
+            oldDevice.port           = port;
+            oldDevice.interfaces     = interfaces;
         } else {
             // add the device to the map
-            Device sad = new Device(deviceId, busName, deviceFriendlyName, port, interfaces, aboutMap);
+            Device sad          = new Device(deviceId, busName, deviceFriendlyName, port, interfaces, aboutMap);
+            sad.configLanguage  = defaultLang;
             devicesMap.put(deviceId, sad);
         }
         // notify the activity to come and get it
@@ -549,7 +553,7 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
                 Log.d(TAG, "GET_CONFIG: Config information was received");
 
                 device.configLanguage = (String) configMap.get(AboutKeys.ABOUT_DEFAULT_LANGUAGE);
-                device.deviceName = (String) configMap.get(AboutKeys.ABOUT_DEVICE_NAME);
+                device.deviceName     = (String) configMap.get(AboutKeys.ABOUT_DEVICE_NAME);
             }
 
         } catch (Exception e) {
@@ -657,7 +661,7 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
      * @param configMap
      *            the map containing all the fields to be set.
      */
-    public void setConfig(Map<String, Object> configMap, UUID deviceId) {
+    public void setConfig(Map<String, Object> configMap, UUID deviceId, String lang) {
         if (deviceId == null) {
             updateTheUiAboutError(getString(R.string.no_peer_selected));
             return;
@@ -670,7 +674,7 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
         try {
             startConfigSession(device);
             if (configClient != null) {
-                configClient.setConfig(configMap, "");
+                configClient.setConfig(configMap, lang);
             }
 
         } catch (Exception e) {
@@ -713,11 +717,14 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
 
         Map<String, Object> newMap = new HashMap<String, Object>();
         try {
-            newMap = TransportUtil.fromVariantMap(aboutMap);
-            UUID deviceId = (UUID) newMap.get(AboutKeys.ABOUT_APP_ID);
-            String deviceFriendlyName = (String) newMap.get(AboutKeys.ABOUT_DEVICE_NAME);
+        	
+            newMap                    = TransportUtil.fromVariantMap(aboutMap);
+            UUID deviceId             = (UUID) newMap.get(AboutKeys.ABOUT_APP_ID);
+            String deviceFriendlyName = (String)newMap.get(AboutKeys.ABOUT_DEVICE_NAME);
+            String defaultLanguage    = (String)newMap.get(AboutKeys.ABOUT_DEFAULT_LANGUAGE);
+            
             Log.d(TAG, "onAnnouncement received: with parameters: busName:" + busName + ", port:" + port + ", deviceid" + deviceId + ", deviceName:" + deviceFriendlyName);
-            addDevice(deviceId, busName, port, deviceFriendlyName, interfaces, newMap);
+            addDevice(deviceId, busName, port, deviceFriendlyName, defaultLanguage, interfaces, newMap);
 
         } catch (BusException e) {
             e.printStackTrace();

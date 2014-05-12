@@ -234,17 +234,36 @@ public class ConfigActivity extends Activity {
     private void getConfigData() {
         final AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
 
+        	/**
+        	 * The language to retrieve the configuration data
+        	 */
+        	private String requestLanguage;
+        	
+        	/**
+        	 * The configured device
+        	 */
+        	private Device device;
+        	
             @Override
             protected void onPreExecute() {
-                Log.d(TAG, "setConfigData: onPreExecute");
+
+            	requestLanguage = deviceLangValue.getText().toString();
+            	device          = ((ConfigApplication) getApplication()).getDevice(deviceId);
+            	
+            	if ( requestLanguage.length() == 0 && device != null ) {
+            		
+            		requestLanguage = device.configLanguage;
+            	}
+            	
+                Log.d(TAG, "setConfigData: onPreExecute. Language of request: '" + requestLanguage + "'");
                 showLoadingPopup(getString(R.string.loading_get_config));
             }
 
             @Override
             protected Void doInBackground(Void... params) {
-                Device device = ((ConfigApplication) getApplication()).getDevice(deviceId);
+                
                 if (device != null) {
-                    ((ConfigApplication) getApplication()).getConfig(device.configLanguage, device.appId);
+                    ((ConfigApplication) getApplication()).getConfig(requestLanguage, device.appId);
                 }
                 return null;
             }
@@ -275,19 +294,37 @@ public class ConfigActivity extends Activity {
 
         final AsyncTask<Map<String, Object>, Void, Void> task = new AsyncTask<Map<String, Object>, Void, Void>() {
 
+        	/**
+        	 * The language to retrieve the configuration data
+        	 */
+        	private String requestLanguage;
+        	
+        	/**
+        	 * The configured device
+        	 */
+        	private Device device;
+        	
             @Override
             protected void onPreExecute() {
 
-                Log.d(TAG, "setConfig: onPreExecute");
+            	requestLanguage = deviceLangValue.getText().toString();
+            	device          = ((ConfigApplication) getApplication()).getDevice(deviceId);
+            	
+            	if ( requestLanguage.length() == 0 && device != null ) {
+            		
+            		requestLanguage = device.configLanguage;
+            	}
+            	
+                Log.d(TAG, "setConfig: onPreExecute Language of request: '" + requestLanguage + "'");
                 showLoadingPopup(getString(R.string.loading_setting_config));
             }
 
             @Override
             protected Void doInBackground(Map<String, Object>... params) {
-                Device device = ((ConfigApplication) getApplication()).getDevice(deviceId);
+                
                 if (device != null) {
                     Map<String, Object> configMap = params[0];
-                    ((ConfigApplication) getApplication()).setConfig(configMap, device.appId);
+                    ((ConfigApplication) getApplication()).setConfig(configMap, device.appId, requestLanguage);
                 }
                 return null;
             }
@@ -314,10 +351,29 @@ public class ConfigActivity extends Activity {
     private void resetConfiguration() {
         final AsyncTask<String[], Void, Void> task = new AsyncTask<String[], Void, Void>() {
 
+        	/**
+        	 * The language to retrieve the configuration data
+        	 */
+        	private String requestLanguage;
+        	
+        	/**
+        	 * The configured device
+        	 */
+        	private Device device;
+        	
+        	
             @Override
             protected void onPreExecute() {
 
-                Log.d(TAG, "resetConfiguration: onPreExecute");
+            	requestLanguage = deviceLangValue.getText().toString();
+            	device          = ((ConfigApplication) getApplication()).getDevice(deviceId);
+            	
+            	if ( requestLanguage.length() == 0 && device != null ) {
+            		
+            		requestLanguage = device.configLanguage;
+            	}
+            	
+                Log.d(TAG, "resetConfiguration: onPreExecute. Language of request: '" + requestLanguage + "'");
                 showLoadingPopup(getString(R.string.loading_reset_configuration));
             }
 
@@ -326,7 +382,7 @@ public class ConfigActivity extends Activity {
                 Device device = ((ConfigApplication) getApplication()).getDevice(deviceId);
                 if (device != null) {
                     String[] fields = params[0];
-                    ((ConfigApplication) getApplication()).resetConfiguration(fields, device.configLanguage, device.appId);
+                    ((ConfigApplication) getApplication()).resetConfiguration(fields, requestLanguage, device.appId);
                 }
                 return null;
             }

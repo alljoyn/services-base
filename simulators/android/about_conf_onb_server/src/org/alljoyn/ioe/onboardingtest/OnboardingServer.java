@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -356,7 +356,7 @@ public class OnboardingServer extends Service implements AuthPasswordHandler, Se
 		 * @see org.alljoyn.config.server.ConfigChangeListener#onConfigChanged(java.util.Map, java.lang.String)
 		 */
 		@Override
-		public void onConfigChanged(Map<String, Variant> arg0, String arg1)
+		public void onConfigChanged(Map<String, Variant> configuration, String languageTag)
 		{
 			showToast(TAG + ": Configuration Changed");
 			AboutServiceImpl.getInstance().announce();
@@ -384,7 +384,7 @@ public class OnboardingServer extends Service implements AuthPasswordHandler, Se
 		 */
 		@Override
 		public void onResetConfiguration(String language, String[] fieldsToRemove) {
-			showToast(TAG + ": onResetConfiguration happaned");
+			showToast(TAG + ": onResetConfiguration was called");
 			AboutServiceImpl.getInstance().announce();
 		}
 	}
