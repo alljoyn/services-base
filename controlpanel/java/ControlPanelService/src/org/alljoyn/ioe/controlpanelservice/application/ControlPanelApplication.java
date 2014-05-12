@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -155,10 +155,6 @@ public class ControlPanelApplication extends Application {
 		try {
 			AboutServiceImpl.getInstance().startAboutClient(bus);
 			service.init(bus, new ControlPanelTestApp());
-			status = bus.addMatch("sessionless='t',type='error'");
-			if ( status != Status.OK ) {
-				Log.e(TAG, "Failed to call AddMatch: 'sessionless='t',type='error'");
-			}
 		} catch (ControlPanelException cpe) {
 			Log.e(TAG, "Failure happened, Error: '" + cpe.getMessage() + "'");
 		}

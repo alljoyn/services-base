@@ -70,7 +70,6 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
 
 	public static final String TAG = "OnboardingClient";
 	public static final String TAG_PASSWORD = "OnboardingApplication_password";
-	private static final String SESSIONLESS_MATCH_RULE = "sessionless='t',type='error'";
 	
 	private BusAttachment m_Bus;
 	private IskWifiManager m_wifiManager;
@@ -297,10 +296,6 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
 				m_logger.debug(TAG, "Failed to register Auth listener status = " + authStatus.toString());
 			}
 		}
-	
-		// DO the AJ addMatch.
-		Status s = m_Bus.addMatch(SESSIONLESS_MATCH_RULE);
-		m_logger.info(TAG, "BusAttachment.addMatch() status = " + s);
 	}
 	
 	//======================================================================

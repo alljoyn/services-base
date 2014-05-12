@@ -338,7 +338,7 @@ public class Transport {
 	/**
 	 * Handle receiving a first Notification from a SuperAgent
 	 */
-	public synchronized void onReceivedFirstSuperAgentNotification(String superAgentUniqueName) {
+	public void onReceivedFirstSuperAgentNotification(String superAgentUniqueName) {
 		
 		GenericLogger logger;
 		try {

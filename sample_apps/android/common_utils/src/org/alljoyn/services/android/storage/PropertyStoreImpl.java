@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -91,13 +91,13 @@ public class PropertyStoreImpl implements PropertyStore
 	{
 		for (String key:m_aboutConfigMap.keySet())
 		{
-			Property Property = m_aboutConfigMap.get(key);
-			if (!Property.isPublic() 
-					|| !Property.isWritable())
+			Property property = m_aboutConfigMap.get(key);
+			if (!property.isPublic() 
+					|| !property.isWritable())
 			{
 				continue;
 			}
-			Object value = Property.getValue(languageTag, m_defaultLanguage);
+			Object value = property.getValue(languageTag, m_defaultLanguage);
 			if (value != null)
 				configuration.put(key, value);
 		}
@@ -107,12 +107,12 @@ public class PropertyStoreImpl implements PropertyStore
 	{
 		for (String key:m_aboutConfigMap.keySet())
 		{
-			Property Property = m_aboutConfigMap.get(key);
-			if (!Property.isPublic())
+			Property property = m_aboutConfigMap.get(key);
+			if (!property.isPublic())
 			{
 				continue;
 			}
-			Object value = Property.getValue(languageTag, m_defaultLanguage);
+			Object value = property.getValue(languageTag, m_defaultLanguage);
 			if (value != null)
 				about.put(key, value);
 		}
@@ -122,12 +122,12 @@ public class PropertyStoreImpl implements PropertyStore
 	{
 		for (String key:m_aboutConfigMap.keySet())
 		{
-			Property Property = m_aboutConfigMap.get(key);
-			if (!Property.isPublic() || !Property.isAnnounced())
+			Property property = m_aboutConfigMap.get(key);
+			if (!property.isPublic() || !property.isAnnounced())
 			{
 				continue;
 			}
-			Object value = Property.getValue(languageTag, m_defaultLanguage);
+			Object value = property.getValue(languageTag, m_defaultLanguage);
 			if (value != null)
 				announce.put(key, value);
 		}
@@ -365,7 +365,7 @@ public class PropertyStoreImpl implements PropertyStore
 	@Override
 	public void readAll(String languageTag, Filter filter, Map<String, Object> dataMap) throws PropertyStoreException
 	{
-		if (!languageTag.isEmpty() && !m_supportedLanguages.contains(languageTag))
+		if (!Property.NO_LANGUAGE.equals(languageTag) && !m_supportedLanguages.contains(languageTag))
 		{
 			throw new PropertyStoreException(PropertyStoreException.UNSUPPORTED_LANGUAGE);
 		}
@@ -393,36 +393,24 @@ public class PropertyStoreImpl implements PropertyStore
 	@Override
 	public void update(String key, String languageTag, Object newValue) throws PropertyStoreException
 	{
-		if (!languageTag.isEmpty() && !m_supportedLanguages.contains(languageTag))
-		{
-			throw new PropertyStoreException(PropertyStoreException.UNSUPPORTED_LANGUAGE);
-		}
-		else if(AboutKeys.ABOUT_DEFAULT_LANGUAGE.equals(key) && !m_supportedLanguages.contains(newValue.toString()))
-		{
-			throw new PropertyStoreException(PropertyStoreException.INVALID_VALUE);
-		}
 		
-		Property Property = m_aboutConfigMap.get(key);
-		if (Property == null)
+		Property property = m_aboutConfigMap.get(key);
+		if (property == null)
 		{
 			throw new PropertyStoreException(PropertyStoreException.UNSUPPORTED_KEY);
 		}
-		if (!Property.isWritable())
+		if (!property.isWritable())
 		{
 			throw new PropertyStoreException(PropertyStoreException.ILLEGAL_ACCESS);
 		}
-		Set<String> langs = Property.getLanguages();
-		//In case the field has only one language and it equals "", there
-		//will be no possibility to set another value with a different language but "". 
-		if(langs != null  && langs.size() == 1){
-			Iterator<String> iterator = langs.iterator();
-			if(iterator.hasNext()){
-				String s = iterator.next();
-				if( s.length() == 0 )
-					languageTag = "";
-			}
-		}			
-		Property.setValue(languageTag, newValue);
+		
+		if(AboutKeys.ABOUT_DEFAULT_LANGUAGE.equals(key) && !m_supportedLanguages.contains(newValue.toString()))
+		{
+			throw new PropertyStoreException(PropertyStoreException.UNSUPPORTED_LANGUAGE);
+		}
+
+		languageTag = validateLanguageTag(languageTag, property);
+		property.setValue(languageTag, newValue);
 
 		setDefaultLanguageFromProperties();
 		// save config map to persistent storage
@@ -438,22 +426,20 @@ public class PropertyStoreImpl implements PropertyStore
 	@Override
 	public void reset(String key, String languageTag) throws PropertyStoreException
 	{
-		if (!languageTag.isEmpty() && !m_supportedLanguages.contains(languageTag))
+		if (!Property.NO_LANGUAGE.equals(languageTag) && !m_supportedLanguages.contains(languageTag))
 		{
 			throw new PropertyStoreException(PropertyStoreException.UNSUPPORTED_LANGUAGE);
 		}
 
-		Property Property = m_aboutConfigMap.get(key);
-		if (Property != null)
+		Property property = m_aboutConfigMap.get(key);
+		if (property == null)
 		{
-			Set<String> langs = Property.getLanguages();
-			if(langs.size() == 1){
-				m_aboutConfigMap.remove(key);
-			}
-			else{	
-				Property.remove(languageTag);
-			}
+			throw new PropertyStoreException(PropertyStoreException.UNSUPPORTED_KEY);
 		}
+		
+		
+		languageTag = validateLanguageTag(languageTag, property);
+   	    property.remove(languageTag);
 
 		// save config map to persistent storage
 		storeConfiguration();
@@ -478,5 +464,47 @@ public class PropertyStoreImpl implements PropertyStore
 		// TODO restart as a soft AP...		
 		m_aboutConfigMap.put(AboutKeys.ABOUT_APP_ID, appId);
 		loadLanguages();
+	}
+
+	/**
+	 * Checks if received languageTag is not {@link Property#NO_LANGUAGE} and exists among supported languages, otherwise
+	 * {@link PropertyStoreException#UNSUPPORTED_LANGUAGE} is thrown.
+	 * If the received languageTag is {@link Property#NO_LANGUAGE} then it will be set to the default language.
+	 * If languages attribute of the received property has only one language and it's set to {@link Property#NO_LANGUAGE}, then
+	 * returned languageTag will be set to {@link Property#NO_LANGUAGE}. 
+	 * @param languageTag The language tag to be validates.
+	 * @param property The {@link Property} that the language tag is validated for.
+	 * @return The language tag to be used.
+	 * @throws PropertyStoreException of {@link PropertyStoreException#UNSUPPORTED_LANGUAGE}
+	 */
+	private String validateLanguageTag(String languageTag, Property property) throws PropertyStoreException {
+		
+		if (!Property.NO_LANGUAGE.equals(languageTag) && !m_supportedLanguages.contains(languageTag))
+		{
+			throw new PropertyStoreException(PropertyStoreException.UNSUPPORTED_LANGUAGE);
+		}
+		
+		Set<String> langs = property.getLanguages();
+		
+		//If languageTag equals NO_LANGUAGE, set it to be defaultLanguage
+		if ( Property.NO_LANGUAGE.equals(languageTag) ) {
+			languageTag = m_defaultLanguage;
+		}
+		
+		//In case the field has only one language and it equals NO_LANGUAGE, there
+		//will be no possibility to set another value with a different language but NO_LANGUAGE. 
+		if(langs != null  && langs.size() == 1) {
+			
+			Iterator<String> iterator = langs.iterator();
+			String lang = iterator.next();
+			
+			if( Property.NO_LANGUAGE.equals(lang) ) {
+				
+				//Override the original language tag with the NO_LANGUAGE
+				languageTag = Property.NO_LANGUAGE;
+			}
+		}
+		
+		return languageTag;
 	}
 }
