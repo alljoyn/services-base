@@ -297,6 +297,10 @@ void OnboardingControllerImpl::ParseScanInfo()
         char* firstCipher = strtok(NULL, "-");
         char* secondCipher = strtok(NULL, "-");
 
+        if (!authType) {
+            continue;
+        }
+
         m_ScanArray[current].SSID = ssid;
 
         // get auth type
@@ -317,16 +321,18 @@ void OnboardingControllerImpl::ParseScanInfo()
             // Two ciphers CCMP and TKIP "WPA2-CCMP-TKIP-PSK" we dont know the order of CCMP and TKIP
 
             GroupCiphers GCiphers = CIPHER_NONE;
-            if (!strcmp(firstCipher, "PSK")) {
+            if (firstCipher == NULL) {
+                GCiphers = CIPHER_NONE;
+            } else if (!strcmp(firstCipher, "PSK"))   {
                 GCiphers = CIPHER_NONE;
             } else if (!strcmp(firstCipher, "CCMP")) {
                 GCiphers = CIPHER_CCMP;
-                if (!strcmp(secondCipher, "TKIP")) {
+                if (secondCipher != NULL && !strcmp(secondCipher, "TKIP")) {
                     GCiphers = CIPHER_BOTH;
                 }
             } else if (!strcmp(firstCipher, "TKIP")) {
                 GCiphers = CIPHER_TKIP;
-                if (!strcmp(secondCipher, "CCMP")) {
+                if (secondCipher != NULL && !strcmp(secondCipher, "CCMP")) {
                     GCiphers = CIPHER_BOTH;
                 }
             }
