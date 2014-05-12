@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4514" systemVersion="13C64" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="Ioo-au-HQi">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="4514" systemVersion="13B42" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="Ioo-au-HQi">
     <dependencies>
         <deployment defaultVersion="1792" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3747"/>
@@ -117,10 +117,16 @@
                                 </connections>
                             </button>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="" lineBreakMode="wordWrap" numberOfLines="6" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="244" translatesAutoresizingMaskIntoConstraints="NO" id="xr2-F1-Zgj">
-                                <rect key="frame" x="40" y="253" width="244" height="132"/>
+                                <rect key="frame" x="40" y="313" width="244" height="69"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                 <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="" lineBreakMode="wordWrap" numberOfLines="6" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="244" translatesAutoresizingMaskIntoConstraints="NO" id="KsP-X3-2vO">
+                                <rect key="frame" x="40" y="253" width="244" height="69"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
@@ -129,6 +135,7 @@
                     <connections>
                         <outlet property="configureBtn" destination="7rR-yN-brR" id="ad2-G8-7aj"/>
                         <outlet property="connectBtn" destination="vTu-b8-5K6" id="Hkb-yU-lwY"/>
+                        <outlet property="instructLbl" destination="KsP-X3-2vO" id="raL-A0-wY9"/>
                         <outlet property="offBoardingBtn" destination="JiV-CX-AYt" id="UqW-k9-2h0"/>
                         <outlet property="onboardTitleLbl" destination="Aif-zk-qQP" id="1uk-Y1-0zO"/>
                         <outlet property="ssidLbl" destination="Zuf-Bp-fMe" id="SZH-0d-Y9D"/>
@@ -337,28 +344,20 @@
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="61"/>
                                 <fontDescription key="fontDescription" type="boldSystem" size="button"/>
                                 <state key="normal">
-                                    <color key="titleColor" red="0.19607843137254902" green="0.30980392156862746" blue="0.52156862745098043" alpha="1" colorSpace="calibratedRGB"/>
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                                <state key="highlighted">
-                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleColor" red="0.34935506462787586" green="0.56312378955489395" blue="0.95038637907608692" alpha="1" colorSpace="calibratedRGB"/>
                                 </state>
                                 <connections>
                                     <action selector="connectButtonDidTouchUpInside:" destination="ynx-jg-FiE" eventType="touchUpInside" id="pJI-Xt-QHk"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="1000" fixedFrame="YES" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="288" translatesAutoresizingMaskIntoConstraints="NO" id="F8Y-UX-fOJ">
-                                <rect key="frame" x="20" y="305" width="288" height="106"/>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="1000" fixedFrame="YES" text="" lineBreakMode="tailTruncation" numberOfLines="7" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="288" translatesAutoresizingMaskIntoConstraints="NO" id="F8Y-UX-fOJ">
+                                <rect key="frame" x="16" y="281" width="288" height="136"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <string key="text">To add a device connect to its soft Access Point by going to settings-&gt; networks…                                  
-                                  
-To onboard a device from the above list, click on it.</string>
-                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="11"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
-                        <color key="backgroundColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                         <color key="tintColor" cocoaTouchSystemColor="lightTextColor"/>
                     </view>
                     <toolbarItems/>
@@ -366,6 +365,7 @@ To onboard a device from the above list, click on it.</string>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics"/>
                     <connections>
                         <outlet property="connectButton" destination="nqY-6p-viq" id="52w-Z3-PuW"/>
+                        <outlet property="instructionsLabel" destination="F8Y-UX-fOJ" id="N7k-gq-ax8"/>
                         <outlet property="servicesTable" destination="ddh-ub-g1u" id="sZl-jD-KQN"/>
                         <segue destination="duL-C5-Aj6" kind="push" identifier="AboutShowAnnounceSegue" id="HYW-lH-KYW"/>
                         <segue destination="yH8-bD-b2F" kind="push" identifier="AboutClientSegue" id="ctz-RM-swz"/>

@@ -18,8 +18,7 @@
 #import "alljoyn/onboarding/AJOBSOnboardingClient.h"
 #import "SystemConfiguration/CaptiveNetwork.h"
 
-static NSString * const SOFT_AP_PREFIX = @"AJ_";
-static NSString * const SOFT_AP_SUFFIX = @"_AJ";
+
 
 @interface OnboardingViewController () <AJOBOnboardingClientListener>
 @property (strong, nonatomic) AJOBSOnboardingClient *onboardingClient;
@@ -35,13 +34,13 @@ static NSString * const SOFT_AP_SUFFIX = @"_AJ";
     [super viewDidLoad];
     // UI
     [self.statusLbl setText:@"  "];
+    [self.instructLbl setText:@"  "];
     [self displayPreOnbordingElements:0];
     self.offBoardingBtn.alpha = 0;
     
     [self updateStatusLabel:@"Loading Onboarding client"];
     QStatus status = [self startOnboardingClient];
     if (ER_OK != status) {
-        [self updateStatusLabel:@"Failed to start onboarding client"];
         [[[UIAlertView alloc] initWithTitle:@"Error" message:@"Failed to start onboarding client" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil] show];
     }
 }
@@ -91,12 +90,12 @@ static NSString * const SOFT_AP_SUFFIX = @"_AJ";
     } else {
         if ([self isOnSAPNetwork])
         {
-            [self updateStatusLabel:@"Using a soft access point"];
+            [self.instructLbl setText:@"Press Configure after filling in the WiFi network details"];
             [self displayPreOnbordingElements:1];
             self.connectBtn.enabled = NO;
             [self.ssidTextField setText:[[NSUserDefaults standardUserDefaults] objectForKey:@"lastVisitedNetwork"]];
         } else {
-            [self updateStatusLabel:@"Using a regular access point"];
+            [self.instructLbl setText:@"To offboard the device - press Offboard"];
             [self displayPreOnbordingElements:0];
             //device already onboarded
             self.offBoardingBtn.alpha = 1;
@@ -201,8 +200,9 @@ static NSString * const SOFT_AP_SUFFIX = @"_AJ";
     short resultStatus;
     status = [self.onboardingClient configureWiFi:self.onboardeeBus obInfo:obInfo resultStatus:resultStatus sessionId:self.sessionId];
     if (status == ER_OK) {
-        [self updateStatusLabel:[NSString stringWithFormat:@"Call to configureWiFi succeeded. Result status is %hd ",resultStatus]];
-
+        [self updateStatusLabel:[NSString stringWithFormat:@"Call to configureWiFi succeeded.\nResult status is %hd",resultStatus]];
+        [self.instructLbl setText:@"Press Connect to complete the onboarding."];
+        
         if (resultStatus == 1)
         {
             self.connectBtn.enabled = YES;
@@ -229,13 +229,13 @@ static NSString * const SOFT_AP_SUFFIX = @"_AJ";
     status = [self.onboardingClient connectTo:self.onboardeeBus sessionId:self.sessionId];
     if (status == ER_OK) {
         [self updateStatusLabel:@"Call to connect succeeded"];
-        [[[UIAlertView alloc] initWithTitle:@"Success" message:[NSString stringWithFormat:@"The Wifi credentials were sent to the device. To see the device on the %@ network confirm that the phone switched to the correct network", self.ssidTextField.text] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil] show];
+        [[[UIAlertView alloc] initWithTitle:@"Onboarding succeeded" message:[NSString stringWithFormat:@"Check that your device connects to the '%@' network.\nGo to Settings -> Wi-Fi", self.ssidTextField.text] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil] show];
     } else {
         [self updateStatusLabel:[NSString stringWithFormat:@"Call to connect failed: %@", [AJNStatus descriptionForStatusCode:status]]];
     }
     
     [self.connectBtn setEnabled:NO];
-    
+    [self.instructLbl setText:@"  "];
 }
 - (IBAction)offBoardingBtnDidTouchUpInside:(id)sender {
     
@@ -247,6 +247,7 @@ static NSString * const SOFT_AP_SUFFIX = @"_AJ";
         [self updateStatusLabel:[NSString stringWithFormat:@"Call to offboard failed %@", [AJNStatus descriptionForStatusCode:status]]];
     }
     [self.offBoardingBtn setEnabled:NO];
+    [self.instructLbl setText:@"  "];
 }
 
 //  Get the user's input from the alert dialog
