@@ -498,7 +498,7 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
     self.authenticationListenerImpl = [[AuthenticationListenerImpl alloc] init];
     status = [self enableClientSecurity];
     if (ER_OK != status) {
-        NSLog(@"Failed to enable security.");
+        [self AlertAndLog:@"ERROR" message:@"Failed to enable security. Please uninstall the application and reinstall." status:status];
     } else {
         NSLog(@"Successfully enabled security for the bus");
     }
@@ -512,6 +512,20 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 {
     QStatus status;
     status = [self.clientBusAttachment enablePeerSecurity:@"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX" authenticationListener:self.authenticationListenerImpl keystoreFileName:@"Documents/alljoyn_keystore/s_central.ks" sharing:YES];
+    
+    if (status != ER_OK) { //try to delete the keystore and recreate it, if that fails return failure
+        NSError *error;
+        NSString *keystoreFilePath = [NSString stringWithFormat:@"%@/alljoyn_keystore/s_central.ks", [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0]];
+        [[NSFileManager defaultManager] removeItemAtPath:keystoreFilePath error:&error];
+        if (error) {
+            NSLog(@"ERROR: Unable to delete keystore. %@", error);
+            return ER_AUTH_FAIL;
+        }
+        
+        status = [self.clientBusAttachment enablePeerSecurity:@"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX" authenticationListener:self.authenticationListenerImpl keystoreFileName:@"Documents/alljoyn_keystore/s_central.ks" sharing:YES];
+
+
+    }
     return status;
 }
 
