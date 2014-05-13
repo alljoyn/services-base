@@ -271,7 +271,7 @@ void OnboardingControllerImpl::ParseScanInfo()
     std::ifstream scanFile;
 
     scanFile.open(m_scanFile.c_str());
-    if (scanFile.fail()) {
+    if (!scanFile.is_open()) {
         return;
     }
 
