@@ -334,7 +334,7 @@ void OnboardingControllerImpl::ParseScanInfo()
             GroupCiphers GCiphers = CIPHER_NONE;
             if (firstCipher == NULL) {
                 GCiphers = CIPHER_NONE;
-            } else if (!strcmp(firstCipher, "PSK"))   {
+            } else if (!strcmp(firstCipher, "PSK")) {
                 GCiphers = CIPHER_NONE;
             } else if (!strcmp(firstCipher, "CCMP")) {
                 GCiphers = CIPHER_CCMP;
