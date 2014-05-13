@@ -85,7 +85,7 @@ class PropertyStoreImpl : public ajn::services::AboutPropertyStoreImpl {
 
   private:
 
-    ajn::services::PropertyMap m_PropertiesReadOnly;
+    ajn::services::PropertyMap m_factoryProperties;
 
     bool m_IsInitialized;
 
@@ -96,6 +96,13 @@ class PropertyStoreImpl : public ajn::services::AboutPropertyStoreImpl {
     bool persistUpdate(const char* key, const char* value);
 
     ajn::services::PropertyStoreKey getPropertyStoreKeyFromName(qcc::String const& propertyStoreName);
+
+
+    bool UpdateFactorySettings();
+
+    bool FillDeviceNames();
+
+    void UpdateFactoryProperty(ajn::services::PropertyStoreKey propertyKey, const char* languageTag, const ajn::MsgArg* value);
 };
 
 #endif /* PROPERTYSTOREIMPL_H_ */

@@ -34,8 +34,11 @@ PropertyStoreImpl::PropertyStoreImpl(const char* factoryConfigFile, const char* 
 void PropertyStoreImpl::Initialize()
 {
     m_IsInitialized = true;
-    m_PropertiesReadOnly.clear();
-    m_PropertiesReadOnly.insert(m_Properties.begin(), m_Properties.end());
+    m_factoryProperties.clear();
+    m_factoryProperties.insert(m_Properties.begin(), m_Properties.end());
+
+    //m_factoryProperties - overwrite the values that are found in FactoryConfigService file
+    UpdateFactorySettings();
 }
 
 void PropertyStoreImpl::FactoryReset()
@@ -53,7 +56,7 @@ void PropertyStoreImpl::FactoryReset()
     }
 
     m_Properties.clear();
-    m_Properties.insert(m_PropertiesReadOnly.begin(), m_PropertiesReadOnly.end());
+    m_Properties.insert(m_factoryProperties.begin(), m_factoryProperties.end());
 }
 
 const qcc::String& PropertyStoreImpl::GetConfigFileName()
@@ -232,7 +235,7 @@ QStatus PropertyStoreImpl::Delete(const char* name, const char* languageTag)
         }
     }
 
-    propertiesIter = m_PropertiesReadOnly.equal_range(propertyKey);
+    propertiesIter = m_factoryProperties.equal_range(propertyKey);
 
     for (PropertyMap::iterator it = propertiesIter.first; it != propertiesIter.second; it++) {
         const PropertyStoreProperty& property = it->second;
@@ -272,4 +275,103 @@ PropertyStoreKey PropertyStoreImpl::getPropertyStoreKeyFromName(qcc::String cons
         }
     }
     return NUMBER_OF_KEYS;
+}
+
+bool PropertyStoreImpl::FillDeviceNames()
+{
+    std::map<std::string, std::string> data;
+
+    if (!IniParser::ParseFile(m_factoryConfigFileName.c_str(), data)) {
+        std::cerr << "Could not parse configFile" << std::endl;
+        return false;
+    }
+
+    typedef std::map<std::string, std::string>::iterator it_data;
+    for (it_data iterator = data.begin(); iterator != data.end(); iterator++) {
+
+        if (iterator->first.find(AboutPropertyStoreImpl::getPropertyStoreName(DEVICE_NAME).c_str()) == 0) {
+            size_t lastDotLocation = iterator->first.find(".");
+            if ((lastDotLocation ==  std::string::npos) || (lastDotLocation + 1 >= iterator->first.length())) {
+                continue;
+            }
+            std::string language = iterator->first.substr(lastDotLocation + 1);
+            std::string value = iterator->second;
+
+            UpdateFactoryProperty(DEVICE_NAME, language.c_str(), new MsgArg("s", value.c_str()));
+        }
+    }
+
+    return true;
+}
+
+bool PropertyStoreImpl::UpdateFactorySettings()
+{
+    std::map<std::string, std::string> data;
+    if (!IniParser::ParseFile(m_factoryConfigFileName.c_str(), data)) {
+        std::cerr << "Could not parse configFile" << std::endl;
+        return false;
+    }
+
+    std::map<std::string, std::string>::iterator iter;
+
+    iter = data.find(AboutPropertyStoreImpl::getPropertyStoreName(DEVICE_ID).c_str());
+    if (iter != data.end()) {
+        qcc::String deviceId = iter->second.c_str();
+        UpdateFactoryProperty(DEVICE_ID, NULL, new MsgArg("s", deviceId.c_str()));
+    }
+
+    if (!FillDeviceNames()) {
+        return false;
+    }
+
+    iter = data.find(AboutPropertyStoreImpl::getPropertyStoreName(APP_ID).c_str());
+    if (iter != data.end()) {
+        qcc::String appGUID = iter->second.c_str();
+        UpdateFactoryProperty(APP_ID, NULL, new MsgArg("s", appGUID.c_str()));
+    }
+
+    iter = data.find(AboutPropertyStoreImpl::getPropertyStoreName(APP_NAME).c_str());
+    if (iter != data.end()) {
+        qcc::String appName = iter->second.c_str();
+        UpdateFactoryProperty(APP_NAME, NULL, new MsgArg("s", appName.c_str()));
+    }
+
+    iter = data.find(AboutPropertyStoreImpl::getPropertyStoreName(DEFAULT_LANG).c_str());
+    if (iter != data.end()) {
+        qcc::String defaultLanguage = iter->second.c_str();
+        UpdateFactoryProperty(DEFAULT_LANG, NULL, new MsgArg("s", defaultLanguage.c_str()));
+    }
+
+    return true;
+}
+
+
+void PropertyStoreImpl::UpdateFactoryProperty(PropertyStoreKey propertyKey, const char* languageTag, const ajn::MsgArg* value)
+{
+    PropertyStoreProperty* temp = NULL;
+    std::pair<PropertyMap::iterator, PropertyMap::iterator> propertiesIter = m_factoryProperties.equal_range(propertyKey);
+
+    for (PropertyMap::iterator it = propertiesIter.first; it != propertiesIter.second; it++) {
+        const PropertyStoreProperty& property = it->second;
+
+        if ((languageTag == NULL && property.getLanguage().empty()) ||
+            (languageTag != NULL && property.getLanguage().compare(languageTag) == 0)) {
+            temp = new PropertyStoreProperty(property.getPropertyName(), *value, property.getIsPublic(),
+                                             property.getIsWritable(), property.getIsAnnouncable());
+            if (languageTag) {
+                temp->setLanguage(languageTag);
+            }
+            m_factoryProperties.erase(it);
+            break;
+        }
+    }
+
+
+
+    if (temp == NULL) {
+        return;
+    }
+
+    m_factoryProperties.insert(PropertyPair(propertyKey, *temp));
+    delete temp;
 }
