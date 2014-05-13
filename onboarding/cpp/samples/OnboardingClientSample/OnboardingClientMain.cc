@@ -36,8 +36,8 @@
 using namespace ajn;
 using namespace services;
 
-static volatile sig_atomic_t quit;
-static BusAttachment* busAttachment;
+static volatile sig_atomic_t quit = 0;
+static BusAttachment* busAttachment = NULL;
 static std::set<qcc::String> handledAnnouncements;
 
 static void SignalHandler(int sig) {
@@ -83,6 +83,9 @@ void PrintAboutData(AboutClient::AboutData& aboutData)
 void sessionJoinedCallback(qcc::String const& busName, SessionId id)
 {
     QStatus status = ER_OK;
+    if (busAttachment == NULL) {
+        return;
+    }
 
     busAttachment->EnableConcurrentCallbacks();
 
@@ -435,8 +438,6 @@ int main(int argc, char**argv, char**envArg) {
     sigfillset(&waitmask);
     sigdelset(&waitmask, SIGINT);
     sigdelset(&waitmask, SIGTERM);
-
-    quit = 0;
 
     while (!quit) {
         // Wait for a signal.
