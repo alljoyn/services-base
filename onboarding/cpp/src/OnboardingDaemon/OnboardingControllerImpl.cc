@@ -28,7 +28,6 @@
 #include <unistd.h>
 #include <algorithm>
 
-#include <alljoyn/about/AboutServiceApi.h>
 #include <alljoyn/onboarding/OnboardingService.h>
 #include <OnboardingControllerImpl.h>
 #include <alljoyn/AllJoynStd.h>
@@ -189,6 +188,18 @@ void OnboardingControllerImpl::ConfigureWiFi(qcc::String SSID, qcc::String passp
     execute_configure(("'" + SSID + "'").c_str(), authType, ("'" + passphrase + "'").c_str());
 } /* ConfigureWiFi() */
 
+void* OnboardingControllerImpl::OBS_Connect(void* obsArg)
+{
+    OnboardingControllerImpl* obController = (OnboardingControllerImpl*)obsArg;
+    qcc::String connectCmd = obController->m_connectCmd;
+
+    //stopping daemon before connect cmd and restarting it after
+    execute_system("/etc/init.d/alljoyn stop");
+    execute_system(connectCmd.c_str());
+    execute_system("/etc/init.d/alljoyn start");
+
+    return NULL;
+}
 /*------------------------------------------------------------------------------
  * METHOD: Connect()
  * This method is called by the ConnectHandler with the corresponding input and
@@ -199,8 +210,8 @@ void OnboardingControllerImpl::Connect() {
 /* Fill in method handler implementation here. */
     QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
     CancelAdvertise();
-    execute_system(m_connectCmd.c_str());
-    AdvertiseAndAnnounce();
+    pthread_t thread;
+    pthread_create(&thread, NULL, OnboardingControllerImpl::OBS_Connect, this);
 } /* Connect() */
 
 OBAuthType TranslateToOBAuthType(int authNum, GroupCiphers theCiphers)
@@ -452,6 +463,19 @@ void OnboardingControllerImpl::GetScanInfo(unsigned short& age, OBScanInfo*& sca
 
 } /* GetScanInfo() */
 
+void* OnboardingControllerImpl::OBS_Offboard(void* obsArg)
+{
+    OnboardingControllerImpl* obController = (OnboardingControllerImpl*)obsArg;
+    qcc::String offboardCmd = obController->m_offboardCmd;
+
+    //stopping daemon before offboard cmd and restarting it after
+    execute_system("/etc/init.d/alljoyn stop");
+    execute_system(offboardCmd.c_str());
+    execute_system("/etc/init.d/alljoyn start");
+
+    return NULL;
+}
+
 /*------------------------------------------------------------------------------
  * METHOD: Offboard()
  * This method is called by the OffboardHandler with the corresponding input and
@@ -462,9 +486,8 @@ void OnboardingControllerImpl::Offboard()
 {
     QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
     CancelAdvertise();
-    execute_system(m_offboardCmd.c_str());
-    AdvertiseAndAnnounce();
-
+    pthread_t thread;
+    pthread_create(&thread, NULL, OnboardingControllerImpl::OBS_Offboard, this);
 } /* Offboard() */
 
 short OnboardingControllerImpl::GetState()
@@ -518,22 +541,6 @@ void OnboardingControllerImpl::CancelAdvertise()
     if (m_BusAttachment->IsConnected() && m_BusAttachment->GetUniqueName().size() > 0) {
         QStatus status = m_BusAttachment->CancelAdvertiseName(m_BusAttachment->GetUniqueName().c_str(), TRANSPORT_ANY);
         QCC_DbgHLPrintf(("CancelAdvertiseName for %s = %s", m_BusAttachment->GetUniqueName().c_str(), QCC_StatusText(status)));
-    }
-}
-
-void OnboardingControllerImpl::AdvertiseAndAnnounce()
-{
-    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
-    m_BusAttachment->EnableConcurrentCallbacks();
-    if (m_BusAttachment->IsConnected() && m_BusAttachment->GetUniqueName().size() > 0) {
-        QStatus status = m_BusAttachment->AdvertiseName(m_BusAttachment->GetUniqueName().c_str(), TRANSPORT_ANY);
-        QCC_DbgHLPrintf(("AdvertiseName for %s = %s", m_BusAttachment->GetUniqueName().c_str(), QCC_StatusText(status)));
-    }
-
-    AboutServiceApi* aboutService = AboutServiceApi::getInstance();
-    if (aboutService) {
-        QStatus status = aboutService->Announce();
-        QCC_DbgHLPrintf(("Announce for %s = %s", m_BusAttachment->GetUniqueName().c_str(), QCC_StatusText(status)));
     }
 }
 
