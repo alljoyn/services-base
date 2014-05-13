@@ -417,6 +417,7 @@
 					"\"$(ALLJOYN_SDK_ROOT)/alljoyn_objc/AllJoynFramework/AllJoynFramework/\"",
 					"$(BUILT_PRODUCTS_DIR)/inc/**",
 					"\"$(ALLJOYN_SDK_ROOT)/services/about/ios/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/services/about/cpp/inc\"",
 				);
 				INFOPLIST_FILE = "ConfigService/ConfigService-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -439,6 +440,7 @@
 				);
 				PRODUCT_NAME = ConfigService;
 				PROVISIONING_PROFILE = "";
+				VALID_ARCHS = "armv7 armv7s";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -465,6 +467,7 @@
 					"\"$(ALLJOYN_SDK_ROOT)/alljoyn_objc/AllJoynFramework/AllJoynFramework/\"",
 					"$(BUILT_PRODUCTS_DIR)/inc/**",
 					"\"$(ALLJOYN_SDK_ROOT)/services/about/ios/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/services/about/cpp/inc\"",
 				);
 				INFOPLIST_FILE = "ConfigService/ConfigService-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -488,6 +491,7 @@
 				);
 				PRODUCT_NAME = ConfigService;
 				PROVISIONING_PROFILE = "";
+				VALID_ARCHS = "armv7 armv7s";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

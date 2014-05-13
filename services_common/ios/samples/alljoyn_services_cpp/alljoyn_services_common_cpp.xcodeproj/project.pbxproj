@@ -7,10 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		9AB3A6BE189E7E0100F152F7 /* Conversions.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9AB3A6BC189E7E0100F152F7 /* Conversions.cc */; };
 		9AB3A6BF189E7E0100F152F7 /* AsyncTaskQueue.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9AB3A6BD189E7E0100F152F7 /* AsyncTaskQueue.cc */; };
 		9AB3A6C0189E7E1400F152F7 /* AsyncTaskQueue.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9AB3A6BB189E7DF800F152F7 /* AsyncTaskQueue.h */; };
-		9AB3A6C1189E7E1700F152F7 /* Conversions.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9AB3A6BA189E7DF800F152F7 /* Conversions.h */; };
 		9AB3A6C2189E7E1A00F152F7 /* ServicesCommonConstants.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9AB3A6B9189E7DF800F152F7 /* ServicesCommonConstants.h */; };
 		9AB9CDD618547B37004660C5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AB9CDD518547B37004660C5 /* Foundation.framework */; };
 /* End PBXBuildFile section */
@@ -23,7 +21,6 @@
 			dstSubfolderSpec = 16;
 			files = (
 				9AB3A6C0189E7E1400F152F7 /* AsyncTaskQueue.h in CopyFiles */,
-				9AB3A6C1189E7E1700F152F7 /* Conversions.h in CopyFiles */,
 				9AB3A6C2189E7E1A00F152F7 /* ServicesCommonConstants.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -32,9 +29,7 @@
 
 /* Begin PBXFileReference section */
 		9AB3A6B9189E7DF800F152F7 /* ServicesCommonConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServicesCommonConstants.h; sourceTree = "<group>"; };
-		9AB3A6BA189E7DF800F152F7 /* Conversions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Conversions.h; sourceTree = "<group>"; };
 		9AB3A6BB189E7DF800F152F7 /* AsyncTaskQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AsyncTaskQueue.h; sourceTree = "<group>"; };
-		9AB3A6BC189E7E0100F152F7 /* Conversions.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Conversions.cc; sourceTree = "<group>"; };
 		9AB3A6BD189E7E0100F152F7 /* AsyncTaskQueue.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AsyncTaskQueue.cc; sourceTree = "<group>"; };
 		9AB9CDD218547B37004660C5 /* liballjoyn_services_common_cpp.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liballjoyn_services_common_cpp.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AB9CDD518547B37004660C5 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -93,7 +88,6 @@
 			isa = PBXGroup;
 			children = (
 				9AB3A6B9189E7DF800F152F7 /* ServicesCommonConstants.h */,
-				9AB3A6BA189E7DF800F152F7 /* Conversions.h */,
 				9AB3A6BB189E7DF800F152F7 /* AsyncTaskQueue.h */,
 			);
 			path = services_common;
@@ -102,7 +96,6 @@
 		9A7351EF188D692A00717424 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				9AB3A6BC189E7E0100F152F7 /* Conversions.cc */,
 				9AB3A6BD189E7E0100F152F7 /* AsyncTaskQueue.cc */,
 			);
 			name = src;
@@ -204,7 +197,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9AB3A6BE189E7E0100F152F7 /* Conversions.cc in Sources */,
 				9AB3A6BF189E7E0100F152F7 /* AsyncTaskQueue.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
