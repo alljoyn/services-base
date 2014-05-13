@@ -115,7 +115,18 @@ class HandleOnboardingSignals : public ajn::MessageReceiver, public AsyncTask {
     OnboardingClientListener* m_userListener;
     AsyncTaskQueue* m_asyncTaskQueue;
 
+    /**
+     * Copy constructor of HandleOnboardingSignals - private. HandleOnboardingSignals is not copy-able
+     * @param handler - HandleOnboardingSignals to copy
+     */
+    HandleOnboardingSignals(const HandleOnboardingSignals& handler);
 
+    /**
+     * Assignment operator of HandleOnboardingSignals - private. HandleOnboardingSignals is not assignable
+     * @param handler
+     * @return HandleOnboardingSignals
+     */
+    HandleOnboardingSignals& operator=(const HandleOnboardingSignals& handler);
 };
 
 

@@ -21,7 +21,7 @@ using namespace ajn::services;
 
 
 HandleOnboardingSignals::HandleOnboardingSignals(BusAttachment* bus, OnboardingClientListener* listener) :
-    m_bus(bus), m_userListener(listener)
+    m_bus(bus), m_userListener(listener), m_asyncTaskQueue(NULL)
 {
     QCC_DbgTrace(("ConnectionResultHandler::%s", __FUNCTION__));
 }
