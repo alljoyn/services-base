@@ -32,6 +32,16 @@ HandleOnboardingSignals::~HandleOnboardingSignals()
     delete m_asyncTaskQueue;
 }
 
+HandleOnboardingSignals::HandleOnboardingSignals(const HandleOnboardingSignals& handler) :
+    m_bus(NULL), m_userListener(NULL), m_asyncTaskQueue(NULL)
+{
+}
+
+HandleOnboardingSignals& HandleOnboardingSignals::operator=(const HandleOnboardingSignals& handler)
+{
+    return *this;
+}
+
 QStatus HandleOnboardingSignals::RegisterConnectionResultSignalHandler(const ajn::InterfaceDescription::Member* connectionResultSignalMethod)
 {
     // the incoming signals are placed in a queue so that the alljoyn thread
