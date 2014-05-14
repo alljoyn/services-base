@@ -327,7 +327,6 @@ public class DeviceListFragment extends ListFragment {
 
 		public static final int CONNECT = 1;
 		public static final int DISCONNECT = 2;
-		private static final String SESSIONLESS_MATCH_RULE = "sessionless='t',type='error'";
 		
 		public AsyncHandler(Looper looper) {
 			super(looper);
@@ -437,9 +436,6 @@ public class DeviceListFragment extends ListFragment {
 				Log.e(TAG, "Unable to start ControlPanelService, Error: " + e.getMessage());
 			}
 		    
-			// DO the AJ addMatch.
-			Status s = bus.addMatch(SESSIONLESS_MATCH_RULE);
-			logger.info(TAG, "BusAttachment.addMatch() status = " + s);
 			Toast.makeText(getActivity(), "Initialized" , Toast.LENGTH_SHORT).show();
 
 			// update the list
