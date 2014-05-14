@@ -53,20 +53,22 @@ public class ReceiverTransport implements AnnouncementHandler {
 	 */
 	private NativePlatform nativePlatform;
 
+	private static final String SESSION_LESS_RULE           = "sessionless='t'";
+	
 	/**
 	 * addMatch rule to receive {@link NotificationTransport} session-less-signals 
 	 */
-	private static final String NOTIF_TRANS_MATCH_RULE      = "type='signal',interface='" + NotificationTransport.IF_NAME + "'";
+	private static final String NOTIF_TRANS_MATCH_RULE      = "type='signal',interface='" + NotificationTransport.IF_NAME + "'," + SESSION_LESS_RULE;
 
 	/**
 	 * addMatch rule to receive {@link NotificationTransportSuperAgent} session-less-signals
 	 */
-	private static final String SUPER_AGENT_MATCH_RULE      = "type='signal',interface='" + NotificationTransportSuperAgent.IF_NAME + "'";
+	private static final String SUPER_AGENT_MATCH_RULE      = "type='signal',interface='" + NotificationTransportSuperAgent.IF_NAME + "'," + SESSION_LESS_RULE;
 	
 	/**
 	 * addMatch rule to receive {@link NotificationDismisser} session-less-signals
 	 */
-	private static final String DISMISSER_MATCH_RULE        = "type='signal',interface='" + NotificationDismisser.IF_NAME + "'";
+	private static final String DISMISSER_MATCH_RULE        = "type='signal',interface='" + NotificationDismisser.IF_NAME + "'," + SESSION_LESS_RULE;
 	
 	/**
 	 * addMatch rule to receive session-less-signals from a specific SuperAgent identified by the superAgentSenderName
@@ -153,10 +155,29 @@ public class ReceiverTransport implements AnnouncementHandler {
 		
 		logger.debug(TAG, "Starting receiver transport");
 		
-		isSuperAgentFound       = new AtomicBoolean(false);
+		//Register to receive Notification signals directly from Producers
+		//Additionally calls AddMatch(NOTIF_SLS_BASIC_RULE)
+		registerReceivingProducerNotifications();
+
+		//Register to receive Dismiss signals
+		dismissSignalHandler      = new DismissConsumer();
+		boolean regDismissHandler = registerDismissSignalHandler(dismissSignalHandler);
+		
+		if ( !regDismissHandler ) {
+			logger.error(TAG, "Failed to register Dismiss signal handler");
+			throw new NotificationServiceException("Failed to register Dismiss signal handler");
+		}
+				
+		//Add match to receive notification signals from producers
+		addMatchRule(NOTIF_TRANS_MATCH_RULE);
+		
+		//Add Match rule to receive dismiss signals
+		addMatchRule(DISMISSER_MATCH_RULE);
+		
+		isSuperAgentFound = new AtomicBoolean(false);
 		
 		if ( isNeedSearchSA ) {
-			logger.debug(TAG, "Need to search for SuperAgent, register SuperAgent signal receiver, announcement receiver and then Producer signal receiver");
+			logger.debug(TAG, "Need to search for SuperAgent, register SuperAgent signal receiver and announcement receiver");
 
 			superAgentSenderName = "";
 			
@@ -168,9 +189,6 @@ public class ReceiverTransport implements AnnouncementHandler {
 				logger.error(TAG, "Failed to register a SuperAgent signal handler");
 				throw new NotificationServiceException("Failed to register a SuperAgent signal handler");
 			}
-			
-			// Add SuperAgent match rule, this allows to receive Notification signals from all the SuperAgents in proximity
-			addMatchRule(SUPER_AGENT_MATCH_RULE);
 			
 			//Check whether About service is running in the client mode,
 			// then registers to receive Announcements
@@ -184,23 +202,10 @@ public class ReceiverTransport implements AnnouncementHandler {
 			//Register to receive announcements from SA
 			logger.debug(TAG, "Registering AnnouncementReceiver");
 			aboutService.addAnnouncementHandler(this);
+			
+			//Add SuperAgent match rule, this allows to receive Notification signals from all the SuperAgents in proximity
+		    addMatchRule(SUPER_AGENT_MATCH_RULE);
 		}//if :: isNeedSearchSA
-		
-		//Register to receive Dismiss signals
-		dismissSignalHandler      = new DismissConsumer();
-		boolean regDismissHandler = registerDismissSignalHandler(dismissSignalHandler);
-		
-		if ( !regDismissHandler ) {
-			logger.error(TAG, "Failed to register Dismiss signal handler");
-			throw new NotificationServiceException("Failed to register Dismiss signal handler");
-		}
-		
-		//Add Match rule to receive dismiss signals
-		addMatchRule(DISMISSER_MATCH_RULE);
-		
-		//Register to receive Notification signals directly from Producers
-		//Additionally calls AddMatch(NOTIF_SLS_BASIC_RULE)
-		registerReceivingProducerNotifications();
 		
 	}//startReceiverTransp
 	
@@ -360,7 +365,7 @@ public class ReceiverTransport implements AnnouncementHandler {
 	 * 2. remove existing match rule
 	 * 3. add match rule only of this SuperAgent 
 	 */
-	public void onReceivedFirstSuperAgentNotification(String superAgentSenderName) {
+	public synchronized void onReceivedFirstSuperAgentNotification(String superAgentSenderName) {
 		
 		GenericLogger logger 		= nativePlatform.getNativeLogger();
 		BusAttachment busAttachment = Transport.getInstance().getBusAttachment();
@@ -399,10 +404,10 @@ public class ReceiverTransport implements AnnouncementHandler {
 		
 		this.superAgentSenderName = superAgentSenderName; 
 		
-		logger.debug(TAG, "Unregister fromProducer signal handler");
+		logger.debug(TAG, "Unregister from Producer signal handler");
 		busAttachment.unregisterSignalHandler(fromProducerChannel, getNotificationConsumerSignalMethod());
 		
-		logger.debug(TAG, "Unregister fromProducer bus object");
+		logger.debug(TAG, "Unregister from Producer bus object");
 		busAttachment.unregisterBusObject(fromProducerChannel);
 		fromProducerChannel = null;
 	}//onReceivedFirstSuperAgentNotification
@@ -425,7 +430,9 @@ public class ReceiverTransport implements AnnouncementHandler {
 		
 		//Register signal handler to receive Notifications directly from consumers
 		try {
+			
 			registerReceivingProducerNotifications();
+			addMatchRule(NOTIF_TRANS_MATCH_RULE);
 		} catch (NotificationServiceException nse) {
 			logger.error(TAG, "Failed to register receiving Notifications back directly from Producers, Error: '" + nse.getMessage() + "'");
 			return;
@@ -468,7 +475,6 @@ public class ReceiverTransport implements AnnouncementHandler {
 			throw new NotificationServiceException("Failed to register a Producer signal handler");
 		}
 		
-		addMatchRule(NOTIF_TRANS_MATCH_RULE);
 	}//regReceivingProducerNotifications
 	
 	/**
@@ -543,6 +549,8 @@ public class ReceiverTransport implements AnnouncementHandler {
 			logger.error(TAG, "Failed to call AddMatch rule: '" + rule + "', Error: '" + status + "'");
 			throw new NotificationServiceException("Failed to call AddMatch rule: '" + rule + "', Error: '" + status + "'");
 		}
+		
+		logger.debug(TAG, "Status from AddMatch rule: '" + rule + "', status: '" + status + "'");
 	}//addMathcRule
 
 	/**

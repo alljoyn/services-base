@@ -275,7 +275,6 @@ public class IoeNotificationApplication extends Application implements Notificat
 			aboutService.startAboutClient(bus);
 			
 			notificationService.initReceive(bus, this);
-			bus.addMatch("sessionless='t',type='error'");
 			isReceiverStarted = true;
 			
 		} catch (NotificationServiceException nse) {
