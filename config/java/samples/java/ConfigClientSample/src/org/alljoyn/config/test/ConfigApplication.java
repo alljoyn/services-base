@@ -69,7 +69,6 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
 
     public static final String TAG = "ConfigClient";
     public static final String TAG_PASSWORD = "ConfigApplication_password";
-    private static final String SESSIONLESS_MATCH_RULE = "sessionless='t',type='error'";
 
     private BusAttachment busAttachment;
     private HashMap<UUID, Device> devicesMap;
@@ -353,10 +352,6 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
                 Log.d(TAG, "Failed to register Auth listener status = " + authStatus.toString());
             }
         }
-
-        // Create the AJ addMatch.
-        Status s = busAttachment.addMatch(SESSIONLESS_MATCH_RULE);
-        Log.i(TAG, "BusAttachment.addMatch() status = " + s);
     }
 
     /**
