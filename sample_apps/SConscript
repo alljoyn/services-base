@@ -40,28 +40,28 @@ else:
 if not env.has_key('_ALLJOYN_ABOUT_') and os.path.exists('../../../core/alljoyn/services/about/SConscript'):
     env.SConscript('../../../core/alljoyn/services/about/SConscript')
 
-if not env.has_key('_ALLJOYN_SERVICES_COMMON_') and os.path.exists('../../../services/base/services_common/SConscript'):
-    env.SConscript('../../../services/base/services_common/SConscript')
+if not env.has_key('_ALLJOYN_SERVICES_COMMON_') and os.path.exists('../services_common/SConscript'):
+    env.SConscript('../services_common/SConscript')
 
 if build_config:
     env.Append(CPPDEFINES = '_CONFIG_')
-    if not env.has_key('_ALLJOYN_CONFIG_') and os.path.exists('../../../services/base/config/SConscript'):
-        env.SConscript('../../../services/base/config/SConscript')
+    if not env.has_key('_ALLJOYN_CONFIG_') and os.path.exists('../config/SConscript'):
+        env.SConscript('../config/SConscript')
 
 if build_notification:
     env.Append(CPPDEFINES = '_NOTIFICATION_')
-    if not env.has_key('_ALLJOYN_NOTIFICATION_') and os.path.exists('../../../services/base/notification/SConscript'):
-        env.SConscript('../../../services/base/notification/SConscript')
+    if not env.has_key('_ALLJOYN_NOTIFICATION_') and os.path.exists('../notification/SConscript'):
+        env.SConscript('../notification/SConscript')
 
 if build_cps:
     env.Append(CPPDEFINES = '_CONTROLPANEL_')
-    if not env.has_key('_ALLJOYN_CONTROLPANEL_') and os.path.exists('../../../services/base/controlpanel/SConscript'):
-        env.SConscript('../../../services/base/controlpanel/SConscript')
+    if not env.has_key('_ALLJOYN_CONTROLPANEL_') and os.path.exists('../controlpanel/SConscript'):
+        env.SConscript('../controlpanel/SConscript')
 
 if build_onboarding:
     env.Append(CPPDEFINES = '_ONBOARDING_')
-    if not env.has_key('_ALLJOYN_ONBOARDING_') and os.path.exists('../../../services/base/onboarding/SConscript'):
-        env.SConscript('../../../services/base/onboarding/SConscript')
+    if not env.has_key('_ALLJOYN_ONBOARDING_') and os.path.exists('../onboarding/SConscript'):
+        env.SConscript('../onboarding/SConscript')
 
 if 'cpp' in env['bindings'] and not env.has_key('_ALLJOYNCORE_') and os.path.exists('../../../core/alljoyn/alljoyn_core/SConscript'):
     env.SConscript('../../../core/alljoyn/alljoyn_core/SConscript')
