@@ -66,11 +66,6 @@ public class ProtocolManager implements AnnouncementHandler {
     List<Device> deviceList;
 
     /**
-     * The session less match rule to be used by the bus attachment.
-     */
-    private static final String SESSIONLESS_MATCH_RULE = "sessionless='t',type='error'";
-
-    /**
      * Unique prefix indicated that this daemon will be advertised quietly.
      */
     private static final String DAEMON_QUIET_PREFIX = "quiet@";
@@ -229,8 +224,8 @@ public class ProtocolManager implements AnnouncementHandler {
 
 
     /**
-     * Creates new busAttachment, connect, register authListener and add
-     * addMatch rule to it. Starts about service. Update the OnboardingManager with
+     * Creates new busAttachment, connect and register authListener.
+     * Starts about service. Update the OnboardingManager with
      * the new busAttachment aboutClient objects.
      */
     public void connectToBus() {
@@ -307,8 +302,6 @@ public class ProtocolManager implements AnnouncementHandler {
             e.printStackTrace();
         }
 
-        // DO the AJ addMatch after all AnnouncementHandlers was added.
-        busAttachment.addMatch(SESSIONLESS_MATCH_RULE);
         Log.i(TAG, " connectToBus Done");
     }
 
@@ -324,7 +317,6 @@ public class ProtocolManager implements AnnouncementHandler {
          */
         try {
             if (busAttachment != null && busAttachment.isConnected()) {
-                busAttachment.removeMatch(SESSIONLESS_MATCH_RULE);
                 if (aboutService != null) {
                     aboutService.stopAboutClient();
                 }
