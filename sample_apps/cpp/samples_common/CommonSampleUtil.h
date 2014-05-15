@@ -22,6 +22,8 @@
 #include <alljoyn/about/AboutPropertyStoreImpl.h>
 #include "CommonBusListener.h"
 
+typedef std::map<qcc::String, qcc::String> DeviceNamesType;
+
 /**
  * Util class that creates a busAttachment, starts it and connects it
  */
@@ -41,12 +43,12 @@ class CommonSampleUtil {
      * @param appIdHex
      * @param appName
      * @param deviceId
-     * @param deviceName
+     * @param deviceNames
      * @param defaultLanguage
      * @return the property store created. NULL if failed
      */
     static QStatus fillPropertyStore(ajn::services::AboutPropertyStoreImpl* propertyStore, qcc::String const& appIdHex,
-                                     qcc::String const& appName, qcc::String const& deviceId, qcc::String const& deviceName,
+                                     qcc::String const& appName, qcc::String const& deviceId, DeviceNamesType const& deviceNames,
                                      qcc::String const& defaultLanguage = "en");
 
     /**

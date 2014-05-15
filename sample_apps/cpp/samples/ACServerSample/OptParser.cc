@@ -30,7 +30,6 @@ OptParser::OptParser(int argc, char** argv) :
     concurrency = 0;
     GuidUtil::GetInstance()->GetDeviceIdString(&deviceId);
     GuidUtil::GetInstance()->GenerateGUID(&appGUID);
-    deviceName.assign("MyDeviceName");
     defaultLanguage.assign("en");
     factoryConfigFile.assign("FactoryACServerSample.conf");
     configFile.assign("ACServerSample.conf");
@@ -64,8 +63,8 @@ qcc::String const& OptParser::GetDeviceId() const {
     return deviceId;
 }
 
-qcc::String const& OptParser::GetDeviceName() const {
-    return deviceName;
+DeviceNamesType const& OptParser::GetDeviceNames() const {
+    return deviceNames;
 }
 
 qcc::String const& OptParser::GetDefaultLanguage() const {
@@ -104,6 +103,32 @@ qcc::String const& OptParser::GetOffboardCmd() const {
     return offboardCmd;
 }
 
+bool OptParser::FillDeviceNames() {
+    deviceNames.clear();
+    std::map<std::string, std::string> data;
+
+    if (!IniParser::ParseFile(configFile.c_str(), data)) {
+        std::cerr << "Could not parse configFile" << std::endl;
+        return false;
+    }
+
+    typedef std::map<std::string, std::string>::iterator it_data;
+    for (it_data iterator = data.begin(); iterator != data.end(); iterator++) {
+
+
+        if (iterator->first.find(AboutPropertyStoreImpl::getPropertyStoreName(DEVICE_NAME).c_str()) == 0) {
+            size_t lastDotLocation = iterator->first.find(".");
+            if ((lastDotLocation ==  std::string::npos) || (lastDotLocation + 1 >= iterator->first.length())) {
+                continue;
+            }
+            std::string key = iterator->first.substr(lastDotLocation + 1);
+            deviceNames.insert(std::pair<qcc::String, qcc::String>(key.c_str(), iterator->second.c_str()));
+        }
+    }
+
+    return true;
+}
+
 bool OptParser::ParseExternalXML() {
     std::map<std::string, std::string> data;
     if (!IniParser::ParseFile(configFile.c_str(), data)) {
@@ -118,9 +143,8 @@ bool OptParser::ParseExternalXML() {
         deviceId = iter->second.c_str();
     }
 
-    iter = data.find(AboutPropertyStoreImpl::getPropertyStoreName(DEVICE_NAME).c_str());
-    if (iter != data.end()) {
-        deviceName = iter->second.c_str();
+    if (!FillDeviceNames()) {
+        return false;
     }
 
     iter = data.find(AboutPropertyStoreImpl::getPropertyStoreName(APP_ID).c_str());
@@ -175,7 +199,7 @@ void OptParser::PrintUsage() {
     qcc::String cmd = argv[0];
     cmd = cmd.substr(cmd.find_last_of('/') + 1);
 
-    fprintf(stderr, "%s [--port=PORT  | --config-file=FILE | --language=LANG |  --deviceId=DEVICEID | --appId=APPID | --deviceName=DEVICENAME"
+    fprintf(stderr, "%s [--port=PORT  | --config-file=FILE | --language=LANG |  --deviceId=DEVICEID | --appId=APPID"
             "]\n"
 
             "    --port=\n"
@@ -186,8 +210,6 @@ void OptParser::PrintUsage() {
             "        Active configuration file that persists user's updates\n\n"
             "    --deviceId\n"
             "        Use the specified DeviceID.\n\n"
-            "    --deviceName\n"
-            "        Use the specified DeviceName.\n\n"
             "    --appId=\n"
             "        Use the specified it is HexString of 16 bytes (32 chars) \n\n"
             "    --language=\n"
@@ -227,8 +249,6 @@ OptParser::ParseResultCode OptParser::ParseResult() {
             port = atoi(arg.substr(sizeof("--port")).c_str());
         } else if (arg.compare(0, sizeof("--deviceId") - 1, "--deviceId") == 0) {
             deviceId = arg.substr(sizeof("--deviceId"));
-        } else if (arg.compare(0, sizeof("--deviceName") - 1, "--deviceName") == 0) {
-            deviceName = arg.substr(sizeof("--deviceName"));
         } else if (arg.compare(0, sizeof("--appId") - 1, "--appId") == 0) {
             appGUID = arg.substr(sizeof("--appId"));
             if ((appGUID.length() != 32) || (!IsAllHex(appGUID.c_str()))) {

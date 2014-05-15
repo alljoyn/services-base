@@ -135,7 +135,7 @@ QStatus PropertyStoreImpl::Update(const char* name, const char* languageTag, con
         return ER_FEATURE_NOT_AVAILABLE;
     }
 
-    if (propertyKey == DEFAULT_LANG || propertyKey == DEVICE_NAME) {
+    if (propertyKey == DEFAULT_LANG) {
         languageTag = NULL;
     }
 
@@ -177,7 +177,7 @@ QStatus PropertyStoreImpl::Update(const char* name, const char* languageTag, con
 
     m_Properties.insert(PropertyPair(propertyKey, *temp));
 
-    if (persistUpdate(temp->getPropertyName().c_str(), value->v_string.str)) {
+    if (persistUpdate(temp->getPropertyName().c_str(), value->v_string.str, languageTag)) {
         AboutService* aboutService = AboutServiceApi::getInstance();
         if (aboutService) {
             aboutService->Announce();
@@ -202,7 +202,7 @@ QStatus PropertyStoreImpl::Delete(const char* name, const char* languageTag)
         return ER_FEATURE_NOT_AVAILABLE;
     }
 
-    if (propertyKey == DEFAULT_LANG || propertyKey == DEVICE_NAME) {
+    if (propertyKey == DEFAULT_LANG) {
         languageTag = NULL;
     }
 
@@ -246,7 +246,7 @@ QStatus PropertyStoreImpl::Delete(const char* name, const char* languageTag)
                 m_Properties.insert(PropertyPair(it->first, it->second));
                 char* value;
                 it->second.getPropertyValue().Get("s", &value);
-                if (persistUpdate(it->second.getPropertyName().c_str(), value)) {
+                if (persistUpdate(it->second.getPropertyName().c_str(), value, languageTag)) {
                     AboutService* aboutService = AboutServiceApi::getInstance();
                     if (aboutService) {
                         aboutService->Announce();
@@ -260,10 +260,16 @@ QStatus PropertyStoreImpl::Delete(const char* name, const char* languageTag)
     return ER_INVALID_VALUE;
 }
 
-bool PropertyStoreImpl::persistUpdate(const char* key, const char* value)
+bool PropertyStoreImpl::persistUpdate(const char* key, const char* value, const char* languageTag)
 {
     std::map<std::string, std::string> data;
-    data[key] = value;
+    std::string skey(key);
+    if (languageTag && languageTag[0]) {
+        skey.append(".");
+        skey.append(languageTag);
+    }
+
+    data[skey] = value;
     return IniParser::UpdateFile(m_configFileName.c_str(), data);
 }
 
