@@ -142,13 +142,13 @@ QStatus PropertyStoreImpl::Update(const char* name, const char* languageTag, con
     QStatus status = ER_OK;
     if (languageTag == NULL) {
         return ER_INVALID_VALUE;
-    } else if (languageTag[0] == 0)   {
+    } else if (languageTag[0] == 0) {
         PropertyMap::iterator it = m_Properties.find(DEFAULT_LANG);
         if (it == m_Properties.end()) {
             return ER_LANGUAGE_NOT_SUPPORTED;
         }
         status = it->second.getPropertyValue().Get("s", &languageTag);
-    } else   {
+    } else {
         status = isLanguageSupported(languageTag);
         if  (status != ER_OK) {
             return status;
@@ -223,13 +223,13 @@ QStatus PropertyStoreImpl::Delete(const char* name, const char* languageTag)
     QStatus status = ER_OK;
     if (languageTag == NULL) {
         return ER_INVALID_VALUE;
-    } else if (languageTag[0] == 0)   {
+    } else if (languageTag[0] == 0) {
         PropertyMap::iterator it = m_Properties.find(DEFAULT_LANG);
         if (it == m_Properties.end()) {
             return ER_LANGUAGE_NOT_SUPPORTED;
         }
         status = it->second.getPropertyValue().Get("s", &languageTag);
-    } else   {
+    } else {
         status = isLanguageSupported(languageTag);
         if  (status != ER_OK) {
             return status;
