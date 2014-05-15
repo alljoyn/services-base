@@ -135,13 +135,31 @@ QStatus PropertyStoreImpl::Update(const char* name, const char* languageTag, con
         return ER_FEATURE_NOT_AVAILABLE;
     }
 
-    if (propertyKey == DEFAULT_LANG) {
-        languageTag = NULL;
+    // check the languageTag
+    // case languageTag == NULL: is not a valid value for the languageTag
+    // case languageTag == "": use the default language
+    // case languageTag == string: check value, must be one of the supported languages
+    QStatus status = ER_OK;
+    if (languageTag == NULL) {
+        return ER_INVALID_VALUE;
+    } else if (languageTag[0] == 0)   {
+        PropertyMap::iterator it = m_Properties.find(DEFAULT_LANG);
+        if (it == m_Properties.end()) {
+            return ER_LANGUAGE_NOT_SUPPORTED;
+        }
+        status = it->second.getPropertyValue().Get("s", &languageTag);
+    } else   {
+        status = isLanguageSupported(languageTag);
+        if  (status != ER_OK) {
+            return status;
+        }
     }
 
-    QStatus status = ER_OK;
-    if (languageTag != NULL) {         // check that the language is in the supported languages;
-        CHECK_RETURN(isLanguageSupported(languageTag))
+    // Special case DEFAULT_LANG is not associated with a language in the PropertyMap and
+    // its only valid languageTag = NULL
+    // By setting it here, we to let the user follow the same language rules as any other property
+    if (propertyKey == DEFAULT_LANG) {
+        languageTag = NULL;
     }
 
     //validate that the value is acceptable
@@ -202,13 +220,24 @@ QStatus PropertyStoreImpl::Delete(const char* name, const char* languageTag)
         return ER_FEATURE_NOT_AVAILABLE;
     }
 
-    if (propertyKey == DEFAULT_LANG) {
-        languageTag = NULL;
+    QStatus status = ER_OK;
+    if (languageTag == NULL) {
+        return ER_INVALID_VALUE;
+    } else if (languageTag[0] == 0)   {
+        PropertyMap::iterator it = m_Properties.find(DEFAULT_LANG);
+        if (it == m_Properties.end()) {
+            return ER_LANGUAGE_NOT_SUPPORTED;
+        }
+        status = it->second.getPropertyValue().Get("s", &languageTag);
+    } else   {
+        status = isLanguageSupported(languageTag);
+        if  (status != ER_OK) {
+            return status;
+        }
     }
 
-    QStatus status = ER_OK;
-    if (languageTag != NULL) {         // check that the language is in the supported languages;
-        CHECK_RETURN(isLanguageSupported(languageTag))
+    if (propertyKey == DEFAULT_LANG) {
+        languageTag = NULL;
     }
 
     bool deleted = false;
