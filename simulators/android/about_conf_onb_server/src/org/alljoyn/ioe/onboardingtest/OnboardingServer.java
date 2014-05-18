@@ -57,8 +57,7 @@ import android.util.Log;
  * The OnboardingServer is a board simulator written for Android.
  * It acts as a board supporting the following AllJoyn services: Onboarding, About, Config
  */
-public class OnboardingServer extends Service implements AuthPasswordHandler, SetPasswordHandler
-{
+public class OnboardingServer extends Service implements AuthPasswordHandler, SetPasswordHandler, OnboardingServerCallback {
     private static final String TAG = "ioe" + OnboardingServer.class.getSimpleName();
 
     // Reference to the AllJoyn bus
@@ -112,6 +111,9 @@ public class OnboardingServer extends Service implements AuthPasswordHandler, Se
         busThread.start();
         m_asyncHandler = new AsyncHandler(busThread.getLooper());
 
+        m_onboardingService = OnboardingServiceImpl.getInstance();
+        ((OnboardingServiceImpl) m_onboardingService).init(this, this);
+
         // initialize the state machine
         m_asyncHandler.sendEmptyMessage(AsyncHandler.CONNECT);
     }
@@ -140,6 +142,17 @@ public class OnboardingServer extends Service implements AuthPasswordHandler, Se
 
         super.onDestroy();
 
+    }
+
+    @Override
+    public void connect() {
+        m_asyncHandler.sendEmptyMessage(AsyncHandler.CONNECT);
+
+    }
+
+    @Override
+    public void disconnect() {
+        m_asyncHandler.sendEmptyMessage(AsyncHandler.DISCONNECT);
     }
 
     /**
@@ -255,9 +268,11 @@ public class OnboardingServer extends Service implements AuthPasswordHandler, Se
 
 
             // initialize OnboardingService
-            // it will let clients onboard/offboard this board with the home network
-            m_onboardingService = OnboardingServiceImpl.getInstance();
-            ((OnboardingServiceImpl) m_onboardingService).initContext(OnboardingServer.this);
+            // it will let clients onboard/offboard this board with the home
+            // network
+            // m_onboardingService = OnboardingServiceImpl.getInstance();
+            // ((OnboardingServiceImpl)
+            // m_onboardingService).initContext(OnboardingServer.this);
             try{
                 m_onboardingService.startOnboardingServer(m_bus);
             }

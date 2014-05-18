@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.alljoyn.about.AboutServiceImpl;
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.BusObject;
@@ -30,6 +29,7 @@ import org.alljoyn.bus.ErrorReplyBusException;
 import org.alljoyn.bus.SignalEmitter;
 import org.alljoyn.bus.Status;
 import org.alljoyn.bus.annotation.BusSignal;
+import org.alljoyn.ioe.onboardingtest.OnboardingServerCallback;
 import org.alljoyn.onboarding.client.OnboardingClient;
 import org.alljoyn.onboarding.client.OnboardingClientImpl;
 import org.alljoyn.onboarding.transport.ConnectionResultAJ;
@@ -109,6 +109,8 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
     // Context.. for Android necessities like WiFi manager, Preferences.
     private Context m_context;
 
+    private OnboardingServerCallback m_OnboardingServerCallback;
+
     // the personal AP id in Android list of networks
     private int m_networkId;
 
@@ -172,14 +174,13 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
 
     /**
      * Pass application context. Required for accessing Android WiFi manager
+     *
      * @param context
      */
-    public void initContext(Context context)
-    {
-        if (m_context == null)
-        {
+    public void init(Context context, OnboardingServerCallback callback) {
+        m_OnboardingServerCallback = callback;
             m_context = context;
-        }
+
     }
 
     // ------------------------  Client ------------------------------
@@ -655,7 +656,7 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
         /**
          * Tell the device to connect to the Personal AP. The device is
          * recommended to use channel switching feature if it is available.
-         * 
+         *
          * @return short: 1 -- current soft AP mode will be disabled. 2 – a
          *         separate channel is used to validate the Personal AP
          *         connection.
@@ -682,7 +683,7 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
          * types it supports to connect to the AP. If authType parameter is
          * invalid then the AllJoyn error code org.alljoyn.Error.OutOfRange will
          * be returned
-         * 
+         *
          * @param ssid
          * @param passphrase
          * @param authType
@@ -762,6 +763,8 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
         public void Offboard() throws BusException {
             Log.i(TAG, "offBoard()");
             setState(OnboardingState.PERSONAL_AP_NOT_CONFIGURED);
+            m_OnboardingServerCallback.disconnect();
+            m_OnboardingServerCallback.connect();
             new Thread(new Runnable(){
 
                 @Override
@@ -778,7 +781,7 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
          * device may not support this feature. In such a case, the AllJoyn
          * error code org.alljoyn.Error.FeatureNotAvailable will be returned in
          * the AllJoyn response.
-         * 
+         *
          * @throws BusException
          */
         @Override
@@ -834,7 +837,7 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
                 m_scanInfo.setScanResult(finalRes);
             }
 
-            Log.d(TAG, "onReceive: " + intent.getAction());
+            //Log.d(TAG, "onReceive: " + intent.getAction());
 
             if (intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
                 NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
@@ -848,7 +851,10 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
                         if (getState().equals(OnboardingState.PERSONAL_AP_CONFIGURED_VALIDATING)) {
                             setState(OnboardingState.PERSONAL_AP_CONFIGURED_VALIDATED);
                             saveNetworkId();
-                            AboutServiceImpl.getInstance().announce(); // send an announcement after onboarding succeeded.
+                            m_OnboardingServerCallback.disconnect();
+                            m_OnboardingServerCallback.connect();
+                            // AboutServiceImpl.getInstance().announce(); //
+                            // send an announcement after onboarding succeeded.
                         }
                     }
                 }
@@ -934,7 +940,7 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
      */
     private AuthType getScanResultSecurity(String capabilities) {
 
-        Log.i(TAG, "* getScanResultSecurity");
+
         if (capabilities.contains(AuthType.WEP.name())) {
             return AuthType.WEP;
         }
