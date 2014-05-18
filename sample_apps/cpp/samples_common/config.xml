@@ -20,9 +20,6 @@
 
 <busconfig>
 
-    <limit name="max_untrusted_clients">100</limit>
-    <property name="restrict_untrusted_clients">false</property>
-
     <!--  Our well-known bus type, do not change this  -->
     <type>alljoyn</type>
 
@@ -39,6 +36,8 @@
     <limit name="auth_timeout">5000</limit>
     <limit name="max_incomplete_connections">16</limit>
     <limit name="max_completed_connections">100</limit>
+    <limit name="max_untrusted_clients">100</limit>
+    <flag name="restrict_untrusted_clients">false</flag>
 
     <ip_name_service>
         <property interfaces="*"/>
