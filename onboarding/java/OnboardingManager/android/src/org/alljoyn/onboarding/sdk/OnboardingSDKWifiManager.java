@@ -792,8 +792,8 @@ class OnboardingSDKWifiManager {
      * @return normalized SSID: AJ_QA
      */
     static String normalizeSSID(String ssid) {
-        if (ssid != null && ssid.length() > 0 && ssid.startsWith("\"")) {
-            ssid = ssid.replace("\"", "");
+        if (ssid != null && ssid.length() > 2 && ssid.startsWith("\"") && ssid.endsWith("\"")) {
+            ssid = ssid.substring(1, ssid.length() -1);
         }
         return ssid;
     }
