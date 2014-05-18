@@ -144,7 +144,7 @@ int main()
     }
 
     announceHandler = new AnnounceHandlerImpl(NULL, announceHandlerCallback);
-    AnnouncementRegistrar::RegisterAnnounceHandler(*bus, *announceHandler);
+    AnnouncementRegistrar::RegisterAnnounceHandler(*bus, *announceHandler, NULL, 0);
 
     conService = NotificationService::getInstance();
     receiver = new ControllerNotificationReceiver(controlPanelController);

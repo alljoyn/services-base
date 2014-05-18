@@ -298,7 +298,7 @@ QStatus Transport::listenForAnnouncements()
     m_AnnounceListener = new NotificationAnnounceListener();
 
     QStatus status;
-    status = AnnouncementRegistrar::RegisterAnnounceHandler(*m_Bus, *m_AnnounceListener);
+    status = AnnouncementRegistrar::RegisterAnnounceHandler(*m_Bus, *m_AnnounceListener, NULL, 0);
     if (status != ER_OK) {
         QCC_DbgHLPrintf(("Could not create AnnouncementListener. AnnounceHandlerApi not initialized"));
         cleanupAnnouncementListener();

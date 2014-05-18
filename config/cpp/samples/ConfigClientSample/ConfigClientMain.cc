@@ -513,7 +513,7 @@ int main(int argc, char**argv, char**envArg)
                                                "/.alljoyn_keystore/central.ks", true);
 
     AnnounceHandlerImpl* announceHandler = new AnnounceHandlerImpl(announceHandlerCallback);
-    AnnouncementRegistrar::RegisterAnnounceHandler(*busAttachment, *announceHandler);
+    AnnouncementRegistrar::RegisterAnnounceHandler(*busAttachment, *announceHandler, NULL, 0);
 
     // Setup signals to wait for.
     sigfillset(&waitmask);

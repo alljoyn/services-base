@@ -432,7 +432,7 @@ int main(int argc, char**argv, char**envArg) {
     status = busAttachment->EnablePeerSecurity("ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX", srpKeyXListener, "/.alljoyn_keystore/central.ks", true);
 
     AnnounceHandlerImpl* announceHandler = new AnnounceHandlerImpl(announceHandlerCallback);
-    AnnouncementRegistrar::RegisterAnnounceHandler(*busAttachment, *announceHandler);
+    AnnouncementRegistrar::RegisterAnnounceHandler(*busAttachment, *announceHandler, NULL, 0);
 
     // Setup signals to wait for.
     sigfillset(&waitmask);
