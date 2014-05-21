@@ -144,7 +144,7 @@ start:
     qcc::String device_id, app_id;
     qcc::String app_name = "testappName";
     DeviceNamesType deviceNames;
-    deviceNames.insert(std::pair<qcc::String, qcc::String>("testDeviceName", "en"));
+    deviceNames.insert(std::pair<qcc::String, qcc::String>("en", "testDeviceName"));
     GuidUtil::GetInstance()->GetDeviceIdString(&device_id);
     GuidUtil::GetInstance()->GenerateGUID(&app_id);
 

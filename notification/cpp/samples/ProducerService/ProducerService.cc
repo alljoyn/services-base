@@ -379,7 +379,7 @@ int main()
         }
 
         DeviceNamesType deviceNames;
-        deviceNames.insert(std::pair<qcc::String, qcc::String>(device_name, "en"));
+        deviceNames.insert(std::pair<qcc::String, qcc::String>("en", device_name));
         status = CommonSampleUtil::fillPropertyStore(propertyStoreImpl, app_id, app_name, device_id, deviceNames);
         if (status != ER_OK) {
             std::cout << "Could not fill PropertyStore." << std::endl;

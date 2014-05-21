@@ -131,7 +131,7 @@ int main()
 
     propertyStoreImpl = new AboutPropertyStoreImpl();
     DeviceNamesType deviceNames;
-    deviceNames.insert(std::pair<qcc::String, qcc::String>("ProducerBasicDeviceName", "en"));
+    deviceNames.insert(std::pair<qcc::String, qcc::String>("en", "ProducerBasicDeviceName"));
     status = CommonSampleUtil::fillPropertyStore(propertyStoreImpl, appid, APP_NAME, deviceid, deviceNames);
     if (status != ER_OK) {
         std::cout << "Could not fill PropertyStore." << std::endl;

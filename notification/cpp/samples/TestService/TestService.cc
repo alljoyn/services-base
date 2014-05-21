@@ -109,7 +109,7 @@ bool initSend(std::map<qcc::String, qcc::String>& params)
     GuidUtil::GetInstance()->GenerateGUID(&appid);
 
     DeviceNamesType deviceNames;
-    deviceNames.insert(std::pair<qcc::String, qcc::String>(params["device_name"], "en"));
+    deviceNames.insert(std::pair<qcc::String, qcc::String>("en", params["device_name"]));
 
     QStatus status;
     status = CommonSampleUtil::fillPropertyStore(propertyStoreImpl, appid, params["app_name"].c_str(),
