@@ -332,7 +332,7 @@ bool PropertyStoreImpl::FillDeviceNames()
             std::string language = iterator->first.substr(lastDotLocation + 1);
             std::string value = iterator->second;
 
-            UpdateFactoryProperty(DEVICE_NAME, language.c_str(), new MsgArg("s", value.c_str()));
+            UpdateFactoryProperty(DEVICE_NAME, language.c_str(), MsgArg("s", value.c_str()));
         }
     }
 
@@ -352,7 +352,7 @@ bool PropertyStoreImpl::UpdateFactorySettings()
     iter = data.find(AboutPropertyStoreImpl::getPropertyStoreName(DEVICE_ID).c_str());
     if (iter != data.end()) {
         qcc::String deviceId = iter->second.c_str();
-        UpdateFactoryProperty(DEVICE_ID, NULL, new MsgArg("s", deviceId.c_str()));
+        UpdateFactoryProperty(DEVICE_ID, NULL, MsgArg("s", deviceId.c_str()));
     }
 
     if (!FillDeviceNames()) {
@@ -362,26 +362,26 @@ bool PropertyStoreImpl::UpdateFactorySettings()
     iter = data.find(AboutPropertyStoreImpl::getPropertyStoreName(APP_ID).c_str());
     if (iter != data.end()) {
         qcc::String appGUID = iter->second.c_str();
-        UpdateFactoryProperty(APP_ID, NULL, new MsgArg("s", appGUID.c_str()));
+        UpdateFactoryProperty(APP_ID, NULL, MsgArg("s", appGUID.c_str()));
     }
 
     iter = data.find(AboutPropertyStoreImpl::getPropertyStoreName(APP_NAME).c_str());
     if (iter != data.end()) {
         qcc::String appName = iter->second.c_str();
-        UpdateFactoryProperty(APP_NAME, NULL, new MsgArg("s", appName.c_str()));
+        UpdateFactoryProperty(APP_NAME, NULL, MsgArg("s", appName.c_str()));
     }
 
     iter = data.find(AboutPropertyStoreImpl::getPropertyStoreName(DEFAULT_LANG).c_str());
     if (iter != data.end()) {
         qcc::String defaultLanguage = iter->second.c_str();
-        UpdateFactoryProperty(DEFAULT_LANG, NULL, new MsgArg("s", defaultLanguage.c_str()));
+        UpdateFactoryProperty(DEFAULT_LANG, NULL, MsgArg("s", defaultLanguage.c_str()));
     }
 
     return true;
 }
 
 
-void PropertyStoreImpl::UpdateFactoryProperty(PropertyStoreKey propertyKey, const char* languageTag, const ajn::MsgArg* value)
+void PropertyStoreImpl::UpdateFactoryProperty(PropertyStoreKey propertyKey, const char* languageTag, const ajn::MsgArg& value)
 {
     PropertyStoreProperty* temp = NULL;
     std::pair<PropertyMap::iterator, PropertyMap::iterator> propertiesIter = m_factoryProperties.equal_range(propertyKey);
@@ -391,7 +391,7 @@ void PropertyStoreImpl::UpdateFactoryProperty(PropertyStoreKey propertyKey, cons
 
         if ((languageTag == NULL && property.getLanguage().empty()) ||
             (languageTag != NULL && property.getLanguage().compare(languageTag) == 0)) {
-            temp = new PropertyStoreProperty(property.getPropertyName(), *value, property.getIsPublic(),
+            temp = new PropertyStoreProperty(property.getPropertyName(), value, property.getIsPublic(),
                                              property.getIsWritable(), property.getIsAnnouncable());
             if (languageTag) {
                 temp->setLanguage(languageTag);

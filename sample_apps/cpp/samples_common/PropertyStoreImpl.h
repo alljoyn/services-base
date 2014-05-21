@@ -102,7 +102,7 @@ class PropertyStoreImpl : public ajn::services::AboutPropertyStoreImpl {
 
     bool FillDeviceNames();
 
-    void UpdateFactoryProperty(ajn::services::PropertyStoreKey propertyKey, const char* languageTag, const ajn::MsgArg* value);
+    void UpdateFactoryProperty(ajn::services::PropertyStoreKey propertyKey, const char* languageTag, const ajn::MsgArg& value);
 };
 
 #endif /* PROPERTYSTOREIMPL_H_ */
