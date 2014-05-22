@@ -86,8 +86,6 @@ static NSString *const CONSUMER_DEFAULT_LANG = @"en";
         [self.logger errorTag:[[self class] description] text:@"Failed to SetCredentials"];
     }
     
-
-    
 	if (!self.busAttachment) {
 		[self.logger fatalTag:[[self class] description] text:@"BusAttachment is nil"];
 		return ER_FAIL;
@@ -103,7 +101,7 @@ static NSString *const CONSUMER_DEFAULT_LANG = @"en";
 	// Call addSessionlessMatch
 	status = [self.busAttachment addMatchRule:@"sessionless='t',type='error'"];
 	if (status != ER_OK) {
-		[self.logger fatalTag:[[self class] description] text:@"Could not add sessionless match - exiting application"];
+		[self.logger fatalTag:[[self class] description] text:@"Could not add sessionless match"];
 		return ER_FAIL;
 	}
     
