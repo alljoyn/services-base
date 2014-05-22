@@ -18,8 +18,8 @@
 #import "AJNBusAttachment.h"
 #import "ClientInformation.h"
 
-static NSString * const SOFT_AP_PREFIX = @"AJ_";
-static NSString * const SOFT_AP_SUFFIX = @"_AJ";
+static NSString * const AJ_AP_PREFIX = @"AJ_";
+static NSString * const AJ_AP_SUFFIX = @"_AJ";
 
 @interface OnboardingViewController : UIViewController
 @property (strong, nonatomic) AJNBusAttachment *clientBusName;
