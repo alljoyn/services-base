@@ -27,15 +27,18 @@
 #import "AnnounceTextViewController.h"
 #import "GetAboutCallViewController.h"
 #import "ClientInformation.h"
+#import "AppDelegate.h"
 
 static bool ALLOWREMOTEMESSAGES = true; // About Client -  allow Remote Messages flag
 static NSString *const APPNAME = @"AboutClientMain";  //About Client - default application name
 static NSString *const DAEMON_QUIET_PREFIX = @"quiet@";    //About Client - quiet advertising
 static NSString *const ABOUT_CONFIG_OBJECT_PATH = @"/Config";  //About Service - Config
 static NSString *const ABOUT_CONFIG_INTERFACE_NAME = @"org.alljoyn.Config";   //About Service - Config
+static NSString *const DEFAULT_REALM_BUS_NAME = @"org.alljoyn.BusNode.configClient";
 
 static NSString *const DEFAULT_PASSCODE = @"000000";
 static NSString *const KEYSTORE_FILE_PATH = @"Documents/alljoyn_keystore/s_central.ks";
+static NSString *const  AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX";
 
 @interface ViewController ()
 
@@ -56,15 +59,11 @@ static NSString *const KEYSTORE_FILE_PATH = @"Documents/alljoyn_keystore/s_centr
 // About Client strings
 @property (strong, nonatomic) NSString *ajconnect;
 @property (strong, nonatomic) NSString *ajdisconnect;
-@property (strong, nonatomic) NSString *defaultBusName;
 @property (strong, nonatomic) NSString *annSubvTitleLabelDefaultTxt;
 
 // About Client alerts
-@property (strong, nonatomic) UIAlertView *busNameAlert;
-@property (strong, nonatomic) UIAlertView *disconnectAlert;
 @property (strong, nonatomic) UIAlertView *announcementOptionsAlert;
 @property (strong, nonatomic) UIAlertView *announcementOptionsAlertNoConfig;
-@property (strong, nonatomic) UITextField *alertDefaultBusName;
 
 /* ConfigClient */
 @property (strong, nonatomic) AJCFGConfigClient *configClient;
@@ -90,25 +89,6 @@ static NSString *const KEYSTORE_FILE_PATH = @"Documents/alljoyn_keystore/s_centr
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
 	switch (alertView.tag) {
-		case 1: // Bus name alert
-		{
-			if (buttonIndex == 1) { // User pressed OK
-				self.realmBusName = [[alertView textFieldAtIndex:0] text];
-				[self.logger debugTag:[[self class] description] text:[NSString stringWithFormat:@"realmBusName: %@", self.realmBusName]];
-				[self startAboutClient];
-			}
-			else {     // User pressed Cancel
-			}
-		} // case 1
-            break;
-            
-		case 2:  // Disconnect alert
-		{
-			if (buttonIndex == 1) { // User pressed OK
-				[self stopAboutClient];
-			}
-		}
-            break;
             
 		case 3: // Announcement options alert
 		{
@@ -194,16 +174,11 @@ static NSString *const KEYSTORE_FILE_PATH = @"Documents/alljoyn_keystore/s_centr
 #pragma mark - IBAction Methods
 - (IBAction)connectButtonDidTouchUpInside:(id)sender
 {
-	// Present the dialog box - to get the bus name
+	// Connect to the bus with the default realm bus name
 	if (!self.isAboutClientConnected) {
-		// Set default text for realm bus name
-		[self.alertDefaultBusName setText:self.defaultBusName];
-		[self.alertDefaultBusName setFont:([UIFont fontWithName:@"System" size:8.0])];
-		[self.busNameAlert show]; // Event is forward to alertView: clickedButtonAtIndex:
-	}
-	else {
-		// Present a dialog box - are you sure?
-		[self.disconnectAlert show]; // Event is forward to alertView: clickedButtonAtIndex:
+		[self startAboutClient];
+	} else {
+        [self stopAboutClient];
 	}
 }
 
@@ -352,7 +327,7 @@ static NSString *const KEYSTORE_FILE_PATH = @"Documents/alljoyn_keystore/s_centr
 	// Set About Client strings
 	self.ajconnect = @"Connect to AllJoyn";
 	self.ajdisconnect = @"Disconnect from AllJoyn";
-	self.defaultBusName = @"org.alljoyn.BusNode.aboutClient";
+	self.realmBusName = DEFAULT_REALM_BUS_NAME;
 	self.annSubvTitleLabelDefaultTxt = @"Announcement of ";
 	// Set About Client connect button
 	self.connectButton.backgroundColor = [UIColor darkGrayColor]; //button bg color
@@ -369,17 +344,6 @@ static NSString *const KEYSTORE_FILE_PATH = @"Documents/alljoyn_keystore/s_centr
 // Initialize alerts
 - (void)prepareAlerts
 {
-	// BusNameAlert.tag = 1
-	self.busNameAlert = [[UIAlertView alloc] initWithTitle:@"" message:@"Set realm name" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"OK", nil];
-	self.busNameAlert.alertViewStyle = UIAlertViewStylePlainTextInput;
-	self.busNameAlert.tag = 1;
-	self.alertDefaultBusName = [self.busNameAlert textFieldAtIndex:0]; // Connect the UITextField with the alert
-    
-	// disconnectAlert.tag = 2
-	self.disconnectAlert = [[UIAlertView alloc] initWithTitle:@"" message:@"Are you sure you want to disconnect from alljoyn?" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"OK", nil];
-	self.disconnectAlert.alertViewStyle = UIAlertViewStyleDefault;
-	self.disconnectAlert.tag = 2;
-    
 	// announcementOptionsAlert.tag = 3
 	self.announcementOptionsAlert = [[UIAlertView alloc] initWithTitle:@"Choose option:" message:@"" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Show Announce", @"About", @"Config", nil];
 	self.announcementOptionsAlert.alertViewStyle = UIAlertViewStyleDefault;
@@ -438,25 +402,28 @@ static NSString *const KEYSTORE_FILE_PATH = @"Documents/alljoyn_keystore/s_centr
     
 	status = [AJNPasswordManager setCredentialsForAuthMechanism:@"ALLJOYN_PIN_KEYX" usingPassword:@"000000"];
 	if (status != ER_OK) {
-		[self.logger fatalTag:[[self class] description] text:[NSString stringWithFormat:@"Failed to SetCredentials :%@", [AJNStatus descriptionForStatusCode:status]]];
-		exit(1);
+        [AppDelegate alertAndLog:@"Failed to SetCredentials" status:status];
+        [self stopAboutClient];
+        return;
 	}
     
 	// Init AJNBusAttachment
-	self.clientBusAttachment = [[AJNBusAttachment alloc] initWithApplicationName:(APPNAME) allowRemoteMessages:(ALLOWREMOTEMESSAGES)];
+	self.clientBusAttachment = [[AJNBusAttachment alloc] initWithApplicationName:APPNAME allowRemoteMessages:(ALLOWREMOTEMESSAGES)];
     
 	// Start AJNBusAttachment
 	status = [self.clientBusAttachment start];
 	if (status != ER_OK) {
-		[self.logger fatalTag:[[self class] description] text:[NSString stringWithFormat:@"Unable to Start - exiting application :%@", [AJNStatus descriptionForStatusCode:status]]];
-		exit(1);
+        [AppDelegate alertAndLog:@"Failed AJNBusAttachment start" status:status];
+        [self stopAboutClient];
+        return;
 	}
     
 	// Connect AJNBusAttachment
-	status = [self.clientBusAttachment connectWithArguments:(@"")];
+	status = [self.clientBusAttachment connectWithArguments:@""];
 	if (status != ER_OK) {
-		[self.logger fatalTag:[[self class] description] text:[NSString stringWithFormat:@"Failed to connect - exiting application :%@", [AJNStatus descriptionForStatusCode:status]]];
-		exit(1);
+        [AppDelegate alertAndLog:@"Failed AJNBusAttachment connectWithArguments" status:status];
+        [self stopAboutClient];
+        return;
 	}
     
 	[self.logger debugTag:[[self class] description] text:[NSString stringWithFormat:@"aboutClientListener"]];
@@ -466,41 +433,44 @@ static NSString *const KEYSTORE_FILE_PATH = @"Documents/alljoyn_keystore/s_centr
 	self.announcementReceiver = [[AJNAnnouncementReceiver alloc] initWithAnnouncementListener:self andBus:self.clientBusAttachment];
 	status = [self.announcementReceiver registerAnnouncementReceiver];
 	if (status != ER_OK) {
-		[self.logger fatalTag:[[self class] description] text:[NSString stringWithFormat:@"Failed to registerAnnouncementReceiver - exiting application :%@", [AJNStatus descriptionForStatusCode:status]]];
-		exit(1);
+		[AppDelegate alertAndLog:@"Failed to registerAnnouncementReceiver" status:status];
+        [self stopAboutClient];
+        return;
 	}
     
 	// Create a dictionary to contain announcements using a key in the format of: "announcementUniqueName + announcementObj"
 	self.clientInformationDict = [[NSMutableDictionary alloc] init];
     
 	// AddMatchRule
-	status = [self.clientBusAttachment addMatchRule:(@"sessionless='t',type='error'")]; // This is added because we want to listen to the about announcements which are sessionless
+	status = [self.clientBusAttachment addMatchRule:@"sessionless='t',type='error'"]; // This is added because we want to listen to the about announcements which are sessionless
 	if (status != ER_OK) {
-		[self.logger fatalTag:[[self class] description] text:[NSString stringWithFormat:@"Failed at addMatchRule - exiting application :%@", [AJNStatus descriptionForStatusCode:status]]];
-		exit(1);
+		[AppDelegate alertAndLog:@"Failed at addMatchRule" status:status];
+        [self stopAboutClient];
+        return;
 	}
+    
+    NSUUID *UUID = [NSUUID UUID];
+    NSString *stringUUID = [UUID UUIDString];
+    self.realmBusName = [NSString stringWithFormat:@"%@-%@", DEFAULT_REALM_BUS_NAME, stringUUID];
     
 	// Advertise Daemon for tcl
 	status = [self.clientBusAttachment requestWellKnownName:self.realmBusName withFlags:kAJNBusNameFlagDoNotQueue];
 	if (status == ER_OK) {
 		// Advertise the name with a quite prefix for TC to find it
-		NSUUID *UUID = [NSUUID UUID];
-		NSString *stringUUID = [UUID UUIDString];
-        
-		self.realmBusName = [self.realmBusName stringByAppendingFormat:@"-%@", stringUUID];
-        
 		status = [self.clientBusAttachment advertiseName:[NSString stringWithFormat:@"%@%@", DAEMON_QUIET_PREFIX, self.realmBusName] withTransportMask:kAJNTransportMaskAny];
 		if (status != ER_OK) {
-			[self.logger errorTag:[[self class] description] text:[NSString stringWithFormat:@"Failed to advertise %@ :%@", [NSString stringWithFormat:@"%@%@", DAEMON_QUIET_PREFIX, self.realmBusName], [AJNStatus descriptionForStatusCode:status]]];
-			status = [self.clientBusAttachment releaseWellKnownName:self.realmBusName];
+            [AppDelegate alertAndLog:@"Failed to advertise name" status:status];
+            [self stopAboutClient];
+            return;
 		}
 		else {
 			[self.logger debugTag:[[self class] description] text:[NSString stringWithFormat:@"Successfully advertised: %@%@", DAEMON_QUIET_PREFIX, self.realmBusName]];
 		}
 	}
 	else {
-		[self.logger fatalTag:[[self class] description] text:[NSString stringWithFormat:@"Failed to advertise name - exiting application :%@", [AJNStatus descriptionForStatusCode:status]]];
-		exit(1);
+        [AppDelegate alertAndLog:@"Failed to requestWellKnownName" status:status];
+        [self stopAboutClient];
+        return;
 	}
     
 	[self.connectButton setTitle:self.ajdisconnect forState:UIControlStateNormal]; //change title to "Disconnect from AllJoyn"
@@ -508,8 +478,9 @@ static NSString *const KEYSTORE_FILE_PATH = @"Documents/alljoyn_keystore/s_centr
 	// Start Config Client
 	self.configClient = [[AJCFGConfigClient alloc] initWithBus:self.clientBusAttachment];
 	if (!self.configClient) {
-		[self.logger fatalTag:[[self class] description] text:[NSString stringWithFormat:@"Failed to start Config Client - exiting application :%@", [AJNStatus descriptionForStatusCode:status]]];
-		exit(1);
+        [AppDelegate alertAndLog:@"Failed to start Config Client" status:status];
+        [self stopAboutClient];
+        return;
 	}
     
 	// Set logger
@@ -521,11 +492,9 @@ static NSString *const KEYSTORE_FILE_PATH = @"Documents/alljoyn_keystore/s_centr
     
 	// Enable Client Security
 	status = [self enableClientSecurity];
-    
 	if (ER_OK != status) {
 		[self.logger errorTag:[[self class] description] text:[NSString stringWithFormat:@"Failed to enable security on the bus. %@", [AJNStatus descriptionForStatusCode:status]]];
-	}
-	else {
+	} else {
 		[self.logger debugTag:[[self class] description] text:[NSString stringWithFormat:@"Successfully enabled security for the bus"]];
 	}
     
@@ -535,8 +504,20 @@ static NSString *const KEYSTORE_FILE_PATH = @"Documents/alljoyn_keystore/s_centr
 - (QStatus)enableClientSecurity
 {
 	QStatus status;
-
-	status = [self.clientBusAttachment enablePeerSecurity:@"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX" authenticationListener:self keystoreFileName:KEYSTORE_FILE_PATH sharing:YES];
+	status = [self.clientBusAttachment enablePeerSecurity:AUTH_MECHANISM authenticationListener:self keystoreFileName:KEYSTORE_FILE_PATH sharing:YES];
+    
+    if (status != ER_OK) { //try to delete the keystore and recreate it, if that fails return failure
+        NSError *error;
+        NSString *keystoreFilePath = [NSString stringWithFormat:@"%@/alljoyn_keystore/s_central.ks", [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0]];
+        [[NSFileManager defaultManager] removeItemAtPath:keystoreFilePath error:&error];
+        if (error) {
+            NSLog(@"ERROR: Unable to delete keystore. %@", error);
+            return ER_AUTH_FAIL;
+        }
+    }
+    
+    status = [self.clientBusAttachment enablePeerSecurity:AUTH_MECHANISM authenticationListener:self keystoreFileName:KEYSTORE_FILE_PATH sharing:YES];
+    
 	return status;
 }
 
@@ -545,10 +526,11 @@ static NSString *const KEYSTORE_FILE_PATH = @"Documents/alljoyn_keystore/s_centr
     [self.servicesTable performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
 }
 
-// IBAction triggered by pressing a dynamic announcement entry
+// announcementGetMoreInfo is an IBAction triggered by pressing a dynamic announcement button
 - (void)announcementGetMoreInfo:(NSInteger)requestedRow
 {
-	self.announcementButtonCurrentTitle = [self.clientInformationDict allKeys][requestedRow];   // set the announcementButtonCurrentTitle
+    // set the announcementButtonCurrentTitle
+    self.announcementButtonCurrentTitle = [self.clientInformationDict allKeys][requestedRow];   // set the announcementButtonCurrentTitle
     
 	[self.logger debugTag:[[self class] description] text:[NSString stringWithFormat:@"Getting data for [%@]", self.announcementButtonCurrentTitle]];
     
@@ -626,7 +608,6 @@ static NSString *const KEYSTORE_FILE_PATH = @"Documents/alljoyn_keystore/s_centr
 	self.clientBusAttachment = nil;
     
 	self.peersPasscodes = nil;
-    
     
 	// Set flag
 	self.isAboutClientConnected  = false;

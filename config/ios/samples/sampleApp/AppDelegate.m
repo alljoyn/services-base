@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -51,4 +51,12 @@
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 
++ (void)alertAndLog:(NSString *)message status:(QStatus)status
+{
+    NSString *alertText = [NSString stringWithFormat:@"%@ (%@)",message, [AJNStatus descriptionForStatusCode:status]];
+    
+    NSLog(@"%@", alertText);
+    
+    [[[UIAlertView alloc] initWithTitle:@"Startup Error" message:alertText delegate:nil cancelButtonTitle:@"OK" otherButtonTitles: nil] show];
+}
 @end
