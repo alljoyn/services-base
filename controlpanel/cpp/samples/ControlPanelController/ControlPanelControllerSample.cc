@@ -54,7 +54,7 @@ static void SigIntHandler(int sig)
 void cleanup()
 {
     if (bus && announceHandler) {
-        AnnouncementRegistrar::UnRegisterAnnounceHandler(*bus, *announceHandler);
+        AnnouncementRegistrar::UnRegisterAnnounceHandler(*bus, *announceHandler, NULL, 0);
     }
 
     if (controlPanelService) {

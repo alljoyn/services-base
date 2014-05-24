@@ -667,7 +667,7 @@ void Transport::cleanupAnnouncementListener(bool unregister)
     }
 
     if (unregister) {
-        AnnouncementRegistrar::UnRegisterAnnounceHandler(*m_Bus, *m_AnnounceListener);
+        AnnouncementRegistrar::UnRegisterAnnounceHandler(*m_Bus, *m_AnnounceListener, NULL, 0);
     }
     delete m_AnnounceListener;
     m_AnnounceListener = 0;

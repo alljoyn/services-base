@@ -526,7 +526,7 @@ int main(int argc, char**argv, char**envArg)
         // Wait for a signal.
         sigsuspend(&waitmask);
     }
-    AnnouncementRegistrar::UnRegisterAnnounceHandler(*busAttachment, *announceHandler);
+    AnnouncementRegistrar::UnRegisterAnnounceHandler(*busAttachment, *announceHandler, NULL, 0);
 
     delete srpKeyXListener;
     delete announceHandler;

@@ -444,7 +444,7 @@ int main(int argc, char**argv, char**envArg) {
         sigsuspend(&waitmask);
     }
 
-    AnnouncementRegistrar::UnRegisterAnnounceHandler(*busAttachment, *announceHandler);
+    AnnouncementRegistrar::UnRegisterAnnounceHandler(*busAttachment, *announceHandler, NULL, 0);
 
     busAttachment->Stop();
     delete busAttachment;
