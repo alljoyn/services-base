@@ -139,6 +139,11 @@ class OnboardingControllerImpl : public ajn::services::OnboardingControllerAPI {
     int execute_configure(const char*SSID, const int authText, const char*passphrase);
 
     /**
+     * trim leading and trailing spaces
+     */
+    char* Trim(char* str);
+
+    /**
      * Holds the last state
      */
     short m_state;

@@ -265,6 +265,31 @@ long GetMinElapsedFromLastScan(const char* filename)
     return minutes;
 }
 
+char* OnboardingControllerImpl::Trim(char* str)
+{
+    if (!str || strlen(str) == 0) {
+        return str;
+    }
+
+    char*end;
+
+    // Trim leading space
+    while (isspace(*str)) str++;
+
+    if (*str == 0) { // All spaces?
+        return str;
+    }
+
+    // Trim trailing space
+    end = str + strlen(str) - 1;
+    while (end > str && isspace(*end)) end--;
+
+    // Write new null terminator
+    *(end + 1) = 0;
+
+    return str;
+}
+
 void OnboardingControllerImpl::ParseScanInfo()
 {
     // Scan records are already sorted by signal strength
@@ -311,6 +336,12 @@ void OnboardingControllerImpl::ParseScanInfo()
         if (!authType) {
             continue;
         }
+
+        // clear spaces
+        ssid = Trim(ssid);
+        authType = Trim(authType);
+        firstCipher = Trim(firstCipher);
+        secondCipher = Trim(secondCipher);
 
         m_ScanArray[current].SSID = ssid;
 
