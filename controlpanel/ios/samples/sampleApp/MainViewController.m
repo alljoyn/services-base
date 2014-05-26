@@ -26,6 +26,7 @@
 #import "alljoyn/controlpanel/AJCPSGetControlPanelViewController.h"
 #import "AuthenticationListenerImpl.h"
 #include <qcc/Log.h>
+#import "AppDelegate.h"
 
 
 static bool ALLOWREMOTEMESSAGES = true; // About Client -  allow Remote Messages flag
@@ -33,6 +34,10 @@ static NSString * const APPNAME = @"AboutClientMain"; // About Client - default 
 static NSString * const DAEMON_QUIET_PREFIX  = @"quiet@";   // About Client - quiet advertising
 static NSString * const CONTROLPANEL_OBJECT_PATH = @"/ControlPanel/";
 static NSString * const CONTROLPANEL_INTERFACE_NAME = @"org.alljoyn.ControlPanel.ControlPanel";
+static NSString *const DEFAULT_REALM_BUS_NAME = @"org.alljoyn.BusNode.ControlPanelClient";
+
+static NSString *const KEYSTORE_FILE_PATH = @"Documents/alljoyn_keystore/s_central.ks";
+static NSString *const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX";
 
 @interface MainViewController ()
 @property NSString *className;
@@ -45,21 +50,17 @@ static NSString * const CONTROLPANEL_INTERFACE_NAME = @"org.alljoyn.ControlPanel
 @property (strong, nonatomic) NSMutableDictionary *clientInformationDict; // Store the client related information
 
 // Announcement
-@property (strong, nonatomic) NSString *announcementButtonCurrentTitle;                  // The pressed button's announcementUniqueName
+@property (strong, nonatomic) NSString *announcementButtonCurrentTitle; // The pressed button's announcementUniqueName
 @property (strong, nonatomic) dispatch_queue_t annBtnCreationQueue;
 
 // About Client strings
 @property (strong, nonatomic) NSString *ajconnect;
 @property (strong, nonatomic) NSString *ajdisconnect;
-@property (strong, nonatomic) NSString *defaultBusName;
 @property (strong, nonatomic) NSString *annSubvTitleLabelDefaultTxt;
 
 // About Client alerts
-@property (strong, nonatomic) UIAlertView *busNameAlert;
-@property (strong, nonatomic) UIAlertView *disconnectAlert;
 @property (strong, nonatomic) UIAlertView *announcementOptionsAlert;
 @property (strong, nonatomic) UIAlertView *announcementOptionsAlertNoCPanel;
-@property (strong, nonatomic) UITextField *alertDefaultBusName;
 
 @property (strong, nonatomic) AuthenticationListenerImpl *authenticationListenerImpl;
 @end
@@ -76,23 +77,7 @@ static NSString * const CONTROLPANEL_INTERFACE_NAME = @"org.alljoyn.ControlPanel
 // Get the user's input from the alert dialog
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-	if (alertView == self.busNameAlert) {
-		if (buttonIndex == 1) { // User pressed OK
-			self.realmBusName = [[alertView textFieldAtIndex:0] text];
-            
-			NSLog(@"[%@] [%@] realmBusName: %@", @"DEBUG", [[self class] description], self.realmBusName);
-            
-			[self startAboutClient];
-		}
-		else {   // User pressed Cancel
-		}
-	}
-	else if (alertView == self.disconnectAlert) {
-		if (buttonIndex == 1) { // User pressed OK
-			[self stopAboutClient];
-		}
-	}
-	else if (alertView == self.announcementOptionsAlert) {
+    if (alertView == self.announcementOptionsAlert) {
 		[self performAnnouncementAction:buttonIndex];
 	}
 	else if (alertView == self.announcementOptionsAlertNoCPanel) {
@@ -103,8 +88,7 @@ static NSString * const CONTROLPANEL_INTERFACE_NAME = @"org.alljoyn.ControlPanel
 	}
 }
 
-- (void)prepareForSegue:(UIStoryboardSegue *)segue
-                 sender:(id)sender
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
     // GetAboutCallViewController
 	if ([segue.destinationViewController isKindOfClass:[GetAboutCallViewController class]]) {
@@ -122,16 +106,11 @@ static NSString * const CONTROLPANEL_INTERFACE_NAME = @"org.alljoyn.ControlPanel
 #pragma mark - IBAction Methods
 - (IBAction)connectButtonDidTouchUpInside:(id)sender
 {
-	// Present the dialog box - to get the bus name
+    // Connect to the bus with the default realm bus name
 	if (!self.isAboutClientConnected) {
-		// Set default text for realm bus name
-		[self.alertDefaultBusName setText:self.defaultBusName];
-		[self.alertDefaultBusName setFont:([UIFont fontWithName:@"System" size:8.0])];
-		[self.busNameAlert show]; // Event is forward to alertView: clickedButtonAtIndex:
-	}
-	else {
-		// Present a dialog box - are you sure?
-		[self.disconnectAlert show]; // Event is forward to alertView: clickedButtonAtIndex:
+		[self startAboutClient];
+	} else {
+        [self stopAboutClient];
 	}
 }
 
@@ -163,7 +142,6 @@ static NSString * const CONTROLPANEL_INTERFACE_NAME = @"org.alljoyn.ControlPanel
 	// Add the received announcement
 	if (status != ER_OK) {
         NSLog(@"[%@] [%@] Failed to read appId for key [%@]", @"DEBUG", [[self class] description], announcementUniqueName);
-
 		return;
 	}
     
@@ -184,7 +162,7 @@ static NSString * const CONTROLPANEL_INTERFACE_NAME = @"org.alljoyn.ControlPanel
 	        tStatus = [tmpMsgrg value:@"ay", &tmpAppIdNumElements, &tmpAppIdBuffer];
 	        if (tStatus != ER_OK) {
                 NSLog(@"[%@] [%@] Failed to read appId for key [%@]", @"DEBUG", [[self class] description], key);
-
+                
 	            return;
 			}
             
@@ -200,13 +178,12 @@ static NSString * const CONTROLPANEL_INTERFACE_NAME = @"org.alljoyn.ControlPanel
 	            if ([key isEqualToString:announcementUniqueName]) {
 	                // Update only announcements dictionary
                     
-                     NSLog(@"[%@] [%@] Got an announcement from a known device - updating the announcement object", @"DEBUG", [[self class] description]);
-
+                    NSLog(@"[%@] [%@] Got an announcement from a known device - updating the announcement object", @"DEBUG", [[self class] description]);
                     (self.clientInformationDict)[announcementUniqueName] = clientInformation;
 	                // Same AppId but *different* announcementUniqueName
 				}
 	            else {
-                     NSLog(@"[%@] [%@] Got an announcement from a known device(different bus name) - updating the announcement object and UI ", @"DEBUG", [[self class] description]);
+                    NSLog(@"[%@] [%@] Got an announcement from a known device(different bus name) - updating the announcement object and UI ", @"DEBUG", [[self class] description]);
                     
 	                // Cancel advertise name if the bus name has changed
 	                NSString *prevBusName = [announcement busName];
@@ -220,6 +197,8 @@ static NSString * const CONTROLPANEL_INTERFACE_NAME = @"org.alljoyn.ControlPanel
 	                [self.clientInformationDict removeObjectForKey:key];
 	                // Add new record to the announcements dictionary
 	                [self.clientInformationDict setValue:clientInformation forKey:announcementUniqueName];
+                    // Update UI
+                    [self.servicesTable performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
 				}
 	            break;
 			} //if
@@ -239,22 +218,18 @@ static NSString * const CONTROLPANEL_INTERFACE_NAME = @"org.alljoyn.ControlPanel
 	[self.clientBusAttachment enableConcurrentCallbacks];
 	status = [self.clientBusAttachment findAdvertisedName:busName];
 	if (status != ER_OK) {
-         NSLog(@"[%@] [%@] failed to findAdvertisedName for %@. status:%@", @"ERROR", [[self class] description],busName, [AJNStatus descriptionForStatusCode:status]);
+        NSLog(@"[%@] [%@] failed to findAdvertisedName for %@. status:%@", @"ERROR", [[self class] description],busName, [AJNStatus descriptionForStatusCode:status]);
 	}
 }
 
 #pragma mark AJNBusListener protocol methods
 
-- (void)didFindAdvertisedName:(NSString *)name
-            withTransportMask:(AJNTransportMask)transport
-                   namePrefix:(NSString *)namePrefix
+- (void)didFindAdvertisedName:(NSString *)name withTransportMask:(AJNTransportMask)transport namePrefix:(NSString *)namePrefix
 {
 	NSLog(@"didFindAdvertisedName %@", name);
 }
 
-- (void)didLoseAdvertisedName:(NSString *)name
-            withTransportMask:(AJNTransportMask)transport
-                   namePrefix:(NSString *)namePrefix
+- (void)didLoseAdvertisedName:(NSString *)name withTransportMask:(AJNTransportMask)transport namePrefix:(NSString *)namePrefix
 {
 	NSLog(@"didLoseAdvertisedName");
 	QStatus status;
@@ -264,7 +239,7 @@ static NSString * const CONTROLPANEL_INTERFACE_NAME = @"org.alljoyn.ControlPanel
 			// Cancel advertise name for that bus
 			status = [self.clientBusAttachment cancelFindAdvertisedName:name];
 			if (status != ER_OK) {
-                 NSLog(@"[%@] [%@] failed to cancelFindAdvertisedName for %@. status:%@", @"DEBUG", [[self class] description],name, [AJNStatus descriptionForStatusCode:status]);
+                NSLog(@"[%@] [%@] failed to cancelFindAdvertisedName for %@. status:%@", @"DEBUG", [[self class] description],name, [AJNStatus descriptionForStatusCode:status]);
             }
 			// Remove the anouncement from the dictionary
 			[self.clientInformationDict removeObjectForKey:key];
@@ -285,7 +260,7 @@ static NSString * const CONTROLPANEL_INTERFACE_NAME = @"org.alljoyn.ControlPanel
 	// Set About Client strings
 	self.ajconnect = @"Connect to AllJoyn";
 	self.ajdisconnect = @"Disconnect from AllJoyn";
-	self.defaultBusName = @"org.alljoyn.BusNode.aboutClient";
+	self.realmBusName = DEFAULT_REALM_BUS_NAME;
 	self.annSubvTitleLabelDefaultTxt = @"Announcement of ";
 	// Set About Client connect button
 	self.connectButton.backgroundColor = [UIColor darkGrayColor]; //button bg color
@@ -299,23 +274,13 @@ static NSString * const CONTROLPANEL_INTERFACE_NAME = @"org.alljoyn.ControlPanel
 //  Initialize alerts
 - (void)prepareAlerts
 {
-	// BusNameAlert.tag = 1
-	self.busNameAlert = [[UIAlertView alloc] initWithTitle:@"" message:@"Set realm name" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"OK", nil];
-	self.busNameAlert.alertViewStyle = UIAlertViewStylePlainTextInput;
-	self.alertDefaultBusName = [self.busNameAlert textFieldAtIndex:0]; //connect the UITextField with the alert
-    
-	// disconnectAlert.tag = 2
-	self.disconnectAlert = [[UIAlertView alloc] initWithTitle:@"" message:@"Are you sure you want to disconnect from alljoyn?" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"OK", nil];
-	self.disconnectAlert.alertViewStyle = UIAlertViewStyleDefault;
-    
-	// announcementOptionsAlert.tag = 3
+    // announcementOptionsAlert.tag = 3
 	self.announcementOptionsAlert = [[UIAlertView alloc] initWithTitle:@"Choose option:" message:@"" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Show Announce", @"About", @"Control Panel", nil];
 	self.announcementOptionsAlert.alertViewStyle = UIAlertViewStyleDefault;
     
 	// announcementOptionsAlert.tag = 4
 	self.announcementOptionsAlertNoCPanel = [[UIAlertView alloc] initWithTitle:@"Choose option:" message:@"" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Show Announce", @"About", nil];
 	self.announcementOptionsAlertNoCPanel.alertViewStyle = UIAlertViewStyleDefault;
-    
 }
 
 - (void)performAnnouncementAction:(NSInteger)opt
@@ -333,7 +298,6 @@ static NSString * const CONTROLPANEL_INTERFACE_NAME = @"org.alljoyn.ControlPanel
 		case 2: // "About"
 		{
 			[self performSegueWithIdentifier:@"AboutClientSegue" sender:self]; // get the announcment object
-            
 		}
             break;
             
@@ -356,8 +320,14 @@ static NSString * const CONTROLPANEL_INTERFACE_NAME = @"org.alljoyn.ControlPanel
 {
 	QStatus status;
     
-     NSLog(@"[%@] [%@] Start About Client", @"DEBUG", [[self class] description]);
-
+    NSLog(@"[%@] [%@] Start About Client", @"DEBUG", [[self class] description]);
+    
+    status = [AJNPasswordManager setCredentialsForAuthMechanism:@"ALLJOYN_PIN_KEYX" usingPassword:@"000000"];
+	if (status != ER_OK) {
+        [AppDelegate alertAndLog:@"Failed to SetCredentials" status:status];
+        [self stopAboutClient];
+        return;
+	}
     
 	// Init AJNBusAttachment
 	self.clientBusAttachment = [[AJNBusAttachment alloc] initWithApplicationName:APPNAME allowRemoteMessages:ALLOWREMOTEMESSAGES];
@@ -365,77 +335,57 @@ static NSString * const CONTROLPANEL_INTERFACE_NAME = @"org.alljoyn.ControlPanel
 	// Start AJNBusAttachment
 	status = [self.clientBusAttachment start];
 	if (status != ER_OK) {
-         NSLog(@"[%@] [%@] Unable to connect to Start - exiting application", @"FATAL", [[self class] description]);
-
-		exit(1);
+        [AppDelegate alertAndLog:@"Failed AJNBusAttachment start" status:status];
+        [self stopAboutClient];
+        return;
 	}
-    
-    status = [AJNPasswordManager setCredentialsForAuthMechanism:@"ALLJOYN_PIN_KEYX" usingPassword:@"000000"];
-	if (status != ER_OK) {
-        NSLog(@"[%@] [%@] Failed to SetCredentials %@", @"FATAL", [[self class] description],[AJNStatus descriptionForStatusCode:status]);
-        
-		exit(1);
-	}
-
     
 	// Connect AJNBusAttachment
 	status = [self.clientBusAttachment connectWithArguments:@""];
 	if (status != ER_OK) {
-         NSLog(@"[%@] [%@] Failed to connect - exiting application", @"FATAL", [[self class] description]);
-
-		exit(1);
+        [AppDelegate alertAndLog:@"Failed AJNBusAttachment connectWithArguments" status:status];
+        [self stopAboutClient];
+        return;
 	}
-     NSLog(@"[%@] [%@] Create aboutClientListener", @"DEBUG", [[self class] description]);
- NSLog(@"[%@] [%@] Register aboutClientListener", @"DEBUG", [[self class] description]);
-
+    
+    NSLog(@"[%@] [%@] Create aboutClientListener", @"DEBUG", [[self class] description]);
+    NSLog(@"[%@] [%@] Register aboutClientListener", @"DEBUG", [[self class] description]);
+    
 	[self.clientBusAttachment registerBusListener:self];
     
 	self.announcementReceiver = [[AJNAnnouncementReceiver alloc] initWithAnnouncementListener:self andBus:self.clientBusAttachment];
 	status = [self.announcementReceiver registerAnnouncementReceiver];
 	if (status != ER_OK) {
-        NSLog(@"[%@] [%@] Failed to registerAnnouncementReceiver - exiting application", @"FATAL", [[self class] description]);
-
-        exit(1);
+		[AppDelegate alertAndLog:@"Failed to registerAnnouncementReceiver" status:status];
+        [self stopAboutClient];
+        return;
 	}
     
 	// Create a dictionary to contain announcements using a key in the format of: "announcementUniqueName + announcementObj"
 	self.clientInformationDict = [[NSMutableDictionary alloc] init];
     
-	// AddMatchRule
-	status = [self.clientBusAttachment addMatchRule:@"sessionless='t',type='error'"]; // This is added because we want to listen to the about announcements which are sessionless
-	if (status != ER_OK) {
-        NSLog(@"[%@] [%@] Failed at addMatchRule - exiting application", @"FATAL", [[self class] description]);
-
-		exit(1);
-	}
+    NSUUID *UUID = [NSUUID UUID];
+    NSString *stringUUID = [UUID UUIDString];
+    self.realmBusName = [NSString stringWithFormat:@"%@-%@", DEFAULT_REALM_BUS_NAME, stringUUID];
     
-    
-	// Advertise Daemon for tcl
+    // Advertise Daemon for tcl
 	status = [self.clientBusAttachment requestWellKnownName:self.realmBusName withFlags:kAJNBusNameFlagDoNotQueue];
 	if (status == ER_OK) {
-		// Advertise the name with a quite prefix for TC to find it
-		NSUUID *UUID = [NSUUID UUID];
-		NSString *stringUUID = [UUID UUIDString];
-        
-		self.realmBusName = [self.realmBusName stringByAppendingFormat:@"-%@", stringUUID];
-        
-		status = [self.clientBusAttachment advertiseName:[NSString stringWithFormat:@"%@%@", DAEMON_QUIET_PREFIX, self.realmBusName] withTransportMask:kAJNTransportMaskAny];
+        status = [self.clientBusAttachment advertiseName:[NSString stringWithFormat:@"%@%@", DAEMON_QUIET_PREFIX, self.realmBusName] withTransportMask:kAJNTransportMaskAny];
 		if (status != ER_OK) {
-            NSLog(@"[%@] [%@] Failed to advertise name - exiting application %@", @"FATAL", [[self class] description],[AJNStatus descriptionForStatusCode:status]);
-
-			status = [self.clientBusAttachment releaseWellKnownName:self.realmBusName];
-            
-			exit(1);
+            [AppDelegate alertAndLog:@"Failed to advertise name" status:status];
+            [self stopAboutClient];
+            return;
 		}
 		else {
             NSLog(@"[%@] [%@] Successfully advertised: %@%@", @"DEBUG", [[self class] description], DAEMON_QUIET_PREFIX, self.realmBusName);
 		}
 	}
 	else {
-        NSLog(@"[%@] [%@] Failed to requestWellKnownName - exiting application %@", @"FATAL", [[self class] description],[AJNStatus descriptionForStatusCode:status]);
-
-		exit(1);
-	}
+        [AppDelegate alertAndLog:@"Failed to requestWellKnownName" status:status];
+        [self stopAboutClient];
+        return;
+    }
     
     // Enable Client Security
     self.authenticationListenerImpl = [[AuthenticationListenerImpl alloc] init];
@@ -445,17 +395,28 @@ static NSString * const CONTROLPANEL_INTERFACE_NAME = @"org.alljoyn.ControlPanel
     } else {
         NSLog(@"Successfully enabled security for the bus");
     }
-
+    
 	[self.connectButton setTitle:self.ajdisconnect forState:UIControlStateNormal]; //change title to "Disconnect from AllJoyn"
 	self.isAboutClientConnected = true;
 }
 
-
 - (QStatus)enableClientSecurity
 {
-    QStatus status;
-    status = [self.clientBusAttachment enablePeerSecurity:@"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX" authenticationListener:self.authenticationListenerImpl keystoreFileName:@"Documents/alljoyn_keystore/s_central.ks" sharing:YES];
-    return status;
+	QStatus status;
+	status = [self.clientBusAttachment enablePeerSecurity:AUTH_MECHANISM authenticationListener:self.authenticationListenerImpl keystoreFileName:KEYSTORE_FILE_PATH sharing:YES];
+    
+    if (status != ER_OK) { //try to delete the keystore and recreate it, if that fails return failure
+        NSError *error;
+        NSString *keystoreFilePath = [NSString stringWithFormat:@"%@/alljoyn_keystore/s_central.ks", [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0]];
+        [[NSFileManager defaultManager] removeItemAtPath:keystoreFilePath error:&error];
+        if (error) {
+            NSLog(@"ERROR: Unable to delete keystore. %@", error);
+            return ER_AUTH_FAIL;
+        }
+        status = [self.clientBusAttachment enablePeerSecurity:AUTH_MECHANISM authenticationListener:self.authenticationListenerImpl keystoreFileName:KEYSTORE_FILE_PATH sharing:YES];
+    }
+    
+	return status;
 }
 
 - (void)addNewAnnouncemetEntry
@@ -469,7 +430,7 @@ static NSString * const CONTROLPANEL_INTERFACE_NAME = @"org.alljoyn.ControlPanel
 	// set the announcementButtonCurrentTitle
 	self.announcementButtonCurrentTitle = [self.clientInformationDict allKeys][requestedRow];
     
-     NSLog(@"[%@] [%@] Requested:  [%@]", @"DEBUG", [[self class] description],self.announcementButtonCurrentTitle);
+    NSLog(@"[%@] [%@] Requested:  [%@]", @"DEBUG", [[self class] description],self.announcementButtonCurrentTitle);
     
     // Check if announcement has icon object path
 	if ([self announcementHasCPanel:self.announcementButtonCurrentTitle]) {
@@ -505,20 +466,20 @@ static NSString * const CONTROLPANEL_INTERFACE_NAME = @"org.alljoyn.ControlPanel
 - (void)stopAboutClient
 {
 	QStatus status;
-     NSLog(@"[%@] [%@] Stop About Client", @"DEBUG", [[self class] description]);
+    NSLog(@"[%@] [%@] Stop About Client", @"DEBUG", [[self class] description]);
     
 	// Bus attachment cleanup
 	status = [self.clientBusAttachment cancelAdvertisedName:[NSString stringWithFormat:@"%@%@", DAEMON_QUIET_PREFIX, self.realmBusName] withTransportMask:kAJNTransportMaskAny];
 	if (status == ER_OK) {
-         NSLog(@"[%@] [%@] Successfully cancel advertised name", @"DEBUG", [[self class] description]);
+        NSLog(@"[%@] [%@] Successfully cancel advertised name", @"DEBUG", [[self class] description]);
 	}
 	status = [self.clientBusAttachment releaseWellKnownName:self.realmBusName];
 	if (status == ER_OK) {
-         NSLog(@"[%@] [%@] Successfully release WellKnownName", @"DEBUG", [[self class] description]);
+        NSLog(@"[%@] [%@] Successfully release WellKnownName", @"DEBUG", [[self class] description]);
 	}
 	status = [self.clientBusAttachment removeMatchRule:@"sessionless='t',type='error'"];
 	if (status == ER_OK) {
-         NSLog(@"[%@] [%@] Successfully remove MatchRule", @"DEBUG", [[self class] description]);
+        NSLog(@"[%@] [%@] Successfully remove MatchRule", @"DEBUG", [[self class] description]);
 	}
     
 	// Cancel advertise name for each announcement bus
@@ -526,14 +487,14 @@ static NSString * const CONTROLPANEL_INTERFACE_NAME = @"org.alljoyn.ControlPanel
 		ClientInformation *clientInfo = (self.clientInformationDict)[key];
 		status = [self.clientBusAttachment cancelFindAdvertisedName:[[clientInfo announcement] busName]];
 		if (status != ER_OK) {
-             NSLog(@"[%@] [%@] failed to cancelAdvertisedName for %@. status:%@", @"ERROR", [[self class] description],key, [AJNStatus descriptionForStatusCode:status]);
+            NSLog(@"[%@] [%@] failed to cancelAdvertisedName for %@. status:%@", @"ERROR", [[self class] description],key, [AJNStatus descriptionForStatusCode:status]);
 		}
 	}
 	self.clientInformationDict = nil;
     
 	status = [self.announcementReceiver unRegisterAnnouncementReceiver];
 	if (status == ER_OK) {
-         NSLog(@"[%@] [%@] Successfully unregistered AnnouncementReceiver", @"DEBUG", [[self class] description]);
+        NSLog(@"[%@] [%@] Successfully unregistered AnnouncementReceiver", @"DEBUG", [[self class] description]);
 	}
     
 	self.announcementReceiver = nil;
@@ -541,7 +502,7 @@ static NSString * const CONTROLPANEL_INTERFACE_NAME = @"org.alljoyn.ControlPanel
 	// Stop bus attachment
 	status = [self.clientBusAttachment stop];
 	if (status == ER_OK) {
-         NSLog(@"[%@] [%@] Successfully stopped bus", @"DEBUG", [[self class] description]);
+        NSLog(@"[%@] [%@] Successfully stopped bus", @"DEBUG", [[self class] description]);
     }
 	self.clientBusAttachment = nil;
     
@@ -553,7 +514,7 @@ static NSString * const CONTROLPANEL_INTERFACE_NAME = @"org.alljoyn.ControlPanel
     
 	[self.servicesTable performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
     
-     NSLog(@"[%@] [%@] About Client is stopped", @"DEBUG", [[self class] description]);
+    NSLog(@"[%@] [%@] About Client is stopped", @"DEBUG", [[self class] description]);
 }
 
 #pragma mark UITableView delegates
