@@ -25,14 +25,15 @@
 #import "alljoyn/config/AJCFGConfigLogger.h"
 #import "ConfigServiceListener.h"
 #import "CommonBusListener.h"
-
-#define DEFAULTPASSCODE @"000000"
+#import "AppDelegate.h"
 
 // Property store strings
 static NSString *const DEFAULT_LANGUAGE_STR = @"DefaultLanguage";
 static NSString *const DEVICE_NAME_STR = @"DeviceName";
 static NSString *const DEVICE_ID_STR = @"DeviceId";
 static NSString *const PASS_CODE_STR = @"passcode";
+
+static NSString *const DEFAULTPASSCODE = @"000000";
 
 static NSString *const DAEMON_QUIET_PREFIX = @"quiet@";  // About Client - quiet advertising
 static NSString *const ABOUT_CONFIG_OBJECT_PATH = @"/Config";  // Config Service
@@ -79,16 +80,17 @@ static AJNSessionPort SERVICE_PORT; // About Service - service port
 	int port = 900;
 	SERVICE_PORT = (AJNSessionPort)port;
     
-	serviceStatus = [AJNPasswordManager setCredentialsForAuthMechanism:@"ALLJOYN_PIN_KEYX" usingPassword:@"000000"];
+	serviceStatus = [AJNPasswordManager setCredentialsForAuthMechanism:@"ALLJOYN_PIN_KEYX" usingPassword:DEFAULTPASSCODE];
 	if (serviceStatus != ER_OK) {
-		[self.logger errorTag:[[self class] description] text:[NSString stringWithFormat:@"Failed to SetCredentials: %@", [AJNStatus descriptionForStatusCode:serviceStatus]]];
-		exit(1);
+        [AppDelegate alertAndLog:@"Failed to SetCredentials" status:serviceStatus];
+		[self stopConfigService];
+        return serviceStatus;
 	}
     
 	// Create message bus
 	self.busAttachment = [[AJNBusAttachment alloc] initWithApplicationName:@"ConfigService" allowRemoteMessages:ALLOWREMOTEMESSAGES];
 	if (!self.busAttachment) {
-		[self.logger errorTag:[[self class] description] text:@"Failed to create a message bus - exiting application."];
+		[self.logger errorTag:[[self class] description] text:@"Failed to create a message bus"];
 		serviceStatus = ER_OUT_OF_MEMORY;
 		return serviceStatus;
 	}
@@ -96,7 +98,7 @@ static AJNSessionPort SERVICE_PORT; // About Service - service port
 	//start the bus
 	serviceStatus = [self.busAttachment start];
 	if (serviceStatus != ER_OK) {
-		[self.logger errorTag:[[self class] description] text:[NSString stringWithFormat:@"Failed to start bus - exiting application %@", [AJNStatus descriptionForStatusCode:serviceStatus]]];
+		[self.logger errorTag:[[self class] description] text:[NSString stringWithFormat:@"Failed to start bus: %@", [AJNStatus descriptionForStatusCode:serviceStatus]]];
 		return serviceStatus;
 	}
     
@@ -106,13 +108,13 @@ static AJNSessionPort SERVICE_PORT; // About Service - service port
 	serviceStatus = [self fillAboutPropertyStoreImplData];
     
 	if (serviceStatus != ER_OK) {
-		[self.logger errorTag:[[self class] description] text:[NSString stringWithFormat:@"Failed to fill propertyStore - exiting application: %@", [AJNStatus descriptionForStatusCode:serviceStatus]]];
+		[self.logger errorTag:[[self class] description] text:[NSString stringWithFormat:@"Failed to fill propertyStore: %@", [AJNStatus descriptionForStatusCode:serviceStatus]]];
 		return serviceStatus;
 	}
     
 	serviceStatus = [self.busAttachment connectWithArguments:@""];
 	if (serviceStatus != ER_OK) {
-		[self.logger errorTag:[[self class] description] text:[NSString stringWithFormat:@"Failed to connectWithArguments - exiting application: %@", [AJNStatus descriptionForStatusCode:serviceStatus]]];
+		[self.logger errorTag:[[self class] description] text:[NSString stringWithFormat:@"Failed to connectWithArguments: %@", [AJNStatus descriptionForStatusCode:serviceStatus]]];
 	}
     
 	self.aboutSessionPortListener = [[CommonBusListener alloc] initWithServicePort:(SERVICE_PORT)];
@@ -125,7 +127,7 @@ static AJNSessionPort SERVICE_PORT; // About Service - service port
 	self.aboutServiceApi = [AJNAboutServiceApi sharedInstance];
 	if (!self.aboutServiceApi) {
 		serviceStatus =  ER_BUS_NOT_ALLOWED;
-		[self.logger errorTag:[[self class] description] text:[NSString stringWithFormat:@"Failed to create aboutServiceApi - exiting application: %@", [AJNStatus descriptionForStatusCode:serviceStatus]]];
+		[self.logger errorTag:[[self class] description] text:[NSString stringWithFormat:@"Failed to create aboutServiceApi: %@", [AJNStatus descriptionForStatusCode:serviceStatus]]];
 		return serviceStatus;
 	}
     
@@ -139,7 +141,7 @@ static AJNSessionPort SERVICE_PORT; // About Service - service port
 	}
     
 	if (serviceStatus != ER_OK) {
-		[self.logger errorTag:[[self class] description] text:[NSString stringWithFormat:@"Failed register port - exiting application: %@", [AJNStatus descriptionForStatusCode:serviceStatus]]];
+		[self.logger errorTag:[[self class] description] text:[NSString stringWithFormat:@"Failed register port: %@", [AJNStatus descriptionForStatusCode:serviceStatus]]];
 		return serviceStatus;
 	}
     
@@ -284,16 +286,13 @@ static AJNSessionPort SERVICE_PORT; // About Service - service port
 	QStatus status;
 	if (self.isServiceOn == NO) {
 		status = [self startConfigService];
-        
 		if (status == ER_OK) {
 			[sender setTitle:@"Stop Service" forState:UIControlStateNormal];
 			self.isServiceOn = YES;
+		} else {
+            [AppDelegate alertAndLog:@"Start Config Service Failed" status:status];
 		}
-		else {
-			[[[UIAlertView alloc] initWithTitle:@"Start Config Service Failed" message:[NSString stringWithFormat:@"Error occured:%@", [AJNStatus descriptionForStatusCode:status]] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
-		}
-	}
-	else {
+	} else {
 		[self stopConfigService];
 		[sender setTitle:@"Start Service" forState:UIControlStateNormal];
 		self.isServiceOn = NO;

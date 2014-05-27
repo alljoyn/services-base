@@ -136,7 +136,7 @@
         currentSSID = dict[@"SSID"];
         NSLog(@"Current SSID: %@", currentSSID);
     }
-    return [currentSSID hasPrefix:SOFT_AP_PREFIX] | [currentSSID hasSuffix:SOFT_AP_SUFFIX];
+    return [currentSSID hasPrefix:AJ_AP_PREFIX] | [currentSSID hasSuffix:AJ_AP_SUFFIX];
 }
 
 -(void)updateStatusLabel:(NSString *)status

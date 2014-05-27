@@ -104,14 +104,14 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
         NSString *title = [NSString stringWithFormat:@"Devices on: %@",dict[@"SSID"]];
         
         // Set the instructions Label text according to the network type
-        if ([dict[@"SSID"] hasPrefix:SOFT_AP_PREFIX] || [dict[@"SSID"] hasSuffix:SOFT_AP_SUFFIX]) {
-            self.instructionsLabel.text = @"You are currently connected to a device SoftAP.\n\nPress \"Connect to AllJoyn\" to see the device in the list above.\n\nPress on the device name->onboarding to start onboarding.";
+        if ([dict[@"SSID"] hasPrefix:AJ_AP_PREFIX] || [dict[@"SSID"] hasSuffix:AJ_AP_SUFFIX]) {
+            self.instructionsLabel.text = @"You are currently connected to a device Access Point.\n\nPress \"Connect to AllJoyn\" to see the device in the list above.\n\nPress on the device name->onboarding to start onboarding.";
         } else {
-            self.instructionsLabel.text =  @"To onboard a new device:\nConnect to the device's Wi-Fi SoftAP by going to Settings -> Wi-Fi\n\nTo see the devices on this network:\nPress \"Connect to AllJoyn\"";
+            self.instructionsLabel.text =  @"To onboard a new device:\nConnect to the device's Wi-Fi Access Point by going to Settings -> Wi-Fi\n\nTo see the devices on this network:\nPress \"Connect to AllJoyn\"";
         }
         
         if (![self.title isEqualToString:title]) {
-            if ((![dict[@"SSID"] hasPrefix:SOFT_AP_PREFIX] && ![dict[@"SSID"] hasSuffix:SOFT_AP_SUFFIX]) && ![dict[@"SSID"] isEqualToString:[[NSUserDefaults standardUserDefaults]valueForKey:@"lastVisitedNetwork"]]) {
+            if ((![dict[@"SSID"] hasPrefix:AJ_AP_PREFIX] && ![dict[@"SSID"] hasSuffix:AJ_AP_SUFFIX]) && ![dict[@"SSID"] isEqualToString:[[NSUserDefaults standardUserDefaults]valueForKey:@"lastVisitedNetwork"]]) {
                 NSLog(@"setting lastVisitedNetwork to: %@", dict[@"SSID"]);
                 [[NSUserDefaults standardUserDefaults] setValue:dict[@"SSID"] forKey:@"lastVisitedNetwork"];
                 [[NSUserDefaults standardUserDefaults] synchronize];

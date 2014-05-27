@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -92,7 +92,11 @@ static NSString * const DAEMON_NAME = @"org.alljoyn.BusNode.IoeService"; // For 
     
     if (!self.isConsumerOn && !self.isProducerOn) {
         [self.logger debugTag:[[self class] description] text:@"loadNewSession"];
-        [self loadNewSession];
+        status = [self loadNewSession];
+        if (ER_OK != status) {
+            [[[UIAlertView alloc] initWithTitle:@"Startup Error" message:[NSString stringWithFormat:@"%@ (%@)",@"Failed to prepare AJNBusAttachment", [AJNStatus descriptionForStatusCode:status]] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles: nil] show];
+            return;
+        }
     }
     
     // If application name hasn't been set - use the default
@@ -140,6 +144,7 @@ static NSString * const DAEMON_NAME = @"org.alljoyn.BusNode.IoeService"; // For 
                 status = [self.consumerVC startConsumer];
                 if (ER_OK != status) {
                     [self.logger debugTag:[[self class] description] text:@"Failed to startConsumer"];
+                    [[[UIAlertView alloc] initWithTitle:@"Startup Error" message:[NSString stringWithFormat:@"%@ (%@)",@"Failed to startConsumer", [AJNStatus descriptionForStatusCode:status]] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles: nil] show];
                     [self consumerCleanup];
                 }
             } else {
@@ -175,9 +180,9 @@ static NSString * const DAEMON_NAME = @"org.alljoyn.BusNode.IoeService"; // For 
 }
 
 #pragma mark - Util methods
-- (void)loadNewSession
+- (QStatus)loadNewSession
 {
-    QStatus status;
+    QStatus status = ER_OK;
     
     // Set a default logger
     self.logger = [[AJSVCGenericLoggerDefaultImpl alloc] init];
@@ -185,12 +190,13 @@ static NSString * const DAEMON_NAME = @"org.alljoyn.BusNode.IoeService"; // For 
     if (!self.busAttachment) {
         status = [self prepareBusAttachment:nil];
         if (ER_OK != status) {
-            [self.logger debugTag:@"" text:@"Failed to prepareBusAttachment - exiting application"];
-            exit(1);
+            [self.logger debugTag:@"" text:@"Failed to prepareBusAttachment"];
+            return status;
         } else {
             [self.logger debugTag:[[self class] description] text:@"Bus is ready to use"];
         }
     }
+    return status;
 }
 
 - (void)closeSession
