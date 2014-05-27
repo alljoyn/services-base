@@ -2,15 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:../../../../../core/alljoyn/alljoyn_objc/AllJoynFramework_iOS/AllJoynFramework_iOS.xcodeproj">
-   </FileRef>
-   <FileRef
-      location = "group:../../../../../core/alljoyn/services/about/ios/samples/alljoyn_services_cpp/alljoyn_about_cpp.xcodeproj">
-   </FileRef>
-   <FileRef
-      location = "group:../../../../../core/alljoyn/services/about/ios/samples/alljoyn_services_objc/alljoyn_about_objc.xcodeproj">
-   </FileRef>
-   <FileRef
       location = "group:sampleApp/OnBoardingService.xcodeproj">
    </FileRef>
    <FileRef

@@ -406,6 +406,7 @@
 					"\"$(ALLJOYN_SDK_ROOT)/alljoyn_objc/AllJoynFramework/AllJoynFramework/\"",
 					"$(BUILT_PRODUCTS_DIR)/inc/**",
 					"\"../../../cpp/inc\"",
+					"\"../../inc/\"",
 				);
 				INFOPLIST_FILE = "ControlPanelService/ControlPanelService-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -414,6 +415,8 @@
 					"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib",
 					"$(OPENSSL_ROOT)/build/$(CONFIGURATION)-$(PLATFORM_NAME)",
 					"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/about/lib",
+					"\"../../../cpp/lib\"",
+					"\"../../lib\"",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
@@ -457,6 +460,7 @@
 					"\"$(ALLJOYN_SDK_ROOT)/alljoyn_objc/AllJoynFramework/AllJoynFramework/\"",
 					"$(BUILT_PRODUCTS_DIR)/inc/**",
 					"\"../../../cpp/inc\"",
+					"\"../../inc/\"",
 				);
 				INFOPLIST_FILE = "ControlPanelService/ControlPanelService-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -465,6 +469,8 @@
 					"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib",
 					"$(OPENSSL_ROOT)/build/$(CONFIGURATION)-$(PLATFORM_NAME)",
 					"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/about/lib",
+					"\"../../../cpp/lib\"",
+					"\"../../lib\"",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (

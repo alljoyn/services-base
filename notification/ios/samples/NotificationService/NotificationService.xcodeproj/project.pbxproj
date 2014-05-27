@@ -428,6 +428,8 @@
 					"\"$(ALLJOYN_SDK_ROOT)/alljoyn_objc/AllJoynFramework/AllJoynFramework/\"",
 					"$(BUILT_PRODUCTS_DIR)/inc/**",
 					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/about/inc\"",
+					"\"../../inc/\"",
+					"\"../../../cpp/inc\"",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/NotificationService/NotificationService-Info.plist";
 				INSTALL_PATH = "$(LOCAL_APPS_DIR)";
@@ -437,6 +439,8 @@
 					"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib",
 					"$(OPENSSL_ROOT)/build/$(CONFIGURATION)-$(PLATFORM_NAME)",
 					"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/about/lib",
+					"\"../../../cpp/lib\"",
+					"\"../../lib\"",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
@@ -481,6 +485,8 @@
 					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
 					"\"$(ALLJOYN_SDK_ROOT)/alljoyn_objc/AllJoynFramework/AllJoynFramework/\"",
 					"$(BUILT_PRODUCTS_DIR)/inc/**",
+					"\"../../inc/\"",
+					"\"../../../cpp/inc\"",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/NotificationService/NotificationService-Info.plist";
 				INSTALL_PATH = "$(LOCAL_APPS_DIR)";
@@ -490,6 +496,8 @@
 					"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib",
 					"$(OPENSSL_ROOT)/build/$(CONFIGURATION)-$(PLATFORM_NAME)",
 					"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/about/lib",
+					"\"../../../cpp/lib\"",
+					"\"../../lib\"",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (

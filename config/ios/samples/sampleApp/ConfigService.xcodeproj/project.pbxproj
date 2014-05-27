@@ -418,6 +418,8 @@
 					"$(BUILT_PRODUCTS_DIR)/inc/**",
 					"\"$(ALLJOYN_SDK_ROOT)/services/about/ios/inc\"",
 					"\"$(ALLJOYN_SDK_ROOT)/services/about/cpp/inc\"",
+					"\"../../inc/\"",
+					"\"../../../cpp/inc\"",
 				);
 				INFOPLIST_FILE = "ConfigService/ConfigService-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -425,6 +427,9 @@
 					"$(OPENSSL_ROOT)/build/$(CONFIGURATION)-$(PLATFORM_NAME)",
 					"$(inherited)",
 					"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib",
+					"\"../../../cpp/lib\"",
+					"\"../../lib\"",
+					"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/about/lib",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
@@ -468,6 +473,8 @@
 					"$(BUILT_PRODUCTS_DIR)/inc/**",
 					"\"$(ALLJOYN_SDK_ROOT)/services/about/ios/inc\"",
 					"\"$(ALLJOYN_SDK_ROOT)/services/about/cpp/inc\"",
+					"\"../../inc/\"",
+					"\"../../../cpp/inc\"",
 				);
 				INFOPLIST_FILE = "ConfigService/ConfigService-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -475,6 +482,9 @@
 					"$(inherited)",
 					"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib",
 					"$(OPENSSL_ROOT)/build/$(CONFIGURATION)-$(PLATFORM_NAME)",
+					"\"../../../cpp/lib\"",
+					"\"../../lib\"",
+					"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/about/lib",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
