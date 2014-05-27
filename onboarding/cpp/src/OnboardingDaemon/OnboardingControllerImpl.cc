@@ -102,10 +102,10 @@ OnboardingControllerImpl::OnboardingControllerImpl(qcc::String scanFile,
     // Ignore SIGCHLD so we do not have to wait on the child processes
     //signal(SIGCHLD, SIG_IGN);
 
-    // Read state, error and scan info into memory
+    // Read state, error and scan info to create the scan_wifi file
     GetState();
     GetLastError();
-    ParseScanInfo();
+    StartScanWifi();
 
     // if the m_concurrency values are out of range, set it to min
     if (m_concurrency < OBConcurrency::CONCURRENCY_MIN || m_concurrency > OBConcurrency::CONCURRENCY_MAX) {
@@ -139,6 +139,8 @@ void OnboardingControllerImpl::ConfigureWiFi(qcc::String SSID, qcc::String passp
     status = m_concurrency;
 
     if (ANY == authType) {
+        // The contents of the scan file are used only for authType ANY
+        ParseScanInfo();
         std::map<qcc::String, OBScanInfo*>::iterator it = m_ScanList.find(SSID);
         if (it != m_ScanList.end() && it->second->authType != ANY) {
             // We have a scan record available with a known auth type.
@@ -449,7 +451,9 @@ void OnboardingControllerImpl::StartScanWifi()
 {
     m_scanWifiThreadIsRunning = true;
     execute_system(m_scanCmd.c_str());
-    timer_delete(m_scanWifiTimerId);
+    if (m_scanWifiTimerId) {
+        timer_delete(m_scanWifiTimerId);
+    }
     m_scanWifiThreadIsRunning = false;
 }
 
