@@ -122,7 +122,7 @@ QStatus ConstraintList::fillConstraintArg(MsgArg& val, uint16_t languageIndx, Pr
         return ER_FAIL;
     }
 
-    if (!m_Displays.size() > languageIndx && !m_GetDisplays) {
+    if (!(m_Displays.size() > languageIndx) && !m_GetDisplays) {
         QCC_DbgHLPrintf(("Could not fill the Constraint Arg. Display is not set"));
         return ER_FAIL;
     }

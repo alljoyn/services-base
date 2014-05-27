@@ -154,7 +154,7 @@ void Dialog::setLabelsAction3(const std::vector<qcc::String>& labelsAction3)
 
 QStatus Dialog::fillMessageArg(MsgArg& val, uint16_t languageIndx)
 {
-    if (!m_Messages.size() > languageIndx && !m_GetMessages) {
+    if (!(m_Messages.size() > languageIndx) && !m_GetMessages) {
         return ER_BUS_PROPERTY_VALUE_NOT_SET;
     }
 

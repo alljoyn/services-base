@@ -64,7 +64,7 @@ void Label::setGetLabels(GetStringFptr getLabels)
 
 QStatus Label::fillLabelArg(MsgArg& val, uint16_t languageIndx)
 {
-    if (!m_LabelWidgetLabels.size() > languageIndx && !m_LabelWidgetGetLabels) {
+    if (!(m_LabelWidgetLabels.size() > languageIndx) && !m_LabelWidgetGetLabels) {
         return ER_BUS_PROPERTY_VALUE_NOT_SET;
     }
 
