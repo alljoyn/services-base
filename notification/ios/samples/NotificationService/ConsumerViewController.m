@@ -98,13 +98,6 @@ static NSString *const CONSUMER_DEFAULT_LANG = @"en";
 		return ER_FAIL;
 	}
     
-	// Call addSessionlessMatch
-	status = [self.busAttachment addMatchRule:@"sessionless='t',type='error'"];
-	if (status != ER_OK) {
-		[self.logger fatalTag:[[self class] description] text:@"Could not add sessionless match"];
-		return ER_FAIL;
-	}
-    
 	// Set Consumer UI
     [self.logger debugTag:[[self class] description] text:@"Waiting for notifications"];
 	return ER_OK;
