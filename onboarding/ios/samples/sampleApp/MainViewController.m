@@ -440,7 +440,7 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 	[self.clientBusAttachment registerBusListener:self];
     
 	self.announcementReceiver = [[AJNAnnouncementReceiver alloc] initWithAnnouncementListener:self andBus:self.clientBusAttachment];
-	status = [self.announcementReceiver registerAnnouncementReceiver];
+	status = [self.announcementReceiver registerAnnouncementReceiverForInterfaces:nil withNumberOfInterfaces:0];
 	if (status != ER_OK) {
         [self AlertAndLog:@"FATAL" message:@"Failed to registerAnnouncementReceiver" status:status];
         [self stopAboutClient];
@@ -450,15 +450,6 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
     
 	// Create a dictionary to contain announcements using a key in the format of: "announcementUniqueName + announcementObj"
 	self.clientInformationDict = [[NSMutableDictionary alloc] init];
-    
-	// AddMatchRule
-	status = [self.clientBusAttachment addMatchRule:@"sessionless='t',type='error'"]; // This is added because we want to listen to the about announcements which are sessionless
-	if (status != ER_OK) {
-        [self AlertAndLog:@"FATAL" message:@"Failed at addMatchRule" status:status];
-        [self stopAboutClient];
-
-        return;
-	}
     
     NSUUID *UUID = [NSUUID UUID];
     NSString *stringUUID = [UUID UUIDString];
@@ -521,8 +512,6 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
         }
         
         status = [self.clientBusAttachment enablePeerSecurity:@"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX" authenticationListener:self.authenticationListenerImpl keystoreFileName:@"Documents/alljoyn_keystore/s_central.ks" sharing:YES];
-
-
     }
     return status;
 }
@@ -613,7 +602,7 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 	}
 	self.clientInformationDict = nil;
     
-	status = [self.announcementReceiver unRegisterAnnouncementReceiver];
+	status = [self.announcementReceiver unRegisterAnnouncementReceiverForInterfaces:nil withNumberOfInterfaces:0];
 	if (status == ER_OK) {
          NSLog(@"[%@] [%@] Successfully unregistered AnnouncementReceiver", @"DEBUG", [[self class] description]);
 	} else {
