@@ -261,7 +261,7 @@
 				ORGANIZATIONNAME = AllJoyn;
 				TargetAttributes = {
 					19E2F03E17E87CE10005851F = {
-						DevelopmentTeam = CKX258TW87;
+						DevelopmentTeam = 3CDNU3SH4G;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 0;
