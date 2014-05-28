@@ -431,7 +431,7 @@ static NSString *const  AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX";
 	[self.clientBusAttachment registerBusListener:self];
     
 	self.announcementReceiver = [[AJNAnnouncementReceiver alloc] initWithAnnouncementListener:self andBus:self.clientBusAttachment];
-	status = [self.announcementReceiver registerAnnouncementReceiver];
+	status = [self.announcementReceiver registerAnnouncementReceiverForInterfaces:nil withNumberOfInterfaces:0];
 	if (status != ER_OK) {
 		[AppDelegate alertAndLog:@"Failed to registerAnnouncementReceiver" status:status];
         [self stopAboutClient];
@@ -585,7 +585,7 @@ static NSString *const  AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX";
 	}
 	self.clientInformationDict = nil;
     
-	status = [self.announcementReceiver unRegisterAnnouncementReceiver];
+	status = [self.announcementReceiver unRegisterAnnouncementReceiverForInterfaces:nil withNumberOfInterfaces:0];
 	if (status == ER_OK) {
 		[self.logger debugTag:[[self class] description] text:@"Successfully unregistered AnnouncementReceiver"];
 	}
