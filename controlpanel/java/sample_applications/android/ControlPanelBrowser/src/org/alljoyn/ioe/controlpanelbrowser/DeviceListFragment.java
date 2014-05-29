@@ -31,6 +31,8 @@ import org.alljoyn.bus.VariantUtil;
 import org.alljoyn.ioe.controlpanelbrowser.DeviceList.DeviceContext;
 import org.alljoyn.ioe.controlpanelservice.ControlPanelException;
 import org.alljoyn.ioe.controlpanelservice.ControlPanelService;
+import org.alljoyn.ioe.controlpanelservice.communication.interfaces.ControlPanel;
+import org.alljoyn.ioe.controlpanelservice.communication.interfaces.HTTPControl;
 import org.alljoyn.services.common.AnnouncementHandler;
 import org.alljoyn.services.common.BusObjectDescription;
 import org.alljoyn.services.common.utils.GenericLogger;
@@ -364,9 +366,9 @@ public class DeviceListFragment extends ListFragment {
 
 			//Pump up the daemon debug level 
 			
-//			m_busAttachment.setDaemonDebug("ALL", 7);
-//			m_busAttachment.setLogLevels("ALL=7");
-//			m_busAttachment.useOSLogging(true);
+			//bus.setDaemonDebug("ALL", 7);
+			//bus.setLogLevels("ALLJOYN=7");
+			//bus.useOSLogging(true);
 
 			// load the password for accessing secured interfaces on the board
 			SharedPreferences settings = getActivity().getSharedPreferences(PREFS_NAME, 0);
@@ -420,7 +422,7 @@ public class DeviceListFragment extends ListFragment {
 			aboutClient.setLogger(logger);
 			try {
 				aboutClient.startAboutClient(bus);
-				aboutClient.addAnnouncementHandler(this);
+				aboutClient.addAnnouncementHandler(this, new String[]{ControlPanel.IFNAME, HTTPControl.IFNAME});
 			} catch (Exception e) {
 				logger.error(TAG, "Unable to start AboutService, Error: " + e.getMessage());
 			}
@@ -451,7 +453,7 @@ public class DeviceListFragment extends ListFragment {
 		private void disconnect() {
 		    ControlPanelService.getInstance().shutdown();
 			try {
-				aboutClient.removeAnnouncementHandler(this);
+				aboutClient.removeAnnouncementHandler(this, new String[]{ControlPanel.IFNAME, HTTPControl.IFNAME});
 				AboutServiceImpl.getInstance().stopAboutClient();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
