@@ -431,7 +431,7 @@ static NSString *const  AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX";
 	[self.clientBusAttachment registerBusListener:self];
     
 	self.announcementReceiver = [[AJNAnnouncementReceiver alloc] initWithAnnouncementListener:self andBus:self.clientBusAttachment];
-	status = [self.announcementReceiver registerAnnouncementReceiver];
+	status = [self.announcementReceiver registerAnnouncementReceiverForInterfaces:nil withNumberOfInterfaces:0];
 	if (status != ER_OK) {
 		[AppDelegate alertAndLog:@"Failed to registerAnnouncementReceiver" status:status];
         [self stopAboutClient];
@@ -440,14 +440,6 @@ static NSString *const  AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX";
     
 	// Create a dictionary to contain announcements using a key in the format of: "announcementUniqueName + announcementObj"
 	self.clientInformationDict = [[NSMutableDictionary alloc] init];
-    
-	// AddMatchRule
-	status = [self.clientBusAttachment addMatchRule:@"sessionless='t',type='error'"]; // This is added because we want to listen to the about announcements which are sessionless
-	if (status != ER_OK) {
-		[AppDelegate alertAndLog:@"Failed at addMatchRule" status:status];
-        [self stopAboutClient];
-        return;
-	}
     
     NSUUID *UUID = [NSUUID UUID];
     NSString *stringUUID = [UUID UUIDString];
@@ -514,9 +506,9 @@ static NSString *const  AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX";
             NSLog(@"ERROR: Unable to delete keystore. %@", error);
             return ER_AUTH_FAIL;
         }
+        
+        status = [self.clientBusAttachment enablePeerSecurity:AUTH_MECHANISM authenticationListener:self keystoreFileName:KEYSTORE_FILE_PATH sharing:YES];
     }
-    
-    status = [self.clientBusAttachment enablePeerSecurity:AUTH_MECHANISM authenticationListener:self keystoreFileName:KEYSTORE_FILE_PATH sharing:YES];
     
 	return status;
 }
@@ -593,7 +585,7 @@ static NSString *const  AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX";
 	}
 	self.clientInformationDict = nil;
     
-	status = [self.announcementReceiver unRegisterAnnouncementReceiver];
+	status = [self.announcementReceiver unRegisterAnnouncementReceiverForInterfaces:nil withNumberOfInterfaces:0];
 	if (status == ER_OK) {
 		[self.logger debugTag:[[self class] description] text:@"Successfully unregistered AnnouncementReceiver"];
 	}
