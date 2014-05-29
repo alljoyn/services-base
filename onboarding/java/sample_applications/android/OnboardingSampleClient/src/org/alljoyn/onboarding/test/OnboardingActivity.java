@@ -494,11 +494,16 @@ public class OnboardingActivity extends Activity {
 
 			@Override
 			protected void onPostExecute(Void result){
+			    Log.d(TAG, "connect: onPostExecute");
 				m_application.makeToast("Connect network done");
-				m_application.getIskWifiManager().connectToAP(m_networkName, m_networkPassword, (short)m_networkAuthType);
-				Log.d(TAG, "connect: onPostExecute");
-				m_tasksToPerform--;
-				dismissLoadingPopup();
+				new Timer().schedule(new TimerTask() {
+                                    @Override
+                                    public void run() {
+                                        m_application.getIskWifiManager().connectToAP(m_networkName, m_networkPassword, (short)m_networkAuthType);
+                                        m_tasksToPerform--;
+                                        dismissLoadingPopup();
+                                    }
+                                }, 3*1000);
 			}
 		};
 		m_tasksToPerform = 1;
