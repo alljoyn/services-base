@@ -440,7 +440,8 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 	[self.clientBusAttachment registerBusListener:self];
     
 	self.announcementReceiver = [[AJNAnnouncementReceiver alloc] initWithAnnouncementListener:self andBus:self.clientBusAttachment];
-	status = [self.announcementReceiver registerAnnouncementReceiverForInterfaces:nil withNumberOfInterfaces:0];
+    const char* interfaces[] = { [ONBOARDING_INTERFACE_NAME UTF8String] };
+	status = [self.announcementReceiver registerAnnouncementReceiverForInterfaces:interfaces withNumberOfInterfaces:1];
 	if (status != ER_OK) {
         [self AlertAndLog:@"FATAL" message:@"Failed to registerAnnouncementReceiver" status:status];
         [self stopAboutClient];
@@ -602,7 +603,8 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 	}
 	self.clientInformationDict = nil;
     
-	status = [self.announcementReceiver unRegisterAnnouncementReceiverForInterfaces:nil withNumberOfInterfaces:0];
+    const char* interfaces[] = { [ONBOARDING_INTERFACE_NAME UTF8String] };
+	status = [self.announcementReceiver unRegisterAnnouncementReceiverForInterfaces:interfaces withNumberOfInterfaces:1];
 	if (status == ER_OK) {
          NSLog(@"[%@] [%@] Successfully unregistered AnnouncementReceiver", @"DEBUG", [[self class] description]);
 	} else {
