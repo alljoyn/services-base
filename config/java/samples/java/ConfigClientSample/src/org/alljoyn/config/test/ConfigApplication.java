@@ -38,6 +38,7 @@ import org.alljoyn.bus.alljoyn.DaemonInit;
 import org.alljoyn.config.ConfigService;
 import org.alljoyn.config.ConfigServiceImpl;
 import org.alljoyn.config.client.ConfigClient;
+import org.alljoyn.config.transport.ConfigTransport;
 import org.alljoyn.services.android.security.AuthPasswordHandler;
 import org.alljoyn.services.android.security.SrpAnonymousKeyListener;
 import org.alljoyn.services.android.utils.AndroidLogger;
@@ -68,8 +69,10 @@ import android.util.Log;
 public class ConfigApplication extends Application implements AuthPasswordHandler, AnnouncementHandler {
 
     public static final String TAG = "ConfigClient";
-    public static final String TAG_PASSWORD = "ConfigApplication_password";
+    public static final String TAG_PASSWORD           = "ConfigApplication_password";
 
+    private static final String[] ANNOUNCEMENT_IFACES = new String[]{ConfigTransport.INTERFACE_NAME}; 
+    
     private BusAttachment busAttachment;
     private HashMap<UUID, Device> devicesMap;
     private AboutService aboutService;
@@ -315,7 +318,7 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
 
             aboutService = AboutServiceImpl.getInstance();
             aboutService.startAboutClient(busAttachment);
-            aboutService.addAnnouncementHandler(this);
+            aboutService.addAnnouncementHandler(this, ANNOUNCEMENT_IFACES);
 
             configService = ConfigServiceImpl.getInstance();
             configService.startConfigClient(busAttachment);
