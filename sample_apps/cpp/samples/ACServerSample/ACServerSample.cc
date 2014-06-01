@@ -41,7 +41,10 @@
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include <alljoyn/controlpanel/ControlPanelControllee.h>
 #include <alljoyn/controlpanel/LanguageSets.h>
+#include "ACEventsAndActions.h"
 #endif
+
+
 
 using namespace ajn;
 using namespace services;
@@ -49,6 +52,8 @@ using namespace services;
 #define SERVICE_EXIT_OK       0
 #define SERVICE_OPTION_ERROR  1
 #define SERVICE_CONFIG_ERROR  2
+
+#define _EVENTS_AND_ACTIONS_
 
 /** static variables need for sample */
 static BusAttachment* msgBus = NULL;
@@ -329,7 +334,13 @@ start:
     }
 #endif
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-
+    //ACEventsAndActions
+#ifdef _CONTROLPANEL_
+    #ifdef _EVENTS_AND_ACTIONS_
+    ACEventsAndActions theACEventsAndActions(msgBus);
+    #endif
+#endif
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
     const TransportMask SERVICE_TRANSPORT_TYPE = TRANSPORT_ANY;
 
     if (ER_OK == status) {
@@ -383,9 +394,9 @@ start:
 
     //Run in loop until interrupt is true
     while (s_interrupt == false && s_restart == false) {
-
 #ifdef _CONTROLPANEL_
-    #ifdef _NOTIFICATION_
+    #ifndef _EVENTS_AND_ACTIONS_
+        #ifdef _NOTIFICATION_
         if (isThereANotificationToSend() > 0) {
             NotificationMessageType messageType = NotificationMessageType(INFO);
             std::vector<NotificationText> vecMessages;
@@ -443,8 +454,8 @@ start:
                 std::cout << "Notification sent " << std::endl;
             }
         }
-
-    #endif
+        #endif //_NOTIFICATION_
+    #endif //_EVENTS_AND_ACTIONS_
         uint8_t sendUpdates = checkForUpdatesToSend();
         if (sendUpdates > 0) {
 
@@ -476,6 +487,12 @@ start:
             }
 
         }
+#endif //_CONTROLPANEL_
+
+#ifdef _CONTROLPANEL_
+    #ifdef _EVENTS_AND_ACTIONS_
+        theACEventsAndActions.SendEventsForActions();
+    #endif
 #endif
         sleep(2);
     }

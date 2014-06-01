@@ -66,4 +66,8 @@ void setOfferToTurnOffTheFan(bool turnOffTheFan);
 bool getOfferToTurnOnTheFan();
 void setOfferToTurnOnTheFan(bool turnOnTheFan);
 
+uint8_t checkForEventsToSend();
+void resetEventsToSend();
+uint8_t getEventsToSend();
+
 #endif /* CONTROLPANELPROVIDED_H_ */
