@@ -151,6 +151,8 @@ public class DeviceListFragment extends ListFragment {
 	private static final String PREFS_PASSWORD = "CPB_PASS";
 	private static final String DEFAULT_SECURED_SRP_PASSWORD     = "000000";
 	private String srpPassword = DEFAULT_SECURED_SRP_PASSWORD;
+
+	private static final String[] ANNOUNCE_IFACE = new String[]{ControlPanel.IFNAME, HTTPControl.IFNAME};
 	
 	/**
 	 *  Load the native alljoyn_java library. 
@@ -422,7 +424,7 @@ public class DeviceListFragment extends ListFragment {
 			aboutClient.setLogger(logger);
 			try {
 				aboutClient.startAboutClient(bus);
-				aboutClient.addAnnouncementHandler(this, new String[]{ControlPanel.IFNAME, HTTPControl.IFNAME});
+				aboutClient.addAnnouncementHandler(this, ANNOUNCE_IFACE);
 			} catch (Exception e) {
 				logger.error(TAG, "Unable to start AboutService, Error: " + e.getMessage());
 			}
@@ -453,7 +455,7 @@ public class DeviceListFragment extends ListFragment {
 		private void disconnect() {
 		    ControlPanelService.getInstance().shutdown();
 			try {
-				aboutClient.removeAnnouncementHandler(this, new String[]{ControlPanel.IFNAME, HTTPControl.IFNAME});
+				aboutClient.removeAnnouncementHandler(this, ANNOUNCE_IFACE);
 				AboutServiceImpl.getInstance().stopAboutClient();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
