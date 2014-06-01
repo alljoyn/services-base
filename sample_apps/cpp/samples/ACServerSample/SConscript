@@ -30,10 +30,14 @@ if '_CONTROLPANEL_' in local_env["CPPDEFINES"] :
 
     genobjs = local_env.SConscript('generated/SConscript', {'env': local_env})
     providedobjs = local_env.SConscript('provided/SConscript', {'env': local_env})
-   
+
     objs.extend(genobjs)
     objs.extend(providedobjs)
-    
+
+    eventsAndActionsSrc = 'ACEventsAndActions.cc'
+    eventsAndActionsObjs = local_env.Object(eventsAndActionsSrc)
+    objs.extend(eventsAndActionsObjs)
+
 if '_ONBOARDING_' in local_env["CPPDEFINES"] :
     onboardingSrcs = 'OnboardingControllerImpl.cc'
     onboardingObjs = local_env.Object(onboardingSrcs)

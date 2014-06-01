@@ -45,6 +45,7 @@ static bool offerToTurnOnTheFan = false;
 static bool offerToTurnOffTheFan = false;
 static std::time_t fanIsActiveFromSec = 0;
 static const uint16_t waitBeforeOfferToTurnOffFanSec = 15;
+static uint8_t eventsToSend = 0;
 
 void disableFan()
 {
@@ -225,7 +226,39 @@ void setModeFieldUpdate()
 {
     signalsToSend |= 1 << 4;
 }
+//Events and actions block
+void resetEventsToSend()
+{
+    eventsToSend = 0;
+}
 
+uint8_t getEventsToSend()
+{
+    return eventsToSend;
+}
+
+void set80FReachedEvent()
+{
+    printf("set80FReachedEvent()\n");
+    eventsToSend |= 1 << 0;
+}
+
+void set60FReachedEvent()
+{
+    printf("set60FReachedEvent()\n");
+    eventsToSend |= 1 << 1;
+}
+
+void setTurnedOffEvent() {
+    printf("setTurnedOffEvent()\n");
+    eventsToSend |= 1 << 2;
+}
+
+void setTurnedOnEvent() {
+    printf("setTurnedOnEvent()\n");
+    eventsToSend |= 1 << 3;
+}
+//Events and actions block end
 uint8_t checkForUpdatesToSend()
 {
     // this needs to be the brain
@@ -312,6 +345,8 @@ uint8_t checkForUpdatesToSend()
             // fan mode or off, don't do anything
         }
     }
+
+    checkForEventsToSend();
 
     //check if the mode has been changed & update accordingly
     if (currentMode != previousMode) {
@@ -532,5 +567,36 @@ void setOfferToTurnOffTheFan(bool turnOffTheFan)
 bool getOfferToTurnOffTheFan()
 {
     return offerToTurnOffTheFan;
+}
+
+// mode
+//0 == auto
+//1 == cool
+//2 == heat
+//3 == fan
+//4 == off
+uint8_t checkForEventsToSend()
+{
+    // 0x01 == need to send event 80F reached
+    // 0x02 == need to send event 60F reached
+    // 0x04 == need to send event mode turned off
+    // 0x08 == need to send event mode turned on
+
+    if (targetTemp >= currentTemperature && currentTemperature == 80) {
+        set80FReachedEvent();
+    }
+    if (targetTemp <= currentTemperature && currentTemperature == 60) {
+        set60FReachedEvent();
+    }
+
+    if (currentMode != previousMode) {
+        if (currentMode == 4) {
+            setTurnedOffEvent();
+        } else if (previousMode == 4) {
+            setTurnedOnEvent();
+        }
+    }
+
+    return eventsToSend;
 }
 
