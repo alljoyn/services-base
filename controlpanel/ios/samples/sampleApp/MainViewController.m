@@ -34,10 +34,11 @@ static NSString * const APPNAME = @"AboutClientMain"; // About Client - default 
 static NSString * const DAEMON_QUIET_PREFIX  = @"quiet@";   // About Client - quiet advertising
 static NSString * const CONTROLPANEL_OBJECT_PATH = @"/ControlPanel/";
 static NSString * const CONTROLPANEL_INTERFACE_NAME = @"org.alljoyn.ControlPanel.ControlPanel";
-static NSString *const DEFAULT_REALM_BUS_NAME = @"org.alljoyn.BusNode.ControlPanelClient";
+static NSString * const HTTPCONTROL_INTERFACE_NAME = @"org.alljoyn.ControlPanel.HTTPControl";
+static NSString * const DEFAULT_REALM_BUS_NAME = @"org.alljoyn.BusNode.ControlPanelClient";
 
-static NSString *const KEYSTORE_FILE_PATH = @"Documents/alljoyn_keystore/s_central.ks";
-static NSString *const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX";
+static NSString * const KEYSTORE_FILE_PATH = @"Documents/alljoyn_keystore/s_central.ks";
+static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX";
 
 @interface MainViewController ()
 @property NSString *className;
@@ -354,7 +355,8 @@ static NSString *const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX";
 	[self.clientBusAttachment registerBusListener:self];
     
 	self.announcementReceiver = [[AJNAnnouncementReceiver alloc] initWithAnnouncementListener:self andBus:self.clientBusAttachment];
-	status = [self.announcementReceiver registerAnnouncementReceiverForInterfaces:nil withNumberOfInterfaces:0];
+    const char* interfaces[] = { [CONTROLPANEL_INTERFACE_NAME UTF8String], [HTTPCONTROL_INTERFACE_NAME UTF8String] };
+	status = [self.announcementReceiver registerAnnouncementReceiverForInterfaces:interfaces withNumberOfInterfaces:2];
 	if (status != ER_OK) {
 		[AppDelegate alertAndLog:@"Failed to registerAnnouncementReceiver" status:status];
         [self stopAboutClient];
@@ -492,7 +494,8 @@ static NSString *const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX";
 	}
 	self.clientInformationDict = nil;
     
-	status = [self.announcementReceiver unRegisterAnnouncementReceiverForInterfaces:nil withNumberOfInterfaces:0];
+    const char* interfaces[] = { [CONTROLPANEL_INTERFACE_NAME UTF8String], [HTTPCONTROL_INTERFACE_NAME UTF8String] };
+	status = [self.announcementReceiver unRegisterAnnouncementReceiverForInterfaces:interfaces withNumberOfInterfaces:2];
 	if (status == ER_OK) {
         NSLog(@"[%@] [%@] Successfully unregistered AnnouncementReceiver", @"DEBUG", [[self class] description]);
 	}
