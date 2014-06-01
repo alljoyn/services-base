@@ -1,4 +1,4 @@
-# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+# Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
@@ -16,6 +16,9 @@ Import('sample_env')
 
 jars = []
 jars += sample_env.SConscript('ConfigServerSample/SConscript', exports = ['sample_env'])
-jars += sample_env.SConscript('ConfigClientSample/SConscript', exports = ['sample_env'])
-
+# The config client sample is an Android project and is not currently set up to
+# build using SCons. Prevent Build Failure if None is returned.
+configClient_jars = sample_env.SConscript('ConfigClientSample/SConscript', exports = ['sample_env'])
+if configClient_jars != None:
+    jars += configClient_jars
 Return('jars')
