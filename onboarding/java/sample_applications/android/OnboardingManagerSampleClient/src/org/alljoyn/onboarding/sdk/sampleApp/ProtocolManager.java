@@ -31,6 +31,7 @@ import org.alljoyn.bus.SessionOpts;
 import org.alljoyn.bus.Status;
 import org.alljoyn.bus.Variant;
 import org.alljoyn.bus.alljoyn.DaemonInit;
+import org.alljoyn.onboarding.transport.OnboardingTransport;
 import org.alljoyn.onboarding.sdk.OnboardingIllegalArgumentException;
 import org.alljoyn.onboarding.sdk.OnboardingIllegalStateException;
 import org.alljoyn.onboarding.sdk.OnboardingManager;
@@ -261,7 +262,7 @@ public class ProtocolManager implements AnnouncementHandler {
         try {
             aboutService = AboutServiceImpl.getInstance();
             aboutService.startAboutClient(busAttachment);
-            aboutService.addAnnouncementHandler(this);
+            aboutService.addAnnouncementHandler(this, new String[]{OnboardingTransport.INTERFACE_NAME});
 
             // Add auth listener - needed for OnboardingService secure calls
             String keyStoreFileName = context.getFileStreamPath("alljoyn_keystore").getAbsolutePath();

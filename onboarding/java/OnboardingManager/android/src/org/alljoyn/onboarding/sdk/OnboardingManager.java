@@ -1048,7 +1048,7 @@ public class OnboardingManager {
                 listenToAnnouncementsFlag=false;
             }
 
-            aboutService.addAnnouncementHandler(announcementHandler);
+            aboutService.addAnnouncementHandler(announcementHandler, new String[]{OnboardingTransport.INTERFACE_NAME});
             this.context = context;
             this.onboardingSDKWifiManager = new OnboardingSDKWifiManager(this.context);
             this.bus = bus;
@@ -1069,7 +1069,7 @@ public class OnboardingManager {
                 this.aboutService=null;
                 this.onboardingSDKWifiManager=null;
                 if (aboutService!=null){
-                    aboutService.removeAnnouncementHandler(announcementHandler);
+                    aboutService.removeAnnouncementHandler(announcementHandler, new String[]{OnboardingTransport.INTERFACE_NAME});
                 }
             }else{
                 throw new OnboardingIllegalStateException("Not in IDLE state ,please Abort first");
