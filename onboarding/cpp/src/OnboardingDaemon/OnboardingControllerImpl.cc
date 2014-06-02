@@ -167,6 +167,7 @@ void OnboardingControllerImpl::ConfigureWiFi(qcc::String SSID, qcc::String passp
                                 continue;
                             }
                         }
+                        break;
 
                     case WEP:
                         {
@@ -174,6 +175,7 @@ void OnboardingControllerImpl::ConfigureWiFi(qcc::String SSID, qcc::String passp
                                 continue;
                             }
                         }
+                        break;
                     }
 
 
