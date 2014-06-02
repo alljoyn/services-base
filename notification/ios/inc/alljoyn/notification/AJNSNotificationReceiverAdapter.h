@@ -15,8 +15,8 @@
  ******************************************************************************/
 
 #import <vector>
-#import "NotificationReceiver.h"
-#import "Notification.h"
+#import "alljoyn/notification/NotificationReceiver.h"
+#import "alljoyn/notification/Notification.h"
 #import "AJNSNotificationReceiver.h"
 
 /**

@@ -17,7 +17,7 @@
 #ifndef AJNSNOTIFICATIONRECEIVER_H_
 #define AJNSNOTIFICATIONRECEIVER_H_
 #import <Foundation/Foundation.h>
-#import "NotificationReceiver.h"
+#import "alljoyn/notification/NotificationReceiver.h"
 #import "AJNSNotification.h"
 
 /**

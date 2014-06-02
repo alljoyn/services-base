@@ -15,9 +15,9 @@
  ******************************************************************************/
 
 #import <Foundation/Foundation.h>
-#import "NotificationSender.h"
-#import "Notification.h"
-#import "NotificationEnums.h"
+#import "alljoyn/notification/NotificationSender.h"
+#import "alljoyn/notification/Notification.h"
+#import "alljoyn/notification/NotificationEnums.h"
 #import "AJNSNotificationEnums.h"
 #import "AJNSNotification.h"
 #import "alljoyn/about/AJNPropertyStore.h"

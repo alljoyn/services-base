@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import <Foundation/Foundation.h>
-#import "Notification.h"
+#import "alljoyn/notification/Notification.h"
 #import "AJNSNotificationEnums.h"
 #import "AJNSRichAudioUrl.h"
 #import "AJNSNotificationText.h"
