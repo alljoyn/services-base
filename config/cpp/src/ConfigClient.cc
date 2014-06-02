@@ -294,7 +294,7 @@ QStatus ConfigClient::GetVersion(const char* busName, int& version, ajn::Session
     }
     do {
         MsgArg arg;
-        CHECK_BREAK(proxyBusObj->IntrospectRemoteObject())
+        CHECK_BREAK(proxyBusObj->AddInterface(*p_InterfaceDescription))
         CHECK_BREAK(proxyBusObj->GetProperty(CONFIG_INTERFACE_NAME, "Version", arg))
         version = arg.v_variant.val->v_int16;
     } while (0);
