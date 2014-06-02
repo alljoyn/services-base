@@ -179,6 +179,6 @@ void CommonSampleUtil::aboutServiceDestroy(BusAttachment* bus,
 
 QStatus CommonSampleUtil::EnableSecurity(BusAttachment* bus, AuthListener* authListener)
 {
-    QStatus status = bus->EnablePeerSecurity("ALLJOYN_PIN_KEYX ALLJOYN_SRP_KEYX", authListener);
+    QStatus status = bus->EnablePeerSecurity("ALLJOYN_PIN_KEYX ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK", authListener);
     return status;
 }
