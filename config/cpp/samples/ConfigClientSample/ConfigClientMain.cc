@@ -509,7 +509,7 @@ int main(int argc, char**argv, char**envArg)
     srpKeyXListener = new SrpKeyXListener();
     srpKeyXListener->setPassCode(INITIAL_PASSCODE);
 
-    status = busAttachment->EnablePeerSecurity("ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX", srpKeyXListener,
+    status = busAttachment->EnablePeerSecurity("ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX ALLJOYN_ECDHE_PSK", srpKeyXListener,
                                                "/.alljoyn_keystore/central.ks", true);
 
     AnnounceHandlerImpl* announceHandler = new AnnounceHandlerImpl(announceHandlerCallback);

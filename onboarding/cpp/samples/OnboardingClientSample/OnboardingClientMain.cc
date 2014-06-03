@@ -429,7 +429,7 @@ int main(int argc, char**argv, char**envArg) {
     }
 
     SrpKeyXListener* srpKeyXListener = new SrpKeyXListener();
-    status = busAttachment->EnablePeerSecurity("ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX", srpKeyXListener, "/.alljoyn_keystore/central.ks", true);
+    status = busAttachment->EnablePeerSecurity("ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX ALLJOYN_ECDHE_PSK", srpKeyXListener, "/.alljoyn_keystore/central.ks", true);
 
     AnnounceHandlerImpl* announceHandler = new AnnounceHandlerImpl(announceHandlerCallback);
     AnnouncementRegistrar::RegisterAnnounceHandler(*busAttachment, *announceHandler, NULL, 0);
