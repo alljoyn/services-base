@@ -348,8 +348,11 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
 
         // Set keyListener
         if (keyStoreFileName != null && keyStoreFileName.length() > 0) {
-            SrpAnonymousKeyListener authListener = new SrpAnonymousKeyListener(ConfigApplication.this, new AndroidLogger());
-            Status authStatus = busAttachment.registerAuthListener("ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX", authListener, keyStoreFileName);
+        	
+        	final String[] authMechanisms = new String[]{"ALLJOYN_SRP_KEYX", "ALLJOYN_PIN_KEYX", "ALLJOYN_ECDHE_PSK"};
+        	
+            SrpAnonymousKeyListener authListener = new SrpAnonymousKeyListener(ConfigApplication.this, new AndroidLogger(), authMechanisms);
+            Status authStatus = busAttachment.registerAuthListener(authListener.getAuthMechanismsAsString(), authListener, keyStoreFileName);
             Log.d(TAG, "BusAttachment.registerAuthListener status = " + authStatus);
             if (authStatus != Status.OK) {
                 Log.d(TAG, "Failed to register Auth listener status = " + authStatus.toString());
