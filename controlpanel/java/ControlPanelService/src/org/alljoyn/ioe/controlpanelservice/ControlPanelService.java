@@ -42,9 +42,11 @@ import android.util.Log;
 public class ControlPanelService  implements ConnManagerEventsListener {
 	private static final String TAG = "cpan" + ControlPanelService.class.getSimpleName();
 	
-	private static final ControlPanelService SELF = new ControlPanelService();
+	private static final ControlPanelService SELF     = new ControlPanelService();
 	
-	public static final String INTERFACE_PREFIX   = "org.alljoyn.ControlPanel";
+	public static final String INTERFACE_PREFIX       = "org.alljoyn.ControlPanel";
+	
+	private static final String[] ANNOUNCEMENT_IFACES = new String[]{ControlPanel.IFNAME, HTTPControl.IFNAME};
 	
 	/**
 	 * Reference to connection manager object
@@ -105,7 +107,7 @@ public class ControlPanelService  implements ConnManagerEventsListener {
 		
 		//Add an announcement handler
 		announcementReceiver = new AnnouncementReceiver();
-		aboutService.addAnnouncementHandler(announcementReceiver, new String[]{ControlPanel.IFNAME, HTTPControl.IFNAME});
+		aboutService.addAnnouncementHandler(announcementReceiver, ANNOUNCEMENT_IFACES);
 	}//init
 
 	/**
@@ -160,7 +162,7 @@ public class ControlPanelService  implements ConnManagerEventsListener {
 		Log.d(TAG, "Shutdown ControlPanelService");
 		
 		if ( announcementReceiver != null ) {
-			AboutServiceImpl.getInstance().removeAnnouncementHandler(announcementReceiver, new String[]{ControlPanel.IFNAME, HTTPControl.IFNAME});
+			AboutServiceImpl.getInstance().removeAnnouncementHandler(announcementReceiver, ANNOUNCEMENT_IFACES);
 		}
 		
 		if ( deviceRegistry != null ) {

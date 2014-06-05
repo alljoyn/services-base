@@ -71,6 +71,11 @@ public class ReceiverTransport implements AnnouncementHandler {
 	private static final String DISMISSER_MATCH_RULE        = "type='signal',interface='" + NotificationDismisser.IF_NAME + "'," + SESSION_LESS_RULE;
 	
 	/**
+	 * To receive Announcement signals from a Super Agent
+	 */
+	private static final String[] ANNOUNCEMENT_IFACES       = new String[]{NotificationTransportSuperAgent.IF_NAME};
+	
+	/**
 	 * addMatch rule to receive session-less-signals from a specific SuperAgent identified by the superAgentSenderName
 	 */
 	private String superAgentSpecificRule;
@@ -201,7 +206,7 @@ public class ReceiverTransport implements AnnouncementHandler {
 			
 			//Register to receive announcements from SA
 			logger.debug(TAG, "Registering AnnouncementReceiver");
-			aboutService.addAnnouncementHandler(this);
+			aboutService.addAnnouncementHandler(this, ANNOUNCEMENT_IFACES);
 			
 			//Add SuperAgent match rule, this allows to receive Notification signals from all the SuperAgents in proximity
 		    addMatchRule(SUPER_AGENT_MATCH_RULE);
@@ -246,7 +251,7 @@ public class ReceiverTransport implements AnnouncementHandler {
 		}//if ::SuperAgent
 		
 		logger.debug(TAG, "Remove the AnnouncementReceiver");
-		AboutServiceImpl.getInstance().removeAnnouncementHandler(this);
+		AboutServiceImpl.getInstance().removeAnnouncementHandler(this, ANNOUNCEMENT_IFACES);
 		
 		if ( fromProducerChannel != null ) {
 			logger.debug(TAG, "Unregister Producer signal handler");
@@ -344,18 +349,8 @@ public class ReceiverTransport implements AnnouncementHandler {
 		    return;	
 		}
 		
-		logger.debug(TAG, "Received announcement signal");
-		
-		//Iterate over the BusDescription objects and search for those from SA
-		for (BusObjectDescription bod: objectDescriptions) {
-			for (String ifName: bod.interfaces){
-				if ( NotificationTransportSuperAgent.IF_NAME.equals(ifName) ) {
-					logger.debug(TAG, "Received announcement signal from SA, call onReceivedFirstSuperAgentNotification");
-					onReceivedFirstSuperAgentNotification(busAttachment.getMessageContext().sender);
-					return;
-				}
-			}//for::interfaces
-		}//for::BusObjectDescription
+		logger.debug(TAG, "Received announcement signal from SA, call onReceivedFirstSuperAgentNotification");
+		onReceivedFirstSuperAgentNotification(busAttachment.getMessageContext().sender);
 	}//onReceivedAnnouncement
 
 	
