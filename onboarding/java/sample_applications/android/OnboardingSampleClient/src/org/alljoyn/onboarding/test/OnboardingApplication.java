@@ -36,6 +36,7 @@ import org.alljoyn.onboarding.OnboardingService.AuthType;
 import org.alljoyn.onboarding.client.OnboardingClientImpl;
 import org.alljoyn.onboarding.transport.OBLastError;
 import org.alljoyn.onboarding.transport.OnboardingTransport.ConfigureWifiMode;
+import org.alljoyn.onboarding.transport.OnboardingTransport;
 import org.alljoyn.onboarding.transport.ScanInfo;
 import org.alljoyn.services.android.security.AuthPasswordHandler;
 import org.alljoyn.services.android.security.SrpAnonymousKeyListener;
@@ -261,7 +262,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
 			m_aboutClient = AboutServiceImpl.getInstance();
 			m_aboutClient.setLogger(m_logger);
 			m_aboutClient.startAboutClient(m_Bus);
-			m_aboutClient.addAnnouncementHandler(receiver);
+			m_aboutClient.addAnnouncementHandler(receiver, new String[]{OnboardingTransport.INTERFACE_NAME});
 	
 		} catch (Exception e){
 			e.printStackTrace();
