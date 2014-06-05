@@ -286,8 +286,9 @@ public class ProtocolManager implements AnnouncementHandler {
                     }
                 }
 
-            }, new AndroidLogger());
-            Status authStatus = busAttachment.registerAuthListener("ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX", m_authListener, keyStoreFileName);
+            }, new AndroidLogger(), new String[] {"ALLJOYN_SRP_KEYX","ALLJOYN_ECDHE_PSK","ALLJOYN_PIN_KEYX"});
+            Log.i(TAG, "m_authListener.getAuthMechanismsAsString: " + m_authListener.getAuthMechanismsAsString());
+            Status authStatus = busAttachment.registerAuthListener(m_authListener.getAuthMechanismsAsString(), m_authListener, keyStoreFileName);
             if (authStatus != Status.OK) {
                 Log.e(TAG, "Failed to connectToBus");
             }
