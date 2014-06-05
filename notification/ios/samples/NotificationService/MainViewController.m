@@ -244,7 +244,7 @@ static NSString * const DAEMON_NAME = @"org.alljoyn.BusNode.IoeService"; // For 
 	}
     
 	if (authListener) {
-		status = [self.busAttachment enablePeerSecurity:@"ALLJOYN_PIN_KEYX ALLJOYN_SRP_KEYX" authenticationListener:authListener];
+		status = [self.busAttachment enablePeerSecurity:@"ALLJOYN_PIN_KEYX ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK" authenticationListener:authListener];
 		if (status != ER_OK) {
 			[self.busAttachment destroy];
 			return ER_FAIL;

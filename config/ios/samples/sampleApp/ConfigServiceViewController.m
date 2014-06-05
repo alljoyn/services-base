@@ -230,7 +230,7 @@ static AJNSessionPort SERVICE_PORT; // About Service - service port
 {
 	QStatus status;
     
-	status = [self.busAttachment enablePeerSecurity:@"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX" authenticationListener:self keystoreFileName:@"Documents/alljoyn_keystore/s_central.ks" sharing:YES];
+	status = [self.busAttachment enablePeerSecurity:@"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX ALLJOYN_ECDHE_PSK" authenticationListener:self keystoreFileName:@"Documents/alljoyn_keystore/s_central.ks" sharing:YES];
 	return status;
 }
 
@@ -392,7 +392,7 @@ static AJNSessionPort SERVICE_PORT; // About Service - service port
 	AJNSecurityCredentials *creds = nil;
 	[self.logger debugTag:[[self class] description] text:[NSString stringWithFormat:@"RequestSecurityCredentialsWithAuthenticationMechanism:%@ forRemotePeer%@ userName:%@", authenticationMechanism, peerName, userName]];
     
-	if ([authenticationMechanism isEqualToString:@"ALLJOYN_SRP_KEYX"] || [authenticationMechanism isEqualToString:@"ALLJOYN_PIN_KEYX"]) {
+	if ([authenticationMechanism isEqualToString:@"ALLJOYN_SRP_KEYX"] || [authenticationMechanism isEqualToString:@"ALLJOYN_PIN_KEYX"] || [authenticationMechanism isEqualToString:@"ALLJOYN_ECDHE_PSK"]) {
 		if (mask & kAJNSecurityCredentialTypePassword) {
 			if (authenticationCount <= 3) {
 				creds = [[AJNSecurityCredentials alloc] init];
