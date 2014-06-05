@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -16,7 +16,12 @@
 
 package org.alljoyn.services.android.security;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.alljoyn.bus.AuthListener;
+import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.services.common.DefaultGenericLogger;
 import org.alljoyn.services.common.utils.GenericLogger;
 
@@ -37,6 +42,16 @@ public class SrpAnonymousKeyListener implements AuthListener
 	AuthPasswordHandler m_passwordHandler;
 	private GenericLogger m_logger;
 
+	/**
+	 * Supported authentication mechanisms
+	 */
+	private List<String> authMechanisms;
+	
+	/**
+	 * Constructor
+	 * @param passwordHandler
+	 * @param logger
+	 */
 	public SrpAnonymousKeyListener(AuthPasswordHandler passwordHandler, GenericLogger logger)
 	{
 		m_logger = logger;
@@ -45,13 +60,37 @@ public class SrpAnonymousKeyListener implements AuthListener
 			m_logger =  new DefaultGenericLogger();
 		}
 		m_passwordHandler = passwordHandler;
+		
+		authMechanisms = new ArrayList<String>(3);
+		authMechanisms.add("ALLJOYN_PIN_KEYX");
+		authMechanisms.add("ALLJOYN_SRP_KEYX");
+		authMechanisms.add("ALLJOYN_ECDHE_PSK");
 	}
+	
+	/**
+	 * Constructor
+	 * @param passwordHandler
+	 * @param logger
+	 * @param authMechanisms Array of authentication mechanisms
+	 */
+	public SrpAnonymousKeyListener(AuthPasswordHandler passwordHandler, GenericLogger logger, String[] authMechanisms)
+	{
+		this(passwordHandler, logger);
+		if ( authMechanisms == null ) {
+			
+			throw new IllegalArgumentException("authMechanisms is undefined");
+		}
+		
+		this.authMechanisms = Arrays.asList(authMechanisms);
+		m_logger.debug(TAG, "Supported authentication mechanisms: '" + this.authMechanisms + "'");
+	}
+	
 
 	@Override
 	public boolean requested(String mechanism, String peer, int count, String userName,  AuthRequest[] requests) 
 	{
 		m_logger.info(TAG, " ** " + "requested, mechanism = " + mechanism + " peer = " + peer);
-		if (!mechanism.equals("ALLJOYN_PIN_KEYX") && !mechanism.equals("ALLJOYN_SRP_KEYX"))
+		if ( !this.authMechanisms.contains(mechanism) )
 		{
 			return false;
 		}
@@ -85,4 +124,33 @@ public class SrpAnonymousKeyListener implements AuthListener
 		m_passwordHandler.completed(mechanism, authPeer, authenticated);
 	}
 
+	
+	/**
+	 * @return AuthMechanisms used by the class
+	 */
+	public String[] getAuthMechanisms() {
+		
+		return authMechanisms.toArray(new String[authMechanisms.size()]);
+	}
+	
+	/**
+	 * @return Returns AuthMechanisms used by the class as a String required by the 
+	 * {@link BusAttachment#registerAuthListener(String, AuthListener)}
+	 */
+	public String getAuthMechanismsAsString() {
+		
+		final String separator = " ";
+		StringBuilder sb       = new StringBuilder();
+		for (String mech : authMechanisms ) {
+			
+			sb.append(mech).append(separator);
+		}
+		
+		int length = sb.length();
+		if ( length >= 1 ) {
+			sb.deleteCharAt(length - 1); //remove the last added separator
+		}
+		
+		return sb.toString();
+	}
 }
