@@ -289,8 +289,8 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
 		keyStoreFileName = getApplicationContext().getFileStreamPath("alljoyn_keystore").getAbsolutePath();
 		if (keyStoreFileName != null && keyStoreFileName.length() > 0)
 		{
-			SrpAnonymousKeyListener authListener = new SrpAnonymousKeyListener(OnboardingApplication.this, m_logger);
-			Status authStatus = m_Bus.registerAuthListener("ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX", authListener, keyStoreFileName);
+			SrpAnonymousKeyListener authListener = new SrpAnonymousKeyListener(OnboardingApplication.this, m_logger, new String[] {"ALLJOYN_SRP_KEYX","ALLJOYN_ECDHE_PSK","ALLJOYN_PIN_KEYX"});
+			Status authStatus = m_Bus.registerAuthListener(authListener.getAuthMechanismsAsString(), authListener, keyStoreFileName);
 			m_logger.debug(TAG, "BusAttachment.registerAuthListener status = " + authStatus);
 			if (authStatus != Status.OK) 
 			{
