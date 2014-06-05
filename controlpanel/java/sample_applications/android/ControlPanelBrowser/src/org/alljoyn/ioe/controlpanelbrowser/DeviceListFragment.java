@@ -158,7 +158,7 @@ public class DeviceListFragment extends ListFragment {
 	 */
 	private final String[] AUTH_MECHANISMS = new String[]{"ALLJOYN_SRP_KEYX", "ALLJOYN_PIN_KEYX", "ALLJOYN_ECDHE_PSK"};
 	
-	private static final String[] ANNOUNCE_IFACE = new String[]{ControlPanel.IFNAME, HTTPControl.IFNAME};
+	private static final String[] ANNOUNCE_IFACES = new String[]{ControlPanel.IFNAME, HTTPControl.IFNAME};
 	
 	/**
 	 *  Load the native alljoyn_java library. 
@@ -430,7 +430,10 @@ public class DeviceListFragment extends ListFragment {
 			aboutClient.setLogger(logger);
 			try {
 				aboutClient.startAboutClient(bus);
-				aboutClient.addAnnouncementHandler(this, ANNOUNCE_IFACE);
+				
+				for (String iface :  ANNOUNCE_IFACES) {
+					aboutClient.addAnnouncementHandler(this, new String[] {iface});
+				}
 			} catch (Exception e) {
 				logger.error(TAG, "Unable to start AboutService, Error: " + e.getMessage());
 			}
@@ -461,7 +464,11 @@ public class DeviceListFragment extends ListFragment {
 		private void disconnect() {
 		    ControlPanelService.getInstance().shutdown();
 			try {
-				aboutClient.removeAnnouncementHandler(this, ANNOUNCE_IFACE);
+								
+				for (String iface :  ANNOUNCE_IFACES) {
+					aboutClient.removeAnnouncementHandler(this, new String[] {iface});
+				}
+				
 				AboutServiceImpl.getInstance().stopAboutClient();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
