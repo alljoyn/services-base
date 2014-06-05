@@ -298,7 +298,8 @@ QStatus Transport::listenForAnnouncements()
     m_AnnounceListener = new NotificationAnnounceListener();
 
     QStatus status;
-    status = AnnouncementRegistrar::RegisterAnnounceHandler(*m_Bus, *m_AnnounceListener, NULL, 0);
+    const char* interfaces[] = { "org.alljoyn.Notification.Superagent" };
+    status = AnnouncementRegistrar::RegisterAnnounceHandler(*m_Bus, *m_AnnounceListener, interfaces, 1);
     if (status != ER_OK) {
         QCC_DbgHLPrintf(("Could not create AnnouncementListener. AnnounceHandlerApi not initialized"));
         cleanupAnnouncementListener();
@@ -667,7 +668,8 @@ void Transport::cleanupAnnouncementListener(bool unregister)
     }
 
     if (unregister) {
-        AnnouncementRegistrar::UnRegisterAnnounceHandler(*m_Bus, *m_AnnounceListener, NULL, 0);
+        const char* interfaces[] = { "org.alljoyn.Notification.Superagent" };
+        AnnouncementRegistrar::UnRegisterAnnounceHandler(*m_Bus, *m_AnnounceListener, interfaces, 1);
     }
     delete m_AnnounceListener;
     m_AnnounceListener = 0;

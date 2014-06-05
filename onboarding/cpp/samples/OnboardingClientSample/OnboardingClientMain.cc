@@ -431,8 +431,9 @@ int main(int argc, char**argv, char**envArg) {
     SrpKeyXListener* srpKeyXListener = new SrpKeyXListener();
     status = busAttachment->EnablePeerSecurity("ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX ALLJOYN_ECDHE_PSK", srpKeyXListener, "/.alljoyn_keystore/central.ks", true);
 
+    const char* interfaces[] = { "org.alljoyn.Onboarding" };
     AnnounceHandlerImpl* announceHandler = new AnnounceHandlerImpl(announceHandlerCallback);
-    AnnouncementRegistrar::RegisterAnnounceHandler(*busAttachment, *announceHandler, NULL, 0);
+    AnnouncementRegistrar::RegisterAnnounceHandler(*busAttachment, *announceHandler, interfaces, 1);
 
     // Setup signals to wait for.
     sigfillset(&waitmask);
@@ -444,7 +445,7 @@ int main(int argc, char**argv, char**envArg) {
         sigsuspend(&waitmask);
     }
 
-    AnnouncementRegistrar::UnRegisterAnnounceHandler(*busAttachment, *announceHandler, NULL, 0);
+    AnnouncementRegistrar::UnRegisterAnnounceHandler(*busAttachment, *announceHandler, interfaces, 1);
 
     busAttachment->Stop();
     delete busAttachment;
