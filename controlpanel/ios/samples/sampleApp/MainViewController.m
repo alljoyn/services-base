@@ -356,7 +356,15 @@ static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX ALL
     
 	self.announcementReceiver = [[AJNAnnouncementReceiver alloc] initWithAnnouncementListener:self andBus:self.clientBusAttachment];
     const char* interfaces[] = { [CONTROLPANEL_INTERFACE_NAME UTF8String], [HTTPCONTROL_INTERFACE_NAME UTF8String] };
-	status = [self.announcementReceiver registerAnnouncementReceiverForInterfaces:interfaces withNumberOfInterfaces:2];
+	status = [self.announcementReceiver registerAnnouncementReceiverForInterfaces:&interfaces[0] withNumberOfInterfaces:1];
+	if (status != ER_OK) {
+		[AppDelegate alertAndLog:@"Failed to registerAnnouncementReceiver" status:status];
+        [self stopAboutClient];
+        return;
+	}
+    
+    status = [self.announcementReceiver registerAnnouncementReceiverForInterfaces:&interfaces[1] withNumberOfInterfaces:1];
+    
 	if (status != ER_OK) {
 		[AppDelegate alertAndLog:@"Failed to registerAnnouncementReceiver" status:status];
         [self stopAboutClient];
@@ -495,7 +503,12 @@ static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX ALL
 	self.clientInformationDict = nil;
     
     const char* interfaces[] = { [CONTROLPANEL_INTERFACE_NAME UTF8String], [HTTPCONTROL_INTERFACE_NAME UTF8String] };
-	status = [self.announcementReceiver unRegisterAnnouncementReceiverForInterfaces:interfaces withNumberOfInterfaces:2];
+	status = [self.announcementReceiver unRegisterAnnouncementReceiverForInterfaces:&interfaces[0] withNumberOfInterfaces:1];
+	if (status == ER_OK) {
+        NSLog(@"[%@] [%@] Successfully unregistered AnnouncementReceiver", @"DEBUG", [[self class] description]);
+	}
+
+	status = [self.announcementReceiver unRegisterAnnouncementReceiverForInterfaces:&interfaces[1] withNumberOfInterfaces:1];
 	if (status == ER_OK) {
         NSLog(@"[%@] [%@] Successfully unregistered AnnouncementReceiver", @"DEBUG", [[self class] description]);
 	}
