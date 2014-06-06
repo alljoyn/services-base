@@ -107,7 +107,9 @@ public class ControlPanelService  implements ConnManagerEventsListener {
 		
 		//Add an announcement handler
 		announcementReceiver = new AnnouncementReceiver();
-		aboutService.addAnnouncementHandler(announcementReceiver, ANNOUNCEMENT_IFACES);
+		for (String iface : ANNOUNCEMENT_IFACES) {
+			aboutService.addAnnouncementHandler(announcementReceiver, new String[]{iface});
+		}
 	}//init
 
 	/**
@@ -162,7 +164,11 @@ public class ControlPanelService  implements ConnManagerEventsListener {
 		Log.d(TAG, "Shutdown ControlPanelService");
 		
 		if ( announcementReceiver != null ) {
-			AboutServiceImpl.getInstance().removeAnnouncementHandler(announcementReceiver, ANNOUNCEMENT_IFACES);
+			
+			AboutService aboutService = AboutServiceImpl.getInstance();
+			for (String iface : ANNOUNCEMENT_IFACES) {
+				aboutService.removeAnnouncementHandler(announcementReceiver, new String[]{iface});
+			}
 		}
 		
 		if ( deviceRegistry != null ) {
