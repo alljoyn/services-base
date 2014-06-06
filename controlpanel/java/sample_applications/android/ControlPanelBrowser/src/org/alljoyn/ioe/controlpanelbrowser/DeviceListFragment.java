@@ -20,7 +20,6 @@ import java.util.Map;
 import org.alljoyn.about.AboutKeys;
 import org.alljoyn.about.AboutService;
 import org.alljoyn.about.AboutServiceImpl;
-import org.alljoyn.bus.AuthListener;
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.PasswordManager;
@@ -33,6 +32,8 @@ import org.alljoyn.ioe.controlpanelservice.ControlPanelException;
 import org.alljoyn.ioe.controlpanelservice.ControlPanelService;
 import org.alljoyn.ioe.controlpanelservice.communication.interfaces.ControlPanel;
 import org.alljoyn.ioe.controlpanelservice.communication.interfaces.HTTPControl;
+import org.alljoyn.services.android.security.AuthPasswordHandler;
+import org.alljoyn.services.android.security.SrpAnonymousKeyListener;
 import org.alljoyn.services.common.AnnouncementHandler;
 import org.alljoyn.services.common.BusObjectDescription;
 import org.alljoyn.services.common.utils.GenericLogger;
@@ -152,6 +153,11 @@ public class DeviceListFragment extends ListFragment {
 	private static final String DEFAULT_SECURED_SRP_PASSWORD     = "000000";
 	private String srpPassword = DEFAULT_SECURED_SRP_PASSWORD;
 
+	/**
+	 * Supported Authentication mechanisms
+	 */
+	private final String[] AUTH_MECHANISMS = new String[]{"ALLJOYN_SRP_KEYX", "ALLJOYN_PIN_KEYX", "ALLJOYN_ECDHE_PSK"};
+	
 	private static final String[] ANNOUNCE_IFACE = new String[]{ControlPanel.IFNAME, HTTPControl.IFNAME};
 	
 	/**
@@ -326,7 +332,7 @@ public class DeviceListFragment extends ListFragment {
 	}
 
 	/* This class will handle all AllJoyn calls. See onCreate(). */
-	class AsyncHandler extends Handler implements AnnouncementHandler 
+	class AsyncHandler extends Handler implements AnnouncementHandler, AuthPasswordHandler  
 	{
 
 		public static final int CONNECT = 1;
@@ -386,8 +392,8 @@ public class DeviceListFragment extends ListFragment {
 
 			Log.d(TAG, "Setting the AuthListener");
 			
-			SrpKeyXListener authListener = new SrpKeyXListener();
-			Status authStatus = bus.registerAuthListener(authListener.getMechanisms(), authListener, authListener.getKeyStoreFileName());
+			SrpAnonymousKeyListener authListener = new SrpAnonymousKeyListener(this, logger, AUTH_MECHANISMS);
+			Status authStatus = bus.registerAuthListener(authListener.getAuthMechanismsAsString(), authListener, getKeyStoreFileName());
 			
 			if ( authStatus != Status.OK ) {
 				Log.e(TAG, "Failed to register AuthListener");
@@ -550,6 +556,48 @@ public class DeviceListFragment extends ListFragment {
 					arrayAdapter.notifyDataSetChanged();
 				}});
 		}
+		
+		/**
+		 * @see org.alljoyn.services.android.security.AuthPasswordHandler#getPassword(java.lang.String)
+		 */
+		@Override
+		public char[] getPassword(String peer) {
+			
+			return srpPassword.toCharArray();
+		}
+		
+		/**
+		 * @see org.alljoyn.bus.AuthListener#completed(java.lang.String, java.lang.String, boolean)
+		 */
+		@Override
+		public void completed(String authMechanism, String authPeer, final boolean authenticated) {
+			Log.d(TAG, "Authentication completed. peer: '" + authPeer + "', authenticated: " + authenticated +
+					    " using mechanism: '" + authMechanism + "'");
+			
+			if ( authenticated ) {
+				Log.d(TAG, "The peer: '" + authPeer + "', authenticated successfully for authMechanism: '" + authMechanism + "'");
+			}
+			else {
+				Log.w(TAG, "The peer: '" + authPeer + "', WAS NOT authenticated for authMechanism: '" + authMechanism + "'");
+			}
+			
+			if (getActivity() != null)
+				getActivity().runOnUiThread(new Runnable(){
+					@Override
+					public void run() {
+						Toast.makeText(getActivity(), "Authenticated: " + authenticated, Toast.LENGTH_SHORT).show();
+					}});
+		}
+		
+		/**
+	     * Persistent authentication and encryption data is stored at this location.  
+	     * 
+	     * This uses the private file area associated with the application package.
+	     */
+	    public String getKeyStoreFileName() {
+	        return getActivity().getFileStreamPath("alljoyn_keystore").getAbsolutePath();
+	    }//getKeyStoreFileName
+		
      }
 
 
@@ -595,72 +643,4 @@ public class DeviceListFragment extends ListFragment {
 		alert.show();
 		
 	}
-	/**
-	 * A default implementation of security. The password is hard coded 
-	 */
-	private class SrpKeyXListener implements AuthListener {
-		
-        // Returns the list of supported mechanisms.
-        public String getMechanisms() {
-            return "ALLJOYN_PIN_KEYX ALLJOYN_SRP_KEYX";
-        }
-		
-        /**
-         * Persistent authentication and encryption data is stored at this location.  
-         * 
-         * This uses the private file area associated with the application package.
-         */
-        public String getKeyStoreFileName() {
-            return getActivity().getFileStreamPath("alljoyn_keystore").getAbsolutePath();
-        }//getKeyStoreFileName
-        
-        /**
-         * @see org.alljoyn.bus.AuthListener#requested(java.lang.String, java.lang.String, int, java.lang.String, org.alljoyn.bus.AuthListener.AuthRequest[])
-         */
-		@Override
-		public boolean requested(String mechanism, String peerName, int count, String userName, AuthListener.AuthRequest[] requests) {
-			 Log.d(TAG, "AuthListener requested() called, checking the Auth mechanisms... given mechanism is: " + mechanism);
-			 
-			 if ( !getMechanisms().contains(mechanism) ) {
-				 Log.w(TAG, "Recieved an unsupported Auth mechanism: '" + mechanism + "'");
-				 return false;
-			 }
-			 
-			 Log.w(TAG, "Recieved a supported Auth mechanism: '" + mechanism + "'");
-		     for (AuthRequest request : requests) {
-                 if (request instanceof PasswordRequest) {
-                	 Log.d(TAG, "Password request was found, setting it, returning TRUE");
-                     ((PasswordRequest) request).setPassword(srpPassword.toCharArray());
-                     return true;
-                 }
-             }//for :: AuthRequest
-		     
-		     Log.d(TAG, "Password request was NOT found, returning FALSE");
-			 return false;
-		}//requested
-
-		/**
-		 * @see org.alljoyn.bus.AuthListener#completed(java.lang.String, java.lang.String, boolean)
-		 */
-		@Override
-		public void completed(String authMechanism, String authPeer, final boolean authenticated) {
-			Log.d(TAG, "Authentication completed. peer: '" + authPeer + "', authenticated: " + authenticated+ " using mechanism: '" + authMechanism + "'");
-			if ( authenticated ) {
-				Log.d(TAG, "The peer: '" + authPeer + "', authenticated successfully for authMechanism: '" + authMechanism + "'");
-			}
-			else {
-				Log.w(TAG, "The peer: '" + authPeer + "', WAS NOT authenticated for authMechanism: '" + authMechanism + "'");
-			}
-			
-			if (getActivity() != null)
-				getActivity().runOnUiThread(new Runnable(){
-					@Override
-					public void run() {
-						Toast.makeText(getActivity(), "Authenticated: " + authenticated, Toast.LENGTH_SHORT).show();
-					}});
-		}//completed
-		
-	}
-
-
 }

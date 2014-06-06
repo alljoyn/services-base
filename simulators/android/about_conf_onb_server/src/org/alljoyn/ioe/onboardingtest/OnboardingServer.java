@@ -33,11 +33,11 @@ import org.alljoyn.config.server.PassphraseChangedListener;
 import org.alljoyn.config.server.RestartHandler;
 import org.alljoyn.config.server.SetPasswordHandler;
 import org.alljoyn.config.transport.ConfigTransport;
-import org.alljoyn.login.dashboard.security.AuthPasswordHandler;
-import org.alljoyn.login.dashboard.security.SrpAnonymousKeyListener;
 import org.alljoyn.onboarding.OnboardingService;
 import org.alljoyn.onboarding.OnboardingServiceImpl;
 import org.alljoyn.onboarding.transport.OnboardingTransport;
+import org.alljoyn.services.android.security.AuthPasswordHandler;
+import org.alljoyn.services.android.security.SrpAnonymousKeyListener;
 import org.alljoyn.services.android.storage.PropertyStoreImpl;
 import org.alljoyn.services.android.utils.AndroidLogger;
 import org.alljoyn.services.common.PropertyStore;
@@ -78,7 +78,10 @@ public class OnboardingServer extends Service implements AuthPasswordHandler, Se
 
     // the password for secured sessions
     private char[] m_myPass;
-
+    
+    //Supported Authentication mechanisms
+    private static final String[] AUTH_MECHANISMS = new String[]{"ALLJOYN_SRP_KEYX", "ALLJOYN_PIN_KEYX", "ALLJOYN_ECDHE_PSK"};
+    
     // load the native alljoyn_java library.
     static {
         System.loadLibrary("alljoyn_java");
@@ -283,8 +286,8 @@ public class OnboardingServer extends Service implements AuthPasswordHandler, Se
 
             // register authentication listener. This is needed as Config and Onboarding services are secure
             m_keyStoreFileName = getFileStreamPath("alljoyn_keystore").getAbsolutePath();
-            m_authListener = new SrpAnonymousKeyListener(OnboardingServer.this, m_logger);
-            Status authStatus = m_bus.registerAuthListener("ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX", m_authListener, m_keyStoreFileName);
+            m_authListener = new SrpAnonymousKeyListener(OnboardingServer.this, m_logger, AUTH_MECHANISMS);
+            Status authStatus = m_bus.registerAuthListener(m_authListener.getAuthMechanismsAsString(), m_authListener, m_keyStoreFileName);
             m_logger.debug(TAG, "BusAttachment.registerAuthListener status = " + authStatus);
             if (authStatus != Status.OK)
             {
