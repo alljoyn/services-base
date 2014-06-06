@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import <Foundation/Foundation.h>
-#import "NotificationText.h"
+#import "alljoyn/notification/NotificationText.h"
 
 /**
  AJNSNotificationText class.

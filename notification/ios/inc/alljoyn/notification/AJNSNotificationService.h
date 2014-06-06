@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import <Foundation/Foundation.h>
-#import "NotificationService.h"
+#import "alljoyn/notification/NotificationService.h"
 #import "AJNSNotificationReceiverAdapter.h"
 #import "AJNSNotificationReceiver.h"
 #import "AJNSNotificationSender.h"

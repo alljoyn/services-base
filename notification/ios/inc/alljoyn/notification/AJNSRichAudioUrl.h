@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import <Foundation/Foundation.h>
-#import "RichAudioUrl.h"
+#import "alljoyn/notification/RichAudioUrl.h"
 
 /**
  AJNSRichAudioUrl class stores RichAudio urls, a url per language
