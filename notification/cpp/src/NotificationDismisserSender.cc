@@ -53,10 +53,7 @@ QStatus NotificationDismisserSender::sendSignal(ajn::MsgArg const dismisserArgs[
     }
 
     uint8_t flags =  ALLJOYN_FLAG_SESSIONLESS;
-
-    Message msg(*Transport::getInstance()->getBusAttachment());
-
-    QStatus status = Signal(NULL, 0, *m_SignalMethod, dismisserArgs, AJ_DISMISSER_NUM_PARAMS, ttl, flags, &msg);
+    QStatus status = Signal(NULL, 0, *m_SignalMethod, dismisserArgs, AJ_DISMISSER_NUM_PARAMS, ttl, flags);
 
     if (status != ER_OK) {
         QCC_LogError(status, ("Could not send signal."));
