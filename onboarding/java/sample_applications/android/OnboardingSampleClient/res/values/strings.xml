@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 
-  Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+  Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
 
      Permission to use, copy, modify, and/or distribute this software for any
      purpose with or without fee is hereby granted, provided that the above
@@ -40,7 +40,7 @@
 	
 	<!-- Onboarding -->
 	<string name="last_error_code">Last error code:&#160;</string>
-	<string name="last_error_msg">Last error massage:&#160;</string>
+	<string name="last_error_msg">Last error message:&#160;</string>
 	<string name="state">State:&#160;</string>
 	<string name="scan_info_data">Scan info:&#160;</string>
 	<string name="scan_info_age">Scan info age:&#160;</string>
