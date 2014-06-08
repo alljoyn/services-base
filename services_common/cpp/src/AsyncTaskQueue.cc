@@ -101,7 +101,12 @@ void AsyncTaskQueue::Receiver()
             pthread_mutex_lock(&m_Lock);
         }
         m_AsyncTask->OnEmptyQueue();
-        pthread_cond_wait(&m_QueueChanged, &m_Lock);
+
+        /* it's possible m_IsStopping changed while executing OnTask() (which is done unlocked)
+         * therefore we have to check it again here, otherwise we potentially deadlock here */
+        if (!m_IsStopping) {
+            pthread_cond_wait(&m_QueueChanged, &m_Lock);
+        }
     }
     pthread_mutex_unlock(&m_Lock);
 }
