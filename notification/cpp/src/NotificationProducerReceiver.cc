@@ -141,7 +141,11 @@ void NotificationProducerReceiver::Receiver()
             sendDismissSignal(message.m_MsgId);
             pthread_mutex_lock(&m_Lock);
         }
-        pthread_cond_wait(&m_QueueChanged, &m_Lock);
+        /* it's possible m_IsStopping changed while executing OnTask() (which is done unlocked)
+         * therefore we have to check it again here, otherwise we potentially deadlock here */
+        if (!m_IsStopping) {
+            pthread_cond_wait(&m_QueueChanged, &m_Lock);
+        }
     }
     pthread_mutex_unlock(&m_Lock);
 }
