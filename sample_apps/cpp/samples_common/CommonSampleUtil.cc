@@ -69,7 +69,7 @@ QStatus CommonSampleUtil::fillPropertyStore(AboutPropertyStoreImpl* propertyStor
 
     std::vector<qcc::String> languages(3);
     languages[0] = "en";
-    languages[1] = "sp";
+    languages[1] = "es";
     languages[2] = "fr";
     CHECK_RETURN(propertyStore->setSupportedLangs(languages))
     CHECK_RETURN(propertyStore->setDefaultLang(defaultLanguage))

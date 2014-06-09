@@ -37,7 +37,7 @@ using namespace ajn;
 #define APP_NAME "testappName"
 #define LANG1  "en"
 #define TEXT1 "Hello World"
-#define LANG2  "es_SP"
+#define LANG2  "es"
 #define TEXT2 "Hola Mundo"
 #define KEY1 "On"
 #define VAL1 "Hello"

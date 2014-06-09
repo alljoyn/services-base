@@ -308,7 +308,7 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
             {
                 ConfigClient::Configurations updateConfigurations;
                 updateConfigurations.insert(
-                    std::pair<qcc::String, ajn::MsgArg>("DefaultLanguage", MsgArg("s", "sp")));
+                    std::pair<qcc::String, ajn::MsgArg>("DefaultLanguage", MsgArg("s", "es")));
                 if ((status = configClient->UpdateConfigurations(busName.c_str(), NULL, updateConfigurations,
                                                                  id)) == ER_OK) {
                     std::cout << "UpdateConfigurations succeeded" << std::endl;
