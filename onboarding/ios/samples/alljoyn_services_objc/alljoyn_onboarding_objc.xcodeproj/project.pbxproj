@@ -436,7 +436,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = alljoyn_onboarding_objc;
 				SKIP_INSTALL = YES;
-				VALID_ARCHS = "armv7 armv7s";
+				VALID_ARCHS = "armv7 armv7s i386";
 			};
 			name = Debug;
 		};
@@ -467,7 +467,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = alljoyn_onboarding_objc;
 				SKIP_INSTALL = YES;
-				VALID_ARCHS = "armv7 armv7s";
+				VALID_ARCHS = "armv7 armv7s i386";
 			};
 			name = Release;
 		};
