@@ -348,6 +348,10 @@ static NSString *const CONSUMER_DEFAULT_LANG = @"en";
                 [self.navigationController pushViewController:controlPanelViewController animated:YES];
             } else {
                 NSLog(@"%@ has no CPS object path", [entry.ajnsNotification text]);
+                [[[UIAlertView alloc] initWithTitle:@"Info" message:@"This notification doesn't have an action." delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+                //deselect cell
+                entry.chosen = NO;
+                [self.notificationTableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:YES];
             }
         }
     }
