@@ -268,6 +268,7 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 	                [self.clientInformationDict removeObjectForKey:key];
 	                // Add new record to the announcements dictionary
 	                [self.clientInformationDict setValue:clientInformation forKey:announcementUniqueName];
+                    [self.servicesTable performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
 				}
 	            break;
 			} //if
