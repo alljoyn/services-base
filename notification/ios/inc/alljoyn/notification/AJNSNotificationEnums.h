@@ -40,7 +40,7 @@ typedef NS_ENUM (NSInteger, AJNSNotificationMessageType) {
 
 /**
  Convet AJNSNotificationMessageType to an NSString format
- @param ajnsNMessageType DBus request status
+ @param msgType DBus request status
  @return message type in an NSString format(Capital letters)
  */
 + (NSString *)AJNSMessageTypeToString:(AJNSNotificationMessageType)msgType;
