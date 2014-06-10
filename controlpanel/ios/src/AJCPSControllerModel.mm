@@ -105,7 +105,7 @@
 		AJCPSWidgetType widgetType = [[self.widgetsContainer objectAtIndex:i] getWidgetType];
         NSLog(@"Print %@", [self widgetTypeToString:widgetType]);
         [self printBasicWidget:self.widgetsContainer[i]];
-
+        
 		switch (widgetType) {
 			case AJCPS_CONTAINER:
 			{
@@ -120,7 +120,7 @@
                 
 			case AJCPS_ACTION_WITH_DIALOG:
 			{
-            
+                
                 [self printDialog:[((AJCPSActionWithDialog*)self.widgetsContainer[i]) getChildDialog]];
 			}
                 break;
@@ -190,7 +190,31 @@
             break;
             
 		case AJCPS_DIALOG:
-		{}
+		{
+            [self printBasicWidget:rootWidget];
+            NSString* dialogLabel = [(AJCPSWidget *)rootWidget getLabel];
+            AJCPSDialog* dialog = [[AJCPSDialog alloc] initWithHandle:(ajn::services::Dialog *)rootWidget.handle];
+            
+            uint16_t numActions = [dialog getNumActions];
+            NSLog(@"AJCPS_DIALOG numActions: %hu",numActions);
+            
+            NSMutableString* actionsString = [[NSMutableString alloc] init];
+            
+            switch (numActions) {
+                case 3:
+                    [actionsString appendString:[NSString stringWithFormat:@"%@ ",[dialog getLabelAction3]]];
+                case 2:
+                    [actionsString appendString:[NSString stringWithFormat:@"%@ ",[dialog getLabelAction2]]];
+                case 1:
+                    [actionsString appendString:[NSString stringWithFormat:@"%@ ",[dialog getLabelAction1]]];
+                    break;
+                    
+                default:
+                    break;
+            }
+            
+            [[[UIAlertView alloc] initWithTitle:@"Received Dialog:" message:[NSString stringWithFormat:@"%@\n%@\n%@",dialogLabel,[dialog getMessage], actionsString] delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+        }
             break;
             
 		default:
@@ -339,7 +363,7 @@
     }
     
     NSLog(@"%@",str);
-
+    
 }
 
 -(void) printDialog:(AJCPSDialog*) dialog
@@ -365,12 +389,12 @@
  */
 - (void)sessionEstablished:(AJCPSControlPanelDevice *)device
 {
-//      An example of how to get all the control panels on the device:
-//    NSArray *controlpanels = [device getAllControlPanels];
-//
-//    for (AJCPSControlPanel *panel in controlpanels) {
-//        NSLog(@"%@",   [panel getPanelName]);
-//    }
+    //      An example of how to get all the control panels on the device:
+    //    NSArray *controlpanels = [device getAllControlPanels];
+    //
+    //    for (AJCPSControlPanel *panel in controlpanels) {
+    //        NSLog(@"%@",   [panel getPanelName]);
+    //    }
     
 	NSLog(@"Session has been established with device: %@", [device getDeviceBusName]);
     
@@ -446,7 +470,7 @@
 {
 	NSLog(@"[%@] Calling: %@", [[self class] description], NSStringFromSelector(_cmd));
     
-        [self printBasicWidget:property];
+    [self printBasicWidget:property];
     [self printProperty:property];
     
     [self loadContainer];
@@ -475,7 +499,7 @@
     
 	NSLog(@"error message:'%@'", errorMessage);
     [[[UIAlertView alloc] initWithTitle:@"Error" message:[NSString stringWithFormat:@"%@" ,errorMessage] delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
-
+    
 }
 
 #pragma mark - util methods
@@ -522,13 +546,13 @@
 		status = [self loadRootWidget:rootContainer];
         
         return status;
-
+        
     } else {
         return ER_LANGUAGE_NOT_SUPPORTED;
     }
     
     return status;
-     
+    
 }
 
 -(QStatus)switchLanguageForNotificationAction:(AJCPSRootWidget *)rootWidget
