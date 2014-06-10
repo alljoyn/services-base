@@ -417,15 +417,6 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
         return;
 	}
     
-    // for tcl
-    status = [AJNPasswordManager setCredentialsForAuthMechanism:@"ALLJOYN_PIN_KEYX" usingPassword:@"000000"];
-	if (status != ER_OK) {
-        [self AlertAndLog:@"FATAL" message:@"Failed to SetCredentials" status:status];
-        [self stopAboutClient];
-
-        return;
-	}
-    
 	// Connect AJNBusAttachment
 	status = [self.clientBusAttachment connectWithArguments:@""];
 	if (status != ER_OK) {
