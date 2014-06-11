@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -18,9 +18,50 @@
 #define NOTIFICATIONTRANSPORTSUPERAGENT_H_
 
 #include "NotificationTransport.h"
+#include <alljoyn/services_common/AsyncTaskQueue.h>
 
 namespace ajn {
 namespace services {
+
+/**
+ *  ReceiveNotificationTaskData implements TaskData
+ */
+class ReceiveNotificationTaskData : public TaskData {
+  public:
+    /**
+     * ReceiveNotificationTaskData CTOR
+     * @param msg - notification to handle
+     */
+    ReceiveNotificationTaskData(Message& msg);
+    /**
+     * message - notification to handle
+     */
+    Message message;
+};
+
+/**
+ *  ReceiveNotificationAsyncTask implements AsyncTask
+ */
+class ReceiveNotificationAsyncTask : public AsyncTask {
+  public:
+    /*
+     * ReceiveNotificationAsyncTask CTOR
+     */
+    ReceiveNotificationAsyncTask() { }
+    /*
+     * ReceiveNotificationAsyncTask DTOR
+     */
+    virtual ~ReceiveNotificationAsyncTask() { };
+    /**
+     * OnEmptyQueue - handling 'queue become empty' events.
+     */
+    virtual void OnEmptyQueue();
+    /**
+     * OnEmptyQueue - handling 'queue got new message' events.
+     *  @param taskdata - pointer to the data that currently processed.
+     */
+    virtual void OnTask(TaskData const* taskdata);
+};
 
 /**
  * Notification Transport SuperAgent. Used to Create the SuperAgent Interface
@@ -57,11 +98,18 @@ class NotificationTransportSuperAgent : public NotificationTransport {
     void setIsFirstSuperAgent(bool isFirstSuperAgent);
 
   private:
-
+    /*
+     * implements AsyncTask
+     */
+    ReceiveNotificationAsyncTask m_receiveNotificationAsyncTask;
     /**
      * Boolean to indicate if this is the first time the SuperAgent called back
      */
     bool m_IsFirstSuperAgent;
+    /*
+     * task queue with thread - dedicated to handle notifications from the super agent.
+     */
+    AsyncTaskQueue* m_receiveNotificationTaskQueue;
 };
 } //namespace services
 } //namespace ajn

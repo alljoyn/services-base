@@ -48,6 +48,9 @@ void SuperAgentBusListener::FoundAdvertisedName(const char* name, TransportMask 
 void SuperAgentBusListener::LostAdvertisedName(const char* name, TransportMask transport, const char* prefix)
 {
     QCC_DbgTrace(("LostAdvertisedName"));
+    // We must enable concurrent callbacks since some of the calls below are blocking
+    m_Bus->EnableConcurrentCallbacks();
+
     if (0 == ::strcmp(name, m_SuperAgentBusUniqueName.c_str())) {
         Transport::getInstance()->cancelListenToSuperAgent(m_SuperAgentBusUniqueName.c_str());
     }

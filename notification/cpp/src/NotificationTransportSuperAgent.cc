@@ -27,6 +27,23 @@ using namespace ajn;
 using namespace services;
 using namespace nsConsts;
 
+ReceiveNotificationTaskData::ReceiveNotificationTaskData(Message& msg) : message(msg)
+{
+}
+
+void ReceiveNotificationAsyncTask::OnEmptyQueue()
+{
+}
+
+void ReceiveNotificationAsyncTask::OnTask(TaskData const* taskdata)
+{
+    QCC_DbgPrintf(("Handling notification from superagent"));
+    const ReceiveNotificationTaskData* receiveNotificationTaskData = static_cast<const ReceiveNotificationTaskData*>(taskdata);
+    if (receiveNotificationTaskData) {
+        PayloadAdapter::receivePayload(const_cast<ReceiveNotificationTaskData*>(receiveNotificationTaskData)->message);
+    }
+}
+
 NotificationTransportSuperAgent::NotificationTransportSuperAgent(
     BusAttachment* bus, String const& servicePath, QStatus& status, bool isFirstSuperAgent)  :
     NotificationTransport(bus, servicePath, status, AJ_SA_INTERFACE_NAME),
@@ -35,6 +52,9 @@ NotificationTransportSuperAgent::NotificationTransportSuperAgent(
     if (status != ER_OK) {
         return;
     }
+
+    m_receiveNotificationTaskQueue = new AsyncTaskQueue(&m_receiveNotificationAsyncTask);
+    m_receiveNotificationTaskQueue->Start();
 
     status =  bus->RegisterSignalHandler(this,
                                          static_cast<MessageReceiver::SignalHandler>(&NotificationTransportSuperAgent::handleSignal),
@@ -52,13 +72,16 @@ NotificationTransportSuperAgent::NotificationTransportSuperAgent(
 
 void NotificationTransportSuperAgent::handleSignal(const InterfaceDescription::Member* member, const char* srcPath, Message& msg)
 {
+    QCC_DbgPrintf(("Got notification from super agent"));
+    Transport* transport = Transport::getInstance();
+    // We must enable concurrent callbacks since some of the calls below are blocking
+    transport->getBusAttachment()->EnableConcurrentCallbacks();
+
     if (m_IsFirstSuperAgent) {
         m_IsFirstSuperAgent = false;
         QCC_DbgPrintf(("Found first super agent."));
 
         const char* messageSender = msg->GetSender();
-        Transport* transport = Transport::getInstance();
-
         if (transport->FindSuperAgent(messageSender) != ER_OK) {
             QCC_DbgHLPrintf(("Could not listen to SuperAgent."));
             m_IsFirstSuperAgent = true;     //so that we try again
@@ -68,7 +91,9 @@ void NotificationTransportSuperAgent::handleSignal(const InterfaceDescription::M
 
     String sender = msg->GetSender();
     QCC_DbgPrintf(("Received Message from super agent: %s", sender.c_str()));
-    PayloadAdapter::receivePayload(msg);
+    if (m_receiveNotificationTaskQueue) {
+        m_receiveNotificationTaskQueue->Enqueue(new ReceiveNotificationTaskData(msg));
+    }
 }
 
 void NotificationTransportSuperAgent::unregisterHandler(BusAttachment* bus)
@@ -77,6 +102,12 @@ void NotificationTransportSuperAgent::unregisterHandler(BusAttachment* bus)
                                  static_cast<MessageReceiver::SignalHandler>(&NotificationTransportSuperAgent::handleSignal),
                                  m_SignalMethod,
                                  NULL);
+
+    if (m_receiveNotificationTaskQueue) {
+        m_receiveNotificationTaskQueue->Stop();
+        delete m_receiveNotificationTaskQueue;
+        m_receiveNotificationTaskQueue = NULL;
+    }
 }
 
 void NotificationTransportSuperAgent::setIsFirstSuperAgent(bool isFirstSuperAgent)

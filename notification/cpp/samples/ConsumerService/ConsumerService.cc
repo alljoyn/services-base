@@ -35,14 +35,17 @@ void cleanup()
 {
     std::cout << "cleanup() - start" << std::endl;
     if (conService) {
+        std::cout << "cleanup() - conService" << std::endl;
         conService->shutdown();
         conService = NULL;
     }
     if (Receiver) {
+        std::cout << "cleanup() - Receiver" << std::endl;
         delete Receiver;
         Receiver = NULL;
     }
     if (busAttachment) {
+        std::cout << "cleanup() - busAttachment" << std::endl;
         delete busAttachment;
         busAttachment = NULL;
     }
@@ -63,6 +66,7 @@ void WaitForSigInt() {
         usleep(100 * 1000);
 #endif
     }
+    std::cout << "Getting out from WaitForSigInt()" << std::endl;
 }
 
 int main()
@@ -85,6 +89,11 @@ int main()
 #endif
 
     // change loglevel to debug:
+    QCC_SetLogLevels("ALLJOYN_ABOUT_CLIENT=7");
+    QCC_SetLogLevels("ALLJOYN_ABOUT_ICON_CLIENT=7");
+    QCC_SetLogLevels("ALLJOYN_ABOUT_ANNOUNCE_HANDLER=7");
+    QCC_SetLogLevels("ALLJOYN_ABOUT_ANNOUNCEMENT_REGISTRAR=7");
+
     QCC_SetDebugLevel(logModules::NOTIFICATION_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
 
     Receiver = new NotificationReceiverTestImpl(false);
