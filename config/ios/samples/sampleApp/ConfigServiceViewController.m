@@ -80,13 +80,6 @@ static AJNSessionPort SERVICE_PORT; // About Service - service port
 	int port = 900;
 	SERVICE_PORT = (AJNSessionPort)port;
     
-	serviceStatus = [AJNPasswordManager setCredentialsForAuthMechanism:@"ALLJOYN_PIN_KEYX" usingPassword:DEFAULTPASSCODE];
-	if (serviceStatus != ER_OK) {
-        [AppDelegate alertAndLog:@"Failed to SetCredentials" status:serviceStatus];
-		[self stopConfigService];
-        return serviceStatus;
-	}
-    
 	// Create message bus
 	self.busAttachment = [[AJNBusAttachment alloc] initWithApplicationName:@"ConfigService" allowRemoteMessages:ALLOWREMOTEMESSAGES];
 	if (!self.busAttachment) {

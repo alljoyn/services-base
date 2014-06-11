@@ -98,12 +98,6 @@ static NSString *const DEFAULT_MSG_TYPE = @"INFO";
 	// Set logger (see a logger implementation example in  ConsumerViewController.m)
 	[self.producerService setLogLevel:QLEVEL_DEBUG];
     
-    // Set Daemon password for tcl
-	QStatus status = [AJNPasswordManager setCredentialsForAuthMechanism:@"ALLJOYN_PIN_KEYX" usingPassword:@"000000"];
-    if (status != ER_OK) {
-        [self.logger errorTag:[[self class] description] text:@"Failed to SetCredentials"];
-    }
-    
 	// Confirm that bus is valid
 	if (!self.busAttachment) {
 		[self.logger fatalTag:[[self class] description] text:@"BusAttachment is nil"];
@@ -114,7 +108,7 @@ static NSString *const DEFAULT_MSG_TYPE = @"INFO";
 	[self.logger debugTag:[[self class] description] text:@"preparePropertyStore."];
 	self.aboutPropertyStoreImpl = [[AJNAboutPropertyStoreImpl alloc] init];
     
-	status = [self fillAboutPropertyStoreImplData:[[NSUUID UUID] UUIDString]
+	QStatus status = [self fillAboutPropertyStoreImplData:[[NSUUID UUID] UUIDString]
 	                                      appName:self.appName
 	                                     deviceId:DEVICE_ID_PRODUCER
 	                                   deviceName:DEVICE_NAME_PRODUCER

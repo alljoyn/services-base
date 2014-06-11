@@ -323,13 +323,6 @@ static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX ALL
     
     NSLog(@"[%@] [%@] Start About Client", @"DEBUG", [[self class] description]);
     
-    status = [AJNPasswordManager setCredentialsForAuthMechanism:@"ALLJOYN_PIN_KEYX" usingPassword:@"000000"];
-	if (status != ER_OK) {
-        [AppDelegate alertAndLog:@"Failed to SetCredentials" status:status];
-        [self stopAboutClient];
-        return;
-	}
-    
 	// Init AJNBusAttachment
 	self.clientBusAttachment = [[AJNBusAttachment alloc] initWithApplicationName:APPNAME allowRemoteMessages:ALLOWREMOTEMESSAGES];
     
