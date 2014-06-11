@@ -670,11 +670,6 @@ public class OnboardingManager {
     private final int ABORTING_INTERRUPT_FLAG=0x100;
 
     /**
-     * Indicator flag to stop findAnnouncements
-     */
-    private   static  volatile  boolean internalAnnouncementFindFlag;
-
-    /**
      * Indicator flag to listen to incoming Announcements
      */
     private static volatile boolean listenToAnnouncementsFlag;
@@ -1355,45 +1350,6 @@ public class OnboardingManager {
 
 
     /**
-     * This is a workaround for a case where WhoHas is being sent too soon after Android had switched
-     * to a new network. This WhoHas might not get answered by the Onboardee and the OnboardingManager
-     * will time out waiting for the Onboardee's announcement.
-     * The workaround explicitly sends WhoHas messages by calling FindAvertisedName and CancelFindAvertisedName
-     * with the sessionless signal WKN prefix (org.alljoyn.sl) in a loop with a 500ms delay.
-     */
-    private void findAnnouncements(){
-        Log.d( TAG, "findAnnouncements");
-        internalAnnouncementFindFlag=false;
-        new Thread (){
-            @Override
-            public void run(){
-                for(int i = 0; i < 60; i++ ) {
-                    if (internalAnnouncementFindFlag) {
-                        Log.d( TAG, "internalAnnouncementFindFlag is true");
-                        break;
-                    }
-                    bus.cancelFindAdvertisedName(":");
-                    bus.findAdvertisedName("org.alljoyn.sl");
-                    try{
-                        Thread.sleep(500);
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
-                    bus.cancelFindAdvertisedName("org.alljoyn.sl");
-                    bus.findAdvertisedName(":");
-                }
-            }
-        }.start();
-    }
-
-
-    private void cancelFindAnnouncements(){
-        Log.d( TAG, "cancelFindAnnouncements");
-        internalAnnouncementFindFlag=true;
-    }
-
-
-    /**
      * Handle the CONNECT_TO_TARGET state.
      * Listen to WIFI intents from OnboardingsdkWifiManager Requests from
      * OnboardingsdkWifiManager to connect to the Target. if successful moves to
@@ -1492,7 +1448,7 @@ public class OnboardingManager {
 
 
         synchronized (TAG) {
-           listenToAnnouncementsFlag=false;
+            listenToAnnouncementsFlag=false;
         }
         setState(State.IDLE);
         onboardingSDKWifiManager.enableAllWifiNetworks();
@@ -1512,7 +1468,6 @@ public class OnboardingManager {
 
         // set state to State.ABORTING
         currentState = State.ABORTING;
-        cancelFindAnnouncements();
 
         // in case State.JOINING_SESSION push ABORTING_INTERRUPT_FLAG into the stateHandler queue.
         if (initalState==State.JOINING_SESSION){
@@ -1570,7 +1525,7 @@ public class OnboardingManager {
 
             synchronized (TAG) {
                 listenToAnnouncementsFlag=false;
-             }
+            }
 
             setState(State.IDLE);
             extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.ABORTED.toString());
@@ -1616,14 +1571,12 @@ public class OnboardingManager {
             break;
 
         case WAITING_FOR_ONBOARDEE_ANNOUNCEMENT:
-            findAnnouncements();
             currentState = State.WAITING_FOR_ONBOARDEE_ANNOUNCEMENT;
             handleWaitForOnboardeeAnnounceState();
             break;
 
         case ONBOARDEE_ANNOUNCEMENT_RECEIVED:
             currentState = State.ONBOARDEE_ANNOUNCEMENT_RECEIVED;
-            cancelFindAnnouncements();
             handleOnboardeeAnnouncementReceivedState((AnnounceData) msg.obj);
             break;
 
@@ -1648,13 +1601,11 @@ public class OnboardingManager {
             break;
 
         case WAITING_FOR_TARGET_ANNOUNCE:
-            findAnnouncements();
             currentState = State.WAITING_FOR_TARGET_ANNOUNCE;
             handleWaitForTargetAnnounceState();
             break;
 
         case TARGET_ANNOUNCEMENT_RECEIVED:
-            cancelFindAnnouncements();
             currentState = State.TARGET_ANNOUNCEMENT_RECEIVED;
             handleTargetAnnouncementReceivedState((AnnounceData) msg.obj);
             break;
@@ -1665,7 +1616,6 @@ public class OnboardingManager {
 
         case ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT:
             currentState = State.ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT;
-            cancelFindAnnouncements();
             handleErrorOnboardeeAnnouncementReceivedAfterTimeoutState((AnnounceData) msg.obj);
             break;
 
@@ -1699,7 +1649,6 @@ public class OnboardingManager {
 
         case ERROR_TARGET_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT:
             currentState = State.ERROR_TARGET_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT;
-            cancelFindAnnouncements();
             handleErrorTargetAnnouncementReceivedAfterTimeoutState((AnnounceData) msg.obj);
             break;
 
@@ -2251,9 +2200,9 @@ public class OnboardingManager {
             }
 
             if (currentState == State.CONNECTING_TO_TARGET_WIFI_AP ||
-                currentState == State.TARGET_ANNOUNCEMENT_RECEIVED ||
-                currentState == State.CONFIGURING_ONBOARDEE ||
-                currentState == State.CONFIGURING_ONBOARDEE_WITH_SIGNAL) {
+                    currentState == State.TARGET_ANNOUNCEMENT_RECEIVED ||
+                    currentState == State.CONFIGURING_ONBOARDEE ||
+                    currentState == State.CONFIGURING_ONBOARDEE_WITH_SIGNAL) {
                 throw new OnboardingIllegalStateException("Can't abort");
             }
             Bundle extras =new Bundle();
@@ -2307,7 +2256,7 @@ public class OnboardingManager {
 
         synchronized (TAG) {
             listenToAnnouncementsFlag=false;
-         }
+        }
 
         //Try to connect to orginal access point if existed.
         if (originalNetwork!=null)
