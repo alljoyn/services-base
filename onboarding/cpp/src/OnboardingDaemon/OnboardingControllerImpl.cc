@@ -216,6 +216,7 @@ void OnboardingControllerImpl::Connect() {
     CancelAdvertise();
     pthread_t thread;
     pthread_create(&thread, NULL, OnboardingControllerImpl::OBS_Connect, this);
+    pthread_detach(thread);
 } /* Connect() */
 
 OBAuthType TranslateToOBAuthType(int authNum, GroupCiphers theCiphers)
@@ -441,12 +442,11 @@ static void TimerDone(int sig, siginfo_t*si, void*context)
 void OnboardingControllerImpl::ScanWifiTimerDone()
 {
     if (m_scanWifiThreadIsRunning) {
-        int retval;
         pthread_cancel(m_scanWifiThread);
-        pthread_join(m_scanWifiThread, (void**)&retval);
         m_scanWifiThreadIsRunning = false;
         QCC_DbgTrace(("ScanWifi timed out and is being canceled"));
     }
+    pthread_join(m_scanWifiThread, NULL);
 }
 
 void OnboardingControllerImpl::StartScanWifi()
@@ -496,6 +496,7 @@ void OnboardingControllerImpl::GetScanInfo(unsigned short& age, OBScanInfo*& sca
     if (!m_scanWifiThreadIsRunning) {
         StartScanWifiTimer();
         pthread_create(&m_scanWifiThread, NULL, ScanWifiThread, this);
+        pthread_detach(m_scanWifiThread);
     }
 
 } /* GetScanInfo() */
@@ -525,6 +526,7 @@ void OnboardingControllerImpl::Offboard()
     CancelAdvertise();
     pthread_t thread;
     pthread_create(&thread, NULL, OnboardingControllerImpl::OBS_Offboard, this);
+    pthread_detach(thread);
 } /* Offboard() */
 
 short OnboardingControllerImpl::GetState()
