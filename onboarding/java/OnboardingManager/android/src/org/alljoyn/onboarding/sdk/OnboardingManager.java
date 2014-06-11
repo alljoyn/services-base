@@ -1060,12 +1060,13 @@ public class OnboardingManager {
         synchronized (TAG){
             if (currentState==State.IDLE){
                 this.context=null;
-                this.bus=null;
-                this.aboutService=null;
-                this.onboardingSDKWifiManager=null;
                 if (aboutService!=null){
                     aboutService.removeAnnouncementHandler(announcementHandler, new String[]{OnboardingTransport.INTERFACE_NAME});
                 }
+                this.aboutService=null;
+                this.bus=null;
+                this.onboardingSDKWifiManager=null;
+               
             }else{
                 throw new OnboardingIllegalStateException("Not in IDLE state ,please Abort first");
             }
