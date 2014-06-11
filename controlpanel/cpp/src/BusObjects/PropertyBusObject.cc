@@ -83,7 +83,7 @@ QStatus PropertyBusObject::addSignalHandler(BusAttachment* bus)
 
 QStatus PropertyBusObject::UnregisterSignalHandler(BusAttachment* bus)
 {
-    WidgetBusObject::addSignalHandler(bus);
+    WidgetBusObject::UnregisterSignalHandler(bus);
     QStatus status = bus->UnregisterSignalHandler(this,
                                                   static_cast<MessageReceiver::SignalHandler>(&PropertyBusObject::ValueChanged),
                                                   m_SignalValueChanged, m_ObjectPath.c_str());
