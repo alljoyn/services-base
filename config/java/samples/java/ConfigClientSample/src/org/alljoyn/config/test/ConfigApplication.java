@@ -30,7 +30,6 @@ import org.alljoyn.about.AboutServiceImpl;
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.Mutable.StringValue;
-import org.alljoyn.bus.PasswordManager;
 import org.alljoyn.bus.SessionOpts;
 import org.alljoyn.bus.Status;
 import org.alljoyn.bus.Variant;
@@ -300,18 +299,10 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
         DaemonInit.PrepareDaemon(getApplicationContext());
         String ss = getPackageName();
         busAttachment = new BusAttachment(ss, BusAttachment.RemoteMessage.Receive);
-
-        // Setting the password for the daemon to allow thin clients to connect
-        Log.d(TAG, "Setting daemon password");
-        Status pasStatus = PasswordManager.setCredentials("ALLJOYN_PIN_KEYX", "000000");
-
-        if (pasStatus != Status.OK) {
-            Log.e(TAG, "Failed to set password for daemon, Error: " + pasStatus);
-        }
-
+       
         // Connecting to the bus
         Status status = busAttachment.connect();
-        Log.d(TAG, "bus.connect status: " + status);
+        Log.d(TAG, "bus.connect status: '" + status + "', BusName: '" + busAttachment.getUniqueName() + "'");
 
         String keyStoreFileName = null;
         try {

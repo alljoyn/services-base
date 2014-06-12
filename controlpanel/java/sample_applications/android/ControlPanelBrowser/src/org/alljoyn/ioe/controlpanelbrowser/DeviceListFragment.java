@@ -22,7 +22,6 @@ import org.alljoyn.about.AboutService;
 import org.alljoyn.about.AboutServiceImpl;
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.BusException;
-import org.alljoyn.bus.PasswordManager;
 import org.alljoyn.bus.SessionOpts;
 import org.alljoyn.bus.Status;
 import org.alljoyn.bus.Variant;
@@ -381,15 +380,7 @@ public class DeviceListFragment extends ListFragment {
 			// load the password for accessing secured interfaces on the board
 			SharedPreferences settings = getActivity().getSharedPreferences(PREFS_NAME, 0);
 			srpPassword = settings.getString(PREFS_PASSWORD, DEFAULT_SECURED_SRP_PASSWORD);
-
-			// Set the password for the daemon to allow thin clients to connect.
-			Log.d(TAG, "Setting daemon password");
-			Status passwordStatus = PasswordManager.setCredentials("ALLJOYN_PIN_KEYX", DEFAULT_SECURED_SRP_PASSWORD);
 			
-			if ( passwordStatus != Status.OK ) {
-				Log.e(TAG, "Failed to set password for daemon, Error: " + passwordStatus);
-			}
-
 			Log.d(TAG, "Setting the AuthListener");
 			
 			SrpAnonymousKeyListener authListener = new SrpAnonymousKeyListener(this, logger, AUTH_MECHANISMS);

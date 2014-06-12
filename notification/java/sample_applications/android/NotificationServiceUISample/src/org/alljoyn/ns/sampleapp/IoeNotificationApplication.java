@@ -26,7 +26,6 @@ import org.alljoyn.about.AboutKeys;
 import org.alljoyn.about.AboutService;
 import org.alljoyn.about.AboutServiceImpl;
 import org.alljoyn.bus.BusAttachment;
-import org.alljoyn.bus.PasswordManager;
 import org.alljoyn.bus.SessionOpts;
 import org.alljoyn.bus.Status;
 import org.alljoyn.bus.alljoyn.DaemonInit;
@@ -72,13 +71,6 @@ public class IoeNotificationApplication extends Application implements Notificat
      * This is to reply directly to a TC looking for a daemon 
      */  
     private static final String DAEMON_QUIET_PREFIX         = "quiet@";
- 
-    /** 
-     * The daemon authentication method
-     */  
-    private static final String DAEMON_AUTH                 = "ALLJOYN_PIN_KEYX";
- 
-    private static final String DAEMON_PWD                  = "000000";
 
     /**
      * The {@link BusAttachment} to be used by the {@link NotificationService}
@@ -563,14 +555,6 @@ public class IoeNotificationApplication extends Application implements Notificat
         //bus.setLogLevels("ALLJOYN=7");
         //bus.setLogLevels("ALL=7");
         //bus.useOSLogging(true);
-
-        //setting the password for the daemon to allow thin clients to connect
-        Log.d(TAG, "Setting daemon password");
-        Status pasStatus = PasswordManager.setCredentials(DAEMON_AUTH, DAEMON_PWD);
-
-        if ( pasStatus != Status.OK ) {
-            Log.e(TAG, "Failed to set password for daemon, Error: " + pasStatus);
-        }
 
         Status conStatus = bus.connect();
         if ( conStatus != Status.OK ) {
