@@ -290,7 +290,8 @@ public class ConfigActivity extends Activity {
     }
 
     // Sets the config data to the values the user entered in the screen.
-    private void setConfig() {
+    @SuppressWarnings("unchecked")
+	private void setConfig() {
 
         final AsyncTask<Map<String, Object>, Void, Void> task = new AsyncTask<Map<String, Object>, Void, Void>() {
 
@@ -344,7 +345,8 @@ public class ConfigActivity extends Activity {
         if (deviceNameCheckBox.isChecked()) {
             configMap.put(AboutKeys.ABOUT_DEVICE_NAME, deviceNameValue.getText().toString());
         }
-        task.execute(new Map[] { configMap });
+        
+        task.execute(configMap);
     }
 
     // Reset the config fields to its default values
@@ -422,6 +424,8 @@ public class ConfigActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        
+        ((ConfigApplication) getApplication()).stopConfigSession();
         if (mainReceiver != null) {
             try {
                 unregisterReceiver(mainReceiver);
