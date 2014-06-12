@@ -19,7 +19,6 @@ package org.alljoyn.ioe.controlpanelservice.application;
 import org.alljoyn.about.AboutServiceImpl;
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.BusAttachment.RemoteMessage;
-import org.alljoyn.bus.PasswordManager;
 import org.alljoyn.bus.SessionOpts;
 import org.alljoyn.bus.Status;
 import org.alljoyn.bus.alljoyn.DaemonInit;
@@ -47,8 +46,6 @@ public class ControlPanelApplication extends Application implements AuthPassword
 	 */
 	private static final String DAEMON_QUIET_PREFIX      = "quiet@";
 	
-	private static final String DAEMON_CONN_PASSWORD     = "000000";
-	
 	private static final String[] authMechanisms         = new String[]{"ALLJOYN_SRP_KEYX", 
 		                                                                "ALLJOYN_PIN_KEYX", 
 		                                                                "ALLJOYN_ECDHE_PSK"};
@@ -73,13 +70,6 @@ public class ControlPanelApplication extends Application implements AuthPassword
 		//bus.setLogLevels("ALLJOYN=7");
 		//bus.setLogLevels("ALL=7");
 		//bus.useOSLogging(true);
-		
-		//setting the password for the daemon to allow thin clients to connect
-		Log.d(TAG, "Setting daemon password");
-		Status pasStatus = PasswordManager.setCredentials("ALLJOYN_PIN_KEYX", DAEMON_CONN_PASSWORD);	
-		if ( pasStatus != Status.OK ) {
-			Log.e(TAG, "Failed to set password for daemon, Error: " + pasStatus);
-		}
 		
 		Log.d(TAG, "Setting the AuthListener");
 		
