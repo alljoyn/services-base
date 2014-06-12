@@ -122,6 +122,20 @@ QStatus HexToRaw(const char* hex, size_t hexLen, char* raw, size_t rawLen)
     return status;
 }
 
+bool authTypeIsWPA(short authType)
+{
+    switch (authType) {
+    case WPA2_AUTO:
+    case WPA_AUTO:
+    case WPA_TKIP:
+    case WPA_CCMP:
+    case WPA2_TKIP:
+    case WPA2_CCMP:
+        return true;
+    }
+    return false;
+}
+
 void OnboardingService::ConfigureWiFiHandler(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
 {
     QCC_DbgTrace(("In OnboardingService ConfigureWiFiHandler"));
@@ -192,14 +206,29 @@ void OnboardingService::ConfigureWiFiHandler(const ajn::InterfaceDescription::Me
 
         if (error.empty() && errorMessage.empty()) {
             if (WEP != authType) {
+                // passcode is hexa encoded by client, decode
                 size_t rawLength = strPass.length() / 2 + 1;
                 char raw[rawLength];
                 CHECK_BREAK(HexToRaw(strPass.c_str(), strPass.length(), raw, rawLength));
                 raw[strPass.length() / 2] = '\0';
-                m_OnboardingController.ConfigureWiFi(SSID, raw, authType, configureWifiStatus, error, errorMessage);
-            } else {
-                m_OnboardingController.ConfigureWiFi(SSID, strPass, authType, configureWifiStatus, error, errorMessage);
+
+                // save decoded string in strPass
+                strPass.assign(raw);
+
+                // For WPA2 or WPA only:
+                // The passcode length is between 8 and 63 characters. If the passcode length is 64 characters,
+                // it is treated as hex encoded, so the passcode is decoded a second time
+                if (strlen(( char*)raw) == 64 && authTypeIsWPA(authType)) {
+                    strPass.assign(raw);
+                    size_t decodedLength = strPass.length() / 2 + 1;
+                    CHECK_BREAK(HexToRaw(strPass.c_str(), strPass.length(), raw, decodedLength));
+                    raw[strPass.length() / 2] = '\0';
+
+                    // save decoded string in strPass
+                    strPass.assign(raw);
+                }
             }
+            m_OnboardingController.ConfigureWiFi(SSID, strPass, authType, configureWifiStatus, error, errorMessage);
 
             MsgArg retArgs[1];
             CHECK_BREAK(retArgs[0].Set("n", configureWifiStatus));
