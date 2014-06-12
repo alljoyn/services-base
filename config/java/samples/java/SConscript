@@ -15,7 +15,6 @@
 Import('sample_env')
 
 jars = []
-jars += sample_env.SConscript('ConfigServerSample/SConscript', exports = ['sample_env'])
 # The config client sample is an Android project and is not currently set up to
 # build using SCons. Prevent Build Failure if None is returned.
 configClient_jars = sample_env.SConscript('ConfigClientSample/SConscript', exports = ['sample_env'])
