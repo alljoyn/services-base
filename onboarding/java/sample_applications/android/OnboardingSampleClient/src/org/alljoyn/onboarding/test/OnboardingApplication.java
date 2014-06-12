@@ -132,7 +132,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.app.Application#onCreate()
      */
     @Override
@@ -195,7 +195,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /**
      * Sets the daemon realm name.
-     * 
+     *
      * @param realmName
      *            The daemon realm name.
      */
@@ -206,7 +206,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.app.Application#onTerminate()
      */
     @Override
@@ -245,7 +245,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
                     Map<String, Object> newMap = new HashMap<String, Object>();
                     try {
                         newMap = TransportUtil.fromVariantMap(aboutMap);
-                        String deviceId = (String) (newMap.get(AboutKeys.ABOUT_APP_ID).toString());
+                        String deviceId = (newMap.get(AboutKeys.ABOUT_APP_ID).toString());
                         String deviceFriendlyName = (String) newMap.get(AboutKeys.ABOUT_DEVICE_NAME);
                         m_logger.debug(TAG, "onAnnouncement received: with parameters: busName:" + busName + ", port:" + port + ", deviceid" + deviceId + ", deviceName:" + deviceFriendlyName);
                         addDevice(deviceId, busName, port, deviceFriendlyName, interfaces, newMap);
@@ -408,6 +408,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
         alert.setMessage(errorMsg);
 
         alert.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
             public void onClick(DialogInterface dialog, int whichButton) {
                 dialog.dismiss();
             }
@@ -437,7 +438,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /**
      * Return the onboarding service fields.
-     * 
+     *
      * @return the onboarding service fields.
      */
     public Short getOnboardingVersion() {
@@ -462,7 +463,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /**
      * Return the onboarding service last error
-     * 
+     *
      * @return the onboarding service last error
      */
     public OBLastError getLastError() {
@@ -487,7 +488,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /**
      * Return the onboarding service state.
-     * 
+     *
      * @return the onboarding service state.
      */
     public Short getState() {
@@ -509,7 +510,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /**
      * Return the onboarding service scan info.
-     * 
+     *
      * @return the onboarding service scan info.
      */
     public ScanInfo getScanInfo() {
@@ -531,7 +532,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /**
      * Configure a network for the alljoyn device
-     * 
+     *
      * @param networkName
      *            The name (ssid) of the configured network
      * @param networkPassword
@@ -607,7 +608,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.alljoyn.services.android.security.AuthPasswordHandler#getPassword
      * (java.lang.String)
@@ -622,7 +623,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
             Collection<SoftAPDetails> devices = m_devicesMap.values();
             Iterator<SoftAPDetails> iterator = devices.iterator();
             for (; iterator.hasNext();) {
-                softAPDetails = (SoftAPDetails) iterator.next();
+                softAPDetails = iterator.next();
                 if (softAPDetails.busName.equals(peerName)) {
                     char[] password = softAPDetails.password;
                     m_logger.info(TAG_PASSWORD, "Client password = " + String.valueOf(password) + " for peerName " + peerName + ", Name=" + softAPDetails.deviceFriendlyName);
@@ -639,7 +640,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     /**
      * Sets a password on the client side. This password will be compared
      * against the alljoyn device password when needed.
-     * 
+     *
      * @param peerName
      *            The device bus name.
      * @param password
@@ -651,7 +652,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
         Collection<SoftAPDetails> devices = m_devicesMap.values();
         Iterator<SoftAPDetails> iterator = devices.iterator();
         for (; iterator.hasNext();) {
-            SoftAPDetails softAPDetails = (SoftAPDetails) iterator.next();
+            SoftAPDetails softAPDetails = iterator.next();
             if (softAPDetails.busName.equals(peerName)) {
                 m_logger.info(TAG_PASSWORD, "Set the password on the client side from: " + String.valueOf(softAPDetails.password) + " to: " + String.valueOf(password));
                 softAPDetails.password = password;
@@ -662,7 +663,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.alljoyn.services.android.security.AuthPasswordHandler#completed(java
      * .lang.String, java.lang.String, boolean)
