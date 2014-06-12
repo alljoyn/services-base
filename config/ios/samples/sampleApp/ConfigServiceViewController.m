@@ -194,7 +194,7 @@ static AJNSessionPort SERVICE_PORT; // About Service - service port
 		return status;
 	}
     
-	status = [self.busAttachment registerBusObject:(AJNBusObject *)self.configService];
+	status = [self.busAttachment registerBusObject:self.configService];
 	if (status != ER_OK) {
 		[self.logger errorTag:[[self class] description] text:[NSString stringWithFormat:@"Failed to register registerBusObject: %@", [AJNStatus descriptionForStatusCode:status]]];
 		return status;

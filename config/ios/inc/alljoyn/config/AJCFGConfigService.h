@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 #import "AJNBusAttachment.h"
+#import "AJNBusObject.h"
 #import "AJCFGConfigServiceListenerImpl.h"
 #import "AJCFGPropertyStoreImpl.h"
 #import "alljoyn/services_common/AJSVCGenericLogger.h"
@@ -24,7 +25,7 @@
  AJCFGConfigService is an AllJoyn BusObject that implements the org.alljoyn.Config standard interface.
  Applications that provide AllJoyn IoE services with config capability.
  */
-@interface AJCFGConfigService : NSObject
+@interface AJCFGConfigService : AJNBusObject
 
 /**
  Designated initializer.
