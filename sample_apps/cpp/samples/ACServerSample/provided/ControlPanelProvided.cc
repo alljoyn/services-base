@@ -25,6 +25,7 @@
 static uint16_t currentHumidity = 40;
 static qcc::String humidityBuff = "40 %% \0";
 static uint16_t currentTemperature = 72;
+static uint16_t previousTemperature = 72;
 static qcc::String temperatureBuff = "72 F";
 static uint16_t targetTemp = 68;
 static uint16_t prevTargetTemp = 68;
@@ -35,7 +36,6 @@ static uint16_t previousFanSpeed = 1;
 static char statusText[30] = "Unit is off \0";
 static char* statusString = statusText;
 static uint16_t triggerAnUpdate = 0;
-//static uint16_t previousTemperature = 72;
 static char notificationText[50] = "Notification text goes here";
 static char* notificationString = notificationText;
 static uint16_t sendANotification = 0;
@@ -280,9 +280,10 @@ uint8_t checkForUpdatesToSend()
     // 10000 == need to update the value of mode selector
 
     modeOrTargetTempChanged = 0;
+    checkForEventsToSend();
+    previousTemperature = currentTemperature;
 
     printf("In checkForUpdatesToSend, currentMode=%d, targetTemp=%d, currentTemperature=%d, fanSpeed=%d, triggerAnUpdate=%d \n", currentMode, targetTemp, currentTemperature, fanSpeed, triggerAnUpdate);
-
     // check if the target temperature has been changed & update accordingly
     if (targetTemp != prevTargetTemp) {
         printf("##### targetTemp (%d) != prevTargetTemp (%d) \n", targetTemp, prevTargetTemp);
@@ -345,8 +346,6 @@ uint8_t checkForUpdatesToSend()
             // fan mode or off, don't do anything
         }
     }
-
-    checkForEventsToSend();
 
     //check if the mode has been changed & update accordingly
     if (currentMode != previousMode) {
@@ -581,12 +580,16 @@ uint8_t checkForEventsToSend()
     // 0x02 == need to send event 60F reached
     // 0x04 == need to send event mode turned off
     // 0x08 == need to send event mode turned on
-
-    if (targetTemp >= currentTemperature && currentTemperature == 80) {
-        set80FReachedEvent();
-    }
-    if (targetTemp <= currentTemperature && currentTemperature == 60) {
-        set60FReachedEvent();
+    if (currentTemperature != previousTemperature) {
+        printf("currentTemperature[%d] != prevTargetTemp[%d]\n", currentTemperature, prevTargetTemp);
+        if (targetTemp >= currentTemperature && currentTemperature == 80) {
+            printf("previousTemperature[%d] >= currentTemperaturep[%d] && currentTemperature == 80\n", previousTemperature, currentTemperature);
+            set80FReachedEvent();
+        }
+        if (targetTemp <= currentTemperature && currentTemperature == 60) {
+            printf("previousTemperature[%d] <= currentTemperature[%d] && currentTemperature == 60\n", previousTemperature, currentTemperature);
+            set60FReachedEvent();
+        }
     }
 
     if (currentMode != previousMode) {
