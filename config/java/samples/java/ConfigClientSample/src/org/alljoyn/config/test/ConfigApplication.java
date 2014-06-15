@@ -314,7 +314,6 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
             configService = ConfigServiceImpl.getInstance();
             configService.startConfigClient(busAttachment);
 
-            configService.startConfigClient(busAttachment);
             keyStoreFileName = getApplicationContext().getFileStreamPath("alljoyn_keystore").getAbsolutePath();
 
         } catch (Exception e) {
@@ -355,15 +354,20 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
      * Disconnect from Alljoyn bus and unregister bus objects.
      */
     public void doDisconnect() {
+    	
         /*
          * It is important to unregister the BusObject before disconnecting from
          * the bus. Failing to do so could result in a resource leak.
          */
+    	Log.d(TAG, "Disconnecting from AllJoyn");
         try {
             if (aboutService != null) {
+            	aboutService.removeAnnouncementHandler(this, ANNOUNCEMENT_IFACES);
                 aboutService.stopAboutClient();
             }
             if (configService != null) {
+            	
+            	stopConfigSession();
                 configService.stopConfigClient();
             }
             if (busAttachment != null) {
@@ -458,36 +462,74 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
         alert.show();
     }
 
+   
     /**
      * Create config client and create a session
-     * 
-     * @param peer
+     * @param peer The {@link Device} to connect
+     * @throws Exception If failed to create the configClient or to establish session
      */
-    public void startConfigSession(Device peer) {
-        try {
-            configClient = configService.createFeatureConfigClient(peer.busName, null, peer.port);
-        } catch (Exception e) {
-            String m = e.getMessage();
-            Log.d(TAG, "startSession: Exception: " + m);
-            e.printStackTrace();
-            updateTheUiAboutError("startSession: Exception: " + m);
+    public void startConfigSession(Device peer) throws Exception {
+    	
+    	if ( peer == null || peer.busName == null ) {
+    		
+    		throw new IllegalArgumentException("Received peer or peer.busName is undefined");
+    	}
+    	
+    	//If the configClient is already connected with the received peer, no need to create an additional session
+    	if ( configClient != null && configClient.getPeerName().equals(peer.busName) ) {
+    		
+    		if ( configClient.isConnected() ) {
+    			
+    			Log.d(TAG, "ConfigClient is already in the session with the peer: '" + peer.busName + "', sid: '" 
+    						+ configClient.getSessionId() + "'");
+    			
+    			return;
+    		}
+    	}
+    	//Need to create a new configClient
+    	else {
+            try {
+            	
+            	//Try to close the previous connection, if exists
+            	stopConfigSession();
+                configClient = configService.createFeatureConfigClient(peer.busName, null, peer.port);
+            } catch (Exception e) {
+            	
+                String m = e.getMessage();
+                Log.d(TAG, "startSession: Exception: " + m);
+                e.printStackTrace();
+                updateTheUiAboutError("startSession: Exception: " + m);
+                throw e;
+            }
+    	}
+    	
+		//Instead of checking the returned status, we check the isConnected() method.
+		//It takes into account both the Status.Ok and the Status.ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED
+        Status status = configClient.connect();
+        if ( !configClient.isConnected() ) {
+        	 
+        	throw new Exception("Failed to connect to the peer: '" + peer.busName + "', Status: '" + status + "'");
         }
-        if (configClient != null) {
-            configClient.connect();
-        } else {
-            Log.e(TAG, "startSession: config client = null");
-        }
+        
+        Log.d(TAG, "The session with the peer: '" + peer.busName + "', has been established successfully, sid: '" + 
+                    configClient.getSessionId() + "'");
     }
+    
 
     /**
      * End the session with the config server
      */
     public void stopConfigSession() {
+    	
         if (configClient != null) {
+        	
+        	Log.d(TAG, "Closing connection with the peer: '" + configClient.getPeerName() + "'");
             configClient.disconnect();
         }
+        
         configClient = null;
     }
+    
 
     /**
      * Returns the config service version.
@@ -495,25 +537,23 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
      * @return the config service version.
      */
     public Short getConfigVersion(UUID deviceId) {
+    	
         short configVersion = -1;
         if (deviceId == null) {
             updateTheUiAboutError(getString(R.string.no_peer_selected));
             return configVersion;
         }
+        
         Device device = getDevice(deviceId);
         if (device == null) {
             updateTheUiAboutError(getString(R.string.no_device_available));
             return configVersion;
         }
+        
         try {
+        	
             startConfigSession(device);
-            if (configClient != null) {
-                if (!configClient.isConnected()) {
-                    configClient.connect();
-                }
-                configVersion = configClient.getVersion();
-            }
-
+            configVersion = configClient.getVersion();
         } catch (Exception e) {
             e.printStackTrace();
             updateTheUiAboutError("GET CONFIG VERSION: " + e.getMessage());
@@ -521,6 +561,7 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
         return Short.valueOf(configVersion);
     }
 
+   
     /**
      * Return the config service fields.
      * 
@@ -540,14 +581,11 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
         try {
 
             startConfigSession(device);
-            if (configClient != null) {
-                Map<String, Object> configMap = configClient.getConfig(lang);
-                Log.d(TAG, "GET_CONFIG: Config information was received");
+            Map<String, Object> configMap = configClient.getConfig(lang);
+            Log.d(TAG, "GET_CONFIG: Config information was received");
 
-                device.configLanguage = (String) configMap.get(AboutKeys.ABOUT_DEFAULT_LANGUAGE);
-                device.deviceName     = (String) configMap.get(AboutKeys.ABOUT_DEVICE_NAME);
-            }
-
+            device.configLanguage = (String) configMap.get(AboutKeys.ABOUT_DEFAULT_LANGUAGE);
+            device.deviceName     = (String) configMap.get(AboutKeys.ABOUT_DEVICE_NAME);
         } catch (Exception e) {
             Log.d(TAG, "GET_CONFIG: Exception: " + e.toString());
             e.printStackTrace();
@@ -556,30 +594,33 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
 
     }
 
+  
     /**
      * Factory reset the alljoyn device.
      */
     public void doFactoryReset(UUID deviceId) {
+    	
         if (deviceId == null) {
             updateTheUiAboutError(getString(R.string.no_peer_selected));
             return;
         }
+        
         Device device = getDevice(deviceId);
         if (device == null) {
             updateTheUiAboutError(getString(R.string.no_device_available));
             return;
         }
         try {
+        	
             startConfigSession(device);
-            if (configClient != null) {
-                configClient.factoryReset();
-            }
-
+            configClient.factoryReset();
         } catch (Exception e) {
+        	
             e.printStackTrace();
             updateTheUiAboutError("FACTORY RESET: Exception: " + e.toString());
         }
     }
+    
 
     /**
      * Restart the alljoyn device
@@ -596,11 +637,9 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
             return;
         }
         try {
+        	
             startConfigSession(device);
-            if (configClient != null) {
-                configClient.restart();
-            }
-
+            configClient.restart();
         } catch (Exception e) {
             e.printStackTrace();
             updateTheUiAboutError("RESTART: Exception: " + e.toString());
@@ -625,27 +664,26 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
             return;
         }
         try {
+        	
             startConfigSession(device);
-            if (configClient != null) {
-                configClient.setPasscode(daemonName, newpassword.toCharArray());
-                Log.i(TAG_PASSWORD, "calling setPasscode on the server side");
-                device.password = newpassword.toCharArray();
+            configClient.setPasscode(daemonName, newpassword.toCharArray());
+            Log.i(TAG_PASSWORD, "calling setPasscode on the server side");
+            device.password = newpassword.toCharArray();
 
-                StringValue s = new StringValue();
-                Status status = busAttachment.getPeerGUID(device.busName, s);
-                if (status.equals(Status.OK)) {
-                    Log.i(TAG_PASSWORD, "Bus attachment clear its keys");
-                    busAttachment.clearKeys(s.value);
-                } else {
-                    Log.i(TAG_PASSWORD, "getPeerGUID status is not OK");
-                }
-                // stopConfigSession();
+            StringValue s = new StringValue();
+            Status status = busAttachment.getPeerGUID(device.busName, s);
+            if (status.equals(Status.OK)) {
+                Log.i(TAG_PASSWORD, "Bus attachment clear its keys");
+                busAttachment.clearKeys(s.value);
+            } else {
+                Log.i(TAG_PASSWORD, "getPeerGUID status is not OK");
             }
         } catch (Exception e) {
             e.printStackTrace();
             updateTheUiAboutError("SET PASSCODE: Exception: " + e.toString());
         }
     }
+    
 
     /**
      * Sets the config fields appear in the given configMap.
@@ -654,21 +692,22 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
      *            the map containing all the fields to be set.
      */
     public void setConfig(Map<String, Object> configMap, UUID deviceId, String lang) {
+    	
         if (deviceId == null) {
             updateTheUiAboutError(getString(R.string.no_peer_selected));
             return;
         }
+        
         Device device = getDevice(deviceId);
         if (device == null) {
             updateTheUiAboutError(getString(R.string.no_device_available));
             return;
         }
+        
         try {
+        	
             startConfigSession(device);
-            if (configClient != null) {
-                configClient.setConfig(configMap, lang);
-            }
-
+            configClient.setConfig(configMap, lang);
         } catch (Exception e) {
             e.printStackTrace();
             updateTheUiAboutError("SET_CONFIG: Exception: " + e.toString());
@@ -683,26 +722,28 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
      *            the map containing all the fields to be reset.
      */
     public void resetConfiguration(String[] fieldsToRemove, String lang, UUID deviceId) {
+    	
         if (deviceId == null) {
             updateTheUiAboutError(getString(R.string.no_peer_selected));
             return;
         }
+        
         Device device = getDevice(deviceId);
         if (device == null) {
             updateTheUiAboutError(getString(R.string.no_device_available));
             return;
         }
+        
         try {
+        	
             startConfigSession(device);
-            if (configClient != null) {
-                configClient.ResetConfigurations(lang, fieldsToRemove);
-            }
-
+            configClient.ResetConfigurations(lang, fieldsToRemove);
         } catch (Exception e) {
             e.printStackTrace();
             updateTheUiAboutError("RESET CONFIGURATION: Exception: " + e.toString());
         }
     }
+    
 
     @Override
     public void onAnnouncement(String busName, short port, BusObjectDescription[] interfaces, Map<String, Variant> aboutMap) {
@@ -723,6 +764,7 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
         }
     }
 
+   
     @Override
     public void onDeviceLost(String serviceName) {
         // remove the device from the spinner
@@ -731,6 +773,7 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
     }
 
     // ***************************** PASSWORD *******************************
+    
     /*
      * (non-Javadoc)
      * 
@@ -761,6 +804,7 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
         return null;
     }
 
+   
     /*
      * (non-Javadoc)
      * 
@@ -779,23 +823,27 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
         }
     }
 
+   
+    
+    public static final String ACTION_PREFIX = ConfigApplication.class.getPackage().getName() + "_";  
+    
     /**
      * An action indicating an error has occurred. An extra string called
      * Keys.Extras.EXTRA_ERROR provides the error msg.
      */
-    public static final String ACTION_ERROR = "ACTION_ERROR";
+    public static final String ACTION_ERROR = ACTION_PREFIX + "ACTION_ERROR";
 
     /**
      * An action indicating a new device was found. An extra string called
      * Keys.Extras.EXTRA_DEVICE_ID provides the device id.
      */
-    public static final String ACTION_DEVICE_FOUND = "ACTION_DEVICE_FOUND";
+    public static final String ACTION_DEVICE_FOUND = ACTION_PREFIX + "ACTION_DEVICE_FOUND";
 
     /**
      * An action indicating a device was lost. An extra string called
      * Keys.Extras.EXTRA_BUS_NAME provides the device bus name.
      */
-    public static final String ACTION_DEVICE_LOST = "ACTION_DEVICE_LOST";
+    public static final String ACTION_DEVICE_LOST = ACTION_PREFIX +  "ACTION_DEVICE_LOST";
 
     /**
      * An action indicating we are connected to a network. An extra string
@@ -803,36 +851,36 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
      * are connecting/connected to a network, the EXTRA_NETWORK_SSID indicates
      * that.
      */
-    public static final String ACTION_CONNECTED_TO_NETWORK = "ACTION_CONNECTED_TO_NETWORK";
+    public static final String ACTION_CONNECTED_TO_NETWORK = ACTION_PREFIX + "ACTION_CONNECTED_TO_NETWORK";
 
     /**
      * An action indicating the password we gave does not match the device
      * password.
      */
-    public static final String ACTION_PASSWORD_IS_INCORRECT = "ACTION_PASSWORD_IS_INCORRECT";
+    public static final String ACTION_PASSWORD_IS_INCORRECT = ACTION_PREFIX +  "ACTION_PASSWORD_IS_INCORRECT";
 
     /**
      * The lookup key for a String object indicating the error message that
      * occurred. Retrieve with getStringExtra(String).
      */
-    public static final String EXTRA_ERROR = "extra_error";
+    public static final String EXTRA_ERROR = ACTION_PREFIX + "extra_error";
 
     /**
      * The lookup key for a String object indicating a device id. Retrieve with
      * intent.getExtras().getString(String). To get the device itself call
      * getApplication().getDevice(String);
      */
-    public static final String EXTRA_DEVICE_ID = "extra_deviceId";
+    public static final String EXTRA_DEVICE_ID = ACTION_PREFIX + "extra_deviceId";
 
     /**
      * The lookup key for a String object indicating a device bus name. Retrieve
      * with getExtras().getString(String).
      */
-    public static final String EXTRA_BUS_NAME = "extra_BusName";
+    public static final String EXTRA_BUS_NAME = ACTION_PREFIX + "extra_BusName";
 
     /**
      * The lookup key for a String object indicating the network ssid to which
      * we are connected. Retrieve with intent.getStringExtra(String).
      */
-    public static final String EXTRA_NETWORK_SSID = "extra_network_ssid";
+    public static final String EXTRA_NETWORK_SSID = ACTION_PREFIX + "extra_network_ssid";
 }
