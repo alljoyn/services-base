@@ -26,15 +26,14 @@ import org.alljoyn.about.AboutService;
 import org.alljoyn.about.AboutServiceImpl;
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.BusException;
-import org.alljoyn.bus.PasswordManager;
 import org.alljoyn.bus.SessionOpts;
 import org.alljoyn.bus.Status;
 import org.alljoyn.bus.Variant;
 import org.alljoyn.bus.alljoyn.DaemonInit;
-import org.alljoyn.onboarding.transport.OnboardingTransport;
 import org.alljoyn.onboarding.sdk.OnboardingIllegalArgumentException;
 import org.alljoyn.onboarding.sdk.OnboardingIllegalStateException;
 import org.alljoyn.onboarding.sdk.OnboardingManager;
+import org.alljoyn.onboarding.transport.OnboardingTransport;
 import org.alljoyn.services.android.security.AuthPasswordHandler;
 import org.alljoyn.services.android.security.SrpAnonymousKeyListener;
 import org.alljoyn.services.android.utils.AndroidLogger;
@@ -237,11 +236,6 @@ public class ProtocolManager implements AnnouncementHandler {
         }
         // prepare bus attachment
         busAttachment = new BusAttachment(context.getPackageName(), BusAttachment.RemoteMessage.Receive);
-        // Set password for this daemon
-        Status pasStatus = PasswordManager.setCredentials("ALLJOYN_PIN_KEYX", DEFAULT_PINCODE);
-        if (pasStatus != Status.OK) {
-            Log.e(TAG, "Failed to set password for daemon, Error: " + pasStatus);
-        }
         busAttachment.connect();
 
         // request the name for the daemon and advertise it.
