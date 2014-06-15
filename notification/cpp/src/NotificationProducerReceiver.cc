@@ -195,9 +195,17 @@ QStatus NotificationProducerReceiver::sendDismissSignal(int32_t msgId)
     status = Transport::getInstance()->getBusAttachment()->RegisterBusObject(notificationDismisserSender);
     if (status != ER_OK) {
         QCC_LogError(status, ("Could not register NotificationDismisserSender."));
+        return status;
     }
     QCC_DbgPrintf(("sendDismissSignal: going to send dismiss signal with object path %s", objectPath.c_str()));
-    notificationDismisserSender.sendSignal(dismisserArgs, nsConsts::TTL_MAX);
+    status = notificationDismisserSender.sendSignal(dismisserArgs, nsConsts::TTL_MAX);
+    if (status != ER_OK) {
+        QCC_LogError(status, ("Failed to sendSignal"));
+        return status;
+    }
+
+    Transport::getInstance()->getBusAttachment()->UnregisterBusObject(notificationDismisserSender);
+
     /*
      * End of paragraph
      */

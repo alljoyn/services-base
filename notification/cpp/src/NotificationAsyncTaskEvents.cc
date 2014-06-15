@@ -140,6 +140,9 @@ void NotificationAsyncTaskEvents::sendDismissSignal(TaskData const* taskData)
             QCC_LogError(status, ("sendSignal failed."));
             return;
         }
+
+        Transport::getInstance()->getBusAttachment()->UnregisterBusObject(notificationDismisserSender);
+
         /*
          * End of paragraph
          */
