@@ -36,7 +36,7 @@ public class LabelWidgetSignalHandler implements Label {
 
     /**
      * Constructor
-     * @param containerWidget
+     * @param labelWidget
      */
     public LabelWidgetSignalHandler(LabelWidget labelWidget) {
         this.labelWidget = labelWidget;

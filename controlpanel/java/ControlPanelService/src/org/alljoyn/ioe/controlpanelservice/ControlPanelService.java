@@ -65,7 +65,7 @@ public class ControlPanelService  implements ConnManagerEventsListener {
 	
 	/**
 	 * Creates instance of the control panel service
-	 * @return
+	 * @return {@link ControlPanelService}
 	 */
 	public static ControlPanelService getInstance() {
 		return SELF;

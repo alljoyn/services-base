@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -18,6 +18,7 @@ package org.alljoyn.config.client;
 
 import java.util.Map;
 
+import org.alljoyn.about.AboutKeys;
 import org.alljoyn.bus.BusException;
 import org.alljoyn.services.common.ClientBase;
 
@@ -69,7 +70,7 @@ public interface ConfigClient extends ClientBase
 	/**
 	 * Remove/Clear the configuration data specified by the field list.  
 	 * Whenever there is an error, the AllJoyn error code org.alljoyn.Error.InvalidValue will be returned and the error message will contain the field name of the invalid field. 
-	 * @param languageTag IETF language tags specified by  RFC 5646
+	 * @param language IETF language tags specified by  RFC 5646
 	 * @param fieldsToRemove the fields to remove for this language
 	 * @throws BusException. If a language tag is not supported by the device, Alljoyn error org.alljoyn.Error.LanguageNotSupported is returned. Whenever there is an error, the AllJoyn error code org.alljoyn.Error.InvalidValue will be returned
 	 */
