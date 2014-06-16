@@ -99,7 +99,9 @@
     
 	// Array of AJCPSWidget objects
     
+    @synchronized(self){
 	self.widgetsContainer = [container getChildWidgets];
+    }
 	NSLog(@"Print ChildWidgets: ");
 	for (NSInteger i = 0; i < [self.widgetsContainer count]; i++) {
 		AJCPSWidgetType widgetType = [[self.widgetsContainer objectAtIndex:i] getWidgetType];

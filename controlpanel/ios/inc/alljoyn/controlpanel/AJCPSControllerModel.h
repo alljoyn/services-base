@@ -25,7 +25,7 @@
 @interface ControllerModel : NSObject <AJCPSControlPanelListener>
 @property (strong, nonatomic) NSString *unit;
 @property (strong, nonatomic) AJCPSControlPanel *controlPanel;
-@property (strong, nonatomic) NSArray *widgetsContainer;
+@property (strong, atomic) NSArray *widgetsContainer;
 @property (strong, nonatomic) id<ControllerUpdateEvents> delegate;
 @property (strong, nonatomic,readonly) NSArray *supportedLanguages;
 
