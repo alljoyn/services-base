@@ -19,7 +19,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.alljoyn.onboardingsdk"
     android:versionCode="10111"
-    android:versionName="1.1.11" >
+    android:versionName="14.06" >
     
     <uses-sdk
         android:minSdkVersion="10"
