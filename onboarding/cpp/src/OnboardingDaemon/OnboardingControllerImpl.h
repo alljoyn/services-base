@@ -18,8 +18,7 @@
 #define _ONBOARDINGCONTROLLERIMPL_H
 
 #include <alljoyn/onboarding/OnboardingControllerAPI.h>
-#include <pthread.h>
-#include <time.h>
+#include <signal.h>
 
 /**
  *  OnboardingControllerAPI  interface class that is implemented  by the Application and controls the WIFI of the system.
@@ -195,16 +194,24 @@ class OnboardingControllerImpl : public ajn::services::OnboardingControllerAPI {
      */
     bool m_scanWifiThreadIsRunning;
 
-    /*
+    /**
      * Method that starts a timer to stop scan wifi if it takes too long
      */
     void StartScanWifiTimer();
+    static void TimerDone(union sigval si);
 
-    /*
-     *  the timer handle
+    /**
+     * Method that runs scan wifi in a thread
      */
-    timer_t m_scanWifiTimerId;
+    static void* ScanWifiThread(void* context);
 
+
+    /**
+     *  the WifiScanTimer variables
+     */
+    timer_t m_scanTimerId;
+    struct sigevent m_scanSignalEvent;
+    struct itimerspec m_scanTimerSpecs;
 };
 
 #endif

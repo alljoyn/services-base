@@ -14,23 +14,13 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#include <stdlib.h>
-#include <iostream>
-#include <stdio.h>
 #include <fstream>
 #include <sstream>
 #include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <ctime>
-#include <time.h>
 #include <errno.h>
-#include <unistd.h>
 #include <algorithm>
 
-#include <alljoyn/onboarding/OnboardingService.h>
 #include <OnboardingControllerImpl.h>
-#include <alljoyn/AllJoynStd.h>
 #include <alljoyn/onboarding/LogModule.h>
 
 #define CMD_SIZE 255
@@ -38,13 +28,10 @@
 #define SIG SIGUSR1
 #define SCAN_WIFI_MAX_TIME_IN_SEC 30
 
-
 using namespace ajn;
 using namespace services;
 
 static int execute_system(const char*op);
-static void TimerDone(int sig, siginfo_t*si, void*uc);
-static void* ScanWifiThread(void* context);
 
 typedef enum {
     CIPHER_NONE,
@@ -97,7 +84,7 @@ OnboardingControllerImpl::OnboardingControllerImpl(qcc::String scanFile,
     m_scanCmd(scanCmd),
     m_concurrency(concurrency),
     m_scanWifiThreadIsRunning(false),
-    m_scanWifiTimerId(0)
+    m_scanTimerId(0)
 {
     // Ignore SIGCHLD so we do not have to wait on the child processes
     //signal(SIGCHLD, SIG_IGN);
@@ -105,7 +92,12 @@ OnboardingControllerImpl::OnboardingControllerImpl(qcc::String scanFile,
     // Read state, error and scan info to create the scan_wifi file
     GetState();
     GetLastError();
-    StartScanWifi();
+
+    // initiate the creation of the wifi_scan_results file
+    unsigned short age;
+    OBScanInfo* scanList;
+    size_t scanListNumElements;
+    GetScanInfo(age, scanList, scanListNumElements);
 
     // if the m_concurrency values are out of range, set it to min
     if (m_concurrency < OBConcurrency::CONCURRENCY_MIN || m_concurrency > OBConcurrency::CONCURRENCY_MAX) {
@@ -400,61 +392,51 @@ void OnboardingControllerImpl::ParseScanInfo()
 
 void OnboardingControllerImpl::StartScanWifiTimer()
 {
-    struct sigaction sa;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = SA_SIGINFO;
-    sa.sa_sigaction = TimerDone;
-    if (sigaction(SIGRTMAX, &sa, NULL) < 0) {
+    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
+    memset(&m_scanSignalEvent, 0, sizeof(m_scanSignalEvent));
+
+    m_scanSignalEvent.sigev_notify            = SIGEV_THREAD;
+    m_scanSignalEvent.sigev_value.sival_ptr   = (void*)this;
+    m_scanSignalEvent.sigev_notify_function   = TimerDone;
+    m_scanSignalEvent.sigev_notify_attributes = NULL;
+
+
+    if (timer_create(CLOCK_REALTIME, &m_scanSignalEvent, &m_scanTimerId) != 0) {
+        QCC_DbgTrace(("Error creating timer."));
         return;
     }
 
-    sigevent sigev;
-
-    memset(&sigev, 0, sizeof(sigev));
-
-    sigev.sigev_notify          = SIGEV_SIGNAL;
-    sigev.sigev_signo           = SIGRTMAX;
-    sigev.sigev_value.sival_ptr = &m_scanWifiTimerId;
-
-    if (timer_create(CLOCK_REALTIME, &sigev, &m_scanWifiTimerId) == 0) {
-        struct itimerspec itval, oitval;
-
-        itval.it_value.tv_sec = SCAN_WIFI_MAX_TIME_IN_SEC;
-        itval.it_value.tv_nsec = 0;
-        itval.it_interval.tv_sec = 0;
-        itval.it_interval.tv_nsec = 0;
-
-
-        if (timer_settime(m_scanWifiTimerId, 0, &itval, &oitval) != 0) {
-            return;
-        }
-    } else {
-        QCC_DbgTrace(("error creating timer"));
+    m_scanTimerSpecs = { { 0, 0 }, { SCAN_WIFI_MAX_TIME_IN_SEC, 0 } };
+    if (timer_settime(m_scanTimerId, 0, &m_scanTimerSpecs, NULL) == -1) {
+        QCC_DbgTrace(("Could not start timer:"));
     }
 }
 
-static void TimerDone(int sig, siginfo_t*si, void*context)
+void OnboardingControllerImpl::TimerDone(union sigval si)
 {
-    OnboardingControllerImpl* thisClass = reinterpret_cast<OnboardingControllerImpl*>(context);
+    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
+
+    OnboardingControllerImpl* thisClass = reinterpret_cast<OnboardingControllerImpl*>(si.sival_ptr);
     thisClass->ScanWifiTimerDone();
 }
 
 void OnboardingControllerImpl::ScanWifiTimerDone()
 {
+    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
     if (m_scanWifiThreadIsRunning) {
         pthread_cancel(m_scanWifiThread);
         m_scanWifiThreadIsRunning = false;
         QCC_DbgTrace(("ScanWifi timed out and is being canceled"));
     }
-    pthread_join(m_scanWifiThread, NULL);
 }
 
 void OnboardingControllerImpl::StartScanWifi()
 {
+    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
     m_scanWifiThreadIsRunning = true;
     execute_system(m_scanCmd.c_str());
-    if (m_scanWifiTimerId) {
-        timer_delete(m_scanWifiTimerId);
+    if (m_scanTimerId) {
+        timer_delete(m_scanTimerId);
     }
     m_scanWifiThreadIsRunning = false;
 }
@@ -463,7 +445,7 @@ void OnboardingControllerImpl::StartScanWifi()
  * ScanWifiThread
  * A method called when m_scanWifiThread completes
  */
-static void* ScanWifiThread(void* context)
+void* OnboardingControllerImpl::ScanWifiThread(void* context)
 {
     OnboardingControllerImpl* thisClass = reinterpret_cast<OnboardingControllerImpl*>(context);
     thisClass->StartScanWifi();
