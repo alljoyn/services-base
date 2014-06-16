@@ -1,6 +1,6 @@
 <!-- 
  /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -18,8 +18,8 @@
  
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.alljoyn.ioe.controlpaneladapter"
-    android:versionCode="0000004"
-    android:versionName="0.00.00.04">
+    android:versionCode="1406"
+    android:versionName="14.06">
 
     <uses-sdk
         android:minSdkVersion="10"
