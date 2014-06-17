@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -17,7 +17,7 @@
 package org.alljoyn.ioe.controlpanelservice.ui;
 
 /**
- * Optional parameters keys of {@link ActionWidgetMetadata}
+ * Optional parameters keys of {@link ActionWidget}
  */
 public enum ActionWidgetEnum {
 	LABEL((short)0),

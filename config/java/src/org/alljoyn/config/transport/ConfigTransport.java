@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -75,7 +75,7 @@ public interface ConfigTransport extends BusObject
      * Change the pass phrase.  If this feature is not allowed by the OEM, 
      * the AllJoyn error code org.alljoyn.Error.FeatureNotAvailable will be returned.
      * @param daemonRealm
-     * @param passphrase
+     * @param newPasscode
      * @throws BusException
      */
     @BusMethod(signature="say")

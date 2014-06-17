@@ -100,8 +100,6 @@ public class ControllableDevice implements ConnManagerEventsListener {
 	 * Constructor
 	 * @param deviceId The device unique identifier
 	 * @param sender The unique identifier of the remote device
-	 * @param objPathList The root container object path list for each control panel
-	 * @param isReachable Whether the device is active, meaning may be controlled
 	 */
 	public ControllableDevice(String deviceId, String sender) {
 		this.deviceId 		= deviceId;
