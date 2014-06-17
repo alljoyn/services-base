@@ -94,9 +94,10 @@ OnboardingControllerImpl::OnboardingControllerImpl(qcc::String scanFile,
     GetLastError();
 
     // initiate the creation of the wifi_scan_results file
-    unsigned short age;
-    OBScanInfo* scanList;
-    size_t scanListNumElements;
+    QCC_DbgHLPrintf(("Initiating GetScanInfo when service starts running"));
+    unsigned short age = 0;
+    OBScanInfo* scanList = NULL;
+    size_t scanListNumElements = 0;
     GetScanInfo(age, scanList, scanListNumElements);
 
     // if the m_concurrency values are out of range, set it to min
