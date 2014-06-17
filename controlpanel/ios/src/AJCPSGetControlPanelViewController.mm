@@ -266,7 +266,7 @@ static NSString * const CPS_GENERAL_CELL = @"CPSGeneralCell";
 {
     if (buttonIndex == 1) { //user pressed OK
         
-        QStatus status;
+        QStatus status = ER_OK;
         if (self.isAnnouncementMode) {
             status = [self.controllerModel switchLanguage:self.alertChooseLanguage.text];
         }
