@@ -158,7 +158,6 @@ static NSString *const  AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX ALL
 	}
 	else if ([segue.destinationViewController isKindOfClass:[ConfigSetupViewController class]]) {
 		ConfigSetupViewController *getConfigCallView = segue.destinationViewController;
-		getConfigCallView = segue.destinationViewController;
 		getConfigCallView.clientInformation = self.clientInformationDict[self.announcementButtonCurrentTitle];
 		getConfigCallView.clientBusAttachment = self.clientBusAttachment;
 		getConfigCallView.configClient = self.configClient;

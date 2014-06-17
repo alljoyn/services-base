@@ -302,8 +302,7 @@
 #pragma mark - IBAction methods
 - (IBAction)factoryResetPressed:(UIButton *)sender
 {
-	QStatus status;
-	status = [self.configClient factoryResetWithBus:self.annBusName sessionId:self.sessionId];
+	[self.configClient factoryResetWithBus:self.annBusName sessionId:self.sessionId];
     
     [self updateWritableDictionary];
     
@@ -317,8 +316,7 @@
 
 - (IBAction)restartPressed:(UIButton *)sender
 {
-	QStatus status;
-	status = [self.configClient restartWithBus:self.annBusName sessionId:self.sessionId];
+	[self.configClient restartWithBus:self.annBusName sessionId:self.sessionId];
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
