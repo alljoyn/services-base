@@ -20,8 +20,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.alljoyn.ioe.controlpanelbrowser"
-    android:versionCode="2"
-    android:versionName="01.00.02" >
+    android:versionCode="1406"
+    android:versionName="14.06" >
 
     <uses-sdk
         android:minSdkVersion="11"
