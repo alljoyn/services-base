@@ -434,7 +434,7 @@ int main()
         do {
             std::cout << "To delete the bus connection and start again please push 'c' character:" << std::endl;
             getline(std::cin, input);
-        } while (input != "c");
+        } while ((std::cin) && (input != "c"));
 
         prodService->shutdownSender();
         if (Sender) {
