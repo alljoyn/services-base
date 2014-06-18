@@ -95,7 +95,7 @@ void WaitForSigInt(void) {
     }
 }
 
-int32_t main()
+int main()
 {
     QStatus status;
 

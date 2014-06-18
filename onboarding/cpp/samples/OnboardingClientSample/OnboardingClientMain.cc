@@ -451,4 +451,6 @@ int main(int argc, char**argv, char**envArg) {
     delete busAttachment;
     delete srpKeyXListener;
     delete announceHandler;
+
+    return 0;
 } /* main() */

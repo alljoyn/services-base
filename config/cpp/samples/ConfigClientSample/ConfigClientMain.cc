@@ -535,5 +535,7 @@ int main(int argc, char**argv, char**envArg)
     busAttachment->Stop();
     delete busAttachment;
 
+    return 0;
+
 } /* main() */
 

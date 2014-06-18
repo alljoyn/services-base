@@ -120,6 +120,19 @@ class ControlPanelService {
     ControlPanelService();
 
     /**
+     * Copy constructor of ControlPanelService - private. ControlPanelService is not copy-able
+     * @param handler - ControlPanelService to copy
+     */
+    ControlPanelService(const ControlPanelService& handler);
+
+    /**
+     * Assignment operator of ControlPanelService - private. ControlPanelService is not assignable
+     * @param handler
+     * @return ControlPanelService
+     */
+    ControlPanelService& operator=(const ControlPanelService& handler);
+
+    /**
      * Version of the API
      */
     static uint16_t const CONTROLPANEL_SERVICE_VERSION;

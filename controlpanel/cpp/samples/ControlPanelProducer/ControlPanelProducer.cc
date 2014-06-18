@@ -100,7 +100,7 @@ void cleanup()
     }
 }
 
-int32_t main()
+int main()
 {
     QStatus status;
 
