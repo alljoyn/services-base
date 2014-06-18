@@ -113,8 +113,7 @@
 	while ((key = [enumerator nextObject])) {
 		// Put key/ value in the std::map<qcc::String, ajn::MsgArg>
 		AJNMessageArgument *ajnMsgArg = [*configs objectForKey : (key)];
-		ajn::MsgArg *cppValue = new ajn::MsgArg;
-		cppValue = (ajn::MsgArg *)ajnMsgArg.handle;
+        ajn::MsgArg *cppValue = (ajn::MsgArg *)ajnMsgArg.handle;
 		tConfigurations.insert(std::make_pair([AJNConvertUtil convertNSStringToQCCString:key], *cppValue));
 	}
 	QStatus status = self.handle->UpdateConfigurations([AJNConvertUtil convertNSStringToConstChar:busName], [AJNConvertUtil convertNSStringToConstChar:languageTag], tConfigurations, sessionId);
