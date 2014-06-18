@@ -403,6 +403,9 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 {
 	QStatus status;
     
+    // Create a dictionary to contain announcements using a key in the format of: "announcementUniqueName + announcementObj"
+	self.clientInformationDict = [[NSMutableDictionary alloc] init];
+    
      NSLog(@"[%@] [%@] Start About Client", @"DEBUG", [[self class] description]);
 
     
@@ -441,8 +444,7 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
         return;
 	}
     
-	// Create a dictionary to contain announcements using a key in the format of: "announcementUniqueName + announcementObj"
-	self.clientInformationDict = [[NSMutableDictionary alloc] init];
+
     
     NSUUID *UUID = [NSUUID UUID];
     NSString *stringUUID = [UUID UUIDString];

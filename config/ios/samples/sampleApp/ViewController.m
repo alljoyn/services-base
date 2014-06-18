@@ -395,6 +395,9 @@ static NSString *const  AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX ALL
 {
 	QStatus status;
     
+    // Create a dictionary to contain announcements using a key in the format of: "announcementUniqueName + announcementObj"
+	self.clientInformationDict = [[NSMutableDictionary alloc] init];
+    
 	[self.logger debugTag:[[self class] description] text:@"Start About Client"];
     //    [[AJCFGConfigLogger sharedInstance] debugTag:[[self class] description] text:@"Start About Client"];
     
@@ -429,9 +432,6 @@ static NSString *const  AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX ALL
         [self stopAboutClient];
         return;
 	}
-    
-	// Create a dictionary to contain announcements using a key in the format of: "announcementUniqueName + announcementObj"
-	self.clientInformationDict = [[NSMutableDictionary alloc] init];
     
     NSUUID *UUID = [NSUUID UUID];
     NSString *stringUUID = [UUID UUIDString];
