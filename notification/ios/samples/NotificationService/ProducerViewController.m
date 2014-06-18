@@ -358,15 +358,9 @@ static NSString *const DEFAULT_MSG_TYPE = @"INFO";
         
         [self logNotification:self.notification ttl:nttl];
         
-        richIconUrl = @"";
-        
         [self.richAudioUrlArray removeAllObjects];
         
 		// Call send
-        
-        
-		
-        
 		QStatus sendStatus = [self.Sender send:self.notification ttl:nttl];
 		if (sendStatus != ER_OK) {
 			[self.logger infoTag:[[self class] description] text:[NSString stringWithFormat:@"Send has failed"]];

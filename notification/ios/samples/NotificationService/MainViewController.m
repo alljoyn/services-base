@@ -257,13 +257,13 @@ static NSString * const DAEMON_NAME = @"org.alljoyn.BusNode.IoeService"; // For 
 		//advertise the name with a quite prefix for TC to find it
 		status = [self.busAttachment advertiseName:[NSString stringWithFormat:@"%@%@", DAEMON_QUIET_PREFIX, DAEMON_NAME] withTransportMask:kAJNTransportMaskAny];
 		if (status != ER_OK) {
-			status = [self.busAttachment releaseWellKnownName:DAEMON_NAME];
+            [self.busAttachment releaseWellKnownName:DAEMON_NAME];
 			[self.logger errorTag:[[self class] description] text:@"Failed to advertise daemon name"];
 		} else {
 			[self.logger debugTag:[[self class] description] text:[NSString stringWithFormat:@"Succefully advertised daemon name %@", DAEMON_NAME]];
 		}
 	}
-	return ER_OK;
+	return status;
 }
 
 - (void)producerCleanup
