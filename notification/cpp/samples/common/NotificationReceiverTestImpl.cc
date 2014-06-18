@@ -122,8 +122,10 @@ void NotificationReceiverTestImpl::Receive(Notification const& notification) {
         } else {
             std::cout << "Notification action (0-Nothing 1-Dismiss):" << std::endl;
             int32_t notificationAction(NotificationAction::ACTION_NOTHING);
-            scanf("%d", &notificationAction);
-            m_NotificationAction = static_cast<NotificationAction>(notificationAction);
+            int retScan = scanf("%d", &notificationAction);
+            if (retScan != EOF) {
+                m_NotificationAction = static_cast<NotificationAction>(notificationAction);
+            }
         }
         switch (GetNotificationAction()) {
         case ACTION_NOTHING:
