@@ -38,6 +38,8 @@ static NSString * const CPS_GENERAL_CELL = @"CPSGeneralCell";
 @property (strong, nonatomic) UITextField *alertChooseLanguage;
 @property (strong, nonatomic) UIBarButtonItem *chooseLangButton;
 
+@property (strong, nonatomic) UITableView* tableView;
+
 @property (weak, nonatomic) AJNBusAttachment *clientBusAttachment;
 
 @property (weak, nonatomic) AJNAnnouncement *announcement;
@@ -82,9 +84,18 @@ static NSString * const CPS_GENERAL_CELL = @"CPSGeneralCell";
         [self addLanguageButton];
     }
     
-    // Add two cells to UITableView :
-    [self.tableView registerClass:[CPSButtonCell class] forCellReuseIdentifier:CPS_BUTTON_CELL];
-    [self.tableView registerClass:[CPSGeneralCell class] forCellReuseIdentifier:CPS_GENERAL_CELL];
+    CGRect tableViewFrame = self.view.bounds;
+    
+
+        self.tableView = [[UITableView alloc] initWithFrame:tableViewFrame style:UITableViewStylePlain];
+        self.tableView.delegate = self;
+        self.tableView.dataSource = self;
+        
+        // Add two cells to UITableView :
+        [self.tableView registerClass:[CPSButtonCell class] forCellReuseIdentifier:CPS_BUTTON_CELL];
+        [self.tableView registerClass:[CPSGeneralCell class] forCellReuseIdentifier:CPS_GENERAL_CELL];
+        
+        [self.view addSubview:self.tableView];
     
     if (!self.controllerModel) {
         status = [self startService];
@@ -283,6 +294,12 @@ static NSString * const CPS_GENERAL_CELL = @"CPSGeneralCell";
     
 }
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    self.controllerModel.delegate = self;
+}
+
+
 - (void)viewWillDisappear:(BOOL)animated
 {
     if ([self.navigationController.viewControllers indexOfObject:self]==NSNotFound) {
@@ -293,7 +310,10 @@ static NSString * const CPS_GENERAL_CELL = @"CPSGeneralCell";
         if(pos == 0) { //this is the top most container
             [self stopControlPanel];
         }
+    } else {
+        NSLog(@"TODO");
     }
+        
     
     [super viewWillDisappear:animated];
 }
@@ -302,7 +322,13 @@ static NSString * const CPS_GENERAL_CELL = @"CPSGeneralCell";
 #pragma mark - ControllerUpdateEvents
 - (void)refreshEntries
 {
-    [[self tableView] performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
+   // [[self tableView] performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.tableView reloadData];
+    });
+    
+  //  [self.tableView reloadData];
 }
 
 #pragma mark - Table view data source
@@ -316,7 +342,13 @@ static NSString * const CPS_GENERAL_CELL = @"CPSGeneralCell";
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    return [[self.controllerModel widgetsContainer]count];
+    NSInteger count;
+    
+    @synchronized(self.controllerModel){
+                   count  = [[self.controllerModel widgetsContainer]count];
+    };
+    return count;
+    
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -387,9 +419,13 @@ static NSString * const CPS_GENERAL_CELL = @"CPSGeneralCell";
         GetControlPanelViewController *viewController = [[GetControlPanelViewController alloc] init];
         
         // prepare the view we load to show the child container widgets
+       
         viewController.controllerModel = self.controllerModel;
+        viewController.controllerModel.delegate = viewController;
         viewController.navigationItem.rightBarButtonItem.enabled = NO;
         [viewController.controllerModel pushChildContainer:(AJCPSContainer *)widget];
+
+        
         
         // show the table
         [self.navigationController pushViewController:viewController animated:YES];
