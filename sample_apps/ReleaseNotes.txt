@@ -1,6 +1,5 @@
 
-
-AllJoyn Sample Application for Services Version 14.02 Release Notes
+AllJoyn Sample Application for Services Version 14.06 Release Notes
 --------------------------------------------------------
 
 Platform Support
@@ -13,21 +12,38 @@ Platform Support
  6) OpenWRT (trunk)
 
 
-Features added in Version 14.02
+Features added in Version 14.06
 -------------------------------
 
-The sample applications project provides the developer two sample application, for standard client in cpp and thin client in c, that demonstrate how to write an AllJoyn application using services.
-The Server sample application demonstrate how to write an application using the following services: About, Config, Onboarding, Notification (Producer and Consumer) and Control Panel.
-The ACServerSample is an application that simulates the behaviour of an air-condition using the following services: About, Config, Onboarding, Notification (Producer Only) and Control Panel.
+When AllJoyn Routing Node disconnects, sample apps will reconnect to a new Routing Node
+
+Issues Addressed in Version 14.06
+--------------------------------
+
+ASABASE-52  - When Alljoyn-sample_apps installed without Onboarding Service, Factory Reset fails to trigger new announcement
+ASABASE-106 - application exit should not be done on the interrupt thread 
+ASABASE-113 - All Service sample apps need to be able to handle daemon disconnect 
+ASABASE-118 - iOS sample apps: replace every exit scenario with a UIAlert view 
+ASABASE-119 - iOS sample apps: remove 'realm name' and 'Are you Sure' UIAlert views 
+ASABASE-122 - Sample Apps should include the ConfigService 
+ASABASE-127 - Remove the addMatch method call from the application layer of the sample applications 
+ASABASE-145 - Setting DeviceName does not take effect in some applications 
+ASABASE-147 - iOS sample apps: delete keystore and recreate when enableClientSecurity fails 
+ASABASE-155 - ios sample apps: update api calls (registerAnnouncementReceiverForInterfaces, unRegisterAnnouncementReceiverForInterfaces) 
+ASABASE-158 - Onboarding Client sample application has a spelling mistake: "massage" instead of "message" 
+ASABASE-160 - Secure methods fail due to non completed authentication handshake 
+ASABASE-174 - Spanish Language Code must be 'es' instead of 'sp' 
+ASABASE-181 - No need to set password for router now that it is open 
+ASABASE-182 - No need to set password for router now that it is open 
+ASABASE-206 - ACServerSample - Fixed bug on events and actions scenario 
+
 
 Known Issues
 ------------
 
-AJNSF-104 – Thin Client Server Sample Controlee freezes when producer is waiting for user input
+ASABASE-15  - command line parameters in Service Server Sample Application are ignored 
+ASABASE-209 - C++ AppID Is not Unique between same App Different Runs
 
-AJOSF-56, AJCSF-84- CPP ,AJAPPS-410 ServerSample Apps only receive two parameters :  --config-file and --factory-config-file
-
-    
 Compatibility
 -------------
 
