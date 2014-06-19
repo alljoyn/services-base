@@ -426,11 +426,6 @@ public class IoeNotificationApplication extends Application implements Notificat
 		try {
 			notificationService.shutdownReceiver();
 			AboutServiceImpl.getInstance().stopAboutClient();
-			Status status = bus.cancelFindAdvertisedName(":");     // AJCORE-731 To play around the problem that AboutService doesn't cancelFindAdvertisedName
-			if ( status != Status.OK ) {
-				Log.w(TAG,"Failed to cancelFindAdvertisedName, Error: '" + status + "'");
-			}
-			
 			isReceiverStarted = false;
 		}
 		catch (NotificationServiceException nse) {
@@ -553,6 +548,7 @@ public class IoeNotificationApplication extends Application implements Notificat
         //For verbose AJ logging use the following lines
         //bus.setDaemonDebug("ALL", 7);
         //bus.setLogLevels("ALLJOYN=7");
+        //bus.setLogLevels("SESSIONLESS=2");
         //bus.setLogLevels("ALL=7");
         //bus.useOSLogging(true);
 
@@ -589,7 +585,7 @@ public class IoeNotificationApplication extends Application implements Notificat
                 throw new NotificationServiceException("Failed to advertise daemon name '" + daemonName + "', Error: '" + adStatus + "'"); 
             } 
             else{ 
-                Log.d(TAG, "Succefully advertised daemon name: '" + daemonName + "'"); 
+                Log.d(TAG, "Succefully advertised daemon name: '" + daemonName + "', BusName: '" + bus.getUniqueName() + "'"); 
             }
         }
         else {
