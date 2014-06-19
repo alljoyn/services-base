@@ -21,7 +21,7 @@
 #import "alljoyn/about/AJNConvertUtil.h"
 #import "alljoyn/config/AJCFGConfigLogger.h"
 
-@interface ConfigSetupViewController  () <UITextFieldDelegate>
+@interface ConfigSetupViewController  () <UITextFieldDelegate, AJNSessionListener>
 @property (nonatomic) AJNSessionId sessionId;
 
 @property (strong, nonatomic) NSMutableDictionary *writableElements;
@@ -155,6 +155,12 @@
 	[self prepareAlerts];
     
 	[self loadSession];
+    
+    int ver = 0;
+    
+    [self.configClient versionWithBus:[self.clientInformation.announcement busName] version:ver];
+    
+    NSLog(@"%d",ver);
 }
 
 - (void)loadSession
@@ -165,7 +171,7 @@
         
         
 		//call joinSession
-		self.sessionId = [self.clientBusAttachment joinSessionWithName:[self.clientInformation.announcement busName] onPort:[self.clientInformation.announcement port] withDelegate:(nil) options:opt];
+		self.sessionId = [self.clientBusAttachment joinSessionWithName:[self.clientInformation.announcement busName] onPort:[self.clientInformation.announcement port] withDelegate:self options:opt];
 	}
     
 	// Session is not connected
@@ -196,6 +202,9 @@
 		[self.view addSubview:lbl];
         
 		UITextField *txt = [[UITextField alloc] initWithFrame:CGRectMake(160, y, 275, 40)];
+        
+        [txt setSpellCheckingType:UITextSpellCheckingTypeNo];
+        [txt setAutocapitalizationType:UITextAutocapitalizationTypeNone];
         
 		AJNMessageArgument *msgArg = [self.writableElements valueForKey:key];
 		char *str;
@@ -311,6 +320,16 @@
 
 - (IBAction)setPasswordPressed:(id)sender
 {
+    for (UIView *subView in[self.view subviews]) {
+		if ([subView isKindOfClass:[UITextField class]]) {
+            [((UITextField*)subView) setEnabled:NO];
+		}
+        if ([subView isKindOfClass:[UIButton class]]) {
+            [((UIButton*)subView) setEnabled:NO];
+		}
+
+	}
+    
 	[self.setPasswordAlert show];
 }
 
@@ -336,6 +355,12 @@
 	}
 	
     [super viewWillDisappear:animated];
+}
+
+- (void)sessionWasLost:(AJNSessionId)sessionId forReason:(AJNSessionLostReason)reason
+{
+    NSLog(@"session on bus %@ lost. reason:%d",self.annBusName,reason);
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 @end
