@@ -109,6 +109,14 @@ OnboardingControllerImpl::OnboardingControllerImpl(qcc::String scanFile,
 
 OnboardingControllerImpl::~OnboardingControllerImpl()
 {
+    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
+    if (m_scanTimerId) {
+        timer_delete(m_scanTimerId);
+        m_scanTimerId = 0;
+    }
+
+    ScanWifiTimerDone();
+
     // Scan results are stored in the scan array
     if (m_ScanArray) {
         delete [] m_ScanArray;
@@ -438,6 +446,7 @@ void OnboardingControllerImpl::StartScanWifi()
     execute_system(m_scanCmd.c_str());
     if (m_scanTimerId) {
         timer_delete(m_scanTimerId);
+        m_scanTimerId = 0;
     }
     m_scanWifiThreadIsRunning = false;
 }
