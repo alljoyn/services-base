@@ -399,7 +399,6 @@
     //    }
     
 	NSLog(@"Session has been established with device: %@", [device getDeviceBusName]);
-    
 	// Dictionary that contains AJCPSControlPanelControllerUnit's
 	NSDictionary *units = [device getDeviceUnits];
     
@@ -430,9 +429,15 @@
     
 	// Array of languages in an NSString format
 	self.supportedLanguages = [[self.controlPanel getLanguageSet] getLanguages];
-	
-    NSString *lang = self.supportedLanguages[0];
-    [self populateRootContainer:lang];
+    
+    if (![self.supportedLanguages count]) {
+        [[[UIAlertView alloc] initWithTitle:@"Error" message:@"There is no supported language for this Container" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+    } else {
+        NSString *lang = self.supportedLanguages[0];
+        [self populateRootContainer:lang];
+    }
+    
+    [self.delegate loadEnded];
 }
 
 /**
@@ -443,6 +448,7 @@
 {
 	NSLog(@"%@] Calling: %@", [[self class] description], NSStringFromSelector(_cmd));
     
+    [self.delegate loadEnded];
     
 	[NSThread sleepForTimeInterval:5];
     
@@ -458,6 +464,8 @@
 {
 	NSLog(@"[%@] Calling: %@", [[self class] description], NSStringFromSelector(_cmd));
     
+    [self.delegate loadEnded];
+    
     [self printBasicWidget:widget];
     
     [self loadContainer];
@@ -471,6 +479,8 @@
 - (void)signalPropertyValueChanged:(AJCPSControlPanelDevice *)device property:(AJCPSProperty *)property
 {
 	NSLog(@"[%@] Calling: %@", [[self class] description], NSStringFromSelector(_cmd));
+    
+    [self.delegate loadEnded];
     
     [self printBasicWidget:property];
     [self printProperty:property];
@@ -486,6 +496,9 @@
 - (void)signalDismiss:(AJCPSControlPanelDevice *)device notificationAction:(AJCPSNotificationAction *)notificationAction
 {
 	NSLog(@"[%@] Calling: %@", [[self class] description], NSStringFromSelector(_cmd));
+    
+    [self.delegate loadEnded];
+
 }
 
 /**
@@ -499,8 +512,12 @@
 {
 	NSLog(@"[%@] Calling: %@", [[self class] description], NSStringFromSelector(_cmd));
     
+    [self.delegate loadEnded];
+
 	NSLog(@"error message:'%@'", errorMessage);
-    [[[UIAlertView alloc] initWithTitle:@"Error" message:[NSString stringWithFormat:@"%@" ,errorMessage] delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[[UIAlertView alloc] initWithTitle:@"Error" message:[NSString stringWithFormat:@"%@" ,errorMessage] delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+    });
     
 }
 
@@ -578,5 +595,10 @@
     if (![self.supportedLanguages count]) {
         NSLog(@"notification action languages is empty");
     }
+}
+
+-(NSInteger)childContainerPosition
+{
+    return [self.containerStack count];
 }
 @end

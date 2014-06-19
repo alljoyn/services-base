@@ -19,5 +19,6 @@
 @protocol ControllerUpdateEvents <NSObject>
 
 -(void)refreshEntries;
+-(void)loadEnded;
 
 @end
