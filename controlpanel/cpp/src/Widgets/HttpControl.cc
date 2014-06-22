@@ -118,7 +118,7 @@ QStatus HttpControl::registerObjects(BusAttachment* bus)
         return ER_BAD_ARG_1;
     }
 
-    QStatus status;
+    QStatus status = ER_OK;
     m_HttpControlBusObject = new HttpControlBusObject(bus, m_ObjectPath.c_str(), status, this);
     if (status != ER_OK) {
         QCC_LogError(status, ("Could not create HttpControlBusObject"));
