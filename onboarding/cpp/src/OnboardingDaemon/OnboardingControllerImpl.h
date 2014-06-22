@@ -192,7 +192,7 @@ class OnboardingControllerImpl : public ajn::services::OnboardingControllerAPI {
     /**
      * flag stating if scanWifiThreadIsRunning
      */
-    bool m_scanWifiThreadIsRunning;
+    volatile bool m_scanWifiThreadIsRunning;
 
     /**
      * Method that starts a timer to stop scan wifi if it takes too long
