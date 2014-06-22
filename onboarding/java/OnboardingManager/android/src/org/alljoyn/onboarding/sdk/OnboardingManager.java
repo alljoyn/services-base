@@ -1066,7 +1066,7 @@ public class OnboardingManager {
                 this.aboutService=null;
                 this.bus=null;
                 this.onboardingSDKWifiManager=null;
-               
+
             }else{
                 throw new OnboardingIllegalStateException("Not in IDLE state ,please Abort first");
             }
@@ -1709,14 +1709,16 @@ public class OnboardingManager {
                 onboardingClient=null;
             }
 
-            onboardingClient = new OnboardingClientImpl(announceData.getServiceName(), bus, new ServiceAvailabilityListener() {
-                @Override
-                public void connectionLost() {
-                    // expected. we are onboarding the device, hence sending
-                    // it the another network.
-                    Log.d(TAG, "establishSessionWithDevice connectionLost");
-                }
-            }, announceData.getPort());
+            synchronized (TAG) {
+                onboardingClient = new OnboardingClientImpl(announceData.getServiceName(), bus, new ServiceAvailabilityListener() {
+                    @Override
+                    public void connectionLost() {
+                        // expected. we are onboarding the device, hence sending
+                        // it the another network.
+                        Log.d(TAG, "establishSessionWithDevice connectionLost");
+                    }
+                }, announceData.getPort());
+            }
         } catch (Exception e) {
             Log.e(TAG, "establishSessionWithDevice Exception: ", e);
             return new DeviceResponse(ResponseCode.Status_ERROR);
@@ -1802,13 +1804,15 @@ public class OnboardingManager {
         }
 
         try {
-            onboardingClient = new OnboardingClientImpl(serviceName, bus, new ServiceAvailabilityListener() {
-                @Override
-                public void connectionLost() {
-                    // expected. we are offboarding the device...
-                    Log.d(TAG, "offboardDevice connectionLost");
-                }
-            }, port);
+            synchronized (TAG) {
+                onboardingClient = new OnboardingClientImpl(serviceName, bus, new ServiceAvailabilityListener() {
+                    @Override
+                    public void connectionLost() {
+                        // expected. we are offboarding the device...
+                        Log.d(TAG, "offboardDevice connectionLost");
+                    }
+                }, port);
+            }
         } catch (Exception e) {
             Log.e(TAG, "offboardDevice Exception: ", e);
             return new DeviceResponse(ResponseCode.Status_ERROR);
