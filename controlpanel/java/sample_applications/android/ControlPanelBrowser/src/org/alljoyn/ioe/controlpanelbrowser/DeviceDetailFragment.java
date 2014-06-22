@@ -463,9 +463,18 @@ public class DeviceDetailFragment extends Fragment {
 
         @Override
         public void handleControlPanelException(ControlPanelException e) {
-            String text = getString(R.string.action_failed);
+            
+            Activity activity = getActivitySafely();
+            
+            if ( activity == null ) {
+                
+                Log.w(TAG, "handleControlPanelException - activity is not defined, returning");
+                return;
+            }
+            
+            String text = activity.getString(R.string.action_failed);
             Log.e(TAG, text + ", error in calling remote object: '" + e.getMessage() + "'");
-            Toast.makeText(getActivitySafely(), text, Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, text, Toast.LENGTH_SHORT).show();
         }
 
         @Override
