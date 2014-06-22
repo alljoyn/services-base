@@ -48,6 +48,9 @@ static NSString * const CPS_GENERAL_CELL = @"CPSGeneralCell";
 @property (strong, nonatomic) NSString *notificationCPSObjectPath;
 @property (nonatomic) bool isNotificationMode;
 @property (strong, nonatomic) AJCPSNotificationAction* notificationAction;
+
+@property (strong, atomic) UIAlertView *loadingAV;
+
 @end
 
 
@@ -79,6 +82,9 @@ static NSString * const CPS_GENERAL_CELL = @"CPSGeneralCell";
     QStatus status;
 	[super viewDidLoad];
     
+    self.navigationItem.hidesBackButton = YES;
+    [self showLoadingAlert:@"Loading..."];
+
     // Add language button
     if (self.isAnnouncementMode) {
         [self addLanguageButton];
@@ -161,7 +167,7 @@ static NSString * const CPS_GENERAL_CELL = @"CPSGeneralCell";
             NSLog(@"Successfully initialize control panel device.");
 
         }
-        return ER_OK;
+        return status;
     }
     
     
@@ -169,14 +175,11 @@ static NSString * const CPS_GENERAL_CELL = @"CPSGeneralCell";
         status = [self loadNewSessionForNotificationWithAction];
         if (ER_OK != status) {
             NSLog(@"Failed to load session for notification with action");
-            return status;
         } else {
             NSLog(@"Successfully load a session for notification with action");
-
         }
     }
-    
-    return ER_OK;
+    return status;
 }
 
 -(QStatus)loadNewSessionForNotificationWithAction
@@ -226,6 +229,7 @@ static NSString * const CPS_GENERAL_CELL = @"CPSGeneralCell";
 {
     _chooseLangButton = [[UIBarButtonItem alloc] initWithTitle:@"Language" style:UIBarButtonItemStyleBordered target:self action:@selector(chooseLanguageAction)];
     [[self navigationItem] setRightBarButtonItem:_chooseLangButton];
+    self.navigationItem.rightBarButtonItem.enabled = NO;
 }
 
 - (void)chooseLanguageAction
@@ -297,6 +301,11 @@ static NSString * const CPS_GENERAL_CELL = @"CPSGeneralCell";
 - (void)viewWillAppear:(BOOL)animated
 {
     self.controllerModel.delegate = self;
+    // enable BackButton for all other containers but the top container(handeled by the AJCPSControlPanelListener protocol methods)
+    if ([self.controllerModel childContainerPosition]) {
+        self.navigationItem.hidesBackButton = NO;
+        [self dismissLoadingAlert];
+    }
 }
 
 
@@ -310,8 +319,6 @@ static NSString * const CPS_GENERAL_CELL = @"CPSGeneralCell";
         if(pos == 0) { //this is the top most container
             [self stopControlPanel];
         }
-    } else {
-        NSLog(@"TODO");
     }
         
     
@@ -322,15 +329,17 @@ static NSString * const CPS_GENERAL_CELL = @"CPSGeneralCell";
 #pragma mark - ControllerUpdateEvents
 - (void)refreshEntries
 {
-   // [[self tableView] performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
-    
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.tableView reloadData];
     });
-    
-  //  [self.tableView reloadData];
 }
 
+-(void)loadEnded
+{
+    self.navigationItem.hidesBackButton = NO;
+    self.navigationItem.rightBarButtonItem.enabled = YES;
+    [self dismissLoadingAlert];
+}
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
@@ -424,9 +433,7 @@ static NSString * const CPS_GENERAL_CELL = @"CPSGeneralCell";
         viewController.controllerModel.delegate = viewController;
         viewController.navigationItem.rightBarButtonItem.enabled = NO;
         [viewController.controllerModel pushChildContainer:(AJCPSContainer *)widget];
-
-        
-        
+   
         // show the table
         [self.navigationController pushViewController:viewController animated:YES];
     }
@@ -436,5 +443,19 @@ static NSString * const CPS_GENERAL_CELL = @"CPSGeneralCell";
     }
 }
 
+-(void)showLoadingAlert:(NSString *)message
+{
+    self.loadingAV = [[UIAlertView alloc] initWithTitle:@"Please wait" message:message delegate:nil cancelButtonTitle:nil otherButtonTitles:nil];
+    UIActivityIndicatorView *activityIV = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(0, 0, 80, 40)];
+    activityIV.activityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
+    [activityIV startAnimating];
+    [self.loadingAV setValue:activityIV forKey:@"accessoryView"];
+    [self.loadingAV show];
+}
+
+-(void)dismissLoadingAlert
+{
+    [self.loadingAV dismissWithClickedButtonIndex:0 animated:YES];
+}
 
 @end

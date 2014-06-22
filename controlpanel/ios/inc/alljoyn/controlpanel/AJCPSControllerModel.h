@@ -40,4 +40,6 @@
 -(QStatus)loadRootWidget:(AJCPSRootWidget *)rootWidget;
 
 -(void)setSupportedLanguagesForNotificationAction:(AJCPSNotificationAction *) notificationAction;
+
+-(NSInteger)childContainerPosition;
 @end
