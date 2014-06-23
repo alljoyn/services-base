@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -54,7 +54,7 @@
 - (QStatus)Update:(const char *)name languageTag:(const char *)languageTag ajnMsgArg:(AJNMessageArgument *)value;
 
 /**
- Reset a property to the factory settings (was Delete). Reset is used only for languageTag = "".
+ Reset a property to the factory settings.
  @param name The property key name.
  @param languageTag The language to use for the action (nil means default).
  @return ER_OK if successful.
@@ -65,10 +65,11 @@
 
 /**
  Persistent getter by a key.
- @param key Key to look for in the defaults store(languageTag = "").
+ @param key Key to look for(default languageTag = "").
+ @param forLanguage language to look for
  @return the value of the key if key is in the store.
  */
-- (NSString *)getPersistentValue:(NSString *)key;
+- (NSString *)getPersistentValue:(NSString *)key forLanguage:(NSString *)language;
 
 /**
  Get the property store key enum value according to the property key string.
@@ -98,7 +99,8 @@
  @param deviceName New device name to set.
  @return ER_OK if successful.
  */
-- (QStatus)setDeviceName:(NSString *)deviceName;
+- (QStatus)setDeviceName:(NSString *)deviceName language:(NSString *)language;
+
 
 /**
  Set the device id property in the property store.
@@ -139,16 +141,8 @@ public:
 		if (filter == ANNOUNCE || filter == READ) {
 			return ajn::services::AboutPropertyStoreImpl::ReadAll(languageTag, filter, all);
 		}
-        
-		if (languageTag[0] != '\0' && languageTag[0] != ' ') {
-			[[[AJCFGConfigLogger sharedInstance] logger] debugTag:@"PropertyStoreImplAdapter" text:[NSString stringWithFormat:@"Language tag is not empty!! this may cause issues in the client!! lang tag is : '%s' returning invalid value", languageTag]];
-            
-            return ER_INVALID_VALUE;
-		}
-        
-		languageTag = ""; // For now, the empty language tag is the only format we support for write. do not try to send other languageTag.
-        
-		__autoreleasing AJNMessageArgument *objc_all;
+
+        __autoreleasing AJNMessageArgument *objc_all;
 		QStatus status = [m_objc_PropertyStoreImpl readAll:languageTag withFilter:(PFilter)filter ajnMsgArg:&objc_all];
         
 		all = (*(ajn::MsgArg *)objc_all.handle);
@@ -191,7 +185,7 @@ public:
 	QStatus populateWritableMsgArgs(const char *languageTag, ajn::MsgArg& all)
 	{
 		QStatus status = ER_OK;
-    ajn::MsgArg * argsWriteData = new ajn::MsgArg[m_Properties.size()];
+        ajn::MsgArg * argsWriteData = new ajn::MsgArg[m_Properties.size()];
 		uint32_t writeArgCount = 0;
 		do {
 			for (ajn::services::PropertyMap::const_iterator it = m_Properties.begin(); it != m_Properties.end(); ++it) {

@@ -94,7 +94,7 @@
 /**
  Get configurations remote method call using a session id.
  @param busName Unique or well-known name of AllJoyn bus.
- @param languageTag The language used to pull the data by.
+ @param languageTag The language used to pull the data by. use @"" to get the current default language.
  @param configs A reference to configurations filled by the method.
  @param sessionId The session received after joining alljoyn session.
  @return ER_OK if successful.

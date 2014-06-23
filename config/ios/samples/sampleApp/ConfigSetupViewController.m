@@ -20,6 +20,8 @@
 #import "alljoyn/about/AJNAboutIconClient.h"
 #import "alljoyn/about/AJNConvertUtil.h"
 #import "alljoyn/config/AJCFGConfigLogger.h"
+#import "alljoyn/about/AJNAboutDataConverter.h"
+
 
 @interface ConfigSetupViewController  () <UITextFieldDelegate, AJNSessionListener>
 @property (nonatomic) AJNSessionId sessionId;
@@ -129,16 +131,22 @@
 		[self.btnFactoryReset setEnabled:NO];
 		[self.btnRestart setEnabled:NO];
 		[self.btnSetPassword setEnabled:NO];
+        
+        self.writableElements = nil;
 	}
 	else {
 		[self.btnFactoryReset setEnabled:YES];
 		[self.btnRestart setEnabled:YES];
 		[self.btnSetPassword setEnabled:YES];
+        
+        self.writableElements = configDict;
+        
+        [self.clientInformation setCurrLang:[self getConfigurableValueForKey:DEFAULT_LANGUAGE_STR]];
+        
+        NSLog(@"updateWritableDictionary count %d",[self.writableElements count]);
 	}
     
-	self.writableElements = configDict;
-    
-    NSLog(@"updateWritableDictionary count %d",[self.writableElements count]);
+
 }
 
 - (void)viewDidLoad
@@ -181,13 +189,21 @@
 	[self updateUI];
 }
 
+- (NSString *)getConfigurableValueForKey:(NSString *)key
+{
+    AJNMessageArgument *msgArg = [self.writableElements valueForKey:key];
+    
+    
+    return [AJNAboutDataConverter messageArgumentToString:msgArg];
+}
+
 - (void)updateUI
 {
 	int i = 0;
     
 	// generate UI based on the received writableElements
 	for (NSString *key in[self.writableElements allKeys]) {
-		CGFloat y = 80 + (i * 50);
+		CGFloat y = 80 + (i * 70);
 		UILabel *lbl = [[UILabel alloc] initWithFrame:CGRectMake(20, y, 275, 40)];
 		lbl.backgroundColor = [UIColor clearColor];
 		[lbl setTextColor:[UIColor blackColor]];
@@ -198,14 +214,12 @@
         
 		UITextField *txt = [[UITextField alloc] initWithFrame:CGRectMake(160, y, 275, 40)];
         
+        [txt resignFirstResponder];
         [txt setSpellCheckingType:UITextSpellCheckingTypeNo];
         [txt setAutocapitalizationType:UITextAutocapitalizationTypeNone];
+        [txt becomeFirstResponder];
         
-		AJNMessageArgument *msgArg = [self.writableElements valueForKey:key];
-		char *str;
-        
-		[msgArg value:@"s", &str];
-		txt.text = [AJNConvertUtil convertConstCharToNSString:str];
+		txt.text = [self getConfigurableValueForKey:key];
         
 		txt.delegate = self;
 		txt.tag = i;
@@ -215,7 +229,7 @@
         
         UIButton *resetButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
         
-        [resetButton setFrame:CGRectMake(20, y+25, 275, 40)];
+        [resetButton setFrame:CGRectMake(20, y+40, 275, 40)];
         resetButton.tag = i;
         
         [resetButton setTitle:[NSString stringWithFormat:@"Reset %@",key] forState:UIControlStateNormal];
@@ -242,7 +256,7 @@
     
     [configNames addObject:key];
     
-    status = [self.configClient resetConfigurationsWithBus:self.annBusName languageTag:@"" configNames:configNames sessionId:self.sessionId];
+    status = [self.configClient resetConfigurationsWithBus:self.annBusName languageTag:[self.clientInformation currLang] configNames:configNames sessionId:self.sessionId];
 
 	if (status != ER_OK) {
 		[[[UIAlertView alloc] initWithTitle:@"Reset Property Store Failed" message:[NSString stringWithFormat:@"Error occured:%@", [AJNStatus descriptionForStatusCode:status]] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
@@ -251,6 +265,7 @@
 	}
 	else {
 		[[[AJCFGConfigLogger sharedInstance] logger] debugTag:[[self class] description] text:[NSString stringWithFormat:@"Successfully reset Property Store for key '%@'", key]];
+        
         
         [self updateWritableDictionary];
         
@@ -274,12 +289,24 @@
 	// Add the property name/value
 	configElements[key] = msgArgValue;
     
-	status = [self.configClient updateConfigurationsWithBus:self.annBusName languageTag:@"" configs:&configElements sessionId:self.sessionId];
+
+    NSString *useLang;
+    if ([key isEqualToString:DEFAULT_LANGUAGE_STR]) {
+        useLang = @"";
+    } else {
+        useLang = [self.clientInformation currLang];
+    }
+    
+	status = [self.configClient updateConfigurationsWithBus:self.annBusName languageTag:useLang configs:&configElements sessionId:self.sessionId];
+    
+    
     
 	if (status != ER_OK) {
-		[[[UIAlertView alloc] initWithTitle:@"Update Property Store Failed" message:[NSString stringWithFormat:@"Error occured:%@", [AJNStatus descriptionForStatusCode:status]] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+        NSString *str= [NSString stringWithFormat:@"Failed to update property '%@' to '%s'", key, char_str_value ];
+                        
+		[[[UIAlertView alloc] initWithTitle:@"Update Property Store Failed" message:str delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
         
-		[[[AJCFGConfigLogger sharedInstance] logger] errorTag:[[self class] description] text:[NSString stringWithFormat:@"Failed to update Property Store with %@ = %s for tag[%d]: %@", key, char_str_value, textField.tag, [AJNStatus descriptionForStatusCode:status]]];
+		[[[AJCFGConfigLogger sharedInstance] logger] errorTag:[[self class] description] text:str];
 	}
 	else {
 		[[[AJCFGConfigLogger sharedInstance] logger] debugTag:[[self class] description] text:[NSString stringWithFormat:@"Successfully update Property Store with %@ = %s for tag[%d]", key, char_str_value, textField.tag]];
@@ -293,18 +320,34 @@
     
 }
 
+- (void)disableAllDynamicFields
+{
+    for (UIView *subView in[self.view subviews]) {
+		if ([subView isKindOfClass:[UITextField class]]) {
+            [((UITextField*)subView) setEnabled:NO];
+		}
+        if ([subView isKindOfClass:[UIButton class]]) {
+            [((UIButton*)subView) setEnabled:NO];
+		}
+        
+	}
+}
+
 - (void)updateTextfieldValues
 {
+    if ([self.writableElements count] == 0) {
+        [[[UIAlertView alloc]initWithTitle:@"no configurable elements" message:@"the server did not return any configurable elements" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+        
+        [self disableAllDynamicFields];
+        return; // no elements to show
+    }
+    
     for (int x = 0; x != [self.writableElements count]; x++) {
 		for (UIView *aSubview in[self.view subviews]) {
 			if ([aSubview isKindOfClass:[UITextField class]]) {
 				NSString *key = [self.writableElements allKeys][((UITextField *)aSubview).tag];
                 
-				AJNMessageArgument *msgArg = [self.writableElements valueForKey:key];
-				char *str;
-                
-				[msgArg value:@"s", &str];
-				((UITextField *)aSubview).text = [AJNConvertUtil convertConstCharToNSString:str];
+				((UITextField *)aSubview).text = [self getConfigurableValueForKey:key];
 			}
 		}
 	}
@@ -322,15 +365,7 @@
 
 - (IBAction)setPasswordPressed:(id)sender
 {
-    for (UIView *subView in[self.view subviews]) {
-		if ([subView isKindOfClass:[UITextField class]]) {
-            [((UITextField*)subView) setEnabled:NO];
-		}
-        if ([subView isKindOfClass:[UIButton class]]) {
-            [((UIButton*)subView) setEnabled:NO];
-		}
-
-	}
+    [self disableAllDynamicFields];
     
 	[self.setPasswordAlert show];
 }
