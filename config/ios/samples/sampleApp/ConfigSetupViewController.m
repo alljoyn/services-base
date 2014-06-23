@@ -124,10 +124,10 @@
 	self.annBusName = [self.clientInformation.announcement busName];
 	NSMutableDictionary *configDict = [[NSMutableDictionary alloc] init];
 	status = [self.configClient configurationsWithBus:self.annBusName languageTag:@"" configs:&configDict sessionId:self.sessionId];
-    
 	if (status != ER_OK) {
 		[[[AJCFGConfigLogger sharedInstance] logger] errorTag:[[self class] description] text:[NSString stringWithFormat:@"Failed to get configuration from bus: %@", [AJNStatus descriptionForStatusCode:status]]];
-		// Add alert:
+        [[[UIAlertView alloc] initWithTitle:@"Error" message:@"Failed to get configuration" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+        // disable buttons
 		[self.btnFactoryReset setEnabled:NO];
 		[self.btnRestart setEnabled:NO];
 		[self.btnSetPassword setEnabled:NO];
