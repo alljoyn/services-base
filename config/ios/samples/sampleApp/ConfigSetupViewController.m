@@ -76,14 +76,9 @@
 				status = [self.clientBusAttachment clearKeysForRemotePeerWithId:guid];
                 
 				if (ER_OK == status) {
-                    
-                    
 					[[[AJCFGConfigLogger sharedInstance] logger] debugTag:[[self class] description] text:@"Successfully clearKeysForRemotePeer"];
 				}
 				else {
-                    
-                    
-                    
 					[[[AJCFGConfigLogger sharedInstance] logger] errorTag:[[self class] description] text:[NSString stringWithFormat:@"Failed to clearKeysForRemotePeer: %@", [AJNStatus descriptionForStatusCode:status]]];
 				}
 
@@ -288,7 +283,14 @@
 	}
 	else {
 		[[[AJCFGConfigLogger sharedInstance] logger] debugTag:[[self class] description] text:[NSString stringWithFormat:@"Successfully update Property Store with %@ = %s for tag[%d]", key, char_str_value, textField.tag]];
+        
+        
+        [self updateWritableDictionary];
+        
+        [self updateTextfieldValues];
+
 	}
+    
 }
 
 - (void)updateTextfieldValues
