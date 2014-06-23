@@ -708,17 +708,18 @@ public class OnboardingManager {
             Map<String, Object> announceDataMap = null;
             try {
                 announceDataMap = TransportUtil.fromVariantMap(serviceMetadata);
+                if (announceDataMap == null) {
+                    // ignoring error. will be handled by announcement timeout
+                    Log.e(TAG, "onAnnouncement: invalid announcement");
+                    return;
+                }
             } catch (BusException e) {
                 // ignoring error. will be handled by announcement timeout
                 Log.e(TAG, "onAnnouncement: invalid announcement", e);
                 return;
             }
 
-            if (announceDataMap == null) {
-                // ignoring error. will be handled by announcement timeout
-                Log.e(TAG, "onAnnouncement: invalid announcement");
-                return;
-            }
+
             UUID uniqueId = (UUID) announceDataMap.get(AboutKeys.ABOUT_APP_ID);
             if (uniqueId == null) {
                 Log.e(TAG, "onAnnouncement: received null device uuid!! ignoring.");
@@ -1338,10 +1339,8 @@ public class OnboardingManager {
             onboardingClient.registerConnectionResultListener(listener);
         } catch (Exception e) {
             Log.e(TAG, "registerConnectionResultListener", e);
-            if (configWifiSignalTimeout != null) {
-                configWifiSignalTimeout.cancel();
-                configWifiSignalTimeout.purge();
-            }
+            configWifiSignalTimeout.cancel();
+            configWifiSignalTimeout.purge();
             extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.ERROR_CONFIGURING_ONBOARDEE.toString());
             sendBroadcast(ERROR, extras);
             setState(State.ERROR_CONFIGURING_ONBOARDEE); // send error
@@ -2128,8 +2127,9 @@ public class OnboardingManager {
 
             if (currentState == State.IDLE) {
 
-                if (onboardingSDKWifiManager.getCurrentConnectedAP()!=null){
-                    originalNetwork=onboardingSDKWifiManager.getCurrentConnectedAP().getSSID();
+                WiFiNetwork currentAP=onboardingSDKWifiManager.getCurrentConnectedAP();
+                if (currentAP!=null){
+                    originalNetwork=currentAP.getSSID();
                 }
 
 
