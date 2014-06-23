@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -16,6 +16,7 @@
 
 #import "AJCFGPropertyStoreImpl.h"
 #import "alljoyn/about/AJNAboutServiceApi.h"
+#import "alljoyn/about/AJNAboutDataConverter.h"
 
 #define DEFAULT_LANGUAGE_STR @"DefaultLanguage"
 #define DEVICE_NAME_STR @"DeviceName"
@@ -58,7 +59,7 @@
     
 	// Set the values from the factory store
 	[self setDefaultLang:nil];
-	[self setDeviceName:nil];
+	[self setDeviceName:nil language:nil];
 	[self setDeviceId:nil];
 	[self setPasscode:nil];
 }
@@ -82,11 +83,14 @@
 	if (filter != WRITE)
 		return ER_FAIL;
     
-	if (languageTag != NULL && languageTag[0] != 0) { // Check that the language is in the supported languages
-		if (![self isLanguageSupported:languageTag])
-			return ER_LANGUAGE_NOT_SUPPORTED;
-	}
-	else {
+    if (languageTag[0]=='\0' || languageTag[0] == ' ') {
+        languageTag = [[self getPersistentValue:DEFAULT_LANGUAGE_STR forLanguage:@""] UTF8String];
+    }
+    
+    
+    if ([self isLanguageSupported:languageTag] != ER_OK) {
+        return ER_LANGUAGE_NOT_SUPPORTED;
+    } else {
 		AJNPropertyStoreProperty *defaultLang = [self property:DEFAULT_LANG];
 		if (defaultLang == nil)
 			return ER_LANGUAGE_NOT_SUPPORTED;
@@ -99,13 +103,10 @@
 
 - (QStatus)Update:(const char *)name languageTag:(const char *)languageTag ajnMsgArg:(AJNMessageArgument *)value
 {
-	// Only the default lang work here
-    if (languageTag && (languageTag[0] != 0 && languageTag[0] != ' ')) {
-        [[[AJCFGConfigLogger sharedInstance] logger] debugTag:@"PropertyStoreImplAdapter" text:[NSString stringWithFormat:@"Language tag is not empty! [%s]. Using  an empty string instead.", languageTag]];
+    if ([self isLanguageSupported:languageTag] != ER_OK) {
+        [[[AJCFGConfigLogger sharedInstance] logger] debugTag:@"PropertyStoreImplAdapter" text:[NSString stringWithFormat:@"Language tag is invalid! [%s].", languageTag]];
     }
-    
-    languageTag = ""; // For now, the empty language tag is the only format we support for write. do not try to send other languageTag.
-    
+  
 	// Get the enum value for the property name
 	AJNPropertyStoreKey key_code = [self getPropertyStoreKeyFromName:name];
     
@@ -114,7 +115,7 @@
 	}
     
 	// Check if this property is writable
-	AJNPropertyStoreProperty *property = [self property:key_code];
+	AJNPropertyStoreProperty *property = [self property:key_code withLanguage:[NSString stringWithUTF8String:languageTag]];
     
 	if (![property isWritable])
 		return ER_INVALID_VALUE;
@@ -127,14 +128,14 @@
     
 	[value value:@"s", &msgarg_value]; // Update entries are assumed to be strings.
     
-	NSString *msgArgValue = [NSString stringWithCString:msgarg_value encoding:NSUTF8StringEncoding];
+	NSString *msgArgValue = [NSString stringWithUTF8String:msgarg_value];
     
 	// Update the entry from the NSUserDefaults persistant storage
 	NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     
-	NSDictionary *newValue = @{ @"":msgArgValue };
+	NSDictionary *newValue = @{ [NSString stringWithUTF8String:languageTag]:msgArgValue }; // default is @""
     
-	[userDefaults setObject:newValue forKey:key]; // Add the default language representation, this is what supported for now.
+	[userDefaults setObject:newValue forKey:key];
     
 	[userDefaults synchronize]; // Persist
     
@@ -146,7 +147,7 @@
 	NSArray *QASPropertyStoreName = @[@"DeviceId", @"DeviceName", @"AppId", @"AppName", @"DefaultLanguage", @"SupportedLanguages", @"Description", @"Manufacturer", @"DateOfManufacture", @"ModelNumber", @"SoftwareVersion", @"AJSoftwareVersion", @"HardwareVersion", @"SupportUrl", @""];
     
 	for (int indx = 0; indx < NUMBER_OF_KEYS; indx++) {
-		if ([QASPropertyStoreName[indx] isEqualToString:[NSString stringWithCString:propertyStoreName encoding:NSUTF8StringEncoding]] == YES)
+		if ([QASPropertyStoreName[indx] isEqualToString:[NSString stringWithUTF8String:propertyStoreName]] == YES)
 			return (AJNPropertyStoreKey)indx;
 	}
 	return NUMBER_OF_KEYS;
@@ -154,12 +155,11 @@
 
 - (QStatus)reset:(const char *)name languageTag:(const char *)languageTag
 {
-	// Only the default lang work here
-    if (languageTag && (languageTag[0] != 0 && languageTag[0] != ' ')) {
-        [[[AJCFGConfigLogger sharedInstance] logger] debugTag:@"PropertyStoreImplAdapter" text:[NSString stringWithFormat:@"Language tag is not empty! [%s]. Using  an empty string instead.", languageTag]];
+    if ([self isLanguageSupported:languageTag] != ER_OK) {
+        [[[AJCFGConfigLogger sharedInstance] logger] debugTag:@"PropertyStoreImplAdapter" text:[NSString stringWithFormat:@"Language tag is invalid! [%s].", languageTag]];
+        
+        return ER_INVALID_VALUE;
     }
-    
-    languageTag = ""; // For now, the empty language tag is the only format we support for write. do not try to send other languageTag.
     
     
 	// Get the enum value for the property name
@@ -170,7 +170,7 @@
 	}
     
 	// Check if this property is writable
-	AJNPropertyStoreProperty *property = [self property:key_code];
+	AJNPropertyStoreProperty *property = [self property:key_code withLanguage:[NSString stringWithUTF8String:languageTag]];
     
 	if (![property isWritable])
 		return ER_INVALID_VALUE;
@@ -178,7 +178,7 @@
 	// Erase the property from the property store in memory
 	((PropertyStoreImplAdapter *)[super getHandle])->erasePropertyAccordingToPropertyCode((ajn::services::PropertyStoreKey)key_code, languageTag);
     
-	NSString *key = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
+	NSString *key = [NSString stringWithUTF8String:name];
     
 	// Remove the entry from the NSUserDefaults persistant storage
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:key];
@@ -192,7 +192,7 @@
 			break;
             
 		case DEVICE_NAME:
-			[self setDeviceName:nil];
+			[self setDeviceName:nil language:[NSString stringWithUTF8String:languageTag]];
 			break;
             
 		case DEFAULT_LANG:
@@ -206,36 +206,36 @@
 	return [[AJNAboutServiceApi sharedInstance] announce];
 }
 
-- (NSString *)getPersistentValue:(NSString *)key
+- (NSString *)getPersistentValue:(NSString *)key forLanguage:(NSString *)language
 {
 	NSDictionary *dict = [[NSUserDefaults standardUserDefaults] dictionaryForKey:key];
     
-	return [dict objectForKey:@""]; // For now, all values use the default language, which is the empty key
+	return [dict objectForKey:language]; // The default language is the empty key, @""
 }
 
-- (void)updateUserDefaultsValue:(NSString *)value usingKey:(NSString *)key
+- (void)updateUserDefaultsValue:(NSString *)value usingKey:(NSString *)key forLanguage:(NSString *)language
 {
 	//  Set the user defaults with the new value
 	NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-	NSDictionary *newValue = @{ @"":value };
+	NSDictionary *newValue = @{ language:value };
     
 	[userDefaults setObject:newValue forKey:key]; // Add the default language representation, this is what we support for now.
     
 	[userDefaults synchronize]; // Persist
 }
 
-- (NSString *)lookForValue:(NSString *)value accordingToKey:(NSString *)key
+- (NSString *)lookForValue:(NSString *)value accordingToKey:(NSString *)key forLanguage:(NSString *)language
 {
 	NSString *val = value;
     
 	if (!val) {
-		val = [self getPersistentValue:key];
+		val = [self getPersistentValue:key forLanguage:language];
 		if (!val) {
-			val = [[self.factoryProperties objectForKey:key] objectForKey:@""];
+			val = [[self.factoryProperties objectForKey:key] objectForKey:language];
 		}
 	}
 	else {
-		[self updateUserDefaultsValue:val usingKey:key];
+		[self updateUserDefaultsValue:val usingKey:key forLanguage:language];
 	}
     
 	return val;
@@ -243,12 +243,12 @@
 
 - (QStatus)setDefaultLang:(NSString *)defaultLang
 {
-	NSString *val = [self lookForValue:defaultLang accordingToKey:DEFAULT_LANGUAGE_STR];
+	NSString *val = [self lookForValue:defaultLang accordingToKey:DEFAULT_LANGUAGE_STR forLanguage:@""];
     
 	if (val) {
 		QStatus status = [super setDefaultLang:val];
 		if (status == ER_OK) {
-			[self updateUserDefaultsValue:val usingKey:DEFAULT_LANGUAGE_STR];
+			[self updateUserDefaultsValue:val usingKey:DEFAULT_LANGUAGE_STR forLanguage:@""];
 		}
         
 		return status;
@@ -257,15 +257,15 @@
 	return ER_BAD_ARG_1;
 }
 
-- (QStatus)setDeviceName:(NSString *)deviceName
+- (QStatus)setDeviceName:(NSString *)deviceName language:(NSString *)language
 {
-	NSString *val = [self lookForValue:deviceName accordingToKey:DEVICE_NAME_STR];
+	NSString *val = [self lookForValue:deviceName accordingToKey:DEVICE_NAME_STR forLanguage:language];
     
 	if (val) {
-		QStatus status =  [super setDeviceName:val];
+		QStatus status =  [super setDeviceName:val language:language];
         
 		if (status == ER_OK) {
-			[self updateUserDefaultsValue:val usingKey:DEVICE_NAME_STR];
+			[self updateUserDefaultsValue:val usingKey:DEVICE_NAME_STR forLanguage:language];
 		}
         
 		return status;
@@ -276,13 +276,13 @@
 
 - (QStatus)setDeviceId:(NSString *)deviceId
 {
-	NSString *val = [self lookForValue:deviceId accordingToKey:DEVICE_ID_STR];
+	NSString *val = [self lookForValue:deviceId accordingToKey:DEVICE_ID_STR forLanguage:@""];
     
 	if (val) {
 		QStatus status = [super setDeviceId:val];
         
 		if (status == ER_OK) {
-			[self updateUserDefaultsValue:val usingKey:DEVICE_ID_STR];
+			[self updateUserDefaultsValue:val usingKey:DEVICE_ID_STR forLanguage:@""];
 		}
         
 		return status;
@@ -298,14 +298,14 @@
 		passCode = [[self.factoryProperties objectForKey:PASS_CODE_STR] objectForKey:@""];
 	}
     
-	[self updateUserDefaultsValue:passCode usingKey:PASS_CODE_STR];
+	[self updateUserDefaultsValue:passCode usingKey:PASS_CODE_STR forLanguage:@""];
     
 	return ER_OK;
 }
 
 - (NSString *)getPasscode
 {
-	NSString *val = [self lookForValue:nil accordingToKey:PASS_CODE_STR];
+	NSString *val = [self lookForValue:nil accordingToKey:PASS_CODE_STR forLanguage:@""];
     
 	return val;
 }

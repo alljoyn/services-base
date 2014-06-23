@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -16,6 +16,12 @@
 
 #import <Foundation/Foundation.h>
 #import "alljoyn/about/AJNAnnouncement.h"
+
+// Property store strings
+static NSString *const DEFAULT_LANGUAGE_STR = @"DefaultLanguage";
+static NSString *const DEVICE_NAME_STR = @"DeviceName";
+static NSString *const DEVICE_ID_STR = @"DeviceId";
+static NSString *const PASS_CODE_STR = @"passcode";
 
 /**
  ClientInformation is a helper class to contain the announcement data and the user preferred language.

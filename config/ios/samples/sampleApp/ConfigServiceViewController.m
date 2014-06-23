@@ -17,6 +17,7 @@
 #import "ConfigServiceViewController.h"
 #import "AJNVersion.h"
 #import "AJNPasswordManager.h"
+#import "ClientInformation.h"
 #import "alljoyn/about/AJNAboutServiceApi.h"
 #import "alljoyn/config/AJCFGPropertyStoreImpl.h"
 #import "alljoyn/config/AJCFGConfigService.h"
@@ -27,11 +28,7 @@
 #import "CommonBusListener.h"
 #import "AppDelegate.h"
 
-// Property store strings
-static NSString *const DEFAULT_LANGUAGE_STR = @"DefaultLanguage";
-static NSString *const DEVICE_NAME_STR = @"DeviceName";
-static NSString *const DEVICE_ID_STR = @"DeviceId";
-static NSString *const PASS_CODE_STR = @"passcode";
+
 
 static NSString *const DEFAULTPASSCODE = @"000000";
 
@@ -309,11 +306,27 @@ static AJNSessionPort SERVICE_PORT; // About Service - service port
 	if (status != ER_OK) return status;
     
 	// DeviceName
-	NSString *value = [self.propertyStore getPersistentValue:DEVICE_NAME_STR];
+	NSString *value = [self.propertyStore getPersistentValue:DEVICE_NAME_STR forLanguage:@"en"];
     
-	value = (value ? value : @"iOS_Service"); // check that we don't have a persistent value
+	value = (value ? value : @"Device Name(en)"); // check that we don't have a persistent value
     
-	status = [self.propertyStore setDeviceName:value];
+	status = [self.propertyStore setDeviceName:value language:@"en"];
+	if (status != ER_OK) return status;
+
+    // DeviceName
+	value = [self.propertyStore getPersistentValue:DEVICE_NAME_STR forLanguage:@"fr"];
+    
+	value = (value ? value : @"Device Name(fr)"); // check that we don't have a persistent value
+    
+	status = [self.propertyStore setDeviceName:value language:@"fr"];
+	if (status != ER_OK) return status;
+
+    // DeviceName
+	value = [self.propertyStore getPersistentValue:DEVICE_NAME_STR forLanguage:@"sp"];
+    
+	value = (value ? value : @"Device Name(sp)"); // check that we don't have a persistent value
+    
+	status = [self.propertyStore setDeviceName:value language:@"sp"];
 	if (status != ER_OK) return status;
     
 	// SupportedLangs
@@ -322,7 +335,7 @@ static AJNSessionPort SERVICE_PORT; // About Service - service port
 	if (status != ER_OK) return status;
     
 	// DefaultLang
-	value = [self.propertyStore getPersistentValue:DEFAULT_LANGUAGE_STR];
+	value = [self.propertyStore getPersistentValue:DEFAULT_LANGUAGE_STR forLanguage:@""];
     
 	value = (value ? value : @"en"); // check that we don't have a persistent value
     
