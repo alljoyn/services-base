@@ -477,7 +477,7 @@ QStatus Transport::listenToSuperAgent(const char* senderId)
     cleanupAnnouncementListener(true);
 
     { //add mach sender id
-        String AJ_SA_ADD_MATCH = "type='signal',sessionless='t',sender='" + String(senderId) + "'";
+        String AJ_SA_ADD_MATCH = "type='signal',sessionless='t',sender='" + String(senderId) + "'" + ",interface='" + AJ_SA_INTERFACE_NAME + "'";
         QCC_DbgPrintf(("SuperAgent add match:%s", AJ_SA_ADD_MATCH.c_str()));
 
         status = m_Bus->AddMatch(AJ_SA_ADD_MATCH.c_str());
@@ -518,7 +518,7 @@ QStatus Transport::cancelListenToSuperAgent(const char* senderId)
     m_Bus->EnableConcurrentCallbacks();
 
     //remove match sender
-    String AJ_SA_ADD_MATCH = "type='signal',sessionless='t',sender='" + String(senderId) + "'";
+    String AJ_SA_ADD_MATCH = "type='signal',sessionless='t',sender='" + String(senderId) + "'" + ",interface='" + AJ_SA_INTERFACE_NAME + "'";
     status = m_Bus->RemoveMatch(AJ_SA_ADD_MATCH.c_str());
     if (status != ER_OK) {
         QCC_LogError(status, ("Could not remove super agent match from bus."));
