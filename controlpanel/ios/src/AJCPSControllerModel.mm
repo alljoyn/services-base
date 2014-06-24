@@ -437,7 +437,9 @@
         [self populateRootContainer:lang];
     }
     
-    [self.delegate loadEnded];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate loadEnded];
+    });
 }
 
 /**
@@ -448,7 +450,9 @@
 {
 	NSLog(@"%@] Calling: %@", [[self class] description], NSStringFromSelector(_cmd));
     
-    [self.delegate loadEnded];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate loadEnded];
+    });
     
 	[NSThread sleepForTimeInterval:5];
     
@@ -464,7 +468,9 @@
 {
 	NSLog(@"[%@] Calling: %@", [[self class] description], NSStringFromSelector(_cmd));
     
-    [self.delegate loadEnded];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate loadEnded];
+    });
     
     [self printBasicWidget:widget];
     
@@ -480,7 +486,9 @@
 {
 	NSLog(@"[%@] Calling: %@", [[self class] description], NSStringFromSelector(_cmd));
     
-    [self.delegate loadEnded];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate loadEnded];
+    });
     
     [self printBasicWidget:property];
     [self printProperty:property];
@@ -497,7 +505,9 @@
 {
 	NSLog(@"[%@] Calling: %@", [[self class] description], NSStringFromSelector(_cmd));
     
-    [self.delegate loadEnded];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate loadEnded];
+    });
 
 }
 
@@ -512,8 +522,10 @@
 {
 	NSLog(@"[%@] Calling: %@", [[self class] description], NSStringFromSelector(_cmd));
     
-    [self.delegate loadEnded];
-
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate loadEnded];
+    });
+    
 	NSLog(@"error message:'%@'", errorMessage);
     dispatch_async(dispatch_get_main_queue(), ^{
         [[[UIAlertView alloc] initWithTitle:@"Error" message:[NSString stringWithFormat:@"%@" ,errorMessage] delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
