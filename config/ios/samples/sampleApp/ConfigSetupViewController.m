@@ -356,11 +356,15 @@
 #pragma mark - IBAction methods
 - (IBAction)factoryResetPressed:(UIButton *)sender
 {
-	[self.configClient factoryResetWithBus:self.annBusName sessionId:self.sessionId];
+	QStatus status = [self.configClient factoryResetWithBus:self.annBusName sessionId:self.sessionId];
     
-    [self updateWritableDictionary];
+    if (status!=ER_OK) {
+        [[[UIAlertView alloc]initWithTitle:@"Factory reset failed" message:[NSString stringWithFormat:@"Factory reset failed with error:%@",[AJNStatus descriptionForStatusCode:status]] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+    } else {
+        [[[UIAlertView alloc]initWithTitle:@"Factory reset success" message:@"Factory reset done. Your wifi connection may have changed." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+    }
     
-    [self updateTextfieldValues];
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 - (IBAction)setPasswordPressed:(id)sender
