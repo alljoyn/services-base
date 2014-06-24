@@ -66,7 +66,7 @@
 /**
  Persistent getter by a key.
  @param key Key to look for(default languageTag = "").
- @param forLanguage language to look for
+ @param language language to look for
  @return the value of the key if key is in the store.
  */
 - (NSString *)getPersistentValue:(NSString *)key forLanguage:(NSString *)language;
@@ -97,6 +97,7 @@
  Set the device name property in the property store.
  </br> If the input param is nil - NSUserDefaults entry will be used. If NSUserDefaults entry is not available - factory default is used.
  @param deviceName New device name to set.
+ @param language Language to set device name to.
  @return ER_OK if successful.
  */
 - (QStatus)setDeviceName:(NSString *)deviceName language:(NSString *)language;
