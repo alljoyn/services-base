@@ -79,6 +79,7 @@ ASABASE-195 - Onboarding client crashes after trying to onboard following a fact
 
 Known Issues
 ------------
+ASABASE-9   - Onboarding process to wep configured networks failed and the TP-LINK WR842ND stays in Soft AP mode.
 ASABASE-85  - The Java Onboarding server (simulator) is not receiving auto type ANY. 
 ASABASE-108 – Connecting WiFi network with Gingerbread Android version handset can take longer than on newer version of Android.
 ASABASE-189 - Onboarding Script Offboard method should delete key1 as well 
