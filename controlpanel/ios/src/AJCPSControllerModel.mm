@@ -36,6 +36,10 @@
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
     NSLog(@"alert button has been clicked");
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.delegate loadEnded];
+    });
 }
 - (id)init
 {
