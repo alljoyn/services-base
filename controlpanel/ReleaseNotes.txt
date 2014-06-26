@@ -35,4 +35,6 @@ Compatibility
 Change history
 --------------
 
+14.06 - 2nd AllSeen Alliance release
+
 14.02 - 1st AllSeen Alliance release
