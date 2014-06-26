@@ -16,8 +16,6 @@ Platform Support
 Features added in Version 14.06
 -------------------------------
 
-Android Onboarding Manager, CPP Onboarding is not released as a service but as a daemon.
-
 Android: Added Onboarding Manager library that streamlines the process of onboarding and offboarding for Android application developers. 
 The Android Onboarding Manager encapsulates the Android Wi-Fi and AllJoyn APIs that are part of the process.
 A sample Android application that tests the Onboarding Manager is included.
@@ -97,5 +95,7 @@ C++/OpenWRT application using 14.02 are not compatible to Onboarding service 14.
 
 Change history
 --------------
+
+14.06 - changed onboarding from a service to a daemon in openWRT, added android onboarding manager 
 
 14.02 - 1st AllSeen Alliance release
