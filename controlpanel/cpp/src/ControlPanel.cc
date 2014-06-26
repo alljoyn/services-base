@@ -136,6 +136,22 @@ QStatus ControlPanel::registerObjects(BusAttachment* bus, qcc::String const& uni
         QCC_LogError(status, ("Could not create ControlPanelBusObject"));
         return status;
     }
+
+    if (m_RootWidget->getIsDismissable()) {
+
+        status = m_ControlPanelBusObject->setIsNotificationAction(bus);
+        if (status != ER_OK) {
+            QCC_LogError(status, ("Could not set ControlPanel as NotificationActionBusObjects"));
+            return status;
+        }
+
+        status = m_RootWidget->setNotificationActionBusObject(m_ControlPanelBusObject);
+        if (status != ER_OK) {
+            QCC_LogError(status, ("Could not set NotificationActionBusObjects"));
+            return status;
+        }
+    }
+
     status = bus->RegisterBusObject(*m_ControlPanelBusObject);
     if (status != ER_OK) {
         QCC_LogError(status, ("Could not register ControlPanelBusObject."));
