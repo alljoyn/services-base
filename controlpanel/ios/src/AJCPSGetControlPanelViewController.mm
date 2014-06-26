@@ -108,6 +108,8 @@ static NSString * const CPS_GENERAL_CELL = @"CPSGeneralCell";
         if (ER_OK != status) {
             NSLog(@"Failed to start control panel");
             [[[UIAlertView alloc] initWithTitle:@"Error" message:@"Failed to start control panel." delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+            
+            [self loadEnded];
         }
     }
 }
