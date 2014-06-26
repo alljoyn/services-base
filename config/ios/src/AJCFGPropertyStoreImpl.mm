@@ -114,11 +114,26 @@
 		return ER_BAD_ARG_1;
 	}
     
-	// Check if this property is writable
-	AJNPropertyStoreProperty *property = [self property:key_code withLanguage:[NSString stringWithUTF8String:languageTag]];
+    AJNPropertyStoreProperty *property = NULL;
+    
+    if (key_code == DEVICE_NAME)
+    {
+        // Check if this property is writable
+        property = [self property:key_code withLanguage:[NSString stringWithUTF8String:languageTag]];
+    } else {
+        property = [self property:key_code];
+    }
+    
+    if (!property) {
+        return ER_INVALID_VALUE;
+    }
     
 	if (![property isWritable])
 		return ER_INVALID_VALUE;
+    
+    if (key_code != DEVICE_NAME) { //only DEVICE_NAME is language sensitive.. this should change if other persistant variables become language specific
+        languageTag = "";
+    }
     
 	// Erase the property from the property store in memory
 	((PropertyStoreImplAdapter *)[super getHandle])->updatePropertyAccordingToPropertyCode((ajn::services::PropertyStoreKey)key_code, languageTag, [value msgArg]);
