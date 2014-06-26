@@ -111,8 +111,7 @@ public class MainActivity extends Activity implements OnCreateContextMenuListene
                         return;
                     }
 
-                    Collection<Device> devices = deviceList.values();
-                    deviceAdapter.addAll(devices);
+                    addAllDevices(deviceList.values());
                 }
 
                 else if (ConfigApplication.ACTION_CONNECTED_TO_NETWORK.equals(intent.getAction())) {
@@ -131,6 +130,18 @@ public class MainActivity extends Activity implements OnCreateContextMenuListene
 
     }
 
+    /**
+     * Add all the given devices to the Device ArrayAdapter
+     * @param devices
+     */
+    private void addAllDevices(Collection<Device> devices) {
+        
+        for (Device device : devices) {
+            
+            deviceAdapter.add(device);
+        }
+    }
+    
     // Connect to AllJoyn
     private void allJoynConnect() {
         AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);

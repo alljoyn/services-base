@@ -54,7 +54,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.State;
-import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.HandlerThread;
@@ -253,8 +252,9 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
 
                     String str = "";
                     if (networkInfo.getState().equals(State.CONNECTED)) {
-                        WifiInfo wifiInfo = intent.getParcelableExtra(WifiManager.EXTRA_WIFI_INFO);
-                        str = wifiInfo.getSSID();
+                        
+                        WifiManager wifiMgr = (WifiManager)context.getSystemService(Context.WIFI_SERVICE);
+                        str                 = wifiMgr.getConnectionInfo().getSSID();
                     } else {
                         str = networkInfo.getState().toString().toLowerCase(Locale.getDefault());
                     }
