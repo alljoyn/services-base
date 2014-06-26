@@ -110,10 +110,14 @@ QStatus ControlPanelControllerUnit::addNotificationAction(qcc::String const& obj
         notificationAction = it->second;
     }
 
+    QStatus status = ER_OK;
     if (m_Device->getSessionId() != 0) {
-        notificationAction->registerObjects(busAttachment);
+        status = notificationAction->registerObjects(busAttachment);
+        if (status != ER_OK) {
+            QCC_LogError(status, ("Registering NotificationAction Objects failed"));
+        }
     }
-    return ER_OK;
+    return status;
 }
 
 QStatus ControlPanelControllerUnit::removeNotificationAction(qcc::String const& actionName)
