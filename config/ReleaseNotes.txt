@@ -19,11 +19,11 @@ Features added in Version 14.06
 
 Issues Addressed in Version 14.06
 ---------------------------------
-ASABASE-28 	Device name should support multi languages 
-ASABASE-29 	SetConfig should fail on fields that do not support language and request comes with a language 
-ASABASE-36 	Changing the DefaultLanguage to unsupported language gives the wrong error message. 
-ASABASE-38 	Device name is being reset to an empty string on server sample of java 
-ASABASE-50 	SetConfig should fail on fields that do not support language and request comes with a language 
+ASABASE-28 Device name should support multi languages 
+ASABASE-29 SetConfig should fail on fields that do not support language and request comes with a language 
+ASABASE-36 Changing the DefaultLanguage to unsupported language gives the wrong error message. 
+ASABASE-38 Device name is being reset to an empty string on server sample of java 
+ASABASE-50 SetConfig should fail on fields that do not support language and request comes with a language 
 ASABASE-119 iOS sample apps: remove 'realm name' and 'Are you Sure' UIAlert views 
 ASABASE-127 Remove the addMatch method call from the application layer of the sample applications 
 ASABASE-181 No need to set password for router now that it is open 
@@ -31,7 +31,7 @@ ASABASE-181 No need to set password for router now that it is open
 
 Known Issues
 ------------
-
+ASABASE-231 Config client crashes on gingerbread android version
 
 Compatibility
 -------------
