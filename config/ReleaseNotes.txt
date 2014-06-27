@@ -39,5 +39,5 @@ Compatibility
 
 Change history
 --------------
-
+14.06 - Device name supports multi language on all platforms, bug fixes, updates needed to match new core 14.06
 14.02 - 1st AllSeen Alliance release
