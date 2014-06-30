@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -44,6 +44,19 @@ class ControlPanelBusObject : public BusObject {
      * Destructor of ControlPanelBusObject class
      */
     virtual ~ControlPanelBusObject();
+
+    /**
+     * Set ControlPanel to also be a NotificationAction
+     * @param bus - bus used to create the interface
+     * @return status - success/failure
+     */
+    QStatus setIsNotificationAction(BusAttachment* bus);
+
+    /**
+     * if ControlPanel is a NotificationAction send a dismiss signal
+     * @return status - success/failure
+     */
+    QStatus SendDismissSignal();
 
     /**
      * Callback for Alljoyn when GetProperty is called on this BusObject
@@ -101,6 +114,16 @@ class ControlPanelBusObject : public BusObject {
      * InterfaceDescription of the BusObject
      */
     InterfaceDescription* m_InterfaceDescription;
+
+    /**
+     * Is this ControlPanel also a NotificationAction
+     */
+    bool m_IsNotificationAction;
+
+    /**
+     * The pointer used to send the dismiss signal
+     */
+    const ajn::InterfaceDescription::Member* m_SignalDismiss;
 
 };
 

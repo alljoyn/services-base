@@ -27,7 +27,8 @@ using namespace cpsConsts;
 #define CONTROLPANEL_INTERFACE_VERSION 1
 
 ControlPanelBusObject::ControlPanelBusObject(BusAttachment* bus, String const& objectPath, QStatus& status) :
-    BusObject(objectPath.c_str()), m_Proxy(0), m_ObjectPath(objectPath), m_InterfaceDescription(0)
+    BusObject(objectPath.c_str()), m_Proxy(0), m_ObjectPath(objectPath), m_InterfaceDescription(0),
+    m_IsNotificationAction(false), m_SignalDismiss(0)
 {
     status = ER_OK;
 
@@ -58,6 +59,69 @@ ControlPanelBusObject::~ControlPanelBusObject()
     if (m_Proxy) {
         delete m_Proxy;
     }
+}
+
+QStatus ControlPanelBusObject::setIsNotificationAction(BusAttachment* bus)
+{
+    QStatus status = ER_OK;
+    String interfaceName = AJ_NOTIFICATIONACTION_INTERFACE;
+
+    InterfaceDescription* interfaceDescription = (InterfaceDescription*) bus->GetInterface(interfaceName.c_str());
+    if (!interfaceDescription) {
+        do {
+            CHECK_AND_BREAK(bus->CreateInterface(interfaceName.c_str(), interfaceDescription));
+            CHECK_AND_BREAK(interfaceDescription->AddProperty(AJ_PROPERTY_VERSION.c_str(), AJPARAM_UINT16.c_str(), PROP_ACCESS_READ));
+            CHECK_AND_BREAK(interfaceDescription->AddSignal(AJ_SIGNAL_DISMISS.c_str(), AJPARAM_EMPTY.c_str(), AJPARAM_EMPTY.c_str()));
+            interfaceDescription->Activate();
+        } while (0);
+    }
+    if (status != ER_OK) {
+        QCC_LogError(status, ("Could not create interface"));
+        return status;
+    }
+
+    status = AddInterface(*interfaceDescription);
+    if (status != ER_OK) {
+        QCC_LogError(status, ("Could not add interface"));
+        return status;
+    }
+
+    //Get the signal methods for future use
+    m_SignalDismiss = interfaceDescription->GetMember(AJ_SIGNAL_DISMISS.c_str());
+    QCC_DbgPrintf(("Created NotificationAction interface successfully"));
+    m_IsNotificationAction = true;
+    return status;
+}
+
+QStatus ControlPanelBusObject::SendDismissSignal()
+{
+    QStatus status = ER_BUS_PROPERTY_VALUE_NOT_SET;
+    if (!m_IsNotificationAction) {
+        QCC_LogError(status, ("ControlPanel is not set as a Notification with Action"));
+        return status;
+    }
+
+    ControlPanelBusListener* busListener = ControlPanelService::getInstance()->getBusListener();
+    if (!m_SignalDismiss) {
+        QCC_DbgHLPrintf(("Can't send Dismiss signal. Signal not set"));
+        return status;
+    }
+
+    if (!busListener) {
+        QCC_DbgHLPrintf(("Can't send valueChanged signal. SessionIds are unknown"));
+        return status;
+    }
+
+    QCC_DbgPrintf(("Sending dismiss Signal to all connected sessions"));
+
+    const std::vector<SessionId>& sessionIds = busListener->getSessionIds();
+    for (size_t indx = 0; indx < sessionIds.size(); indx++) {
+        status = Signal(NULL, sessionIds[indx], *m_SignalDismiss, NULL, 0);
+        if (status != ER_OK) {
+            QCC_LogError(status, ("Could not send Dismiss Signal for sessionId: %s", sessionIds[indx]));
+        }
+    }
+    return status;
 }
 
 QStatus ControlPanelBusObject::Get(const char* interfaceName, const char* propName, MsgArg& val)

@@ -122,7 +122,7 @@ QStatus NotificationActionBusObject::SendDismissSignal()
     for (size_t indx = 0; indx < sessionIds.size(); indx++) {
         status = Signal(NULL, sessionIds[indx], *m_SignalDismiss, NULL, 0);
         if (status != ER_OK) {
-            QCC_LogError(status, ("Could not send PropertyChanged Signal for sessionId: %s", sessionIds[indx]));
+            QCC_LogError(status, ("Could not send Dismiss Signal for sessionId: %s", sessionIds[indx]));
         }
     }
     return status;

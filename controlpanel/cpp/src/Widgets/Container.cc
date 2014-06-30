@@ -23,7 +23,7 @@
 #include <alljoyn/controlpanel/ErrorWidget.h>
 #include "../ControlPanelConstants.h"
 #include "../BusObjects/ContainerBusObject.h"
-#include "../BusObjects/NotificationActionBusObject.h"
+#include "../BusObjects/ControlPanelBusObject.h"
 #include <alljoyn/controlpanel/LogModule.h>
 
 namespace ajn {
@@ -70,23 +70,6 @@ QStatus Container::registerObjects(BusAttachment* bus, LanguageSet const& langua
 
     qcc::String newObjectPathSuffix = isRoot ? objectPathSuffix : objectPathSuffix + "/" + m_Name;
 
-    if (m_IsDismissable) {
-        NotificationActionBusObject* NaBusObject = new NotificationActionBusObject(bus, newObjectPathSuffix, status);
-
-        if (status != ER_OK) {
-            QCC_LogError(status, ("Could not create NotificationActionBusObjects"));
-            delete NaBusObject;
-            return status;
-        }
-
-        status = setNotificationActionBusObject(NaBusObject);
-        if (status != ER_OK) {
-            QCC_LogError(status, ("Could not set NotificationActionBusObjects"));
-            delete NaBusObject;
-            return status;
-        }
-    }
-
     for (size_t indx = 0; indx < m_ChildWidgets.size(); indx++) {
         status = m_ChildWidgets[indx]->registerObjects(bus, languageSet, objectPathPrefix, newObjectPathSuffix);
         if (status != ER_OK) {
@@ -100,6 +83,10 @@ QStatus Container::registerObjects(BusAttachment* bus, LanguageSet const& langua
 QStatus Container::unregisterObjects(BusAttachment* bus)
 {
     QStatus returnStatus = ER_OK;
+    if (m_IsDismissable) { // notificationAction unregistered as part of controlPanel
+        m_NotificationActionBusObject = 0;
+    }
+
     QStatus status = RootWidget::unregisterObjects(bus);
     if (status != ER_OK) {
         QCC_LogError(status, ("Could not unregister BusObjects"));
@@ -200,6 +187,19 @@ bool Container::getIsDismissable() const
 void Container::setIsDismissable(bool isDismissable)
 {
     m_IsDismissable = isDismissable;
+}
+
+QStatus Container::SendDismissSignal()
+{
+    if (!m_IsDismissable) {
+        return RootWidget::SendDismissSignal();
+    }
+
+    if (!m_NotificationActionBusObject) {
+        return ER_BUS_OBJECT_NOT_REGISTERED;
+    }
+
+    return ((ControlPanelBusObject*)m_NotificationActionBusObject)->SendDismissSignal();
 }
 
 Widget* Container::createWidget(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* device, WidgetType widgetType)
