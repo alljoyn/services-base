@@ -17,6 +17,7 @@ package org.alljoyn.ioe.controlpanelbrowser;
 import java.util.Collection;
 import java.util.Locale;
 
+import org.alljoyn.ioe.controlpaneladapter.ContainerCreatedListener;
 import org.alljoyn.ioe.controlpaneladapter.ControlPanelAdapter;
 import org.alljoyn.ioe.controlpaneladapter.ControlPanelExceptionHandler;
 import org.alljoyn.ioe.controlpanelservice.ControlPanelCollection;
@@ -34,7 +35,9 @@ import org.alljoyn.ioe.controlpanelservice.ui.UIElementType;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -79,6 +82,11 @@ public class DeviceDetailFragment extends Fragment {
     private Activity activity;
 
     /**
+     * Progress dialog
+     */
+    private ProgressDialog progressDialog;
+    
+    /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
@@ -104,6 +112,8 @@ public class DeviceDetailFragment extends Fragment {
                     for (String objPath: deviceContext.getBusObjects()) {
                         controllableDevice.addControlPanel(objPath, deviceContext.getInterfaces(objPath));
                     }
+                    
+                    showProgressDialog("Connecting...");
                     deviceController = new DeviceController(controllableDevice);
                     deviceController.start();
                 }
@@ -155,7 +165,42 @@ public class DeviceDetailFragment extends Fragment {
         return retActivity;
     }
 
-    class DeviceController implements DeviceEventsListener, ControlPanelExceptionHandler, ControlPanelEventsListener
+    /** 
+     * If the {@link ProgressDialog} is not initialized it's created and is presented.
+     * If the {@link ProgressDialog} is already presented it's msg is updated.
+     * @param msg The message to show with the {@link ProgressDialog}
+     */
+    private void showProgressDialog(String msg) {
+            
+        if ( progressDialog == null || !progressDialog.isShowing() ) { 
+         
+            Activity activity = getActivitySafely();
+            if ( activity == null || activity.isFinishing() ) {
+                
+                Log.w(TAG, "The activity is finishing, can't show the ProgressDialog");
+                return;
+            }
+            
+            progressDialog = ProgressDialog.show(activity, "", msg, true);
+            progressDialog.setCancelable(false);
+        }   
+        else if ( progressDialog.isShowing() ) { 
+            progressDialog.setMessage(msg);
+        }   
+    }
+    
+    /**
+     * Hide {@link ProgressDialog}
+     */
+    private void hideProgressDialog() {
+
+        if ( progressDialog != null ) {
+            progressDialog.dismiss();
+        }
+    }
+    
+    class DeviceController implements DeviceEventsListener, ControlPanelExceptionHandler, ControlPanelEventsListener, 
+                                      ContainerCreatedListener
     {
         final ControllableDevice device;
         private DeviceControlPanel deviceControlPanel;
@@ -175,8 +220,11 @@ public class DeviceDetailFragment extends Fragment {
                     device.startSession(this);
                 }
             } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                
+                hideProgressDialog();
+                String text = "Failed to establish the session";
+                Log.d(TAG, text, e);
+                Toast.makeText(getActivitySafely(), text, Toast.LENGTH_LONG).show();
             }
         }
 
@@ -217,85 +265,147 @@ public class DeviceDetailFragment extends Fragment {
                 java.util.Collection<ControlPanelCollection> controlPanelContainer)
         {
             Log.d(TAG, "Received sessionEstablished for device: '" + device.getDeviceId() + "'");
-            //		public void sessionEstablished(ControllableDevice device, Collection<DeviceControlPanel> controlPanelContainer)
-            //		{
-
             getActivitySafely().runOnUiThread(new Runnable(){
 
                 @Override
                 public void run() {
+                    
+                    hideProgressDialog();
                     selectControlPanel(device);
                 }
 
             });
-
         }
 
+        /**
+         * Act when Control Panel is selected
+         */
         private void onControlPanelSelected() {
-            try {
-
-                UIElement rootContainerElement = deviceControlPanel.getRootElement(this);
-
-                if ( rootContainerElement == null ) {
-                    Log.e(TAG, "RootContainerElement wasn't created!!! Can't continue");
-                    return;
+            
+            //The time unit depends on the given TimeUnit object
+            AsyncTask<Void, Void, Object> panelLoader;
+            
+            panelLoader = new AsyncTask<Void, Void, Object> () {
+                @Override
+                protected void onPreExecute() {
+                    
+                    showProgressDialog("Retrieving Control Panel");
+                }
+                
+                @Override
+                protected Object doInBackground(Void... params) {
+                    
+                    try {
+                        return deviceControlPanel.getRootElement(DeviceController.this);
+                    } catch (ControlPanelException cpe) {
+                        return cpe;
+                    }
                 }
 
-                controlPanelAdapter = new ControlPanelAdapter(getActivitySafely(), this);
-
-                UIElementType elementType = rootContainerElement.getElementType();
-                Log.d(TAG, "Found root container of type: '" + elementType + "'");
-
-                if ( elementType == UIElementType.CONTAINER ) {
-                    ContainerWidget container = ((ContainerWidget)rootContainerElement);
-                    /* create an android view for the abstract container */
-                    final View adapterView = controlPanelAdapter.createContainerView(container);
-
-                    getActivitySafely().runOnUiThread(new Runnable(){
-                        @Override
-                        public void run()
-                        {
-                            if (rootView != null) {
-                                LinearLayout body = (LinearLayout) rootView.findViewById(R.id.control_panel);
-                                body.removeAllViews();
-                                body.addView(adapterView);
-                            }
-                        }});
+                @Override
+                protected void onPostExecute(Object result) {
+                    
+                    if ( result instanceof ControlPanelException ) {
+                        
+                        String errMsg = "Failed to retrieve the Control Panel";
+                        Log.e(TAG, errMsg, (ControlPanelException)result);
+                        renderErrorMessage(errMsg);
+                        
+                        hideProgressDialog();
+                        return;
+                    }
+                    
+                    controlPanelAdapter = new ControlPanelAdapter(getActivitySafely(), DeviceController.this);
+                    hideProgressDialog();
+                    
+                    buildControlPanel( (UIElement)result );
                 }
-                else if ( elementType == UIElementType.ALERT_DIALOG ) {
-                    AlertDialogWidget alertDialogWidget = ((AlertDialogWidget)rootContainerElement);
-                    AlertDialog alertDialog = controlPanelAdapter.createAlertDialog(alertDialogWidget);
-                    alertDialog.setCancelable(false);
-                    alertDialog.setCanceledOnTouchOutside(false);
-                    alertDialog.setOnDismissListener(new AlertDialog.OnDismissListener() {
+            };
+            panelLoader.execute();
+        }
 
-                        @Override
-                        public void onDismiss(DialogInterface arg0) {
-                            String text = "Dialog dismissed.";
-                            Toast.makeText(getActivitySafely(), text, Toast.LENGTH_LONG).show();
-                            Log.d(TAG, text);
-                        }
-                    });
-                    alertDialog.show();
-                }
-            }//try
-            catch(ControlPanelException cpe) {
-                String errMsg = "Failed to access remote methods of control panel, Error: '" + cpe.getMessage() + "'";
-                Log.e(TAG, errMsg);
-                final TextView returnView = new TextView(getActivitySafely());
-                returnView.setText(errMsg);
-                getActivitySafely().runOnUiThread(new Runnable(){
-                    @Override
-                    public void run()
-                    {
-                        if (rootView != null) {
-                            LinearLayout body = (LinearLayout) rootView.findViewById(R.id.control_panel);
-                            body.removeAllViews();
-                            body.addView(returnView);
-                        }
-                    }});
-                return;
+        /**
+         * Builds the Control Panel in depend on its type
+         * @param rootContainerElement
+         */
+        private void buildControlPanel(UIElement rootContainerElement) {
+            
+            UIElementType elementType = rootContainerElement.getElementType();
+            Log.d(TAG, "Found root container of type: '" + elementType + "', building");
+            
+            if ( elementType == UIElementType.CONTAINER ) {
+                
+                showProgressDialog("Populating container");
+                controlPanelAdapter.createContainerViewAsync((ContainerWidget) rootContainerElement, this);
             }
+            else if ( elementType == UIElementType.ALERT_DIALOG ) {
+                
+                renderControlPanelDialog(rootContainerElement);
+            }
+        }
+        
+        /**
+         * @see org.alljoyn.ioe.controlpaneladapter.ContainerCreatedListener#onContainerViewCreated(android.view.View)
+         */
+        @Override
+        public void onContainerViewCreated(final View containerLayout) {
+            
+            getActivitySafely().runOnUiThread(new Runnable(){
+                @Override
+                public void run()
+                {
+                    hideProgressDialog();
+                    if (rootView != null) {
+                        LinearLayout body = (LinearLayout) rootView.findViewById(R.id.control_panel);
+                        body.removeAllViews();
+                        body.addView(containerLayout);
+                    }
+                }
+            });
+        }
+        
+        /**
+         * Render the Alerd Dialog Control Panel
+         * @param rootContainerElement
+         */
+        private void renderControlPanelDialog(UIElement rootContainerElement) {
+            
+            Log.d(TAG, "Found root container of type: '" + rootContainerElement.getElementType() + "', building");
+            AlertDialogWidget alertDialogWidget = ((AlertDialogWidget)rootContainerElement);
+            AlertDialog alertDialog             = controlPanelAdapter.createAlertDialog(alertDialogWidget);
+            alertDialog.setCancelable(false);
+            alertDialog.setCanceledOnTouchOutside(false);
+            alertDialog.setOnDismissListener(new AlertDialog.OnDismissListener() {
+
+                @Override
+                public void onDismiss(DialogInterface arg0) {
+                    String text = "Dialog dismissed.";
+                    Toast.makeText(getActivitySafely(), text, Toast.LENGTH_LONG).show();
+                    Log.d(TAG, text);
+                }
+            });
+            alertDialog.show();
+        }
+        
+        /**
+         * Renders the error message on the screen
+         * @param msg The message to render
+         */
+        private void renderErrorMessage(String msg) {
+            
+            final TextView returnView = new TextView(getActivitySafely());
+            returnView.setText(msg);
+            getActivitySafely().runOnUiThread(new Runnable() {
+                @Override
+                public void run()
+                {
+                    if (rootView != null) {
+                        LinearLayout body = (LinearLayout) rootView.findViewById(R.id.control_panel);
+                        body.removeAllViews();
+                        body.addView(returnView);
+                    }
+                }
+            });
         }
 
         private void selectControlPanel(ControllableDevice device) {
@@ -426,9 +536,15 @@ public class DeviceDetailFragment extends Fragment {
             if (previousControlPanel != null) {
                 previousControlPanel.release();
             }
-            onControlPanelSelected();
+            
+            if ( deviceControlPanel != null ) {
+                onControlPanelSelected();
+            }
+            else {
+                Log.w(TAG, "Not found any DeviceControlPanel, ControlPanelCollection size: '" + controlPanels.size() + "'");
+            }
         }
-
+        
         public void metadataChanged(ControllableDevice device, final UIElement uielement) {
             UIElementType elementType = uielement.getElementType();
             Log.d(TAG, "METADATA_CHANGED : Received metadata changed signal, device: '" + device.getDeviceId() + "', ObjPath: '" + uielement.getObjectPath() + "', element type: '" + elementType + "'");
@@ -454,6 +570,8 @@ public class DeviceDetailFragment extends Fragment {
                     activity.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            
+                            hideProgressDialog();
                             Toast.makeText(activity, text, Toast.LENGTH_LONG).show();
                         }
                     });

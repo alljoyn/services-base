@@ -515,7 +515,7 @@ public class DeviceListFragment extends ListFragment {
 				for(int j = 0; j < supportedInterfaces.length; ++j){
 					if( supportedInterfaces[j].startsWith(ControlPanelService.INTERFACE_PREFIX) ){
 						// found a control panel interface
-						Log.d(TAG, "ADding BusObjectDesciption: " + description);
+						Log.d(TAG, "Adding BusObjectDesciption: " + description);
 						if (deviceContext == null) {
 							deviceContext = new DeviceContext(deviceId, busName, deviceFriendlyName);
 						}

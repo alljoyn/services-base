@@ -1,6 +1,6 @@
 package org.alljoyn.ioe.controlpanelbrowser;
 /******************************************************************************
-* Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+* Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
 *
 *    Permission to use, copy, modify, and/or distribute this software for any
 *    purpose with or without fee is hereby granted, provided that the above
@@ -20,8 +20,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.alljoyn.services.common.BusObjectDescription;
 
 import android.os.Parcel;
 import android.os.Parcelable;
