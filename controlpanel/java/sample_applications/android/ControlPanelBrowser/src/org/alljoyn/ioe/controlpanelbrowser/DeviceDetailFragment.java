@@ -17,6 +17,7 @@ package org.alljoyn.ioe.controlpanelbrowser;
 import java.util.Collection;
 import java.util.Locale;
 
+import org.alljoyn.bus.Status;
 import org.alljoyn.ioe.controlpaneladapter.ContainerCreatedListener;
 import org.alljoyn.ioe.controlpaneladapter.ControlPanelAdapter;
 import org.alljoyn.ioe.controlpaneladapter.ControlPanelExceptionHandler;
@@ -59,6 +60,23 @@ import android.widget.Toast;
  * tablets) or a {@link DeviceDetailActivity} on handsets.
  */
 public class DeviceDetailFragment extends Fragment {
+
+    /**
+     * Implement this interface to receive events from the {@link DeviceDetailFragment}
+     */
+    public static interface DeviceDetailCallback {
+
+        /**
+         * This event is sent when the ControlPanel, presented by this
+         * {@link Fragment} is stale and can't be used anymore.
+         * For example when the session with the Controllable device is closed or
+         * an error has occurred to establish the session.
+         */
+        void onControlPanelStale();
+    }
+
+    //===========================================//
+
     /**
      * For logging
      */
@@ -85,7 +103,7 @@ public class DeviceDetailFragment extends Fragment {
      * Progress dialog
      */
     private ProgressDialog progressDialog;
-    
+
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -112,7 +130,7 @@ public class DeviceDetailFragment extends Fragment {
                     for (String objPath: deviceContext.getBusObjects()) {
                         controllableDevice.addControlPanel(objPath, deviceContext.getInterfaces(objPath));
                     }
-                    
+
                     showProgressDialog("Connecting...");
                     deviceController = new DeviceController(controllableDevice);
                     deviceController.start();
@@ -148,6 +166,12 @@ public class DeviceDetailFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+
+        if ( !(activity instanceof DeviceDetailCallback) ) {
+
+            throw new IllegalStateException("The hosting Activity must implement the DeviceDetailCallback");
+        }
+
         this.activity = activity;
     }
 
@@ -165,30 +189,46 @@ public class DeviceDetailFragment extends Fragment {
         return retActivity;
     }
 
-    /** 
+    /**
+     * The method is called when there is a fundamental problem in the Control Panel management, such as
+     * failure in session establishment
+     */
+    private void raiseControlPanelStaleEvent() {
+
+        Activity activity = getActivitySafely();
+        if ( activity == null || activity.isFinishing() ) {
+
+            Log.w(TAG, "The acitivity is NULL or is finishing can't call to raiseControlPanelStaleEvent");
+            return;
+        }
+
+        ((DeviceDetailCallback)activity).onControlPanelStale();
+    }
+
+    /**
      * If the {@link ProgressDialog} is not initialized it's created and is presented.
      * If the {@link ProgressDialog} is already presented it's msg is updated.
      * @param msg The message to show with the {@link ProgressDialog}
      */
     private void showProgressDialog(String msg) {
-            
-        if ( progressDialog == null || !progressDialog.isShowing() ) { 
-         
+
+        if ( progressDialog == null || !progressDialog.isShowing() ) {
+
             Activity activity = getActivitySafely();
             if ( activity == null || activity.isFinishing() ) {
-                
+
                 Log.w(TAG, "The activity is finishing, can't show the ProgressDialog");
                 return;
             }
-            
+
             progressDialog = ProgressDialog.show(activity, "", msg, true);
             progressDialog.setCancelable(false);
-        }   
-        else if ( progressDialog.isShowing() ) { 
+        }
+        else if ( progressDialog.isShowing() ) {
             progressDialog.setMessage(msg);
-        }   
+        }
     }
-    
+
     /**
      * Hide {@link ProgressDialog}
      */
@@ -198,8 +238,8 @@ public class DeviceDetailFragment extends Fragment {
             progressDialog.dismiss();
         }
     }
-    
-    class DeviceController implements DeviceEventsListener, ControlPanelExceptionHandler, ControlPanelEventsListener, 
+
+    class DeviceController implements DeviceEventsListener, ControlPanelExceptionHandler, ControlPanelEventsListener,
                                       ContainerCreatedListener
     {
         final ControllableDevice device;
@@ -220,24 +260,24 @@ public class DeviceDetailFragment extends Fragment {
                     device.startSession(this);
                 }
             } catch (Exception e) {
-                
+
                 hideProgressDialog();
                 String text = "Failed to establish the session";
                 Log.d(TAG, text, e);
                 Toast.makeText(getActivitySafely(), text, Toast.LENGTH_LONG).show();
+
+                stop();
+                raiseControlPanelStaleEvent();
             }
         }
 
         public void stop()
         {
             try {
-                Log.d(TAG, "Releasing the device control panel");
-                if (deviceControlPanel != null) {
-                    deviceControlPanel.release();
-                }
-                Log.d(TAG, "Stopping the session with the device");
+
+                Log.d(TAG, "Closing session and releasing the device resources");
                 if (device != null) {
-                    device.endSession();
+                    ControlPanelService.getInstance().stopControllableDevice(device);
                 }
             } catch (Exception e) {
                 // TODO Auto-generated catch block
@@ -247,6 +287,7 @@ public class DeviceDetailFragment extends Fragment {
 
         @Override
         public void sessionLost(final ControllableDevice device) {
+
             if (this.device.getDeviceId().equalsIgnoreCase(device.getDeviceId())) {
                 getActivitySafely().runOnUiThread(new Runnable(){
                     @Override
@@ -255,6 +296,9 @@ public class DeviceDetailFragment extends Fragment {
                         String text = "Received SESSION_LOST for device: '" + device.getDeviceId() + "'";
                         Log.d(TAG, text);
                         Toast.makeText(getActivitySafely(), text, Toast.LENGTH_LONG).show();
+
+                        stop();
+                        raiseControlPanelStaleEvent();
                     }});
             }
         }
@@ -269,7 +313,7 @@ public class DeviceDetailFragment extends Fragment {
 
                 @Override
                 public void run() {
-                    
+
                     hideProgressDialog();
                     selectControlPanel(device);
                 }
@@ -281,20 +325,20 @@ public class DeviceDetailFragment extends Fragment {
          * Act when Control Panel is selected
          */
         private void onControlPanelSelected() {
-            
+
             //The time unit depends on the given TimeUnit object
             AsyncTask<Void, Void, Object> panelLoader;
-            
+
             panelLoader = new AsyncTask<Void, Void, Object> () {
                 @Override
                 protected void onPreExecute() {
-                    
+
                     showProgressDialog("Retrieving Control Panel");
                 }
-                
+
                 @Override
                 protected Object doInBackground(Void... params) {
-                    
+
                     try {
                         return deviceControlPanel.getRootElement(DeviceController.this);
                     } catch (ControlPanelException cpe) {
@@ -304,20 +348,20 @@ public class DeviceDetailFragment extends Fragment {
 
                 @Override
                 protected void onPostExecute(Object result) {
-                    
+
                     if ( result instanceof ControlPanelException ) {
-                        
+
                         String errMsg = "Failed to retrieve the Control Panel";
                         Log.e(TAG, errMsg, (ControlPanelException)result);
                         renderErrorMessage(errMsg);
-                        
+
                         hideProgressDialog();
                         return;
                     }
-                    
+
                     controlPanelAdapter = new ControlPanelAdapter(getActivitySafely(), DeviceController.this);
                     hideProgressDialog();
-                    
+
                     buildControlPanel( (UIElement)result );
                 }
             };
@@ -325,31 +369,31 @@ public class DeviceDetailFragment extends Fragment {
         }
 
         /**
-         * Builds the Control Panel in depend on its type
+         * Builds the Control Panel depending on its type
          * @param rootContainerElement
          */
         private void buildControlPanel(UIElement rootContainerElement) {
-            
+
             UIElementType elementType = rootContainerElement.getElementType();
             Log.d(TAG, "Found root container of type: '" + elementType + "', building");
-            
+
             if ( elementType == UIElementType.CONTAINER ) {
-                
+
                 showProgressDialog("Populating container");
                 controlPanelAdapter.createContainerViewAsync((ContainerWidget) rootContainerElement, this);
             }
             else if ( elementType == UIElementType.ALERT_DIALOG ) {
-                
+
                 renderControlPanelDialog(rootContainerElement);
             }
         }
-        
+
         /**
          * @see org.alljoyn.ioe.controlpaneladapter.ContainerCreatedListener#onContainerViewCreated(android.view.View)
          */
         @Override
         public void onContainerViewCreated(final View containerLayout) {
-            
+
             getActivitySafely().runOnUiThread(new Runnable(){
                 @Override
                 public void run()
@@ -363,13 +407,13 @@ public class DeviceDetailFragment extends Fragment {
                 }
             });
         }
-        
+
         /**
-         * Render the Alerd Dialog Control Panel
+         * Render the Control Panel Alert Dialog
          * @param rootContainerElement
          */
         private void renderControlPanelDialog(UIElement rootContainerElement) {
-            
+
             Log.d(TAG, "Found root container of type: '" + rootContainerElement.getElementType() + "', building");
             AlertDialogWidget alertDialogWidget = ((AlertDialogWidget)rootContainerElement);
             AlertDialog alertDialog             = controlPanelAdapter.createAlertDialog(alertDialogWidget);
@@ -386,13 +430,13 @@ public class DeviceDetailFragment extends Fragment {
             });
             alertDialog.show();
         }
-        
+
         /**
          * Renders the error message on the screen
          * @param msg The message to render
          */
         private void renderErrorMessage(String msg) {
-            
+
             final TextView returnView = new TextView(getActivitySafely());
             returnView.setText(msg);
             getActivitySafely().runOnUiThread(new Runnable() {
@@ -536,15 +580,15 @@ public class DeviceDetailFragment extends Fragment {
             if (previousControlPanel != null) {
                 previousControlPanel.release();
             }
-            
+
             if ( deviceControlPanel != null ) {
                 onControlPanelSelected();
             }
             else {
-                Log.w(TAG, "Not found any DeviceControlPanel, ControlPanelCollection size: '" + controlPanels.size() + "'");
+                Log.w(TAG, "No DeviceControlPanel found, ControlPanelCollection size: '" + controlPanels.size() + "'");
             }
         }
-        
+
         public void metadataChanged(ControllableDevice device, final UIElement uielement) {
             UIElementType elementType = uielement.getElementType();
             Log.d(TAG, "METADATA_CHANGED : Received metadata changed signal, device: '" + device.getDeviceId() + "', ObjPath: '" + uielement.getObjectPath() + "', element type: '" + elementType + "'");
@@ -562,34 +606,74 @@ public class DeviceDetailFragment extends Fragment {
         @Override
         public void errorOccurred(ControllableDevice device, final String reason)
         {
-            final String text = "Error: '" + reason + "'";
+            final String text = "ErrorOccurred was called, Reason: '" + reason + "'";
             Log.e(TAG, text);
+
             if (this.device.getDeviceId().equalsIgnoreCase(device.getDeviceId())) {
+
                 final Activity activity = getActivitySafely();
-                if (activity != null) {
-                    activity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            
-                            hideProgressDialog();
-                            Toast.makeText(activity, text, Toast.LENGTH_LONG).show();
-                        }
-                    });
+                if (activity == null) {
+                    return;
                 }
+
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        hideProgressDialog();
+                        Toast.makeText(activity, text, Toast.LENGTH_LONG).show();
+
+                        if ( isErrorSevere(reason) ) {
+
+                            Log.w(TAG, "The received error: '" + reason + "' is severe, calling raiseControlPanelStaleEvent");
+                            raiseControlPanelStaleEvent();
+                        }
+                    }
+                });
             }
+        }
+
+        /**
+         * Analyzes whether the given error reason is severe that
+         * {@link DeviceDetailFragment#raiseControlPanelStaleEvent()} should be called
+         * @param reason The error reason
+         * @return TRUE if the error is severe otherwise FALSE is returned
+         */
+        private boolean isErrorSevere(String reason) {
+
+            if ( reason == null ) {
+
+                return false;
+            }
+
+            Status status;
+            try {
+                status = Status.valueOf(reason);
+            }
+            catch(IllegalArgumentException ilae) {
+                //Not an AllJoyn status
+                return false;
+            }
+
+            if ( status == Status.ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED ) {
+
+                return false;  //Not considered as an error
+            }
+
+            return true;       //All the other cases are considered as a severe error
         }
 
         @Override
         public void handleControlPanelException(ControlPanelException e) {
-            
+
             Activity activity = getActivitySafely();
-            
+
             if ( activity == null ) {
-                
+
                 Log.w(TAG, "handleControlPanelException - activity is not defined, returning");
                 return;
             }
-            
+
             String text = activity.getString(R.string.action_failed);
             Log.e(TAG, text + ", error in calling remote object: '" + e.getMessage() + "'");
             Toast.makeText(activity, text, Toast.LENGTH_SHORT).show();

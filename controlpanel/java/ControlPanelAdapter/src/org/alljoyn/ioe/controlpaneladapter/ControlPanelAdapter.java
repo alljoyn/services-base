@@ -138,7 +138,7 @@ public class ControlPanelAdapter {
     // =====================================================================================================================
 
     /**
-     * The maximum time to wait until retrieving Control Panel Element's current value is accomplished.
+     * The maximum time to wait before timing out retrieving the control panel element's current value.
      * @param timeoutValue The value of the timeout
      * @param timeoutUnit The {@link TimeUnit} of the timeout value
      */
