@@ -1,4 +1,4 @@
-# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+# Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
@@ -16,12 +16,12 @@ Import('config_env')
 
 if config_env.has_key('_ALLJOYN_JAVA_'):
     config_env.Append(JAVACLASSPATH = [ str(config_env.File('$DISTDIR/java/jar/alljoyn.jar')),
-                                        str(config_env.File('$DISTDIR/about/jar/alljoyn_about.jar')) ])
+                                        str(config_env.File('$DISTDIR/java/jar/alljoyn_about.jar')) ])
     config_env['dep_jars'] = [ '$DISTDIR/java/jar/alljoyn.jar',
-                               '$DISTDIR/about/jar/alljoyn_about.jar' ]
+                               '$DISTDIR/java/jar/alljoyn_about.jar' ]
 else:
     config_env.Append(JAVACLASSPATH = [ str(config_env.File('$ALLJOYN_DISTDIR/java/jar/alljoyn.jar')),
-                                        str(config_env.File('$ALLJOYN_DISTDIR/about/jar/alljoyn_about.jar')) ])
+                                        str(config_env.File('$ALLJOYN_DISTDIR/java/jar/alljoyn_about.jar')) ])
     config_env['dep_jars'] = [ ]
 
 jars = []
