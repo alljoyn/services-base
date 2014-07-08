@@ -211,9 +211,7 @@ public class IntrospectionNode {
 			throw new ControlPanelException("Failed to get introspection of: '" + objPath + "', Error: '" + be.getMessage() + "'");
 		}
 		
-		if ( proxyObj != null ) {
-			proxyObj.release();
-		}
+		proxyObj.release();
 		
 		return introXML;
 	}//getIntrospection
