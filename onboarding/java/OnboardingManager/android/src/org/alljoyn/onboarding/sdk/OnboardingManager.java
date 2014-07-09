@@ -603,7 +603,7 @@ public class OnboardingManager {
     /**
      * OnboardingManager singleton
      */
-    private static OnboardingManager onboardingManager = null;
+    private static volatile OnboardingManager onboardingManager = null;
 
     /**
      * Application context
