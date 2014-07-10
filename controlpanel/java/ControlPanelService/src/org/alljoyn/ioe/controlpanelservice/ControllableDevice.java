@@ -469,7 +469,7 @@ public class ControllableDevice implements ConnManagerEventsListener {
 	 * @param args Event handler argument
 	 */
 	private void handleFoundAdvName(Map<String, Object> args){
-		String foundSender = args.get("SENDER").toString();
+		String foundSender = (String)args.get("SENDER");
 		
 		Log.v(TAG, "Received foundAdvertisedName of sender: '" + foundSender + "', my sender name is: '" + sender + "'");
 		if ( foundSender == null || !foundSender.equals(sender) ) {
@@ -496,7 +496,7 @@ public class ControllableDevice implements ConnManagerEventsListener {
 	 * @param args @param args Event handler argument
 	 */
 	private void handleLostAdvName(Map<String, Object> args) {
-		String foundSender = args.get("SENDER").toString();
+		String foundSender = (String)args.get("SENDER");
 		
 		Log.d(TAG, "Received lostAdvertisedName of sender: '" + foundSender + "', my sender name is: '" + sender + "'");
 		if ( foundSender == null || !foundSender.equals(sender) ) {
@@ -521,7 +521,7 @@ public class ControllableDevice implements ConnManagerEventsListener {
 	 * @param args
 	 */
 	private void handleSessionJoined(Map<String, Object> args) {
-		String deviceId   = args.get("DEVICE_ID").toString();
+		String deviceId   = (String)args.get("DEVICE_ID");
 		Integer sessionId = (Integer)args.get("SESSION_ID");
 		
 		Log.i(TAG, "Received SESSION_JOINED event for deviceId: '" + deviceId + "', this deviceId is: '" + this.deviceId + "', sid: '" + sessionId + "'");
@@ -530,6 +530,10 @@ public class ControllableDevice implements ConnManagerEventsListener {
 			return;
 		}
 		
+		if ( sessionId == null ) {
+		    return;
+		}
+		 
 		this.sessionId = sessionId;
 		
 		for (Unit unit : unitMap.values() ) {
@@ -574,7 +578,7 @@ public class ControllableDevice implements ConnManagerEventsListener {
 	 * @param args
 	 */
 	private void handleSessionJoinFailed(Map<String, Object> args) {
-		String deviceId  = args.get("DEVICE_ID").toString();
+		String deviceId  = (String)args.get("DEVICE_ID");
 		Object statusObj = args.get("STATUS");
 		
 		if ( statusObj == null || !(statusObj instanceof Status) ) {
