@@ -148,8 +148,6 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
     if (isIconInterface) {
         iconClient = new AboutIconClient(*busAttachment);
 
-        size_t contentSize;
-
         std::cout << std::endl << busName.c_str() << " AboutIcontClient GetUrl" << std::endl;
         std::cout << "-----------------------------------" << std::endl;
         qcc::String url;
@@ -160,25 +158,24 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
             std::cout << "url=" << url.c_str() << std::endl;
         }
 
-        std::cout << std::endl << busName.c_str() << " AboutIcontClient GetContent" << std::endl;
+        std::cout << std::endl << busName.c_str() << " AboutIconClient GetIcon" << std::endl;
         std::cout << "-----------------------------------" << std::endl;
-
-        uint8_t* content = NULL;
-        status = iconClient->GetContent(busName.c_str(), &content, contentSize, id);
-
+        AboutIconClient::Icon icon;
+        status = iconClient->GetIcon(busName.c_str(), icon, id);
         if (status != ER_OK) {
-            std::cout << "Call to GetContent failed: " << QCC_StatusText(status) << std::endl;
+            std::cout << "Call to GetIcon failed: " << QCC_StatusText(status) << std::endl;
         } else {
-            std::cout << "Content size=" << contentSize << std::endl;
-            std::cout << "Content :\t";
-            for (size_t i = 0; i < contentSize; i++) {
+            std::cout << "Content size = " << icon.contentSize << std::endl;
+            std::cout << "Content =\t";
+            for (size_t i = 0; i < icon.contentSize; i++) {
                 if (i % 8 == 0 && i > 0) {
                     std::cout << "\n\t\t";
                 }
-                std::cout << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << (unsigned int)content[i]
+                std::cout << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << (unsigned int)icon.content[i]
                           << std::nouppercase << std::dec;
             }
             std::cout << std::endl;
+            std::cout << "Mimetype =\t" << icon.mimetype.c_str() << std::endl;
         }
 
         std::cout << std::endl << busName.c_str() << " AboutIcontClient GetVersion" << std::endl;
@@ -205,6 +202,7 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
         std::cout << std::endl << busName.c_str() << " AboutIcontClient GetSize" << std::endl;
         std::cout << "-----------------------------------" << std::endl;
 
+        size_t contentSize = 0;
         status = iconClient->GetSize(busName.c_str(), contentSize, id);
         if (status != ER_OK) {
             std::cout << "Call to getSize failed: " << QCC_StatusText(status) << std::endl;
