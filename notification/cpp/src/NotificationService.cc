@@ -73,15 +73,17 @@ NotificationSender* NotificationService::initSend(BusAttachment* bus, PropertySt
 
     MsgArg configArgs[1];
     MsgArg* configEntries;
-    size_t configNum;
+    size_t configNum = 0;
     QStatus status;
 
     if ((status = store->ReadAll(0, PropertyStore::READ, configArgs[0]))) {
         QCC_LogError(status, ("Error reading all in configuration data"));
+        return NULL;
     }
 
     if ((status = configArgs[0].Get(AJPARAM_ARR_DICT_STR_VAR.c_str(), &configNum, &configEntries))) {
         QCC_LogError(status, ("Error reading in configuration data"));
+        return NULL;
     }
 
     MsgArg appIdArg;
@@ -93,6 +95,7 @@ NotificationSender* NotificationService::initSend(BusAttachment* bus, PropertySt
         status = configEntries[i].Get(AJPARAM_DICT_STR_VAR.c_str(), &keyChar, &variant);
         if (status != ER_OK) {
             QCC_LogError(status, ("Error reading in configuration data"));
+            return NULL;
         }
 
         key = keyChar;
