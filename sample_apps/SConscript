@@ -18,6 +18,7 @@ import os
 Import('env')
 
 env['_ALLJOYN_SERVER_SAMPLE_'] = True
+env['OBJDIR_SERVICES_SAMPLE'] = env['OBJDIR'] + '/services/sample_apps'
 
 build_all = ARGUMENTS.get('ALL', 0)
 if 'java' in env['bindings']:
@@ -73,7 +74,7 @@ server_sample_env = env.Clone()
 
 for b in server_sample_env['bindings']:
     if os.path.exists('%s/SConscript' % b):
-        server_sample_env.VariantDir('$OBJDIR/%s' % b, b, duplicate = 0)
+        server_sample_env.VariantDir('$OBJDIR_SERVICES_SAMPLE/%s' % b, b, duplicate = 0)
 
-server_sample_env.SConscript(['$OBJDIR/%s/SConscript' % b for b in env['bindings'] if os.path.exists('%s/SConscript' % b) ],
+server_sample_env.SConscript(['$OBJDIR_SERVICES_SAMPLE/%s/SConscript' % b for b in env['bindings'] if os.path.exists('%s/SConscript' % b) ],
                    exports = ['server_sample_env'])

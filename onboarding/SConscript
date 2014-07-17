@@ -17,6 +17,7 @@ import os
 Import('env')
 
 env['_ALLJOYN_ONBOARDING_'] = True
+env['OBJDIR_SERVICES_ONBOARDING'] = env['OBJDIR'] + '/services/onboarding'
 
 # Make config library and header file paths available to the global environment
 env.Append(LIBPATH = '$DISTDIR/onboarding/lib');
@@ -41,7 +42,7 @@ onb_env = env.Clone()
 
 for b in onb_env['bindings']:
     if os.path.exists('%s/SConscript' % b):
-        onb_env.VariantDir('$OBJDIR/%s' % b, b, duplicate = 0)
+        onb_env.VariantDir('$OBJDIR_SERVICES_ONBOARDING/%s' % b, b, duplicate = 0)
 
-onb_env.SConscript(['$OBJDIR/%s/SConscript' % b for b in env['bindings'] if os.path.exists('%s/SConscript' % b) ],
+onb_env.SConscript(['$OBJDIR_SERVICES_ONBOARDING/%s/SConscript' % b for b in env['bindings'] if os.path.exists('%s/SConscript' % b) ],
                    exports = ['onb_env'])

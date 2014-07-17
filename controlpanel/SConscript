@@ -17,6 +17,7 @@ import os
 Import('env')
 
 env['_ALLJOYN_CONTROLPANEL_'] = True
+env['OBJDIR_SERVICES_CONTROLPANEL'] = env['OBJDIR'] + '/services/controlpanel'
 
 # Make config library and header file paths available to the global environment
 env.Append(LIBPATH = '$DISTDIR/controlpanel/lib');
@@ -41,7 +42,7 @@ cpsenv = env.Clone()
 
 for b in cpsenv['bindings']:
     if os.path.exists('%s/SConscript' % b):
-        cpsenv.VariantDir('$OBJDIR/%s' % b, b, duplicate = 0)
+        cpsenv.VariantDir('$OBJDIR_SERVICES_CONTROLPANEL/%s' % b, b, duplicate = 0)
 
-cpsenv.SConscript(['$OBJDIR/%s/SConscript' % b for b in env['bindings'] if os.path.exists('%s/SConscript' % b) ],
+cpsenv.SConscript(['$OBJDIR_SERVICES_CONTROLPANEL/%s/SConscript' % b for b in env['bindings'] if os.path.exists('%s/SConscript' % b) ],
                   exports = ['cpsenv'])

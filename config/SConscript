@@ -17,6 +17,7 @@ import os
 Import('env')
 
 env['_ALLJOYN_CONFIG_'] = True
+env['OBJDIR_SERVICES_CONFIG'] = env['OBJDIR'] + '/services/config'
 
 # Make config library and header file paths available to the global environment
 env.Append(LIBPATH = '$DISTDIR/config/lib');
@@ -38,7 +39,7 @@ config_env = env.Clone()
 
 for b in config_env['bindings']:
     if os.path.exists('%s/SConscript' % b):
-        config_env.VariantDir('$OBJDIR/%s' % b, b, duplicate = 0)
+        config_env.VariantDir('$OBJDIR_SERVICES_CONFIG/%s' % b, b, duplicate = 0)
 
-config_env.SConscript(['$OBJDIR/%s/SConscript' % b for b in env['bindings'] if os.path.exists('%s/SConscript' % b) ],
+config_env.SConscript(['$OBJDIR_SERVICES_CONFIG/%s/SConscript' % b for b in env['bindings'] if os.path.exists('%s/SConscript' % b) ],
                       exports = ['config_env'])
