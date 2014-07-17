@@ -24,9 +24,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#if defined(QCC_OS_DARWIN)
+#include <limits.h>
+#else
 #include <linux/limits.h>
-
-
+#endif
 
 static const char DEVICE_ID_FILE_NAME[] = "alljoyn-deviceId.txt";
 
