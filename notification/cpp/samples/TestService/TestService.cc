@@ -26,7 +26,7 @@
 #include "../common/NotificationReceiverTestImpl.h"
 #include "CommonSampleUtil.h"
 #include "TestFunction.h"
-#include "GuidUtil.h"
+#include <alljoyn/services_common/GuidUtil.h>
 #include <alljoyn/services_common/LogModulesNames.h>
 
 #define SERVICE_PORT 900

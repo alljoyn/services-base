@@ -14,7 +14,6 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#include "GuidUtil.h"
 #include <iostream>     // std::cout
 #include <fstream>      // std::ifstream
 #include <unistd.h>
@@ -24,6 +23,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <alljoyn/services_common/GuidUtil.h>
 #if defined(QCC_OS_DARWIN)
 #include <limits.h>
 #else
@@ -103,8 +103,10 @@ bool GuidUtil::ReadGuidOfDeviceID(char* strGUID)
 void GuidUtil::WriteGUIDToFile(char* strGUID)
 {
     std::ofstream ofs(GetDeviceIdFileName(), std::ofstream::out);
-    ofs << strGUID;
-    ofs.close();
+    if (ofs.is_open()) {
+        ofs << strGUID;
+        ofs.close();
+    }
 }
 
 void GuidUtil::GenerateGUIDUtil(char* strGUID)
