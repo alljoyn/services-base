@@ -22,9 +22,9 @@
 #include <alljoyn/controlpanel/ControlPanelControllee.h>
 #include <SrpKeyXListener.h>
 #include <CommonSampleUtil.h>
-#include <GuidUtil.h>
 #include <ControlPanelGenerated.h>
 #include <alljoyn/services_common/LogModulesNames.h>
+#include <alljoyn/services_common/GuidUtil.h>
 
 #define SERVICE_PORT 900
 

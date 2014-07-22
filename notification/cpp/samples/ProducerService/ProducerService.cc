@@ -26,9 +26,9 @@
 #include <alljoyn/notification/RichAudioUrl.h>
 #include "CommonSampleUtil.h"
 #include <alljoyn/notification/Notification.h>
-#include <GuidUtil.h>
 #include <stdio.h>
 #include <alljoyn/services_common/LogModulesNames.h>
+#include <alljoyn/services_common/GuidUtil.h>
 
 #define SERVICE_PORT 900
 

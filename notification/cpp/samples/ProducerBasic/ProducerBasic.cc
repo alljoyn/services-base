@@ -26,7 +26,7 @@
 #include "CommonSampleUtil.h"
 #include <alljoyn/about/AboutServiceApi.h>
 #include <alljoyn/notification/Notification.h>
-#include "GuidUtil.h"
+#include <alljoyn/services_common/GuidUtil.h>
 #include <alljoyn/services_common/LogModulesNames.h>
 
 using namespace qcc;

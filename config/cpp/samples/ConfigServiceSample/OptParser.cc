@@ -16,7 +16,7 @@
 
 #include "OptParser.h"
 #include <IniParser.h>
-#include <GuidUtil.h>
+#include <alljoyn/services_common/GuidUtil.h>
 #include <alljoyn/about/AboutPropertyStoreImpl.h>
 
 static const char versionPreamble[] = "ConfigService version: 1\n"
@@ -103,11 +103,6 @@ bool OptParser::ParseExternalXML() {
 
     std::map<std::string, std::string>::iterator iter;
 
-    iter = data.find(AboutPropertyStoreImpl::getPropertyStoreName(DEVICE_ID).c_str());
-    if (iter != data.end()) {
-        deviceId = iter->second.c_str();
-    }
-
     if (!FillDeviceNames()) {
         return false;
     }
@@ -134,7 +129,7 @@ void OptParser::PrintUsage() {
     qcc::String cmd = argv[0];
     cmd = cmd.substr(cmd.find_last_of('/') + 1);
 
-    std::cerr << cmd.c_str() << " [--port=PORT | --factory-config-file=FILE | --config-file=FILE | --language=LANG |  --deviceId=DEVICEID | --appId=APPID"
+    std::cerr << cmd.c_str() << " [--port=PORT | --factory-config-file=FILE | --config-file=FILE | --language=LANG |  --appId=APPID"
     "]\n"
 
     "    --port=\n"
@@ -143,8 +138,6 @@ void OptParser::PrintUsage() {
     "        Configuration file with factory settings.\n\n"
     "    --config-file=FILE\n"
     "        Active configuration file that persists user's updates\n\n"
-    "    --deviceId\n"
-    "        Use the specified DeviceID.\n\n"
     "    --appId=\n"
     "        Use the specified it is HexString of 16 bytes (32 chars) \n\n"
     "    --language=\n"
@@ -182,8 +175,6 @@ OptParser::ParseResultCode OptParser::ParseResult() {
             break;
         } else if (arg.compare(0, sizeof("--port") - 1, "--port") == 0) {
             port = atoi(arg.substr(sizeof("--port")).c_str());
-        } else if (arg.compare(0, sizeof("--deviceId") - 1, "--deviceId") == 0) {
-            deviceId = arg.substr(sizeof("--deviceId"));
         } else if (arg.compare(0, sizeof("--appId") - 1, "--appId") == 0) {
             appGUID = arg.substr(sizeof("--appId"));
             if ((appGUID.length() != 32) || (!IsAllHex(appGUID.c_str()))) {
