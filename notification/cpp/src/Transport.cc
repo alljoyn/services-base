@@ -111,7 +111,6 @@ void Transport::onReceivedNotification(Notification const& notification)
         return;
     }
 
-    m_Bus->EnableConcurrentCallbacks();
     m_Receiver->Receive(notification);
 }
 
