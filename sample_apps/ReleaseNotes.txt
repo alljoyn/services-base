@@ -46,6 +46,8 @@ ASABASE-209 - C++ AppID Is not Unique between same App Different Runs
 
 Compatibility
 -------------
+Calling factory reset to ACServerSample and ServerSample will reset the app’s settings. (like temperature)
+To reset the device to soft AP call factory reset to the OB app.
 
 
 Change history
