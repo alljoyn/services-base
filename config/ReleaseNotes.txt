@@ -5,12 +5,12 @@ AllJoyn Config Version 14.06 Release Notes
 
 Platform Support
 ----------------
- 1) Linux Ubuntu (32 and 64 bit x86)
+ 1) Linux Ubuntu (64 bit x86)
  2) Android Gingerbread 2.3.4 (ARM7)
  3) Android Ice Cream Sandwich 4.0 (ARM7)
  4) Android JellyBean 4.1 (ARM7)
- 5) Android KitKat
- 6) iOS 7
+ 5) Android KitKat 4.4 (ARM7)
+ 6) iOS 7 and 7.1
  7) OpenWRT (trunk)
 
 
