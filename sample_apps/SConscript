@@ -20,7 +20,7 @@ Import('env')
 env['_ALLJOYN_SERVER_SAMPLE_'] = True
 env['OBJDIR_SERVICES_SAMPLE'] = env['OBJDIR'] + '/services/sample_apps'
 
-build_all = ARGUMENTS.get('ALL', 0)
+build_all = ARGUMENTS.get('ALL', 1)
 if 'java' in env['bindings']:
     build_all = 1
 
