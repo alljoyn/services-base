@@ -24,20 +24,20 @@ namespace ajn {
 namespace services {
 using namespace cpsConsts;
 
-Dialog::Dialog(qcc::String const& name, Widget* rootWidget) : RootWidget(name, rootWidget, DIALOG),
+Dialog::Dialog(qcc::String const& name, Widget* rootWidget) : RootWidget(name, rootWidget, WIDGET_TYPE_DIALOG),
     m_NumActions(0), m_GetMessages(0), m_LabelAction1(""), m_GetLabelsAction1(0), m_LabelAction2(""),
     m_GetLabelsAction2(0), m_LabelAction3(""), m_GetLabelsAction3(0)
 {
 }
 
 Dialog::Dialog(qcc::String const& name, Widget* rootWidget, qcc::String const& objectPath, ControlPanelDevice* device) :
-    RootWidget(name, rootWidget, objectPath, device, DIALOG), m_NumActions(0), m_GetMessages(0), m_LabelAction1(""),
+    RootWidget(name, rootWidget, objectPath, device, WIDGET_TYPE_DIALOG), m_NumActions(0), m_GetMessages(0), m_LabelAction1(""),
     m_GetLabelsAction1(0), m_LabelAction2(""), m_GetLabelsAction2(0), m_LabelAction3(""), m_GetLabelsAction3(0)
 {
 }
 
 Dialog::Dialog(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* device) :
-    RootWidget(name, rootWidget, "", device, DIALOG), m_NumActions(0), m_GetMessages(0), m_LabelAction1(""),
+    RootWidget(name, rootWidget, "", device, WIDGET_TYPE_DIALOG), m_NumActions(0), m_GetMessages(0), m_LabelAction1(""),
     m_GetLabelsAction1(0), m_LabelAction2(""), m_GetLabelsAction2(0), m_LabelAction3(""), m_GetLabelsAction3(0)
 {
 }

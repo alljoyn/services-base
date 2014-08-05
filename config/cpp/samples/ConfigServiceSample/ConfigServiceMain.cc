@@ -117,12 +117,12 @@ static void cleanup() {
 }
 
 const char* readPassword() {
-    std::map<std::string, std::string> data;
+    std::map<qcc::String, qcc::String> data;
     if (!IniParser::ParseFile(configFile.c_str(), data)) {
         return NULL;
     }
 
-    std::map<std::string, std::string>::iterator iter = data.find("passcode");
+    std::map<qcc::String, qcc::String>::iterator iter = data.find("passcode");
     if (iter == data.end()) {
         return NULL;
     }
@@ -208,7 +208,11 @@ start:
         msgBus = CommonSampleUtil::prepareBusAttachment(keyListener);
         if (msgBus == NULL) {
             std::cout << "Could not initialize BusAttachment. Retrying" << std::endl;
+#ifdef _WIN32
+            Sleep(1000);
+#else
             sleep(1);
+#endif
             retry++;
         }
     } while (msgBus == NULL && retry != 180 && !s_interrupt);

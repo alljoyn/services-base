@@ -291,8 +291,8 @@ QStatus PropertyStoreImpl::Delete(const char* name, const char* languageTag)
 
 bool PropertyStoreImpl::persistUpdate(const char* key, const char* value, const char* languageTag)
 {
-    std::map<std::string, std::string> data;
-    std::string skey(key);
+    std::map<qcc::String, qcc::String> data;
+    qcc::String skey(key);
     if (languageTag && languageTag[0]) {
         skey.append(".");
         skey.append(languageTag);
@@ -314,14 +314,14 @@ PropertyStoreKey PropertyStoreImpl::getPropertyStoreKeyFromName(qcc::String cons
 
 bool PropertyStoreImpl::FillDeviceNames()
 {
-    std::map<std::string, std::string> data;
+    std::map<qcc::String, qcc::String> data;
 
     if (!IniParser::ParseFile(m_factoryConfigFileName.c_str(), data)) {
         std::cerr << "Could not parse configFile" << std::endl;
         return false;
     }
 
-    typedef std::map<std::string, std::string>::iterator it_data;
+    typedef std::map<qcc::String, qcc::String>::iterator it_data;
     for (it_data iterator = data.begin(); iterator != data.end(); iterator++) {
 
         if (iterator->first.find(AboutPropertyStoreImpl::getPropertyStoreName(DEVICE_NAME).c_str()) == 0) {
@@ -329,8 +329,8 @@ bool PropertyStoreImpl::FillDeviceNames()
             if ((lastDotLocation ==  std::string::npos) || (lastDotLocation + 1 >= iterator->first.length())) {
                 continue;
             }
-            std::string language = iterator->first.substr(lastDotLocation + 1);
-            std::string value = iterator->second;
+            std::string language = (iterator->first.substr(lastDotLocation + 1)).c_str();
+            std::string value = iterator->second.c_str();
 
             UpdateFactoryProperty(DEVICE_NAME, language.c_str(), MsgArg("s", value.c_str()));
         }
@@ -341,13 +341,13 @@ bool PropertyStoreImpl::FillDeviceNames()
 
 bool PropertyStoreImpl::UpdateFactorySettings()
 {
-    std::map<std::string, std::string> data;
+    std::map<qcc::String, qcc::String> data;
     if (!IniParser::ParseFile(m_factoryConfigFileName.c_str(), data)) {
         std::cerr << "Could not parse configFile" << std::endl;
         return false;
     }
 
-    std::map<std::string, std::string>::iterator iter;
+    std::map<qcc::String, qcc::String>::iterator iter;
 
     iter = data.find(AboutPropertyStoreImpl::getPropertyStoreName(DEVICE_ID).c_str());
     if (iter != data.end()) {

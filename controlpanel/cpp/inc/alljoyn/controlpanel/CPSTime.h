@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -17,10 +17,10 @@
 #ifndef CPSTIME_H_
 #define CPSTIME_H_
 
+#include <qcc/platform.h>
+
 namespace ajn {
 namespace services {
-
-#include <qcc/platform.h>
 
 /**
  * A class to allow sending of a Time as a Property

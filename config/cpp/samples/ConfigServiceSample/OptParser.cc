@@ -70,14 +70,14 @@ int OptParser::GetPort() const {
 
 bool OptParser::FillDeviceNames() {
     deviceNames.clear();
-    std::map<std::string, std::string> data;
+    std::map<qcc::String, qcc::String> data;
 
     if (!IniParser::ParseFile(configFile.c_str(), data)) {
         std::cerr << "Could not parse configFile" << std::endl;
         return false;
     }
 
-    typedef std::map<std::string, std::string>::iterator it_data;
+    typedef std::map<qcc::String, qcc::String>::iterator it_data;
     for (it_data iterator = data.begin(); iterator != data.end(); iterator++) {
 
 
@@ -86,7 +86,7 @@ bool OptParser::FillDeviceNames() {
             if ((lastDotLocation ==  std::string::npos) || (lastDotLocation + 1 >= iterator->first.length())) {
                 continue;
             }
-            std::string key = iterator->first.substr(lastDotLocation + 1);
+            qcc::String key = iterator->first.substr(lastDotLocation + 1);
             deviceNames.insert(std::pair<qcc::String, qcc::String>(key.c_str(), iterator->second.c_str()));
         }
     }
@@ -95,13 +95,13 @@ bool OptParser::FillDeviceNames() {
 }
 
 bool OptParser::ParseExternalXML() {
-    std::map<std::string, std::string> data;
+    std::map<qcc::String, qcc::String> data;
     if (!IniParser::ParseFile(configFile.c_str(), data)) {
         std::cerr << "Could not parse configFile" << std::endl;
         return false;
     }
 
-    std::map<std::string, std::string>::iterator iter;
+    std::map<qcc::String, qcc::String>::iterator iter;
 
     if (!FillDeviceNames()) {
         return false;

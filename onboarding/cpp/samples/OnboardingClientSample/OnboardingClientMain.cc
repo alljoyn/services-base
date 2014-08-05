@@ -36,17 +36,13 @@
 using namespace ajn;
 using namespace services;
 
-static volatile sig_atomic_t quit = 0;
+static volatile sig_atomic_t quit = false;
 static BusAttachment* busAttachment = NULL;
 static std::set<qcc::String> handledAnnouncements;
 
-static void SignalHandler(int sig) {
-    switch (sig) {
-    case SIGINT:
-    case SIGTERM:
-        quit = 1;
-        break;
-    }
+static void SigIntHandler(int sig)
+{
+    quit = true;
 }
 
 void PrintAboutData(AboutClient::AboutData& aboutData)
@@ -388,20 +384,8 @@ int main(int argc, char**argv, char**envArg) {
     QCC_SetDebugLevel(logModules::CONFIG_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
     QCC_SetDebugLevel(logModules::ONBOARDING_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
 
-    struct sigaction act, oldact;
-    sigset_t sigmask, waitmask;
-
-    // Block all signals by default for all threads.
-    sigfillset(&sigmask);
-    sigdelset(&sigmask, SIGSEGV);
-    pthread_sigmask(SIG_BLOCK, &sigmask, NULL);
-
-    // Setup a handler for SIGINT and SIGTERM
-    act.sa_handler = SignalHandler;
-    sigemptyset(&act.sa_mask);
-    act.sa_flags = SA_SIGINFO | SA_RESTART;
-    sigaction(SIGINT, &act, &oldact);
-    sigaction(SIGTERM, &act, &oldact);
+    /* Install SIGINT handler so Ctrl + C deallocates memory properly */
+    signal(SIGINT, SigIntHandler);
 
     //set Daemon password only for bundled app
     #ifdef QCC_USING_BD
@@ -433,14 +417,12 @@ int main(int argc, char**argv, char**envArg) {
     AnnounceHandlerImpl* announceHandler = new AnnounceHandlerImpl(announceHandlerCallback);
     AnnouncementRegistrar::RegisterAnnounceHandler(*busAttachment, *announceHandler, interfaces, 1);
 
-    // Setup signals to wait for.
-    sigfillset(&waitmask);
-    sigdelset(&waitmask, SIGINT);
-    sigdelset(&waitmask, SIGTERM);
-
     while (!quit) {
-        // Wait for a signal.
-        sigsuspend(&waitmask);
+#ifdef _WIN32
+        Sleep(100);
+#else
+        usleep(100 * 1000);
+#endif
     }
 
     AnnouncementRegistrar::UnRegisterAnnounceHandler(*busAttachment, *announceHandler, interfaces, 1);

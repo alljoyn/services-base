@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -43,13 +43,13 @@ typedef enum {
  * WidgetType
  */
 typedef enum {
-    CONTAINER =  0,         //!< CONTAINER
-    ACTION = 1,             //!< ACTION
-    ACTION_WITH_DIALOG = 2, //!< ACTION_WITH_DIALOG
-    LABEL = 3,              //!< LABEL
-    PROPERTY = 4,           //!< PROPERTY
-    DIALOG = 5,             //!< DIALOG
-    ERROR = 6               //!< ERROR
+    WIDGET_TYPE_CONTAINER = 0,         //!< CONTAINER
+    WIDGET_TYPE_ACTION = 1,             //!< ACTION
+    WIDGET_TYPE_ACTION_WITH_DIALOG = 2, //!< ACTION_WITH_DIALOG
+    WIDGET_TYPE_LABEL = 3,              //!< LABEL
+    WIDGET_TYPE_PROPERTY = 4,           //!< PROPERTY
+    WIDGET_TYPE_DIALOG = 5,             //!< DIALOG
+    WIDGET_TYPE_ERROR = 6               //!< ERROR
 } WidgetType;
 
 /**

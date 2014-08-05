@@ -35,19 +35,14 @@ using namespace services;
 #define INITIAL_PASSCODE "000000"
 #define NEW_PASSCODE "12345678"
 
-static volatile sig_atomic_t quit;
 static BusAttachment* busAttachment = 0;
 static SrpKeyXListener* srpKeyXListener = 0;
 static std::set<qcc::String> handledAnnouncements;
 
-static void SignalHandler(int sig)
-{
-    switch (sig) {
-    case SIGINT:
-    case SIGTERM:
-        quit = 1;
-        break;
-    }
+static volatile sig_atomic_t s_interrupt = false;
+
+static void SigIntHandler(int sig) {
+    s_interrupt = true;
 }
 
 void PrintAboutData(AboutClient::AboutData& aboutData)
@@ -302,7 +297,12 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
             } else {
                 std::cout << "Call to UpdateConfigurations failed: " << QCC_StatusText(status) << std::endl;
             }
+
+#ifdef _WIN32
+            Sleep(3000);
+#else
             usleep(3000 * 1000);
+#endif
 
             {
                 ConfigClient::Configurations updateConfigurations;
@@ -315,7 +315,12 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
                     std::cout << "Call to UpdateConfigurations failed: " << QCC_StatusText(status) << std::endl;
                 }
             }
+
+#ifdef _WIN32
+            Sleep(3000);
+#else
             usleep(3000 * 1000);
+#endif
 
             {
                 std::cout << std::endl << busName.c_str() << " AboutClient AboutData After update 'DeviceName','DefaultLanguage'" << std::endl;
@@ -342,7 +347,11 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
                 std::cout << "Call to ResetConfigurations failed: " << QCC_StatusText(status) << std::endl;
             }
 
+#ifdef _WIN32
+            Sleep(3000);
+#else
             usleep(3000 * 1000);
+#endif
 
             {
                 std::cout << std::endl << busName.c_str() << " AboutClient AboutData After ResetConfigurations 'DeviceName'" << std::endl;
@@ -457,6 +466,16 @@ void announceHandlerCallback(qcc::String const& busName, unsigned short port)
     }
 }
 
+void WaitForSigInt(void) {
+    while (s_interrupt == false) {
+#ifdef _WIN32
+        Sleep(100);
+#else
+        usleep(100 * 1000);
+#endif
+    }
+}
+
 int main(int argc, char**argv, char**envArg)
 {
     QStatus status = ER_OK;
@@ -467,20 +486,8 @@ int main(int argc, char**argv, char**envArg)
     QCC_SetLogLevels("ALLJOYN_ABOUT_ANNOUNCE_HANDLER=7");
     QCC_SetDebugLevel(logModules::CONFIG_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
 
-    struct sigaction act, oldact;
-    sigset_t sigmask, waitmask;
-
-    // Block all signals by default for all threads.
-    sigfillset(&sigmask);
-    sigdelset(&sigmask, SIGSEGV);
-    pthread_sigmask(SIG_BLOCK, &sigmask, NULL);
-
-    // Setup a handler for SIGINT and SIGTERM
-    act.sa_handler = SignalHandler;
-    sigemptyset(&act.sa_mask);
-    act.sa_flags = SA_SIGINFO | SA_RESTART;
-    sigaction(SIGINT, &act, &oldact);
-    sigaction(SIGTERM, &act, &oldact);
+    /* Install SIGINT handler so Ctrl + C deallocates memory properly */
+    signal(SIGINT, SigIntHandler);
 
     //set Daemon password only for bundled app
 #ifdef QCC_USING_BD
@@ -515,17 +522,8 @@ int main(int argc, char**argv, char**envArg)
     AnnounceHandlerImpl* announceHandler = new AnnounceHandlerImpl(announceHandlerCallback);
     AnnouncementRegistrar::RegisterAnnounceHandler(*busAttachment, *announceHandler, interfaces, 1);
 
-    // Setup signals to wait for.
-    sigfillset(&waitmask);
-    sigdelset(&waitmask, SIGINT);
-    sigdelset(&waitmask, SIGTERM);
+    WaitForSigInt();
 
-    quit = 0;
-
-    while (!quit) {
-        // Wait for a signal.
-        sigsuspend(&waitmask);
-    }
     AnnouncementRegistrar::UnRegisterAnnounceHandler(*busAttachment, *announceHandler, interfaces, 1);
 
     delete srpKeyXListener;

@@ -46,7 +46,7 @@ void ControllerUtil::printRootWidget(RootWidget* rootWidget)
     std::vector<Property*> propertiesToChange;
     std::vector<Dialog*> dialogsToExecute;
 
-    if (rootWidget->getWidgetType() == CONTAINER) {
+    if (rootWidget->getWidgetType() == WIDGET_TYPE_CONTAINER) {
 
         printContainer((Container*)rootWidget, actionsToExecute, dialogsToExecute, propertiesToChange);
 
@@ -62,7 +62,7 @@ void ControllerUtil::printRootWidget(RootWidget* rootWidget)
         setPropertyValues(propertiesToChange);
         std::cout << std::endl;
 
-    } else if (rootWidget->getWidgetType() == DIALOG) {
+    } else if (rootWidget->getWidgetType() == WIDGET_TYPE_DIALOG) {
 
         printDialog((Dialog*)rootWidget, "");
         dialogsToExecute.push_back((Dialog*)rootWidget);
@@ -86,36 +86,36 @@ void ControllerUtil::printContainer(Container* container, std::vector<Action*>& 
     for (size_t i = 0; i < childWidgets.size(); i++) {
         WidgetType widgetType = childWidgets[i]->getWidgetType();
         switch (widgetType) {
-        case ACTION:
+        case WIDGET_TYPE_ACTION:
             printBasicWidget(childWidgets[i], "Action", indent + "  ");
             actionsToExecute.push_back((Action*)childWidgets[i]);
             break;
 
-        case ACTION_WITH_DIALOG:
+        case WIDGET_TYPE_ACTION_WITH_DIALOG:
             printBasicWidget(childWidgets[i], "Action", indent + "  ");
             std::cout << indent.c_str() << "  Printing ChildDialog: " << std::endl;
             printDialog(((ActionWithDialog*)childWidgets[i])->getChildDialog(), indent + "    ");
             dialogsToExecute.push_back(((ActionWithDialog*)childWidgets[i])->getChildDialog());
             break;
 
-        case LABEL:
+        case WIDGET_TYPE_LABEL:
             printBasicWidget(childWidgets[i], "Label", indent + "  ");
             break;
 
-        case PROPERTY:
+        case WIDGET_TYPE_PROPERTY:
             printProperty(((Property*)childWidgets[i]), indent + "  ");
             propertiesToChange.push_back((Property*)childWidgets[i]);
             break;
 
-        case CONTAINER:
+        case WIDGET_TYPE_CONTAINER:
             printContainer(((Container*)childWidgets[i]), actionsToExecute, dialogsToExecute, propertiesToChange, indent + "  ");
             break;
 
-        case DIALOG:
+        case WIDGET_TYPE_DIALOG:
             printDialog(((Dialog*)childWidgets[i]), indent + "  ");
             break;
 
-        case ERROR:
+        case WIDGET_TYPE_ERROR:
             printErrorWidget(childWidgets[i], indent + "  ");
             break;
         }
@@ -449,8 +449,8 @@ void ControllerUtil::printHints(ajn::services::Widget* widget, qcc::String const
         std::cout << indent.c_str() << widgetType.c_str() << " hints: ";
         for (size_t i = 0; i < hints.size(); i++) {
             switch (widget->getWidgetType()) {
-            case ACTION:
-            case ACTION_WITH_DIALOG:
+            case WIDGET_TYPE_ACTION:
+            case WIDGET_TYPE_ACTION_WITH_DIALOG:
                 if (hints[i] == ACTIONBUTTON) {
                     std::cout << "ACTIONBUTTON";
                 } else {
@@ -458,7 +458,7 @@ void ControllerUtil::printHints(ajn::services::Widget* widget, qcc::String const
                 }
                 break;
 
-            case LABEL:
+            case WIDGET_TYPE_LABEL:
                 if (hints[i] == TEXTLABEL) {
                     std::cout << "TEXTLABEL";
                 } else {
@@ -466,7 +466,7 @@ void ControllerUtil::printHints(ajn::services::Widget* widget, qcc::String const
                 }
                 break;
 
-            case PROPERTY:
+            case WIDGET_TYPE_PROPERTY:
                 if (hints[i] > 0 && hints[i] < PROPERTY_HINTS_SIZE) {
                     std::cout << PROPERTY_HINTS_STRINGS[hints[i]].c_str();
                 } else {
@@ -474,7 +474,7 @@ void ControllerUtil::printHints(ajn::services::Widget* widget, qcc::String const
                 }
                 break;
 
-            case CONTAINER:
+            case WIDGET_TYPE_CONTAINER:
                 if (hints[i] == VERTICAL_LINEAR) {
                     std::cout << "VERTICAL_LINEAR";
                 } else if (hints[i] == HORIZONTAL_LINEAR) {
@@ -484,7 +484,7 @@ void ControllerUtil::printHints(ajn::services::Widget* widget, qcc::String const
                 }
                 break;
 
-            case DIALOG:
+            case WIDGET_TYPE_DIALOG:
                 if (hints[i] == ALERTDIALOG) {
                     std::cout << "ALERTDIALOG";
                 } else {
@@ -492,7 +492,7 @@ void ControllerUtil::printHints(ajn::services::Widget* widget, qcc::String const
                 }
                 break;
 
-            case ERROR:
+            case WIDGET_TYPE_ERROR:
                 std::cout << "UNKNOWN";
                 break;
             }

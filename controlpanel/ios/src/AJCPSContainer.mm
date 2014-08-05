@@ -73,35 +73,35 @@
     
 	for (int i = 0; i != cpp_childWidgets.size(); i++) {
         switch (cpp_childWidgets.at(i)->getWidgetType()) {
-            case ajn::services::CONTAINER:
+            case AJCPS_CONTAINER:
                 [childWidgets addObject:[[AJCPSContainer alloc]initWithHandle:(ajn::services::Container *)cpp_childWidgets.at(i)]];
 
                 break;
-            case ajn::services::ACTION:
+            case AJCPS_ACTION:
                 [childWidgets addObject:[[AJCPSAction alloc]initWithHandle:(ajn::services::Action *)cpp_childWidgets.at(i)]];
 
                 break;
 
-            case ajn::services::ACTION_WITH_DIALOG:
+            case AJCPS_ACTION_WITH_DIALOG:
                 [childWidgets addObject:[[AJCPSActionWithDialog alloc]initWithHandle:(ajn::services::ActionWithDialog *)cpp_childWidgets.at(i)]];
 
                 break;
 
-            case ajn::services::LABEL:
+            case AJCPS_LABEL:
                 [childWidgets addObject:[[AJCPSLabel alloc]initWithHandle:(ajn::services::Label *)cpp_childWidgets.at(i)]];
 
                 break;
 
-            case ajn::services::PROPERTY:
+            case AJCPS_PROPERTY:
                 [childWidgets addObject:[[AJCPSProperty alloc]initWithHandle:(ajn::services::Property *)cpp_childWidgets.at(i)]];
 
                 break;
-            case ajn::services::DIALOG:
+            case AJCPS_DIALOG:
                 [childWidgets addObject:[[AJCPSDialog alloc]initWithHandle:(ajn::services::Dialog *)cpp_childWidgets.at(i)]];
 
                  break;
                 
-            case ajn::services::ERROR:
+            case AJCPS_ERROR:
                 [childWidgets addObject:[[AJCPSErrorWidget alloc]initWithHandle:(ajn::services::ErrorWidget *)cpp_childWidgets.at(i)]];
                 
                 break;

@@ -19,7 +19,13 @@
 
 #include "NotificationProducer.h"
 #include <queue>
+#ifdef _WIN32
+#include <Windows.h>
+#define pthread_mutex_t CRITICAL_SECTION
+#define pthread_cond_t CONDITION_VARIABLE
+#else
 #include <pthread.h>
+#endif
 
 namespace ajn {
 namespace services {
@@ -82,7 +88,11 @@ class NotificationProducerReceiver : public ajn::services::NotificationProducer 
     /**
      * The thread responsible for receiving the notification
      */
+#ifdef _WIN32
+    HANDLE m_handle;
+#else
     pthread_t m_ReceiverThread;
+#endif
 
     /**
      * A Queue that holds the messages

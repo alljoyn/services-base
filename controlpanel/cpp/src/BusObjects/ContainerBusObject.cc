@@ -110,34 +110,34 @@ QStatus ContainerBusObject::Introspect(std::vector<IntrospectionNode>& childNode
         for (size_t j = 0; j < numInterfaces; j++) {
             QCC_DbgPrintf(("InterfaceName is : %s", ifaces[j]->GetName()));
             if (strcmp(ifaces[j]->GetName(), AJ_CONTAINER_INTERFACE.c_str()) == 0) {
-                IntrospectionNode node(objectPath, CONTAINER, false);
+                IntrospectionNode node(objectPath, WIDGET_TYPE_CONTAINER, false);
                 childNodes.push_back(node);
             } else if (strcmp(ifaces[j]->GetName(), AJ_SECURED_CONTAINER_INTERFACE.c_str()) == 0) {
-                IntrospectionNode node(objectPath, CONTAINER, true);
+                IntrospectionNode node(objectPath, WIDGET_TYPE_CONTAINER, true);
                 childNodes.push_back(node);
             } else if (strcmp(ifaces[j]->GetName(), AJ_PROPERTY_INTERFACE.c_str()) == 0) {
-                IntrospectionNode node(objectPath, PROPERTY, false);
+                IntrospectionNode node(objectPath, WIDGET_TYPE_PROPERTY, false);
                 childNodes.push_back(node);
             } else if (strcmp(ifaces[j]->GetName(), AJ_SECURED_PROPERTY_INTERFACE.c_str()) == 0) {
-                IntrospectionNode node(objectPath, PROPERTY, true);
+                IntrospectionNode node(objectPath, WIDGET_TYPE_PROPERTY, true);
                 childNodes.push_back(node);
             } else if (strcmp(ifaces[j]->GetName(), AJ_LABEL_INTERFACE.c_str()) == 0) {
-                IntrospectionNode node(objectPath, LABEL, false);
+                IntrospectionNode node(objectPath, WIDGET_TYPE_LABEL, false);
                 childNodes.push_back(node);
             } else if (strcmp(ifaces[j]->GetName(), AJ_ACTION_INTERFACE.c_str()) == 0) {
                 if (proxyBusObjectChildren[i]->GetChildren()) {
-                    IntrospectionNode node(objectPath, ACTION_WITH_DIALOG, false);
+                    IntrospectionNode node(objectPath, WIDGET_TYPE_ACTION_WITH_DIALOG, false);
                     childNodes.push_back(node);
                 } else {
-                    IntrospectionNode node(objectPath, ACTION, false);
+                    IntrospectionNode node(objectPath, WIDGET_TYPE_ACTION, false);
                     childNodes.push_back(node);
                 }
             } else if (strcmp(ifaces[j]->GetName(), AJ_SECURED_ACTION_INTERFACE.c_str()) == 0) {
                 if (proxyBusObjectChildren[i]->GetChildren()) {
-                    IntrospectionNode node(objectPath, ACTION_WITH_DIALOG, true);
+                    IntrospectionNode node(objectPath, WIDGET_TYPE_ACTION_WITH_DIALOG, true);
                     childNodes.push_back(node);
                 } else {
-                    IntrospectionNode node(objectPath, ACTION, true);
+                    IntrospectionNode node(objectPath, WIDGET_TYPE_ACTION, true);
                     childNodes.push_back(node);
                 }
             } else {

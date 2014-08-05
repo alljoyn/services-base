@@ -24,12 +24,12 @@ namespace ajn {
 namespace services {
 using namespace cpsConsts;
 
-Action::Action(qcc::String const& name, Widget* rootWidget) : Widget(name, rootWidget, ACTION)
+Action::Action(qcc::String const& name, Widget* rootWidget) : Widget(name, rootWidget, WIDGET_TYPE_ACTION)
 {
 }
 
 Action::Action(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* device) :
-    Widget(name, rootWidget, device, ACTION)
+    Widget(name, rootWidget, device, WIDGET_TYPE_ACTION)
 {
 
 }

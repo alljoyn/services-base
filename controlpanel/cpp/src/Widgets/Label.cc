@@ -23,12 +23,12 @@ namespace services {
 using namespace cpsConsts;
 
 Label::Label(qcc::String const& name, Widget* rootWidget) :
-    Widget(name, rootWidget, LABEL), m_LabelWidgetGetLabels(0)
+    Widget(name, rootWidget, WIDGET_TYPE_LABEL), m_LabelWidgetGetLabels(0)
 {
 }
 
 Label::Label(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* device) :
-    Widget(name, rootWidget, device, LABEL), m_LabelWidgetGetLabels(0)
+    Widget(name, rootWidget, device, WIDGET_TYPE_LABEL), m_LabelWidgetGetLabels(0)
 {
 }
 

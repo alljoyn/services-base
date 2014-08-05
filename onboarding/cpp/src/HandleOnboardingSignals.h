@@ -41,7 +41,7 @@ class SignalMesssage : public TaskData {
     /**
      * NotificationMsg constructor
      */
-    SignalMesssage(const Message& message) :
+    SignalMesssage(const ajn::Message& message) :
         m_signalMessage(message)
     {
     }
@@ -53,7 +53,7 @@ class SignalMesssage : public TaskData {
     {
     }
 
-    Message m_signalMessage;
+    ajn::Message m_signalMessage;
 
 };
 
@@ -90,7 +90,7 @@ class HandleOnboardingSignals : public ajn::MessageReceiver, public AsyncTask {
      * @param[in] srcPath
      * @param[in] message
      */
-    void ConnectionResultSignal(const ajn::InterfaceDescription::Member* member, const char* srcPath, Message& message);
+    void ConnectionResultSignal(const ajn::InterfaceDescription::Member* member, const char* srcPath, ajn::Message& message);
 
     ////// AsyncTask methods /////////////
 

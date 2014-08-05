@@ -17,6 +17,7 @@
 #ifndef INIPARSER_H_
 #define INIPARSER_H_
 
+#include <qcc/String.h>
 #include <iostream>
 #include <string.h>
 #include <stdio.h>
@@ -44,7 +45,7 @@ class IniParser {
      * @param data - relevant data
      * @return boolean
      */
-    static bool ParseFile(std::string const& fileName, std::map<std::string, std::string>& data);
+    static bool ParseFile(std::string const& fileName, std::map<qcc::String, qcc::String>& data);
 
     /**
      * UpdateFile
@@ -52,12 +53,12 @@ class IniParser {
      * @param data - relevant data
      * @return boolean
      */
-    static bool UpdateFile(std::string const& fileName, std::map<std::string, std::string> const& data);
+    static bool UpdateFile(std::string const& fileName, std::map<qcc::String, qcc::String> const&  data);
 
   private:
 
-    static std::string trim(const std::string& str,
-                            const std::string& whitespace = " \t");
+    static qcc::String trim(const qcc::String& str,
+                            const qcc::String& whitespace = " \t");
 };
 
 #endif /* INIPARSER_H_ */

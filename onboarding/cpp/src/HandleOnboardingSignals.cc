@@ -20,7 +20,7 @@
 using namespace ajn::services;
 
 
-HandleOnboardingSignals::HandleOnboardingSignals(BusAttachment* bus, OnboardingClientListener* listener) :
+HandleOnboardingSignals::HandleOnboardingSignals(ajn::BusAttachment* bus, OnboardingClientListener* listener) :
     m_bus(bus), m_userListener(listener), m_asyncTaskQueue(NULL)
 {
     QCC_DbgTrace(("ConnectionResultHandler::%s", __FUNCTION__));
@@ -73,7 +73,7 @@ QStatus HandleOnboardingSignals::UnregisterConnectionResultSignalHandler(const a
 
 
 void HandleOnboardingSignals::ConnectionResultSignal(const ajn::InterfaceDescription::Member* member,
-                                                     const char* srcPath, Message& message)
+                                                     const char* srcPath, ajn::Message& message)
 {
 
     QCC_DbgTrace(("ConnectionResultHandler::%s", __FUNCTION__));
@@ -97,7 +97,7 @@ void HandleOnboardingSignals::OnEmptyQueue()
 void HandleOnboardingSignals::OnTask(TaskData const* taskdata)
 {
     SignalMesssage const* wrappedMessage = static_cast<SignalMesssage const*>(taskdata);
-    Message* message = (Message*) &wrappedMessage->m_signalMessage;
+    ajn::Message* message = (ajn::Message*) &wrappedMessage->m_signalMessage;
 
     const ajn::MsgArg* args = 0;
     size_t numArgs = 0;

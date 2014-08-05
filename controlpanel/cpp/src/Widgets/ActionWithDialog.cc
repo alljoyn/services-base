@@ -25,12 +25,12 @@ namespace services {
 using namespace cpsConsts;
 
 ActionWithDialog::ActionWithDialog(qcc::String const& name, Widget* rootWidget) :
-    Widget(name, rootWidget, ACTION_WITH_DIALOG), m_Dialog(0)
+    Widget(name, rootWidget, WIDGET_TYPE_ACTION_WITH_DIALOG), m_Dialog(0)
 {
 }
 
 ActionWithDialog::ActionWithDialog(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* device) :
-    Widget(name, rootWidget, device, ACTION_WITH_DIALOG), m_Dialog(0)
+    Widget(name, rootWidget, device, WIDGET_TYPE_ACTION_WITH_DIALOG), m_Dialog(0)
 {
 }
 
