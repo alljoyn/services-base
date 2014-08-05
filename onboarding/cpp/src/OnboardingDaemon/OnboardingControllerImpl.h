@@ -19,7 +19,13 @@
 
 #include <alljoyn/onboarding/OnboardingControllerAPI.h>
 #include <signal.h>
-
+#ifdef _WIN32
+#include <Windows.h>
+#define pthread_mutex_t CRITICAL_SECTION
+#define pthread_cond_t CONDITION_VARIABLE
+#else
+#include <pthread.h>
+#endif
 /**
  *  OnboardingControllerAPI  interface class that is implemented  by the Application and controls the WIFI of the system.
  */
@@ -89,11 +95,6 @@ class OnboardingControllerImpl : public ajn::services::OnboardingControllerAPI {
      * Method that calls the system scanCmd
      */
     void StartScanWifi();
-
-    /*
-     * Method called when scan wifi timer is done
-     */
-    void ScanWifiTimerDone();
 
     /**
      * static function to connect device to ap
@@ -187,7 +188,11 @@ class OnboardingControllerImpl : public ajn::services::OnboardingControllerAPI {
     /**
      * Thread that scans the wifi and creates the wifi_scan_results file
      */
+#ifdef _WIN32
+    HANDLE m_scanWifiThread;
+#else
     pthread_t m_scanWifiThread;
+#endif
 
     /**
      * flag stating if scanWifiThreadIsRunning
@@ -195,16 +200,25 @@ class OnboardingControllerImpl : public ajn::services::OnboardingControllerAPI {
     volatile bool m_scanWifiThreadIsRunning;
 
     /**
-     * Method that starts a timer to stop scan wifi if it takes too long
-     */
-    void StartScanWifiTimer();
-    static void TimerDone(union sigval si);
-
-    /**
      * Method that runs scan wifi in a thread
      */
     static void* ScanWifiThread(void* context);
 
+#ifndef _WIN32
+    /**
+     * Method that starts a timer to stop scan wifi if it takes too long
+     */
+    void StartScanWifiTimer();
+
+    /*
+     * Callback Method when timer is done
+     */
+    void ScanWifiTimerDone();
+
+    /*
+     * Method called when scan wifi timer is done
+     */
+    static void TimerDone(union sigval si);
 
     /**
      *  the WifiScanTimer variables
@@ -212,6 +226,7 @@ class OnboardingControllerImpl : public ajn::services::OnboardingControllerAPI {
     timer_t m_scanTimerId;
     struct sigevent m_scanSignalEvent;
     struct itimerspec m_scanTimerSpecs;
+#endif
 };
 
 #endif

@@ -15,6 +15,7 @@
  ******************************************************************************/
 
 #include <stdio.h>
+#include <vector>
 #include <alljoyn/onboarding/OnboardingService.h>
 #include <alljoyn/BusAttachment.h>
 #include <alljoyn/onboarding/LogModule.h>
@@ -128,6 +129,8 @@ void OnboardingService::ConfigureWiFiHandler(const ajn::InterfaceDescription::Me
     const ajn::MsgArg* args;
     size_t numArgs;
     QStatus status = ER_OK;
+    char raw[512];
+
     msg->GetArgs(numArgs, args);
     do {
         if (numArgs != 3) {
@@ -194,7 +197,6 @@ void OnboardingService::ConfigureWiFiHandler(const ajn::InterfaceDescription::Me
             if (WEP != authType) {
                 // passcode is hexa encoded by client, decode
                 size_t rawLength = strPass.length() / 2 + 1;
-                char raw[rawLength];
                 CHECK_BREAK(HexToRaw(strPass.c_str(), strPass.length(), raw, rawLength));
                 raw[strPass.length() / 2] = '\0';
 
@@ -249,7 +251,7 @@ void OnboardingService::ConnectHandler(const ajn::InterfaceDescription::Member* 
         if (numArgs != 0) {
             break;
         }
-        MsgArg args[0];
+        MsgArg*args = NULL;
         Check_MethodReply(msg, args, 0);
         m_OnboardingController.Connect();
         return;
@@ -268,7 +270,7 @@ void OnboardingService::OffboardHandler(const ajn::InterfaceDescription::Member*
         if (numArgs != 0) {
             break;
         }
-        MsgArg args[0];
+        MsgArg*args = NULL;
         Check_MethodReply(msg, args, 0);
         m_OnboardingController.Offboard();
         return;
@@ -296,14 +298,15 @@ void OnboardingService::GetScanInfoHandler(const ajn::InterfaceDescription::Memb
             Check_MethodReply(msg, ER_FAIL);
             return;
         }
-        MsgArg scanInfoArgs[numberOfElements];
+
+        std::vector<MsgArg> scanInfoArgs(numberOfElements);
         for (size_t i = 0; i < numberOfElements; i++) {
             CHECK_BREAK(scanInfoArgs[i].Set("(sn)", scanInfoList[i].SSID.c_str(), scanInfoList[i].authType));
         }
         CHECK_BREAK(status); //In case a break came from the for loop we want to break again.
         MsgArg retArgs[2];
         CHECK_BREAK(retArgs[0].Set("q", age));
-        CHECK_BREAK(retArgs[1].Set("a(sn)", numberOfElements, scanInfoArgs));
+        CHECK_BREAK(retArgs[1].Set("a(sn)", numberOfElements, scanInfoArgs.data()));
         Check_MethodReply(msg, retArgs, 2);
         return;
 

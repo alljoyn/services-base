@@ -235,10 +235,10 @@ QStatus ControlPanelBusObject::Introspect(std::vector<IntrospectionNode>& childN
         for (size_t j = 0; j < numInterfaces; j++) {
             QCC_DbgPrintf(("InterfaceName is : %s", ifaces[j]->GetName()));
             if (strcmp(ifaces[j]->GetName(), AJ_CONTAINER_INTERFACE.c_str()) == 0) {
-                IntrospectionNode node(objectPath, CONTAINER, false);
+                IntrospectionNode node(objectPath, WIDGET_TYPE_CONTAINER, false);
                 childNodes.push_back(node);
             } else if (strcmp(ifaces[j]->GetName(), AJ_SECURED_CONTAINER_INTERFACE.c_str()) == 0) {
-                IntrospectionNode node(objectPath, CONTAINER, true);
+                IntrospectionNode node(objectPath, WIDGET_TYPE_CONTAINER, true);
                 childNodes.push_back(node);
             } else {
                 QCC_DbgPrintf(("Ignoring interface - not a container interface"));

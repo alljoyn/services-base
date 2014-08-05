@@ -60,7 +60,7 @@ ActionBusObject::ActionBusObject(BusAttachment* bus, String const& objectPath, u
 
     if (widget->getControlPanelMode() == CONTROLLER_MODE) {
         status = addSignalHandler(bus);
-    } else if (widget->getWidgetType() == ACTION) {
+    } else if (widget->getWidgetType() == WIDGET_TYPE_ACTION) {
         const ajn::InterfaceDescription::Member* execMember = m_InterfaceDescription->GetMember(AJ_METHOD_EXECUTE.c_str());
 
         status = AddMethodHandler(execMember, static_cast<MessageReceiver::MethodHandler>(&ActionBusObject::ActionExecute));
@@ -163,10 +163,10 @@ QStatus ActionBusObject::Introspect(std::vector<IntrospectionNode>& childNodes)
         for (size_t j = 0; j < numInterfaces; j++) {
             QCC_DbgPrintf(("InterfaceName is %s", ifaces[j]->GetName()));
             if (strcmp(ifaces[j]->GetName(), AJ_DIALOG_INTERFACE.c_str()) == 0) {
-                IntrospectionNode node(objectPath, DIALOG, false);
+                IntrospectionNode node(objectPath, WIDGET_TYPE_DIALOG, false);
                 childNodes.push_back(node);
             } else if (strcmp(ifaces[j]->GetName(), AJ_SECURED_DIALOG_INTERFACE.c_str()) == 0) {
-                IntrospectionNode node(objectPath, DIALOG, true);
+                IntrospectionNode node(objectPath, WIDGET_TYPE_DIALOG, true);
                 childNodes.push_back(node);
             } else {
                 QCC_DbgPrintf(("Ignoring interfaceName:  %s", ifaces[j]->GetName()));

@@ -15,6 +15,8 @@
  ******************************************************************************/
 
 #include "IniParser.h"
+#include <iostream>
+#include <string>
 #include <fstream>
 
 IniParser::IniParser()
@@ -25,31 +27,32 @@ IniParser::~IniParser()
 {
 }
 
-std::string IniParser::trim(const std::string& str,
-                            const std::string& whitespace)
+qcc::String IniParser::trim(const qcc::String& str,
+                            const qcc::String& whitespace)
 {
-    const auto strBegin = str.find_first_not_of(whitespace);
+    const auto strBegin = str.find_first_not_of(whitespace.c_str());
     if (strBegin == std::string::npos) {
         return "";  // no content
 
     }
-    const auto strEnd = str.find_last_not_of(whitespace);
+    const auto strEnd = str.find_last_not_of(whitespace.c_str());
     const auto strRange = strEnd - strBegin + 1;
 
     return str.substr(strBegin, strRange);
 }
 
-bool IniParser::ParseFile(std::string const& fileName, std::map<std::string, std::string>& data)
+bool IniParser::ParseFile(std::string const& fileName, std::map<qcc::String, qcc::String>& data)
 {
     std::ifstream iniFile(fileName.c_str(), std::ifstream::in);
     if (!iniFile.is_open()) {
         return false;
     }
 
-    std::string line;
+    char tmp[256];
     int lineNum = 0;
-    while (std::getline(iniFile, line)) {
+    while (iniFile.getline(tmp, 256)) {
 
+        qcc::String line = tmp;
         lineNum++;
         line = trim(line); // remove leading and trailing whitespaces
 
@@ -67,10 +70,10 @@ bool IniParser::ParseFile(std::string const& fileName, std::map<std::string, std
             continue;
         }
 
-        std::string name = line.substr(0, found);
+        qcc::String name = line.substr(0, found);
         name = trim(name); // remove leading and trailing whitespaces
 
-        std::string value = line.substr(found + 1);
+        qcc::String value = line.substr(found + 1);
         value = trim(value);
 
         data[name] = value;
@@ -80,20 +83,21 @@ bool IniParser::ParseFile(std::string const& fileName, std::map<std::string, std
     return true;
 }
 
-bool IniParser::UpdateFile(std::string const& fileName, std::map<std::string, std::string> const& data)
+bool IniParser::UpdateFile(std::string const& fileName, std::map<qcc::String, qcc::String> const& data)
 {
     std::ifstream iniFile(fileName.c_str(), std::ifstream::in);
     if (!iniFile.is_open()) {
         return false;
     }
 
-    std::string origline;
-    std::string content = "";
+    qcc::String content = "";
+    char tmp[256];
     int lineNum = 0;
-    while (std::getline(iniFile, origline)) {
+    while (iniFile.getline(tmp, 256)) {
 
+        qcc::String origline = tmp;
         lineNum++;
-        std::string line = trim(origline); // remove leading and trailing whitespaces
+        qcc::String line = trim(origline); // remove leading and trailing whitespaces
 
         if (!line.length()) {
             content.append(origline + "\n");
@@ -112,16 +116,16 @@ bool IniParser::UpdateFile(std::string const& fileName, std::map<std::string, st
             continue;
         }
 
-        std::string name = line.substr(0, found);
+        qcc::String name = line.substr(0, found);
         name = trim(name); // remove leading and trailing whitespaces
 
-        std::map<std::string, std::string>::const_iterator iter = data.find(name);
+        std::map<qcc::String, qcc::String>::const_iterator iter = data.find(name);
         if (iter == data.end()) {
             content.append(origline + "\n");
             continue;
         }
 
-        std::string newline = name + " = " + iter->second;
+        qcc::String newline = name + " = " + iter->second;
         content.append(newline + "\n");
     }
 

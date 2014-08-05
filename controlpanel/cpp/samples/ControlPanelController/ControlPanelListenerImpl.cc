@@ -70,7 +70,11 @@ void ControlPanelListenerImpl::sessionLost(ControlPanelDevice* device)
 {
     std::cout << "Received sessionLost for device " << device->getDeviceBusName().c_str() << std::endl;
     std::cout << "Sleeping 5 seconds before cleaning up device" << std::endl;
+#ifdef _WIN32
+    Sleep(5000);
+#else
     sleep(5);
+#endif
 
     std::vector<qcc::String>::iterator iter;
     iter = find(m_ConnectedDevices.begin(), m_ConnectedDevices.end(), device->getDeviceBusName());

@@ -251,7 +251,7 @@ QStatus NotificationAction::addChildren()
         qcc::String const& language = splitPath[3];
         m_LanguageSet.addLanguage(language);
         RootWidget* rootWidget = 0;
-        if (childNodes[i].getWidgetType() == CONTAINER) {
+        if (childNodes[i].getWidgetType() == WIDGET_TYPE_CONTAINER) {
             rootWidget = new Container(containerName, NULL, childNodes[i].getObjectPath(), m_Device);
         } else {
             rootWidget = new Dialog(containerName, NULL, childNodes[i].getObjectPath(), m_Device);

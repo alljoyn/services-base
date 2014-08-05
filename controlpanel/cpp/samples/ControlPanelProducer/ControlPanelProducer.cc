@@ -128,7 +128,11 @@ start:
         bus = CommonSampleUtil::prepareBusAttachment(srpKeyXListener);
         if (bus == NULL) {
             std::cout << "Could not initialize BusAttachment. Retrying" << std::endl;
+#ifdef _WIN32
+            Sleep(1000);
+#else
             sleep(1);
+#endif
             retry++;
         }
     } while (bus == NULL && retry != 180 && !s_interrupt);
@@ -222,7 +226,11 @@ start:
     }
 
     std::cout << "Cleaning up in 10 seconds" << std::endl;
+#ifdef _WIN32
+    Sleep(10 * 1000);
+#else
     sleep(10);
+#endif
 
     if (s_restart) {
         s_restart = false;

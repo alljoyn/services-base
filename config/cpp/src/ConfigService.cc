@@ -176,7 +176,7 @@ void ConfigService::UpdateConfigurationsHandler(const InterfaceDescription::Memb
         }
         CHECK_BREAK(status)
 
-        MsgArg args[0];
+        MsgArg * args = NULL;
         MethodReply(msg, args, 0);
         return;
 
@@ -229,7 +229,7 @@ void ConfigService::ResetConfigurationsHandler(const InterfaceDescription::Membe
         }
         CHECK_BREAK(status)
 
-        MsgArg args[0];
+        MsgArg * args = NULL;
         MethodReply(msg, args, 0);
         return;
     } while (0);
@@ -264,7 +264,7 @@ void ConfigService::FactoryResetHandler(const InterfaceDescription::Member* memb
         m_Listener->FactoryReset();
         //check it the ALLJOYN_FLAG_NO_REPLY_EXPECTED exists if so send response
         if (!(msg->GetFlags() & ALLJOYN_FLAG_NO_REPLY_EXPECTED)) {
-            MsgArg args[0];
+            MsgArg* args = NULL;
             MethodReply(msg, args, 0);
         }
     } else {
@@ -286,7 +286,7 @@ void ConfigService::RestartHandler(const InterfaceDescription::Member* member, M
         m_Listener->Restart();
         //check it the ALLJOYN_FLAG_NO_REPLY_EXPECTED exists if so send response
         if (!(msg->GetFlags() & ALLJOYN_FLAG_NO_REPLY_EXPECTED)) {
-            MsgArg args[0];
+            MsgArg* args = NULL;
             MethodReply(msg, args, 0);
         }
     } else {

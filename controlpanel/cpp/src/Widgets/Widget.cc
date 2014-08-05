@@ -380,7 +380,7 @@ QStatus Widget::fillStatesArg(MsgArg& val, uint16_t languageIndx)
 QStatus Widget::fillOptParamsArg(MsgArg& val, uint16_t languageIndx)
 {
     QStatus status;
-    MsgArg* optParams = new MsgArg[OPT_PARAM_KEYS::NUM_OPT_PARAMS];
+    MsgArg* optParams = new MsgArg[NUM_OPT_PARAMS];
     size_t optParamIndx = 0;
 
     status = fillOptParamsArg(optParams, languageIndx, optParamIndx);
@@ -402,7 +402,7 @@ QStatus Widget::fillOptParamsArg(MsgArg* optParams, uint16_t languageIndx, size_
                                       m_GetLabels(languageIndx) : m_Labels[languageIndx].c_str());
 
         if ((status = optParams[optParamIndx].Set(AJPARAM_DICT_UINT16_VAR.c_str(),
-                                                  OPT_PARAM_KEYS::LABEL_KEY, labelArg)) != ER_OK) {
+                                                  LABEL_KEY, labelArg)) != ER_OK) {
             delete labelArg;
             return status;
         }
@@ -414,7 +414,7 @@ QStatus Widget::fillOptParamsArg(MsgArg* optParams, uint16_t languageIndx, size_
                                         m_GetBgColor() : m_BgColor);
 
         if ((status = optParams[optParamIndx].Set(AJPARAM_DICT_UINT16_VAR.c_str(),
-                                                  OPT_PARAM_KEYS::BGCOLOR_KEY, bgColorArg)) != ER_OK) {
+                                                  BGCOLOR_KEY, bgColorArg)) != ER_OK) {
             delete bgColorArg;
             return status;
         }
@@ -425,7 +425,7 @@ QStatus Widget::fillOptParamsArg(MsgArg* optParams, uint16_t languageIndx, size_
         MsgArg* hintsArg = new MsgArg(AJPARAM_ARRAY_UINT16.c_str(),
                                       m_Hints.size(), m_Hints.data());
         if ((status = optParams[optParamIndx].Set(AJPARAM_DICT_UINT16_VAR.c_str(),
-                                                  OPT_PARAM_KEYS::HINT_KEY, hintsArg)) != ER_OK) {
+                                                  HINT_KEY, hintsArg)) != ER_OK) {
             delete hintsArg;
             return status;
         }
@@ -473,7 +473,7 @@ QStatus Widget::readOptParamsArg(uint16_t key, MsgArg* val)
 {
     QStatus status = ER_BUS_NO_SUCH_PROPERTY;
     switch (key) {
-    case OPT_PARAM_KEYS::LABEL_KEY:
+    case LABEL_KEY:
         {
             char* label;
             CHECK_AND_RETURN(val->Get(AJPARAM_STR.c_str(), &label))
@@ -481,7 +481,7 @@ QStatus Widget::readOptParamsArg(uint16_t key, MsgArg* val)
             break;
         }
 
-    case OPT_PARAM_KEYS::BGCOLOR_KEY:
+    case BGCOLOR_KEY:
         {
             uint32_t bgColor;
             CHECK_AND_RETURN(val->Get(AJPARAM_UINT32.c_str(), &bgColor))
@@ -489,7 +489,7 @@ QStatus Widget::readOptParamsArg(uint16_t key, MsgArg* val)
             break;
         }
 
-    case OPT_PARAM_KEYS::HINT_KEY:
+    case HINT_KEY:
         {
             std::vector<uint16_t> hints;
             uint16_t* hintEntries;

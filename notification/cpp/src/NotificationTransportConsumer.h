@@ -18,10 +18,15 @@
 #define NOTIFICATIONTRANSPORTCONSUMER_H_
 
 #include <queue>
+#ifdef _WIN32
+#include <Windows.h>
+#define pthread_mutex_t CRITICAL_SECTION
+#define pthread_cond_t CONDITION_VARIABLE
+#else
 #include <pthread.h>
+#endif
 
 #include "NotificationTransport.h"
-#include <pthread.h>
 
 namespace ajn {
 namespace services {
@@ -63,7 +68,11 @@ class NotificationTransportConsumer : public NotificationTransport {
     /**
      * The thread responsible for receiving the notification
      */
+#ifdef _WIN32
+    HANDLE m_handle;
+#else
     pthread_t m_ReceiverThread;
+#endif
 
     /**
      * A Queue that holds the messages

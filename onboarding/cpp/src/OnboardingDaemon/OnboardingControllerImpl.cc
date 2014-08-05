@@ -19,6 +19,10 @@
 #include <sys/stat.h>
 #include <errno.h>
 #include <algorithm>
+#include <time.h>
+#ifdef _WIN32
+#include <process.h>
+#endif
 
 #include <OnboardingControllerImpl.h>
 #include <alljoyn/onboarding/LogModule.h>
@@ -83,8 +87,10 @@ OnboardingControllerImpl::OnboardingControllerImpl(qcc::String scanFile,
     m_offboardCmd(offboardCmd),
     m_scanCmd(scanCmd),
     m_concurrency(concurrency),
-    m_scanWifiThreadIsRunning(false),
-    m_scanTimerId(0)
+    m_scanWifiThreadIsRunning(false)
+#ifndef _WIN32
+    , m_scanTimerId(0)
+#endif
 {
     // Ignore SIGCHLD so we do not have to wait on the child processes
     //signal(SIGCHLD, SIG_IGN);
@@ -101,8 +107,8 @@ OnboardingControllerImpl::OnboardingControllerImpl(qcc::String scanFile,
     GetScanInfo(age, scanList, scanListNumElements);
 
     // if the m_concurrency values are out of range, set it to min
-    if (m_concurrency < OBConcurrency::CONCURRENCY_MIN || m_concurrency > OBConcurrency::CONCURRENCY_MAX) {
-        m_concurrency = OBConcurrency::CONCURRENCY_MIN;
+    if (m_concurrency < CONCURRENCY_MIN || m_concurrency > CONCURRENCY_MAX) {
+        m_concurrency = CONCURRENCY_MIN;
     }
 
 }
@@ -110,13 +116,14 @@ OnboardingControllerImpl::OnboardingControllerImpl(qcc::String scanFile,
 OnboardingControllerImpl::~OnboardingControllerImpl()
 {
     QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
+#ifndef _WIN32
     if (m_scanTimerId) {
         timer_delete(m_scanTimerId);
         m_scanTimerId = 0;
     }
 
     ScanWifiTimerDone();
-
+#endif
     // Scan results are stored in the scan array
     if (m_ScanArray) {
         delete [] m_ScanArray;
@@ -215,9 +222,15 @@ void OnboardingControllerImpl::Connect() {
 /* Fill in method handler implementation here. */
     QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
     CancelAdvertise();
+#ifdef _WIN32
+    HANDLE m_handle;
+    m_handle = reinterpret_cast<HANDLE>(_beginthreadex(NULL, 256 * 1024, (unsigned int (__stdcall*)(void*)) OnboardingControllerImpl::OBS_Connect, this, 0, NULL));
+    CloseHandle(m_handle);
+#else
     pthread_t thread;
     pthread_create(&thread, NULL, OnboardingControllerImpl::OBS_Connect, this);
     pthread_detach(thread);
+#endif
 } /* Connect() */
 
 OBAuthType TranslateToOBAuthType(int authNum, GroupCiphers theCiphers)
@@ -399,6 +412,7 @@ void OnboardingControllerImpl::ParseScanInfo()
     scanFile.close();
 }
 
+#ifndef _WIN32
 void OnboardingControllerImpl::StartScanWifiTimer()
 {
     QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
@@ -438,16 +452,19 @@ void OnboardingControllerImpl::ScanWifiTimerDone()
         QCC_DbgTrace(("ScanWifi timed out and is being canceled"));
     }
 }
+#endif
 
 void OnboardingControllerImpl::StartScanWifi()
 {
     QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
     m_scanWifiThreadIsRunning = true;
     execute_system(m_scanCmd.c_str());
+#ifndef _WIN32
     if (m_scanTimerId) {
         timer_delete(m_scanTimerId);
         m_scanTimerId = 0;
     }
+#endif
     m_scanWifiThreadIsRunning = false;
 }
 
@@ -486,9 +503,14 @@ void OnboardingControllerImpl::GetScanInfo(unsigned short& age, OBScanInfo*& sca
 
     // Spawn a thread to scan the wifi and update the wifi_scan_results
     if (!m_scanWifiThreadIsRunning) {
+#ifdef _WIN32
+        m_scanWifiThread = reinterpret_cast<HANDLE>(_beginthreadex(NULL, 256 * 1024, (unsigned int (__stdcall*)(void*))ScanWifiThread, this, 0, NULL));
+        CloseHandle(m_scanWifiThread);
+#else
         StartScanWifiTimer();
         pthread_create(&m_scanWifiThread, NULL, ScanWifiThread, this);
         pthread_detach(m_scanWifiThread);
+#endif
     }
 
 } /* GetScanInfo() */
@@ -516,9 +538,13 @@ void OnboardingControllerImpl::Offboard()
 {
     QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
     CancelAdvertise();
-    pthread_t thread;
-    pthread_create(&thread, NULL, OnboardingControllerImpl::OBS_Offboard, this);
-    pthread_detach(thread);
+#ifdef _WIN32
+    m_scanWifiThread = reinterpret_cast<HANDLE>(_beginthreadex(NULL, 256 * 1024, (unsigned int (__stdcall*)(void*))ScanWifiThread, this, 0, NULL));
+    CloseHandle(m_scanWifiThread);
+#else
+    pthread_create(&m_scanWifiThread, NULL, ScanWifiThread, this);
+    pthread_detach(m_scanWifiThread);
+#endif
 } /* Offboard() */
 
 short OnboardingControllerImpl::GetState()
@@ -571,6 +597,7 @@ void OnboardingControllerImpl::CancelAdvertise()
     m_BusAttachment->EnableConcurrentCallbacks();
     if (m_BusAttachment->IsConnected() && m_BusAttachment->GetUniqueName().size() > 0) {
         QStatus status = m_BusAttachment->CancelAdvertiseName(m_BusAttachment->GetUniqueName().c_str(), TRANSPORT_ANY);
+        (void)status;
         QCC_DbgHLPrintf(("CancelAdvertiseName for %s = %s", m_BusAttachment->GetUniqueName().c_str(), QCC_StatusText(status)));
     }
 }

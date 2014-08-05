@@ -25,7 +25,7 @@ namespace services {
 using namespace cpsConsts;
 
 Property::Property(qcc::String name, Widget* rootWidget, PropertyType propertyType) :
-    Widget(name, rootWidget, PROPERTY), m_PropertyType(propertyType), m_ValueString(""),
+    Widget(name, rootWidget, WIDGET_TYPE_PROPERTY), m_PropertyType(propertyType), m_ValueString(""),
     m_UnitOfMeasure(""), m_GetUnitOfMeasures(0), m_ConstraintRange(0)
 {
     m_GetValue.getBoolValue = 0; // initialize to null
@@ -33,7 +33,7 @@ Property::Property(qcc::String name, Widget* rootWidget, PropertyType propertyTy
 }
 
 Property::Property(qcc::String name, Widget* rootWidget, ControlPanelDevice* device) :
-    Widget(name, rootWidget, device, PROPERTY), m_PropertyType(UNDEFINED), m_ValueString(""),
+    Widget(name, rootWidget, device, WIDGET_TYPE_PROPERTY), m_PropertyType(UNDEFINED), m_ValueString(""),
     m_UnitOfMeasure(""), m_GetUnitOfMeasures(0), m_ConstraintRange(0)
 {
     m_GetValue.getBoolValue = 0; // initialize to null
@@ -327,7 +327,7 @@ QStatus Property::fillPropertyValueArg(MsgArg& val, uint16_t languageIndx)
 QStatus Property::fillOptParamsArg(MsgArg& val, uint16_t languageIndx)
 {
     QStatus status;
-    MsgArg* optParams = new MsgArg[OPT_PARAM_KEYS::NUM_OPT_PARAMS];
+    MsgArg* optParams = new MsgArg[NUM_OPT_PARAMS];
 
     size_t optParamIndx = 0;
 
@@ -343,7 +343,7 @@ QStatus Property::fillOptParamsArg(MsgArg& val, uint16_t languageIndx)
                                             m_GetUnitOfMeasures(languageIndx) : m_UnitOfMeasures[languageIndx].c_str());
 
         if ((status = optParams[optParamIndx].Set(AJPARAM_DICT_UINT16_VAR.c_str(),
-                                                  OPT_PARAM_KEYS::UNIT_MEASURE, unitMeasureArg)) != ER_OK) {
+                                                  UNIT_MEASURE, unitMeasureArg)) != ER_OK) {
             delete unitMeasureArg;
             delete[] optParams;
             return status;
@@ -371,7 +371,7 @@ QStatus Property::fillOptParamsArg(MsgArg& val, uint16_t languageIndx)
                                                m_ConstraintList.size(), constraintListArrayArg);
 
         if ((status = optParams[optParamIndx].Set(AJPARAM_DICT_UINT16_VAR.c_str(),
-                                                  OPT_PARAM_KEYS::CONSTRAINT_LIST, constraintListArg)) != ER_OK) {
+                                                  CONSTRAINT_LIST, constraintListArg)) != ER_OK) {
             delete constraintListArg;
             delete[] constraintListArrayArg;
             delete[] optParams;
@@ -392,7 +392,7 @@ QStatus Property::fillOptParamsArg(MsgArg& val, uint16_t languageIndx)
         }
 
         if ((status = optParams[optParamIndx].Set(AJPARAM_DICT_UINT16_VAR.c_str(),
-                                                  OPT_PARAM_KEYS::CONSTRAINT_RANGE, constraintRangeArg)) != ER_OK) {
+                                                  CONSTRAINT_RANGE, constraintRangeArg)) != ER_OK) {
             delete constraintRangeArg;
             delete[] optParams;
             return status;
@@ -533,7 +533,7 @@ QStatus Property::readOptParamsArg(uint16_t key, MsgArg* val)
 {
     QStatus status = ER_BUS_NO_SUCH_PROPERTY;
     switch (key) {
-    case OPT_PARAM_KEYS::UNIT_MEASURE:
+    case UNIT_MEASURE:
         {
             char* unitOfMeasure;
             CHECK_AND_RETURN(val->Get(AJPARAM_STR.c_str(), &unitOfMeasure))
@@ -541,7 +541,7 @@ QStatus Property::readOptParamsArg(uint16_t key, MsgArg* val)
             break;
         }
 
-    case OPT_PARAM_KEYS::CONSTRAINT_LIST:
+    case CONSTRAINT_LIST:
         {
             m_ConstraintList.clear();
             MsgArg* constraintEntries;
@@ -555,7 +555,7 @@ QStatus Property::readOptParamsArg(uint16_t key, MsgArg* val)
             break;
         }
 
-    case OPT_PARAM_KEYS::CONSTRAINT_RANGE:
+    case CONSTRAINT_RANGE:
         {
             if (!m_ConstraintRange) {
                 m_ConstraintRange = new ConstraintRange();

@@ -446,7 +446,11 @@ int main()
         std::cout << "Going to call aboutServiceDestroy" << std::endl;
         CommonSampleUtil::aboutServiceDestroy(bus, notificationBusListener);
         std::cout << "Going to sleep:" << sleepTime << std::endl;
+#ifdef _WIN32
+        Sleep(sleepTime * 1000);
+#else
         sleep(sleepTime);
+#endif
     }
 
     std::cout << "Exiting the application deletes the bus connection." << std::endl;

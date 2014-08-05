@@ -15,6 +15,7 @@
  ******************************************************************************/
 
 #include <stdio.h>
+#include <time.h>
 #include <alljoyn/MsgArg.h>
 #include <alljoyn/notification/Notification.h>
 #include <alljoyn/notification/NotificationService.h>

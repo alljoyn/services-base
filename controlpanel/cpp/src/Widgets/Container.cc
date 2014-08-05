@@ -30,18 +30,18 @@ namespace ajn {
 namespace services {
 using namespace cpsConsts;
 
-Container::Container(qcc::String const& name, Widget* rootWidget) : RootWidget(name, rootWidget, CONTAINER),
+Container::Container(qcc::String const& name, Widget* rootWidget) : RootWidget(name, rootWidget, WIDGET_TYPE_CONTAINER),
     m_IsDismissable(false)
 {
 }
 
 Container::Container(qcc::String const& name, Widget* rootWidget, qcc::String const& objectPath, ControlPanelDevice* device) :
-    RootWidget(name, rootWidget, objectPath, device, CONTAINER), m_IsDismissable(false)
+    RootWidget(name, rootWidget, objectPath, device, WIDGET_TYPE_CONTAINER), m_IsDismissable(false)
 {
 }
 
 Container::Container(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* device) :
-    RootWidget(name, rootWidget, "", device, CONTAINER), m_IsDismissable(false)
+    RootWidget(name, rootWidget, "", device, WIDGET_TYPE_CONTAINER), m_IsDismissable(false)
 {
 }
 
@@ -205,31 +205,31 @@ QStatus Container::SendDismissSignal()
 Widget* Container::createWidget(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* device, WidgetType widgetType)
 {
     switch (widgetType) {
-    case ACTION:
+    case WIDGET_TYPE_ACTION:
         return new Action(name, rootWidget, device);
         break;
 
-    case ACTION_WITH_DIALOG:
+    case WIDGET_TYPE_ACTION_WITH_DIALOG:
         return new ActionWithDialog(name, rootWidget, device);
         break;
 
-    case CONTAINER:
+    case WIDGET_TYPE_CONTAINER:
         return new Container(name, rootWidget, device);
         break;
 
-    case DIALOG:
+    case WIDGET_TYPE_DIALOG:
         return new Dialog(name, rootWidget, device);
         break;
 
-    case LABEL:
+    case WIDGET_TYPE_LABEL:
         return new Label(name, rootWidget, device);
         break;
 
-    case PROPERTY:
+    case WIDGET_TYPE_PROPERTY:
         return new Property(name, rootWidget, device);
         break;
 
-    case ERROR:
+    case WIDGET_TYPE_ERROR:
         return NULL;
         break;
     }

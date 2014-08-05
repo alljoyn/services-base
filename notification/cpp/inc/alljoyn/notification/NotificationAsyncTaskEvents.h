@@ -18,7 +18,6 @@
 #ifndef NOTIFICATION_ASYNCTASK_EVENTS_H_
 #define NOTIFICATION_ASYNCTASK_EVENTS_H_
 
-#include <pthread.h>
 #include <queue>
 #include <qcc/String.h>
 #include <iostream>
