@@ -22,7 +22,7 @@ import org.allseen.timeservice.Schedule.WeekDay;
 import org.allseen.timeservice.ajinterfaces.DateTimeAJ.TimeAJ;
 
 /**
- * Schedule structure for communication with {@link Alarm}
+ * Schedule structure for communicating with {@link Alarm}
  */
 public class ScheduleAJ {
 

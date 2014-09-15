@@ -38,7 +38,7 @@ public interface Timer extends BusObject {
     public static final String IFNAME        = TimeServiceConst.IFNAME_PREFIX + ".Timer";
 
     /**
-     * This interface version
+     * The version of this interface
      */
     public static final short VERSION        = 1;
 
@@ -49,7 +49,7 @@ public interface Timer extends BusObject {
 
     /**
      * Returns the interface version
-     * @return interface version number
+     * @return Interface version number
      * @throws BusException
      */
     @BusProperty(signature="q")
