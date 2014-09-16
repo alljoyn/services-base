@@ -75,7 +75,7 @@ public class Clock extends TimeClientBase {
      * Constructor
      * @param tsClient {@link TimeServiceClient} managing this {@link Clock} object
      * @param objectPath {@link TimeServiceServer} Clock object
-     * @param isAuthority Whether the {@link TimeServiceServer} Clock is an authority clock.
+     * @param isAuthority Whether the {@link TimeServiceServer} Clock is a reliable source of time.
      */
     public Clock(TimeServiceClient tsClient, String objectPath, boolean isAuthority) {
 
@@ -84,8 +84,8 @@ public class Clock extends TimeClientBase {
     }
 
     /**
-     * Returns whether the {@link Clock} is authority
-     * @return Is clock authority
+     * Returns whether the {@link Clock} is an authority
+     * @return Is clock an authority
      */
     public boolean isAuthority() {
 
@@ -142,7 +142,7 @@ public class Clock extends TimeClientBase {
 
     /**
      * Retrieve whether or not the clock has ever been set
-     * @return TRUE if the clock was set
+     * @return Returns TRUE if the Clock has been set since the last reboot
      * @throws TimeServiceException Is thrown if failed to retrieve the IsSet status
      */
     public boolean retrieveIsSet() throws TimeServiceException {

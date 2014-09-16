@@ -27,13 +27,14 @@ import android.util.Log;
 
 /**
  * Time Service Alarm.
- * Use this class to communication with {@link TimeServiceServer} Alarm object.
+ * Use this class to communicate with {@link TimeServiceServer} Alarm object.
  */
 public class Alarm extends ObjectIntrospector {
     private static final String TAG = "ajts" + Alarm.class.getSimpleName();
 
     /**
-     * Implement this interface to handle {@link org.allseen.timeservice.ajinterfaces.Alarm#alarmReached()} event.
+     * Implement this interface to handle the
+     * {@link org.allseen.timeservice.ajinterfaces.Alarm#alarmReached()} event.
      */
     public static interface AlarmHandler {
 
@@ -112,7 +113,7 @@ public class Alarm extends ObjectIntrospector {
 
     /**
      * Retrieve title from the {@link TimeServiceServer} Alarm object.
-     * Title is an optional textual description of what this alarm is.
+     * Title is an optional textual description of what this Alarm is set for.
      * @return Alarm title
      * @throws TimeServiceException Is thrown if failed to retrieve the alarm title
      */
@@ -137,7 +138,7 @@ public class Alarm extends ObjectIntrospector {
     /**
      * Set title to the {@link TimeServiceServer} Alarm object.
      * @param title Alarm title.
-     * Title is an optional textual description of what this alarm is.
+     * Title is an optional textual description of what this alarm is set for.
      * @throws TimeServiceException Is thrown if failed to set the alarm title
      */
     public void setTitle(String title) throws TimeServiceException {
@@ -182,7 +183,7 @@ public class Alarm extends ObjectIntrospector {
     }
 
     /**
-     * Set {@link TimeServiceServer} Alarm whether it is enabled.
+     * Set {@link TimeServiceServer} Alarm if it is enabled.
      * @param enabled Whether the Alarm is enabled
      * @throws TimeServiceException Is thrown if failed to set isEnabled Alarm status
      */

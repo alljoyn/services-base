@@ -57,8 +57,8 @@ public interface TimeAuthority {
     byte getAuthorityType() throws BusException;
 
     /**
-     * Session-less signal suggesting to synchronize time with the time authority clock
-     * sending this signal.
+     * Sessionless signal suggesting to synchronize time with the time authority clock
+     * that has sent the signal.
      */
     @BusSignal(name="TimeSync", sessionless=true)
     void timeSync() throws BusException;

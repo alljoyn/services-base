@@ -110,8 +110,8 @@ abstract class ObjectIntrospector extends TimeClientBase {
      * one of those returned by the {@link ObjectIntrospector#retrieveDescriptionLanguages()}.
      * @param language Language of the retrieved object description
      * @return Object description or empty string if no description was found
-     * @throws IllegalArgumentException If received language is not valid, which means is NULL or
-     * not returned by the {@link ObjectIntrospector#retrieveDescriptionLanguages()}
+     * @throws IllegalArgumentException Is thrown if received language is not valid, which means it is NULL
+     * or was not returned by the {@link ObjectIntrospector#retrieveDescriptionLanguages()}
      */
     public String retrieveObjectDescription(String language) {
 
@@ -158,7 +158,7 @@ abstract class ObjectIntrospector extends TimeClientBase {
      * @return {@link IntrospectionNode}
      * @throws Exception Is thrown if failed to introspect the object
      */
-    protected IntrospectionNode introspect() throws Exception {
+    IntrospectionNode introspect() throws Exception {
 
         return introspect(NO_LANG);
     }
@@ -169,7 +169,7 @@ abstract class ObjectIntrospector extends TimeClientBase {
      * @throws Exception Is thrown if failed to introspect the object
      * @see AllSeenIntrospectable
      */
-    protected IntrospectionNode introspect(String language) throws Exception {
+    IntrospectionNode introspect(String language) throws Exception {
 
         checkTsClientValidity();
 
@@ -185,7 +185,7 @@ abstract class ObjectIntrospector extends TimeClientBase {
      * @param language The language of the object description
      * @param objectDescription objectDescription
      */
-    protected void setObjectDescription(String language, String objectDescription) {
+    void setObjectDescription(String language, String objectDescription) {
 
         checkDescLanguageValidity(language);
 
@@ -216,7 +216,7 @@ abstract class ObjectIntrospector extends TimeClientBase {
      * @throws IllegalArgumentException Is thrown if the language is undefined, not {@link ObjectIntrospector#NO_LANG}
      * or not one of the descriptionLanguages array
      */
-    protected void checkDescLanguageValidity(String descriptionLanguage) {
+    void checkDescLanguageValidity(String descriptionLanguage) {
 
         if ( descriptionLanguage == null ) {
 
