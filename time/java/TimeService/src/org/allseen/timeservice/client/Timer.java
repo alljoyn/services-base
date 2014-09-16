@@ -237,9 +237,10 @@ public class Timer extends ObjectIntrospector {
     }
 
     /**
-     * Set this {@link Timer} title
-     * @param title {@link Timer} title
-     * @throws TimeServiceException Is thrown if failed to set the {@link Timer} title
+     * Set title to the {@link TimeServiceServer} Timer object.
+     * @param title Timer title.
+     * Title is an optional textual description of what this Timer is set for.
+     * @throws TimeServiceException Is thrown if failed to set the Timer title
      */
     public void setTitle(String title) throws TimeServiceException {
 

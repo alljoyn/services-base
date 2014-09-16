@@ -36,7 +36,7 @@ public abstract class Timer {
     private BaseTimerBusObj baseTimerBusObj;
 
     /**
-     * Get total time the {@link Timer} should count down
+     * Returns total time the {@link Timer} should count down
      * @return {@link Period} of time to count down
      */
     public abstract Period getInterval();
@@ -47,7 +47,7 @@ public abstract class Timer {
     public abstract void setInterval(Period period);
 
     /**
-     * Amount of time left
+     * Returns amount of time left
      * @return Amount of time left
      * @return {@link Period}
      */
@@ -60,7 +60,7 @@ public abstract class Timer {
     public abstract boolean isRunning();
 
     /**
-     * How many times this {@link Timer} should repeat itself.
+     * Returns how many times this {@link Timer} should repeat itself.
      * The value of {@link org.allseen.timeservice.ajinterfaces.Timer#REPEAT_FOREVER},
      * means to repeat the {@link Timer} forever
      * @return How many times this timer should repeat itself.
@@ -81,14 +81,15 @@ public abstract class Timer {
     public abstract void setRepeat(short repeat) throws ErrorReplyBusException;
 
     /**
-     * Get textual description of what this {@link Timer} is.
+     * Returns get textual description of what this {@link Timer} is.
      * @return Textual description of what this {@link Timer} is
      */
     public abstract String getTitle();
 
     /**
-     * Set textual description of what this {@link Timer} is.
-     * @param title Textual description of what this {@link Timer} is
+     * Set title to this {@link Timer}.
+     * @param title Timer title
+     * Title is an optional textual description of what this Timer is set for.
      */
     public abstract void setTitle(String title);
 
@@ -103,7 +104,7 @@ public abstract class Timer {
     public abstract void pause();
 
     /**
-     * Reset the {@link Timer} so that that TimeLeft is equal to the {@link Timer} Interval
+     * Reset the {@link Timer} so that the TimeLeft is equal to the {@link Timer} Interval
      */
     public abstract void reset();
 
@@ -138,8 +139,8 @@ public abstract class Timer {
     }
 
     /**
-     * Emit the signal when the {@link Timer} changes its running state, i.e. when
-     * {@link Timer#start()} or {@link Timer#pause()} is called.
+     * Emit the signal when the {@link Timer} changes its running state as a result of
+     * {@link Timer#start()} or {@link Timer#pause()}.
      * @param isRunning TRUE if the {@link Timer} is running
      * @throws TimeServiceException Is thrown if failed to emit the RunStateChanged signal
      */

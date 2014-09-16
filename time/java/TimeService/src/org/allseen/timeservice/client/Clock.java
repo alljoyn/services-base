@@ -206,7 +206,7 @@ public class Clock extends TimeClientBase {
 
     /**
      * Register {@link TimeAuthorityHandler} to receive {@link TimeAuthorityHandler#handleTimeSync(Clock)}
-     * events. This method is only valid for objects that {@link Clock#isAuthority()} returns TRUE.
+     * events. This method is only valid for objects that {@link Clock#isAuthority()} is set to TRUE.
      * @param timeAuthorityHandler {@link TimeAuthorityHandler}
      * @throws IllegalStateException Is thrown if this method was called for the {@link Clock}
      * that is not a Time Authority
@@ -231,7 +231,7 @@ public class Clock extends TimeClientBase {
 
     /**
      * Unregister  {@link TimeAuthorityHandler} to stop receiving {@link TimeAuthorityHandler#handleTimeSync(Clock)}
-     * events. This method is only valid for objects that {@link Clock#isAuthority()} returns TRUE.
+     * events. This method is only valid for objects that {@link Clock#isAuthority()} is set TRUE.
      * @throws IllegalStateException Is thrown if this method was called for the {@link Clock}
      * that is not a Time Authority
      */

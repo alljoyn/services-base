@@ -138,7 +138,7 @@ public class Alarm extends ObjectIntrospector {
     /**
      * Set title to the {@link TimeServiceServer} Alarm object.
      * @param title Alarm title.
-     * Title is an optional textual description of what this alarm is set for.
+     * Title is an optional textual description of what this Alarm is set for.
      * @throws TimeServiceException Is thrown if failed to set the alarm title
      */
     public void setTitle(String title) throws TimeServiceException {
