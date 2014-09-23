@@ -572,6 +572,7 @@ void OnboardingControllerImpl::CancelAdvertise()
     if (m_BusAttachment->IsConnected() && m_BusAttachment->GetUniqueName().size() > 0) {
         QStatus status = m_BusAttachment->CancelAdvertiseName(m_BusAttachment->GetUniqueName().c_str(), TRANSPORT_ANY);
         QCC_DbgHLPrintf(("CancelAdvertiseName for %s = %s", m_BusAttachment->GetUniqueName().c_str(), QCC_StatusText(status)));
+        (void)status;  // Suppress unused warning from G++ when building is release mode.
     }
 }
 
