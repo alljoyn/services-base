@@ -70,12 +70,12 @@ public class Date {
 
         if ( month < 1 || month > 12 ) {
 
-            throw new IllegalArgumentException("Month is not in the correct range");
+            throw new IllegalArgumentException("Month is not in the expected range");
         }
 
         if ( day < 1 || day > 31 ) {
 
-            throw new IllegalArgumentException("Day is not in the correct range");
+            throw new IllegalArgumentException("Day is not in the expected range");
         }
     }
 
