@@ -44,7 +44,7 @@ public class TimeServiceConst {
     public static final String INVALID_VALUE_ERROR = "org.alljoyn.Error.InvalidValue";
 
     /**
-     * Out of range error
+     * Out Of Range Error
      */
     public static final String OUT_OF_RANGE        = "org.alljoyn.Error.OutOfRange";
 

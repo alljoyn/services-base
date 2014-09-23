@@ -31,10 +31,10 @@ public class Time {
 
     /**
      * Constructor
-     * @param hour Permitted range: 0-23
-     * @param minute Permitted range: 0-59
-     * @param second Permitted range: 0-59
-     * @param millisecond Permitted range: 0-999
+     * @param hour Expected range: 0-23
+     * @param minute Expected range: 0-59
+     * @param second Expected range: 0-59
+     * @param millisecond Expected range: 0-999
      * @throws IllegalArgumentException Is thrown if received arguments are not in the correct range
      */
     public Time(byte hour, byte minute, byte second, short millisecond) {
@@ -71,22 +71,22 @@ public class Time {
 
         if ( hour < 0 || hour > 23 ) {
 
-            throw new IllegalArgumentException("Hour is not in the correct range");
+            throw new IllegalArgumentException("Hour is not in the expected range");
         }
 
         if ( minute < 0 || minute > 59 ) {
 
-            throw new IllegalArgumentException("Minute is not in the correct range");
+            throw new IllegalArgumentException("Minute is not in the expected range");
         }
 
         if ( second < 0 || second > 59 ) {
 
-            throw new IllegalArgumentException("Second is not in the correct range");
+            throw new IllegalArgumentException("Second is not in the expected range");
         }
 
         if ( millisecond < 0 || millisecond > 999 ) {
 
-            throw new IllegalArgumentException("Milliseconds is not in the correct range");
+            throw new IllegalArgumentException("Milliseconds is not in the expected range");
         }
     }
 
