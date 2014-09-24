@@ -98,6 +98,14 @@ class ControlPanelBusObject : public BusObject {
      */
     QStatus Introspect(std::vector<IntrospectionNode>& childNodes);
 
+    /**
+     * @internal Explicitly provide implementation for virtual method.
+     */
+    void Introspect(const InterfaceDescription::Member* member, Message& msg)
+    {
+        BusObject::Introspect(member, msg);
+    }
+
   private:
 
     /**

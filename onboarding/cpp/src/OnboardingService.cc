@@ -296,7 +296,7 @@ void OnboardingService::GetScanInfoHandler(const ajn::InterfaceDescription::Memb
             Check_MethodReply(msg, ER_FAIL);
             return;
         }
-        MsgArg scanInfoArgs[numberOfElements];
+        MsgArg* scanInfoArgs = new MsgArg[numberOfElements];
         for (size_t i = 0; i < numberOfElements; i++) {
             CHECK_BREAK(scanInfoArgs[i].Set("(sn)", scanInfoList[i].SSID.c_str(), scanInfoList[i].authType));
         }
@@ -305,6 +305,7 @@ void OnboardingService::GetScanInfoHandler(const ajn::InterfaceDescription::Memb
         CHECK_BREAK(retArgs[0].Set("q", age));
         CHECK_BREAK(retArgs[1].Set("a(sn)", numberOfElements, scanInfoArgs));
         Check_MethodReply(msg, retArgs, 2);
+        delete[] scanInfoArgs;
         return;
 
     } while (0);

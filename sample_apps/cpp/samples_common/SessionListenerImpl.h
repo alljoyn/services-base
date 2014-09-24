@@ -44,8 +44,6 @@ class SessionListenerImpl : public ajn::SessionListener {
 
   private:
 
-    ajn::SessionId mySessionID;
-
     qcc::String serviceName;
 
 };

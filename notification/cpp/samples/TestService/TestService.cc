@@ -609,7 +609,7 @@ bool checkRequiredSteps(TestFunction& test, TestFunction*testFunctions, int32_t*
 void trim(qcc::String& str, const qcc::String& whitespace = " ")
 {
     if (str.size() > 0) {
-        unsigned strBegin = str.find_first_not_of(whitespace.c_str());
+        size_t strBegin = str.find_first_not_of(whitespace.c_str());
         if (strBegin == qcc::String::npos) {
             str = ""; // no content
             return;
@@ -662,7 +662,7 @@ bool processInput(const qcc::String& input, qcc::String& funcName, std::map<qcc:
     std::stringstream iss(paramString.c_str());
     std::string singleParam;
     while (getline(iss, singleParam, '&')) {
-        unsigned equalPos = singleParam.find("=");
+        size_t equalPos = singleParam.find("=");
         if (equalPos == qcc::String::npos) {
             std::cout << "Parameters were not entered in the correct format. Please check usage format." << std::endl;
             Usage(testFunctions);

@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -100,6 +100,14 @@ class NotificationActionBusObject : public BusObject {
      * @return status - success/failure
      */
     QStatus Introspect(std::vector<IntrospectionNode>& childNodes);
+
+    /**
+     * @internal Explicitly provide implementation for virtual method.
+     */
+    void Introspect(const InterfaceDescription::Member* member, Message& msg)
+    {
+        BusObject::Introspect(member, msg);
+    }
 
     /**
      * remove the SignalHandler of the BusObject

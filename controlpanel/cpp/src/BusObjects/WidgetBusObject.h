@@ -121,6 +121,14 @@ class WidgetBusObject : public ajn::BusObject {
     virtual QStatus Introspect(std::vector<IntrospectionNode>& childNodes);
 
     /**
+     * @internal Explicitly provide implementation for virtual method.
+     */
+    void Introspect(const InterfaceDescription::Member* member, Message& msg)
+    {
+        BusObject::Introspect(member, msg);
+    }
+
+    /**
      * remove the SignalHandler of the BusObject
      * @param bus - busAttachment used to remove the signalHandlers
      * @return status - success/failure
