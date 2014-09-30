@@ -125,7 +125,7 @@ public abstract class Alarm {
 
     /**
      * Associate this {@link Alarm} with the {@link AlarmBusObj} which implements AllJoyn functionality
-     * @param clockBusObj {@link AlarmBusObj}
+     * @param alarmBusObj {@link AlarmBusObj}
      */
     void setAlarmBusObj(BaseAlarmBusObj alarmBusObj) {
 
