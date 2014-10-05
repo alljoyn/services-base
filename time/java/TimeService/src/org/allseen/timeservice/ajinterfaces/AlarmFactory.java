@@ -55,7 +55,7 @@ public interface AlarmFactory extends BusObject {
      * @return Returns the object path of the newly created {@link Alarm}.
      * @throws BusException
      */
-    @BusMethod(name="NewAlarm", replySignature="s")
+    @BusMethod(name="NewAlarm", replySignature="o")
     String newAlarm() throws BusException;
 
     /**

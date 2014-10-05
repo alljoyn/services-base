@@ -55,7 +55,7 @@ public interface TimerFactory extends BusObject {
      * @return Returns the object path of the newly created {@link Timer}.
      * @throws BusException
      */
-    @BusMethod(name="NewTimer", replySignature="s")
+    @BusMethod(name="NewTimer", replySignature="o")
     String newTimer() throws BusException;
 
     /**
