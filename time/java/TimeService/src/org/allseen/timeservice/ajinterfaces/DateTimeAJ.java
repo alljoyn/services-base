@@ -22,7 +22,7 @@ import org.allseen.timeservice.DateTime;
 import org.allseen.timeservice.Time;
 
 /**
- * Date Time structure for communication with {@link Clock}
+ * Date Time structure for communicating with {@link Clock}
  */
 public class DateTimeAJ {
 

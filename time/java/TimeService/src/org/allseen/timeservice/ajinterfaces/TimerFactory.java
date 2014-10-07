@@ -37,20 +37,20 @@ public interface TimerFactory extends BusObject {
     public static final String IFNAME = TimeServiceConst.IFNAME_PREFIX + ".TimerFactory";
 
     /**
-     * This interface version
+     * The version of this interface
      */
     public static final short VERSION = 1;
 
     /**
      * Returns the interface version
-     * @return interface version number
+     * @return Interface version number
      * @throws BusException
      */
     @BusProperty(signature="q")
     short getVersion() throws BusException;
 
     /**
-     * Creates {@link Timer} underneath this {@link TimerFactory}.
+     * Creates a {@link Timer} under this {@link TimerFactory}.
      * The newly created {@link Timer} implements {@link Timer#IFNAME}
      * @return Returns the object path of the newly created {@link Timer}.
      * @throws BusException

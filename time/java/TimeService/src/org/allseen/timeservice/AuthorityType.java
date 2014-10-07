@@ -19,7 +19,7 @@ package org.allseen.timeservice;
 import org.allseen.timeservice.server.TimeAuthorityClock;
 
 /**
- * Options where a {@link TimeAuthorityClock} synchronizes its time
+ * The different sources a {@link TimeAuthorityClock} can synchronize its time against.
  */
 public enum AuthorityType {
 

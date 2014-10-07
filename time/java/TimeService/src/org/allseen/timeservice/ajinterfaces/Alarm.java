@@ -35,13 +35,13 @@ public interface Alarm extends BusObject {
     public static final String IFNAME = TimeServiceConst.IFNAME_PREFIX + ".Alarm";
 
     /**
-     * This interface version
+     * The version of this interface
      */
     public static final short VERSION = 1;
 
     /**
      * Returns the interface version
-     * @return interface version number
+     * @return Interface version number
      * @throws BusException
      */
     @BusProperty(signature="q")
@@ -80,8 +80,8 @@ public interface Alarm extends BusObject {
     void setTitle(String title) throws BusException;
 
     /**
-     * Get whether or not this Alarm is enabled
-     * @return Is alarm enabled
+     * Returns whether or not this Alarm is enabled
+     * @return Is Alarm is enabled
      * @throws BusException
      */
     @BusProperty(signature="b")
@@ -95,7 +95,7 @@ public interface Alarm extends BusObject {
     void setEnabled(boolean enabled) throws BusException;
 
     /**
-     * The signal is emitted when the Alarm has reached
+     * This signal is emitted when the Alarm has been reached
      * @throws BusException
      */
     @BusSignal(name="AlarmReached", description="Alarm reached signal", sessionless=true)

@@ -16,8 +16,10 @@
 
 package org.allseen.timeservice;
 
+import org.allseen.timeservice.ajinterfaces.Clock;
+
 /**
- * Date data type which is used by the Alarm
+ * Date is used by the {@link Clock} to set its {@link DateTime}
  */
 public class Date {
 
@@ -29,9 +31,9 @@ public class Date {
 
     /**
      * Constructor
-     * @param year
-     * @param month Permitted range: 1-12
-     * @param day Permitted range: 1-31
+     * @param year Expected: four digit format
+     * @param month Expected range: 1-12
+     * @param day Expected range: 1-31
      * @throws IllegalArgumentException Is thrown if received arguments are not in the correct range
      */
     public Date(short year, byte month, byte day) {

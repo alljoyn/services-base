@@ -22,6 +22,7 @@ import org.alljoyn.bus.annotation.BusInterface;
 import org.alljoyn.bus.annotation.BusProperty;
 import org.alljoyn.bus.annotation.BusSignal;
 import org.allseen.timeservice.TimeServiceConst;
+import org.allseen.timeservice.server.TimeAuthorityClock;
 
 /**
  * Time Service Time Authority interface.
@@ -42,22 +43,22 @@ public interface TimeAuthority {
 
     /**
      * Returns the interface version
-     * @return interface version number
+     * @return Interface version number
      */
     @BusProperty(signature="q")
     short getVersion() throws BusException;
 
     /**
-     * Enum value of the different options of where this time authority synchronizes its time with.
-     * @return Enum value of this time authority
+     * Source from which {@link TimeAuthorityClock} synchronizes its time against.
+     * @return {@link TimeAuthorityClock} source
      * @throws BusException
      */
     @BusProperty(signature="y")
     byte getAuthorityType() throws BusException;
 
     /**
-     * Session-Less signal to suggest to synchronize time with the time authority clock,
-     * sending this signal
+     * Session-less signal suggesting to synchronize time with the time authority clock
+     * sending this signal.
      */
     @BusSignal(name="TimeSync", sessionless=true)
     void timeSync() throws BusException;

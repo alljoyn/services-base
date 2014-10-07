@@ -19,8 +19,10 @@ package org.allseen.timeservice;
 import java.util.EnumSet;
 import java.util.Set;
 
+import org.allseen.timeservice.ajinterfaces.Alarm;
+
 /**
- * This class is used by the Alarm to set its schedule
+ * The Schedule indicates the when the {@link Alarm} should fire.
  */
 public class Schedule {
 
@@ -112,10 +114,10 @@ public class Schedule {
     private final Set<WeekDay> weekDays;
 
     /**
-     * Constructor
+     * Use this constructor to define an Alarm {@link Schedule}.
      * @param time Schedule {@link Time}
-     * @param weekDays {@link Set} of days of week when an Alarm should fire.
-     * Empty {@link Set} means that the Alarm is fired only once.
+     * @param weekDays Days of week when an Alarm should fire.
+     * Empty weekDays means that the Alarm is fired only once.
      * @throws IllegalArgumentException Is thrown if undefined arguments have been received
      */
     public Schedule(Time time, Set<WeekDay> weekDays) {
@@ -135,8 +137,7 @@ public class Schedule {
     }
 
     /**
-     * Constructor
-     * Use this constructor to define {@link Schedule} for an Alarm that should fire only once.
+     * Use this constructor to define a {@link Schedule} for an Alarm that should fire only once.
      * @param time Schedule {@link Time}.
      * @throws IllegalArgumentException Is thrown if undefined arguments have been received
      */

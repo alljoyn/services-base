@@ -37,20 +37,20 @@ public interface AlarmFactory extends BusObject {
     public static final String IFNAME = TimeServiceConst.IFNAME_PREFIX + ".AlarmFactory";
 
     /**
-     * This interface version
+     * The version of this interface
      */
     public static final short VERSION = 1;
 
     /**
      * Returns the interface version
-     * @return interface version number
+     * @return Interface version number
      * @throws BusException
      */
     @BusProperty(signature="q")
     short getVersion() throws BusException;
 
     /**
-     * Creates {@link Alarm} underneath this {@link AlarmFactory}.
+     * Creates an {@link Alarm} under this {@link AlarmFactory}.
      * The newly created {@link Alarm} implements {@link Alarm#IFNAME}.
      * @return Returns the object path of the newly created {@link Alarm}.
      * @throws BusException

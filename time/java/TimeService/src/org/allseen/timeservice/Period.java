@@ -15,8 +15,10 @@
   ******************************************************************************/
 package org.allseen.timeservice;
 
+import org.allseen.timeservice.ajinterfaces.Timer;
+
 /**
- * Period data type which is used by the Timer
+ * Period is used to indicate time interval of the {@link Timer}.
  */
 public class Period {
 
@@ -30,10 +32,10 @@ public class Period {
 
     /**
      * Constructor
-     * @param hour Positive number
-     * @param minute Permitted range: 0-59
-     * @param second Permitted range: 0-59
-     * @param millisecond Permitted range: 0-999
+     * @param hour A positive number
+     * @param minute Expected range: 0-59
+     * @param second Expected range: 0-59
+     * @param millisecond Expected range: 0-999
      * @throws IllegalArgumentException Is thrown if received arguments are not in the correct range
      */
     public Period(int hour, byte minute, byte second, short millisecond) {

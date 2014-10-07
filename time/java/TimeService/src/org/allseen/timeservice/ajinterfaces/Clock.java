@@ -36,13 +36,13 @@ public interface Clock extends BusObject {
     public static final String IFNAME = TimeServiceConst.IFNAME_PREFIX + ".Clock";
 
     /**
-     * This interface version
+     * The version of this interface
      */
     public static final short VERSION = 1;
 
     /**
      * Returns the interface version
-     * @return interface version number
+     * @return Interface version number
      * @throws BusException
      */
     @BusProperty(signature="q")
@@ -65,7 +65,8 @@ public interface Clock extends BusObject {
     void setDateTime(DateTimeAJ dateTime) throws BusException;
 
     /**
-     * @return Return whether the {@link Clock} has ever been defined before
+     * The property is set to TRUE when the {@link Clock} is set.
+     * @return Returns TRUE if the {@link Clock} has been set since the last reboot
      * @throws BusException
      */
     @BusProperty(signature="b")
