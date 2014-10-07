@@ -46,7 +46,7 @@ public class AlarmFactory extends ObjectIntrospector {
     /**
      * Creates new {@link Alarm}
      * @return {@link Alarm} that has been created
-     * @throws TimeServiceException If failed to create the {@link Alarm}
+     * @throws TimeServiceException Is thrown if failed to create the {@link Alarm}
      */
     public Alarm newAlarm() throws TimeServiceException {
 

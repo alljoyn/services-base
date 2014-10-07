@@ -69,7 +69,7 @@ class TimeClientBase {
      * Verifies that tsClient is initialized
      * @throws TimeServiceException Is thrown if tsClient is not initialized
      */
-    protected void checkTsClientValidity() throws TimeServiceException {
+    void checkTsClientValidity() throws TimeServiceException {
 
         if ( tsClient == null ) {
 
@@ -82,7 +82,7 @@ class TimeClientBase {
      * @return {@link BusAttachment}
      * @throws TimeServiceException Is thrown if {@link BusAttachment} if it is defined
      */
-    protected BusAttachment getBus() throws TimeServiceException {
+    BusAttachment getBus() throws TimeServiceException {
 
         checkTsClientValidity();
 
@@ -101,7 +101,7 @@ class TimeClientBase {
      * @return Session Id
      * @throws TimeServiceException Is thrown if the session is not established
      */
-    protected Integer getSid() throws TimeServiceException {
+    Integer getSid() throws TimeServiceException {
 
         checkTsClientValidity();
 
@@ -121,12 +121,12 @@ class TimeClientBase {
      * session not established
      * @see BusAttachment#getProxyBusObject(String, String, int, Class[], boolean)
      */
-    protected ProxyBusObject getProxyObject(Class<?>[] proxyClasses) throws TimeServiceException {
+     ProxyBusObject getProxyObject(Class<?>[] proxyClasses) throws TimeServiceException {
 
         BusAttachment bus = getBus();
         Integer sid       = getSid();
 
         return bus.getProxyBusObject(tsClient.getServerBusName(), objectPath, sid, proxyClasses);
-    }
+     }
 
 }

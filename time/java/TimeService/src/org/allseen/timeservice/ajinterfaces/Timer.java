@@ -43,7 +43,7 @@ public interface Timer extends BusObject {
     public static final short VERSION        = 1;
 
     /**
-     * If timer Repeat is set to this value, the timer will repeat indefinitely forever
+     * If timer Repeat is set to this value, the timer will repeat indefinitely
      */
     public static final short REPEAT_FOREVER = (short)0xffff;
 
@@ -56,7 +56,8 @@ public interface Timer extends BusObject {
     short getVersion() throws BusException;
 
     /**
-     * Get total time to count down
+     * Returns total time to count down
+     * @return Total time to count down
      * @throws BusException
      */
     @BusProperty(signature="(uyyq)")
@@ -105,16 +106,16 @@ public interface Timer extends BusObject {
     void setRepeat(short repeatTimes) throws BusException;
 
     /**
-     * Get textual description of what this Timer is
-     * @return Textual description of what this Timer is
+     * Returns textual description of this Timer
+     * @return Textual description of this Timer
      * @throws BusException
      */
     @BusProperty(signature="s")
     String getTitle() throws BusException;
 
     /**
-     * Set textual description of what this Timer is
-     * @param title Textual description of what this Timer is
+     * Set textual description of this Timer
+     * @param title Textual description of this Timer
      * @throws BusException
      */
     @BusProperty(signature="s")
