@@ -249,6 +249,16 @@ public class TimeServiceServer {
     }
 
     /**
+     * {@link TimeServiceServer} is started if the method {@link TimeServiceServer#init(BusAttachment)}
+     * has been invoked
+     * @return TRUE if the {@link TimeServiceServer} has been started
+     */
+    public boolean isStarted() {
+
+        return (bus != null);
+    }
+
+    /**
      * Create Clock.
      * @param clock Methods of this {@link Clock} are invoked
      * as a response to calls of the remote {@link TimeServiceClient}s.
