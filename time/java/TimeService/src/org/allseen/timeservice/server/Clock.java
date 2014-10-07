@@ -43,7 +43,8 @@ public abstract class Clock {
     public abstract void setDateTime(DateTime dateTime);
 
     /**
-     * Whether or not this clock has ever been set
+     * Whether or not this clock has ever been set.
+     * @return Returns TRUE if the {@link Clock} has been set since the last reboot
      */
     public abstract boolean getIsSet();
 

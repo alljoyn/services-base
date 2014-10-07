@@ -35,18 +35,19 @@ public abstract class AlarmFactory {
     /**
      * Create new {@link Alarm}
      * @return {@link Alarm}
-     * @throws ErrorReplyBusException Is thrown if it's impossible to create new {@link Alarm}, because the maximum number
-     * of {@link Alarm}s is reached. {@link ErrorReplyBusException} should be thrown with the error code of:
-     * {@link TimeServiceConst#OUT_OF_RANGE} and the error description.
+     * @throws ErrorReplyBusException Is thrown if create new Alarm fails due to max permitted number of Alarm objects
+     * reached. {@link ErrorReplyBusException} should be thrown with the error code of:
+     * {@link TimeServiceConst#OUT_OF_RANGE} and an error description.
      */
     public abstract Alarm newAlarm() throws ErrorReplyBusException;
 
     /**
-     * Find and delete {@link Alarm} by the given object path.
+     * Find {@link Alarm} by the given object path.
      * To delete the {@link Alarm}, call {@link Alarm#release()}.
      * @param objectPath Object path of the {@link Alarm} to delete.
      * @throws ErrorReplyBusException Is thrown if for any reason failed to delete the {@link Alarm}.
-     * Throw {@link ErrorReplyBusException} with the error code of: {@link TimeServiceConst#GENERIC_ERROR} and the error description.
+     * Throw {@link ErrorReplyBusException} with the error code of: {@link TimeServiceConst#GENERIC_ERROR}
+     * and an error description.
      */
     public abstract void deleteAlarm(String objectPath) throws ErrorReplyBusException;
 

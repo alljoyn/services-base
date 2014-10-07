@@ -309,7 +309,7 @@ public class TimeServiceServer {
     }
 
     /**
-     * Create Alarm.
+     * Create Alarm with description.
      * @param alarm Methods of this {@link Alarm} are invoked
      * as a response to calls of the remote {@link TimeServiceClient}s
      * @param description Description to be added to the object when registering {@link Alarm}.
@@ -376,7 +376,7 @@ public class TimeServiceServer {
     }
 
     /**
-     * Register user defined custom Alarm. <br>
+     * Register user defined custom Alarm with description.<br>
      * Custom Alarm should extend {@link BaseAlarmBusObj} and implement {@link org.allseen.timeservice.ajinterfaces.Alarm}
      * interface. <br>
      * This method registers the given alarmBusObj and searches for the interfaces to be added to {@link AboutService}
@@ -425,8 +425,8 @@ public class TimeServiceServer {
     }
 
     /**
-     * Create Alarm Factory. <br>
-     * Alarm Factory allows creating or deleting {@link Alarm}s.
+     * Create Alarm Factory.<br>
+     * Alarm Factory allows creating and deleting {@link Alarm} objects.
      * @param alarmFactory Methods of this {@link AlarmFactory} are invoked
      * as a response to calls of the remote {@link TimeServiceClient}s.
      * @throws TimeServiceException Is thrown if failed to create the {@link AlarmFactory}
@@ -443,8 +443,8 @@ public class TimeServiceServer {
     }
 
     /**
-     * Create Alarm Factory. <br>
-     * Alarm Factory allows creating or deleting {@link Alarm}s.
+     * Create Alarm Factory with description.<br>
+     * Alarm Factory allows creating and deleting {@link Alarm} objects.
      * @param alarmFactory Methods of this {@link AlarmFactory} are invoked
      * as a response to calls of the remote {@link TimeServiceClient}s.
      * @param description Description to be added to the created {@link Alarm}.
@@ -492,7 +492,7 @@ public class TimeServiceServer {
     }
 
     /**
-     * Create Timer.
+     * Create Timer with description.
      * @param timer Methods of this {@link Timer} are invoked
      * as a response to calls of the remote {@link TimeServiceClient}s
      * @param description Description to be added to the object when registering {@link Timer}.
@@ -559,7 +559,7 @@ public class TimeServiceServer {
     }
 
     /**
-     * Register user defined custom Timer. <br>
+     * Register user defined custom Timer with description.<br>
      * Custom Timer should extend {@link BaseTimerBusObj} and implement {@link org.allseen.timeservice.ajinterfaces.Timer}
      * interface. <br>
      * This method registers the given timerBusObj and searches for the interfaces to be added to {@link AboutService}
@@ -609,7 +609,7 @@ public class TimeServiceServer {
 
     /**
      * Create Timer Factory.<br>
-     * Timer Factory allows creating or deleting {@link Timer}s.
+     * Timer Factory allows creating and deleting {@link Timer} objects.
      * @param timerFactory Methods of this {@link TimerFactory} are invoked
      * as a response to calls of the remote {@link TimeServiceClient}s.
      * @throws TimeServiceException Is thrown if failed to create the {@link TimerFactory}
@@ -626,8 +626,8 @@ public class TimeServiceServer {
     }
 
     /**
-     * Create Timer Factory.<br>
-     * Timer Factory allows creating or deleting {@link Timer}s.
+     * Create Timer Factory with description.<br>
+     * Timer Factory allows creating and deleting {@link Timer} objects.
      * @param timerFactory Methods of this {@link TimerFactory} are invoked
      * as a response to calls of the remote {@link TimeServiceClient}s.
      * @param description Description to be added to the created {@link Timer}.
@@ -636,7 +636,7 @@ public class TimeServiceServer {
      * @param language The language of the description
      * @param translator If not NULL, {@link Timer} will be created with {@link Translator}
      * to support the feature of {@link AllSeenIntrospectable#GetDescriptionLanguages()}
-     * @throws TimeServiceException Is throws if failed to create the {@link TimerFactory}
+     * @throws TimeServiceException Is thrown if failed to create the {@link TimerFactory}
      */
     public void createTimerFactory (TimerFactory timerFactory, String description, String language,
                                         Translator translator) throws TimeServiceException {

@@ -36,7 +36,7 @@ public abstract class Alarm {
     private BaseAlarmBusObj baseAlarmBusObj;
 
     /**
-     * Get {@link Schedule} of this {@link Alarm}
+     * Returns {@link Schedule} of this {@link Alarm}
      * @return {@link Alarm}
      */
     public abstract Schedule getSchedule();
@@ -52,19 +52,20 @@ public abstract class Alarm {
     public abstract void setSchedule(Schedule schedule) throws ErrorReplyBusException;
 
     /**
-     * Get {@link Alarm} title.
+     * Returns {@link Alarm} title.
      * @return Optional textual description of what this alarm is
      */
     public abstract String getTitle();
 
     /**
-     * Set {@link Alarm} title
-     * @param title Optional textual description of what this alarm is
+     * Set title to this {@link Alarm}.
+     * @param title Alarm title.
+     * Title is an optional textual description of what this Alarm is set for.
      */
     public abstract void setTitle(String title);
 
     /**
-     * Get whether or not this {@link Alarm} is enabled
+     * Returns whether or not this {@link Alarm} is enabled
      * @return Is {@link Alarm} enabled
      */
     public abstract boolean isEnabled();

@@ -35,18 +35,19 @@ public abstract class TimerFactory {
     /**
      * Create new {@link Timer}
      * @return {@link Timer}
-     * @throws ErrorReplyBusException Is thrown if it's impossible to create new {@link Timer}, because the maximum number
-     * of {@link Timer}s is reached. {@link ErrorReplyBusException} should be thrown with the error code of:
-     * {@link TimeServiceConst#OUT_OF_RANGE} and the error description.
+     * @throws ErrorReplyBusException Is thrown if create new Timer fails due to max permitted number
+     * of Timer objects reached. {@link ErrorReplyBusException} should be thrown with the error code of:
+     * {@link TimeServiceConst#OUT_OF_RANGE} and an error description.
      */
     public abstract Timer newTimer() throws ErrorReplyBusException;
 
     /**
-     * Find and delete {@link Timer} by the given object path.
+     * Find {@link Timer} by the given object path.
      * To delete the {@link Timer}, call {@link Timer#release()}.
      * @param objectPath Object path of the {@link Timer} to delete.
      * @throws ErrorReplyBusException Is thrown if for any reason failed to delete the {@link Timer}.
-     * Throw {@link ErrorReplyBusException} with the error code of: {@link TimeServiceConst#GENERIC_ERROR} and the error description.
+     * Throw {@link ErrorReplyBusException} with the error code of: {@link TimeServiceConst#GENERIC_ERROR} and
+     * an error description.
      */
     public abstract void deleteTimer(String objectPath) throws ErrorReplyBusException;
 
