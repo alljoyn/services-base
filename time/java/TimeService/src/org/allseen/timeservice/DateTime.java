@@ -17,7 +17,7 @@
 package org.allseen.timeservice;
 
 /**
- * Date & Time date type
+ * Date & Time data type
  */
 public class DateTime {
 
