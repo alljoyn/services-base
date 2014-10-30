@@ -1,4 +1,4 @@
-# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+# Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
@@ -14,6 +14,7 @@
 #
 import sys
 import os
+import os.path
 import subprocess
 import xml.etree.ElementTree as xml
 
@@ -52,19 +53,22 @@ if len(args) < 1 :
 
 for i in range(0, len(args)) :
     xmlfile = args[i]
-    print "\nProcessing xmlfile: " + xmlfile + "\n" 
-    cpFile = scriptDir + "/cp.xsd"
-    subprocArgs = "xmllint --noout --schema {0} {1}".format(cpFile, xmlfile)
-    rc = subprocess.call(subprocArgs, shell=True)
-    if rc != 0 :
-        print >> sys.stderr, "\nERROR - xml xsd validation did not pass"
-        sys.exit(2)
-
-    print "\nxml xsd validation passed"
+    print "\nProcessing xmlfile: " + xmlfile + "\n"
+    if sys.platform != 'win32':
+        cpFile = os.path.join(scriptDir, "cp.xsd")
+        subprocArgs = "xmllint --noout --schema {0} {1}".format(cpFile, xmlfile)
+        rc = subprocess.call(subprocArgs, shell=True)
+        if rc != 0 :
+            print >> sys.stderr, "\nERROR - xml xsd validation did not pass"
+            sys.exit(2)
+        print "\nxml xsd validation passed"
+    else:
+        # There is no pure python way to easily do this
+        print "\nWARNING - skipping xml validation as xmllint is not available on this platform"
 
     ### Initialize the generated structure ###
     o = xml2objects.ObjectBuilder(xmlfile)
-	
+
     if not cpvalidate.validate_all(o.root):
         print >> sys.stderr, "\nERROR - logic xml validation did not pass"
         sys.exit(3)

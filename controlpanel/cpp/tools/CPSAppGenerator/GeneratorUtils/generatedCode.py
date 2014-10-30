@@ -1,4 +1,4 @@
-# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+# Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
@@ -14,10 +14,12 @@
 
 import sys
 import subprocess
+import glob
+import os.path
 
 def as_list(s):
-	if isinstance(s, list): return s
-	return [s]
+    if isinstance(s, list): return s
+    return [s]
 
 class Generator:
 
@@ -146,16 +148,26 @@ class Generator:
 
     def confirmGenerate(self) :
         confirm = self.confirm()
-	if confirm :
-            subprocArgs = "rm -f {0}/*.cc {0}/*.h".format(self.path)
-            rc = subprocess.call(subprocArgs, shell=True)
-            if rc != 0 :
-                print >> sys.stderr, "\nERROR - Could not delete the current generated files"
-                sys.exit(4)
+
+        if confirm :
+            if not os.path.exists(self.path):
+                # The directory does not exist, so create and it and return
+                # as there is nothing to remove
+                os.makedirs(self.path)
+                return
+
+            filesToRemove = glob.glob(os.path.join(self.path, "*.h"))
+            filesToRemove += glob.glob(os.path.join(self.path, "*.cc"))
+            for f in filesToRemove:
+                try:
+                    os.remove(f)
+                except OSError as detail:
+                    print >> sys.stderr, "\nERROR - Could not delete the current generated files:", detail
+                    sys.exit(4)
         else :
             print "\nStopping the generating process"
             sys.exit(0)   
-   
+
     def confirm(self):
         default = False
         prompt = "\nGenerating this xml will cause previously generated files to be deleted. Do you wish to continue? (y/n) (Default is n): "
