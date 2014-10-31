@@ -152,6 +152,12 @@ class Transport {
     void cleanupTransportSuperAgent(bool unregister = false);
 
     /**
+     * Cleanup the SuperAgent bus listener. Also Unregisteres the BusListener depending on input param
+     * @param unregister - should BusListener be Unregistered from Bus
+     */
+    void cleanupSuperAgentBusListener(bool unregister = false);
+
+    /**
      * Cleanup all Sender Transport objects. and Unregister the BusObject
      */
     void cleanupSenderTransport();
