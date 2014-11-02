@@ -1,4 +1,4 @@
-# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+# Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
@@ -59,7 +59,7 @@ class Dialog (common.Widget):
         dialogSrcFile = dialogSrcFile.replace("REGULAR_NAME_HERE", regularName)
         dialogSrcFile = dialogSrcFile.replace("ADDITIONAL_INCLUDES_HERE", self.generated.srcIncludes)
 
-        self.generated.headerIncludes += """#include "../generated/{0}.h"\n""".format(regularName)
+        self.generated.headerIncludes += """#include "{1}{0}.h"\n""".format(regularName, self.generated.path)
 
         notDefined = "return executeActionNotDefined();"
         for i in range(0, len(self.element.button)):

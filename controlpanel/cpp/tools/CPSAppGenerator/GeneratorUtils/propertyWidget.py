@@ -1,4 +1,4 @@
-# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+# Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
@@ -60,7 +60,7 @@ class Property (common.Widget):
         propertySrcFile = propertySrcFile.replace("VALUE_TYPE_HERE", self.varType)
         propertySrcFile = propertySrcFile.replace("CODE_OF_SET_VALUE_HERE", self.element.setCode.replace("%s", "value"))
 
-        self.generated.headerIncludes += """#include "../generated/{0}.h"\n""".format(regularName)
+        self.generated.headerIncludes += """#include "{1}{0}.h"\n""".format(regularName, self.generated.path)
 
         genH = open(self.generated.path + "/" + regularName + ".h", 'w')
         genH.write(propertyHeaderFile)

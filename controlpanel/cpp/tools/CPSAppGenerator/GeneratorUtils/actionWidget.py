@@ -1,4 +1,4 @@
-# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+# Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
@@ -46,7 +46,7 @@ class Action (common.Widget):
             actionSrcFile = actionSrcFile.replace("ADDITIONAL_INCLUDES_HERE", self.generated.srcIncludes)
             actionSrcFile = actionSrcFile.replace("EXECUTE_ACTION_HERE", onAction.executeCode)
 
-            self.generated.headerIncludes += """#include "../generated/{0}.h"\n""".format(regularName)
+            self.generated.headerIncludes += """#include "{1}{0}.h"\n""".format(regularName, self.generated.path)
 
             genH = open(self.generated.path + "/" + regularName + ".h", 'w')
             genH.write(actionHeaderFile)
