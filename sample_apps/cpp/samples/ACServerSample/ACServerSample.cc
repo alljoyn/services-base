@@ -178,16 +178,6 @@ const char* readPassword() {
     return iter->second.c_str();
 }
 
-/** Advertise the service name, report the result to stdout, and return the status code. */
-QStatus AdvertiseName(TransportMask mask) {
-    QStatus status = ER_BUS_ESTABLISH_FAILED;
-    if (msgBus->IsConnected() && msgBus->GetUniqueName().size() > 0) {
-        status = msgBus->AdvertiseName(msgBus->GetUniqueName().c_str(), mask);
-        printf("AdvertiseName %s =%d\n", msgBus->GetUniqueName().c_str(), status);
-    }
-    return status;
-}
-
 int main(int argc, char**argv, char**envArg) {
 
     QStatus status = ER_OK;
@@ -340,16 +330,6 @@ start:
 #ifdef _CONTROLPANEL_
     ACEventsAndActions theACEventsAndActions(msgBus);
 #endif
-    ////////////////////////////////////////////////////////////////////////////////////////////////////
-    const TransportMask SERVICE_TRANSPORT_TYPE = TRANSPORT_ANY;
-
-    if (ER_OK == status) {
-        status = AdvertiseName(SERVICE_TRANSPORT_TYPE);
-    }
-
-    if (ER_OK == status) {
-        status = aboutService->Announce();
-    }
 
     //////////////////////////////////////////////////////////////////////////////////////////////////// controlpanel
 #ifdef _CONTROLPANEL_

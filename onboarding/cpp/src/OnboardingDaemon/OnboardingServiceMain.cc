@@ -160,16 +160,6 @@ const char* readPassword() {
     return iter->second.c_str();
 }
 
-/** Advertise the service name, report the result to stdout, and return the status code. */
-QStatus AdvertiseName(TransportMask mask) {
-    QStatus status = ER_BUS_ESTABLISH_FAILED;
-    if (msgBus->IsConnected() && msgBus->GetUniqueName().size() > 0) {
-        status = msgBus->AdvertiseName(msgBus->GetUniqueName().c_str(), mask);
-        std::cout << "AdvertiseName for " << msgBus->GetUniqueName().c_str() << " = " << QCC_StatusText(status) << std::endl;
-    }
-    return status;
-}
-
 void WaitForSigInt(void) {
     while (s_interrupt == false && s_restart == false) {
 #ifdef _WIN32
@@ -365,13 +355,6 @@ start:
         return 1;
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    const TransportMask SERVICE_TRANSPORT_TYPE = TRANSPORT_ANY;
-
-    if (ER_OK == status) {
-        status = AdvertiseName(SERVICE_TRANSPORT_TYPE);
-    }
-
     if (ER_OK == status) {
         status = aboutService->Announce();
     }
