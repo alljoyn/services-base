@@ -221,6 +221,7 @@ void* OnboardingControllerImpl::OBS_Connect(void* obsArg)
 void OnboardingControllerImpl::Connect() {
 /* Fill in method handler implementation here. */
     QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
+    CancelAdvertise();
 #ifdef _WIN32
     HANDLE m_handle;
     m_handle = reinterpret_cast<HANDLE>(_beginthreadex(NULL, 256 * 1024, (unsigned int (__stdcall*)(void*)) OnboardingControllerImpl::OBS_Connect, this, 0, NULL));
@@ -536,6 +537,7 @@ void* OnboardingControllerImpl::OBS_Offboard(void* obsArg)
 void OnboardingControllerImpl::Offboard()
 {
     QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
+    CancelAdvertise();
 #ifdef _WIN32
     m_scanWifiThread = reinterpret_cast<HANDLE>(_beginthreadex(NULL, 256 * 1024, (unsigned int (__stdcall*)(void*))ScanWifiThread, this, 0, NULL));
     CloseHandle(m_scanWifiThread);
@@ -587,6 +589,18 @@ int OnboardingControllerImpl::execute_configure(const char* SSID, const int auth
 #else
     return 0;
 #endif
+}
+
+void OnboardingControllerImpl::CancelAdvertise()
+{
+    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
+    m_BusAttachment->EnableConcurrentCallbacks();
+    if (m_BusAttachment->IsConnected() && m_BusAttachment->GetUniqueName().size() > 0) {
+        QStatus status = m_BusAttachment->CancelAdvertiseName(m_BusAttachment->GetUniqueName().c_str(), TRANSPORT_ANY);
+        (void)status;
+        QCC_DbgHLPrintf(("CancelAdvertiseName for %s = %s", m_BusAttachment->GetUniqueName().c_str(), QCC_StatusText(status)));
+        (void)status;  // Suppress unused warning from G++ when building is release mode.
+    }
 }
 
 static int execute_system(const char*cmd)
