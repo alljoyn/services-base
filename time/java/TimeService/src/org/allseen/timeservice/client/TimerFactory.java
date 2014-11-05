@@ -44,6 +44,29 @@ public class TimerFactory extends ObjectIntrospector {
     }
 
     /**
+     * Retrieve {@link Version} from the {@link TimeServiceServer} TimerFactory object.
+     * @return {@link Version}
+     * @throws TimeServiceException Is thrown if failed to retrieve the {@link Version}
+     */
+    public short retrieveVersion() throws TimeServiceException {
+
+        Log.d(TAG, "Retrieving Version, objPath: '" + objectPath + "'");
+
+        try {
+
+            short verAJ = getRemoteTimerFactory().getVersion();
+            
+            Log.d(TAG, "Retrieved Version: '" + verAJ + "', objPath: '" + objectPath + "'");
+
+            return verAJ;
+        }
+        catch (Exception e) {
+
+            throw new TimeServiceException("Failed to call TimerFactory.retrieveVersion()", e);
+        }
+    }
+
+    /**
      * Creates new {@link Timer}
      * @return {@link Timer} that has been created
      * @throws TimeServiceException If failed to create the {@link Timer}

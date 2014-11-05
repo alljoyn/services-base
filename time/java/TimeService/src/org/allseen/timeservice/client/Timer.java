@@ -73,6 +73,29 @@ public class Timer extends ObjectIntrospector {
     }
 
     /**
+     * Retrieve {@link Version} from the {@link TimeServiceServer} Timer object.
+     * @return {@link Version}
+     * @throws TimeServiceException Is thrown if failed to retrieve the {@link Version}
+     */
+    public short retrieveVersion() throws TimeServiceException {
+
+        Log.d(TAG, "Retrieving Version, objPath: '" + objectPath + "'");
+
+        try {
+
+            short verAJ = getRemoteTimer().getVersion();
+            
+            Log.d(TAG, "Retrieved Version: '" + verAJ + "', objPath: '" + objectPath + "'");
+
+            return verAJ;
+        }
+        catch (Exception e) {
+
+            throw new TimeServiceException("Failed to call Timer.retrieveVersion()", e);
+        }
+    }
+
+    /**
      * Retrieve timer interval from the {@link TimeServiceServer} Timer object.
      * @return {@link Timer} interval.
      * @throws TimeServiceException Is thrown if failed to retrieve the interval

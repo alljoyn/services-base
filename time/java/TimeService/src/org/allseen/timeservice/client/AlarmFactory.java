@@ -44,6 +44,29 @@ public class AlarmFactory extends ObjectIntrospector {
     }
 
     /**
+     * Retrieve {@link Version} from the {@link TimeServiceServer} AlarmFactory object.
+     * @return {@link Version}
+     * @throws TimeServiceException Is thrown if failed to retrieve the {@link Version}
+     */
+    public short retrieveVersion() throws TimeServiceException {
+
+        Log.d(TAG, "Retrieving Version, objPath: '" + objectPath + "'");
+
+        try {
+
+            short verAJ = getRemoteAlarmFactory().getVersion();
+            
+            Log.d(TAG, "Retrieved Version: '" + verAJ + "', objPath: '" + objectPath + "'");
+
+            return verAJ;
+        }
+        catch (Exception e) {
+
+            throw new TimeServiceException("Failed to call AlarmFactory.retrieveVersion()", e);
+        }
+    }
+
+    /**
      * Creates new {@link Alarm}
      * @return {@link Alarm} that has been created
      * @throws TimeServiceException Is thrown if failed to create the {@link Alarm}

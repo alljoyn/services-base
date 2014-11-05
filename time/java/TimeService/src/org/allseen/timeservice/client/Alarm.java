@@ -64,6 +64,29 @@ public class Alarm extends ObjectIntrospector {
     }
 
     /**
+     * Retrieve {@link Version} from the {@link TimeServiceServer} Alarm object.
+     * @return {@link Version}
+     * @throws TimeServiceException Is thrown if failed to retrieve the {@link Version}
+     */
+    public short retrieveVersion() throws TimeServiceException {
+
+        Log.d(TAG, "Retrieving Version, objPath: '" + objectPath + "'");
+
+        try {
+
+            short verAJ = getRemoteAlarm().getVersion();
+            
+            Log.d(TAG, "Retrieved Version: '" + verAJ + "', objPath: '" + objectPath + "'");
+
+            return verAJ;
+        }
+        catch (Exception e) {
+
+            throw new TimeServiceException("Failed to call Alarm.retrieveVersion()", e);
+        }
+    }
+
+    /**
      * Retrieve {@link Schedule} from the {@link TimeServiceServer} Alarm object.
      * @return {@link Schedule}
      * @throws TimeServiceException Is thrown if failed to retrieve the {@link Schedule}
