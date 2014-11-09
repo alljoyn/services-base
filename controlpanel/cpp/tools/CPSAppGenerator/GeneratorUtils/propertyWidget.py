@@ -60,7 +60,7 @@ class Property (common.Widget):
         propertySrcFile = propertySrcFile.replace("VALUE_TYPE_HERE", self.varType)
         propertySrcFile = propertySrcFile.replace("CODE_OF_SET_VALUE_HERE", self.element.setCode.replace("%s", "value"))
 
-        self.generated.headerIncludes += """#include "{1}{0}.h"\n""".format(regularName, self.generated.path)
+        self.generated.headerIncludes += self.generateHeaderInclude()
 
         genH = open(self.generated.path + "/" + regularName + ".h", 'w')
         genH.write(propertyHeaderFile)
@@ -169,9 +169,4 @@ class Property (common.Widget):
         else :
             print >> sys.stderr, "ERROR - Element Type of property Unknown. Exiting"
             sys.exit(3)
-
-
-
-
-
 

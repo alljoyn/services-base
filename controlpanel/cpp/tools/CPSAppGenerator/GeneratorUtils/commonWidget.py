@@ -1,4 +1,4 @@
-# Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+# Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
 #
 #    Permission to use, copy, modify, and/or distribute this software for any
 #    purpose with or without fee is hereby granted, provided that the above
@@ -138,5 +138,14 @@ class Widget:
             else :
                 self.generated.initCode += "    {0}->{1}({2});\n".format(self.name, variableName, vectorName)
 
+    
+    def generateHeaderInclude(self):
+        # On Windows replace backslash with slash
+        basePath = self.generated.path.replace("\\", "/")
+        
+        # Remove all trailing / from the path
+        while basePath.endswith("/"):
+            basePath = basePath[:-1]
 
+        return """#include "{0}/{1}.h"\n""".format(basePath, self.widgetName)
 

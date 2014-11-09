@@ -46,7 +46,7 @@ class Action (common.Widget):
             actionSrcFile = actionSrcFile.replace("ADDITIONAL_INCLUDES_HERE", self.generated.srcIncludes)
             actionSrcFile = actionSrcFile.replace("EXECUTE_ACTION_HERE", onAction.executeCode)
 
-            self.generated.headerIncludes += """#include "{1}{0}.h"\n""".format(regularName, self.generated.path)
+            self.generated.headerIncludes += self.generateHeaderInclude()
 
             genH = open(self.generated.path + "/" + regularName + ".h", 'w')
             genH.write(actionHeaderFile)
@@ -58,7 +58,4 @@ class Action (common.Widget):
         elif hasattr(onAction, "dialog") : 
             dialog = dw.Dialog(self.generated, onAction.dialog, self.name, self.languageSetName)
             dialog.generate()
-
-
-
 

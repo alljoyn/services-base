@@ -59,7 +59,7 @@ class Dialog (common.Widget):
         dialogSrcFile = dialogSrcFile.replace("REGULAR_NAME_HERE", regularName)
         dialogSrcFile = dialogSrcFile.replace("ADDITIONAL_INCLUDES_HERE", self.generated.srcIncludes)
 
-        self.generated.headerIncludes += """#include "{1}{0}.h"\n""".format(regularName, self.generated.path)
+        self.generated.headerIncludes += self.generateHeaderInclude()
 
         notDefined = "return executeActionNotDefined();"
         for i in range(0, len(self.element.button)):
@@ -74,6 +74,4 @@ class Dialog (common.Widget):
         genC = open(self.generated.path + "/" + regularName + ".cc", 'w')
         genC.write(dialogSrcFile)
         genC.close()
-
-
 
