@@ -1,17 +1,30 @@
 /******************************************************************************
- * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
+ *    Copyright (c) Open Connectivity Foundation (OCF) and AllJoyn Open
+ *    Source Project (AJOSP) Contributors and others.
  *
- *    Permission to use, copy, modify, and/or distribute this software for any
- *    purpose with or without fee is hereby granted, provided that the above
- *    copyright notice and this permission notice appear in all copies.
+ *    SPDX-License-Identifier: Apache-2.0
  *
- *    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
- *    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
- *    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- *    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
- *    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
- *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ *    All rights reserved. This program and the accompanying materials are
+ *    made available under the terms of the Apache License, Version 2.0
+ *    which accompanies this distribution, and is available at
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Copyright (c) Open Connectivity Foundation and Contributors to AllSeen
+ *    Alliance. All rights reserved.
+ *
+ *    Permission to use, copy, modify, and/or distribute this software for
+ *    any purpose with or without fee is hereby granted, provided that the
+ *    above copyright notice and this permission notice appear in all
+ *    copies.
+ *
+ *    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
+ *    WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
+ *    WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE
+ *    AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
+ *    DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+ *    PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+ *    TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+ *    PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
 package org.alljoyn.ioe.controlpanelservice.communication;
@@ -224,4 +237,4 @@ public class IntrospectionNode {
 	}
 	static private String blob = "<!DOCTYPE node PUBLIC \"-//freedesktop//DTD D-BUS Object Introspection 1.0//EN\" \"http://standards.freedesktop.org/dbus/introspect-1.0.dtd\"> <node> <node name=\"Child\"/> <node name=\"Action\"/> <interface name=\"org.alljoyn.Control.TV.Dev\"> <method name=\"DownChannel\"> <arg type=\"(qq)\" direction=\"out\"/> </method> <method name=\"DownVolume\"> <arg type=\"q\" direction=\"out\"/> </method> <method name=\"GetChannelList\"> <arg type=\"a((qq)s)\" direction=\"out\"/> </method> <signal name=\"PropertyChanged\"> <arg type=\"s\" direction=\"out\"/> <arg type=\"v\" direction=\"out\"/> </signal> <method name=\"UpChannel\"> <arg type=\"(qq)\" direction=\"out\"/> </method> <method name=\"UpVolume\"> <arg type=\"q\" direction=\"out\"/> </method> <property name=\"ChannelNumber\" type=\"(qq)\" access=\"readwrite\"/> <property name=\"InputSource\" type=\"q\" access=\"readwrite\"/> <property name=\"Mute\" type=\"b\" access=\"readwrite\"/> <property name=\"Version\" type=\"q\" access=\"read\"/> <property name=\"Volume\" type=\"q\" access=\"readwrite\"/> </interface> <interface name=\"org.alljoyn.Control.Mouse.Dev\"> <method name=\"ClickMouse\"> </method> <method name=\"MoveMouse\"> <arg type=\"q\" direction=\"in\"/> <arg type=\"(ii)\" direction=\"out\"/> </method> <property name=\"MousePosition\" type=\"(ii)\" access=\"readwrite\"/> <property name=\"Version\" type=\"q\" access=\"read\"/> </interface> <interface name=\"org.freedesktop.DBus.Introspectable\"> <method name=\"Introspect\"> <arg name=\"data\" type=\"s\" direction=\"out\"/> </method> </interface> <interface name=\"org.freedesktop.DBus.Properties\"> <method name=\"Get\"> <arg name=\"interface\" type=\"s\" direction=\"in\"/> <arg name=\"propname\" type=\"s\" direction=\"in\"/> <arg name=\"value\" type=\"v\" direction=\"out\"/> </method> <method name=\"GetAll\"> <arg name=\"interface\" type=\"s\" direction=\"in\"/> <arg name=\"props\" type=\"a{sv}\" direction=\"out\"/> </method> <method name=\"Set\"> <arg name=\"interface\" type=\"s\" direction=\"in\"/> <arg name=\"propname\" type=\"s\" direction=\"in\"/> <arg name=\"value\" type=\"v\" direction=\"in\"/> </method> </interface> </node>"; 
 	*/
-}
+}
