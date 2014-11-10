@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -14,26 +14,38 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#ifndef LOGMODULESNAMES_H_
-#define LOGMODULESNAMES_H_
+#include "TestAuthorityClock.h"
 
-/*
- * Common Macros
- */
+using namespace ajn;
+using namespace services;
 
-namespace ajn {
-namespace services {
-namespace logModules {
+//Constructor
+TestAuthorityClock::TestAuthorityClock() :  TimeServiceServerAuthorityClock()
+{
+}
 
-static char const* const NOTIFICATION_MODULE_LOG_NAME = "Notification";
-static char const* const CONTROLPANEL_MODULE_LOG_NAME = "ControlPanel";
-static char const* const ONBOARDING_MODULE_LOG_NAME = "Onboarding";
-static char const* const CONFIG_MODULE_LOG_NAME = "Config";
-static char const* const SERVICES_COMMON_MODULE_LOG_NAME = "services_common";
-static char const* const TIME_MODULE_LOG_NAME = "Time";
-static const uint32_t ALL_LOG_LEVELS = 15;
-} //namespace logModules
-} //namespace services
-} //namespace ajn
+//Destructor
+TestAuthorityClock::~TestAuthorityClock()
+{
+}
 
-#endif /* LOGMODULESNAMES_H_ */
+//DateTime object
+const TimeServiceDateTime& TestAuthorityClock::getDateTime() const
+{
+
+    return m_Clock.getDateTime();
+}
+
+//Set the DateTime object
+void TestAuthorityClock::setDateTime(TimeServiceDateTime const& dateTime)
+{
+
+    m_Clock.setDateTime(dateTime);
+}
+
+//Whether or not this clock has ever been set.
+bool TestAuthorityClock::isSet() const
+{
+
+    return true;
+}

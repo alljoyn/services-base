@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -14,26 +14,60 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#ifndef LOGMODULESNAMES_H_
-#define LOGMODULESNAMES_H_
+#ifndef _MUTEX_H_
+#define _MUTEX_H_
 
-/*
- * Common Macros
- */
+#ifdef _WIN32
+#include <Windows.h>
+#define pthread_mutex_t CRITICAL_SECTION
+#define pthread_cond_t CONDITION_VARIABLE
+#else
+#include <pthread.h>
+#endif
+#include <errno.h>
+#include <alljoyn/Status.h>
 
 namespace ajn {
 namespace services {
-namespace logModules {
 
-static char const* const NOTIFICATION_MODULE_LOG_NAME = "Notification";
-static char const* const CONTROLPANEL_MODULE_LOG_NAME = "ControlPanel";
-static char const* const ONBOARDING_MODULE_LOG_NAME = "Onboarding";
-static char const* const CONFIG_MODULE_LOG_NAME = "Config";
-static char const* const SERVICES_COMMON_MODULE_LOG_NAME = "services_common";
-static char const* const TIME_MODULE_LOG_NAME = "Time";
-static const uint32_t ALL_LOG_LEVELS = 15;
-} //namespace logModules
-} //namespace services
-} //namespace ajn
+/**
+ * a wrapper class to mutex
+ */
+class Mutex {
+  public:
 
-#endif /* LOGMODULESNAMES_H_ */
+    /**
+     * Mutex constructor
+     */
+    Mutex();
+
+    /**
+     * Mutex destructor
+     */
+    ~Mutex();
+
+    /**
+     * Lock mutex
+     */
+    QStatus Lock();
+
+    /**
+     * Unlock mutex
+     */
+    QStatus Unlock();
+
+    /**
+     * Get mutex object
+     */
+    pthread_mutex_t* GetMutex() { return &mutex; }
+
+  private:
+
+    pthread_mutex_t mutex;
+
+};
+
+} /* services */
+} /* ajn */
+
+#endif /* _MUTEX_H_ */
