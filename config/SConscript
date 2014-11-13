@@ -23,9 +23,6 @@ env['OBJDIR_SERVICES_CONFIG'] = env['OBJDIR'] + '/services/config'
 env.Append(LIBPATH = '$DISTDIR/config/lib');
 env.Append(CPPPATH = '$DISTDIR/config/inc');
 
-if not env.has_key('_ALLJOYN_ABOUT_') and os.path.exists('../../../core/alljoyn/services/about/SConscript'):
-    env.SConscript('../../../core/alljoyn/services/about/SConscript')
-
 if not env.has_key('_ALLJOYN_SERVICES_COMMON_') and os.path.exists('../services_common/SConscript'):
     env.SConscript('../services_common/SConscript')
 
