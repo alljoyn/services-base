@@ -319,7 +319,11 @@ QStatus PayloadAdapter::sendPayload(ajn::MsgArg deviceIdArg, ajn::MsgArg deviceN
         QCC_DbgPrintf(("Attempting to send messageId: %d", messageId));
 
         Transport* transport = Transport::getInstance();
-        return transport->sendNotification(messageType, notificationArgs, ttl);
+        status = transport->sendNotification(messageType, notificationArgs, ttl);
+        if (status == ER_OK) {
+            QCC_DbgHLPrintf(("Message sent successfully with messageId: %d", messageId));
+        }
+        return status;
     } while (0);
 
     QCC_LogError(status, ("Error occurred.  Could not marshal parameters."));
