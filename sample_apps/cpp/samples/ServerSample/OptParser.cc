@@ -19,7 +19,7 @@
 #include <alljoyn/about/AboutPropertyStoreImpl.h>
 #include <alljoyn/services_common/GuidUtil.h>
 
-static const char versionPreamble[] = "AC Server Sample 1.0";
+static const char versionPreamble[] = "AC Server Sample %s";
 
 using namespace ajn;
 using namespace services;
@@ -235,7 +235,7 @@ OptParser::ParseResultCode OptParser::ParseResult() {
     for (indx = 1; indx < argc; indx++) {
         qcc::String arg(argv[indx]);
         if (arg.compare("--version") == 0) {
-            printf(versionPreamble, "1");
+            printf(versionPreamble, "1.0");
             result = PR_EXIT_NO_ERROR;
             break;
         } else if (arg.compare(0, sizeof("--port") - 1, "--port") == 0) {

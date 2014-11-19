@@ -36,6 +36,10 @@
 #include <alljoyn/notification/Notification.h>
 #endif
 
+#if defined (_TESTMODE_) && defined (_NOTIFICATION_)
+#include "NotificationTesterImpl.h"
+#endif
+
 #ifdef _CONTROLPANEL_
 #include <ControlPanelGenerated.h>
 #include <alljoyn/controlpanel/ControlPanelService.h>
@@ -49,6 +53,8 @@ using namespace services;
 #define SERVICE_EXIT_OK       0
 #define SERVICE_OPTION_ERROR  1
 #define SERVICE_CONFIG_ERROR  2
+
+static char const* const QCC_MODULE = "ServerSample";
 
 /** static variables need for sample */
 static BusAttachment* msgBus = NULL;
@@ -70,6 +76,9 @@ static ConfigServiceListenerImpl* configServiceListenerImpl = NULL;
 #ifdef _NOTIFICATION_
 NotificationService* prodService = NULL;
 NotificationSender* sender = NULL;
+#ifdef _TESTMODE_
+NotificationTesterImpl* notifTester = new NotificationTesterImpl();
+#endif
 #endif
 
 #ifdef _CONTROLPANEL_
@@ -83,6 +92,7 @@ static void SigIntHandler(int sig) {
 
 static void daemonDisconnectCB()
 {
+    QCC_DbgHLPrintf(("Received daemonDisconnectCB"));
     s_restart = true;
 }
 
@@ -128,6 +138,14 @@ static void cleanup() {
 #endif
 
 #ifdef _NOTIFICATION_
+
+#ifdef _TESTMODE_
+    if (notifTester) {
+        delete notifTester;
+        notifTester = NULL;
+    }
+#endif
+
     if (prodService) {
         prodService->shutdown();
         prodService = NULL;
@@ -181,7 +199,7 @@ bool WaitForSigInt(int32_t sleepTime) {
 #else
         sleep(sleepTime);
 #endif
-        return false;
+        return (s_interrupt == true || s_restart == true);
     }
     return true;
 }
@@ -375,6 +393,17 @@ start:
         return 1;
     }
 
+    std::cout << "DeviceId: " << opts.GetDeviceId().c_str() << std::endl;
+
+    DeviceNamesType deviceNames = opts.GetDeviceNames();
+    DeviceNamesType::const_iterator iter = deviceNames.find(opts.GetDefaultLanguage());
+    if (iter != deviceNames.end()) {
+        std::cout << "DeviceName: " << iter->second.c_str() << std::endl;
+    }
+    std::cout << "AppId: " << opts.GetAppId().c_str() << std::endl;
+    std::cout << "AppName: " << opts.GetAppName().c_str() << std::endl;
+
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     //aboutIconService
     uint8_t aboutIconContent[] = { 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52 \
@@ -463,15 +492,26 @@ start:
 #endif
 
 #ifdef _NOTIFICATION_
+    QCC_SetDebugLevel(logModules::NOTIFICATION_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
+
+#ifdef _TESTMODE_
+    if (!notifTester->Initialize(msgBus, propertyStoreImpl)) {
+        std::cout << "Could not initialize NotificationTester - exiting application" << std::endl;
+        cleanup();
+        return 1;
+    }
+#else
     // Initialize Service object and Sender Object
     prodService = NotificationService::getInstance();
-    QCC_SetDebugLevel(logModules::NOTIFICATION_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
+
     sender = prodService->initSend(msgBus, propertyStoreImpl);
     if (!sender) {
         std::cout << "Could not initialize Sender - exiting application" << std::endl;
         cleanup();
         return 1;
     }
+#endif
+
 #endif
 
     status = CommonSampleUtil::aboutServiceAnnounce();
@@ -488,6 +528,10 @@ start:
         int32_t sleepTime = 5;
 
 #ifdef _NOTIFICATION_
+
+#ifdef _TESTMODE_
+        sleepTime = notifTester->LoopHandler();
+#else
         std::cout << "Press any key to send a notification" << std::endl;
         getchar();
 
@@ -504,6 +548,7 @@ start:
             std::cout << "Notification sent. Sleeping 5 seconds" << std::endl;
         }
 #endif
+#endif
 
         if (WaitForSigInt(sleepTime)) {
             break;
@@ -515,6 +560,7 @@ start:
     cleanup();
 
     if (s_restart) {
+        QCC_DbgHLPrintf(("restarting..."));
         s_restart = false;
         goto start;
     }
