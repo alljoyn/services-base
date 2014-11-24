@@ -22,6 +22,10 @@
  #include <qcc/platform.h>
  #include <alljoyn/services_common/LogModulesNames.h>
 
+#if defined (WIN32)
+#define __func__ __FUNCTION__
+#endif
+
 namespace ajn {
 namespace services {
 static char const* const QCC_MODULE = logModules::TIME_MODULE_LOG_NAME;
