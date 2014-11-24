@@ -21,7 +21,7 @@ import java.util.Calendar;
 
 import org.allseen.timeservice.Date;
 import org.allseen.timeservice.DateTime;
-import org.allseen.timeservice.sample.server.ui.TimeServiceSampleServerApplication;
+import org.allseen.timeservice.sample.server.ui.TimeSampleServer;
 import org.allseen.timeservice.server.Clock;
 
 import android.content.Context;
@@ -70,13 +70,13 @@ public class ServerClock extends Clock {
         org.allseen.timeservice.Time ts = new org.allseen.timeservice.Time((byte)t.hour, (byte) t.minute,seconds, (short)0);
         org.allseen.timeservice.Date ds = new Date((short)t.year, (byte)(t.month + 1), (byte)t.monthDay);
         dt = new DateTime(ds, ts, (short)0);
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.CLOCK_EVENT_ACTION, getObjectPath(), "ServerClock created");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.CLOCK_EVENT_ACTION, getObjectPath(), "ServerClock created");
     }
 
     @Override
     public DateTime getDateTime() {
         Calendar currentCalendar=TimeOffsetManager.getInstance().getCurrentServerTime();
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.CLOCK_EVENT_ACTION, getObjectPath(), "ServerClock getDateTime request");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.CLOCK_EVENT_ACTION, getObjectPath(), "ServerClock getDateTime request");
         dt=TimeOffsetManager.getInstance().convertCalendarToDateTime(currentCalendar);
         return dt;
     }
@@ -98,13 +98,13 @@ public class ServerClock extends Clock {
         String formattedDate = TimeOffsetManager.getInstance().getDateAndTimeDisplayFormat().format(newTime.getTime());
         long diff=Calendar.getInstance().getTimeInMillis()-newTime.getTimeInMillis();
         TimeOffsetManager.getInstance().setTimeDifference(diff);
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.CLOCK_EVENT_ACTION, getObjectPath(), "ServerClock setDateTime request to "+formattedDate );
+        TimeSampleServer.sendMessage(context, TimeSampleServer.CLOCK_EVENT_ACTION, getObjectPath(), "ServerClock setDateTime request to "+formattedDate );
         isSet=true;
     }
 
     @Override
     public boolean getIsSet() {
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.CLOCK_EVENT_ACTION, getObjectPath(), "ServerClock getIsSet request");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.CLOCK_EVENT_ACTION, getObjectPath(), "ServerClock getIsSet request");
         return isSet;
     }
 

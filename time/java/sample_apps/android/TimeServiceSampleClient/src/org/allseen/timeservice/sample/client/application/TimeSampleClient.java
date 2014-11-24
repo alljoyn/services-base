@@ -40,7 +40,7 @@ import android.util.Log;
  * </ul>
  * Stores the messages and updates the UI
  */
-public class TimeServiceSampleClientApplication extends Application {
+public class TimeSampleClient extends Application {
     private static final String TAG = "TimeServiceSampleClientApplication";
 
     public static final String TIMER_EVENT_SIGNAL_ACTION = "TimerEvent";

@@ -84,7 +84,7 @@ public class MainActivity extends Activity {
 
                     @Override
                     public void run() {
-                        adapter.update(((TimeServiceSampleServerApplication) getApplication()).getMessagesList());
+                        adapter.update(((TimeSampleServer) getApplication()).getMessagesList());
                     }
                 });
             }
@@ -102,30 +102,30 @@ public class MainActivity extends Activity {
         messageListView = (ListView) mainLayout.findViewById(R.id.main_log_list);
 
         TextView logtitle = (TextView) mainLayout.findViewById(R.id.logtilte);
-        logtitle.setText(getResources().getString(R.string.logTitle, ((TimeServiceSampleServerApplication) getApplication()).getProtocolManager().getBusAttachment().getUniqueName()));
+        logtitle.setText(getResources().getString(R.string.logTitle, ((TimeSampleServer) getApplication()).getProtocolManager().getBusAttachment().getUniqueName()));
 
         Button clearList = (Button) mainLayout.findViewById(R.id.clearlist);
         clearList.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((TimeServiceSampleServerApplication) getApplication()).getMessagesList().clear();
+                ((TimeSampleServer) getApplication()).getMessagesList().clear();
                 runOnUiThread(new Runnable() {
 
                     @Override
                     public void run() {
-                        adapter.update(((TimeServiceSampleServerApplication) getApplication()).getMessagesList());
+                        adapter.update(((TimeSampleServer) getApplication()).getMessagesList());
                         messageListView.smoothScrollToPosition(0);
                     }
                 });
             }
         });
 
-        filter.addAction(TimeServiceSampleServerApplication.TIMER_EVENT_ACTION);
-        filter.addAction(TimeServiceSampleServerApplication.ALARM_EVENT_ACTION);
-        filter.addAction(TimeServiceSampleServerApplication.CLOCK_EVENT_ACTION);
-        filter.addAction(TimeServiceSampleServerApplication.GENERAL_ACTION);
+        filter.addAction(TimeSampleServer.TIMER_EVENT_ACTION);
+        filter.addAction(TimeSampleServer.ALARM_EVENT_ACTION);
+        filter.addAction(TimeSampleServer.CLOCK_EVENT_ACTION);
+        filter.addAction(TimeSampleServer.GENERAL_ACTION);
 
-        adapter = new MessagesAdapter(this, ((TimeServiceSampleServerApplication) getApplication()).getMessagesList());
+        adapter = new MessagesAdapter(this, ((TimeSampleServer) getApplication()).getMessagesList());
         messageListView.setAdapter(adapter);
 
         TimeOffsetManager.getInstance().registerTimeChangeListener(new TimeChangeListener() {
@@ -145,7 +145,7 @@ public class MainActivity extends Activity {
     @Override
     public void onResume() {
         super.onResume();
-        adapter.update(((TimeServiceSampleServerApplication) getApplication()).getMessagesList());
+        adapter.update(((TimeSampleServer) getApplication()).getMessagesList());
         messageListView.smoothScrollToPosition(adapter.getCount() - 1);
         LocalBroadcastManager.getInstance(this).registerReceiver(messagesReceiver, filter);
 
@@ -182,7 +182,7 @@ public class MainActivity extends Activity {
 
     private static class MessagesAdapter extends BaseAdapter {
 
-        private List<TimeServiceSampleServerApplication.MessageItem> values;
+        private List<TimeSampleServer.MessageItem> values;
         private final LayoutInflater inflater;
         private final Context context;
         private final Calendar calendar = Calendar.getInstance();
@@ -225,14 +225,14 @@ public class MainActivity extends Activity {
             } else {
                 holder = (DataObjectHolder) row.getTag();
             }
-            TimeServiceSampleServerApplication.MessageItem item = values.get(position);
-            if (item.type.equals(TimeServiceSampleServerApplication.ALARM_EVENT_ACTION)) {
+            TimeSampleServer.MessageItem item = values.get(position);
+            if (item.type.equals(TimeSampleServer.ALARM_EVENT_ACTION)) {
                 holder.title.setBackgroundColor(context.getResources().getColor(R.color.green));
-            } else if (item.type.equals(TimeServiceSampleServerApplication.CLOCK_EVENT_ACTION)) {
+            } else if (item.type.equals(TimeSampleServer.CLOCK_EVENT_ACTION)) {
                 holder.title.setBackgroundColor(context.getResources().getColor(R.color.red));
-            } else if (item.type.equals(TimeServiceSampleServerApplication.TIMER_EVENT_ACTION)) {
+            } else if (item.type.equals(TimeSampleServer.TIMER_EVENT_ACTION)) {
                 holder.title.setBackgroundColor(context.getResources().getColor(R.color.holo_light_blue));
-            } else if (item.type.equals(TimeServiceSampleServerApplication.GENERAL_ACTION)) {
+            } else if (item.type.equals(TimeSampleServer.GENERAL_ACTION)) {
                 holder.title.setBackgroundColor(context.getResources().getColor(R.color.gray));
             }
             calendar.setTimeInMillis(item.timestamp);
@@ -250,13 +250,13 @@ public class MainActivity extends Activity {
             return row;
         }
 
-        public MessagesAdapter(Context context, List<TimeServiceSampleServerApplication.MessageItem> values) {
+        public MessagesAdapter(Context context, List<TimeSampleServer.MessageItem> values) {
             this.context = context;
             this.values = values;
             this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
-        public void update(List<TimeServiceSampleServerApplication.MessageItem> values) {
+        public void update(List<TimeSampleServer.MessageItem> values) {
             this.values = values;
             notifyDataSetChanged();
         }

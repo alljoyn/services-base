@@ -32,7 +32,7 @@ import org.allseen.timeservice.client.AlarmFactory;
 import org.allseen.timeservice.sample.client.R;
 import org.allseen.timeservice.sample.client.application.DeviceManager;
 import org.allseen.timeservice.sample.client.application.DeviceManager.SignalObject;
-import org.allseen.timeservice.sample.client.application.TimeServiceSampleClientApplication;
+import org.allseen.timeservice.sample.client.application.TimeSampleClient;
 import org.allseen.timeservice.sample.client.dataobjects.AlarmItem;
 
 import android.app.Activity;
@@ -153,7 +153,7 @@ public class AlarmFragment extends Fragment {
                 if (getArguments().containsKey("EDIT")) {
                     getFragmentManager().popBackStack();
                 } else {
-                    Map<UUID, DeviceManager.Device> map = ((TimeServiceSampleClientApplication) context.getApplicationContext()).getDeviceManager().getDevicesMap();
+                    Map<UUID, DeviceManager.Device> map = ((TimeSampleClient) context.getApplicationContext()).getDeviceManager().getDevicesMap();
                     if (map != null) {
                         final DeviceManager.Device currentDevice = map.get(currentDeviceUUID);
 
@@ -240,7 +240,7 @@ public class AlarmFragment extends Fragment {
                                     }, null);
                         } else {
 
-                            Map<UUID, DeviceManager.Device> map = ((TimeServiceSampleClientApplication) context.getApplicationContext()).getDeviceManager().getDevicesMap();
+                            Map<UUID, DeviceManager.Device> map = ((TimeSampleClient) context.getApplicationContext()).getDeviceManager().getDevicesMap();
                             if (map != null) {
                                 final DeviceManager.Device currentDevice = map.get(currentDeviceUUID);
                                 if (currentDevice != null) {
@@ -330,7 +330,7 @@ public class AlarmFragment extends Fragment {
             registerSignal.setChecked(false);
             descriptionValue.setHint(context.getResources().getString(R.string.alarm_title_hint));
             enabled.setChecked(false);
-            Map<UUID, DeviceManager.Device> map = ((TimeServiceSampleClientApplication) context.getApplicationContext()).getDeviceManager().getDevicesMap();
+            Map<UUID, DeviceManager.Device> map = ((TimeSampleClient) context.getApplicationContext()).getDeviceManager().getDevicesMap();
             if (map != null) {
                 DeviceManager.Device currentDevice = map.get(currentDeviceUUID);
                 if (currentDevice != null) {

@@ -33,7 +33,7 @@ import org.allseen.timeservice.sample.client.R;
 import org.allseen.timeservice.sample.client.adapters.ClientServiceAdapter;
 import org.allseen.timeservice.sample.client.application.DeviceManager;
 import org.allseen.timeservice.sample.client.application.DeviceManagerNotifier;
-import org.allseen.timeservice.sample.client.application.TimeServiceSampleClientApplication;
+import org.allseen.timeservice.sample.client.application.TimeSampleClient;
 import org.allseen.timeservice.sample.client.dataobjects.ClientServiceItem;
 import org.allseen.timeservice.sample.client.ui.TimerPickerDialog.OnCancelListener;
 import org.allseen.timeservice.sample.client.ui.TimerPickerDialog.OnTimeSetListener;
@@ -199,7 +199,7 @@ public class ClientServiceFragment extends Fragment {
 
         progressDialog.setMessage(context.getResources().getString(R.string.wait_getting_clock));
         progressDialog.show();
-        final DeviceManager.Device device = ((TimeServiceSampleClientApplication) context.getApplicationContext()).getDeviceManager().getDevicesMap().get(selecteItemUUID);
+        final DeviceManager.Device device = ((TimeSampleClient) context.getApplicationContext()).getDeviceManager().getDevicesMap().get(selecteItemUUID);
         if (device != null) {
             if (!device.timeServiceClient.isConnected()) {
                 device.timeServiceClient.joinSessionAsync(new SessionListenerHandler() {
@@ -232,7 +232,7 @@ public class ClientServiceFragment extends Fragment {
     }
 
     private void handleSetClock() {
-        final DeviceManager.Device device = ((TimeServiceSampleClientApplication) context.getApplicationContext()).getDeviceManager().getDevicesMap().get(selecteItemUUID);
+        final DeviceManager.Device device = ((TimeSampleClient) context.getApplicationContext()).getDeviceManager().getDevicesMap().get(selecteItemUUID);
         if (device != null) {
             progressDialog.setMessage(context.getResources().getString(R.string.wait_setting_clock));
             progressDialog.show();
@@ -322,14 +322,14 @@ public class ClientServiceFragment extends Fragment {
             return true;
         case REGISTER_SYNC: {
 
-            DeviceManager.Device device = ((TimeServiceSampleClientApplication) context.getApplicationContext()).getDeviceManager().getDevicesMap().get(selecteItemUUID);
+            DeviceManager.Device device = ((TimeSampleClient) context.getApplicationContext()).getDeviceManager().getDevicesMap().get(selecteItemUUID);
             if (device != null) {
                 for (Clock clock : device.timeServiceClient.getAnnouncedClockList()) {
                     if (clock.isAuthority()) {
                         DeviceManager.TimeAuthorityHandlerImpl handler = new DeviceManager.TimeAuthorityHandlerImpl(context, clock, device.serviceName);
                         clock.registerTimeAuthorityHandler(handler);
 
-                        DeviceManager.Device currentDevice = ((TimeServiceSampleClientApplication) context.getApplicationContext()).getDeviceManager().getDevicesMap().get(selecteItemUUID);
+                        DeviceManager.Device currentDevice = ((TimeSampleClient) context.getApplicationContext()).getDeviceManager().getDevicesMap().get(selecteItemUUID);
                         if (currentDevice != null) {
                             currentDevice.registerSignalHandler(clock.getObjectPath(), handler);
                         }
@@ -348,7 +348,7 @@ public class ClientServiceFragment extends Fragment {
         }
             return true;
         case UNREGISTER_SYNC: {
-            DeviceManager.Device device = ((TimeServiceSampleClientApplication) context.getApplicationContext()).getDeviceManager().getDevicesMap().get(selecteItemUUID);
+            DeviceManager.Device device = ((TimeSampleClient) context.getApplicationContext()).getDeviceManager().getDevicesMap().get(selecteItemUUID);
             if (device != null) {
                 for (Clock clock : device.timeServiceClient.getAnnouncedClockList()) {
                     if (clock.isAuthority()) {
@@ -382,7 +382,7 @@ public class ClientServiceFragment extends Fragment {
         baseActivity = (BaseActivity) activity;
 
         fragmentCommunication = (FragmentCommunicationInterface) activity;
-        ((TimeServiceSampleClientApplication) context.getApplicationContext()).getDeviceManager().registerDeviceManagerNotifier(new DeviceManagerNotifier() {
+        ((TimeSampleClient) context.getApplicationContext()).getDeviceManager().registerDeviceManagerNotifier(new DeviceManagerNotifier() {
 
             @Override
             public void devicesHaveBeenChanged() {
@@ -413,7 +413,7 @@ public class ClientServiceFragment extends Fragment {
 
         List<ClientServiceItem> temp = new ArrayList<ClientServiceItem>();
 
-        Map<UUID, DeviceManager.Device> map = ((TimeServiceSampleClientApplication) context.getApplicationContext()).getDeviceManager().getDevicesMap();
+        Map<UUID, DeviceManager.Device> map = ((TimeSampleClient) context.getApplicationContext()).getDeviceManager().getDevicesMap();
 
         for (Map.Entry<UUID, DeviceManager.Device> entry : map.entrySet()) {
             UUID key = entry.getKey();

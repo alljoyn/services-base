@@ -24,7 +24,7 @@ import org.alljoyn.bus.ErrorReplyBusException;
 import org.allseen.timeservice.Schedule;
 import org.allseen.timeservice.Schedule.WeekDay;
 import org.allseen.timeservice.TimeServiceException;
-import org.allseen.timeservice.sample.server.ui.TimeServiceSampleServerApplication;
+import org.allseen.timeservice.sample.server.ui.TimeSampleServer;
 import org.allseen.timeservice.server.Alarm;
 
 import android.content.Context;
@@ -95,19 +95,19 @@ public class ServerAlarm extends Alarm {
                 }
             }
         });
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.ALARM_EVENT_ACTION, getObjectPath(), "Alarm has been created");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.ALARM_EVENT_ACTION, getObjectPath(), "Alarm has been created");
 
     }
 
     @Override
     public Schedule getSchedule() {
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.ALARM_EVENT_ACTION, getObjectPath(), "Alarm getSchedule request");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.ALARM_EVENT_ACTION, getObjectPath(), "Alarm getSchedule request");
         return schedule;
     }
 
     @Override
     public void setSchedule(Schedule schedule) throws ErrorReplyBusException {
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.ALARM_EVENT_ACTION, getObjectPath(), "Alarm setSchedule request");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.ALARM_EVENT_ACTION, getObjectPath(), "Alarm setSchedule request");
         this.schedule = schedule;
         if (isEnabled) {
             startNewTimer();
@@ -116,26 +116,26 @@ public class ServerAlarm extends Alarm {
 
     @Override
     public String getTitle() {
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.ALARM_EVENT_ACTION, getObjectPath(), "Alarm getTitle request");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.ALARM_EVENT_ACTION, getObjectPath(), "Alarm getTitle request");
         return title;
     }
 
     @Override
     public void setTitle(String title) {
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.ALARM_EVENT_ACTION, getObjectPath(), "Alarm setTitle request");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.ALARM_EVENT_ACTION, getObjectPath(), "Alarm setTitle request");
         this.title = title;
     }
 
     @Override
     public boolean isEnabled() {
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.ALARM_EVENT_ACTION, getObjectPath(), "Alarm isEnabled request");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.ALARM_EVENT_ACTION, getObjectPath(), "Alarm isEnabled request");
         return isEnabled;
     }
 
     @Override
     public void setEnabled(boolean enabled) {
 
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.ALARM_EVENT_ACTION, getObjectPath(), "Alarm setEnabled request");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.ALARM_EVENT_ACTION, getObjectPath(), "Alarm setEnabled request");
 
         this.isEnabled = enabled;
         if (isEnabled) {
@@ -151,7 +151,7 @@ public class ServerAlarm extends Alarm {
     @Override
     public void alarmReached() throws TimeServiceException {
         Log.d(TAG, "alarmReached for [" + getObjectPath() + "]");
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.ALARM_EVENT_ACTION, getObjectPath(), "Alarm alarmReached Event");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.ALARM_EVENT_ACTION, getObjectPath(), "Alarm alarmReached Event");
         super.alarmReached();
     }
 

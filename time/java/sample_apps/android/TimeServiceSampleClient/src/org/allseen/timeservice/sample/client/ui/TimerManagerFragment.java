@@ -31,7 +31,7 @@ import org.allseen.timeservice.sample.client.R;
 import org.allseen.timeservice.sample.client.adapters.TimerManagerAdapter;
 import org.allseen.timeservice.sample.client.application.DeviceManager;
 import org.allseen.timeservice.sample.client.application.DeviceManager.SignalObject;
-import org.allseen.timeservice.sample.client.application.TimeServiceSampleClientApplication;
+import org.allseen.timeservice.sample.client.application.TimeSampleClient;
 import org.allseen.timeservice.sample.client.dataobjects.TimerItem;
 
 import android.app.Activity;
@@ -121,7 +121,7 @@ public class TimerManagerFragment extends Fragment {
         View buttonView = rootView.findViewById(R.id.button_layout);
         currentDeviceUUID = (UUID) getArguments().getSerializable("UUID");
 
-        Map<UUID, DeviceManager.Device> map = ((TimeServiceSampleClientApplication) context.getApplicationContext()).getDeviceManager().getDevicesMap();
+        Map<UUID, DeviceManager.Device> map = ((TimeSampleClient) context.getApplicationContext()).getDeviceManager().getDevicesMap();
         if (map != null) {
             DeviceManager.Device currentDevice = map.get(currentDeviceUUID);
 
@@ -217,7 +217,7 @@ public class TimerManagerFragment extends Fragment {
         // register to receive Timer signal.
         case REGISTER_TIMER_SIGNALS: {
             // register to receive Timer signals.
-            final DeviceManager.Device currentDevice = ((TimeServiceSampleClientApplication) context.getApplicationContext()).getDeviceManager().getDevicesMap().get(currentDeviceUUID);
+            final DeviceManager.Device currentDevice = ((TimeSampleClient) context.getApplicationContext()).getDeviceManager().getDevicesMap().get(currentDeviceUUID);
             if (currentDevice != null) {
                 registerSignals(currentDevice, timerItem.timer);
                 getActivity().runOnUiThread(new Runnable() {
@@ -234,7 +234,7 @@ public class TimerManagerFragment extends Fragment {
         case UNREGISTER_TIMER_SIGNALS: {
             // unregister from remote party to receive signals to current Timer.
             timerItem.timer.unregisterTimerHandler();
-            final DeviceManager.Device currentDevice = ((TimeServiceSampleClientApplication) context.getApplicationContext()).getDeviceManager().getDevicesMap().get(currentDeviceUUID);
+            final DeviceManager.Device currentDevice = ((TimeSampleClient) context.getApplicationContext()).getDeviceManager().getDevicesMap().get(currentDeviceUUID);
             if (currentDevice != null) {
                 currentDevice.unRegisterSignalHandler(timerItem.timer.getObjectPath());
                 getActivity().runOnUiThread(new Runnable() {
@@ -277,7 +277,7 @@ public class TimerManagerFragment extends Fragment {
      * and the timer announced list. for each Timer fetch it's properties.
      */
     private void generateTimerItemList() {
-        Map<UUID, DeviceManager.Device> map = ((TimeServiceSampleClientApplication) context.getApplicationContext()).getDeviceManager().getDevicesMap();
+        Map<UUID, DeviceManager.Device> map = ((TimeSampleClient) context.getApplicationContext()).getDeviceManager().getDevicesMap();
         if (map == null) {
 
             progressDialog.dismiss();
@@ -361,7 +361,7 @@ public class TimerManagerFragment extends Fragment {
      * @throws TimeServiceException
      */
     private List<TimerItem> retrieveList(TimeServiceClient timeServiceClient) throws TimeServiceException {
-        Map<UUID, DeviceManager.Device> map = ((TimeServiceSampleClientApplication) context.getApplicationContext()).getDeviceManager().getDevicesMap();
+        Map<UUID, DeviceManager.Device> map = ((TimeSampleClient) context.getApplicationContext()).getDeviceManager().getDevicesMap();
         DeviceManager.Device currentDevice = null;
         if (map != null) {
             currentDevice = map.get(currentDeviceUUID);

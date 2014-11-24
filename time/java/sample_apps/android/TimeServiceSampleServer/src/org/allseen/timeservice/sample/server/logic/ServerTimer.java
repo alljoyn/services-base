@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 import org.alljoyn.bus.ErrorReplyBusException;
 import org.allseen.timeservice.Period;
 import org.allseen.timeservice.TimeServiceException;
-import org.allseen.timeservice.sample.server.ui.TimeServiceSampleServerApplication;
+import org.allseen.timeservice.sample.server.ui.TimeSampleServer;
 import org.allseen.timeservice.server.Timer;
 
 import android.content.Context;
@@ -50,7 +50,7 @@ public class ServerTimer extends Timer {
         super();
         this.context = context;
         repeat = 1;
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer created");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer created");
     }
 
     /**
@@ -140,7 +140,7 @@ public class ServerTimer extends Timer {
     @Override
     public Period getInterval() {
 
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer getInterval request");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer getInterval request");
         if (interval == null) {
 
             return new Period(0, (byte) 0, (byte) 0, (short) 0);
@@ -151,7 +151,7 @@ public class ServerTimer extends Timer {
 
     @Override
     public void setInterval(Period period) {
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer setInterval request");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer setInterval request");
 
         Log.d(TAG, "Timer: '" + getObjectPath() + "', setting interval: '" + period + "'");
         this.interval = period;
@@ -160,7 +160,7 @@ public class ServerTimer extends Timer {
 
     @Override
     public Period getTimeLeft() {
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer getTimeLeft request");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer getTimeLeft request");
         if (!isRunning) {
             return toPeriod(intervalSeconds);
         }
@@ -174,20 +174,20 @@ public class ServerTimer extends Timer {
 
     @Override
     public boolean isRunning() {
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer isRunning request");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer isRunning request");
         return isRunning;
     }
 
     @Override
     public short getRepeat() {
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer getRepeat request");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer getRepeat request");
         return repeat;
     }
 
     @Override
     public void setRepeat(short repeat) throws ErrorReplyBusException {
 
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer setRepeat request");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer setRepeat request");
 
         this.repeat = repeat;
         this.timesToRepeat = repeat;
@@ -195,7 +195,7 @@ public class ServerTimer extends Timer {
 
     @Override
     public String getTitle() {
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer getTitle request");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer getTitle request");
 
         if (title == null) {
 
@@ -207,13 +207,13 @@ public class ServerTimer extends Timer {
 
     @Override
     public void setTitle(String title) {
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer setTitle request");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer setTitle request");
         this.title = title;
     }
 
     @Override
     public void start() {
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer start request");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer start request");
         if (isRunning) {
             Log.w(TAG, "The timer is already running");
             return;
@@ -250,7 +250,7 @@ public class ServerTimer extends Timer {
 
     @Override
     public void pause() {
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer pause request");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer pause request");
         if (!isRunning) {
             Log.w(TAG, "The timer is already paused");
             return;
@@ -281,7 +281,7 @@ public class ServerTimer extends Timer {
 
     @Override
     public void reset() {
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer reset request");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer reset request");
         Log.d(TAG, "Resetting the Timer: '" + getObjectPath() + "'");
         if (isRunning) {
             Log.d(TAG, "The Timer: '" + getObjectPath() + "' is currently running, pausing");
@@ -299,7 +299,7 @@ public class ServerTimer extends Timer {
         interval = null;
         intervalSeconds = 0;
         super.release();
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer released");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer released");
     }
 
     /**
@@ -308,7 +308,7 @@ public class ServerTimer extends Timer {
      * @return
      */
     private long getTimeSinceStarted() {
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer getTimeSinceStarted request");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimer getTimeSinceStarted request");
         if (startedAtMilliSeconds == 0) {
             return 0;
         }

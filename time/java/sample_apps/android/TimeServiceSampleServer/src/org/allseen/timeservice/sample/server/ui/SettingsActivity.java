@@ -49,7 +49,7 @@ public class SettingsActivity extends PreferenceActivity {
         @Override
         protected Pair<String, Boolean> doInBackground(Void... params) {
             try {
-                return new Pair<String, Boolean>(null, ((TimeServiceSampleServerApplication) getApplication()).getProtocolManager().sendTimeSync());
+                return new Pair<String, Boolean>(null, ((TimeSampleServer) getApplication()).getProtocolManager().sendTimeSync());
             } catch (Exception e) {
                 Log.e(TAG, "Error sending time sync signal", e);
                 return new Pair<String, Boolean>(e.getMessage(), null);
@@ -110,7 +110,7 @@ public class SettingsActivity extends PreferenceActivity {
                 appPrefrences.timerFactory = timerFactory.isChecked();
                 appPrefrences.timer1 = timer1.isChecked();
                 PreferencesManager.getInstance().setPrefrences(appPrefrences);
-                ((TimeServiceSampleServerApplication) getApplication()).getProtocolManager().initiateTimeServer();
+                ((TimeSampleServer) getApplication()).getProtocolManager().initiateTimeServer();
                 finish();
             }
         });

@@ -18,7 +18,7 @@ package org.allseen.timeservice.sample.server.logic;
 
 import org.allseen.timeservice.DateTime;
 import org.allseen.timeservice.TimeServiceException;
-import org.allseen.timeservice.sample.server.ui.TimeServiceSampleServerApplication;
+import org.allseen.timeservice.sample.server.ui.TimeSampleServer;
 import org.allseen.timeservice.server.TimeAuthorityClock;
 
 /**
@@ -37,21 +37,21 @@ public class ServerAuthorityClock extends TimeAuthorityClock {
      */
     public ServerAuthorityClock(ServerClock clock) {
 
-        TimeServiceSampleServerApplication.sendMessage(clock.context, TimeServiceSampleServerApplication.CLOCK_EVENT_ACTION, getObjectPath(), "ServerAuthorityClock created");
+        TimeSampleServer.sendMessage(clock.context, TimeSampleServer.CLOCK_EVENT_ACTION, getObjectPath(), "ServerAuthorityClock created");
         this.clock = clock;
     }
 
     @Override
     public DateTime getDateTime() {
 
-        TimeServiceSampleServerApplication.sendMessage(clock.context, TimeServiceSampleServerApplication.CLOCK_EVENT_ACTION, getObjectPath(), "ServerAuthorityClock getDateTime request");
+        TimeSampleServer.sendMessage(clock.context, TimeSampleServer.CLOCK_EVENT_ACTION, getObjectPath(), "ServerAuthorityClock getDateTime request");
         return clock.getDateTime();
     }
 
     @Override
     public void setDateTime(DateTime dateTime) {
 
-        TimeServiceSampleServerApplication.sendMessage(clock.context, TimeServiceSampleServerApplication.CLOCK_EVENT_ACTION, getObjectPath(), "ServerAuthorityClock setDateTime request");
+        TimeSampleServer.sendMessage(clock.context, TimeSampleServer.CLOCK_EVENT_ACTION, getObjectPath(), "ServerAuthorityClock setDateTime request");
         clock.setDateTime(dateTime);
     }
 
@@ -66,7 +66,7 @@ public class ServerAuthorityClock extends TimeAuthorityClock {
      */
      @Override
     public void timeSync() throws TimeServiceException {
-        TimeServiceSampleServerApplication.sendMessage(clock.context, TimeServiceSampleServerApplication.CLOCK_EVENT_ACTION, getObjectPath(), "ServerAuthorityClock timeSync");
+        TimeSampleServer.sendMessage(clock.context, TimeSampleServer.CLOCK_EVENT_ACTION, getObjectPath(), "ServerAuthorityClock timeSync");
 
         super.timeSync();
     }
