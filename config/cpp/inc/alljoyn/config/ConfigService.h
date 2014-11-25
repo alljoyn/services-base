@@ -17,8 +17,9 @@
 #ifndef CONFIGSERVICE_H
 #define CONFIGSERVICE_H
 
-#include <alljoyn/about/PropertyStore.h>
+#include <alljoyn/config/AboutDataStoreInterface.h>
 #include <alljoyn/BusObject.h>
+#include <alljoyn/about/PropertyStore.h>
 
 namespace ajn {
 namespace services {
@@ -66,8 +67,16 @@ class ConfigService : public ajn::BusObject {
      * @param store reference
      * @param listener reference
      */
-    ConfigService(ajn::BusAttachment& bus, PropertyStore& store, Listener& listener);
+    ConfigService(ajn::BusAttachment& bus, AboutDataStoreInterface& store, Listener& listener);
 
+
+    /**
+     * Constructor of a ConfigService
+     * @param bus reference
+     * @param store reference
+     * @param listener reference
+     */
+    ConfigService(ajn::BusAttachment& bus, PropertyStore& store, Listener& listener);
     /**
      * Destructor of ConfigService
      */
@@ -150,6 +159,11 @@ class ConfigService : public ajn::BusObject {
      * pointer of BusAttachment
      */
     ajn::BusAttachment* m_BusAttachment;
+
+    /**
+     * pointer of AboutData implementing the storage.
+     */
+    AboutDataStoreInterface* m_AboutDataStore;
 
     /**
      * pointer of PropertyStore implementing the storage.

@@ -15,15 +15,15 @@
  ******************************************************************************/
 
 #include "TimeClientAnnouncementHandler.h"
-#include <alljoyn/about/AboutPropertyStoreImpl.h>
 #include <qcc/StringUtil.h>
+#include <alljoyn/AboutData.h>
 
 using namespace ajn;
 using namespace services;
 
 //Constructor
 TimeClientAnnouncementHandler::TimeClientAnnouncementHandler(OnAnnouncementCallback onAnnounceCb) :
-    AnnounceHandler(), m_OnAnnouncementCb(onAnnounceCb)
+    m_OnAnnouncementCb(onAnnounceCb)
 {
 }
 
@@ -33,11 +33,14 @@ TimeClientAnnouncementHandler::~TimeClientAnnouncementHandler()
 }
 
 //Handle received Announcement signal
-void TimeClientAnnouncementHandler::Announce(unsigned short version, unsigned short port, const char* busName,
-                                             const ObjectDescriptions& objectDescs, const AboutData& aboutData)
+void TimeClientAnnouncementHandler::Announced(const char* busName, uint16_t version, SessionPort port, const MsgArg& objectDescriptionArg, const MsgArg& aboutDataArg)
 {
-
     printf("Received Announcement from '%s', handling... \n", busName);
+
+    AboutData aboutData;
+    aboutData.CreatefromMsgArg(aboutDataArg);
+    AboutObjectDescription aboutObjectDescription;
+    aboutObjectDescription.CreateFromMsgArg(objectDescriptionArg);
 
     qcc::String deviceId;
     unmarshalDeviceId(busName, &deviceId, aboutData);
@@ -57,30 +60,17 @@ void TimeClientAnnouncementHandler::Announce(unsigned short version, unsigned sh
 
     qcc::String uniqueKey = createUniqueKey(deviceId, appId);
 
-    m_OnAnnouncementCb(busName, deviceId, appId, uniqueKey, objectDescs);
+    m_OnAnnouncementCb(busName, deviceId, appId, uniqueKey, aboutObjectDescription);
 }
 
 //Unmarshal DeviceId
 void TimeClientAnnouncementHandler::unmarshalDeviceId(const char* busName, qcc::String* deviceId, const AboutData& aboutData)
 {
-
-    qcc::String deviceIdKey        = AboutPropertyStoreImpl::getPropertyStoreName(DEVICE_ID);
-    AboutData::const_iterator iter = aboutData.find(deviceIdKey);
-
-    if (iter == aboutData.end()) {
-
-        printf("Received corrupted Announcement from '%s', no DeviceId \n", busName);
-        return;
-    }
-
-    const MsgArg& deviceIdMsgArg = iter->second;
-    char* tmpDeviceId;
-
-    QStatus status               = deviceIdMsgArg.Get("s", &tmpDeviceId);
-
+    char* tmpDeviceId = NULL;
+    QStatus status = const_cast<AboutData&>(aboutData).GetDeviceId(&tmpDeviceId);
     if (status != ER_OK) {
 
-        printf("Received corrupted Announcement from '%s', failed to unmarshal deviceId \n", busName);
+        printf("Received corrupted Announcement from '%s', no deviceId \n", busName);
         return;
     }
 
@@ -93,20 +83,9 @@ void TimeClientAnnouncementHandler::unmarshalDeviceId(const char* busName, qcc::
 void TimeClientAnnouncementHandler::unmarshalAppId(const char* busName, qcc::String* appId, const AboutData& aboutData)
 {
 
-    qcc::String appIdKey           = AboutPropertyStoreImpl::getPropertyStoreName(APP_ID);
-    AboutData::const_iterator iter = aboutData.find(appIdKey);
-
-    if (iter == aboutData.end()) {
-
-        printf("Received corrupted Announcement from '%s', no AppId \n", busName);
-        return;
-    }
-
-    const MsgArg& appIdMsgArg = iter->second;
     size_t numElements        = 0;
     uint8_t* appIdBuffer      = NULL;
-
-    QStatus status = appIdMsgArg.Get("ay", &numElements, &appIdBuffer);
+    QStatus status = const_cast<AboutData&>(aboutData).GetAppId(&appIdBuffer, &numElements);
 
     if (status != ER_OK || numElements < 16) {
 

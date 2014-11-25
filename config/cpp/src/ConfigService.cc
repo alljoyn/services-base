@@ -19,6 +19,7 @@
 #include <alljoyn/config/ConfigService.h>
 #include <alljoyn/BusAttachment.h>
 #include <alljoyn/config/LogModule.h>
+#include <alljoyn/AboutData.h>
 
 #define CHECK_RETURN(x) if ((status = x) != ER_OK) { return status; }
 #define CHECK_BREAK(x) if ((status = x) != ER_OK) { break; }
@@ -28,15 +29,21 @@ using namespace services;
 
 static const char* CONFIG_INTERFACE_NAME = "org.alljoyn.Config";
 
-ConfigService::ConfigService(ajn::BusAttachment& bus, PropertyStore& store, Listener& listener) :
-    BusObject("/Config"), m_BusAttachment(&bus), m_PropertyStore(&store), m_Listener(&listener)
+ConfigService::ConfigService(ajn::BusAttachment& bus, AboutDataStoreInterface& store, Listener& listener) :
+    BusObject("/Config"), m_BusAttachment(&bus), m_AboutDataStore(&store), m_PropertyStore(NULL), m_Listener(&listener)
 {
-    QCC_DbgTrace(("In ConfigService Constructor"));
+    QCC_DbgTrace(("In ConfigService new Constructor"));
+}
+
+ConfigService::ConfigService(ajn::BusAttachment& bus, PropertyStore& store, Listener& listener) :
+    BusObject("/Config"), m_BusAttachment(&bus), m_AboutDataStore(NULL), m_PropertyStore(&store), m_Listener(&listener)
+{
+    QCC_DbgTrace(("In ConfigService old Constructor"));
 }
 
 ConfigService::~ConfigService()
 {
-
+    QCC_DbgTrace(("In ConfigService destructor"));
 }
 
 QStatus ConfigService::Register()
@@ -64,7 +71,7 @@ QStatus ConfigService::Register()
         intf->Activate();
     } //if (!intf)
 
-    CHECK_RETURN(AddInterface(*intf))
+    CHECK_RETURN(AddInterface(*intf, ANNOUNCED))
     CHECK_RETURN(AddMethodHandler(intf->GetMember("FactoryReset"),
                                   static_cast<MessageReceiver::MethodHandler>(&ConfigService::FactoryResetHandler)))
     CHECK_RETURN(AddMethodHandler(intf->GetMember("Restart"),
@@ -131,7 +138,16 @@ void ConfigService::GetConfigurationsHandler(const InterfaceDescription::Member*
         }
 
         ajn::MsgArg writeData[1];
-        CHECK_BREAK(m_PropertyStore->ReadAll(args[0].v_string.str, PropertyStore::WRITE, writeData[0]))
+        if (m_AboutDataStore) {
+            QCC_DbgTrace(("m_AboutDataStore->ReadAll"));
+            CHECK_BREAK(m_AboutDataStore->ReadAll(args[0].v_string.str, DataPermission::WRITE, writeData[0]))
+        } else if (m_PropertyStore) {
+            QCC_DbgTrace(("m_PropertyStore->ReadAll"));
+            CHECK_BREAK(m_PropertyStore->ReadAll(args[0].v_string.str, PropertyStore::WRITE, writeData[0]))
+        } else {
+            QCC_DbgHLPrintf(("ConfigService::GetConfigurationsHandler no valid pointer"));
+        }
+
 
         QCC_DbgPrintf(("ReadAll called with PropertyStore::WRITE for language: %s data: %s", args[0].v_string.str ? args[0].v_string.str : "", writeData[0].ToString().c_str() ? writeData[0].ToString().c_str() : ""));
 
@@ -171,7 +187,14 @@ void ConfigService::UpdateConfigurationsHandler(const InterfaceDescription::Memb
             char* tempKey;
             MsgArg* tempValue;
             CHECK_BREAK(configMapDictEntries[i].Get("{sv}", &tempKey, &tempValue))
-            CHECK_BREAK(m_PropertyStore->Update(tempKey, languageTag, tempValue))
+            if (m_AboutDataStore) {
+                CHECK_BREAK(m_AboutDataStore->Update(tempKey, languageTag, tempValue))
+            } else if (m_PropertyStore) {
+                CHECK_BREAK(m_PropertyStore->Update(tempKey, languageTag, tempValue))
+            } else {
+                QCC_DbgHLPrintf(("%s no valid pointer", __FUNCTION__));
+            }
+
             QCC_DbgPrintf(("Calling update for %s with lang: %s Value: %s", tempKey ? tempKey : "", languageTag ? languageTag : "", tempValue->ToString().c_str() ? tempValue->ToString().c_str() : ""));
         }
         CHECK_BREAK(status)
@@ -224,7 +247,13 @@ void ConfigService::ResetConfigurationsHandler(const InterfaceDescription::Membe
         for (unsigned int i = 0; i < fieldListNumElements; i++) {
             char* tempString;
             CHECK_BREAK(stringArray[i].Get("s", &tempString))
-            CHECK_BREAK(m_PropertyStore->Delete(tempString, languageTag))
+            if (m_AboutDataStore) {
+                CHECK_BREAK(m_AboutDataStore->Delete(tempString, languageTag))
+            } else if (m_PropertyStore) {
+                CHECK_BREAK(m_PropertyStore->Delete(tempString, languageTag))
+            } else {
+                QCC_DbgHLPrintf(("%s no valid pointer", __FUNCTION__));
+            }
             QCC_DbgPrintf(("Calling delete for %s with lang: %s", tempString ? tempString : "", languageTag ? languageTag : ""));
         }
         CHECK_BREAK(status)
@@ -299,6 +328,7 @@ void ConfigService::RestartHandler(const InterfaceDescription::Member* member, M
 
 QStatus ConfigService::Get(const char*ifcName, const char*propName, MsgArg& val)
 {
+    QCC_DbgTrace(("In ConfigService Get"));
     QStatus status = ER_BUS_NO_SUCH_PROPERTY;
     // Check the requested property and return the value if it exists
     if (0 == strcmp(ifcName, CONFIG_INTERFACE_NAME)) {

@@ -63,7 +63,7 @@ class TimerSignalHandler : public MessageReceiver {
     virtual ~TimerSignalHandler();
 
     /**
-     *  pointer to AboutServiceApi
+     *  pointer to TimerSignalHandler
      */
     static TimerSignalHandler* s_Instance;
 

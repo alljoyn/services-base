@@ -13,20 +13,18 @@
  *    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
-#ifndef PROPERTYSTOREIMPL_H_
-#define PROPERTYSTOREIMPL_H_
+#ifndef ABOUT_DATA_STORE_H_
+#define ABOUT_DATA_STORE_H_
 
 #include <stdio.h>
 #include <iostream>
-
-#include <alljoyn/about/AboutServiceApi.h>
-#include <alljoyn/about/AboutPropertyStoreImpl.h>
+#include <alljoyn/config/AboutDataStoreInterface.h>
 
 /**
- * class PropertyStoreImpl
+ * class AboutDataStore
  * Property store implementation
  */
-class PropertyStoreImpl : public ajn::services::AboutPropertyStoreImpl {
+class AboutDataStore : public AboutDataStoreInterface {
 
   public:
     /**
@@ -34,7 +32,7 @@ class PropertyStoreImpl : public ajn::services::AboutPropertyStoreImpl {
      * @param factoryConfigFile
      * @param configFile
      */
-    PropertyStoreImpl(const char* factoryConfigFile, const char* configFile);
+    AboutDataStore(const char* factoryConfigFile, const char* configFile);
 
     /**
      * FactoryReset
@@ -50,7 +48,7 @@ class PropertyStoreImpl : public ajn::services::AboutPropertyStoreImpl {
     /**
      * virtual Destructor
      */
-    virtual ~PropertyStoreImpl();
+    virtual ~AboutDataStore();
 
     /**
      * virtual method ReadAll
@@ -59,7 +57,7 @@ class PropertyStoreImpl : public ajn::services::AboutPropertyStoreImpl {
      * @param all
      * @return QStatus
      */
-    virtual QStatus ReadAll(const char* languageTag, Filter filter, ajn::MsgArg& all);
+    virtual QStatus ReadAll(const char* languageTag, DataPermission::Filter filter, ajn::MsgArg& all);
 
     /**
      * virtual method Update
@@ -84,25 +82,11 @@ class PropertyStoreImpl : public ajn::services::AboutPropertyStoreImpl {
     void Initialize();
 
   private:
-
-    ajn::services::PropertyMap m_factoryProperties;
-
     bool m_IsInitialized;
-
     qcc::String m_configFileName;
-
     qcc::String m_factoryConfigFileName;
 
-    bool persistUpdate(const char* key, const char* value, const char* languageTag = NULL);
-
-    ajn::services::PropertyStoreKey getPropertyStoreKeyFromName(qcc::String const& propertyStoreName);
-
-
-    bool UpdateFactorySettings();
-
-    bool FillDeviceNames();
-
-    void UpdateFactoryProperty(ajn::services::PropertyStoreKey propertyKey, const char* languageTag, const ajn::MsgArg& value);
+    qcc::String ToXml();
 };
 
-#endif /* PROPERTYSTOREIMPL_H_ */
+#endif /* ABOUT_DATA_STORE_H_ */

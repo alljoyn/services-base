@@ -36,7 +36,8 @@
 #include "TestCustomTimerBusObject.h"
 #include "TestTimerFactory.h"
 
-#include <alljoyn/about/AboutServiceApi.h>
+#include <alljoyn/AboutObj.h>
+#include <alljoyn/AboutData.h>
 
 using namespace ajn;
 using namespace services;
@@ -50,8 +51,9 @@ using namespace qcc;
 
 BusAttachment* bus                           = NULL;
 CommonBusListener* busListener               = NULL;
-AboutPropertyStoreImpl* propertyStoreImpl    = NULL;
 SrpKeyXListener* srpKeyXListener             = NULL;
+AboutData* aboutData = NULL;
+AboutObj* aboutObj = NULL;
 
 TimeServiceServer* server                    = NULL;
 std::map<qcc::String, TestClock*> clocks;
@@ -314,14 +316,19 @@ void cleanup()
 {
 
     if (bus && busListener) {
-
-        CommonSampleUtil::aboutServiceDestroy(bus, busListener);
+        if (AboutObjApi::getInstance()) {
+            AboutObjApi::DestroyInstance();
+        }
     }
 
-    if (propertyStoreImpl) {
+    if (aboutData) {
+        delete aboutData;
+        aboutData = NULL;
+    }
 
-        delete propertyStoreImpl;
-        propertyStoreImpl = NULL;
+    if (aboutObj) {
+        delete aboutObj;
+        aboutObj = NULL;
     }
 
     if (server) {
@@ -537,9 +544,9 @@ int main()
     //Initialize and fill PropertyStore
     DeviceNamesType deviceNames;
     deviceNames.insert(std::pair<qcc::String, qcc::String>(LANG, DEVICE_NAME));
-    propertyStoreImpl = new AboutPropertyStoreImpl();
+    aboutData = new AboutData(LANG);
 
-    QStatus status = CommonSampleUtil::fillPropertyStore(propertyStoreImpl, appId, APP_NAME, deviceId, deviceNames);
+    QStatus status = CommonSampleUtil::fillPropertyStore(aboutData, appId, APP_NAME, deviceId, deviceNames);
     if (status != ER_OK) {
 
         std::cout << "Could not fill PropertyStore." << std::endl;
@@ -549,7 +556,9 @@ int main()
 
     //Initialize About Server
     busListener = new CommonBusListener();
-    status      = CommonSampleUtil::prepareAboutService(bus, propertyStoreImpl, busListener, SERVICE_PORT);
+    aboutObj = new AboutObj(*bus, BusObject::ANNOUNCED);
+    status      = CommonSampleUtil::prepareAboutService(bus, aboutData, aboutObj,
+                                                        busListener, SERVICE_PORT);
     if (status != ER_OK) {
 
         std::cout << "Could not set up the AboutService." << std::endl;

@@ -53,7 +53,7 @@ NotificationDismisser::NotificationDismisser(ajn::BusAttachment* bus, qcc::Strin
         m_InterfaceDescription->Activate();
     }
 
-    status = AddInterface(*m_InterfaceDescription);
+    status = AddInterface(*m_InterfaceDescription, ANNOUNCED);
     if (status != ER_OK) {
         QCC_LogError(status, ("Could not add interface."));
         return;
@@ -66,7 +66,6 @@ NotificationDismisser::NotificationDismisser(ajn::BusAttachment* bus, qcc::Strin
         QCC_LogError(status, ("Could not add interface."));
         return;
     }
-
 }
 
 NotificationDismisser::~NotificationDismisser()

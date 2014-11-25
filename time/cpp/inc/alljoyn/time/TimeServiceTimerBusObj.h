@@ -67,7 +67,7 @@ class TimeServiceTimerBusObj : public ajn::BusObject {
 
     /**
      * Initialize the Bus Object with object description.
-     * Register it on the BusAttachment and in the AboutService for Announcement
+     * Register it on the BusAttachment.
      *
      * @param Timer Events delegate. This Timer receives all the Timer related events.
      * @param notAnnounced Interfaces that shouldn't be announced. If the vector is empty, all the interfaces added
@@ -178,11 +178,6 @@ class TimeServiceTimerBusObj : public ajn::BusObject {
      * Object path of this Clock object
      */
     qcc::String m_ObjectPath;
-
-    /**
-     * Interfaces to be announced
-     */
-    std::vector<qcc::String> m_AnnouncedInterfaces;
 
     /**
      * The pointer is used to send TimerEvent signals

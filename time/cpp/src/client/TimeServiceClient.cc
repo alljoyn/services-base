@@ -41,7 +41,7 @@ TimeServiceClient::~TimeServiceClient()
 
 //Initialize the object
 QStatus TimeServiceClient::init(BusAttachment* bus, const qcc::String& serverBusName, const qcc::String& deviceId,
-                                const qcc::String& appId, const AnnounceHandler::ObjectDescriptions& objDescs)
+                                const qcc::String& appId, const ajn::AboutObjectDescription& aboutObjectDescription)
 {
 
     QCC_DbgTrace(("%s, ServerBusName: '%s', DeviceId: '%s', AppId: '%s'", __func__, serverBusName.c_str(),
@@ -61,7 +61,7 @@ QStatus TimeServiceClient::init(BusAttachment* bus, const qcc::String& serverBus
     QCC_DbgHLPrintf(("Initializing TimeServiceClient for the server: '%s'", m_ServerBusName.c_str()));
 
     initManagerMap();
-    analyzeObjectDescriptions(objDescs);
+    analyzeObjectDescriptions(aboutObjectDescription);
 
     return ER_OK;
 }
@@ -268,22 +268,24 @@ void TimeServiceClient::initManagerMap()
 }
 
 //Analyze received object descriptions and create relevant TimeService objects
-void TimeServiceClient::analyzeObjectDescriptions(const AnnounceHandler::ObjectDescriptions& objDescs)
+void TimeServiceClient::analyzeObjectDescriptions(const AboutObjectDescription& aboutObjectDescription)
 {
 
     QCC_DbgTrace(("%s", __func__));
 
-    for (AnnounceHandler::ObjectDescriptions::const_iterator objDescIt = objDescs.begin(); objDescIt != objDescs.end(); ++objDescIt) {
-
-        qcc::String objectPath               = objDescIt->first;
-        std::vector<qcc::String> ifaces      = objDescIt->second;
-        bool isAuthority                     = false;
-
+    size_t numPaths = aboutObjectDescription.GetPaths(NULL, 0);
+    const char** paths = new const char*[numPaths];
+    aboutObjectDescription.GetPaths(paths, numPaths);
+    for (size_t p = 0; p < numPaths; p++) {
+        qcc::String objectPath(paths[p]);
+        size_t numInterfaces = aboutObjectDescription.GetInterfaces(objectPath.c_str(), NULL, 0);
+        const char** interfaces = new const char*[numInterfaces];
+        aboutObjectDescription.GetInterfaces(objectPath.c_str(), interfaces, numInterfaces);
+        bool isAuthority = false;
         TimeServiceClientClock* currentClock = NULL;
 
-        for (std::vector<qcc::String>::iterator ifaceIter = ifaces.begin(); ifaceIter != ifaces.end(); ++ifaceIter) {
-
-            qcc::String iface(*ifaceIter);
+        for (size_t i = 0; i < numInterfaces; i++) {
+            qcc::String iface(interfaces[i]);
 
             //If IFNAME_PREFIX is not a prefix of the iface, then It's not a TimeService interface
             if (iface.find(tsConsts::IFNAME_PREFIX) == qcc::String::npos) {
@@ -320,14 +322,16 @@ void TimeServiceClient::analyzeObjectDescriptions(const AnnounceHandler::ObjectD
                 mgrIter->second->create(objectPath);
             }
 
-        } //for::ifaces
+        }        //for::ifaces
+        delete [] interfaces;
 
         if (isAuthority && currentClock) {
 
             QCC_DbgPrintf(("TimeClient Clock object: '%s', IsAuthority: '%d'", objectPath.c_str(), isAuthority));
             currentClock->setAuthority(isAuthority);
         }
-    } //for::objectDescs
+    }    //for p
+    delete [] paths;
 }
 
 //Base class constructor for the TsItemsManager providing its API

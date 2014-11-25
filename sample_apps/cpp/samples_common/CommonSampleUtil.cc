@@ -16,8 +16,8 @@
 
 #include <algorithm>
 #include "CommonSampleUtil.h"
-#include <alljoyn/about/AboutServiceApi.h>
-#include <alljoyn/about/AnnouncementRegistrar.h>
+#include "AboutObjApi.h"
+#include <qcc/StringUtil.h>
 
 using namespace ajn;
 using namespace services;
@@ -53,75 +53,85 @@ BusAttachment* CommonSampleUtil::prepareBusAttachment(ajn::AuthListener* authLis
     return bus;
 }
 
-QStatus CommonSampleUtil::fillPropertyStore(AboutPropertyStoreImpl* propertyStore, qcc::String const& appIdHex,
+QStatus CommonSampleUtil::fillPropertyStore(AboutData* aboutdata, qcc::String const& appIdHex,
                                             qcc::String const& appName, qcc::String const& deviceId, DeviceNamesType const& deviceNames,
                                             qcc::String const& defaultLanguage)
 {
-    if (!propertyStore) {
+    if (!aboutdata) {
         return ER_BAD_ARG_1;
     }
 
     QStatus status = ER_OK;
 
-    CHECK_RETURN(propertyStore->setDeviceId(deviceId))
-    CHECK_RETURN(propertyStore->setAppId(appIdHex))
-    CHECK_RETURN(propertyStore->setAppName(appName))
+    CHECK_RETURN(aboutdata->SetDeviceId(deviceId.c_str()))
+    CHECK_RETURN(aboutdata->SetAppId(appIdHex.c_str()));
+
 
     std::vector<qcc::String> languages(3);
     languages[0] = "en";
     languages[1] = "es";
     languages[2] = "fr";
-    CHECK_RETURN(propertyStore->setSupportedLangs(languages))
-    CHECK_RETURN(propertyStore->setDefaultLang(defaultLanguage))
 
-    CHECK_RETURN(propertyStore->setModelNumber("Wxfy388i"))
-    CHECK_RETURN(propertyStore->setDateOfManufacture("10/1/2199"))
-    CHECK_RETURN(propertyStore->setSoftwareVersion("12.20.44 build 44454"))
-    CHECK_RETURN(propertyStore->setAjSoftwareVersion(ajn::GetVersion()))
-    CHECK_RETURN(propertyStore->setHardwareVersion("355.499. b"))
+    for (size_t i = 0; i < languages.size(); i++) {
+        CHECK_RETURN(aboutdata->SetSupportedLanguage(languages[i].c_str()))
+    }
+    CHECK_RETURN(aboutdata->SetDefaultLanguage(defaultLanguage.c_str()))
+
+    CHECK_RETURN(aboutdata->SetAppName(appName.c_str(), languages[0].c_str()))
+    CHECK_RETURN(aboutdata->SetAppName(appName.c_str(), languages[1].c_str()))
+    CHECK_RETURN(aboutdata->SetAppName(appName.c_str(), languages[2].c_str()))
+
+    CHECK_RETURN(aboutdata->SetModelNumber("Wxfy388i"))
+    CHECK_RETURN(aboutdata->SetDateOfManufacture("10/1/2199"))
+    CHECK_RETURN(aboutdata->SetSoftwareVersion("12.20.44 build 44454"))
+    CHECK_RETURN(aboutdata->SetHardwareVersion("355.499. b"))
 
     DeviceNamesType::const_iterator iter = deviceNames.find(languages[0]);
     if (iter != deviceNames.end()) {
-        CHECK_RETURN(propertyStore->setDeviceName(iter->second.c_str(), languages[0]));
+        CHECK_RETURN(aboutdata->SetDeviceName(iter->second.c_str(), languages[0].c_str()));
     } else {
-        CHECK_RETURN(propertyStore->setDeviceName("My device name", "en"));
+        CHECK_RETURN(aboutdata->SetDeviceName("My device name", "en"));
     }
 
     iter = deviceNames.find(languages[1]);
     if (iter != deviceNames.end()) {
-        CHECK_RETURN(propertyStore->setDeviceName(iter->second.c_str(), languages[1]));
+        CHECK_RETURN(aboutdata->SetDeviceName(iter->second.c_str(), languages[1].c_str()));
     } else {
-        CHECK_RETURN(propertyStore->setDeviceName("Mi nombre de dispositivo", "sp"));
+        CHECK_RETURN(aboutdata->SetDeviceName("Mi nombre de dispositivo", "es"));
     }
 
     iter = deviceNames.find(languages[2]);
     if (iter != deviceNames.end()) {
-        CHECK_RETURN(propertyStore->setDeviceName(iter->second.c_str(), languages[2]));
+        CHECK_RETURN(aboutdata->SetDeviceName(iter->second.c_str(), languages[2].c_str()));
     } else {
-        CHECK_RETURN(propertyStore->setDeviceName("Mon nom de l'appareil", "fr"));
+        CHECK_RETURN(aboutdata->SetDeviceName("Mon nom de l'appareil", "fr"));
     }
 
-    CHECK_RETURN(propertyStore->setDescription("This is an Alljoyn Application", "en"))
-    CHECK_RETURN(propertyStore->setDescription("Esta es una Alljoyn aplicacion", "sp"))
-    CHECK_RETURN(propertyStore->setDescription("C'est une Alljoyn application", "fr"))
+    CHECK_RETURN(aboutdata->SetDescription("This is an Alljoyn Application", "en"))
+    CHECK_RETURN(aboutdata->SetDescription("Esta es una Alljoyn aplicacion", "es"))
+    CHECK_RETURN(aboutdata->SetDescription("C'est une Alljoyn application", "fr"))
 
-    CHECK_RETURN(propertyStore->setManufacturer("Company", "en"))
-    CHECK_RETURN(propertyStore->setManufacturer("Empresa", "sp"))
-    CHECK_RETURN(propertyStore->setManufacturer("Entreprise", "fr"))
+    CHECK_RETURN(aboutdata->SetManufacturer("Company", "en"))
+    CHECK_RETURN(aboutdata->SetManufacturer("Empresa", "es"))
+    CHECK_RETURN(aboutdata->SetManufacturer("Entreprise", "fr"))
 
-    CHECK_RETURN(propertyStore->setSupportUrl("http://www.alljoyn.org"))
+    CHECK_RETURN(aboutdata->SetSupportUrl("http://www.alljoyn.org"))
 
+    if (!aboutdata->IsValid()) {
+        printf("failed to setup about data.\n");
+        return ER_FAIL;
+    }
     return status;
 }
 
-QStatus CommonSampleUtil::prepareAboutService(BusAttachment* bus, AboutPropertyStoreImpl* propertyStore,
+QStatus CommonSampleUtil::prepareAboutService(BusAttachment* bus, AboutData* aboutData, AboutObj* aboutObj,
                                               CommonBusListener* busListener, uint16_t port)
 {
     if (!bus) {
         return ER_BAD_ARG_1;
     }
 
-    if (!propertyStore) {
+    if (!aboutData) {
         return ER_BAD_ARG_2;
     }
 
@@ -129,8 +139,8 @@ QStatus CommonSampleUtil::prepareAboutService(BusAttachment* bus, AboutPropertyS
         return ER_BAD_ARG_3;
     }
 
-    AboutServiceApi::Init(*bus, *propertyStore);
-    AboutServiceApi* aboutService = AboutServiceApi::getInstance();
+    AboutObjApi::Init(bus, aboutData, aboutObj);
+    AboutObjApi* aboutService = AboutObjApi::getInstance();
     if (!aboutService) {
         return ER_BUS_NOT_ALLOWED;
     }
@@ -147,17 +157,14 @@ QStatus CommonSampleUtil::prepareAboutService(BusAttachment* bus, AboutPropertyS
         return status;
     }
 
-    status = aboutService->Register(port);
-    if (status != ER_OK) {
-        return status;
-    }
+    aboutService->SetPort(port);
 
-    return (bus->RegisterBusObject(*aboutService));
+    return ER_OK;
 }
 
 QStatus CommonSampleUtil::aboutServiceAnnounce()
 {
-    AboutServiceApi* aboutService = AboutServiceApi::getInstance();
+    AboutObjApi* aboutService = AboutObjApi::getInstance();
     if (!aboutService) {
         return ER_BUS_NOT_ALLOWED;
     }
@@ -173,7 +180,7 @@ void CommonSampleUtil::aboutServiceDestroy(BusAttachment* bus,
         bus->UnbindSessionPort(busListener->getSessionPort());
     }
 
-    AboutServiceApi::DestroyInstance();
+    AboutObjApi::DestroyInstance();
     return;
 }
 

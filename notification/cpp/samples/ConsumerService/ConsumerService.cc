@@ -20,7 +20,6 @@
 #include <alljoyn/notification/NotificationService.h>
 #include "../common/NotificationReceiverTestImpl.h"
 #include "CommonSampleUtil.h"
-#include <alljoyn/about/AnnouncementRegistrar.h>
 #include <alljoyn/services_common/LogModulesNames.h>
 
 using namespace ajn;

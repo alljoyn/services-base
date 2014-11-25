@@ -16,6 +16,7 @@ import os
 
 Import('env')
 
+env.Append(CPPDEFINES = 'NEED_DATA_STORE')
 env['_ALLJOYN_CONFIG_'] = True
 env['OBJDIR_SERVICES_CONFIG'] = env['OBJDIR'] + '/services/config'
 

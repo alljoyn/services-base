@@ -16,13 +16,13 @@
 
 #include <alljoyn/controlpanel/ControlPanel.h>
 #include <algorithm>
-#include <alljoyn/about/AboutServiceApi.h>
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include "ControlPanelConstants.h"
 #include "BusObjects/ControlPanelBusObject.h"
 #include "BusObjects/NotificationActionBusObject.h"
 #include "BusObjects/IntrospectionNode.h"
 #include <alljoyn/controlpanel/LogModule.h>
+#include <alljoyn/about/AboutServiceApi.h>
 
 namespace ajn {
 namespace services {
@@ -158,9 +158,11 @@ QStatus ControlPanel::registerObjects(BusAttachment* bus, qcc::String const& uni
         return status;
     }
 
-    std::vector<qcc::String> interfaces;
-    interfaces.push_back(AJ_CONTROLPANEL_INTERFACE);
-    aboutService->AddObjectDescription(objectPath, interfaces);
+    if (aboutService) {
+        std::vector<qcc::String> interfaces;
+        interfaces.push_back(AJ_CONTROLPANEL_INTERFACE);
+        aboutService->AddObjectDescription(objectPath, interfaces);
+    }
 
     status = m_RootWidget->registerObjects(bus, m_LanguageSet, objectPath + "/", "", true);
     return status;

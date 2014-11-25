@@ -58,7 +58,7 @@ NotificationProducer::NotificationProducer(ajn::BusAttachment* bus, QStatus& sta
         m_InterfaceDescription->Activate();
     }
 
-    status = AddInterface(*m_InterfaceDescription);
+    status = AddInterface(*m_InterfaceDescription, ANNOUNCED);
     if (status != ER_OK) {
         QCC_LogError(status, ("AddInterface failed."));
         return;

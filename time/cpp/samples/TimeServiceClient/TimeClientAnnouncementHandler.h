@@ -17,7 +17,9 @@
 #ifndef TIMECLIENTANNOUNCEMENTHANDLER_H_
 #define TIMECLIENTANNOUNCEMENTHANDLER_H_
 
-#include <alljoyn/about/AnnounceHandler.h>
+#include <qcc/String.h>
+#include <alljoyn/AboutObjectDescription.h>
+#include <alljoyn/AboutListener.h>
 
 namespace ajn {
 namespace services {
@@ -26,9 +28,9 @@ typedef void (*OnAnnouncementCallback)(const qcc::String& busName,
                                        const qcc::String& deviceId,
                                        const qcc::String& appId,
                                        const qcc::String& uniqKey,  //[deviceId]_[AppId]
-                                       const ajn::services::AnnounceHandler::ObjectDescriptions& objectDescs);
+                                       const AboutObjectDescription& objectDescs);
 
-class TimeClientAnnouncementHandler : public AnnounceHandler {
+class TimeClientAnnouncementHandler : public ajn::AboutListener {
 
   public:
 
@@ -43,16 +45,14 @@ class TimeClientAnnouncementHandler : public AnnounceHandler {
     ~TimeClientAnnouncementHandler();
 
     /**
-     * Announce
-     * @param version
-     * @param port
-     * @param busName
-     * @param objectDescs
-     * @param aboutData
+     * Announce callback
+     * @param[in] busName              well know name of the remote BusAttachment
+     * @param[in] version              version of the Announce signal from the remote About Object
+     * @param[in] port                 SessionPort used by the announcer
+     * @param[in] objectDescriptionArg  MsgArg the list of object paths and interfaces in the announcement
+     * @param[in] aboutDataArg          MsgArg containing a dictionary of Key/Value pairs of the AboutData
      */
-    virtual void Announce(unsigned short version, unsigned short port, const char* busName, const ObjectDescriptions& objectDescs,
-                          const AboutData& aboutData);
-
+    virtual void Announced(const char* busName, uint16_t version, SessionPort port, const MsgArg& objectDescriptionArg, const MsgArg& aboutDataArg);
   private:
 
     /**

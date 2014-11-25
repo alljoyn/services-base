@@ -18,7 +18,7 @@
 #define CONFIGSERVICELISTENERIMPL_H_
 
 #include <alljoyn/config/ConfigService.h>
-#include <PropertyStoreImpl.h>
+#include <AboutDataStore.h>
 #include <OnboardingControllerImpl.h>
 #include <CommonBusListener.h>
 
@@ -28,7 +28,7 @@
 class ConfigServiceListenerImpl : public ajn::services::ConfigService::Listener {
   public:
 
-    ConfigServiceListenerImpl(PropertyStoreImpl& store, ajn::BusAttachment& bus, CommonBusListener& busListener, OnboardingControllerImpl& obController);
+    ConfigServiceListenerImpl(AboutDataStore& store, ajn::BusAttachment& bus, CommonBusListener& busListener, OnboardingControllerImpl& obController);
 
     virtual QStatus Restart();
 
@@ -40,7 +40,7 @@ class ConfigServiceListenerImpl : public ajn::services::ConfigService::Listener 
 
   private:
 
-    PropertyStoreImpl* m_PropertyStore;
+    AboutDataStore* m_AboutDataStore;
 
     ajn::BusAttachment* m_Bus;
 

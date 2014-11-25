@@ -18,7 +18,7 @@
 #define CONFIGSERVICELISTENERIMPL_H_
 
 #include <alljoyn/config/ConfigService.h>
-#include <PropertyStoreImpl.h>
+#include <AboutDataStore.h>
 #include <CommonBusListener.h>
 
 /**
@@ -32,7 +32,7 @@ class ConfigServiceListenerImpl : public ajn::services::ConfigService::Listener 
      * @param bus
      * @param busListener
      */
-    ConfigServiceListenerImpl(PropertyStoreImpl& store, ajn::BusAttachment& bus, CommonBusListener& busListener);
+    ConfigServiceListenerImpl(AboutDataStore& store, ajn::BusAttachment& bus, CommonBusListener& busListener);
 
     /**
      * Method restart
@@ -63,7 +63,7 @@ class ConfigServiceListenerImpl : public ajn::services::ConfigService::Listener 
 
   private:
 
-    PropertyStoreImpl* m_PropertyStore;
+    AboutDataStore* m_AboutDataStore;
 
     ajn::BusAttachment* m_Bus;
 

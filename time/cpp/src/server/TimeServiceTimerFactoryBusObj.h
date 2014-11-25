@@ -109,11 +109,6 @@ class TimeServiceTimerFactoryBusObj : public ajn::BusObject {
     Translator* m_Translator;
 
     /**
-     * Interfaces to be announced
-     */
-    std::vector<qcc::String> m_AnnouncedInterfaces;
-
-    /**
      * Adds the interface to this TimerFactory BusObject.
      * This method must be called in order to add the interface identified by the given InterfaceDescription to this
      * TimerFactory BusObject.

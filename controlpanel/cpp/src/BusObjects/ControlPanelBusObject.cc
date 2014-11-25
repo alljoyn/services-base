@@ -46,7 +46,7 @@ ControlPanelBusObject::ControlPanelBusObject(BusAttachment* bus, String const& o
         return;
     }
 
-    status = AddInterface(*m_InterfaceDescription);
+    status = AddInterface(*m_InterfaceDescription, ANNOUNCED);
     if (status != ER_OK) {
         QCC_LogError(status, ("Could not add interface"));
         return;

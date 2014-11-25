@@ -62,6 +62,106 @@ QStatus PayloadAdapter::sendPayload(const char* deviceId, const char* deviceName
     return status;
 }
 
+QStatus PayloadAdapter::sendPayload(AboutData* propertyStore,
+                                    NotificationMessageType messageType,
+                                    std::vector<NotificationText> const&  notificationText,
+                                    std::map<qcc::String, qcc::String> const& customAttributes,
+                                    uint16_t ttl,
+                                    const char* richIconUrl, std::vector<RichAudioUrl> const&  richAudioUrl,
+                                    const char* richIconObjectPath, const char* richAudioObjectPath,
+                                    const char* controlPanelServiceObjectPath, const char* originalSender)
+{
+    MsgArg deviceIdArg;
+    MsgArg deviceNameArg;
+    MsgArg appIdArg;
+    MsgArg appNameArg;
+
+    if (!m_MessageId) {
+        srand(time(NULL));
+        m_MessageId = rand();
+    }
+
+    MsgArg configArgs;
+    MsgArg* configEntries;
+    size_t configNum;
+    QStatus status;
+
+    if ((status = propertyStore->GetAboutData(&configArgs))) {
+        return status;
+    }
+
+    if ((status = configArgs.Get(AJPARAM_ARR_DICT_STR_VAR.c_str(), &configNum, &configEntries))) {
+        QCC_LogError(status, ("Error reading in about configuration data"));
+        return status;
+    }
+
+    for (size_t i = 0; i < configNum; i++) {
+        char* keyChar;
+        String key;
+        MsgArg* variant;
+
+        CHECK(configEntries[i].Get(AJPARAM_DICT_STR_VAR.c_str(), &keyChar, &variant));
+
+        key = keyChar;
+
+        if (key.compare("DeviceId") == 0) {
+            deviceIdArg = *variant;
+        } else if (key.compare("DeviceName") == 0) {
+            deviceNameArg = *variant;
+        } else if (key.compare("AppId") == 0) {
+            appIdArg = *variant;
+        } else if (key.compare("AppName") == 0) {
+            appNameArg = *variant;
+        }
+    }
+
+    if (status != ER_OK) {
+        QCC_LogError(status, ("Something went wrong unmarshalling the propertystore."));
+        return status;
+    }
+
+    /* Validate Arguments */
+
+    if (deviceIdArg.typeId != ALLJOYN_STRING) {
+        QCC_LogError(ER_BAD_ARG_1, ("DeviceId argument is not correct type."));
+        return ER_BAD_ARG_1;
+    }
+    if (deviceIdArg.v_string.str == 0 || deviceIdArg.v_string.len == 0) {
+        QCC_LogError(ER_BAD_ARG_1, ("DeviceId argument can not be NULL or an empty String."));
+        return ER_BAD_ARG_1;
+    }
+
+    if (deviceNameArg.typeId != ALLJOYN_STRING) {
+        QCC_LogError(ER_BAD_ARG_1, ("DeviceName argument is not correct type."));
+        return ER_BAD_ARG_1;
+    }
+    if (deviceNameArg.v_string.str == 0 || deviceNameArg.v_string.len == 0) {
+        QCC_LogError(ER_BAD_ARG_1, ("DeviceName argument can not be NULL or an empty String."));
+        return ER_BAD_ARG_1;
+    }
+
+    if (appIdArg.typeId != ALLJOYN_BYTE_ARRAY) {
+        QCC_LogError(ER_BAD_ARG_1, ("ApplicationId argument is not correct type."));
+        return ER_BAD_ARG_1;
+    }
+
+    if (appIdArg.v_scalarArray.numElements == 0) {
+        QCC_LogError(ER_BAD_ARG_1, ("ApplicationId argument cannot be empty"));
+        return ER_BAD_ARG_1;
+    }
+
+    if (appNameArg.typeId != ALLJOYN_STRING) {
+        QCC_LogError(ER_BAD_ARG_1, ("ApplicationName argument is not correct type."));
+        return ER_BAD_ARG_1;
+    }
+    if (appNameArg.v_string.str == 0 || appNameArg.v_string.len == 0) {
+        QCC_LogError(ER_BAD_ARG_1, ("ApplicationName argument can not be NULL or an empty String."));
+        return ER_BAD_ARG_1;
+    }
+
+    return (sendPayload(deviceIdArg, deviceNameArg, appIdArg, appNameArg, messageType, notificationText, customAttributes, ttl, richIconUrl, richAudioUrl, richIconObjectPath, richAudioObjectPath, controlPanelServiceObjectPath, originalSender, ++m_MessageId));
+}
+
 QStatus PayloadAdapter::sendPayload(PropertyStore* propertyStore,
                                     NotificationMessageType messageType,
                                     std::vector<NotificationText> const&  notificationText,

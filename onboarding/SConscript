@@ -18,6 +18,7 @@ Import('env')
 
 env['_ALLJOYN_ONBOARDING_'] = True
 env['OBJDIR_SERVICES_ONBOARDING'] = env['OBJDIR'] + '/services/onboarding'
+env.Append(CPPDEFINES = 'NEED_DATA_STORE')
 
 # Make config library and header file paths available to the global environment
 env.Append(LIBPATH = '$DISTDIR/onboarding/lib');

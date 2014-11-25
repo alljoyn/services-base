@@ -38,6 +38,8 @@ else:
     build_cps          = int(ARGUMENTS.get('CPS',          0))
     build_onboarding   = int(ARGUMENTS.get('ONBOARDING',   0))
 
+env.Append(CPPDEFINES = 'NEED_DATA_STORE')
+
 if not env.has_key('_ALLJOYN_ABOUT_') and os.path.exists('../../../core/alljoyn/services/about/SConscript'):
     env.SConscript('../../../core/alljoyn/services/about/SConscript')
 

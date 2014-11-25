@@ -16,13 +16,14 @@
 
 #include "ConfigServiceListenerImpl.h"
 #include <IniParser.h>
+#include <AboutObjApi.h>
 #include <iostream>
 
 using namespace ajn;
 using namespace services;
 
-ConfigServiceListenerImpl::ConfigServiceListenerImpl(PropertyStoreImpl& store, BusAttachment& bus, CommonBusListener& busListener) :
-    ConfigService::Listener(), m_PropertyStore(&store), m_Bus(&bus), m_BusListener(&busListener)
+ConfigServiceListenerImpl::ConfigServiceListenerImpl(AboutDataStore& store, BusAttachment& bus, CommonBusListener& busListener) :
+    ConfigService::Listener(), m_AboutDataStore(&store), m_Bus(&bus), m_BusListener(&busListener)
 {
 }
 
@@ -36,13 +37,13 @@ QStatus ConfigServiceListenerImpl::FactoryReset()
 {
     QStatus status = ER_OK;
     std::cout << "FactoryReset has been called!!!" << std::endl;
-    m_PropertyStore->FactoryReset();
+    m_AboutDataStore->FactoryReset();
     std::cout << "Clearing Key Store" << std::endl;
     m_Bus->ClearKeyStore();
 
-    AboutServiceApi* aboutService = AboutServiceApi::getInstance();
-    if (aboutService) {
-        status = aboutService->Announce();
+    AboutObjApi* aboutObjApi = AboutObjApi::getInstance();
+    if (aboutObjApi) {
+        status = aboutObjApi->Announce();
         std::cout << "Announce for " << m_Bus->GetUniqueName().c_str() << " = " << QCC_StatusText(status) << std::endl;
     }
 
@@ -81,6 +82,6 @@ void ConfigServiceListenerImpl::PersistPassword(const char* daemonRealm, const c
     std::map<qcc::String, qcc::String> data;
     data["daemonrealm"] = daemonRealm;
     data["passcode"] = passcode;
-    IniParser::UpdateFile(m_PropertyStore->GetConfigFileName().c_str(), data);
+    IniParser::UpdateFile(m_AboutDataStore->GetConfigFileName().c_str(), data);
 }
 

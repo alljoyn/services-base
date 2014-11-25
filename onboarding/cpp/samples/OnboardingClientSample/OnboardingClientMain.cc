@@ -19,10 +19,6 @@
 #include <signal.h>
 #include <set>
 
-#include <alljoyn/BusAttachment.h>
-
-#include <alljoyn/about/AboutIconClient.h>
-#include <alljoyn/about/AnnouncementRegistrar.h>
 #include <alljoyn/config/ConfigClient.h>
 #include <alljoyn/onboarding/OnboardingClient.h>
 
@@ -32,6 +28,15 @@
 #include <SessionListenerImpl.h>
 #include <OnboardingSignalListenerImpl.h>
 #include <alljoyn/services_common/LogModulesNames.h>
+
+#include <alljoyn/AboutData.h>
+#include <alljoyn/AboutListener.h>
+#include <alljoyn/AboutObjectDescription.h>
+#include <alljoyn/AboutProxy.h>
+#include <alljoyn/BusAttachment.h>
+#include <alljoyn/AboutIconProxy.h>
+#include <alljoyn/version.h>
+#include <qcc/Log.h>
 
 using namespace ajn;
 using namespace services;
@@ -45,34 +50,82 @@ static void SigIntHandler(int sig)
     quit = true;
 }
 
-void PrintAboutData(AboutClient::AboutData& aboutData)
+// Print out the fields found in the AboutData. Only fields with known signatures
+// are printed out.  All others will be treated as an unknown field.
+void printAboutData(AboutData& aboutData, const char* language)
 {
-    for (AboutClient::AboutData::iterator itx = aboutData.begin(); itx != aboutData.end(); ++itx) {
-        qcc::String key = itx->first;
-        ajn::MsgArg value = itx->second;
-        if (value.typeId == ALLJOYN_STRING) {
-            std::cout << "Key name=" << key.c_str() << " value=" << value.v_string.str << std::endl;
-        } else if (value.typeId == ALLJOYN_ARRAY && value.Signature().compare("as") == 0) {
-            std::cout << "Key name=" << key.c_str() << " values: ";
-            const MsgArg* stringArray;
-            size_t fieldListNumElements;
-            value.Get("as", &fieldListNumElements, &stringArray);
-            for (unsigned int i = 0; i < fieldListNumElements; i++) {
-                char* tempString;
-                stringArray[i].Get("s", &tempString);
-                std::cout << tempString << " ";
+    size_t count = aboutData.GetFields();
+
+    const char** fields = new const char*[count];
+    aboutData.GetFields(fields, count);
+
+    for (size_t i = 0; i < count; ++i) {
+        std::cout << "\tKey: " << fields[i];
+
+        MsgArg* tmp;
+        aboutData.GetField(fields[i], tmp, language);
+        std::cout << "\t";
+        if (tmp->Signature() == "s") {
+            const char* tmp_s;
+            tmp->Get("s", &tmp_s);
+            std::cout << tmp_s;
+        } else if (tmp->Signature() == "as") {
+            size_t las;
+            MsgArg* as_arg;
+            tmp->Get("as", &las, &as_arg);
+            for (size_t j = 0; j < las; ++j) {
+                const char* tmp_s;
+                as_arg[j].Get("s", &tmp_s);
+                std::cout << tmp_s << " ";
             }
-            std::cout << std::endl;
-        } else if (value.typeId == ALLJOYN_BYTE_ARRAY) {
-            std::cout << "Key name=" << key.c_str() << " value=" << std::hex << std::uppercase << std::setfill('0');
-            uint8_t* AppIdBuffer;
-            size_t numElements;
-            value.Get("ay", &numElements, &AppIdBuffer);
-            for (size_t i = 0; i < numElements; i++) {
-                std::cout <<  std::setw(2) << (unsigned int)AppIdBuffer[i];
+        } else if (tmp->Signature() == "ay") {
+            size_t lay;
+            uint8_t* pay;
+            tmp->Get("ay", &lay, &pay);
+            for (size_t j = 0; j < lay; ++j) {
+                std::cout << std::hex << static_cast<int>(pay[j]) << " ";
             }
-            std::cout << std::nouppercase << std::dec << std::endl;
+        } else {
+            std::cout << "User Defined Value\tSignature: " << tmp->Signature().c_str();
         }
+        std::cout << std::endl;
+    }
+    delete [] fields;
+    std::cout << std::endl;
+}
+
+void printAllAboutData(AboutProxy& aboutProxy)
+{
+    MsgArg aArg;
+    QStatus status = aboutProxy.GetAboutData(NULL, aArg);
+    if (status == ER_OK) {
+        std::cout << "*********************************************************************************" << std::endl;
+        std::cout << "GetAboutData: (Default Language)" << std::endl;
+        AboutData aboutData(aArg);
+        printAboutData(aboutData, NULL);
+        size_t lang_num;
+        lang_num = aboutData.GetSupportedLanguages();
+        // If the lang_num == 1 we only have a default language
+        if (lang_num > 1) {
+            const char** langs = new const char*[lang_num];
+            aboutData.GetSupportedLanguages(langs, lang_num);
+            char* defaultLanguage;
+            aboutData.GetDefaultLanguage(&defaultLanguage);
+            // print out the AboutData for every language but the
+            // default it has already been printed.
+            for (size_t i = 0; i < lang_num; ++i) {
+                if (strcmp(defaultLanguage, langs[i]) != 0) {
+                    status = aboutProxy.GetAboutData(langs[i], aArg);
+                    if (ER_OK == status) {
+                        aboutData.CreatefromMsgArg(aArg, langs[i]);
+                        std::cout <<  "GetAboutData: (" << langs[i] << ")" << std::endl;
+                        printAboutData(aboutData, langs[i]);
+                    }
+                }
+            }
+            delete [] langs;
+        }
+        std::cout << "*********************************************************************************" << std::endl;
     }
 }
 
@@ -85,125 +138,95 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
 
     busAttachment->EnableConcurrentCallbacks();
 
-    AboutClient* aboutClient = new AboutClient(*busAttachment);
+    AboutProxy aboutProxy(*busAttachment, busName.c_str(), id);
 
-    AboutIconClient* iconClient = NULL;
     bool isIconInterface = false;
     bool isConfigInterface = false;
     bool isOnboardingInterface = false;
 
     std::cout << std::endl << busName.c_str() << " AboutClient ObjectDescriptions" << std::endl;
     std::cout << "-----------------------------------" << std::endl;
-    AboutClient::ObjectDescriptions ObjectDescriptionsRefill;
-    status = aboutClient->GetObjectDescriptions(busName.c_str(), ObjectDescriptionsRefill, id);
 
-    if (status != ER_OK) {
-        std::cout << "Call to getObjectDescriptions failed: " << QCC_StatusText(status) << std::endl;
+    MsgArg objArg;
+    aboutProxy.GetObjectDescription(objArg);
+    std::cout << "AboutProxy.GetObjectDescriptions:\n" << objArg.ToString().c_str() << "\n\n" << std::endl;
+
+    AboutObjectDescription objectDescription;
+    objectDescription.CreateFromMsgArg(objArg);
+
+    isIconInterface = false;
+    isIconInterface = objectDescription.HasInterface("/About/DeviceIcon", "org.alljoyn.Icon");
+
+    if (isIconInterface) {
+        std::cout << "The given interface 'org.alljoyn.Icon' is found in a given path '/About/DeviceIcon'" << std::endl;
     } else {
-        for (AboutClient::ObjectDescriptions::const_iterator it = ObjectDescriptionsRefill.begin(); it != ObjectDescriptionsRefill.end(); ++it) {
-            qcc::String key = it->first;
-            std::vector<qcc::String> vector = it->second;
-            std::cout << "key=" << key.c_str();
-            for (std::vector<qcc::String>::const_iterator itv = vector.begin(); itv != vector.end(); ++itv) {
-                if (key.compare("/About/DeviceIcon") == 0 && itv->compare("org.alljoyn.Icon") == 0) {
-                    isIconInterface = true;
-                }
-                if (key.compare("/Config") == 0 && itv->compare("org.alljoyn.Config") == 0) {
-                    isConfigInterface = true;
-                }
-                if (key.compare("/Onboarding") == 0 && itv->compare("org.alljoyn.Onboarding") == 0) {
-                    isOnboardingInterface = true;
-                }
-                std::cout << " value=" << itv->c_str();
-            }
-            std::cout << std::endl;
-        }
+        std::cout << "WARNING - The given interface 'org.alljoyn.Icon' is not found in a given path '/About/DeviceIcon'" << std::endl;
     }
 
-    std::cout << std::endl << busName.c_str() << " AboutClient AboutData" << std::endl;
-    std::cout << "-----------------------------------" << std::endl;
-
-    AboutClient::AboutData aboutData;
-    status = aboutClient->GetAboutData(busName.c_str(), "en", aboutData);
-    if (status != ER_OK) {
-        std::cout << "Call to getAboutData failed: "  << QCC_StatusText(status) << std::endl;
+    isConfigInterface = false;
+    isConfigInterface = objectDescription.HasInterface("/Config", "org.alljoyn.Config");
+    if (isConfigInterface) {
+        std::cout << "The given interface 'org.alljoyn.Config' is found in a given path '/Config'" << std::endl;
     } else {
-        PrintAboutData(aboutData);
+        std::cout << "WARNING - The given interface 'org.alljoyn.Config' is not found in a given path '/Config'" << std::endl;
     }
 
-    std::cout << std::endl << busName.c_str() << " AboutClient GetVersion" << std::endl;
-    std::cout << "-----------------------------------" << std::endl;
-    int ver = 0;
-    status = aboutClient->GetVersion(busName.c_str(), ver, id);
-    if (status != ER_OK) {
-        std::cout << "Call to getVersion failed " << QCC_StatusText(status) << std::endl;
+    isOnboardingInterface = false;
+    isOnboardingInterface = objectDescription.HasInterface("/Onboarding", "org.alljoyn.Onboarding");
+    if (isOnboardingInterface) {
+        std::cout << "The given interface 'org.alljoyn.Onboarding' is found in a given path '/Onboarding'" << std::endl;
     } else {
-        std::cout << "Version=" << ver << std::endl;
+        std::cout << "WARNING - The given interface 'org.alljoyn.Onboarding' is not found in a given path '/Onboarding'" << std::endl;
+    }
+    printAllAboutData(aboutProxy);
+
+    std::cout << "aboutProxy GetVersion " << std::endl;
+    std::cout << "-----------------------" << std::endl;
+
+    uint16_t version = 0;
+    status = aboutProxy.GetVersion(version);
+    if (status != ER_OK) {
+        std::cout << "WARNING - Call to getVersion failed " << QCC_StatusText(status) << std::endl;
+    } else {
+        std::cout << "Version=" << version << std::endl;
     }
 
     if (isIconInterface) {
-        iconClient = new AboutIconClient(*busAttachment);
+        AboutIconProxy aiProxy(*busAttachment, busName.c_str(), id);
+        AboutIcon aboutIcon;
 
-        std::cout << std::endl << busName.c_str() << " AboutIcontClient GetUrl" << std::endl;
+        std::cout << std::endl << busName.c_str() << " AboutIconProxy GetIcon" << std::endl;
         std::cout << "-----------------------------------" << std::endl;
-        qcc::String url;
-        status = iconClient->GetUrl(busName.c_str(), url, id);
+
+        status = aiProxy.GetIcon(aboutIcon);
         if (status != ER_OK) {
-            std::cout << "Call to getUrl failed: " << QCC_StatusText(status) << std::endl;
-        } else {
-            std::cout << "url=" << url.c_str() << std::endl;
+            std::cout << "WARNING - Call to GetIcon failed: " << QCC_StatusText(status) << std::endl;
+            //goto
         }
 
-        std::cout << std::endl << busName.c_str() << " AboutIconClient GetIcon" << std::endl;
-        std::cout << "-----------------------------------" << std::endl;
-        AboutIconClient::Icon icon;
-        status = iconClient->GetIcon(busName.c_str(), icon, id);
-        if (status != ER_OK) {
-            std::cout << "Call to GetIcon failed: " << QCC_StatusText(status) << std::endl;
-        } else {
-            std::cout << "Content size = " << icon.contentSize << std::endl;
-            std::cout << "Content =\t";
-            for (size_t i = 0; i < icon.contentSize; i++) {
-                if (i % 8 == 0 && i > 0) {
-                    std::cout << "\n\t\t";
-                }
-                std::cout << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << (unsigned int)icon.content[i]
-                          << std::nouppercase << std::dec;
+        std::cout << "url=" << aboutIcon.url.c_str() << std::endl;
+        std::cout << "Content size = " << aboutIcon.contentSize << std::endl;
+        std::cout << "Content =\t";
+        for (size_t i = 0; i < aboutIcon.contentSize; i++) {
+            if (i % 8 == 0 && i > 0) {
+                std::cout << "\n\t\t";
             }
-            std::cout << std::endl;
-            std::cout << "Mimetype =\t" << icon.mimetype.c_str() << std::endl;
-        }
+            std::cout << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << (unsigned int)aboutIcon.content[i]
+                      << std::nouppercase << std::dec;
 
+            //std::cout << std::endl;
+        }
+        std::cout << std::endl;
+        std::cout << "Mimetype =\t" << aboutIcon.mimetype.c_str() << std::endl;
         std::cout << std::endl << busName.c_str() << " AboutIcontClient GetVersion" << std::endl;
         std::cout << "-----------------------------------" << std::endl;
 
-        status = iconClient->GetVersion(busName.c_str(), ver, id);
+        uint16_t version;
+        status = aiProxy.GetVersion(version);
         if (status != ER_OK) {
-            std::cout << "Call to getVersion failed: " << QCC_StatusText(status) << std::endl;
+            std::cout << "WARNING - Call to getVersion failed: " << QCC_StatusText(status) << std::endl;
         } else {
-            std::cout << "Version=" << ver << std::endl;
-        }
-
-        std::cout << std::endl << busName.c_str() << " AboutIcontClient GetMimeType" << std::endl;
-        std::cout << "-----------------------------------" << std::endl;
-        qcc::String mimetype;
-
-        status = iconClient->GetMimeType(busName.c_str(), mimetype, id);
-        if (status != ER_OK) {
-            std::cout << "Call to getMimetype failed: " << QCC_StatusText(status) << std::endl;
-        } else {
-            std::cout << "Mimetype=" << mimetype.c_str() << std::endl;
-        }
-
-        std::cout << std::endl << busName.c_str() << " AboutIcontClient GetSize" << std::endl;
-        std::cout << "-----------------------------------" << std::endl;
-
-        size_t contentSize = 0;
-        status = iconClient->GetSize(busName.c_str(), contentSize, id);
-        if (status != ER_OK) {
-            std::cout << "Call to getSize failed: " << QCC_StatusText(status) << std::endl;
-        } else {
-            std::cout << "Size=" << contentSize << std::endl;
+            std::cout << "Version=" << version << std::endl;
         }
     }
 
@@ -327,15 +350,6 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
 
     status = busAttachment->LeaveSession(id);
     std::cout << "Leaving session id = " << id << " with " << busName.c_str() << " status: " << QCC_StatusText(status) << std::endl;
-    if (aboutClient) {
-        delete aboutClient;
-        aboutClient = NULL;
-    }
-
-    if (iconClient) {
-        delete iconClient;
-        iconClient = NULL;
-    }
 
     if (configClient) {
         delete configClient;
@@ -355,6 +369,7 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
 
 void announceHandlerCallback(qcc::String const& busName, unsigned short port)
 {
+    std::cout << "announceHandlerCallback " << busName.c_str() << " " << port << std::endl;
     std::set<qcc::String>::iterator searchIterator = handledAnnouncements.find(qcc::String(busName));
     if (searchIterator == handledAnnouncements.end()) {
         handledAnnouncements.insert(busName);
@@ -415,7 +430,14 @@ int main(int argc, char**argv, char**envArg) {
 
     const char* interfaces[] = { "org.alljoyn.Onboarding" };
     AnnounceHandlerImpl* announceHandler = new AnnounceHandlerImpl(announceHandlerCallback);
-    AnnouncementRegistrar::RegisterAnnounceHandler(*busAttachment, *announceHandler, interfaces, 1);
+    busAttachment->RegisterAboutListener(*announceHandler);
+
+    status = busAttachment->WhoImplements(interfaces, sizeof(interfaces) / sizeof(interfaces[0]));
+    if (ER_OK == status) {
+        std::cout << "WhoImplements called." << std::endl;
+    } else {
+        std::cout << "ERROR - WhoImplements failed." << std::endl;
+    }
 
     while (!quit) {
 #ifdef _WIN32
@@ -425,7 +447,8 @@ int main(int argc, char**argv, char**envArg) {
 #endif
     }
 
-    AnnouncementRegistrar::UnRegisterAnnounceHandler(*busAttachment, *announceHandler, interfaces, 1);
+    busAttachment->CancelWhoImplements(interfaces, sizeof(interfaces) / sizeof(interfaces[0]));
+    busAttachment->UnregisterAboutListener(*announceHandler);
 
     busAttachment->Stop();
     delete busAttachment;

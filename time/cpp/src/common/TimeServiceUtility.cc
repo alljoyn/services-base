@@ -16,6 +16,7 @@
 
 #include "TimeServiceUtility.h"
 #include <alljoyn/AllJoynStd.h>
+#include <alljoyn/BusObject.h>
 
 using namespace ajn;
 using namespace services;
@@ -58,38 +59,27 @@ QStatus tsUtility::createAJInterface(const qcc::String& ifaceName, bool isSecure
 }
 
 //Subtract from the subtracted vector all the elements that are in the subtracter vector, so that
-void tsUtility::subtract(std::vector<qcc::String>* source, const std::vector<qcc::String>& subtract)
+void tsUtility::subtract(BusObject* busObject, BusAttachment* bus, const std::vector<qcc::String>& notAnnounced)
 {
 
     //If subtracter is empty, copy all the elements from subtracted to result
-    if (subtract.size() == 0) {
-
+    if (notAnnounced.empty()) {
         return;
     }
 
-    std::vector<qcc::String>::iterator sourceIter = source->begin();
-    std::vector<qcc::String>::const_iterator subtractIter;
-
-    while (sourceIter < source->end()) {
-
-        const char* sourceVal = (*sourceIter).c_str();
-
-        for (subtractIter = subtract.begin(); subtractIter < subtract.end(); ++subtractIter) {
-
-            const char* subtractVal = (*subtractIter).c_str();
-
-            //Check if the sourceVal was found in the subtract vector
-            if (0 == strcmp(sourceVal, subtractVal)) {
-
-                //Found the same value -> remove it. Iterator is forwarded by the erase method.
-                sourceIter = source->erase(sourceIter);
-                break;
-            } else {
-
-                ++sourceIter;
-            }
-        }
+    for (size_t i = 0; i < notAnnounced.size(); i++) {
+        setInterfaceAnnounce(busObject, bus, notAnnounced[i], false);
     }
+}
+
+QStatus tsUtility::setInterfaceAnnounce(BusObject* busObject, BusAttachment* bus, const qcc::String& ifaceName, bool isAnnounced)
+{
+    const InterfaceDescription* iface = bus->GetInterface(ifaceName.c_str());
+    if (!iface) {
+        return ER_BUS_UNKNOWN_INTERFACE;
+    }
+
+    return busObject->SetAnnounceFlag(iface, isAnnounced ? BusObject::ANNOUNCED : BusObject::UNANNOUNCED);
 }
 
 //Set Interface description to the BusObject

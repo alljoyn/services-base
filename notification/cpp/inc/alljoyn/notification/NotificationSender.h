@@ -20,8 +20,10 @@
 #include <vector>
 #include <map>
 #include <alljoyn/Status.h>
-#include <alljoyn/about/PropertyStore.h>
+#include <alljoyn/AboutData.h>
 #include <alljoyn/notification/NotificationEnums.h>
+
+#include <alljoyn/about/PropertyStore.h>
 
 namespace ajn {
 namespace services {
@@ -33,6 +35,13 @@ class Notification;
  */
 class NotificationSender {
   public:
+
+    /**
+     * Constructor for NotificationSenderImpl
+     * @param aboutdata - AboutData that includes entries
+     * for deviceId, deviceName, appId and appName
+     */
+    NotificationSender(ajn::AboutData* aboutdata);
 
     /**
      * Constructor for NotificationSenderImpl
@@ -67,7 +76,13 @@ class NotificationSender {
     /**
      * Device Id that will be sent with the Notifications
      */
+    ajn::AboutData* m_aboutdata;
+
+    /**
+     * Device Id that will be sent with the Notifications
+     */
     ajn::services::PropertyStore* m_PropertyStore;
+
 };
 } //namespace services
 } //namespace ajn

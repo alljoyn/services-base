@@ -172,11 +172,6 @@ class TimeServiceAlarmBusObj : public ajn::BusObject {
     qcc::String m_ObjectPath;
 
     /**
-     * Interfaces to be announced
-     */
-    std::vector<qcc::String> m_AnnouncedInterfaces;
-
-    /**
      * The pointer is used to send AlarmReached signals
      */
     const ajn::InterfaceDescription::Member* m_AlarmReachedSignalMethod;

@@ -18,7 +18,6 @@
 #include <alljoyn/time/LogModule.h>
 #include <alljoyn/time/TimeServiceServer.h>
 #include "../common/TimeServiceAlarmUtility.h"
-#include <alljoyn/about/AboutServiceApi.h>
 #include <alljoyn/time/TimeServiceConstants.h>
 #include <alljoyn/time/TimeServiceServerAlarm.h>
 #include <alljoyn/time/TimeServiceAlarmBusObj.h>
@@ -32,7 +31,6 @@ TimeServiceAlarmFactoryBusObj::TimeServiceAlarmFactoryBusObj(qcc::String const& 
 {
 
     QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, objectPath.c_str()));
-    m_AnnouncedInterfaces.push_back(tsConsts::ALARM_FACTORY_IFACE);
 }
 
 //Destructor
@@ -94,15 +92,6 @@ QStatus TimeServiceAlarmFactoryBusObj::init(TimeServiceServerAlarmFactory* alarm
         return status;
     }
 
-    AboutServiceApi* aboutService = AboutServiceApi::getInstance();
-    if (!aboutService) {
-
-        QCC_LogError(ER_FAIL, ("AboutService hasn't been initialized"));
-        return ER_FAIL;
-    }
-
-    aboutService->AddObjectDescription(m_ObjectPath, m_AnnouncedInterfaces);
-
     return ER_OK;
 }
 
@@ -121,12 +110,6 @@ void TimeServiceAlarmFactoryBusObj::release()
     }
 
     bus->UnregisterBusObject(*this);
-
-    AboutServiceApi* aboutService = AboutServiceApi::getInstance();
-    if (aboutService) {
-
-        aboutService->RemoveObjectDescription(m_ObjectPath, m_AnnouncedInterfaces);
-    }
 }
 
 //Returns object path of this Alarm
@@ -156,7 +139,7 @@ QStatus TimeServiceAlarmFactoryBusObj::addAlarmFactoryInterface(BusAttachment* b
         }
     }
 
-    status = AddInterface(*ifaceDesc);
+    status = AddInterface(*ifaceDesc, ANNOUNCED);
     if (status != ER_OK) {
 
         QCC_LogError(status, ("Failed to add AlarmFactory interface"));

@@ -47,7 +47,7 @@ NotificationTransport::NotificationTransport(ajn::BusAttachment* bus,
         return;
     }
 
-    status = AddInterface(*intf);
+    status = AddInterface(*intf, ANNOUNCED);
     if (status != ER_OK) {
         QCC_LogError(status, ("Could not add interface"));
         return;
