@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.alljoyn.bus.ErrorReplyBusException;
 import org.allseen.timeservice.TimeServiceConst;
-import org.allseen.timeservice.sample.server.ui.TimeServiceSampleServerApplication;
+import org.allseen.timeservice.sample.server.ui.TimeSampleServer;
 import org.allseen.timeservice.server.Alarm;
 import org.allseen.timeservice.server.AlarmFactory;
 
@@ -60,7 +60,7 @@ public class ServerAlarmFactory extends AlarmFactory {
     public ServerAlarmFactory(Context context) {
         this.context = context;
         alarms = new ArrayList<Alarm>();
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.ALARM_EVENT_ACTION, getObjectPath(), "AlarmFactory has been created");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.ALARM_EVENT_ACTION, getObjectPath(), "AlarmFactory has been created");
     }
 
     /**
@@ -76,7 +76,7 @@ public class ServerAlarmFactory extends AlarmFactory {
         alarms.clear();
 
         super.release();
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.ALARM_EVENT_ACTION, getObjectPath(), "AlarmFactory has been released");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.ALARM_EVENT_ACTION, getObjectPath(), "AlarmFactory has been released");
     }
 
     /**
@@ -85,7 +85,7 @@ public class ServerAlarmFactory extends AlarmFactory {
     @Override
     public Alarm newAlarm() throws ErrorReplyBusException {
 
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.ALARM_EVENT_ACTION, getObjectPath(), "AlarmFactory newAlarm request");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.ALARM_EVENT_ACTION, getObjectPath(), "AlarmFactory newAlarm request");
         Alarm alarm = new ServerAlarm(context);
         alarms.add(alarm);
 
@@ -99,7 +99,7 @@ public class ServerAlarmFactory extends AlarmFactory {
     @Override
     public void deleteAlarm(String objectPath) throws ErrorReplyBusException {
 
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.ALARM_EVENT_ACTION, getObjectPath(), "AlarmFactory deleteAlarm request");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.ALARM_EVENT_ACTION, getObjectPath(), "AlarmFactory deleteAlarm request");
         Alarm alarm = findAlarm(objectPath);
 
         if (alarm != null) {
@@ -122,7 +122,7 @@ public class ServerAlarmFactory extends AlarmFactory {
      */
     public Alarm findAlarm(String objectPath) {
 
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.ALARM_EVENT_ACTION, getObjectPath(), "AlarmFactory findAlarm request");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.ALARM_EVENT_ACTION, getObjectPath(), "AlarmFactory findAlarm request");
         for (Alarm alarm : alarms) {
 
             if (alarm.getObjectPath().equals(objectPath)) {

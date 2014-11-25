@@ -35,7 +35,7 @@ import android.util.Log;
  *
  *
  */
-public class TimeServiceSampleServerApplication extends Application {
+public class TimeSampleServer extends Application {
 
     private static final String TAG = "TimeServiceSampleServerApplication";
 
@@ -105,8 +105,8 @@ public class TimeServiceSampleServerApplication extends Application {
 
     public static void sendMessage(Context context, String type, String ObjectPath, String message) {
         Intent intent = new Intent(type);
-        intent.putExtra(TimeServiceSampleServerApplication.MESSAGE_KEY, message);
-        intent.putExtra(TimeServiceSampleServerApplication.OBJECT_PATH_KEY, ObjectPath);
+        intent.putExtra(TimeSampleServer.MESSAGE_KEY, message);
+        intent.putExtra(TimeSampleServer.OBJECT_PATH_KEY, ObjectPath);
         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     }
 

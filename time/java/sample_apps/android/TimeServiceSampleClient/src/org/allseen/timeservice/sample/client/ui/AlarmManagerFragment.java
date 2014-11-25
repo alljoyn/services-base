@@ -32,7 +32,7 @@ import org.allseen.timeservice.sample.client.R;
 import org.allseen.timeservice.sample.client.adapters.AlarmManagerAdapter;
 import org.allseen.timeservice.sample.client.application.DeviceManager;
 import org.allseen.timeservice.sample.client.application.DeviceManager.SignalObject;
-import org.allseen.timeservice.sample.client.application.TimeServiceSampleClientApplication;
+import org.allseen.timeservice.sample.client.application.TimeSampleClient;
 import org.allseen.timeservice.sample.client.dataobjects.AlarmItem;
 
 import android.app.Activity;
@@ -124,7 +124,7 @@ public class AlarmManagerFragment extends Fragment {
 
         View buttonView = rootView.findViewById(R.id.button_layout);
         currentDeviceUUID = (UUID) getArguments().getSerializable("UUID");
-        Map<UUID, DeviceManager.Device> map = ((TimeServiceSampleClientApplication) context.getApplicationContext()).getDeviceManager().getDevicesMap();
+        Map<UUID, DeviceManager.Device> map = ((TimeSampleClient) context.getApplicationContext()).getDeviceManager().getDevicesMap();
         if (map != null) {
             DeviceManager.Device currentDevice = map.get(currentDeviceUUID);
             if (currentDevice != null) {
@@ -220,7 +220,7 @@ public class AlarmManagerFragment extends Fragment {
 
         // register to receive Alarm signal.
         case REGISTER_ALARM_SIGNAL: {
-            final DeviceManager.Device currentDevice = ((TimeServiceSampleClientApplication) context.getApplicationContext()).getDeviceManager().getDevicesMap().get(currentDeviceUUID);
+            final DeviceManager.Device currentDevice = ((TimeSampleClient) context.getApplicationContext()).getDeviceManager().getDevicesMap().get(currentDeviceUUID);
             if (currentDevice != null) {
                 registerSignals( currentDevice,alarmItem.alarm);
                 getActivity().runOnUiThread(new Runnable() {
@@ -238,7 +238,7 @@ public class AlarmManagerFragment extends Fragment {
         case UNREGISTER_ALARM_SIGNAL: {
             // unregister from remote party to receive signals to current Alarm.
             alarmItem.alarm.unregisterAlarmHandler();
-            final DeviceManager.Device currentDevice = ((TimeServiceSampleClientApplication) context.getApplicationContext()).getDeviceManager().getDevicesMap().get(currentDeviceUUID);
+            final DeviceManager.Device currentDevice = ((TimeSampleClient) context.getApplicationContext()).getDeviceManager().getDevicesMap().get(currentDeviceUUID);
             if (currentDevice != null) {
                 currentDevice.unRegisterSignalHandler(alarmItem.alarm.getObjectPath());
                 getActivity().runOnUiThread(new Runnable() {
@@ -277,7 +277,7 @@ public class AlarmManagerFragment extends Fragment {
      */
     private void generateAlarmItemList() {
 
-        Map<UUID, DeviceManager.Device> map = ((TimeServiceSampleClientApplication) context.getApplicationContext()).getDeviceManager().getDevicesMap();
+        Map<UUID, DeviceManager.Device> map = ((TimeSampleClient) context.getApplicationContext()).getDeviceManager().getDevicesMap();
         if (map == null) {
 
             return;
@@ -367,7 +367,7 @@ public class AlarmManagerFragment extends Fragment {
      * @throws TimeServiceException
      */
     private List<AlarmItem> retrieveList(TimeServiceClient timeServiceClient) throws TimeServiceException {
-        Map<UUID, DeviceManager.Device> map = ((TimeServiceSampleClientApplication) context.getApplicationContext()).getDeviceManager().getDevicesMap();
+        Map<UUID, DeviceManager.Device> map = ((TimeSampleClient) context.getApplicationContext()).getDeviceManager().getDevicesMap();
         DeviceManager.Device currentDevice = null;
         if (map != null) {
             currentDevice = map.get(currentDeviceUUID);

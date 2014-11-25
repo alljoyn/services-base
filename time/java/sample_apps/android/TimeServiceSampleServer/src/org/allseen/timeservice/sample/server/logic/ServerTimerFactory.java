@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.alljoyn.bus.ErrorReplyBusException;
 import org.allseen.timeservice.TimeServiceConst;
-import org.allseen.timeservice.sample.server.ui.TimeServiceSampleServerApplication;
+import org.allseen.timeservice.sample.server.ui.TimeSampleServer;
 import org.allseen.timeservice.server.Timer;
 
 import android.content.Context;
@@ -55,7 +55,7 @@ public class ServerTimerFactory extends org.allseen.timeservice.server.TimerFact
     public ServerTimerFactory(Context context) {
         this.context = context;
         timers = new ArrayList<Timer>();
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimerFactory created");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimerFactory created");
     }
 
     /**
@@ -68,7 +68,7 @@ public class ServerTimerFactory extends org.allseen.timeservice.server.TimerFact
         }
         timers.clear();
         super.release();
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimerFactory released");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimerFactory released");
     }
 
     /**
@@ -79,7 +79,7 @@ public class ServerTimerFactory extends org.allseen.timeservice.server.TimerFact
         Timer timer = new ServerTimer(context);
         timers.add(timer);
         Log.i(TAG, "Created new Timer by Factory");
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimerFactory newTimer request");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimerFactory newTimer request");
         return timer;
     }
 
@@ -89,7 +89,7 @@ public class ServerTimerFactory extends org.allseen.timeservice.server.TimerFact
     @Override
     public void deleteTimer(String objectPath) throws ErrorReplyBusException {
 
-        TimeServiceSampleServerApplication.sendMessage(context, TimeServiceSampleServerApplication.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimerFactory deleteTimer request");
+        TimeSampleServer.sendMessage(context, TimeSampleServer.TIMER_EVENT_ACTION, getObjectPath(), "ServerTimerFactory deleteTimer request");
         Timer timer = findTimer(objectPath);
         if (timer != null) {
             Log.i(TAG, "Removing Timer, objectPath: '" + objectPath + "'");

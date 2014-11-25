@@ -95,20 +95,20 @@ public class DeviceManager implements AnnouncementHandler {
         @Override
         public void handleTimerEvent(Timer timer) {
             Log.d(TAG, "Received handleTimerEvent from" + timer.getObjectPath());
-            Intent t = new Intent(TimeServiceSampleClientApplication.TIMER_EVENT_SIGNAL_ACTION);
-            t.putExtra(TimeServiceSampleClientApplication.MESSAGE_KEY, "Timer  has expired");
-            t.putExtra(TimeServiceSampleClientApplication.OBJECT_PATH_KEY, timer.getObjectPath());
-            t.putExtra(TimeServiceSampleClientApplication.SERVICE_NAME_KEY, serviceName);
+            Intent t = new Intent(TimeSampleClient.TIMER_EVENT_SIGNAL_ACTION);
+            t.putExtra(TimeSampleClient.MESSAGE_KEY, "Timer  has expired");
+            t.putExtra(TimeSampleClient.OBJECT_PATH_KEY, timer.getObjectPath());
+            t.putExtra(TimeSampleClient.SERVICE_NAME_KEY, serviceName);
             LocalBroadcastManager.getInstance(context).sendBroadcast(t);
         }
 
         @Override
         public void handleRunStateChanged(Timer timer, boolean isRunning) {
             Log.d(TAG, "Received handleRunStateChanged from" + timer.getObjectPath());
-            Intent t = new Intent(TimeServiceSampleClientApplication.TIMER_EVENT_SIGNAL_ACTION);
-            t.putExtra(TimeServiceSampleClientApplication.MESSAGE_KEY, "Timer  changed state to " + isRunning);
-            t.putExtra(TimeServiceSampleClientApplication.OBJECT_PATH_KEY, timer.getObjectPath());
-            t.putExtra(TimeServiceSampleClientApplication.SERVICE_NAME_KEY, serviceName);
+            Intent t = new Intent(TimeSampleClient.TIMER_EVENT_SIGNAL_ACTION);
+            t.putExtra(TimeSampleClient.MESSAGE_KEY, "Timer  changed state to " + isRunning);
+            t.putExtra(TimeSampleClient.OBJECT_PATH_KEY, timer.getObjectPath());
+            t.putExtra(TimeSampleClient.SERVICE_NAME_KEY, serviceName);
             LocalBroadcastManager.getInstance(context).sendBroadcast(t);
         }
 
@@ -126,10 +126,10 @@ public class DeviceManager implements AnnouncementHandler {
         @Override
         public void handleAlarmReached(Alarm alarm) {
             Log.d(TAG, "Received handleAlarmReached from" + alarm.getObjectPath());
-            Intent t = new Intent(TimeServiceSampleClientApplication.ALARM_EVENT_SIGNAL_ACTION);
-            t.putExtra(TimeServiceSampleClientApplication.MESSAGE_KEY, "Alarm  has expired");
-            t.putExtra(TimeServiceSampleClientApplication.OBJECT_PATH_KEY, alarm.getObjectPath());
-            t.putExtra(TimeServiceSampleClientApplication.SERVICE_NAME_KEY, serviceName);
+            Intent t = new Intent(TimeSampleClient.ALARM_EVENT_SIGNAL_ACTION);
+            t.putExtra(TimeSampleClient.MESSAGE_KEY, "Alarm  has expired");
+            t.putExtra(TimeSampleClient.OBJECT_PATH_KEY, alarm.getObjectPath());
+            t.putExtra(TimeSampleClient.SERVICE_NAME_KEY, serviceName);
             LocalBroadcastManager.getInstance(context).sendBroadcast(t);
         }
     }
@@ -146,10 +146,10 @@ public class DeviceManager implements AnnouncementHandler {
         @Override
         public void handleTimeSync(Clock clock) {
             Log.d(TAG, "Received handleTimeSync from" + clock.getObjectPath());
-            Intent t = new Intent(TimeServiceSampleClientApplication.TIME_AUTHORITY_EVENT_SIGNAL_ACTION);
-            t.putExtra(TimeServiceSampleClientApplication.MESSAGE_KEY, "Clock has been received");
-            t.putExtra(TimeServiceSampleClientApplication.OBJECT_PATH_KEY, clock.getObjectPath());
-            t.putExtra(TimeServiceSampleClientApplication.SERVICE_NAME_KEY, serviceName);
+            Intent t = new Intent(TimeSampleClient.TIME_AUTHORITY_EVENT_SIGNAL_ACTION);
+            t.putExtra(TimeSampleClient.MESSAGE_KEY, "Clock has been received");
+            t.putExtra(TimeSampleClient.OBJECT_PATH_KEY, clock.getObjectPath());
+            t.putExtra(TimeSampleClient.SERVICE_NAME_KEY, serviceName);
             LocalBroadcastManager.getInstance(context).sendBroadcast(t);
         }
     }
@@ -247,7 +247,7 @@ public class DeviceManager implements AnnouncementHandler {
             deviceId = (String) fromVariantMap.get(AboutKeys.ABOUT_DEVICE_ID);
             deviceName = (String) fromVariantMap.get(AboutKeys.ABOUT_DEVICE_NAME);
 
-            BusAttachment busAttachment = ((TimeServiceSampleClientApplication) context.getApplicationContext()).getProtocolManager().getBusAttachment();
+            BusAttachment busAttachment = ((TimeSampleClient) context.getApplicationContext()).getProtocolManager().getBusAttachment();
             Device device = devicesMap.get(appId);
 
             if (device == null) {
@@ -286,7 +286,7 @@ public class DeviceManager implements AnnouncementHandler {
     public synchronized void onDeviceLost(String servicename) {
 
         Log.i(TAG, "onDeviceLost = " + servicename);
-        Map<UUID, DeviceManager.Device> map = ((TimeServiceSampleClientApplication) context.getApplicationContext()).getDeviceManager().getDevicesMap();
+        Map<UUID, DeviceManager.Device> map = ((TimeSampleClient) context.getApplicationContext()).getDeviceManager().getDevicesMap();
         boolean isfound = false;
         for (Map.Entry<UUID, DeviceManager.Device> entry : map.entrySet()) {
             UUID key = entry.getKey();

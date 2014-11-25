@@ -26,7 +26,7 @@ import org.allseen.timeservice.client.TimerFactory;
 import org.allseen.timeservice.sample.client.R;
 import org.allseen.timeservice.sample.client.application.DeviceManager;
 import org.allseen.timeservice.sample.client.application.DeviceManager.SignalObject;
-import org.allseen.timeservice.sample.client.application.TimeServiceSampleClientApplication;
+import org.allseen.timeservice.sample.client.application.TimeSampleClient;
 import org.allseen.timeservice.sample.client.dataobjects.TimerItem;
 import org.allseen.timeservice.sample.client.ui.TimerPickerDialog.OnCancelListener;
 import org.allseen.timeservice.sample.client.ui.TimerPickerDialog.OnTimeSetListener;
@@ -174,7 +174,7 @@ public class TimerFragment extends Fragment {
                 if (getArguments().containsKey("EDIT")) {
                     getFragmentManager().popBackStack();
                 } else {
-                    Map<UUID, DeviceManager.Device> map = ((TimeServiceSampleClientApplication) context.getApplicationContext()).getDeviceManager().getDevicesMap();
+                    Map<UUID, DeviceManager.Device> map = ((TimeSampleClient) context.getApplicationContext()).getDeviceManager().getDevicesMap();
                     if (map != null) {
                         final DeviceManager.Device currentDevice = map.get(currentDeviceUUID);
                         progressDialog.setMessage(context.getResources().getString(R.string.wait_update_message));
@@ -286,7 +286,7 @@ public class TimerFragment extends Fragment {
                                         }
                                     }, null);
                         } else {
-                            Map<UUID, DeviceManager.Device> map = ((TimeServiceSampleClientApplication) context.getApplicationContext()).getDeviceManager().getDevicesMap();
+                            Map<UUID, DeviceManager.Device> map = ((TimeSampleClient) context.getApplicationContext()).getDeviceManager().getDevicesMap();
                             if (map != null) {
                                 final DeviceManager.Device currentDevice = map.get(currentDeviceUUID);
                                 if (currentDevice != null) {
@@ -394,7 +394,7 @@ public class TimerFragment extends Fragment {
 
             descriptionValue.setHint(context.getResources().getString(R.string.timer_title_hint));
             enabled.setChecked(false);
-            Map<UUID, DeviceManager.Device> map = ((TimeServiceSampleClientApplication) context.getApplicationContext()).getDeviceManager().getDevicesMap();
+            Map<UUID, DeviceManager.Device> map = ((TimeSampleClient) context.getApplicationContext()).getDeviceManager().getDevicesMap();
             if (map != null) {
                 DeviceManager.Device currentDevice = map.get(currentDeviceUUID);
                 if (currentDevice != null) {

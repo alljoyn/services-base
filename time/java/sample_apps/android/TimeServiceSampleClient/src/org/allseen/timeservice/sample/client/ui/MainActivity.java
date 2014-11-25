@@ -18,7 +18,7 @@ package org.allseen.timeservice.sample.client.ui;
 import java.util.UUID;
 
 import org.allseen.timeservice.sample.client.R;
-import org.allseen.timeservice.sample.client.application.TimeServiceSampleClientApplication;
+import org.allseen.timeservice.sample.client.application.TimeSampleClient;
 
 import android.app.ActionBar;
 import android.content.Intent;
@@ -49,8 +49,8 @@ public class MainActivity extends BaseActivity implements FragmentCommunicationI
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if (intent.getAction() == TimeServiceSampleClientApplication.NEW_SIGNAL_MESSAGE_ACTION) {
-            final Integer count = intent.getIntExtra(TimeServiceSampleClientApplication.NEW_SIGNAL_COUNT_KEY, 0);
+        if (intent.getAction() == TimeSampleClient.NEW_SIGNAL_MESSAGE_ACTION) {
+            final Integer count = intent.getIntExtra(TimeSampleClient.NEW_SIGNAL_COUNT_KEY, 0);
             Log.d(TAG, "Received message count " + count);
             runOnUiThread(new Runnable() {
                 @Override
@@ -64,7 +64,7 @@ public class MainActivity extends BaseActivity implements FragmentCommunicationI
                 }
             });
         }
-        if (intent.getAction() == TimeServiceSampleClientApplication.CLEAR_SIGNAL_MESSAGE_ACTION) {
+        if (intent.getAction() == TimeSampleClient.CLEAR_SIGNAL_MESSAGE_ACTION) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

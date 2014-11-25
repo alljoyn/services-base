@@ -20,7 +20,7 @@ import java.util.List;
 
 import org.allseen.timeservice.sample.client.R;
 import org.allseen.timeservice.sample.client.adapters.SignalMessagesAdapter;
-import org.allseen.timeservice.sample.client.application.TimeServiceSampleClientApplication;
+import org.allseen.timeservice.sample.client.application.TimeSampleClient;
 import org.allseen.timeservice.sample.client.dataobjects.SignalMessageItem;
 
 import android.app.Activity;
@@ -38,7 +38,7 @@ import android.widget.ListView;
 
 /**
  *
- * Display Signal Messages sent by internal broadcast {@link TimeServiceSampleClientApplication#getSignalMessages()}
+ * Display Signal Messages sent by internal broadcast {@link TimeSampleClient#getSignalMessages()}
  */
 public class SignalMessagesFragment extends Fragment {
     private SignalMessagesAdapter signalMessagesAdapter;
@@ -63,11 +63,11 @@ public class SignalMessagesFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-                ((TimeServiceSampleClientApplication) context.getApplicationContext()).getSignalMessages().clear();
+                ((TimeSampleClient) context.getApplicationContext()).getSignalMessages().clear();
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        signalMessagesAdapter.update(((TimeServiceSampleClientApplication) context.getApplicationContext()).getSignalMessages());
+                        signalMessagesAdapter.update(((TimeSampleClient) context.getApplicationContext()).getSignalMessages());
                     }
                 });
             }
@@ -80,7 +80,7 @@ public class SignalMessagesFragment extends Fragment {
             List<SignalMessageItem> list;
             @Override
             protected Void doInBackground(Void... params) {
-                list = ((TimeServiceSampleClientApplication) context.getApplicationContext()).getSignalMessages();
+                list = ((TimeSampleClient) context.getApplicationContext()).getSignalMessages();
                 for (SignalMessageItem item : list) {
                     item.seen = true;
                 }
@@ -90,7 +90,7 @@ public class SignalMessagesFragment extends Fragment {
             protected void onPostExecute(Void result) {
                 signalMessagesAdapter.update(list);
                 Intent sendIntent = new Intent(context, MainActivity.class);
-                sendIntent.setAction(TimeServiceSampleClientApplication.CLEAR_SIGNAL_MESSAGE_ACTION);
+                sendIntent.setAction(TimeSampleClient.CLEAR_SIGNAL_MESSAGE_ACTION);
                 sendIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(sendIntent);
             }
