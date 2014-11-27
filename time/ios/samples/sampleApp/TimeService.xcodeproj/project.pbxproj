@@ -30,6 +30,8 @@
 		19EA46EB1A1CD587009EF216 /* SampleTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 19EA46EA1A1CD587009EF216 /* SampleTimer.m */; };
 		9A3DB0C3183A0D2A0063D6BE /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9A3DB00A183A0D290063D6BE /* MainStoryboard_iPhone.storyboard */; };
 		9A3DB315183A19CB0063D6BE /* libc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A3DB314183A19CB0063D6BE /* libc.dylib */; };
+		9A5B2F381A27329600505A46 /* liballjoyn_services_common_cpp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A5B2F371A27329600505A46 /* liballjoyn_services_common_cpp.a */; };
+		9A5B2F3A1A2732B800505A46 /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A5B2F391A2732B800505A46 /* libxml2.dylib */; };
 		9AB9AC5B1A1B5BA400A236E3 /* SampleClock.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AB9AC5A1A1B5BA400A236E3 /* SampleClock.m */; };
 		9AB9AC5F1A1B69E100A236E3 /* CommonBusListener.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AB9AC5E1A1B69E100A236E3 /* CommonBusListener.m */; };
 		9AFAA9B51861EFFB00E9C4ED /* liballjoyn_about_cpp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AFAA9B21861EFFB00E9C4ED /* liballjoyn_about_cpp.a */; };
@@ -71,6 +73,8 @@
 		9A3DAFFC183A0D290063D6BE /* TimeService-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TimeService-Prefix.pch"; sourceTree = "<group>"; };
 		9A3DB00A183A0D290063D6BE /* MainStoryboard_iPhone.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = MainStoryboard_iPhone.storyboard; sourceTree = "<group>"; };
 		9A3DB314183A19CB0063D6BE /* libc.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libc.dylib; path = usr/lib/libc.dylib; sourceTree = SDKROOT; };
+		9A5B2F371A27329600505A46 /* liballjoyn_services_common_cpp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liballjoyn_services_common_cpp.a; path = "../../../../services_common/ios/samples/alljoyn_services_cpp/build/Debug-iphoneos/liballjoyn_services_common_cpp.a"; sourceTree = "<group>"; };
+		9A5B2F391A2732B800505A46 /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
 		9AA35AB1188BDC210021B893 /* liballjoyn_services_common_cpp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liballjoyn_services_common_cpp.a; path = "../../../../services_common/ios/sample/alljoyn_services_cpp/build/Debug-iphoneos/liballjoyn_services_common_cpp.a"; sourceTree = "<group>"; };
 		9AA35AB3188BDC250021B893 /* liballjoyn_services_common_objc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liballjoyn_services_common_objc.a; path = "../../../../services_common/ios/sample/alljoyn_services_objc/build/Debug-iphoneos/liballjoyn_services_common_objc.a"; sourceTree = "<group>"; };
 		9AB9AC5A1A1B5BA400A236E3 /* SampleClock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SampleClock.m; sourceTree = "<group>"; };
@@ -87,6 +91,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A5B2F3A1A2732B800505A46 /* libxml2.dylib in Frameworks */,
+				9A5B2F381A27329600505A46 /* liballjoyn_services_common_cpp.a in Frameworks */,
 				19375D3419FE66BD00689ADD /* liballjoyn_time_cpp.a in Frameworks */,
 				19375D3519FE66BD00689ADD /* liballjoyn_time_objc.a in Frameworks */,
 				9AFAA9B71861EFFB00E9C4ED /* libAllJoynFramework_iOS.a in Frameworks */,
@@ -128,6 +134,8 @@
 		19E2F04117E87CE10005851F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				9A5B2F391A2732B800505A46 /* libxml2.dylib */,
+				9A5B2F371A27329600505A46 /* liballjoyn_services_common_cpp.a */,
 				19375D4319FE6BBD00689ADD /* liballjoyn_services_common_cpp.a */,
 				19375D4419FE6BBD00689ADD /* liballjoyn_services_common_objc.a */,
 				19375D3219FE66BD00689ADD /* liballjoyn_time_cpp.a */,
@@ -410,6 +418,7 @@
 					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/time/ios/samples/alljoyn_services_objc/build/Debug-iphoneos\"",
 					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/services_common/ios/samples/alljoyn_services_cpp/build/Debug-iphoneos\"",
 					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/services_common/ios/samples/alljoyn_services_objc/build/Debug-iphoneos\"",
+					"/Users/skedem/master_allseen/services/base/services_common/ios/samples/alljoyn_services_cpp/build/Debug-iphoneos",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
@@ -470,6 +479,7 @@
 					"\"$(ALLSEEN_BASE_SERVICES_ROOT)//time/ios/samples/alljoyn_services_objc/build/Debug-iphoneos\"",
 					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/services_common/ios/samples/alljoyn_services_cpp/build/Debug-iphoneos\"",
 					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/services_common/ios/samples/alljoyn_services_objc/build/Debug-iphoneos\"",
+					"/Users/skedem/master_allseen/services/base/services_common/ios/samples/alljoyn_services_cpp/build/Debug-iphoneos",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (

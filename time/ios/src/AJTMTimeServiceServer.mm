@@ -14,6 +14,11 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+/**
+ * This class is experimental, and as such has not been tested.
+ * Please help make it more robust by contributing fixes if you find issues
+ **/
+
 #import "AJTMTimeServiceServer.h"
 #import "alljoyn/time/TimeServiceServer.h"
 #import "alljoyn/BusAttachment.h"
@@ -72,7 +77,7 @@
 
         [clock registerAdapter:clockAdapter];
 
-        return ajn::services::TimeServiceServer::getInstance()->createClock(clockAdapter);
+        return ajn::services::TimeServiceServer::getInstance()->activateClock(clockAdapter);
     } else {
         NSLog(@"Clock object type is wrong");
         return ER_FAIL;
@@ -89,7 +94,7 @@
 
         [clock registerAdapter:timeAuthorityAdapter];
 
-        return ajn::services::TimeServiceServer::getInstance()->createTimeAuthorityClock(timeAuthorityAdapter, (ajn::services::tsConsts::ClockAuthorityType)authorityType);
+        return ajn::services::TimeServiceServer::getInstance()->activateTimeAuthorityClock(timeAuthorityAdapter, (ajn::services::tsConsts::ClockAuthorityType)authorityType);
     } else {
         NSLog(@"Time Authority object type is wrong");
         return ER_FAIL;
@@ -108,7 +113,7 @@
 
         [alarm registerAdapter:alarmAdapter];
 
-        return ajn::services::TimeServiceServer::getInstance()->createAlarm(alarmAdapter);
+        return ajn::services::TimeServiceServer::getInstance()->activateAlarm(alarmAdapter);
     } else {
         NSLog(@"Alarm object type is wrong");
         return ER_FAIL;
@@ -120,7 +125,7 @@
     //create an adapter using the alarm handle
     [self createAlarm:alarm];
 
-    return ajn::services::TimeServiceServer::getInstance()->createAlarm((__bridge AJTMTimeServiceServerAlarmAdapter*)[alarm getHandle], (qcc::String)[description UTF8String], (qcc::String)[language UTF8String], new AJNTranslatorImpl(translator));
+    return ajn::services::TimeServiceServer::getInstance()->activateAlarm((__bridge AJTMTimeServiceServerAlarmAdapter*)[alarm getHandle], (qcc::String)[description UTF8String], (qcc::String)[language UTF8String], new AJNTranslatorImpl(translator));
 }
 
 -(QStatus)registerCustomAlarm:(id<AJTMTimeServiceAlarmBusObj>) alarmBusObj alarm:(AJTMTimeServiceServerAlarmBase*) alarm notAnnounced:(NSArray*) notAnnounced
@@ -164,7 +169,7 @@
 
         [timer registerAdapter:timerAdapter];
 
-        return ajn::services::TimeServiceServer::getInstance()->createTimer(timerAdapter);
+        return ajn::services::TimeServiceServer::getInstance()->activateTimer(timerAdapter);
     } else {
         NSLog(@"Timer object type is wrong");
         return ER_FAIL;
@@ -176,7 +181,7 @@
     //create an adapter using the timer handle
     [self createTimer:timer];
 
-    return ajn::services::TimeServiceServer::getInstance()->createTimer((__bridge AJTMTimeServiceServerTimerAdapter*)[timer getHandle], (qcc::String)[description UTF8String], (qcc::String)[language UTF8String], new AJNTranslatorImpl(translator));
+    return ajn::services::TimeServiceServer::getInstance()->activateTimer((__bridge AJTMTimeServiceServerTimerAdapter*)[timer getHandle], (qcc::String)[description UTF8String], (qcc::String)[language UTF8String], new AJNTranslatorImpl(translator));
 }
 
 -(QStatus)registerCustomTimer:(id<AJTMTimeServiceTimerBusObj>) timerBusObj timer:(AJTMTimeServiceServerTimerBase*) timer notAnnounced:(NSArray*) notAnnounced
@@ -222,7 +227,7 @@
 
         [alarmFactory registerAdapter:alarmFactoryAdapter];
 
-        return ajn::services::TimeServiceServer::getInstance()->createAlarmFactory(alarmFactoryAdapter);
+        return ajn::services::TimeServiceServer::getInstance()->activateAlarmFactory(alarmFactoryAdapter);
     } else {
         NSLog(@"Alarm Factory object type is wrong");
         return ER_FAIL;
@@ -235,7 +240,7 @@
     //create an adapter using the alarm handle
     [self createAlarmFactory:alarmFactory];
 
-    return ajn::services::TimeServiceServer::getInstance()->createAlarmFactory((__bridge AJTMTimeServiceServerAlarmFactoryAdapter*)[alarmFactory getHandle], (qcc::String)[description UTF8String], (qcc::String)[language UTF8String], new AJNTranslatorImpl(translator));
+    return ajn::services::TimeServiceServer::getInstance()->activateAlarmFactory((__bridge AJTMTimeServiceServerAlarmFactoryAdapter*)[alarmFactory getHandle], (qcc::String)[description UTF8String], (qcc::String)[language UTF8String], new AJNTranslatorImpl(translator));
 }
 
 -(QStatus) createTimerFactory:(AJTMTimeServiceServerTimerFactoryBase*) timerFactory
@@ -248,7 +253,7 @@
 
         [timerFactory registerAdapter:timerFactoryAdapter];
 
-        return ajn::services::TimeServiceServer::getInstance()->createTimerFactory(timerFactoryAdapter);
+        return ajn::services::TimeServiceServer::getInstance()->activateTimerFactory(timerFactoryAdapter);
     } else {
         NSLog(@"Timer Factory object type is wrong");
         return ER_FAIL;
@@ -261,7 +266,7 @@
     //create an adapter using the timer handle
     [self createTimerFactory:timerFactory];
 
-    return ajn::services::TimeServiceServer::getInstance()->createTimerFactory((__bridge AJTMTimeServiceServerTimerFactoryAdapter*)[timerFactory getHandle], (qcc::String)[description UTF8String], (qcc::String)[language UTF8String], new AJNTranslatorImpl(translator));
+    return ajn::services::TimeServiceServer::getInstance()->activateTimerFactory((__bridge AJTMTimeServiceServerTimerFactoryAdapter*)[timerFactory getHandle], (qcc::String)[description UTF8String], (qcc::String)[language UTF8String], new AJNTranslatorImpl(translator));
 }
 
 -(QStatus)generateObjectPath:(NSString*) objectPath

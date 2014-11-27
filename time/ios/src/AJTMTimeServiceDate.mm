@@ -14,6 +14,11 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+/**
+ * This class is experimental, and as such has not been tested.
+ * Please help make it more robust by contributing fixes if you find issues
+ **/
+
 #import "AJTMTimeServiceDate.h"
 
 @interface AJTMTimeServiceDate ()
@@ -40,7 +45,7 @@
     return self;
 }
 
--(QStatus)initWithYear:(uint16_t) year month:(uint8_t) month day:(uint8_t) day
+-(QStatus)populateWithYear:(uint16_t) year month:(uint8_t) month day:(uint8_t) day
 {
     QStatus status;
     status = self.handle->init(year, month, day);

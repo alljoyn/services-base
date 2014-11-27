@@ -14,6 +14,11 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+/**
+ * This class is experimental, and as such has not been tested.
+ * Please help make it more robust by contributing fixes if you find issues
+ **/
+
 #import "AJTMTimeServiceTime.h"
 
 @interface AJTMTimeServiceTime ()
@@ -40,7 +45,7 @@
     return self;
 }
 
--(QStatus)initWithHour:(uint8_t) hour minute:(uint8_t) minute second:(uint8_t) second millisecond:(uint16_t) millisecond
+-(QStatus)populateWithHour:(uint8_t) hour minute:(uint8_t) minute second:(uint8_t) second millisecond:(uint16_t) millisecond
 {
     return self.handle->init(hour, minute, second, millisecond);
 }
