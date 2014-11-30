@@ -24,8 +24,9 @@ import java.util.TimerTask;
 import java.util.UUID;
 
 import org.alljoyn.about.AboutKeys;
-import org.alljoyn.about.AboutService;
-import org.alljoyn.about.transport.AboutTransport;
+import org.alljoyn.bus.AboutListener;
+import org.alljoyn.bus.AboutObj;
+import org.alljoyn.bus.AboutObjectDescription;
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.Status;
@@ -38,8 +39,6 @@ import org.alljoyn.onboarding.transport.ConnectionResult;
 import org.alljoyn.onboarding.transport.ConnectionResultListener;
 import org.alljoyn.onboarding.transport.OnboardingTransport;
 import org.alljoyn.onboarding.transport.OnboardingTransport.ConfigureWifiMode;
-import org.alljoyn.services.common.AnnouncementHandler;
-import org.alljoyn.services.common.BusObjectDescription;
 import org.alljoyn.services.common.ClientBase;
 import org.alljoyn.services.common.ServiceAvailabilityListener;
 import org.alljoyn.services.common.utils.TransportUtil;
@@ -58,55 +57,75 @@ import android.util.Pair;
 
 /**
  * Streamlines the process of onboarding for Android application developers.<br>
- * The SDK encapsulates the Wi-Fi and AllJoyn sessions that are part of the process.<br>
- *  The Onboarding SDK API provides the following :
- *
+ * The SDK encapsulates the Wi-Fi and AllJoyn sessions that are part of the
+ * process.<br>
+ * The Onboarding SDK API provides the following :
+ * 
  * <ul>
- *      <li>Discovery of potential target networks,Discovery of potential onboardees,by calling {@link #scanWiFi()}
- *      <li>A single call, {@link #runOnboarding(OnboardingConfiguration)}, for start the flow of onboarding process
- *      <li>A single call ,{@link #runOffboarding(OffboardingConfiguration)}, for starting the flow of offboarding process
+ * <li>Discovery of potential target networks,Discovery of potential
+ * onboardees,by calling {@link #scanWiFi()}
+ * <li>A single call, {@link #runOnboarding(OnboardingConfiguration)}, for start
+ * the flow of onboarding process
+ * <li>A single call ,{@link #runOffboarding(OffboardingConfiguration)}, for
+ * starting the flow of offboarding process
  * </ul>
- *
+ * 
  * <P>
  * The onboarding flow works as follows:
  * <P>
  * The SDK uses a state machine handled by Andorid's handler
  * {@link #stateHandler} using the {@link #onHandleCommandMessage} function to
  * handle state changes.
- *  <ul>
- *      <li> IDLE state moves to  CONNECTING_TO_ONBOARDEE when starting the onboarding process
- *      <li> CONNECTING_TO_ONBOARDEE state moves to WAITING_FOR_ONBOARDEE_ANNOUNCEMENT after Wi-Fi connection has been established with onboardee device.
- *      <li> WAITING_FOR_ONBOARDEE_ANNOUNCEMENT state moves to state ONBOARDEE_ANNOUNCEMENT_RECEIVED after a valid announce message has been received.
- *      <li> ONBOARDEE_ANNOUNCEMENT_RECEIVED state moves to CONFIGURING_ONBOARDEE if the onboardee supports onboarding service.
- *      <li> CONFIGURING_ONBOARDEE state moves to  CONNECTING_TO_TARGET_WIFI_AP if passing the target credentials to the onboardee was successful.
- *      <li> CONFIGURING_ONBOARDEE_WAITING_FOR_SIGNAL_TIMEOUT state moves to  CONNECTING_TO_TARGET_WIFI_AP if passing the target credentials to the onboardee was successful.
- *      <li> CONNECTING_TO_TARGET_WIFI_AP moves to WAITING_FOR_TARGET_ANNOUNCE after Wi-Fi connection has been established with target .
- *      <li> WAITING_FOR_TARGET_ANNOUNCE moves to TARGET_ANNOUNCEMENT_RECEIVED after after a valid announce message has been received.
- *  </ul>
- *
- *  <P>The SDK receives events from external resources
- *     <ul>
- *      <li>  OnboardingSDKWifiManager {@link #onboardingClient} that broadcasts Wi-Fi success and failure to connect to a desired Wi-Fi device.
- *      <li>  onAnnouncement callback which handles AllJoyn AboutService announcements.
- *    </ul>
- *
+ * <ul>
+ * <li>IDLE state moves to CONNECTING_TO_ONBOARDEE when starting the onboarding
+ * process
+ * <li>CONNECTING_TO_ONBOARDEE state moves to WAITING_FOR_ONBOARDEE_ANNOUNCEMENT
+ * after Wi-Fi connection has been established with onboardee device.
+ * <li>WAITING_FOR_ONBOARDEE_ANNOUNCEMENT state moves to state
+ * ONBOARDEE_ANNOUNCEMENT_RECEIVED after a valid announce message has been
+ * received.
+ * <li>ONBOARDEE_ANNOUNCEMENT_RECEIVED state moves to CONFIGURING_ONBOARDEE if
+ * the onboardee supports onboarding service.
+ * <li>CONFIGURING_ONBOARDEE state moves to CONNECTING_TO_TARGET_WIFI_AP if
+ * passing the target credentials to the onboardee was successful.
+ * <li>CONFIGURING_ONBOARDEE_WAITING_FOR_SIGNAL_TIMEOUT state moves to
+ * CONNECTING_TO_TARGET_WIFI_AP if passing the target credentials to the
+ * onboardee was successful.
+ * <li>CONNECTING_TO_TARGET_WIFI_AP moves to WAITING_FOR_TARGET_ANNOUNCE after
+ * Wi-Fi connection has been established with target .
+ * <li>WAITING_FOR_TARGET_ANNOUNCE moves to TARGET_ANNOUNCEMENT_RECEIVED after
+ * after a valid announce message has been received.
+ * </ul>
+ * 
  * <P>
- *   The SDK uses intents to report status changes and errors during onboarding/offboarding process.
- *   <ul>
- *      <li> {@link #STATE_CHANGE_ACTION} action with extra
- *         <ul>
- *            <li>{@link #EXTRA_ONBOARDING_STATE} extra information of enum  {@link OnboardingState}
- *         </ul>
- *      <li>{@link #ERROR} action with extra
- *          <ul>
- *            <li>{@link #EXTRA_ERROR_DETAILS} extra information of enum {@link OnboardingErrorType}
- *         </ul>
- *    </ul>
- *
- *<P>View sample code for SDK usage
+ * The SDK receives events from external resources
+ * <ul>
+ * <li>OnboardingSDKWifiManager {@link #onboardingClient} that broadcasts Wi-Fi
+ * success and failure to connect to a desired Wi-Fi device.
+ * <li>onAnnouncement callback which handles AllJoyn AboutService announcements.
+ * </ul>
+ * 
+ * <P>
+ * The SDK uses intents to report status changes and errors during
+ * onboarding/offboarding process.
+ * <ul>
+ * <li> {@link #STATE_CHANGE_ACTION} action with extra
+ * <ul>
+ * <li>{@link #EXTRA_ONBOARDING_STATE} extra information of enum
+ * {@link OnboardingState}
+ * </ul>
+ * <li>{@link #ERROR} action with extra
+ * <ul>
+ * <li>{@link #EXTRA_ERROR_DETAILS} extra information of enum
+ * {@link OnboardingErrorType}
+ * </ul>
+ * </ul>
+ * 
+ * <P>
+ * View sample code for SDK usage
  */
 
-public class OnboardingManager {
+public class OnboardingManager implements AboutListener {
 
     /**
      * Activity Action:WIFI has been connected
@@ -154,29 +173,35 @@ public class OnboardingManager {
     public static final String EXTRA_ERROR_DETAILS = "org.alljoyn.onboardingsdk.intent_keys.error";
 
     /**
-     * The lookup key for EXTRA_DEVICE_BUS_NAME reported by the SDK ,used to report device service name during call {@link #offboardDevice(String, short)}
+     * The lookup key for EXTRA_DEVICE_BUS_NAME reported by the SDK ,used to
+     * report device service name during call
+     * {@link #offboardDevice(String, short)}
      */
-    public static final String EXTRA_DEVICE_BUS_NAME= "org.alljoyn.onboardingsdk.intent_keys.device_bus_name";
+    public static final String EXTRA_DEVICE_BUS_NAME = "org.alljoyn.onboardingsdk.intent_keys.device_bus_name";
 
     /**
-     * The lookup key for EXTRA_DEVICE_ONBOARDEE_SSID reported by the SDK after successful onboarding process ,reports the onboardee ssid name
+     * The lookup key for EXTRA_DEVICE_ONBOARDEE_SSID reported by the SDK after
+     * successful onboarding process ,reports the onboardee ssid name
      */
     public static final String EXTRA_DEVICE_ONBOARDEE_SSID = "org.alljoyn.onboardingsdk.intent_keys.device_onboardee_ssid";
 
     /**
-     * The lookup key for EXTRA_DEVICE_TARGET_SSID reported by the SDK after successful onboarding process ,reports the target ssid name
+     * The lookup key for EXTRA_DEVICE_TARGET_SSID reported by the SDK after
+     * successful onboarding process ,reports the target ssid name
      */
     public static final String EXTRA_DEVICE_TARGET_SSID = "org.alljoyn.onboardingsdk.intent_keys.device_target_ssid";
 
     /**
-     *  The lookup key for EXTRA_DEVICE_APPID reported by the SDK after successful onboarding process ,reports the application id
+     * The lookup key for EXTRA_DEVICE_APPID reported by the SDK after
+     * successful onboarding process ,reports the application id
      */
-    public static final String EXTRA_DEVICE_APPID= "org.alljoyn.onboardingsdk.intent_keys.device_appid";
+    public static final String EXTRA_DEVICE_APPID = "org.alljoyn.onboardingsdk.intent_keys.device_appid";
 
     /**
-     *  The lookup key for EXTRA_DEVICE_DEVICEID reported by the SDK after successful onboarding process ,reports the  device id
+     * The lookup key for EXTRA_DEVICE_DEVICEID reported by the SDK after
+     * successful onboarding process ,reports the device id
      */
-    public static final String EXTRA_DEVICE_DEVICEID="org.alljoyn.onboardingsdk.intent_keys.device_deviceid";
+    public static final String EXTRA_DEVICE_DEVICEID = "org.alljoyn.onboardingsdk.intent_keys.device_deviceid";
 
     /**
      * Activity Action: indicates that the WIFI scan has been completed
@@ -194,10 +219,9 @@ public class OnboardingManager {
     public static final String ERROR = "org.alljoyn.onboardingsdk.error";
 
     /**
-     *These enumeration values are used to indicate possible errors
-     *
-     * see also
-     * {@link #EXTRA_ERROR_DETAILS}
+     * These enumeration values are used to indicate possible errors
+     * 
+     * see also {@link #EXTRA_ERROR_DETAILS}
      */
     public static enum OnboardingErrorType {
 
@@ -212,7 +236,7 @@ public class OnboardingManager {
         ONBOARDEE_WIFI_AUTH(10),
 
         /**
-         *Target Wi-Fi authentication error.
+         * Target Wi-Fi authentication error.
          */
         TARGET_WIFI_AUTH(11),
 
@@ -252,48 +276,50 @@ public class OnboardingManager {
         CONFIGURING_ONBOARDEE_WAITING_FOR_SIGNAL_TIMEOUT(18),
 
         /**
-         * Timeout while waiting to receive announcement from onboardee on target network.
+         * Timeout while waiting to receive announcement from onboardee on
+         * target network.
          */
         VERIFICATION_TIMEOUT(19),
 
         /**
-         *Failed ot offboard a device from target.
+         * Failed ot offboard a device from target.
          */
         OFFBOARDING_FAILED(20),
 
         /**
-         *Announce data is inavalid.
+         * Announce data is inavalid.
          */
         INVALID_ANNOUNCE_DATA(21),
 
         /**
-         *Wi-Fi connection timeout {@link OnboardingManager#connectToNetwork(WiFiNetworkConfiguration, long)}
+         * Wi-Fi connection timeout
+         * {@link OnboardingManager#connectToNetwork(WiFiNetworkConfiguration, long)}
          */
         OTHER_WIFI_TIMEOUT(30),
 
         /**
-         *Wi-Fi authentication error {@link OnboardingManager#connectToNetwork(WiFiNetworkConfiguration, long)}
+         * Wi-Fi authentication error
+         * {@link OnboardingManager#connectToNetwork(WiFiNetworkConfiguration, long)}
          */
         OTHER_WIFI_AUTH(31),
 
         /**
-         *Wi-Fi connection timeout {@link OnboardingManager#abortOnboarding()}
+         * Wi-Fi connection timeout {@link OnboardingManager#abortOnboarding()}
          */
         ORIGINAL_WIFI_TIMEOUT(32),
 
         /**
-         *Wi-Fi authentication error {@link OnboardingManager#abortOnboarding()}
+         * Wi-Fi authentication error
+         * {@link OnboardingManager#abortOnboarding()}
          */
         ORIGINAL_WIFI_AUTH(33),
 
         /**
-         *SDK internal error
+         * SDK internal error
          */
         INTERNAL_ERROR(40);
 
         private int value;
-
-
 
         private OnboardingErrorType(int value) {
             this.value = value;
@@ -331,14 +357,11 @@ public class OnboardingManager {
 
     };
 
-
     /**
      * These enumeration values are used to indicate the current onboarding
      * state
-     *
-     * see also
-     * {@link #EXTRA_ONBOARDING_STATE}
-     * {@link #STATE_CHANGE_ACTION}
+     * 
+     * see also {@link #EXTRA_ONBOARDING_STATE} {@link #STATE_CHANGE_ACTION}
      */
     public static enum OnboardingState {
 
@@ -408,22 +431,28 @@ public class OnboardingManager {
         VERIFIED_ONBOARDED(12),
 
         /**
-         *Connecting  to the original network before calling {@link OnboardingManager#runOnboarding(OnboardingConfiguration)}.
+         * Connecting to the original network before calling
+         * {@link OnboardingManager#runOnboarding(OnboardingConfiguration)}.
          */
         CONNECTING_ORIGINAL_WIFI(13),
 
         /**
-         *Connected  to the original network before calling {@link OnboardingManager#runOnboarding(OnboardingConfiguration)}.
+         * Connected to the original network before calling
+         * {@link OnboardingManager#runOnboarding(OnboardingConfiguration)}.
          */
         CONNECTED_ORIGINAL_WIFI(14),
 
         /**
-         *Connecting  to the selected network {@link  OnboardingManager#connectToNetwork(WiFiNetworkConfiguration, long)}.
+         * Connecting to the selected network
+         * {@link OnboardingManager#connectToNetwork(WiFiNetworkConfiguration, long)}
+         * .
          */
         CONNECTING_OTHER_WIFI(15),
 
         /**
-         * Connected to the selected network {@link  OnboardingManager#connectToNetwork(WiFiNetworkConfiguration, long)}.
+         * Connected to the selected network
+         * {@link OnboardingManager#connectToNetwork(WiFiNetworkConfiguration, long)}
+         * .
          */
         CONNECTED_OTHER_WIFI(16),
 
@@ -436,8 +465,6 @@ public class OnboardingManager {
          * Aborting has been completed.
          */
         ABORTED(21);
-
-
 
         private int value;
 
@@ -477,19 +504,23 @@ public class OnboardingManager {
         }
     }
 
-
     /**
-     * These enumeration values are used to filter Wi-Fi scan result {@link OnboardingManager#scanWiFi()}
+     * These enumeration values are used to filter Wi-Fi scan result
+     * {@link OnboardingManager#scanWiFi()}
      */
-    public static enum WifiFilter{
+    public static enum WifiFilter {
 
         /**
-         * Wi-Fi access point name that contains the following prefix {@link OnboardingSDKWifiManager#ONBOARDABLE_PREFIX} or suffix  {@link OnboardingSDKWifiManager#ONBOARDABLE_SUFFIX}
+         * Wi-Fi access point name that contains the following prefix
+         * {@link OnboardingSDKWifiManager#ONBOARDABLE_PREFIX} or suffix
+         * {@link OnboardingSDKWifiManager#ONBOARDABLE_SUFFIX}
          */
         ONBOARDABLE,
 
         /**
-         * Wi-Fi access point name that doesn't contain the following prefix {@link OnboardingSDKWifiManager#ONBOARDABLE_PREFIX} or suffix  {@link OnboardingSDKWifiManager#ONBOARDABLE_SUFFIX}
+         * Wi-Fi access point name that doesn't contain the following prefix
+         * {@link OnboardingSDKWifiManager#ONBOARDABLE_PREFIX} or suffix
+         * {@link OnboardingSDKWifiManager#ONBOARDABLE_SUFFIX}
          */
         TARGET,
 
@@ -499,10 +530,9 @@ public class OnboardingManager {
         ALL
     }
 
-
     /**
-     * DeviceResponse is a class used internally to encapsulate possible errors that
-     * may occur during AllJoyn transactions carried by the SDK
+     * DeviceResponse is a class used internally to encapsulate possible errors
+     * that may occur during AllJoyn transactions carried by the SDK
      */
     static class DeviceResponse {
 
@@ -540,10 +570,10 @@ public class OnboardingManager {
 
         /**
          * DeviceResponse Constructor
-         *
+         * 
          * @param status
          *            {@link #status}
-         *
+         * 
          */
         public DeviceResponse(ResponseCode status) {
             this.status = status;
@@ -551,12 +581,12 @@ public class OnboardingManager {
 
         /**
          * DeviceResponse Constructor
-         *
+         * 
          * @param status
          *            {@link #status}
          * @param description
          *            {@link #description}
-         *
+         * 
          */
         public DeviceResponse(ResponseCode status, String description) {
             this.status = status;
@@ -565,7 +595,7 @@ public class OnboardingManager {
 
         /**
          * Get {@link #status}
-         *
+         * 
          * @return the status code {@link #status}
          */
         public ResponseCode getStatus() {
@@ -574,7 +604,7 @@ public class OnboardingManager {
 
         /**
          * Get {@link #description}
-         *
+         * 
          * @return the error description {@link #description}
          */
         public String getDescription() {
@@ -583,20 +613,21 @@ public class OnboardingManager {
 
     }
 
-
     /**
      * TAG for debug information
      */
     private final static String TAG = "OnboardingManager";
 
     /**
-     * Default timeout for Wi-Fi connection {@value #DEFAULT_WIFI_CONNECTION_TIMEOUT} msec
+     * Default timeout for Wi-Fi connection
+     * {@value #DEFAULT_WIFI_CONNECTION_TIMEOUT} msec
      */
     public static final int DEFAULT_WIFI_CONNECTION_TIMEOUT = 20000;
 
     /**
      * Default timeout for waiting for
-     * {@link AboutTransport#Announce(short, short, org.alljoyn.services.common.BusObjectDescription[], java.util.Map)} {@value #DEFAULT_ANNOUNCEMENT_TIMEOUT} msec
+     * {@link AboutObj#announce(short, org.alljoyn.bus.AboutDataListener)}
+     * {@value #DEFAULT_ANNOUNCEMENT_TIMEOUT} msec
      */
     public static final int DEFAULT_ANNOUNCEMENT_TIMEOUT = 25000;
 
@@ -613,7 +644,7 @@ public class OnboardingManager {
     /**
      * HandlerThread for the state machine looper
      */
-    private static HandlerThread stateHandlerThread ;
+    private static HandlerThread stateHandlerThread;
 
     /**
      * Handler for OnboardingManager state changing messages.
@@ -665,9 +696,10 @@ public class OnboardingManager {
     private Timer announcementTimeout = new Timer();
 
     /**
-     * Indicates a special case when  {@link #abortOnboarding()} is in state {@link State#JOINING_SESSION}
+     * Indicates a special case when {@link #abortOnboarding()} is in state
+     * {@link State#JOINING_SESSION}
      */
-    private final int ABORTING_INTERRUPT_FLAG=0x100;
+    private final int ABORTING_INTERRUPT_FLAG = 0x100;
 
     /**
      * Indicator flag to listen to incoming Announcements
@@ -677,12 +709,7 @@ public class OnboardingManager {
     /**
      * Stores the OnboardingManager state machine state
      */
-    private  State currentState = State.IDLE;
-
-    /**
-     * Stores the instance of About Service for registering Announce handler when needed.
-     */
-    private AboutService aboutService=null;
+    private State currentState = State.IDLE;
 
     /**
      * Stores the original network name before starting onboarding process.
@@ -690,102 +717,90 @@ public class OnboardingManager {
     private String originalNetwork;
 
     /**
-     *  Handles About Service announcements
+     * Handles About Service announcements
      */
-    private final AnnouncementHandler announcementHandler=new AnnouncementHandler() {
-        @Override
-        public void onAnnouncement(final String serviceName, final short port, final BusObjectDescription[] objectDescriptions, final Map<String, Variant> serviceMetadata) {
+    @Override
+    public void announced(final String serviceName, final int version, final short port, final AboutObjectDescription[] objectDescriptions, final Map<String, Variant> serviceMetadata) {
 
-            synchronized (TAG) {
-                if (!listenToAnnouncementsFlag){
-                    Log.w(TAG, "AnnouncementHandler not in listeneing mode");
-                    return;
-                }
+        synchronized (TAG) {
+            if (!listenToAnnouncementsFlag) {
+                Log.w(TAG, "AnnouncementHandler not in listeneing mode");
+                return;
             }
-            Log.d(TAG, "onAnnouncement: received  state "+currentState.toString());
+        }
+        Log.d(TAG, "onAnnouncement: received  state " + currentState.toString());
 
-
-            Map<String, Object> announceDataMap = null;
-            try {
-                announceDataMap = TransportUtil.fromVariantMap(serviceMetadata);
-                if (announceDataMap == null) {
-                    // ignoring error. will be handled by announcement timeout
-                    Log.e(TAG, "onAnnouncement: invalid announcement");
-                    return;
-                }
-            } catch (BusException e) {
+        Map<String, Object> announceDataMap = null;
+        try {
+            announceDataMap = TransportUtil.fromVariantMap(serviceMetadata);
+            if (announceDataMap == null) {
                 // ignoring error. will be handled by announcement timeout
-                Log.e(TAG, "onAnnouncement: invalid announcement", e);
+                Log.e(TAG, "onAnnouncement: invalid announcement");
                 return;
             }
+        } catch (BusException e) {
+            // ignoring error. will be handled by announcement timeout
+            Log.e(TAG, "onAnnouncement: invalid announcement", e);
+            return;
+        }
 
+        UUID uniqueId = (UUID) announceDataMap.get(AboutKeys.ABOUT_APP_ID);
+        if (uniqueId == null) {
+            Log.e(TAG, "onAnnouncement: received null device uuid!! ignoring.");
+            return;
+        } else {
+            Log.d(TAG, "onAnnouncement: UUID=" + uniqueId + ", busName=" + serviceName + ", port=" + port);
+        }
 
-            UUID uniqueId = (UUID) announceDataMap.get(AboutKeys.ABOUT_APP_ID);
-            if (uniqueId == null) {
-                Log.e(TAG, "onAnnouncement: received null device uuid!! ignoring.");
-                return;
+        switch (currentState) {
+        case CONNECTING_TO_ONBOARDEE:
+            context.unregisterReceiver(onboardingWifiBroadcastReceiver);
+            // no need for break
+        case WAITING_FOR_ONBOARDEE_ANNOUNCEMENT:
+            if (isSeviceSupported(objectDescriptions, OnboardingTransport.INTERFACE_NAME)) {
+                setState(State.ONBOARDEE_ANNOUNCEMENT_RECEIVED, new AnnounceData(serviceName, port, objectDescriptions, serviceMetadata));
             } else {
-                Log.d(TAG, "onAnnouncement: UUID=" + uniqueId +", busName="+serviceName+", port="+port);
+                Log.e(TAG, "onAnnouncement: for device UUID " + deviceData.getAppUUID() + " doesn't support onboarding interface");
             }
+            break;
 
-            switch (currentState) {
-            case CONNECTING_TO_ONBOARDEE:
-                context.unregisterReceiver(onboardingWifiBroadcastReceiver);
-                // no need for break
-            case WAITING_FOR_ONBOARDEE_ANNOUNCEMENT:
-                if (isSeviceSupported(objectDescriptions, OnboardingTransport.INTERFACE_NAME)) {
-                    setState(State.ONBOARDEE_ANNOUNCEMENT_RECEIVED, new AnnounceData(serviceName, port, objectDescriptions, serviceMetadata));
-                } else {
-                    Log.e(TAG, "onAnnouncement: for device UUID " + deviceData.getAppUUID() + " doesn't support onboarding interface");
-                }
-                break;
-
-            case ERROR_WAITING_FOR_ONBOARDEE_ANNOUNCEMENT:
-                if (isSeviceSupported(objectDescriptions, OnboardingTransport.INTERFACE_NAME)) {
-                    setState(State.ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT, new AnnounceData(serviceName, port, objectDescriptions, serviceMetadata));
-                } else {
-                    Log.e(TAG, "onAnnouncement: for device UUID " + deviceData.getAppUUID() + " doesn't support onboarding interface");
-                }
-                break;
-
-            case CONNECTING_TO_TARGET_WIFI_AP:
-                context.unregisterReceiver(onboardingWifiBroadcastReceiver);
-                // no need for break
-            case WAITING_FOR_TARGET_ANNOUNCE:
-                if (deviceData != null && deviceData.getAnnounceData() != null && deviceData.getAppUUID() != null) {
-                    if (deviceData.getAppUUID().compareTo(uniqueId) == 0) {
-                        setState(State.TARGET_ANNOUNCEMENT_RECEIVED, new AnnounceData(serviceName, port, objectDescriptions, serviceMetadata));
-                    }
-                }
-                break;
-
-            case ERROR_WAITING_FOR_TARGET_ANNOUNCE:
-                if (isSeviceSupported(objectDescriptions, OnboardingTransport.INTERFACE_NAME)) {
-                    setState(State.ERROR_TARGET_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT, new AnnounceData(serviceName, port, objectDescriptions, serviceMetadata));
-                } else {
-                    Log.e(TAG, "onAnnouncement: for device UUID " + deviceData.getAppUUID() + " doesn't support onboarding interface");
-                }
-                break;
-
-            default:
-                break;
+        case ERROR_WAITING_FOR_ONBOARDEE_ANNOUNCEMENT:
+            if (isSeviceSupported(objectDescriptions, OnboardingTransport.INTERFACE_NAME)) {
+                setState(State.ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT, new AnnounceData(serviceName, port, objectDescriptions, serviceMetadata));
+            } else {
+                Log.e(TAG, "onAnnouncement: for device UUID " + deviceData.getAppUUID() + " doesn't support onboarding interface");
             }
-        }
+            break;
 
-        /**
-         * Irrelevant to the process of onboarding
-         */
-        @Override
-        public void onDeviceLost(String deviceName) {
-            Log.d(TAG, "Received onDeviceLost for busName " + deviceName);
-        }
-    };
+        case CONNECTING_TO_TARGET_WIFI_AP:
+            context.unregisterReceiver(onboardingWifiBroadcastReceiver);
+            // no need for break
+        case WAITING_FOR_TARGET_ANNOUNCE:
+            if (deviceData != null && deviceData.getAnnounceData() != null && deviceData.getAppUUID() != null) {
+                if (deviceData.getAppUUID().compareTo(uniqueId) == 0) {
+                    setState(State.TARGET_ANNOUNCEMENT_RECEIVED, new AnnounceData(serviceName, port, objectDescriptions, serviceMetadata));
+                }
+            }
+            break;
 
+        case ERROR_WAITING_FOR_TARGET_ANNOUNCE:
+            if (isSeviceSupported(objectDescriptions, OnboardingTransport.INTERFACE_NAME)) {
+                setState(State.ERROR_TARGET_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT, new AnnounceData(serviceName, port, objectDescriptions, serviceMetadata));
+            } else {
+                Log.e(TAG, "onAnnouncement: for device UUID " + deviceData.getAppUUID() + " doesn't support onboarding interface");
+            }
+            break;
+
+        default:
+            break;
+        }
+    }
 
     /**
      * Stores information about the device to be onboarded
      */
     private DeviceData deviceData = null;
+
     /**
      * Internal class that stores information about the device to be onboarded
      * AnnounceData,appUUID
@@ -800,7 +815,7 @@ public class OnboardingManager {
             this.announceData = announceData;
             Map<String, Object> announceDataMap = TransportUtil.fromVariantMap(announceData.getServiceMetadata());
             appUUID = (UUID) announceDataMap.get(AboutKeys.ABOUT_APP_ID);
-            deviceID=(String)announceDataMap.get(AboutKeys.ABOUT_DEVICE_ID);
+            deviceID = (String) announceDataMap.get(AboutKeys.ABOUT_DEVICE_ID);
         }
 
         private AnnounceData announceData = null;
@@ -809,16 +824,15 @@ public class OnboardingManager {
             return appUUID;
         }
 
-        public String getDeviceID(){
+        public String getDeviceID() {
             return deviceID;
         }
 
         private UUID appUUID = null;
 
-        private String deviceID=null;
+        private String deviceID = null;
 
     }
-
 
     /**
      * An internal class to store the Announcement received by the AboutService.
@@ -826,14 +840,14 @@ public class OnboardingManager {
     private static class AnnounceData {
         private final String serviceName;
         private final short port;
-        private final BusObjectDescription[] objectDescriptions;
+        private final AboutObjectDescription[] objectDescriptions;
         private final Map<String, Variant> serviceMetadata;
 
         public String getServiceName() {
             return serviceName;
         }
 
-        public BusObjectDescription[] getObjectDescriptions() {
+        public AboutObjectDescription[] getObjectDescriptions() {
             return objectDescriptions;
         }
 
@@ -845,14 +859,13 @@ public class OnboardingManager {
             return port;
         }
 
-        public AnnounceData(String serviceName, short port, BusObjectDescription[] objectDescriptions, Map<String, Variant> serviceMetadata) {
+        public AnnounceData(String serviceName, short port, AboutObjectDescription[] objectDescriptions, Map<String, Variant> serviceMetadata) {
             this.serviceName = serviceName;
             this.port = port;
             this.objectDescriptions = objectDescriptions;
             this.serviceMetadata = serviceMetadata;
         }
     }
-
 
     /**
      * These enumeration values are used to indicate the current internal state
@@ -925,7 +938,8 @@ public class OnboardingManager {
         ERROR_WAITING_FOR_ONBOARDEE_ANNOUNCEMENT(111),
 
         /**
-         * Error annnouncemnet has been received from onboardee after timeout expired
+         * Error annnouncemnet has been received from onboardee after timeout
+         * expired
          */
         ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT(112),
 
@@ -960,10 +974,10 @@ public class OnboardingManager {
         ERROR_WAITING_FOR_TARGET_ANNOUNCE(121),
 
         /**
-         * Error annnouncemnet has been received from target after timeout expired
+         * Error annnouncemnet has been received from target after timeout
+         * expired
          */
         ERROR_TARGET_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT(122);
-
 
         private int value;
 
@@ -987,7 +1001,6 @@ public class OnboardingManager {
         }
     }
 
-
     /**
      * @return instance of the OnboardingManager
      */
@@ -1002,12 +1015,11 @@ public class OnboardingManager {
         return onboardingManager;
     }
 
-
     private OnboardingManager() {
         wifiIntentFilter.addAction(WIFI_CONNECTED_BY_REQUEST_ACTION);
         wifiIntentFilter.addAction(WIFI_TIMEOUT_ACTION);
         wifiIntentFilter.addAction(WIFI_AUTHENTICATION_ERROR);
-        stateHandlerThread  = new HandlerThread("OnboardingManagerLooper");
+        stateHandlerThread = new HandlerThread("OnboardingManagerLooper");
         stateHandlerThread.start();
         stateHandler = new Handler(stateHandlerThread.getLooper()) {
             @Override
@@ -1017,67 +1029,66 @@ public class OnboardingManager {
         };
     }
 
-
     /**
      * Initialize the SDK singleton with the current application configuration.
      * Registers AnnouncementHandler to receive announcements
-     *
+     * 
      * @param context
      *            The application context.
-     * @param aboutService The user application's About service.
-     * @param bus The user application's bus attachment.
+     * @param aboutService
+     *            The user application's About service.
+     * @param bus
+     *            The user application's bus attachment.
      * @throws OnboardingIllegalArgumentException
      *             if either of the parameters is null.
      * @throws OnboardingIllegalStateException
      *             if already initialized.
      */
-    public void init(Context context, AboutService aboutService, BusAttachment bus) throws OnboardingIllegalArgumentException, OnboardingIllegalStateException {
+    public void init(Context context, BusAttachment bus) throws OnboardingIllegalArgumentException, OnboardingIllegalStateException {
         synchronized (TAG) {
-            if (context == null || aboutService == null ||  bus==null) {
+            if (context == null || bus == null) {
                 throw new OnboardingIllegalArgumentException();
             }
-            if (this.context != null || this.aboutService!=null || this.bus!=null) {
+            if (this.context != null || this.bus != null) {
                 throw new OnboardingIllegalStateException();
             }
 
             synchronized (TAG) {
-                listenToAnnouncementsFlag=false;
+                listenToAnnouncementsFlag = false;
             }
 
-            aboutService.addAnnouncementHandler(announcementHandler, new String[]{OnboardingTransport.INTERFACE_NAME});
+            this.bus = bus;
+            this.bus.registerAboutListener(this);
+            this.bus.whoImplements(new String[] { OnboardingTransport.INTERFACE_NAME });
             this.context = context;
             this.onboardingSDKWifiManager = new OnboardingSDKWifiManager(this.context);
-            this.bus = bus;
-            this.aboutService=aboutService;
         }
     }
 
-
     /**
      * Terminate the SDK .
-     * @throws OnboardingIllegalStateException if not in IDLE state ,need to abort first.
+     * 
+     * @throws OnboardingIllegalStateException
+     *             if not in IDLE state ,need to abort first.
      */
     public void shutDown() throws OnboardingIllegalStateException {
-        synchronized (TAG){
-            if (currentState==State.IDLE){
-                this.context=null;
-                if (aboutService!=null){
-                    aboutService.removeAnnouncementHandler(announcementHandler, new String[]{OnboardingTransport.INTERFACE_NAME});
-                }
-                this.aboutService=null;
-                this.bus=null;
-                this.onboardingSDKWifiManager=null;
+        synchronized (TAG) {
+            if (currentState == State.IDLE) {
+                this.context = null;
+                this.bus.cancelWhoImplements(new String[] { OnboardingTransport.INTERFACE_NAME });
+                this.bus.unregisterAboutListener(this);
+                this.bus = null;
+                this.onboardingSDKWifiManager = null;
 
-            }else{
+            } else {
                 throw new OnboardingIllegalStateException("Not in IDLE state ,please Abort first");
             }
         }
     }
 
-
     /**
-     * Handle the CONNECT_TO_ONBOARDEE state.
-     * Listen to WIFI intents from OnboardingsdkWifiManager. Requests from OnboardingsdkWifiManager to
+     * Handle the CONNECT_TO_ONBOARDEE state. Listen to WIFI intents from
+     * OnboardingsdkWifiManager. Requests from OnboardingsdkWifiManager to
      * connect to the Onboardee. If successful moves to the next state otherwise
      * sends an error intent and returns to IDLE state.
      */
@@ -1124,15 +1135,13 @@ public class OnboardingManager {
         extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTING_ONBOARDEE_WIFI.toString());
         sendBroadcast(STATE_CHANGE_ACTION, extras);
         onboardingSDKWifiManager.connectToWifiAP(onboardingConfiguration.getOnboardee().getSSID(), onboardingConfiguration.getOnboardee().getAuthType(), onboardingConfiguration.getOnboardee()
-                .getPassword(), onboardingConfiguration.getOnboardee().isHidden(),onboardingConfiguration.getOnboardeeConnectionTimeout());
+                .getPassword(), onboardingConfiguration.getOnboardee().isHidden(), onboardingConfiguration.getOnboardeeConnectionTimeout());
     }
 
-
     /**
-     * Handle the WAIT_FOR_ONBOARDEE_ANNOUNCE state.
-     * Set a timer using {@link #startAnnouncementTimeout()}
-     * Wait for an announcement which should arrive
-     * from the onAnnouncement handler.
+     * Handle the WAIT_FOR_ONBOARDEE_ANNOUNCE state. Set a timer using
+     * {@link #startAnnouncementTimeout()} Wait for an announcement which should
+     * arrive from the onAnnouncement handler.
      */
     private void handleWaitForOnboardeeAnnounceState() {
         Bundle extras = new Bundle();
@@ -1147,19 +1156,21 @@ public class OnboardingManager {
         }
     }
 
-
     /**
      * Handle the ERROR_TARGETR_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT state.
-     * Verifies that Announcement is valid if so stay on ERROR_TARGER_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT state ,otherwise moves to state  ERROR_WAITING_FOR_TARGET_ANNOUNCE.
-     * This state is only for continuing from state ERROR_WAITING_FOR_TARGET_ANNOUNCEMENT if the Announcement has been received while the timer has expired.
-     *
+     * Verifies that Announcement is valid if so stay on
+     * ERROR_TARGER_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT state ,otherwise moves
+     * to state ERROR_WAITING_FOR_TARGET_ANNOUNCE. This state is only for
+     * continuing from state ERROR_WAITING_FOR_TARGET_ANNOUNCEMENT if the
+     * Announcement has been received while the timer has expired.
+     * 
      * @param announceData
      *            contains the information of the Announcement .
      */
     private void handleErrorTargetAnnouncementReceivedAfterTimeoutState(AnnounceData announceData) {
         deviceData = new DeviceData();
         try {
-            Log.d(TAG,"handleErrorTargetAnnouncementReceivedAfterTimeoutState" + announceData.getServiceName()+ " "+announceData.getPort());
+            Log.d(TAG, "handleErrorTargetAnnouncementReceivedAfterTimeoutState" + announceData.getServiceName() + " " + announceData.getPort());
             deviceData.setAnnounceData(announceData);
         } catch (BusException e) {
             Log.e(TAG, "handleErrorTargetAnnouncementReceivedAfterTimeoutState DeviceData.setAnnounceObject failed with BusException. ", e);
@@ -1170,12 +1181,14 @@ public class OnboardingManager {
         }
     }
 
-
     /**
      * Handle the ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT state.
-     * Verifies that Announcement is valid if so stay on ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT state ,otherwise moves to state  ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED.
-     * This state is only for continuing from state ERROR_WAITING_FOR_ONBOARDEE_ANNOUNCEMENT if the Announcement has been received while the timer has expired.
-     *
+     * Verifies that Announcement is valid if so stay on
+     * ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT state ,otherwise
+     * moves to state ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED. This state is only
+     * for continuing from state ERROR_WAITING_FOR_ONBOARDEE_ANNOUNCEMENT if the
+     * Announcement has been received while the timer has expired.
+     * 
      * @param announceData
      *            contains the information of the Announcement .
      */
@@ -1197,12 +1210,12 @@ public class OnboardingManager {
         }
     }
 
-
     /**
-     * Handle the ONBOARDEE_ANNOUNCEMENT_RECEIVED state.
-     * Stop the announcement timeout timer,
-     * Verifies that Announcement is valid if so moves to state JOINING_SESSION,otherwise moves to state  ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED
-     *
+     * Handle the ONBOARDEE_ANNOUNCEMENT_RECEIVED state. Stop the announcement
+     * timeout timer, Verifies that Announcement is valid if so moves to state
+     * JOINING_SESSION,otherwise moves to state
+     * ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED
+     * 
      * @param announceData
      *            contains the information of the Announcement .
      */
@@ -1227,12 +1240,12 @@ public class OnboardingManager {
         }
     }
 
-
     /**
-     * Handle the JOINING_SESSION state.
-     * Handle AllJoyn session establishment with the device.
-     *
-     * @param announceData contains the information of the announcement
+     * Handle the JOINING_SESSION state. Handle AllJoyn session establishment
+     * with the device.
+     * 
+     * @param announceData
+     *            contains the information of the announcement
      */
     private void handleJoiningSessionState(AnnounceData announceData) {
         Bundle extras = new Bundle();
@@ -1254,11 +1267,10 @@ public class OnboardingManager {
         }
     }
 
-
     /**
-     * Handle the CONFIGURE_ONBOARDEE state.
-     * Call onboardDevice to send target information to the board. in case
-     * successful moves to next step else move to ERROR_CONFIGURING_ONBOARDEE state.
+     * Handle the CONFIGURE_ONBOARDEE state. Call onboardDevice to send target
+     * information to the board. in case successful moves to next step else move
+     * to ERROR_CONFIGURING_ONBOARDEE state.
      */
     private void handleConfigureOnboardeeState() {
         Bundle extras = new Bundle();
@@ -1282,12 +1294,11 @@ public class OnboardingManager {
         }
     }
 
-
     /**
-     * Handle the CONFIGURING_ONBOARDEE_WITH_SIGNAL state.
-     * Register to receive oboarding siganl , start timeout
-     * if signal arrives in time  call {@link OnboardingClient#connectWiFi()}
-     * otherwise move to ERROR_WAITING_FOR_CONFIGURE_SIGNAL state .
+     * Handle the CONFIGURING_ONBOARDEE_WITH_SIGNAL state. Register to receive
+     * oboarding siganl , start timeout if signal arrives in time call
+     * {@link OnboardingClient#connectWiFi()} otherwise move to
+     * ERROR_WAITING_FOR_CONFIGURE_SIGNAL state .
      */
     private void handleConfigureWithSignalOnboardeeState() {
 
@@ -1348,12 +1359,11 @@ public class OnboardingManager {
 
     }
 
-
     /**
-     * Handle the CONNECT_TO_TARGET state.
-     * Listen to WIFI intents from OnboardingsdkWifiManager Requests from
-     * OnboardingsdkWifiManager to connect to the Target. if successful moves to
-     * the next state otherwise send error intent and returns to IDLE state.
+     * Handle the CONNECT_TO_TARGET state. Listen to WIFI intents from
+     * OnboardingsdkWifiManager Requests from OnboardingsdkWifiManager to
+     * connect to the Target. if successful moves to the next state otherwise
+     * send error intent and returns to IDLE state.
      */
     private void handleConnectToTargetState() {
         final Bundle extras = new Bundle();
@@ -1394,14 +1404,13 @@ public class OnboardingManager {
         extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.CONNECTING_TARGET_WIFI.toString());
         sendBroadcast(STATE_CHANGE_ACTION, extras);
         onboardingSDKWifiManager.connectToWifiAP(onboardingConfiguration.getTarget().getSSID(), onboardingConfiguration.getTarget().getAuthType(), onboardingConfiguration.getTarget().getPassword(),
-                onboardingConfiguration.getTarget().isHidden(),onboardingConfiguration.getTargetConnectionTimeout());
+                onboardingConfiguration.getTarget().isHidden(), onboardingConfiguration.getTargetConnectionTimeout());
     }
 
-
     /**
-     * Handle the WAIT_FOR_TARGET_ANNOUNCE state.
-     * Set a timer with using startAnnouncementTimeout. waits for an
-     * announcement which should arrive from the onAnnouncement handler.
+     * Handle the WAIT_FOR_TARGET_ANNOUNCE state. Set a timer with using
+     * startAnnouncementTimeout. waits for an announcement which should arrive
+     * from the onAnnouncement handler.
      */
     private void handleWaitForTargetAnnounceState() {
         Bundle extras = new Bundle();
@@ -1416,16 +1425,16 @@ public class OnboardingManager {
         }
     }
 
-
     /**
      * Handls the TARGET_ANNOUNCEMENT_RECEIVED state.
      * <ul>
-     *  <li>Call {@link #stopAnnouncementTimeout()}
-     *  <li>Send a success broadcast.
-     *  <li>Move state machine to IDLE state (onboarding process finished)
-     *  <li>Enable all Wi-Fi access points that were disabled in the onboarding process.
+     * <li>Call {@link #stopAnnouncementTimeout()}
+     * <li>Send a success broadcast.
+     * <li>Move state machine to IDLE state (onboarding process finished)
+     * <li>Enable all Wi-Fi access points that were disabled in the onboarding
+     * process.
      * </ul>
-     *
+     * 
      * @param announceData
      *            contains the information of the announcement .
      */
@@ -1439,28 +1448,28 @@ public class OnboardingManager {
         try {
             deviceData.setAnnounceData(announceData);
             extras.putSerializable(EXTRA_DEVICE_APPID, deviceData.getAppUUID());
-            extras.putString(EXTRA_DEVICE_DEVICEID,deviceData.getDeviceID());
+            extras.putString(EXTRA_DEVICE_DEVICEID, deviceData.getDeviceID());
         } catch (BusException e) {
             Log.e(TAG, "handleTargetAnnouncementReceivedState unable to retrieve AppID/DeviceID ", e);
         }
         extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.VERIFIED_ONBOARDED.toString());
         sendBroadcast(STATE_CHANGE_ACTION, extras);
 
-
         synchronized (TAG) {
-            listenToAnnouncementsFlag=false;
+            listenToAnnouncementsFlag = false;
         }
         setState(State.IDLE);
         onboardingSDKWifiManager.enableAllWifiNetworks();
     }
 
-
     /**
-     * Handle the the ABORTING state.
-     * Due to the implementation of the state machine via hander.
-     * Messages are received into the handler's queue ,and are handled serially ,
-     * when ABORTING message is received handleAbortingState deletes all messages in the handlers queue .In case there are any messages there .
-     * Due to the blocking nature of JOINING_SESSION state the ABORTING message can be handled only after it has completed!.
+     * Handle the the ABORTING state. Due to the implementation of the state
+     * machine via hander. Messages are received into the handler's queue ,and
+     * are handled serially , when ABORTING message is received
+     * handleAbortingState deletes all messages in the handlers queue .In case
+     * there are any messages there . Due to the blocking nature of
+     * JOINING_SESSION state the ABORTING message can be handled only after it
+     * has completed!.
      */
     private void handleAbortingState() {
         // store current State in initalState
@@ -1469,9 +1478,10 @@ public class OnboardingManager {
         // set state to State.ABORTING
         currentState = State.ABORTING;
 
-        // in case State.JOINING_SESSION push ABORTING_INTERRUPT_FLAG into the stateHandler queue.
-        if (initalState==State.JOINING_SESSION){
-            stateHandler.sendMessageDelayed(stateHandler.obtainMessage(ABORTING_INTERRUPT_FLAG),60*60*10000);
+        // in case State.JOINING_SESSION push ABORTING_INTERRUPT_FLAG into the
+        // stateHandler queue.
+        if (initalState == State.JOINING_SESSION) {
+            stateHandler.sendMessageDelayed(stateHandler.obtainMessage(ABORTING_INTERRUPT_FLAG), 60 * 60 * 10000);
             return;
         }
 
@@ -1524,7 +1534,7 @@ public class OnboardingManager {
             onboardingSDKWifiManager.enableAllWifiNetworks();
 
             synchronized (TAG) {
-                listenToAnnouncementsFlag=false;
+                listenToAnnouncementsFlag = false;
             }
 
             setState(State.IDLE);
@@ -1537,10 +1547,9 @@ public class OnboardingManager {
         }
     }
 
-
     /**
-     *Handle the state machine transition.
-     *
+     * Handle the state machine transition.
+     * 
      * @param msg
      */
     private void onHandleCommandMessage(Message msg) {
@@ -1548,17 +1557,18 @@ public class OnboardingManager {
         if (msg == null) {
             return;
         }
-        // in case ABORTING_INTERRUPT_FLAG has been found in the queue remove it and call abortStateCleanUp
-        if (stateHandler.hasMessages(ABORTING_INTERRUPT_FLAG)){
+        // in case ABORTING_INTERRUPT_FLAG has been found in the queue remove it
+        // and call abortStateCleanUp
+        if (stateHandler.hasMessages(ABORTING_INTERRUPT_FLAG)) {
             stateHandler.removeMessages(ABORTING_INTERRUPT_FLAG);
             abortStateCleanUp();
             return;
         }
         State stateByValue = State.getStateByValue(msg.what);
-        if  (stateByValue==null){
+        if (stateByValue == null) {
             return;
         }
-        Log.d(TAG,"onHandleCommandMessage "+stateByValue);
+        Log.d(TAG, "onHandleCommandMessage " + stateByValue);
         switch (stateByValue) {
 
         case IDLE:
@@ -1662,10 +1672,9 @@ public class OnboardingManager {
         }
     }
 
-
     /**
      * Move the state machine to a new state.
-     *
+     * 
      * @param state
      */
     private void setState(State state) {
@@ -1673,13 +1682,13 @@ public class OnboardingManager {
         stateHandler.sendMessage(msg);
     }
 
-
     /**
      * Move the state machine to a new state.
-     *
+     * 
      * @param state
-     * @param data metadata to pass to the new state
-     *
+     * @param data
+     *            metadata to pass to the new state
+     * 
      */
     private void setState(State state, Object data) {
         Message msg = stateHandler.obtainMessage(state.getValue());
@@ -1687,10 +1696,11 @@ public class OnboardingManager {
         stateHandler.sendMessage(msg);
     }
 
-
     /**
      * Establish an AllJoyn session with the device.
-     * @param announceData the Announcement data.
+     * 
+     * @param announceData
+     *            the Announcement data.
      * @return status of operation.
      */
     private DeviceResponse establishSessionWithDevice(final AnnounceData announceData) {
@@ -1703,9 +1713,9 @@ public class OnboardingManager {
                 return new DeviceResponse(ResponseCode.Status_ERROR, "announceData.getPort() == 0");
             }
 
-            if (onboardingClient!=null){
+            if (onboardingClient != null) {
                 onboardingClient.disconnect();
-                onboardingClient=null;
+                onboardingClient = null;
             }
 
             synchronized (TAG) {
@@ -1735,11 +1745,10 @@ public class OnboardingManager {
         }
     }
 
-
     /**
      * Call the OnboardingService API for passing the onboarding configuration
      * to the device.
-     *
+     * 
      * @return status of operation.
      */
     private DeviceResponse onboardDevice() {
@@ -1758,14 +1767,15 @@ public class OnboardingManager {
             }
             Log.i(TAG, "before configureWiFi networkName = " + onboardingConfiguration.getTarget().getSSID() + " networkPass = " + passForConfigureNetwork + " selectedAuthType = "
                     + onboardingConfiguration.getTarget().getAuthType().getTypeId());
-            ConfigureWifiMode res=onboardingClient.configureWiFi(onboardingConfiguration.getTarget().getSSID(), passForConfigureNetwork, onboardingConfiguration.getTarget().getAuthType());
-            Log.i(TAG, "configureWiFi result="+res);
-            switch(res) {
+            ConfigureWifiMode res = onboardingClient.configureWiFi(onboardingConfiguration.getTarget().getSSID(), passForConfigureNetwork, onboardingConfiguration.getTarget().getAuthType());
+            Log.i(TAG, "configureWiFi result=" + res);
+            switch (res) {
             case REGULAR:
                 onboardingClient.connectWiFi();
                 return new DeviceResponse(ResponseCode.Status_OK);
             case FAST_CHANNEL_SWITCHING:
-                // wait for a ConnectionResult signal from the device before calling connectWifi
+                // wait for a ConnectionResult signal from the device before
+                // calling connectWifi
                 return new DeviceResponse(ResponseCode.Status_OK_CONNECT_SECOND_PHASE);
             default:
                 Log.e(TAG, "configureWiFi returned an unexpected result: " + res);
@@ -1780,10 +1790,9 @@ public class OnboardingManager {
         }
     }
 
-
     /**
      * Call the offboardDevice API for offboarding the device.
-     *
+     * 
      * @param serviceName
      *            device's service name
      * @param port
@@ -1791,15 +1800,15 @@ public class OnboardingManager {
      * @return result of action
      */
     private DeviceResponse offboardDevice(String serviceName, short port) {
-        Log.d(TAG,"offboardDevice serviceName:["+ serviceName + "] port:["+port+"]");
+        Log.d(TAG, "offboardDevice serviceName:[" + serviceName + "] port:[" + port + "]");
         Bundle extras = new Bundle();
         extras.putString(EXTRA_DEVICE_BUS_NAME, serviceName);
         extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.JOINING_SESSION.toString());
         sendBroadcast(STATE_CHANGE_ACTION, extras);
 
-        if (onboardingClient!=null){
+        if (onboardingClient != null) {
             onboardingClient.disconnect();
-            onboardingClient=null;
+            onboardingClient = null;
         }
 
         try {
@@ -1817,19 +1826,16 @@ public class OnboardingManager {
             return new DeviceResponse(ResponseCode.Status_ERROR);
         }
 
-
         try {
             ResponseCode connectToDeviceStatus = connectToDevice(onboardingClient).getStatus();
             if (connectToDeviceStatus != ResponseCode.Status_OK) {
                 return new DeviceResponse(ResponseCode.Status_ERROR_CANT_ESTABLISH_SESSION, connectToDeviceStatus.name());
             }
 
-
             extras.clear();
             extras.putString(EXTRA_DEVICE_BUS_NAME, serviceName);
             extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.SESSION_JOINED.toString());
             sendBroadcast(STATE_CHANGE_ACTION, extras);
-
 
             extras.clear();
             extras.putString(EXTRA_DEVICE_BUS_NAME, serviceName);
@@ -1853,10 +1859,9 @@ public class OnboardingManager {
         }
     }
 
-
     /**
      * Start an AllJoyn session with another Alljoyn device.
-     *
+     * 
      * @param client
      * @return status of operation.
      */
@@ -1886,10 +1891,9 @@ public class OnboardingManager {
         }
     }
 
-
     /**
      * Convert a string in ASCII format to HexAscii.
-     *
+     * 
      * @param pass
      *            password to convert
      * @return HexAscii of the input.
@@ -1911,35 +1915,38 @@ public class OnboardingManager {
         return r.toString();
     }
 
-
     /**
-     * Start a wifi scan.
-     * Sends the following possible intents
-     *   <ul>
-     *      <li>{@link #WIFI_SCAN_RESULTS_AVAILABLE_ACTION} action with this extra
-     *         <ul>
-     *            <li>{@link #EXTRA_ONBOARDEES_AP} extra information containg ArrayList of {@link WiFiNetwork}
-     *            <li>{@link #EXTRA_TARGETS_AP} extra information containg ArrayList of {@link WiFiNetwork}
-     *            <li>{@link #EXTRA_ALL_AP} extra information containg ArrayList of {@link WiFiNetwork}
-     *         </ul>
-     *    <ul>
-     *
-     *@throws WifiDisabledException if Wi-Fi is not enabled.
+     * Start a wifi scan. Sends the following possible intents
+     * <ul>
+     * <li>{@link #WIFI_SCAN_RESULTS_AVAILABLE_ACTION} action with this extra
+     * <ul>
+     * <li>{@link #EXTRA_ONBOARDEES_AP} extra information containg ArrayList of
+     * {@link WiFiNetwork}
+     * <li>{@link #EXTRA_TARGETS_AP} extra information containg ArrayList of
+     * {@link WiFiNetwork}
+     * <li>{@link #EXTRA_ALL_AP} extra information containg ArrayList of
+     * {@link WiFiNetwork}
+     * </ul>
+     * <ul>
+     * 
+     * @throws WifiDisabledException
+     *             if Wi-Fi is not enabled.
      */
-    public void scanWiFi() throws WifiDisabledException{
-        if (!onboardingSDKWifiManager.isWifiEnabled()){
+    public void scanWiFi() throws WifiDisabledException {
+        if (!onboardingSDKWifiManager.isWifiEnabled()) {
             throw new WifiDisabledException();
         }
         onboardingSDKWifiManager.scan();
     }
 
-
     /**
-     *  Retrieves list of access points after scan was complete.
-     * @param filter of Wi-Fi list type {@link WifiFilter}
+     * Retrieves list of access points after scan was complete.
+     * 
+     * @param filter
+     *            of Wi-Fi list type {@link WifiFilter}
      * @return list of Wi-Fi access points {@link #scanWiFi()}
      */
-    public  List<WiFiNetwork> getWifiScanResults(WifiFilter filter){
+    public List<WiFiNetwork> getWifiScanResults(WifiFilter filter) {
         if (filter == WifiFilter.ALL) {
             return onboardingSDKWifiManager.getAllAccessPoints();
         } else if (filter == WifiFilter.TARGET) {
@@ -1949,10 +1956,11 @@ public class OnboardingManager {
         }
     }
 
-
     /**
-     * @return the current Wi-Fi network that the Android device is connected to.
-     * @throws WifiDisabledException in case Wi-Fi is disabled.
+     * @return the current Wi-Fi network that the Android device is connected
+     *         to.
+     * @throws WifiDisabledException
+     *             in case Wi-Fi is disabled.
      */
     public WiFiNetwork getCurrentNetwork() throws WifiDisabledException {
         if (!onboardingSDKWifiManager.isWifiEnabled()) {
@@ -1961,36 +1969,41 @@ public class OnboardingManager {
         return onboardingSDKWifiManager.getCurrentConnectedAP();
     }
 
-
     /**
-     * Connect the Android device to a WIFI network.
-     * Sends the following possible intents
-     *   <ul>
-     *      <li>{@link #STATE_CHANGE_ACTION} action with this extra
-     *         <ul>
-     *            <li>{@link #EXTRA_ONBOARDING_STATE} extra information of enum  {@link OnboardingState}
-     *         </ul>
-     *      <li> {@link #ERROR} action with this extra
-     *          <ul>
-     *            <li>{@link #EXTRA_ERROR_DETAILS} extra information of enum {@link OnboardingErrorType}
-     *         </ul>
-     *    <ul>
+     * Connect the Android device to a WIFI network. Sends the following
+     * possible intents
+     * <ul>
+     * <li>{@link #STATE_CHANGE_ACTION} action with this extra
+     * <ul>
+     * <li>{@link #EXTRA_ONBOARDING_STATE} extra information of enum
+     * {@link OnboardingState}
+     * </ul>
+     * <li> {@link #ERROR} action with this extra
+     * <ul>
+     * <li>{@link #EXTRA_ERROR_DETAILS} extra information of enum
+     * {@link OnboardingErrorType}
+     * </ul>
+     * <ul>
+     * 
      * @param network
      *            contains detailed data how to connect to the WIFI network.
      * @param connectionTimeout
      *            timeout in Msec to complete the task of connecting to a Wi-Fi
      *            network
-     * @throws WifiDisabledException in case Wi-Fi is disabled
-     * @throws OnboardingIllegalArgumentException in case WiFiNetworkConfiguration is invalid or connectionTimeout is invalid
+     * @throws WifiDisabledException
+     *             in case Wi-Fi is disabled
+     * @throws OnboardingIllegalArgumentException
+     *             in case WiFiNetworkConfiguration is invalid or
+     *             connectionTimeout is invalid
      */
-    public void connectToNetwork(final WiFiNetworkConfiguration network, long connectionTimeout) throws WifiDisabledException,OnboardingIllegalArgumentException{
+    public void connectToNetwork(final WiFiNetworkConfiguration network, long connectionTimeout) throws WifiDisabledException, OnboardingIllegalArgumentException {
 
         if (!onboardingSDKWifiManager.isWifiEnabled()) {
             throw new WifiDisabledException();
         }
 
-        if (network==null || network.getSSID()==null || network.getSSID().isEmpty() ||
-                (network.getAuthType()!=AuthType.OPEN && (network.getPassword()==null || network.getPassword().isEmpty()))){
+        if (network == null || network.getSSID() == null || network.getSSID().isEmpty()
+                || (network.getAuthType() != AuthType.OPEN && (network.getPassword() == null || network.getPassword().isEmpty()))) {
             throw new OnboardingIllegalArgumentException();
         }
 
@@ -2045,14 +2058,14 @@ public class OnboardingManager {
             connectionTimeout = DEFAULT_WIFI_CONNECTION_TIMEOUT;
         }
 
-        onboardingSDKWifiManager.connectToWifiAP(network.getSSID(), network.getAuthType(), network.getPassword(),network.isHidden(),connectionTimeout);
+        onboardingSDKWifiManager.connectToWifiAP(network.getSSID(), network.getAuthType(), network.getPassword(), network.isHidden(), connectionTimeout);
     }
-
 
     /**
      * Validate OnboardingConfiguration .
-     *
-     * @param config information for onboarding process.
+     * 
+     * @param config
+     *            information for onboarding process.
      * @return true if OnboardingConfiguration is valid else false.
      */
     private boolean validateOnboardingConfiguration(OnboardingConfiguration config) {
@@ -2082,56 +2095,61 @@ public class OnboardingManager {
         return true;
     }
 
-
     /**
-     * Start and resume the onboarding process.
-     * Send these possible intents
-     *    <ul>
-     *      <li>{@link #STATE_CHANGE_ACTION}  action with this extra
-     *         <ul>
-     *          <li>{@link #EXTRA_ONBOARDING_STATE} extra information of enum  {@link OnboardingState}
-     *        </ul>
-     *      <li> {@link #ERROR} action with this extra
-     *        <ul>
-     *           <li>{@link #EXTRA_ERROR_DETAILS}  extra information of enum {@link OnboardingErrorType}
-     *        </ul>
-     *    </ul>
-     *
-     *
-     * can resume the onboarding process in case one of the internal errors has occoured
-     *    <ul>
-     *        <li>ERROR_CONNECTING_TO_ONBOARDEE
-     *        <li>ERROR_WAITING_FOR_ONBOARDEE_ANNOUNCEMENT
-     *        <li>ERROR_JOINING_SESSION
-     *        <li>ERROR_CONFIGURING_ONBOARDEE
-     *        <li>ERROR_CONNECTING_TO_TARGET_WIFI_AP
-     *        <li>ERROR_WAITING_FOR_TARGET_ANNOUNCE
-     *    </ul>
-     *
-     * @param config containing information about onboardee and target networks.
-     * @throws OnboardingIllegalStateException in case onboarding is arleady running or trying to resume from internal state ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED.
-     * @throws OnboardingIllegalArgumentException in case OnboardingConfiguration is invalid.
-     * @throws WifiDisabledException in case Wi-Fi is disabled.
+     * Start and resume the onboarding process. Send these possible intents
+     * <ul>
+     * <li>{@link #STATE_CHANGE_ACTION} action with this extra
+     * <ul>
+     * <li>{@link #EXTRA_ONBOARDING_STATE} extra information of enum
+     * {@link OnboardingState}
+     * </ul>
+     * <li> {@link #ERROR} action with this extra
+     * <ul>
+     * <li>{@link #EXTRA_ERROR_DETAILS} extra information of enum
+     * {@link OnboardingErrorType}
+     * </ul>
+     * </ul>
+     * 
+     * 
+     * can resume the onboarding process in case one of the internal errors has
+     * occoured
+     * <ul>
+     * <li>ERROR_CONNECTING_TO_ONBOARDEE
+     * <li>ERROR_WAITING_FOR_ONBOARDEE_ANNOUNCEMENT
+     * <li>ERROR_JOINING_SESSION
+     * <li>ERROR_CONFIGURING_ONBOARDEE
+     * <li>ERROR_CONNECTING_TO_TARGET_WIFI_AP
+     * <li>ERROR_WAITING_FOR_TARGET_ANNOUNCE
+     * </ul>
+     * 
+     * @param config
+     *            containing information about onboardee and target networks.
+     * @throws OnboardingIllegalStateException
+     *             in case onboarding is arleady running or trying to resume
+     *             from internal state ERROR_ONBOARDEE_ANNOUNCEMENT_RECEIVED.
+     * @throws OnboardingIllegalArgumentException
+     *             in case OnboardingConfiguration is invalid.
+     * @throws WifiDisabledException
+     *             in case Wi-Fi is disabled.
      */
-    public void runOnboarding(OnboardingConfiguration config) throws OnboardingIllegalStateException,OnboardingIllegalArgumentException,WifiDisabledException {
+    public void runOnboarding(OnboardingConfiguration config) throws OnboardingIllegalStateException, OnboardingIllegalArgumentException, WifiDisabledException {
         if (!onboardingSDKWifiManager.isWifiEnabled()) {
             throw new WifiDisabledException();
         }
-        if (!validateOnboardingConfiguration(config)){
+        if (!validateOnboardingConfiguration(config)) {
             throw new OnboardingIllegalArgumentException();
         }
 
-        synchronized (TAG){
+        synchronized (TAG) {
             onboardingConfiguration = config;
-            listenToAnnouncementsFlag=true;
+            listenToAnnouncementsFlag = true;
 
             if (currentState == State.IDLE) {
 
-                WiFiNetwork currentAP=onboardingSDKWifiManager.getCurrentConnectedAP();
-                if (currentAP!=null){
-                    originalNetwork=currentAP.getSSID();
+                WiFiNetwork currentAP = onboardingSDKWifiManager.getCurrentConnectedAP();
+                if (currentAP != null) {
+                    originalNetwork = currentAP.getSSID();
                 }
-
 
                 setState(State.CONNECTING_TO_ONBOARDEE);
             } else if (currentState.getValue() >= State.ERROR_CONNECTING_TO_ONBOARDEE.getValue()) {
@@ -2171,7 +2189,7 @@ public class OnboardingManager {
                     break;
 
                 case ERROR_TARGET_ANNOUNCEMENT_RECEIVED_AFTER_TIMEOUT:
-                    setState(State.TARGET_ANNOUNCEMENT_RECEIVED,deviceData.getAnnounceData());
+                    setState(State.TARGET_ANNOUNCEMENT_RECEIVED, deviceData.getAnnounceData());
                     break;
 
                 default:
@@ -2183,34 +2201,37 @@ public class OnboardingManager {
         }
     }
 
-
     /**
      * Abort the onboarding process.
-     *
+     * 
      * <ul>
-     *    <li>Send the following intents.
-     *    <li>{@link #STATE_CHANGE_ACTION} action with this extra
-     *          <ul>
-     *            <li> {@link OnboardingState#ABORTING} when starting the abort process.
-     *          </ul>
+     * <li>Send the following intents.
+     * <li>{@link #STATE_CHANGE_ACTION} action with this extra
+     * <ul>
+     * <li> {@link OnboardingState#ABORTING} when starting the abort process.
      * </ul>
-     * <p>see also {@link #abortStateCleanUp()}
-     * @throws OnboardingIllegalStateException in case the state machine is in state IDLE,ABORTING (No need to Abort)
-     *    in case the state machine is in state CONNECTING_TO_TARGET_WIFI_AP,WAITING_FOR_TARGET_ANNOUNCE,TARGET_ANNOUNCEMENT_RECEIVED (can't abort ,in final stages of onboarding)
+     * </ul>
+     * <p>
+     * see also {@link #abortStateCleanUp()}
+     * 
+     * @throws OnboardingIllegalStateException
+     *             in case the state machine is in state IDLE,ABORTING (No need
+     *             to Abort) in case the state machine is in state
+     *             CONNECTING_TO_TARGET_WIFI_AP
+     *             ,WAITING_FOR_TARGET_ANNOUNCE,TARGET_ANNOUNCEMENT_RECEIVED
+     *             (can't abort ,in final stages of onboarding)
      */
     public void abortOnboarding() throws OnboardingIllegalStateException {
-        synchronized (TAG){
-            if (currentState == State.IDLE ||currentState == State.ABORTING ){
+        synchronized (TAG) {
+            if (currentState == State.IDLE || currentState == State.ABORTING) {
                 throw new OnboardingIllegalStateException("Can't abort ,already ABORTED");
             }
 
-            if (currentState == State.CONNECTING_TO_TARGET_WIFI_AP ||
-                    currentState == State.TARGET_ANNOUNCEMENT_RECEIVED ||
-                    currentState == State.CONFIGURING_ONBOARDEE ||
-                    currentState == State.CONFIGURING_ONBOARDEE_WITH_SIGNAL) {
+            if (currentState == State.CONNECTING_TO_TARGET_WIFI_AP || currentState == State.TARGET_ANNOUNCEMENT_RECEIVED || currentState == State.CONFIGURING_ONBOARDEE
+                    || currentState == State.CONFIGURING_ONBOARDEE_WITH_SIGNAL) {
                 throw new OnboardingIllegalStateException("Can't abort");
             }
-            Bundle extras =new Bundle();
+            Bundle extras = new Bundle();
             extras.putString(EXTRA_ONBOARDING_STATE, OnboardingState.ABORTING.toString());
             sendBroadcast(STATE_CHANGE_ACTION, extras);
 
@@ -2219,58 +2240,63 @@ public class OnboardingManager {
 
     }
 
-
     /**
-     * Prepare the state machine for the onboarding process after abort has beeen requested.
-     *
-     * Try restoring the connection to the original Wi-Fi access point prior to calling {@link OnboardingManager#runOnboarding(OnboardingConfiguration)}
+     * Prepare the state machine for the onboarding process after abort has
+     * beeen requested.
+     * 
+     * Try restoring the connection to the original Wi-Fi access point prior to
+     * calling {@link OnboardingManager#runOnboarding(OnboardingConfiguration)}
      * <p>
      * Does the following :
-     *  <ul>
-     *      <li> Stop listening to About Service announcements.
-     *      <li> Remove onboardee Wi-Fi access point from Android's Wi-Fi configured netwroks.
-     *      <li> Enable  Android's Wi-Fi manager to select a suitable  Wi-Fi access point.
-     *      <li> Move state maching to IDLE state.
-     *      <li> Send the following intents.
-     *           <ul>
-     *                <li>{@link #STATE_CHANGE_ACTION} action with this extra
-     *                    <ul>
-     *                        <li> {@link OnboardingState#CONNECTING_ORIGINAL_WIFI} when trying to connect to orignal network if exists.
-     *                        <li> {@link OnboardingState#CONNECTING_ORIGINAL_WIFI} when connected to orignal network if exists.
-     *                        <li> {@link OnboardingState#ABORTED} when abort process complete.
-     *                    </ul>
-     *                <li>{@link #ERROR} action with this extra
-     *                     <ul>
-     *                        <li> {@link OnboardingErrorType#ORIGINAL_WIFI_TIMEOUT} when trying to connect to orignal and get timeout.
-     *                        <li> {@link OnboardingErrorType#ORIGINAL_WIFI_AUTH} when trying to connect to orignal and get authentication error.
-     *                    </ul>
-     *           </ul>
-     *  </ul>
+     * <ul>
+     * <li>Stop listening to About Service announcements.
+     * <li>Remove onboardee Wi-Fi access point from Android's Wi-Fi configured
+     * netwroks.
+     * <li>Enable Android's Wi-Fi manager to select a suitable Wi-Fi access
+     * point.
+     * <li>Move state maching to IDLE state.
+     * <li>Send the following intents.
+     * <ul>
+     * <li>{@link #STATE_CHANGE_ACTION} action with this extra
+     * <ul>
+     * <li> {@link OnboardingState#CONNECTING_ORIGINAL_WIFI} when trying to
+     * connect to orignal network if exists.
+     * <li> {@link OnboardingState#CONNECTING_ORIGINAL_WIFI} when connected to
+     * orignal network if exists.
+     * <li> {@link OnboardingState#ABORTED} when abort process complete.
+     * </ul>
+     * <li>{@link #ERROR} action with this extra
+     * <ul>
+     * <li> {@link OnboardingErrorType#ORIGINAL_WIFI_TIMEOUT} when trying to
+     * connect to orignal and get timeout.
+     * <li> {@link OnboardingErrorType#ORIGINAL_WIFI_AUTH} when trying to connect
+     * to orignal and get authentication error.
+     * </ul>
+     * </ul>
+     * </ul>
      */
-    private void abortStateCleanUp(){
+    private void abortStateCleanUp() {
 
         // in case ABORTING_INTERRUPT_FLAG found in stateHandler remove it.
-        if (stateHandler.hasMessages(ABORTING_INTERRUPT_FLAG)){
+        if (stateHandler.hasMessages(ABORTING_INTERRUPT_FLAG)) {
             stateHandler.removeMessages(ABORTING_INTERRUPT_FLAG);
         }
 
-        if (onboardingConfiguration!=null && onboardingConfiguration.getOnboardee()!=null && onboardingConfiguration.getOnboardee().getSSID()!=null){
+        if (onboardingConfiguration != null && onboardingConfiguration.getOnboardee() != null && onboardingConfiguration.getOnboardee().getSSID() != null) {
             onboardingSDKWifiManager.removeWifiAP(onboardingConfiguration.getOnboardee().getSSID());
         }
-        final Bundle extras =new Bundle();
+        final Bundle extras = new Bundle();
 
         synchronized (TAG) {
-            listenToAnnouncementsFlag=false;
+            listenToAnnouncementsFlag = false;
         }
 
-        //Try to connect to orginal access point if existed.
-        if (originalNetwork!=null)
-        {
-            try{
-                onboardingSDKWifiManager.connectToWifiBySSID(originalNetwork,DEFAULT_WIFI_CONNECTION_TIMEOUT);
-            }
-            catch (OnboardingIllegalArgumentException e){
-                Log.e(TAG, "abortStateCleanUp "+e.getMessage());
+        // Try to connect to orginal access point if existed.
+        if (originalNetwork != null) {
+            try {
+                onboardingSDKWifiManager.connectToWifiBySSID(originalNetwork, DEFAULT_WIFI_CONNECTION_TIMEOUT);
+            } catch (OnboardingIllegalArgumentException e) {
+                Log.e(TAG, "abortStateCleanUp " + e.getMessage());
 
                 onboardingSDKWifiManager.enableAllWifiNetworks();
                 setState(State.IDLE);
@@ -2301,13 +2327,13 @@ public class OnboardingManager {
                         }
 
                         if (WIFI_TIMEOUT_ACTION.equals(action)) {
-                            extras.putString(EXTRA_ERROR_DETAILS,OnboardingErrorType.ORIGINAL_WIFI_TIMEOUT.toString());
-                            sendBroadcast(ERROR,extras);
+                            extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.ORIGINAL_WIFI_TIMEOUT.toString());
+                            sendBroadcast(ERROR, extras);
                         }
 
                         if (WIFI_AUTHENTICATION_ERROR.equals(action)) {
-                            extras.putString(EXTRA_ERROR_DETAILS,OnboardingErrorType.ORIGINAL_WIFI_AUTH.toString());
-                            sendBroadcast(ERROR,extras);
+                            extras.putString(EXTRA_ERROR_DETAILS, OnboardingErrorType.ORIGINAL_WIFI_AUTH.toString());
+                            sendBroadcast(ERROR, extras);
                         }
 
                         extras.clear();
@@ -2318,9 +2344,11 @@ public class OnboardingManager {
             };// receiver
             context.registerReceiver(onboardingWifiBroadcastReceiver, wifiIntentFilter);
 
-        }else{
-            // Probably onboarding started when the device wasn't connected to a  Wi-Fi. So nothing to restore.
-            // Just return to IDLE and enable all the networks that were disabled by the onboarding process.
+        } else {
+            // Probably onboarding started when the device wasn't connected to a
+            // Wi-Fi. So nothing to restore.
+            // Just return to IDLE and enable all the networks that were
+            // disabled by the onboarding process.
             onboardingSDKWifiManager.enableAllWifiNetworks();
             setState(State.IDLE);
 
@@ -2330,15 +2358,19 @@ public class OnboardingManager {
 
     }
 
-
     /**
-     *
+     * 
      * Offboard a device that is on the current Wi-Fi network.
-     *
-     * @param config contains the offboarding information needed to complete the task.
-     * @throws OnboardingIllegalStateException is thrown when not in internal IDLE state.
-     * @throws OnboardingIllegalArgumentException is thrown when config is not valid
-     * @throws WifiDisabledException in case Wi-Fi is disabled.
+     * 
+     * @param config
+     *            contains the offboarding information needed to complete the
+     *            task.
+     * @throws OnboardingIllegalStateException
+     *             is thrown when not in internal IDLE state.
+     * @throws OnboardingIllegalArgumentException
+     *             is thrown when config is not valid
+     * @throws WifiDisabledException
+     *             in case Wi-Fi is disabled.
      */
     public void runOffboarding(final OffboardingConfiguration config) throws OnboardingIllegalStateException, OnboardingIllegalArgumentException, WifiDisabledException {
 
@@ -2350,13 +2382,13 @@ public class OnboardingManager {
             throw new OnboardingIllegalArgumentException();
         }
 
-        synchronized (TAG){
+        synchronized (TAG) {
             // in case the SDK is in onboarding mode the runOffboarding can't
             // continue
             if (currentState != State.IDLE) {
                 throw new OnboardingIllegalStateException("onboarding process is already running");
             }
-            Log.d(TAG, "runOffboarding serviceName"+config.getServiceName() + " port"+ config.getPort());
+            Log.d(TAG, "runOffboarding serviceName" + config.getServiceName() + " port" + config.getPort());
             new Thread() {
                 @Override
                 public void run() {
@@ -2377,20 +2409,19 @@ public class OnboardingManager {
         }
     }
 
-
     /**
      * Check if the device supports the given service.
-     *
+     * 
      * @param objectDescriptions
      *            the list of supported services as announced by the device.
      * @param service
      *            name of the service to check
      * @return true if supported else false
      */
-    private boolean isSeviceSupported(final BusObjectDescription[] objectDescriptions, String service) {
+    private boolean isSeviceSupported(final AboutObjectDescription[] objectDescriptions, String service) {
         if (objectDescriptions != null) {
             for (int i = 0; i < objectDescriptions.length; i++) {
-                String[] interfaces = objectDescriptions[i].getInterfaces();
+                String[] interfaces = objectDescriptions[i].interfaces;
                 for (int j = 0; j < interfaces.length; j++) {
                     String currentInterface = interfaces[j];
                     if (currentInterface.startsWith(service)) {
@@ -2402,13 +2433,12 @@ public class OnboardingManager {
         return false;
     }
 
-
     /**
      * Start a timeout announcement to arrive from a device. Takes the timeout
      * interval from the {@link OnboardingConfiguration} that stores the data.
      * If timeout expires, moves the state machine to idle state and sends
      * timeout intent.
-     *
+     * 
      * @return true if in correct state else false.
      */
     private boolean startAnnouncementTimeout() {
@@ -2462,7 +2492,6 @@ public class OnboardingManager {
         return true;
     }
 
-
     /**
      * Stop the announcement timeout that was activated by
      * {@link #startAnnouncementTimeout()}
@@ -2473,11 +2502,9 @@ public class OnboardingManager {
         announcementTimeout = new Timer();
     }
 
-
     /**
-     * A wrapper method that sends intent broadcasts with extra
-     * data
-     *
+     * A wrapper method that sends intent broadcasts with extra data
+     * 
      * @param action
      *            an action for the intent
      * @param extras
@@ -2490,4 +2517,5 @@ public class OnboardingManager {
         }
         context.sendBroadcast(intent);
     }
+
 }

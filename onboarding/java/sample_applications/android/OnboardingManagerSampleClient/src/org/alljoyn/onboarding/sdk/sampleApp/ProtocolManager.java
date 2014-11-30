@@ -22,8 +22,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.alljoyn.about.AboutKeys;
-import org.alljoyn.about.AboutService;
-import org.alljoyn.about.AboutServiceImpl;
+import org.alljoyn.bus.AboutListener;
+import org.alljoyn.bus.AboutObjectDescription;
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.SessionOpts;
@@ -37,8 +37,6 @@ import org.alljoyn.onboarding.transport.OnboardingTransport;
 import org.alljoyn.services.android.security.AuthPasswordHandler;
 import org.alljoyn.services.android.security.SrpAnonymousKeyListener;
 import org.alljoyn.services.android.utils.AndroidLogger;
-import org.alljoyn.services.common.AnnouncementHandler;
-import org.alljoyn.services.common.BusObjectDescription;
 import org.alljoyn.services.common.utils.TransportUtil;
 
 import android.content.Context;
@@ -51,7 +49,7 @@ import android.util.Log;
  * daemon is announced on. This class will also enable the user to connect
  * Alljoyn bus attachment and disconnect from it.
  */
-public class ProtocolManager implements AnnouncementHandler {
+public class ProtocolManager implements AboutListener {
 
     private final String TAG = this.getClass().getSimpleName();
 
@@ -84,12 +82,6 @@ public class ProtocolManager implements AnnouncementHandler {
      * Alljoyn bus attachment.
      */
     private static BusAttachment busAttachment = null;
-
-    /**
-     * Alljoyn about service, needed to receive announcements from available
-     * Alljoyn devices.
-     */
-    private AboutService aboutService = null;
 
     /**
      * String for Alljoyn daemon to be advertised with.
@@ -144,7 +136,7 @@ public class ProtocolManager implements AnnouncementHandler {
 
     /**
      * Initialize the device list and starts the Alljoyn daemon.
-     *
+     * 
      * @param context
      *            Android application context
      */
@@ -157,13 +149,12 @@ public class ProtocolManager implements AnnouncementHandler {
         connectToBus();
     }
 
-
     /**
-     * Listen to aboutService onAnnouncement call and manage the DeviceList
+     * Listen to aboutService Announcement call and manage the DeviceList
      * accordingly.
      */
     @Override
-    public void onAnnouncement(final String serviceName, final short port, final BusObjectDescription[] objectDescriptions, final Map<String, Variant> serviceMetadata) {
+    public void announced(final String serviceName, final int version, final short port, final AboutObjectDescription[] objectDescriptions, final Map<String, Variant> serviceMetadata) {
         UUID appId;
         String deviceName;
 
@@ -198,12 +189,10 @@ public class ProtocolManager implements AnnouncementHandler {
         }
     }
 
-
     /**
      * Listen to aboutService onDeviceLost call and manage the DeviceList
      * accordingly.
      */
-    @Override
     public void onDeviceLost(String serviceName) {
         Log.d(TAG, "onDeviceLost serviceName = " + serviceName);
         Device device = null;
@@ -217,16 +206,14 @@ public class ProtocolManager implements AnnouncementHandler {
         }
     }
 
-
     public List<Device> getDeviceList() {
         return deviceList;
     }
 
-
     /**
-     * Creates new busAttachment, connect and register authListener.
-     * Starts about service. Update the OnboardingManager with
-     * the new busAttachment aboutClient objects.
+     * Creates new busAttachment, connect and register authListener. Starts
+     * about service. Update the OnboardingManager with the new busAttachment
+     * aboutClient objects.
      */
     public void connectToBus() {
         Log.i(TAG, "connectToBus");
@@ -254,9 +241,8 @@ public class ProtocolManager implements AnnouncementHandler {
         }
 
         try {
-            aboutService = AboutServiceImpl.getInstance();
-            aboutService.startAboutClient(busAttachment);
-            aboutService.addAnnouncementHandler(this, new String[]{OnboardingTransport.INTERFACE_NAME});
+            busAttachment.registerAboutListener(this);
+            busAttachment.whoImplements(new String[] { OnboardingTransport.INTERFACE_NAME });
 
             // Add auth listener - needed for OnboardingService secure calls
             String keyStoreFileName = context.getFileStreamPath("alljoyn_keystore").getAbsolutePath();
@@ -280,7 +266,7 @@ public class ProtocolManager implements AnnouncementHandler {
                     }
                 }
 
-            }, new AndroidLogger(), new String[] {"ALLJOYN_SRP_KEYX","ALLJOYN_ECDHE_PSK","ALLJOYN_PIN_KEYX"});
+            }, new AndroidLogger(), new String[] { "ALLJOYN_SRP_KEYX", "ALLJOYN_ECDHE_PSK", "ALLJOYN_PIN_KEYX" });
             Log.i(TAG, "m_authListener.getAuthMechanismsAsString: " + m_authListener.getAuthMechanismsAsString());
             Status authStatus = busAttachment.registerAuthListener(m_authListener.getAuthMechanismsAsString(), m_authListener, keyStoreFileName);
             if (authStatus != Status.OK) {
@@ -291,7 +277,7 @@ public class ProtocolManager implements AnnouncementHandler {
         }
 
         try {
-            OnboardingManager.getInstance().init(context, aboutService, busAttachment);
+            OnboardingManager.getInstance().init(context, busAttachment);
         } catch (OnboardingIllegalArgumentException e) {
             e.printStackTrace();
         } catch (OnboardingIllegalStateException e) {
@@ -313,9 +299,8 @@ public class ProtocolManager implements AnnouncementHandler {
          */
         try {
             if (busAttachment != null && busAttachment.isConnected()) {
-                if (aboutService != null) {
-                    aboutService.stopAboutClient();
-                }
+                busAttachment.cancelWhoImplements(new String[] { OnboardingTransport.INTERFACE_NAME });
+                busAttachment.unregisterAboutListener(this);
                 busAttachment.cancelAdvertiseName(DAEMON_QUIET_PREFIX + daemonName, SessionOpts.TRANSPORT_ANY);
                 busAttachment.releaseName(daemonName);
                 busAttachment.disconnect();
@@ -337,4 +322,5 @@ public class ProtocolManager implements AnnouncementHandler {
         Log.i(TAG, "isConnectToBus = " + isConnected);
         return isConnected;
     }
+
 }

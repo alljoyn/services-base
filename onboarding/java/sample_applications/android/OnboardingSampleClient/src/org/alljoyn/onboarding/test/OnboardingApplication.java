@@ -23,8 +23,8 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.alljoyn.about.AboutKeys;
-import org.alljoyn.about.AboutService;
-import org.alljoyn.about.AboutServiceImpl;
+import org.alljoyn.bus.AboutListener;
+import org.alljoyn.bus.AboutObjectDescription;
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.SessionOpts;
@@ -39,8 +39,6 @@ import org.alljoyn.onboarding.transport.OnboardingTransport.ConfigureWifiMode;
 import org.alljoyn.onboarding.transport.ScanInfo;
 import org.alljoyn.services.android.security.AuthPasswordHandler;
 import org.alljoyn.services.android.security.SrpAnonymousKeyListener;
-import org.alljoyn.services.common.AnnouncementHandler;
-import org.alljoyn.services.common.BusObjectDescription;
 import org.alljoyn.services.common.utils.GenericLogger;
 import org.alljoyn.services.common.utils.TransportUtil;
 
@@ -66,7 +64,7 @@ import android.widget.Toast;
  * onboarding service methods. (get the scan information, do onboarding,
  * offboarding etc.)
  */
-public class OnboardingApplication extends Application implements AuthPasswordHandler {
+public class OnboardingApplication extends Application implements AuthPasswordHandler, AboutListener {
 
     public static final String TAG = "OnboardingClient";
     public static final String TAG_PASSWORD = "OnboardingApplication_password";
@@ -74,7 +72,6 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     private BusAttachment m_Bus;
     private IskWifiManager m_wifiManager;
     private HashMap<String, SoftAPDetails> m_devicesMap;
-    private AboutService m_aboutClient;
     private SoftAPDetails m_currentPeer;
     private String m_realmName;
     private BroadcastReceiver m_receiver;
@@ -132,7 +129,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see android.app.Application#onCreate()
      */
     @Override
@@ -195,7 +192,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /**
      * Sets the daemon realm name.
-     *
+     * 
      * @param realmName
      *            The daemon realm name.
      */
@@ -206,7 +203,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see android.app.Application#onTerminate()
      */
     @Override
@@ -236,41 +233,6 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
         m_Bus.useOSLogging(true);
 
         String keyStoreFileName = null;
-        try {
-            AnnouncementHandler receiver = new AnnouncementHandler() {
-
-                @Override
-                public void onAnnouncement(String busName, short port, BusObjectDescription[] interfaces, Map<String, Variant> aboutMap) {
-
-                    Map<String, Object> newMap = new HashMap<String, Object>();
-                    try {
-                        newMap = TransportUtil.fromVariantMap(aboutMap);
-                        String deviceId = (newMap.get(AboutKeys.ABOUT_APP_ID).toString());
-                        String deviceFriendlyName = (String) newMap.get(AboutKeys.ABOUT_DEVICE_NAME);
-                        m_logger.debug(TAG, "onAnnouncement received: with parameters: busName:" + busName + ", port:" + port + ", deviceid" + deviceId + ", deviceName:" + deviceFriendlyName);
-                        addDevice(deviceId, busName, port, deviceFriendlyName, interfaces, newMap);
-
-                    } catch (BusException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onDeviceLost(String serviceName) {
-                    // remove the device from the spinner
-                    m_logger.debug(TAG, "onDeviceLost received: device with busName: " + serviceName + " was lost");
-                    removeDevice(serviceName);
-                }
-            };
-
-            m_aboutClient = AboutServiceImpl.getInstance();
-            m_aboutClient.setLogger(m_logger);
-            m_aboutClient.startAboutClient(m_Bus);
-            m_aboutClient.addAnnouncementHandler(receiver, new String[] { OnboardingTransport.INTERFACE_NAME });
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         // request the name
         int flag = BusAttachment.ALLJOYN_REQUESTNAME_FLAG_DO_NOT_QUEUE;
@@ -298,6 +260,24 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
                 m_logger.debug(TAG, "Failed to register Auth listener status = " + authStatus.toString());
             }
         }
+
+        m_Bus.registerAboutListener(this);
+        m_Bus.whoImplements(new String[] { OnboardingTransport.INTERFACE_NAME });
+    }
+
+    @Override
+    public void announced(String busName, int version, short port, AboutObjectDescription[] objectDescriptions, Map<String, Variant> aboutMap) {
+        Map<String, Object> newMap = new HashMap<String, Object>();
+        try {
+            newMap = TransportUtil.fromVariantMap(aboutMap);
+            String deviceId = (newMap.get(AboutKeys.ABOUT_APP_ID).toString());
+            String deviceFriendlyName = (String) newMap.get(AboutKeys.ABOUT_DEVICE_NAME);
+            m_logger.debug(TAG, "onAnnouncement received: with parameters: busName:" + busName + ", port:" + port + ", deviceid" + deviceId + ", deviceName:" + deviceFriendlyName);
+            addDevice(deviceId, busName, port, deviceFriendlyName, objectDescriptions, newMap);
+
+        } catch (BusException e) {
+            e.printStackTrace();
+        }
     }
 
     // ======================================================================
@@ -310,9 +290,9 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
          * the bus. Failing to do so could result in a resource leak.
          */
         try {
-            if (m_aboutClient != null)
-                m_aboutClient.stopAboutClient();
             if (m_Bus != null) {
+                m_Bus.cancelWhoImplements(new String[] { OnboardingTransport.INTERFACE_NAME });
+                m_Bus.unregisterAboutListener(this);
                 m_Bus.clearKeyStore();
                 m_logger.info(TAG_PASSWORD, "Bus attachment clear key store");
                 m_Bus.cancelAdvertiseName(DAEMON_QUIET_PREFIX + m_realmName, SessionOpts.TRANSPORT_ANY);
@@ -329,7 +309,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
 
     // Add an AllJoym device to the application.
-    private void addDevice(String deviceId, String busName, short port, String deviceFriendlyName, BusObjectDescription[] interfaces, Map<String, Object> aboutMap) {
+    private void addDevice(String deviceId, String busName, short port, String deviceFriendlyName, AboutObjectDescription[] objectDescriptions, Map<String, Object> aboutMap) {
         SoftAPDetails oldDevice = m_devicesMap.get(deviceId);
 
         if (oldDevice != null) {// device already exist. update the fields that
@@ -345,12 +325,12 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
             oldDevice.aboutMap = aboutMap;
             oldDevice.deviceFriendlyName = deviceFriendlyName;
             oldDevice.port = port;
-            oldDevice.interfaces = interfaces;
+            oldDevice.objectDescriptions = objectDescriptions;
             oldDevice.updateSupportedServices();
 
         } else {
             // add the device to the map
-            SoftAPDetails sad = new SoftAPDetails(deviceId, busName, deviceFriendlyName, port, interfaces, aboutMap, SrpAnonymousKeyListener.DEFAULT_PINCODE);
+            SoftAPDetails sad = new SoftAPDetails(deviceId, busName, deviceFriendlyName, port, objectDescriptions, aboutMap, SrpAnonymousKeyListener.DEFAULT_PINCODE);
             m_devicesMap.put(deviceId, sad);
         }
         // notify the activity to come and get it
@@ -438,7 +418,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /**
      * Return the onboarding service fields.
-     *
+     * 
      * @return the onboarding service fields.
      */
     public Short getOnboardingVersion() {
@@ -463,7 +443,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /**
      * Return the onboarding service last error
-     *
+     * 
      * @return the onboarding service last error
      */
     public OBLastError getLastError() {
@@ -488,7 +468,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /**
      * Return the onboarding service state.
-     *
+     * 
      * @return the onboarding service state.
      */
     public Short getState() {
@@ -510,7 +490,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /**
      * Return the onboarding service scan info.
-     *
+     * 
      * @return the onboarding service scan info.
      */
     public ScanInfo getScanInfo() {
@@ -532,7 +512,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /**
      * Configure a network for the alljoyn device
-     *
+     * 
      * @param networkName
      *            The name (ssid) of the configured network
      * @param networkPassword
@@ -608,7 +588,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * org.alljoyn.services.android.security.AuthPasswordHandler#getPassword
      * (java.lang.String)
@@ -640,7 +620,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     /**
      * Sets a password on the client side. This password will be compared
      * against the alljoyn device password when needed.
-     *
+     * 
      * @param peerName
      *            The device bus name.
      * @param password
@@ -663,7 +643,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /*
      * (non-Javadoc)
-     *
+     * 
      * @see
      * org.alljoyn.services.android.security.AuthPasswordHandler#completed(java
      * .lang.String, java.lang.String, boolean)
@@ -678,5 +658,4 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
             m_logger.info(TAG_PASSWORD, " ** " + authPeer + " successfully authenticated");
     }
     // ======================================================================
-
 }
