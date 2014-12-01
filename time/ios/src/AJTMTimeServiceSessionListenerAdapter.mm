@@ -19,22 +19,28 @@
  * Please help make it more robust by contributing fixes if you find issues
  **/
 
-#import <Foundation/Foundation.h>
-#import "alljoyn/time/TimeServiceServerAuthorityClock.h"
-#import "alljoyn/time/AJTMTimeServiceServerTimeAuthorityBase.h"
-#import "alljoyn/Status.h"
+#import "AJTMTimeServiceSessionListenerAdapter.h"
+#import "AJTMTimeServiceClient.h"
 
-@interface AJTMTimeServiceServerAuthorityClock : AJTMTimeServiceServerTimeAuthorityBase
+AJTMTimeServiceSessionListenerAdapter::AJTMTimeServiceSessionListenerAdapter(id<AJTMTimeServiceSessionListener> timeServiceSessionListener)
+{
+    handle = timeServiceSessionListener;
+}
 
-/**
- * Send TimeSync signal to suggest clients of this TimeAuthority Clock to synchronize their time
- *
- * @return Status of sending the signal
- */
--(QStatus)timeSync;
+AJTMTimeServiceSessionListenerAdapter::~AJTMTimeServiceSessionListenerAdapter()
+{
+}
 
-//-(const ajn::services::TimeServiceServerAuthorityClock&)getHandle;
--(ajn::services::TimeServiceServerAuthorityClock&)getHandle;
+void AJTMTimeServiceSessionListenerAdapter::sessionLost(ajn::services::TimeServiceClient* timeServiceClient, ajn::SessionListener::SessionLostReason reason)
+{
+    AJTMTimeServiceClient *client = [[AJTMTimeServiceClient alloc]initWithHandle:timeServiceClient];
+    [handle sessionLost:client SessionListener:ALLJOYN_SESSIONLOST_LINK_TIMEOUT];
+}
 
+void AJTMTimeServiceSessionListenerAdapter::sessionJoined(ajn::services::TimeServiceClient* timeServiceClient, QStatus status)
+{
+    AJTMTimeServiceClient *client = [[AJTMTimeServiceClient alloc]initWithHandle:timeServiceClient];
 
-@end
+    [handle sessionJoined:client staus:status];
+
+}

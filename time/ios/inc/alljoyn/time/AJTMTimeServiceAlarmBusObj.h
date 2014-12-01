@@ -14,6 +14,11 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+/**
+ * This class is experimental, and as such has not been tested.
+ * Please help make it more robust by contributing fixes if you find issues
+ **/
+
 #import <Foundation/Foundation.h>
 #import "AJTMTimeServiceServerAlarm.h"
 #import "AJNTranslator.h"

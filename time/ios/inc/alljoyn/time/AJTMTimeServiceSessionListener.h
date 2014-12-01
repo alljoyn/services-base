@@ -20,21 +20,29 @@
  **/
 
 #import <Foundation/Foundation.h>
-#import "alljoyn/time/TimeServiceServerAuthorityClock.h"
-#import "alljoyn/time/AJTMTimeServiceServerTimeAuthorityBase.h"
-#import "alljoyn/Status.h"
+#import "AJNSessionListener.h"
 
-@interface AJTMTimeServiceServerAuthorityClock : AJTMTimeServiceServerTimeAuthorityBase
+@class AJTMTimeServiceClient;
+
+@protocol AJTMTimeServiceSessionListener <NSObject>
 
 /**
- * Send TimeSync signal to suggest clients of this TimeAuthority Clock to synchronize their time
+ * The method is called when the existing session is lost.
+ * Avoid blocking this thread with long running tasks.
  *
- * @return Status of sending the signal
+ * @param timeServiceClient TimeServiceClient that was used to create the session
+ * @param reason Session lost reason
  */
--(QStatus)timeSync;
+-(void)sessionLost:(AJTMTimeServiceClient*)timeServiceClient SessionListener:(AJNSessionLostReason)reason;
 
-//-(const ajn::services::TimeServiceServerAuthorityClock&)getHandle;
--(ajn::services::TimeServiceServerAuthorityClock&)getHandle;
-
+/**
+ * The method is called when a session was established following the call to
+ * TimeServiceClient.joinSessionAsync().
+ * Avoid blocking this thread with long running tasks.
+ *
+ * @param timeServiceClient TimeServiceClient that was used to create the session
+ * @param status Check this QStatus to ensure that the session was created successfully
+ */
+-(void)sessionJoined:(AJTMTimeServiceClient*)timeServiceClient staus:(QStatus)status;
 
 @end
