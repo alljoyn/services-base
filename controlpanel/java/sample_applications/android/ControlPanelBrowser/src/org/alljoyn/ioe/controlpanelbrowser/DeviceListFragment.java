@@ -1,26 +1,27 @@
 package org.alljoyn.ioe.controlpanelbrowser;
+
 /******************************************************************************
-* Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
-*
-*    Permission to use, copy, modify, and/or distribute this software for any
-*    purpose with or without fee is hereby granted, provided that the above
-*    copyright notice and this permission notice appear in all copies.
-*
-*    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-*    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-*    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-*    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-*    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-*    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-*    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-******************************************************************************/
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
+ *
+ *    Permission to use, copy, modify, and/or distribute this software for any
+ *    purpose with or without fee is hereby granted, provided that the above
+ *    copyright notice and this permission notice appear in all copies.
+ *
+ *    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ *    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ *    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ *    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ *    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ *    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ ******************************************************************************/
 
 import java.util.Map;
 import java.util.UUID;
 
 import org.alljoyn.about.AboutKeys;
-import org.alljoyn.about.AboutService;
-import org.alljoyn.about.AboutServiceImpl;
+import org.alljoyn.bus.AboutListener;
+import org.alljoyn.bus.AboutObjectDescription;
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.SessionOpts;
@@ -33,8 +34,6 @@ import org.alljoyn.ioe.controlpanelservice.communication.interfaces.ControlPanel
 import org.alljoyn.ioe.controlpanelservice.communication.interfaces.HTTPControl;
 import org.alljoyn.services.android.security.AuthPasswordHandler;
 import org.alljoyn.services.android.security.SrpAnonymousKeyListener;
-import org.alljoyn.services.common.AnnouncementHandler;
-import org.alljoyn.services.common.BusObjectDescription;
 import org.alljoyn.services.common.utils.GenericLogger;
 import org.alljoyn.services.common.utils.TransportUtil;
 
@@ -62,15 +61,14 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-
 /**
  * A list fragment representing a list of Appliances. This fragment also
  * supports tablet devices by allowing list items to be given an 'activated'
  * state upon selection. This helps indicate which item is currently being
  * viewed in a {@link DeviceDetailFragment}.
  * <p>
- * Activities containing this fragment MUST implement the {@link DeviceListCallback}
- * interface.
+ * Activities containing this fragment MUST implement the
+ * {@link DeviceListCallback} interface.
  */
 public class DeviceListFragment extends ListFragment {
 
@@ -168,11 +166,6 @@ public class DeviceListFragment extends ListFragment {
     static {
         System.loadLibrary("alljoyn_java");
     }
-
-    /**
-     * Reference to AboutClient
-     */
-    private AboutService aboutClient;
 
     /**
      * Reference to Logger
@@ -322,7 +315,7 @@ public class DeviceListFragment extends ListFragment {
     }
 
     /* This class will handle all AllJoyn calls. See onCreate(). */
-    class AsyncHandler extends Handler implements AnnouncementHandler, AuthPasswordHandler {
+    class AsyncHandler extends Handler implements AboutListener, AuthPasswordHandler {
 
         public static final int CONNECT = 1;
         public static final int DISCONNECT = 2;
@@ -406,16 +399,9 @@ public class DeviceListFragment extends ListFragment {
             }
 
             // Initialize AboutService
-            aboutClient = AboutServiceImpl.getInstance();
-            aboutClient.setLogger(logger);
-            try {
-                aboutClient.startAboutClient(bus);
-
-                for (String iface : ANNOUNCE_IFACES) {
-                    aboutClient.addAnnouncementHandler(this, new String[] { iface });
-                }
-            } catch (Exception e) {
-                logger.error(TAG, "Unable to start AboutService, Error: " + e.getMessage());
+            bus.registerAboutListener(this);
+            for (String iface : ANNOUNCE_IFACES) {
+                bus.whoImplements(new String[] { iface });
             }
 
             // Initialize ControlPanelService
@@ -442,17 +428,10 @@ public class DeviceListFragment extends ListFragment {
          */
         private void disconnect() {
             ControlPanelService.getInstance().shutdown();
-            try {
-
-                for (String iface : ANNOUNCE_IFACES) {
-                    aboutClient.removeAnnouncementHandler(this, new String[] { iface });
-                }
-
-                AboutServiceImpl.getInstance().stopAboutClient();
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            for (String iface : ANNOUNCE_IFACES) {
+                bus.cancelWhoImplements(new String[] { iface });
             }
+            bus.unregisterAboutListener(this);
             bus.disconnect();
             bus.release();
         }
@@ -463,14 +442,14 @@ public class DeviceListFragment extends ListFragment {
         /*
          * A callback where About service notifies listeners about a new
          * announcement.
-         *
+         * 
          * @see
          * org.alljoyn.services.common.AnnouncementHandler#onAnnouncement(java
          * .lang.String, short,
          * org.alljoyn.services.common.BusObjectDescription[], java.util.Map)
          */
         @Override
-        public void onAnnouncement(String busName, short port, BusObjectDescription[] objectDescriptions, Map<String, Variant> aboutMap) {
+        public void announced(String busName, int version, short port, AboutObjectDescription[] objectDescriptions, Map<String, Variant> aboutMap) {
 
             String deviceId;
             String deviceFriendlyName;
@@ -480,34 +459,34 @@ public class DeviceListFragment extends ListFragment {
             try {
 
                 Variant varDeviceId = aboutMap.get(AboutKeys.ABOUT_DEVICE_ID);
-                String devIdSig     = (varDeviceId != null) ? varDeviceId.getSignature() : "";
+                String devIdSig = (varDeviceId != null) ? varDeviceId.getSignature() : "";
 
-                if ( !devIdSig.equals("s") ) {
+                if (!devIdSig.equals("s")) {
                     Log.e(TAG, "Received '" + AboutKeys.ABOUT_DEVICE_ID + "', that has an unexpected signature: '" + devIdSig + "', the expected signature is: 's'");
                     return;
                 }
                 deviceId = varDeviceId.getObject(String.class);
 
                 Variant varFriendlyName = aboutMap.get(AboutKeys.ABOUT_DEVICE_NAME);
-                String friendlyNameSig  = (varFriendlyName != null) ? varFriendlyName.getSignature() : "";
+                String friendlyNameSig = (varFriendlyName != null) ? varFriendlyName.getSignature() : "";
 
-                if ( !friendlyNameSig.equals("s") ) {
+                if (!friendlyNameSig.equals("s")) {
                     Log.e(TAG, "Received '" + AboutKeys.ABOUT_DEVICE_NAME + "', that has an unexpected signature: '" + friendlyNameSig + "', the expected signature is: 's'");
                     return;
                 }
                 deviceFriendlyName = varFriendlyName.getObject(String.class);
 
                 Variant varAppId = aboutMap.get(AboutKeys.ABOUT_APP_ID);
-                String  appIdSig = (varAppId != null ) ? varAppId.getSignature() : "";
+                String appIdSig = (varAppId != null) ? varAppId.getSignature() : "";
 
-                if ( !appIdSig.equals("ay") ) {
+                if (!appIdSig.equals("ay")) {
                     Log.e(TAG, "Received '" + AboutKeys.ABOUT_APP_ID + "', that has an unexpected signature: '" + appIdSig + "', the expected signature is: 'ay'");
                     return;
                 }
                 byte[] rawAppId = varAppId.getObject(byte[].class);
-                appId           = TransportUtil.byteArrayToUUID(rawAppId);
+                appId = TransportUtil.byteArrayToUUID(rawAppId);
 
-                if ( appId == null ) {
+                if (appId == null) {
                     Log.e(TAG, "Received a bad AppId, failed to convert it to the UUID");
                     return;
                 }
@@ -520,8 +499,8 @@ public class DeviceListFragment extends ListFragment {
             // panel interface
             for (int i = 0; i < objectDescriptions.length; ++i) {
 
-                BusObjectDescription description = objectDescriptions[i];
-                String[] supportedInterfaces     = description.getInterfaces();
+                AboutObjectDescription description = objectDescriptions[i];
+                String[] supportedInterfaces = description.interfaces;
 
                 for (int j = 0; j < supportedInterfaces.length; ++j) {
 
@@ -533,7 +512,7 @@ public class DeviceListFragment extends ListFragment {
                             deviceContext = new DeviceContext(deviceId, busName, deviceFriendlyName, appId);
                         }
 
-                        deviceContext.addObjectInterfaces(description.getPath(), supportedInterfaces);
+                        deviceContext.addObjectInterfaces(description.path, supportedInterfaces);
                     }
                 }
             }
@@ -547,7 +526,6 @@ public class DeviceListFragment extends ListFragment {
             refreshListView();
         }
 
-        @Override
         public void onDeviceLost(String busName) {
 
             Log.d(TAG, "Received DeviceLost for '" + busName + "'");
@@ -563,10 +541,8 @@ public class DeviceListFragment extends ListFragment {
 
                 @Override
                 public void run() {
-                    ArrayAdapter<DeviceContext> arrayAdapter = new ArrayAdapter<DeviceList.DeviceContext>(getActivity(),
-                                                                        android.R.layout.simple_list_item_activated_1,
-                                                                        android.R.id.text1,
-                                                                        deviceRegistry.getContexts());
+                    ArrayAdapter<DeviceContext> arrayAdapter = new ArrayAdapter<DeviceList.DeviceContext>(getActivity(), android.R.layout.simple_list_item_activated_1, android.R.id.text1,
+                            deviceRegistry.getContexts());
                     setListAdapter(arrayAdapter);
                     arrayAdapter.notifyDataSetChanged();
                 }
@@ -608,7 +584,7 @@ public class DeviceListFragment extends ListFragment {
         /**
          * Persistent authentication and encryption data is stored at this
          * location.
-         *
+         * 
          * This uses the private file area associated with the application
          * package.
          */

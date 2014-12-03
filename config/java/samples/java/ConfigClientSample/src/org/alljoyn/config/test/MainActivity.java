@@ -132,16 +132,17 @@ public class MainActivity extends Activity implements OnCreateContextMenuListene
 
     /**
      * Add all the given devices to the Device ArrayAdapter
+     * 
      * @param devices
      */
     private void addAllDevices(Collection<Device> devices) {
-        
+
         for (Device device : devices) {
-            
+
             deviceAdapter.add(device);
         }
     }
-    
+
     // Connect to AllJoyn
     private void allJoynConnect() {
         AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
