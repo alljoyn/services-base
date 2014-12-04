@@ -23,6 +23,8 @@ if not onb_env.has_key('_ALLJOYNCORE_'):
         onb_env['ajrlib'] = 'ajrouter'
     if onb_env['OS'] == 'openwrt':
         onb_env.AppendUnique(LIBS = [ 'stdc++', 'pthread' ])
+    if onb_env['OS'] == 'linux':
+        onb_env.AppendUnique(LIBS = [ 'rt', 'pthread' ])
 
 # Make onboarding dist a sub-directory of the alljoyn dist.  This avoids any conflicts with alljoyn dist targets.
 onb_env['ONBOARDING_DISTDIR'] = onb_env['DISTDIR'] + '/onboarding'
