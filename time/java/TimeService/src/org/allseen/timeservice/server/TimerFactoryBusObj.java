@@ -1,23 +1,21 @@
- /******************************************************************************
-  * Copyright (c) 2014, AllSeen Alliance. All rights reserved.
-  *
-  *    Permission to use, copy, modify, and/or distribute this software for any
-  *    purpose with or without fee is hereby granted, provided that the above
-  *    copyright notice and this permission notice appear in all copies.
-  *
-  *    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-  *    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-  *    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-  *    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-  *    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-  *    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-  ******************************************************************************/
+/******************************************************************************
+ * Copyright (c) 2014, AllSeen Alliance. All rights reserved.
+ *
+ *    Permission to use, copy, modify, and/or distribute this software for any
+ *    purpose with or without fee is hereby granted, provided that the above
+ *    copyright notice and this permission notice appear in all copies.
+ *
+ *    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ *    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ *    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ *    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ *    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ *    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ ******************************************************************************/
 
 package org.allseen.timeservice.server;
 
-import org.alljoyn.about.AboutService;
-import org.alljoyn.about.AboutServiceImpl;
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.BusObject;
@@ -31,8 +29,8 @@ import org.allseen.timeservice.ajinterfaces.TimerFactory;
 import android.util.Log;
 
 /**
- * This class implements {@link TimerFactory} interface and realizes AllJoyn communication
- * with this TimerFactory
+ * This class implements {@link TimerFactory} interface and realizes AllJoyn
+ * communication with this TimerFactory
  */
 class TimerFactoryBusObj implements TimerFactory {
     private static final String TAG = "ajts" + TimerFactoryBusObj.class.getSimpleName();
@@ -43,8 +41,8 @@ class TimerFactoryBusObj implements TimerFactory {
     private static final String OBJ_PATH_PREFIX = "/TimerFactory";
 
     /**
-     * Timer factory to be notified with {@link org.allseen.timeservice.server.TimerFactory}
-     * related messages
+     * Timer factory to be notified with
+     * {@link org.allseen.timeservice.server.TimerFactory} related messages
      */
     private org.allseen.timeservice.server.TimerFactory timerFactory;
 
@@ -68,11 +66,13 @@ class TimerFactoryBusObj implements TimerFactory {
      */
     private final Translator translator;
 
-
     /**
      * Constructor
-     * @param timerFactory {@link org.allseen.timeservice.server.TimerFactory} handler
-     * @throws TimeServiceException Is thrown if failed to create {@link TimerFactoryBusObj}
+     * 
+     * @param timerFactory
+     *            {@link org.allseen.timeservice.server.TimerFactory} handler
+     * @throws TimeServiceException
+     *             Is thrown if failed to create {@link TimerFactoryBusObj}
      */
     TimerFactoryBusObj(org.allseen.timeservice.server.TimerFactory timerFactory) throws TimeServiceException {
 
@@ -81,35 +81,36 @@ class TimerFactoryBusObj implements TimerFactory {
 
     /**
      * Constructor
+     * 
      * @param timerFactory
-     * @param description Events&Actions description
-     * @param language Events&Actions description language
-     * @param translator Events&Actions {@link Translator}
-     * @throws TimeServiceException Is thrown if failed to create {@link TimerFactoryBusObj}
+     * @param description
+     *            Events&Actions description
+     * @param language
+     *            Events&Actions description language
+     * @param translator
+     *            Events&Actions {@link Translator}
+     * @throws TimeServiceException
+     *             Is thrown if failed to create {@link TimerFactoryBusObj}
      */
-    TimerFactoryBusObj(org.allseen.timeservice.server.TimerFactory timerFactory, String description, String language,
-                           Translator translator) throws TimeServiceException {
+    TimerFactoryBusObj(org.allseen.timeservice.server.TimerFactory timerFactory, String description, String language, Translator translator) throws TimeServiceException {
 
-        if ( timerFactory == null ) {
+        if (timerFactory == null) {
 
             throw new TimeServiceException("Undefined TimerFactory");
         }
 
         this.timerFactory = timerFactory;
-        objectPath        = GlobalStringSequencer.append(OBJ_PATH_PREFIX);
+        objectPath = GlobalStringSequencer.append(OBJ_PATH_PREFIX);
 
-        this.description  = description;
-        this.language     = language;
-        this.translator   = translator;
+        this.description = description;
+        this.language = language;
+        this.translator = translator;
 
-        Status status     = getBus().registerBusObject(this, objectPath);
-        if ( status != Status.OK ) {
+        Status status = getBus().registerBusObject(this, objectPath);
+        if (status != Status.OK) {
 
-            throw new TimeServiceException("Failed to register BusObject, objPath: '" + objectPath +
-                                               "', Status: '" + status + "'");
+            throw new TimeServiceException("Failed to register BusObject, objPath: '" + objectPath + "', Status: '" + status + "'");
         }
-
-        AboutServiceImpl.getInstance().addObjectDescription(objectPath, new String[]{TimerFactory.IFNAME});
 
         Log.i(TAG, "TimerFactory BusObject, objectPath: '" + objectPath + "' registered successfully");
     }
@@ -138,7 +139,7 @@ class TimerFactoryBusObj implements TimerFactory {
             Log.d(TAG, "NewTimer is called, objPath: '" + objectPath + "', handling");
 
             timer = timerFactory.newTimer();
-            if ( timer == null ) {
+            if (timer == null) {
 
                 Log.e(TAG, "Undefined timer, throwing exception, objPath: '" + objectPath + "'");
                 throw new ErrorReplyBusException(TimeServiceConst.GENERIC_ERROR, "Uninitialized Timer");
@@ -147,13 +148,11 @@ class TimerFactoryBusObj implements TimerFactory {
             BaseTimerBusObj timerBusObj = new TimerBusObj();
             timerBusObj.init(timer, objectPath, false, null, description, language, translator);
             timer.setTimerBusObj(timerBusObj);
-        }
-        catch (ErrorReplyBusException erbe) {
+        } catch (ErrorReplyBusException erbe) {
 
             Log.e(TAG, "Failed to execute 'NewTimer', objPath: '" + objectPath + "'", erbe);
             throw erbe;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
 
             Log.e(TAG, "Failed to execute 'NewTimer', objPath: '" + objectPath + "'", e);
             throw new ErrorReplyBusException(TimeServiceConst.GENERIC_ERROR, e.getMessage());
@@ -175,13 +174,11 @@ class TimerFactoryBusObj implements TimerFactory {
             Log.d(TAG, "DeleteTimer is called, objPath: '" + objectPath + "', handling");
 
             timerFactory.deleteTimer(objectPath);
-        }
-        catch (ErrorReplyBusException erbe) {
+        } catch (ErrorReplyBusException erbe) {
 
             Log.e(TAG, "Failed to execute 'DeleteTimer', objPath: '" + objectPath + "'", erbe);
             throw erbe;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
 
             Log.e(TAG, "Failed to execute 'DeleteTimer', objPath: '" + objectPath + "'", e);
             throw new ErrorReplyBusException(TimeServiceConst.GENERIC_ERROR, e.getMessage());
@@ -190,6 +187,7 @@ class TimerFactoryBusObj implements TimerFactory {
 
     /**
      * {@link org.allseen.timeservice.server.TimerFactory} object path
+     * 
      * @return object path
      */
     String getObjectPath() {
@@ -208,24 +206,18 @@ class TimerFactoryBusObj implements TimerFactory {
         try {
 
             getBus().unregisterBusObject(this);
-        }
-        catch (TimeServiceException tse) {
+        } catch (TimeServiceException tse) {
 
             Log.e(TAG, "Failed to unregister BusObject, objPath: '" + objectPath + "'", tse);
         }
 
-        AboutService about = AboutServiceImpl.getInstance();
-
-        if ( about.isServerRunning() ) {
-
-            Log.d(TAG, "Remove object description of: '" +TimerFactory.IFNAME + "'");
-            about.removeObjectDescription(objectPath, new String[]{TimerFactory.IFNAME});
-        }
     }
 
     /**
-     * Access {@link TimeServiceServer} to get the {@link BusAttachment}.
-     * If {@link BusAttachment} is undefined, {@link TimeServiceException} is thrown.
+     * Access {@link TimeServiceServer} to get the {@link BusAttachment}. If
+     * {@link BusAttachment} is undefined, {@link TimeServiceException} is
+     * thrown.
+     * 
      * @return {@link BusAttachment}
      * @throws TimeServiceException
      */
@@ -233,7 +225,7 @@ class TimerFactoryBusObj implements TimerFactory {
 
         BusAttachment bus = TimeServiceServer.getInstance().getBusAttachment();
 
-        if ( bus == null ) {
+        if (bus == null) {
 
             throw new TimeServiceException("TimeServiceServer is not initialized");
         }

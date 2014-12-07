@@ -17,8 +17,7 @@ package org.allseen.timeservice.sample.server.logic;
 
 import java.util.Locale;
 
-import org.alljoyn.about.AboutService;
-import org.alljoyn.about.AboutServiceImpl;
+import org.alljoyn.bus.AboutObj;
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.Mutable;
 import org.alljoyn.bus.SessionOpts;
@@ -40,7 +39,8 @@ import android.util.Log;
  * Singleton that does the following
  * <ul>
  * <li>Manages the AllJoyn protocol initialization.
- * <li>Initializes TimeService elements with accordance to the {@link PreferencesManager} and Announce the changes.
+ * <li>Initializes TimeService elements with accordance to the
+ * {@link PreferencesManager} and Announce the changes.
  * <li>Enables to emit timeSync signal
  * </ul>
  */
@@ -102,9 +102,15 @@ public class ProtocolManager {
     private static BusAttachment busAttachment = null;
 
     /**
-     * Alljoyn about service, needed to receive announcements from available Alljoyn devices.
+     * Alljoyn about object, needed to receive announcements from available
+     * Alljoyn devices.
      */
-    private AboutService aboutService = null;
+    private AboutObj aboutObj = null;
+
+    /**
+     * The application announced port
+     */
+    private static final short ANNOUNCE_PORT = 1080;
 
     /**
      * String for Alljoyn daemon to be advertised with.
@@ -113,10 +119,10 @@ public class ProtocolManager {
 
     /**
      * Initialize the device list and starts the Alljoyn daemon.
-     *
+     * 
      * @param context
      *            Android application context
-     *
+     * 
      */
     public void init(Context context) {
         Log.i(TAG, "init");
@@ -131,7 +137,7 @@ public class ProtocolManager {
 
     /**
      * Connect to the bus. Start AboutServer Start TimeServiceServer
-     *
+     * 
      */
     private boolean connectToBus() {
         Log.i(TAG, "connectToBus");
@@ -173,11 +179,11 @@ public class ProtocolManager {
             }
         }
 
-        bindSessionPort((short) 1080);
+        bindSessionPort(ANNOUNCE_PORT);
+
+        aboutObj = new AboutObj(busAttachment);
 
         try {
-            aboutService = AboutServiceImpl.getInstance();
-            aboutService.startAboutServer((short) 1080, new PropertyStoreImpl(context), busAttachment);
 
             String keyStoreFileName = context.getFileStreamPath("alljoyn_keystore").getAbsolutePath();
             SrpAnonymousKeyListener m_authListener = new SrpAnonymousKeyListener(new AuthPasswordHandler() {
@@ -206,23 +212,21 @@ public class ProtocolManager {
         } catch (TimeServiceException t) {
             Log.e(TAG, "fail to init TimeServiceServer", t);
             return false;
-        } catch (Exception e) {
-            Log.e(TAG, "fail to startAboutServer", e);
-            return false;
         }
         return true;
     }
 
     /**
      * Bind to About service port required by EventActions
-     *
+     * 
      * @param port
      *            to bind
      * @return bus uniqueName in case successful
      */
     private String bindSessionPort(final short port) {
         /*
-         * Create a new session listening on the contact port of the about service.
+         * Create a new session listening on the contact port of the about
+         * service.
          */
         Mutable.ShortValue contactPort = new Mutable.ShortValue(port);
 
@@ -269,7 +273,9 @@ public class ProtocolManager {
     }
 
     /**
-     * Reads the application preferences using the PreferencesManager. Creates TimeService elements with accordance to the the preferences. Emits Announce signal.
+     * Reads the application preferences using the PreferencesManager. Creates
+     * TimeService elements with accordance to the the preferences. Emits
+     * Announce signal.
      */
     public void initiateTimeServer() {
         try {
@@ -346,7 +352,7 @@ public class ProtocolManager {
                 }
             }
 
-            AboutServiceImpl.getInstance().announce();
+            aboutObj.announce(ANNOUNCE_PORT, new PropertyStoreImpl(context));
 
         } catch (TimeServiceException e) {
             Log.e(TAG, "Failed init TimeServer elements", e);
@@ -355,7 +361,7 @@ public class ProtocolManager {
 
     /**
      * Sends timeSync signal.
-     *
+     * 
      * @return true if serverAuthorityClock exists otherwise false
      * @throws TimeServiceException
      */

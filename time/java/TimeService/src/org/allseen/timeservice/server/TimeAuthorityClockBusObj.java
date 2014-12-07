@@ -1,23 +1,21 @@
- /******************************************************************************
-  * Copyright (c) 2014, AllSeen Alliance. All rights reserved.
-  *
-  *    Permission to use, copy, modify, and/or distribute this software for any
-  *    purpose with or without fee is hereby granted, provided that the above
-  *    copyright notice and this permission notice appear in all copies.
-  *
-  *    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-  *    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-  *    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-  *    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-  *    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-  *    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-  ******************************************************************************/
+/******************************************************************************
+ * Copyright (c) 2014, AllSeen Alliance. All rights reserved.
+ *
+ *    Permission to use, copy, modify, and/or distribute this software for any
+ *    purpose with or without fee is hereby granted, provided that the above
+ *    copyright notice and this permission notice appear in all copies.
+ *
+ *    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ *    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ *    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ *    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ *    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ *    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ ******************************************************************************/
 
 package org.allseen.timeservice.server;
 
-import org.alljoyn.about.AboutService;
-import org.alljoyn.about.AboutServiceImpl;
 import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.SignalEmitter;
 import org.alljoyn.bus.SignalEmitter.GlobalBroadcast;
@@ -29,8 +27,8 @@ import org.allseen.timeservice.ajinterfaces.TimeAuthority;
 import android.util.Log;
 
 /**
- * This class implements {@link Clock} and {@link TimeAuthority} interfaces and realizes AllJoyn communication
- * with this Time Authority Clock.
+ * This class implements {@link Clock} and {@link TimeAuthority} interfaces and
+ * realizes AllJoyn communication with this Time Authority Clock.
  */
 class TimeAuthorityClockBusObj extends BaseClockBusObj implements Clock, TimeAuthority {
     private static final String TAG = "ajts" + TimeAuthorityClockBusObj.class.getSimpleName();
@@ -52,9 +50,11 @@ class TimeAuthorityClockBusObj extends BaseClockBusObj implements Clock, TimeAut
 
     /**
      * Constructor
+     * 
      * @param type
-     * @param clock Clock events delegate. This clock receives all the {@link TimeAuthorityClock}
-     * related events.
+     * @param clock
+     *            Clock events delegate. This clock receives all the
+     *            {@link TimeAuthorityClock} related events.
      * @param objectPath
      * @throws TimeServiceException
      */
@@ -63,7 +63,6 @@ class TimeAuthorityClockBusObj extends BaseClockBusObj implements Clock, TimeAut
         super(clock, GlobalStringSequencer.append(OBJ_PATH_PREFIX));
 
         this.authorityType = authorityType;
-        AboutServiceImpl.getInstance().addObjectDescription(getObjectPath(), new String[]{Clock.IFNAME, TimeAuthority.IFNAME});
     }
 
     /**
@@ -74,8 +73,7 @@ class TimeAuthorityClockBusObj extends BaseClockBusObj implements Clock, TimeAut
 
         byte authType = authorityType.getValue();
 
-        Log.d(TAG, "getAuthorityType is called, returning: '" + authorityType + "', value: '" + authType +
-                        "', objPath: '" + getObjectPath() + "'");
+        Log.d(TAG, "getAuthorityType is called, returning: '" + authorityType + "', value: '" + authType + "', objPath: '" + getObjectPath() + "'");
         return authType;
     }
 
@@ -88,7 +86,9 @@ class TimeAuthorityClockBusObj extends BaseClockBusObj implements Clock, TimeAut
 
     /**
      * Send {@link TimeAuthority#timeSync()} signal
-     * @throws TimeServiceException Is thrown if failed to send the signal
+     * 
+     * @throws TimeServiceException
+     *             Is thrown if failed to send the signal
      */
     void sendTimeSync() throws TimeServiceException {
 
@@ -114,13 +114,5 @@ class TimeAuthorityClockBusObj extends BaseClockBusObj implements Clock, TimeAut
 
         super.release();
 
-        AboutService about = AboutServiceImpl.getInstance();
-
-        //Prevent exception in situation where About server was closed by the application.
-        if ( about.isServerRunning() ) {
-
-            Log.d(TAG, "Remove object description of: " + Clock.IFNAME + ", " +  TimeAuthority.IFNAME);
-            about.removeObjectDescription(getObjectPath(), new String[]{Clock.IFNAME, TimeAuthority.IFNAME});
-        }
     }
 }

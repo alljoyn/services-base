@@ -58,8 +58,11 @@ import android.widget.ListView;
  * Displays {@link Timer} retrieved from the remote service.
  * <ul>
  * <li>Join a session with the Device.
- * <li>If {@see TimeServiceClient#isTimerAnnounced()} fetch list of {@link Timer} for each one get all properties.
- * <li>If {@see TimeServiceClient#isTimerFactoryAnnounced()} fetch list of {@link TimerFactory} for each fetch list of {@link Timer} for each one get all properties.
+ * <li>If {@see TimeServiceClient#isTimerAnnounced()} fetch list of
+ * {@link Timer} for each one get all properties.
+ * <li>If {@see TimeServiceClient#isTimerFactoryAnnounced()} fetch list of
+ * {@link TimerFactory} for each fetch list of {@link Timer} for each one get
+ * all properties.
  * <li>Fill UI elements.
  * </ul>
  */
@@ -273,8 +276,10 @@ public class TimerManagerFragment extends Fragment {
     }
 
     /**
-     * Fetch the Timers list by first checking if the app has a session established with the remote device. After establishing remote session retrieve the Timer items by traversing the timer factories
-     * and the timer announced list. for each Timer fetch it's properties.
+     * Fetch the Timers list by first checking if the app has a session
+     * established with the remote device. After establishing remote session
+     * retrieve the Timer items by traversing the timer factories and the timer
+     * announced list. for each Timer fetch it's properties.
      */
     private void generateTimerItemList() {
         Map<UUID, DeviceManager.Device> map = ((TimeSampleClient) context.getApplicationContext()).getDeviceManager().getDevicesMap();
@@ -330,8 +335,9 @@ public class TimerManagerFragment extends Fragment {
     }
 
     /**
-     * Read information from the Timer on the remote party,fill the TimerItem object.
-     *
+     * Read information from the Timer on the remote party,fill the TimerItem
+     * object.
+     * 
      * @param currentTimer
      * @param factory
      * @return
@@ -354,8 +360,10 @@ public class TimerManagerFragment extends Fragment {
     }
 
     /**
-     * Generate a list of the Timers in the remote party,using TimeService API. In case the Timer is registered to receive signal (from the device's internal storage) register it.
-     *
+     * Generate a list of the Timers in the remote party,using TimeService API.
+     * In case the Timer is registered to receive signal (from the device's
+     * internal storage) register it.
+     * 
      * @param timeServiceClient
      * @return
      * @throws TimeServiceException
