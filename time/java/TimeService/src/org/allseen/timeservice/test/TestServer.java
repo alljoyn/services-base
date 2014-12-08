@@ -1,25 +1,25 @@
- /******************************************************************************
-  * Copyright (c) 2014, AllSeen Alliance. All rights reserved.
-  *
-  *    Permission to use, copy, modify, and/or distribute this software for any
-  *    purpose with or without fee is hereby granted, provided that the above
-  *    copyright notice and this permission notice appear in all copies.
-  *
-  *    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-  *    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-  *    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-  *    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-  *    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-  *    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-  ******************************************************************************/
+/******************************************************************************
+ * Copyright (c) 2014, AllSeen Alliance. All rights reserved.
+ *
+ *    Permission to use, copy, modify, and/or distribute this software for any
+ *    purpose with or without fee is hereby granted, provided that the above
+ *    copyright notice and this permission notice appear in all copies.
+ *
+ *    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ *    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ *    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ *    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ *    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ *    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ ******************************************************************************/
 
 package org.allseen.timeservice.test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.alljoyn.about.AboutServiceImpl;
+import org.alljoyn.bus.AboutObj;
 import org.alljoyn.services.android.storage.PropertyStoreImpl;
 import org.allseen.timeservice.AuthorityType;
 import org.allseen.timeservice.TimeServiceException;
@@ -33,7 +33,6 @@ import org.allseen.timeservice.server.TimerFactory;
 import org.allseen.timeservice.test.TestServerCustomAlarm.TestServerCustomAlarmBusObj;
 
 import android.util.Log;
-
 
 /**
  * Test application server side
@@ -71,30 +70,32 @@ public class TestServer {
      */
     private final Map<String, TimerFactory> timerFactories;
 
+    private AboutObj aboutObj;
+
     /**
      * Constructor
-     * @param app Test application
-     * throws {@link Exception}
+     * 
+     * @param app
+     *            Test application throws {@link Exception}
      */
     public TestServer(TimeServiceTestApp app) {
 
-        this.app        = app;
-        clocks          = new HashMap<String, Clock>();
-        alarms          = new HashMap<String, Alarm>();
-        alarmFactories  = new HashMap<String, AlarmFactory>();
-        timers          = new HashMap<String, Timer>();
-        timerFactories  = new HashMap<String, TimerFactory>();
+        this.app = app;
+        clocks = new HashMap<String, Clock>();
+        alarms = new HashMap<String, Alarm>();
+        alarmFactories = new HashMap<String, AlarmFactory>();
+        timers = new HashMap<String, Timer>();
+        timerFactories = new HashMap<String, TimerFactory>();
     }
 
     /**
      * Init {@link TimeServiceServer}
+     * 
      * @throws Exception
      */
     public void init() throws Exception {
 
-        AboutServiceImpl.getInstance().startAboutServer((short) 1080, new PropertyStoreImpl(app),
-                app.getBusAttachment());
-
+        aboutObj = new AboutObj(app.getBusAttachment());
         TimeServiceServer.getInstance().init(app.getBusAttachment());
     }
 
@@ -135,13 +136,7 @@ public class TestServer {
 
         TimeServiceServer.getInstance().shutdown();
 
-        try {
-
-            AboutServiceImpl.getInstance().stopAboutServer();
-        } catch (Exception e) {
-
-             Log.e(TAG, "Failed to stop About server", e);
-        }
+        aboutObj.unannounce();
     }
 
     /**
@@ -150,7 +145,7 @@ public class TestServer {
     public void announceServer() {
 
         Log.d(TAG, "Sending Announcement");
-        AboutServiceImpl.getInstance().announce();
+        aboutObj.announce((short) 1080, new PropertyStoreImpl(app));
     }
 
     /**
@@ -190,13 +185,16 @@ public class TestServer {
     }
 
     /**
-     * Sends {@link TimeAuthorityClock#timeSync()} signal if the given object is a {@link TimeAuthorityClock}
-     * @param objPath {@link TimeAuthorityClock} object
+     * Sends {@link TimeAuthorityClock#timeSync()} signal if the given object is
+     * a {@link TimeAuthorityClock}
+     * 
+     * @param objPath
+     *            {@link TimeAuthorityClock} object
      */
     public void sendTimeSync(String objPath) {
 
         Clock clock = clocks.get(objPath);
-        if ( !(clock instanceof TestServerAuthorityClock) ) {
+        if (!(clock instanceof TestServerAuthorityClock)) {
 
             Log.w(TAG, "The objectPath: '" + objPath + "' isn't a TimeAuthorityClock");
             return;
@@ -204,7 +202,7 @@ public class TestServer {
 
         try {
 
-            ((TestServerAuthorityClock)clock).timeSync();
+            ((TestServerAuthorityClock) clock).timeSync();
         } catch (TimeServiceException tse) {
 
             Log.e(TAG, "Failed to send TimeSync signal", tse);
@@ -222,7 +220,7 @@ public class TestServer {
         }
     }
 
-    //==============================================//
+    // ==============================================//
 
     /**
      * Creates basic Alarm
@@ -232,10 +230,9 @@ public class TestServer {
         Alarm alarm = new TestServerAlarm();
         try {
 
-            if ( desc == null ) {
+            if (desc == null) {
                 TimeServiceServer.getInstance().createAlarm(alarm);
-            }
-            else {
+            } else {
                 TimeServiceServer.getInstance().createAlarm(alarm, desc, "en", null);
             }
 
@@ -256,13 +253,11 @@ public class TestServer {
         Alarm alarm = new TestServerCustomAlarm();
         try {
 
-            if ( desc == null ) {
+            if (desc == null) {
 
                 TimeServiceServer.getInstance().registerCustomAlarm(new TestServerCustomAlarmBusObj(), alarm, null);
-            }
-            else {
-                TimeServiceServer.getInstance().registerCustomAlarm(new TestServerCustomAlarmBusObj(), alarm, null,
-                                                                    desc, "en", null);
+            } else {
+                TimeServiceServer.getInstance().registerCustomAlarm(new TestServerCustomAlarmBusObj(), alarm, null, desc, "en", null);
             }
 
             Log.d(TAG, "Created a Custom Alarm, objPath: '" + alarm.getObjectPath() + "', desc: '" + desc + "'");
@@ -291,7 +286,7 @@ public class TestServer {
     public void alarmReached(String objectPath) {
 
         Alarm alarm = findAlarm(objectPath);
-        if ( alarm == null ) {
+        if (alarm == null) {
 
             Log.e(TAG, "The objectPath: '" + objectPath + "' is not an Alarm");
             return;
@@ -306,17 +301,20 @@ public class TestServer {
     }
 
     /**
-     * Search for the {@link Alarm} in the alarms map or in the {@link AlarmFactory}
+     * Search for the {@link Alarm} in the alarms map or in the
+     * {@link AlarmFactory}
+     * 
      * @return {@link Alarm}
      */
     private Alarm findAlarm(String objectPath) {
 
-        if ( objectPath.startsWith("/AlarmFactory") ) { //AlarmFactory
+        if (objectPath.startsWith("/AlarmFactory")) { // AlarmFactory
 
-            //Extract factory object path from the given object path.
-            //Assumption that Alarm object path created from the factory has a structure of:
+            // Extract factory object path from the given object path.
+            // Assumption that Alarm object path created from the factory has a
+            // structure of:
             // [/FACTORY_OP][/ALARM_OP]
-            String factoryOp  = objectPath.substring(0, objectPath.indexOf('/', 1));
+            String factoryOp = objectPath.substring(0, objectPath.indexOf('/', 1));
             TestServerAlarmFactory factory = (TestServerAlarmFactory) alarmFactories.get(factoryOp);
 
             return factory.findAlarm(objectPath);
@@ -325,7 +323,7 @@ public class TestServer {
         return alarms.get(objectPath);
     }
 
-    //==============================================//
+    // ==============================================//
 
     /**
      * Create Alarm Factory
@@ -335,11 +333,10 @@ public class TestServer {
         AlarmFactory alarmFactory = new TestServerAlarmFactory();
         try {
 
-            if ( desc == null ) {
+            if (desc == null) {
 
                 TimeServiceServer.getInstance().createAlarmFactory(alarmFactory);
-            }
-            else {
+            } else {
 
                 TimeServiceServer.getInstance().createAlarmFactory(alarmFactory, desc, "en", null);
             }
@@ -365,7 +362,7 @@ public class TestServer {
         }
     }
 
-    //==============================================//
+    // ==============================================//
 
     /**
      * Create Timer Factory
@@ -375,11 +372,10 @@ public class TestServer {
         TimerFactory timerFactory = new TestServerTimerFactory();
         try {
 
-            if ( desc == null ) {
+            if (desc == null) {
 
                 TimeServiceServer.getInstance().createTimerFactory(timerFactory);
-            }
-            else {
+            } else {
 
                 TimeServiceServer.getInstance().createTimerFactory(timerFactory, desc, "en", null);
             }
@@ -405,7 +401,7 @@ public class TestServer {
         }
     }
 
-    //==============================================//
+    // ==============================================//
 
     /**
      * Create {@link Timer}
@@ -415,19 +411,17 @@ public class TestServer {
         Timer timer = new TestServerTimer();
         try {
 
-            if ( desc == null ) {
+            if (desc == null) {
 
                 TimeServiceServer.getInstance().createTimer(timer);
-            }
-            else {
+            } else {
                 TimeServiceServer.getInstance().createTimer(timer, desc, "en", null);
             }
 
             Log.d(TAG, "Created Timer, objPath: '" + timer.getObjectPath() + "', desc: '" + desc + "'");
 
             timers.put(timer.getObjectPath(), timer);
-        }
-        catch(TimeServiceException tse) {
+        } catch (TimeServiceException tse) {
 
             Log.e(TAG, "Failed to created the Timer", tse);
         }

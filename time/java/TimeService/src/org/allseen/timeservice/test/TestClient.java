@@ -1,18 +1,18 @@
- /******************************************************************************
-  * Copyright (c) 2014, AllSeen Alliance. All rights reserved.
-  *
-  *    Permission to use, copy, modify, and/or distribute this software for any
-  *    purpose with or without fee is hereby granted, provided that the above
-  *    copyright notice and this permission notice appear in all copies.
-  *
-  *    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-  *    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-  *    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-  *    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-  *    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-  *    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-  ******************************************************************************/
+/******************************************************************************
+ * Copyright (c) 2014, AllSeen Alliance. All rights reserved.
+ *
+ *    Permission to use, copy, modify, and/or distribute this software for any
+ *    purpose with or without fee is hereby granted, provided that the above
+ *    copyright notice and this permission notice appear in all copies.
+ *
+ *    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ *    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ *    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ *    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ *    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ *    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ ******************************************************************************/
 
 package org.allseen.timeservice.test;
 
@@ -24,14 +24,12 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.alljoyn.about.AboutKeys;
-import org.alljoyn.about.AboutService;
-import org.alljoyn.about.AboutServiceImpl;
+import org.alljoyn.bus.AboutListener;
+import org.alljoyn.bus.AboutObjectDescription;
 import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.ProxyBusObject;
 import org.alljoyn.bus.Status;
 import org.alljoyn.bus.Variant;
-import org.alljoyn.services.common.AnnouncementHandler;
-import org.alljoyn.services.common.BusObjectDescription;
 import org.alljoyn.services.common.utils.TransportUtil;
 import org.allseen.timeservice.AuthorityType;
 import org.allseen.timeservice.Date;
@@ -60,7 +58,7 @@ import android.util.Log;
 /**
  * Test application client side
  */
-public class TestClient implements AnnouncementHandler, SessionListenerHandler {
+public class TestClient implements AboutListener, SessionListenerHandler {
 
     private static final String TAG = "ajtsapp" + TestClient.class.getSimpleName();
 
@@ -86,15 +84,17 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
     /**
      * Constructor
-     * @param app Test application
+     * 
+     * @param app
+     *            Test application
      * @throws Exception
      */
     public TestClient(TimeServiceTestApp app) {
 
-        this.app           = app;
-        timeClients        = new HashMap<String, TimeServiceClient>();
-        createdAlarms      = new HashMap<String, Alarm>();
-        createdTimers      = new HashMap<String, Timer>();
+        this.app = app;
+        timeClients = new HashMap<String, TimeServiceClient>();
+        createdAlarms = new HashMap<String, Alarm>();
+        createdTimers = new HashMap<String, Timer>();
     }
 
     /**
@@ -102,9 +102,8 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
      */
     public void init() throws Exception {
 
-        AboutService about = AboutServiceImpl.getInstance();
-        about.startAboutClient(app.getBusAttachment());
-        about.addAnnouncementHandler(this, new String[]{TimeServiceConst.IFNAME_PREFIX + "*"});
+        app.getBusAttachment().registerAboutListener(this);
+        app.getBusAttachment().whoImplements(new String[] { TimeServiceConst.IFNAME_PREFIX + "*" });
     }
 
     /**
@@ -112,7 +111,7 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
      */
     public void shutdown() {
 
-        for ( TimeServiceClient tsc : timeClients.values() ) {
+        for (TimeServiceClient tsc : timeClients.values()) {
 
             tsc.release();
         }
@@ -122,28 +121,23 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
         releaseCreatedAlarms();
         releaseCreatedTimers();
 
-        AboutService about = AboutServiceImpl.getInstance();
-        about.removeAnnouncementHandler(this, new String[]{TimeServiceConst.IFNAME_PREFIX + "*"});
+        app.getBusAttachment().cancelWhoImplements(new String[] { TimeServiceConst.IFNAME_PREFIX + "*" });
+        app.getBusAttachment().unregisterAboutListener(this);
 
-        try {
-            about.stopAboutClient();
-        } catch (Exception e) {
-
-            Log.e(TAG, "Failed to stop About client", e);
-        }
     }
 
     /**
-     * @see org.alljoyn.services.common.AnnouncementHandler#onAnnouncement(java.lang.String, short, org.alljoyn.services.common.BusObjectDescription[], java.util.Map)
+     * @see org.alljoyn.services.common.AnnouncementHandler#onAnnouncement(java.lang.String,
+     *      short, org.alljoyn.services.common.BusObjectDescription[],
+     *      java.util.Map)
      */
     @Override
-    public void onAnnouncement(String busName, short port, BusObjectDescription[] objDescs,
-                                   Map<String, Variant> aboutData) {
+    public void announced(String busName, int version, short port, AboutObjectDescription[] objDescs, Map<String, Variant> aboutData) {
 
         Variant deviceIdVar = aboutData.get(AboutKeys.ABOUT_DEVICE_ID);
-        Variant appIdVar    = aboutData.get(AboutKeys.ABOUT_APP_ID);
+        Variant appIdVar = aboutData.get(AboutKeys.ABOUT_APP_ID);
 
-        if ( deviceIdVar == null || appIdVar == null ) {
+        if (deviceIdVar == null || appIdVar == null) {
 
             Log.e(TAG, "A bad announcement received from '" + busName + "', deviceId, or appId are undefined");
             return;
@@ -153,17 +147,16 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
         UUID appId;
         try {
 
-            deviceId         = deviceIdVar.getObject(String.class);
+            deviceId = deviceIdVar.getObject(String.class);
             byte[] appIdByte = appIdVar.getObject(byte[].class);
-            appId            = TransportUtil.byteArrayToUUID(appIdByte);
-        }
-        catch(BusException be) {
+            appId = TransportUtil.byteArrayToUUID(appIdByte);
+        } catch (BusException be) {
 
             Log.e(TAG, "A bad announcement received from '" + busName + "', failed to unmarshal data", be);
             return;
         }
 
-        if ( appId == null ) {
+        if (appId == null) {
 
             Log.e(TAG, "A bad announcement received from '" + busName + "', failed to create UUID object");
             return;
@@ -174,7 +167,7 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
         Log.i(TAG, "Received Announcement from bus: '" + busName + "', key: '" + key + "'");
 
         TimeServiceClient timeClient = timeClients.get(key);
-        if ( timeClient != null ) {
+        if (timeClient != null) {
 
             Log.d(TAG, "The TimeClient for the key: '" + key + "', already exists, releasing its resources");
             timeClient.release();
@@ -182,10 +175,11 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
         timeClient = new TimeServiceClient(app.getBusAttachment(), busName, deviceId, appId, objDescs);
         timeClients.put(key, timeClient);
-    }//onAnnouncement
+    }// onAnnouncement
 
     /**
-     * @see org.allseen.timeservice.client.SessionListenerHandler#sessionLost(int, org.allseen.timeservice.client.TimeServiceClient)
+     * @see org.allseen.timeservice.client.SessionListenerHandler#sessionLost(int,
+     *      org.allseen.timeservice.client.TimeServiceClient)
      */
     @Override
     public void sessionLost(int reason, TimeServiceClient timeServiceClient) {
@@ -194,32 +188,25 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
     }
 
     /**
-     * @see org.allseen.timeservice.client.SessionListenerHandler#sessionJoined(org.allseen.timeservice.client.TimeServiceClient, org.alljoyn.bus.Status)
+     * @see org.allseen.timeservice.client.SessionListenerHandler#sessionJoined(org.allseen.timeservice.client.TimeServiceClient,
+     *      org.alljoyn.bus.Status)
      */
     @Override
     public void sessionJoined(TimeServiceClient timeServiceClient, Status status) {
 
-        Log.d(TAG, "Session Joined busName: '" + timeServiceClient.getServerBusName() +
-                "', Status: '" + status + "'");
+        Log.d(TAG, "Session Joined busName: '" + timeServiceClient.getServerBusName() + "', Status: '" + status + "'");
     }
 
     /**
-     * @see org.alljoyn.services.common.AnnouncementHandler#onDeviceLost(java.lang.String)
-     */
-    @Override
-    public void onDeviceLost(String arg0) {
-    }
-
-    /**
-     * Connect {@link TimeServiceClient} identified by the given key
-     * to the {@link TimeServiceServer}
+     * Connect {@link TimeServiceClient} identified by the given key to the
+     * {@link TimeServiceServer}
      */
     public void connect(String key) {
 
         TimeServiceClient tsc = timeClients.get(key);
-        if ( tsc == null ) {
+        if (tsc == null) {
 
-            Log.w(TAG, "Not found client with the key: '"+ key + "'");
+            Log.w(TAG, "Not found client with the key: '" + key + "'");
             return;
         }
 
@@ -229,14 +216,15 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
     /**
      * Disconnect {@link TimeServiceClient} identified by the given key from the
      * {@link TimeServiceServer}
+     * 
      * @param key
      */
     public void disconnect(String key) {
 
         TimeServiceClient tsc = timeClients.get(key);
-        if ( tsc == null ) {
+        if (tsc == null) {
 
-            Log.w(TAG, "Not found client with the key: '"+ key + "'");
+            Log.w(TAG, "Not found client with the key: '" + key + "'");
             return;
         }
         tsc.leaveSession();
@@ -247,7 +235,7 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
      */
     public void printDevices() {
 
-        for ( String key : timeClients.keySet() ) {
+        for (String key : timeClients.keySet()) {
 
             Log.d(TAG, key);
         }
@@ -259,7 +247,7 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
     public void printClock(String key, String objectPath) {
 
         Clock clock = findClock(key, objectPath);
-        if ( clock == null ) {
+        if (clock == null) {
 
             Log.w(TAG, "Clock not found");
             return;
@@ -269,16 +257,12 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
             AuthorityType authorityType = null;
 
-            if ( clock.isAuthority() ) {
+            if (clock.isAuthority()) {
 
                 authorityType = clock.retrieveAuthorityType();
             }
 
-            Log.d(TAG, String.format("Clock: Authority: '%s', AuthType: '%s', DateTime: '%s', IsSet: '%s'",
-                                          clock.isAuthority(),
-                                          authorityType,
-                                          clock.retrieveDateTime(),
-                                          clock.retrieveIsSet()));
+            Log.d(TAG, String.format("Clock: Authority: '%s', AuthType: '%s', DateTime: '%s', IsSet: '%s'", clock.isAuthority(), authorityType, clock.retrieveDateTime(), clock.retrieveIsSet()));
         } catch (TimeServiceException tse) {
 
             Log.e(TAG, "Failed to retrieve Clock", tse);
@@ -287,13 +271,14 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
     /**
      * Set the clock
+     * 
      * @param key
      * @param objectPath
      */
     public void setClock(String key, String objectPath) {
 
         Clock clock = findClock(key, objectPath);
-        if ( clock == null ) {
+        if (clock == null) {
 
             Log.w(TAG, "Clock not found");
             return;
@@ -303,11 +288,11 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
         t.setToNow();
 
         org.allseen.timeservice.Time ts = getTime();
-        org.allseen.timeservice.Date ds = new Date((short)t.year, (byte)(t.month + 1), (byte)t.monthDay);
+        org.allseen.timeservice.Date ds = new Date((short) t.year, (byte) (t.month + 1), (byte) t.monthDay);
 
         try {
 
-            clock.setDateTime(new DateTime(ds, ts, (short)120));
+            clock.setDateTime(new DateTime(ds, ts, (short) 120));
         } catch (TimeServiceException tse) {
 
             Log.e(TAG, "Failed to set the clock", tse);
@@ -316,13 +301,14 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
     /**
      * Register TimeSync signals listener
+     * 
      * @param key
      * @param objectPath
      */
     public void regTimeSyncHandler(String key, String objectPath) {
 
         Clock clock = findClock(key, objectPath);
-        if ( clock == null ) {
+        if (clock == null) {
 
             Log.w(TAG, "Clock not found");
             return;
@@ -339,13 +325,14 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
     /**
      * Register TimeSync signals listener
+     * 
      * @param key
      * @param objectPath
      */
     public void unRegTimeSyncHandler(String key, String objectPath) {
 
         Clock clock = findClock(key, objectPath);
-        if ( clock == null ) {
+        if (clock == null) {
 
             Log.w(TAG, "Clock not found");
             return;
@@ -356,6 +343,7 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
     /**
      * Find clock
+     * 
      * @param key
      * @param objectPath
      * @return {@link Clock} or NULL
@@ -363,7 +351,7 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
     public Clock findClock(String key, String objectPath) {
 
         TimeServiceClient tsc = timeClients.get(key);
-        if ( tsc == null ) {
+        if (tsc == null) {
 
             return null;
         }
@@ -371,7 +359,7 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
         List<Clock> clocks = tsc.getAnnouncedClockList();
         for (Clock clock : clocks) {
 
-            if ( clock.getObjectPath().equals(objectPath) ) {
+            if (clock.getObjectPath().equals(objectPath)) {
 
                 return clock;
             }
@@ -386,7 +374,7 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
     public void printAlarm(String key, String objectPath) {
 
         Alarm alarm = findAlarm(key, objectPath);
-        if ( alarm == null ) {
+        if (alarm == null) {
 
             Log.w(TAG, "Alarm not found");
             return;
@@ -395,18 +383,15 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
         try {
 
             String[] descLangs = alarm.retrieveDescriptionLanguages();
-            String lang        = "";
+            String lang = "";
 
-            if ( descLangs != null ) {
+            if (descLangs != null) {
 
                 lang = descLangs.length > 0 ? descLangs[0] : "";
             }
 
-            Log.d(TAG, String.format("Alarm: Enabled: '%s', Schedule: '%s', Title: '%s', Description: '%s'",
-                        alarm.retrieveIsEnabled(),
-                        alarm.retrieveSchedule(),
-                        alarm.retrieveTitle(),
-                        lang.length() > 0 ? alarm.retrieveObjectDescription(lang) : ""));
+            Log.d(TAG, String.format("Alarm: Enabled: '%s', Schedule: '%s', Title: '%s', Description: '%s'", alarm.retrieveIsEnabled(), alarm.retrieveSchedule(), alarm.retrieveTitle(),
+                    lang.length() > 0 ? alarm.retrieveObjectDescription(lang) : ""));
 
         } catch (TimeServiceException tse) {
 
@@ -416,26 +401,26 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
     /**
      * Print out Custom Alarm info
+     * 
      * @param objectPath
      */
     public void printCsAlarm(String key, String objectPath) {
 
         TimeServiceClient tsClient = timeClients.get(key);
-        if ( tsClient == null ) {
+        if (tsClient == null) {
 
             Log.w(TAG, "Alarm not found");
             return;
         }
 
         Integer sid = tsClient.getSessionId();
-        if ( sid == null ) {
+        if (sid == null) {
 
             Log.w(TAG, "No connection with the Alarm");
             return;
         }
 
-        ProxyBusObject proxy = app.getBusAttachment().getProxyBusObject(tsClient.getServerBusName(), objectPath, sid,
-                                                                            new Class<?>[]{AlarmCoolIface.class});
+        ProxyBusObject proxy = app.getBusAttachment().getProxyBusObject(tsClient.getServerBusName(), objectPath, sid, new Class<?>[] { AlarmCoolIface.class });
 
         try {
 
@@ -449,7 +434,9 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
     /**
      * Set Alarm
-     * @param days Comma separated string of i.e.: sun,mon,tue,wen,thu,fri,sat
+     * 
+     * @param days
+     *            Comma separated string of i.e.: sun,mon,tue,wen,thu,fri,sat
      * @param title
      * @param enable
      */
@@ -457,13 +444,13 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
         Alarm alarm = findAlarm(key, obj);
 
-        if ( alarm == null ) {
+        if (alarm == null) {
 
             Log.d(TAG, "Alarm not found");
             return;
         }
 
-        if ( days != null ) {
+        if (days != null) {
 
             Map<String, WeekDay> wd = new HashMap<String, WeekDay>();
             wd.put("sun", WeekDay.SUNDAY);
@@ -478,7 +465,7 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
             for (String day : days.split(",")) {
 
                 WeekDay enWd = wd.get(day.trim());
-                if ( enWd != null ) {
+                if (enWd != null) {
 
                     weekDays.add(enWd);
                 }
@@ -488,11 +475,10 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
             Schedule schedule;
 
-            if ( weekDays.size() > 0 ) {
+            if (weekDays.size() > 0) {
 
                 schedule = new Schedule(ts, weekDays);
-            }
-            else {
+            } else {
                 schedule = new Schedule(ts);
             }
 
@@ -502,9 +488,9 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
                 Log.e(TAG, "Failed to call setSchedule", tse);
             }
-        }//if :: days
+        }// if :: days
 
-        if ( title != null ) {
+        if (title != null) {
 
             try {
                 alarm.setTitle(title);
@@ -514,18 +500,16 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
             }
         }
 
-        if ( enable != null ) {
+        if (enable != null) {
 
             try {
-                if ( "t".equals(enable) ) {
+                if ("t".equals(enable)) {
 
                     alarm.setEnabled(true);
-                }
-                else {
+                } else {
                     alarm.setEnabled(false);
                 }
-            }
-            catch (TimeServiceException tse) {
+            } catch (TimeServiceException tse) {
 
                 Log.d(TAG, "Failed to call setEnabled", tse);
             }
@@ -534,13 +518,14 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
     /**
      * Register AlarmHandler
+     * 
      * @param key
      * @param obj
      */
     public void regAlarmHandler(String key, String obj) {
 
         Alarm alarm = findAlarm(key, obj);
-        if ( alarm == null ) {
+        if (alarm == null) {
 
             Log.w(TAG, "Alarm not found");
             return;
@@ -556,13 +541,14 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
     /**
      * Unregister Alarm Handler
+     * 
      * @param key
      * @param obj
      */
     public void unRegAlarmHandler(String key, String obj) {
 
         Alarm alarm = findAlarm(key, obj);
-        if ( alarm == null ) {
+        if (alarm == null) {
 
             Log.w(TAG, "Alarm not found");
             return;
@@ -573,23 +559,25 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
     /**
      * Find Alarm
+     * 
      * @param key
      * @param objectPath
      * @return {@link Alarm}
      */
     public Alarm findAlarm(String key, String objectPath) {
 
-        //First search among the Alarms created by the AlarmFactory
+        // First search among the Alarms created by the AlarmFactory
         Alarm alarm = createdAlarms.get(objectPath);
 
-        if ( alarm != null ) {
+        if (alarm != null) {
 
             return alarm;
         }
 
-        //Not found the Alarm among the created Alarms, search it among the Announced alarms
+        // Not found the Alarm among the created Alarms, search it among the
+        // Announced alarms
         TimeServiceClient tsc = timeClients.get(key);
-        if ( tsc == null ) {
+        if (tsc == null) {
 
             return null;
         }
@@ -597,7 +585,7 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
         List<Alarm> alarms = tsc.getAnnouncedAlarmList();
         for (Alarm annAlarm : alarms) {
 
-            if ( annAlarm.getObjectPath().equals(objectPath) ) {
+            if (annAlarm.getObjectPath().equals(objectPath)) {
 
                 return annAlarm;
             }
@@ -608,6 +596,7 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
     /**
      * Find Alarm Factory
+     * 
      * @param key
      * @param objectPath
      * @return {@link Alarm}
@@ -615,7 +604,7 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
     public AlarmFactory findAlarmFactory(String key, String objectPath) {
 
         TimeServiceClient tsc = timeClients.get(key);
-        if ( tsc == null ) {
+        if (tsc == null) {
 
             return null;
         }
@@ -623,7 +612,7 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
         List<AlarmFactory> alarmFactories = tsc.getAnnouncedAlarmFactoryList();
         for (AlarmFactory factory : alarmFactories) {
 
-            if ( factory.getObjectPath().equals(objectPath) ) {
+            if (factory.getObjectPath().equals(objectPath)) {
 
                 return factory;
             }
@@ -634,14 +623,17 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
     /**
      * Create new {@link Alarm} with the {@link AlarmFactory}
-     * @param key device
-     * @param objectPath {@link AlarmFactory} object path
+     * 
+     * @param key
+     *            device
+     * @param objectPath
+     *            {@link AlarmFactory} object path
      */
     public void newAlarm(String key, String objectPath) {
 
         AlarmFactory factory = findAlarmFactory(key, objectPath);
 
-        if ( factory == null ) {
+        if (factory == null) {
 
             Log.w(TAG, "Alarm Factory not found");
             return;
@@ -659,22 +651,26 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
     /**
      * Delete {@link Alarm} of the {@link AlarmFactory}
-     * @param key device
-     * @param objectPath {@link AlarmFactory} object path
-     * @param alarmToDeleteObjPath Object path of the {@link Alarm} to be deleted
+     * 
+     * @param key
+     *            device
+     * @param objectPath
+     *            {@link AlarmFactory} object path
+     * @param alarmToDeleteObjPath
+     *            Object path of the {@link Alarm} to be deleted
      */
     public void deleteAlarm(String key, String objectPath, String alarmToDeleteObjPath) {
 
         AlarmFactory factory = findAlarmFactory(key, objectPath);
 
-        if ( factory == null ) {
+        if (factory == null) {
 
             Log.w(TAG, "Alarm Factory not found");
             return;
         }
 
         Alarm deletedAlarm = createdAlarms.get(alarmToDeleteObjPath);
-        if ( deletedAlarm == null ) {
+        if (deletedAlarm == null) {
 
             Log.w(TAG, "Alarm to be deleted is not found, objPath: '" + alarmToDeleteObjPath + "'");
             return;
@@ -692,14 +688,17 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
     /**
      * Retrieve {@link Alarm} objects of the given {@link AlarmFactory}
-     * @param key device
-     * @param objectPath {@link AlarmFactory}
+     * 
+     * @param key
+     *            device
+     * @param objectPath
+     *            {@link AlarmFactory}
      */
     public void getAlarms(String key, String objectPath) {
 
         AlarmFactory factory = findAlarmFactory(key, objectPath);
 
-        if ( factory == null ) {
+        if (factory == null) {
 
             Log.w(TAG, "Alarm Factory not found");
             return;
@@ -724,22 +723,23 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
     /**
      * Find Timer
+     * 
      * @param key
      * @param objectPath
      * @return {@link Timer}
      */
     public Timer findTimer(String key, String objectPath) {
 
-        //First search among the Timers created by the TimerFactory
+        // First search among the Timers created by the TimerFactory
         Timer timer = createdTimers.get(objectPath);
 
-        if ( timer != null ) {
+        if (timer != null) {
 
             return timer;
         }
 
         TimeServiceClient tsc = timeClients.get(key);
-        if ( tsc == null ) {
+        if (tsc == null) {
 
             return null;
         }
@@ -747,7 +747,7 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
         List<Timer> timers = tsc.getAnnouncedTimerList();
         for (Timer annTimer : timers) {
 
-            if ( annTimer.getObjectPath().equals(objectPath) ) {
+            if (annTimer.getObjectPath().equals(objectPath)) {
 
                 return annTimer;
             }
@@ -762,7 +762,7 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
     public void printTimer(String key, String objectPath) {
 
         Timer timer = findTimer(key, objectPath);
-        if ( timer == null ) {
+        if (timer == null) {
 
             Log.w(TAG, "Timer not found");
             return;
@@ -771,21 +771,15 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
         try {
 
             String[] descLangs = timer.retrieveDescriptionLanguages();
-            String lang        = "";
+            String lang = "";
 
-            if ( descLangs != null ) {
+            if (descLangs != null) {
 
                 lang = descLangs.length > 0 ? descLangs[0] : "";
             }
 
-            Log.d(TAG, String.format("Timer: Interval: '%s', IsRunning: '%s', Repeat: '%s', TimeLeft: '%s', "
-                                        + " Title: '%s', Description: '%s'",
-                        timer.retrieveInterval(),
-                        timer.retrieveIsRunning(),
-                        timer.retrieveRepeat(),
-                        timer.retrieveTimeLeft(),
-                        timer.retrieveTitle(),
-                        lang.length() > 0 ? timer.retrieveObjectDescription(lang) : ""));
+            Log.d(TAG, String.format("Timer: Interval: '%s', IsRunning: '%s', Repeat: '%s', TimeLeft: '%s', " + " Title: '%s', Description: '%s'", timer.retrieveInterval(), timer.retrieveIsRunning(),
+                    timer.retrieveRepeat(), timer.retrieveTimeLeft(), timer.retrieveTitle(), lang.length() > 0 ? timer.retrieveObjectDescription(lang) : ""));
 
         } catch (TimeServiceException tse) {
 
@@ -795,6 +789,7 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
     /**
      * Set timer
+     * 
      * @param key
      * @param objectPath
      * @param interval
@@ -804,17 +799,16 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
     public void setTimer(String key, String objectPath, String interval, String repeat, String title) {
 
         Timer timer = findTimer(key, objectPath);
-        if ( timer == null ) {
+        if (timer == null) {
 
             Log.w(TAG, "Timer not found");
             return;
         }
 
-        if ( interval != null ) {
+        if (interval != null) {
 
             String[] parts = interval.split(":");
-            Period period  = new Period(Integer.parseInt(parts[0]), Byte.parseByte(parts[1]), Byte.parseByte(parts[2]),
-                                            (short) 0);
+            Period period = new Period(Integer.parseInt(parts[0]), Byte.parseByte(parts[1]), Byte.parseByte(parts[2]), (short) 0);
 
             try {
 
@@ -825,11 +819,11 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
             }
         }
 
-        if ( repeat != null ) {
+        if (repeat != null) {
 
             try {
                 short repeatSh = Short.parseShort(repeat);
-                repeatSh       = repeatSh == -1 ? org.allseen.timeservice.ajinterfaces.Timer.REPEAT_FOREVER : repeatSh;
+                repeatSh = repeatSh == -1 ? org.allseen.timeservice.ajinterfaces.Timer.REPEAT_FOREVER : repeatSh;
 
                 timer.setRepeat(repeatSh);
             } catch (Exception e) {
@@ -838,7 +832,7 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
             }
         }
 
-        if ( title != null ) {
+        if (title != null) {
 
             try {
 
@@ -852,13 +846,14 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
     /**
      * Register Timer signal handler
+     * 
      * @param key
      * @param objectPath
      */
     public void regTimerHandler(String key, String objectPath) {
 
         Timer timer = findTimer(key, objectPath);
-        if ( timer == null ) {
+        if (timer == null) {
 
             Log.w(TAG, "Timer not found");
             return;
@@ -874,21 +869,21 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
             @Override
             public void handleRunStateChanged(Timer timer, boolean isRunning) {
 
-                Log.i(TAG, "Received 'RunStateChanged' signal from the timer: '" + timer.getObjectPath() +
-                                "', IsRunning: '" + isRunning + "'");
+                Log.i(TAG, "Received 'RunStateChanged' signal from the timer: '" + timer.getObjectPath() + "', IsRunning: '" + isRunning + "'");
             }
         });
     }
 
     /**
      * Unregister Timer signal handler
+     * 
      * @param key
      * @param objectPath
      */
     public void unRegTimerHandler(String key, String objectPath) {
 
         Timer timer = findTimer(key, objectPath);
-        if ( timer == null ) {
+        if (timer == null) {
 
             Log.w(TAG, "Timer not found");
             return;
@@ -899,13 +894,14 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
     /**
      * Start the Timer
+     * 
      * @param key
      * @param objectPath
      */
     public void timerStart(String key, String objectPath) {
 
         Timer timer = findTimer(key, objectPath);
-        if ( timer == null ) {
+        if (timer == null) {
 
             Log.w(TAG, "Timer not found");
             return;
@@ -922,13 +918,14 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
     /**
      * Pause the Timer
+     * 
      * @param key
      * @param objectPath
      */
     public void timerPause(String key, String objectPath) {
 
         Timer timer = findTimer(key, objectPath);
-        if ( timer == null ) {
+        if (timer == null) {
 
             Log.w(TAG, "Timer not found");
             return;
@@ -945,13 +942,14 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
     /**
      * Reset the Timer
+     * 
      * @param key
      * @param objectPath
      */
     public void timerReset(String key, String objectPath) {
 
         Timer timer = findTimer(key, objectPath);
-        if ( timer == null ) {
+        if (timer == null) {
 
             Log.w(TAG, "Timer not found");
             return;
@@ -968,6 +966,7 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
     /**
      * Find Timer Factory
+     * 
      * @param key
      * @param objectPath
      * @return {@link Alarm}
@@ -975,7 +974,7 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
     public TimerFactory findTimerFactory(String key, String objectPath) {
 
         TimeServiceClient tsc = timeClients.get(key);
-        if ( tsc == null ) {
+        if (tsc == null) {
 
             return null;
         }
@@ -983,7 +982,7 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
         List<TimerFactory> timerFactories = tsc.getAnnouncedTimerFactoryList();
         for (TimerFactory factory : timerFactories) {
 
-            if ( factory.getObjectPath().equals(objectPath) ) {
+            if (factory.getObjectPath().equals(objectPath)) {
 
                 return factory;
             }
@@ -994,14 +993,17 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
     /**
      * Create new {@link Timer} with the {@link TimerFactory}
-     * @param key device
-     * @param objectPath {@link TimerFactory} object path
+     * 
+     * @param key
+     *            device
+     * @param objectPath
+     *            {@link TimerFactory} object path
      */
     public void newTimer(String key, String objectPath) {
 
         TimerFactory factory = findTimerFactory(key, objectPath);
 
-        if ( factory == null ) {
+        if (factory == null) {
 
             Log.w(TAG, "Timer Factory not found");
             return;
@@ -1019,23 +1021,26 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
     /**
      * Delete {@link Timer} of the {@link TimerFactory}
-     * @param key device
-     * @param objectPath {@link TimerFactory} object path
-     * @param timerToDeleteObjPath Object path of the {@link Alarm} to be deleted
+     * 
+     * @param key
+     *            device
+     * @param objectPath
+     *            {@link TimerFactory} object path
+     * @param timerToDeleteObjPath
+     *            Object path of the {@link Alarm} to be deleted
      */
     public void deleteTimer(String key, String objectPath, String timerToDeleteObjPath) {
 
         TimerFactory factory = findTimerFactory(key, objectPath);
 
         Timer deletedTimer = createdTimers.get(timerToDeleteObjPath);
-        if ( deletedTimer == null ) {
+        if (deletedTimer == null) {
 
             Log.w(TAG, "Timer to be deleted is not found, objPath: '" + timerToDeleteObjPath + "'");
             return;
         }
 
-
-        if ( factory == null ) {
+        if (factory == null) {
 
             Log.w(TAG, "Timer Factory not found");
             return;
@@ -1053,14 +1058,17 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
 
     /**
      * Retrieve {@link Timer} objects of the given {@link TimerFactory}
-     * @param key device
-     * @param objectPath {@link TimerFactory}
+     * 
+     * @param key
+     *            device
+     * @param objectPath
+     *            {@link TimerFactory}
      */
     public void getTimers(String key, String objectPath) {
 
         TimerFactory factory = findTimerFactory(key, objectPath);
 
-        if ( factory == null ) {
+        if (factory == null) {
 
             Log.w(TAG, "Timer Factory not found");
             return;
@@ -1091,10 +1099,9 @@ public class TestClient implements AnnouncementHandler, SessionListenerHandler {
         Time t = new Time(Time.getCurrentTimezone());
         t.setToNow();
 
-        byte seconds = (byte) ((t.second > 59) ? 59 :  t.second);
+        byte seconds = (byte) ((t.second > 59) ? 59 : t.second);
 
-        return  new org.allseen.timeservice.Time((byte)t.hour, (byte) t.minute,
-                                                seconds, (short)0);
+        return new org.allseen.timeservice.Time((byte) t.hour, (byte) t.minute, seconds, (short) 0);
     }
 
     /**

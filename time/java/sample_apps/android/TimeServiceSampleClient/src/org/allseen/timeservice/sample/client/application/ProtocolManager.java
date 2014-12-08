@@ -16,8 +16,7 @@
 
 package org.allseen.timeservice.sample.client.application;
 
-import org.alljoyn.about.AboutService;
-import org.alljoyn.about.AboutServiceImpl;
+import org.alljoyn.bus.AboutListener;
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.SessionOpts;
 import org.alljoyn.bus.Status;
@@ -25,14 +24,15 @@ import org.alljoyn.bus.alljoyn.DaemonInit;
 import org.alljoyn.services.android.security.AuthPasswordHandler;
 import org.alljoyn.services.android.security.SrpAnonymousKeyListener;
 import org.alljoyn.services.android.utils.AndroidLogger;
-import org.alljoyn.services.common.AnnouncementHandler;
 import org.allseen.timeservice.TimeServiceConst;
 
 import android.content.Context;
 import android.util.Log;
 
 /**
- * Initializes an Alljoyn daemon and manages a list of AllJoyn devices the daemon is announced on. This class will also enable the user to connect Alljoyn bus attachment and disconnect from it.
+ * Initializes an Alljoyn daemon and manages a list of AllJoyn devices the
+ * daemon is announced on. This class will also enable the user to connect
+ * Alljoyn bus attachment and disconnect from it.
  */
 public class ProtocolManager {
     private static final String TAG = "ProtocolManager";
@@ -64,12 +64,7 @@ public class ProtocolManager {
     /**
      * Announce handler.
      */
-    private AnnouncementHandler announcementHandler;
-
-    /**
-     * Alljoyn about service, needed to receive announcements from available Alljoyn devices.
-     */
-    private AboutService aboutService = null;
+    private AboutListener announcementHandler;
 
     /**
      * String for Alljoyn daemon to be advertised with.
@@ -78,11 +73,11 @@ public class ProtocolManager {
 
     /**
      * Initialize the device list and starts the Alljoyn daemon.
-     *
+     * 
      * @param context
      *            Android application context
      */
-    protected void init(Context context, AnnouncementHandler announceHandler) {
+    protected void init(Context context, AboutListener announceHandler) {
         Log.i(TAG, "init");
         this.context = context;
         this.announcementHandler = announceHandler;
@@ -92,10 +87,8 @@ public class ProtocolManager {
     }
 
     /**
-     * Creates new busAttachment, connects it.
-     * Register authListener on the bus.
-     * Starts about service client.
-     * Registers the announce handler.
+     * Creates new busAttachment, connects it. Register authListener on the bus.
+     * Starts about service client. Registers the announce handler.
      */
     public void connectToBus() {
         Log.i(TAG, "connectToBus");
@@ -130,9 +123,8 @@ public class ProtocolManager {
         }
 
         try {
-            aboutService = AboutServiceImpl.getInstance();
-            aboutService.startAboutClient(busAttachment);
-            aboutService.addAnnouncementHandler(announcementHandler, new String[] { TimeServiceConst.IFNAME_PREFIX + "*" });
+            busAttachment.registerAboutListener(announcementHandler);
+            busAttachment.whoImplements(new String[] { TimeServiceConst.IFNAME_PREFIX + "*" });
 
             // Add authentication listener - needed for TimeService secure calls
             String keyStoreFileName = context.getFileStreamPath("alljoyn_keystore").getAbsolutePath();
@@ -164,18 +156,19 @@ public class ProtocolManager {
     }
 
     /**
-     * Remove Match from Alljoyn bus attachment, Stop about client and cancel bus advertise name.
+     * Remove Match from Alljoyn bus attachment, Stop about client and cancel
+     * bus advertise name.
      */
     public void disconnectFromBus() {
         Log.i(TAG, "disconnectFromBus");
         /*
-         * It is important to unregister the BusObject before disconnecting from the bus. Failing to do so could result in a resource leak.
+         * It is important to unregister the BusObject before disconnecting from
+         * the bus. Failing to do so could result in a resource leak.
          */
         try {
             if (busAttachment != null && busAttachment.isConnected()) {
-                if (aboutService != null) {
-                    aboutService.stopAboutClient();
-                }
+                busAttachment.cancelWhoImplements(new String[] { TimeServiceConst.IFNAME_PREFIX + "*" });
+                busAttachment.unregisterAboutListener(announcementHandler);
                 busAttachment.cancelAdvertiseName(DAEMON_QUIET_PREFIX + daemonName, SessionOpts.TRANSPORT_ANY);
                 busAttachment.releaseName(daemonName);
                 busAttachment.disconnect();
@@ -190,7 +183,7 @@ public class ProtocolManager {
     }
 
     /**
-     *
+     * 
      * @return true if the bus is connected.
      */
     public boolean isConnectedToBus() {
@@ -203,7 +196,7 @@ public class ProtocolManager {
     }
 
     /**
-     *
+     * 
      * @return the busAttachment.
      */
     public BusAttachment getBusAttachment() {

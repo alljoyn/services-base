@@ -23,11 +23,11 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.alljoyn.about.AboutKeys;
+import org.alljoyn.bus.AboutListener;
+import org.alljoyn.bus.AboutObjectDescription;
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.Variant;
-import org.alljoyn.services.common.AnnouncementHandler;
-import org.alljoyn.services.common.BusObjectDescription;
 import org.alljoyn.services.common.utils.TransportUtil;
 import org.allseen.timeservice.client.Alarm;
 import org.allseen.timeservice.client.Alarm.AlarmHandler;
@@ -44,14 +44,15 @@ import android.util.Log;
 
 /**
  * Manages the devices 'seen' by the application.
- *
- * Implements the AnnouncementHandler to receive Announcement of timer service type {@link ProtocolManager#TIMER_INTERFACE}
- *
- *
+ * 
+ * Implements the AnnouncementHandler to receive Announcement of timer service
+ * type {@link ProtocolManager#TIMER_INTERFACE}
+ * 
+ * 
  */
-public class DeviceManager implements AnnouncementHandler {
+public class DeviceManager implements AboutListener {
 
-    private static final  String TAG = "DeviceManager";
+    private static final String TAG = "DeviceManager";
 
     /**
      * stores the context.
@@ -84,7 +85,8 @@ public class DeviceManager implements AnnouncementHandler {
     }
 
     /**
-     * Wrapper class to handle Timer signals {@link TimerHandler} Sends internal broadcast messages .
+     * Wrapper class to handle Timer signals {@link TimerHandler} Sends internal
+     * broadcast messages .
      */
     public static class TimerHandlerImpl extends SignalObject implements TimerHandler {
 
@@ -115,7 +117,8 @@ public class DeviceManager implements AnnouncementHandler {
     }
 
     /**
-     * Wrapper class to handle Alarm signals {@link AlarmHandler} Sends internal broadcast messages .
+     * Wrapper class to handle Alarm signals {@link AlarmHandler} Sends internal
+     * broadcast messages .
      */
     public static class AlarmHandlerImpl extends SignalObject implements AlarmHandler {
 
@@ -135,7 +138,8 @@ public class DeviceManager implements AnnouncementHandler {
     }
 
     /**
-     * Wrapper class to handle TimeAuthority signals {@link TimeAuthorityHandlerImpl} Sends internal broadcast messages .
+     * Wrapper class to handle TimeAuthority signals
+     * {@link TimeAuthorityHandlerImpl} Sends internal broadcast messages .
      */
     public static class TimeAuthorityHandlerImpl extends SignalObject implements TimeAuthorityHandler {
 
@@ -171,7 +175,9 @@ public class DeviceManager implements AnnouncementHandler {
         public TimeServiceClient timeServiceClient;
 
         /**
-         * stores the a map of TimerSerivce elements objectPath to SignalWrapper. used to extract information about TimerSerivce elements and store information whether the TimerSerivce element is
+         * stores the a map of TimerSerivce elements objectPath to
+         * SignalWrapper. used to extract information about TimerSerivce
+         * elements and store information whether the TimerSerivce element is
          * registered to receive a signal .
          */
         private final Map<String, SignalObject> signallHandlerMap = new HashMap<String, SignalObject>();
@@ -194,7 +200,8 @@ public class DeviceManager implements AnnouncementHandler {
     }
 
     /**
-     * stores list of {@link DeviceManagerNotifier} to be notified about changes in {@link DeviceManager#devicesMap}
+     * stores list of {@link DeviceManagerNotifier} to be notified about changes
+     * in {@link DeviceManager#devicesMap}
      */
     private final List<DeviceManagerNotifier> deviceManagerNotifierList = new ArrayList<DeviceManagerNotifier>();
 
@@ -204,14 +211,14 @@ public class DeviceManager implements AnnouncementHandler {
         }
     }
 
-    public  synchronized void unRegisterDeviceManagerNotifier(DeviceManagerNotifier pNotifier) {
+    public synchronized void unRegisterDeviceManagerNotifier(DeviceManagerNotifier pNotifier) {
         if (deviceManagerNotifierList.contains(pNotifier)) {
             deviceManagerNotifierList.remove(pNotifier);
         }
     }
 
     /**
-     *
+     * 
      * @param context
      */
     public void init(Context context) {
@@ -219,20 +226,24 @@ public class DeviceManager implements AnnouncementHandler {
     }
 
     /**
-     * Handles onAnnouncement call back.
-     *
+     * Handles announced call back of AboutListener.
+     * 
      * Extract from the About the following
      * <ul>
      * <li>AppID {@link AboutKeys#ABOUT_APP_ID}
      * <li>DeviceID {@link AboutKeys#ABOUT_DEVICE_ID}
      * <li>DeviceName {@link AboutKeys#ABOUT_DEVICE_NAME}
      * </ul>
-     *
-     * If AppID exists in {@link DeviceManager#devicesMap} call {@link TimeServiceClient#release()} on the device's timerServiceClient ,replace with new {@link TimeServiceClient}. <br>
-     * If AppID doesn't exists in {@link DeviceManager#devicesMap} create new {@link DeviceManager.Device} create new {@link TimeServiceClient} inside the {@link DeviceManager.Device}.
+     * 
+     * If AppID exists in {@link DeviceManager#devicesMap} call
+     * {@link TimeServiceClient#release()} on the device's timerServiceClient
+     * ,replace with new {@link TimeServiceClient}. <br>
+     * If AppID doesn't exists in {@link DeviceManager#devicesMap} create new
+     * {@link DeviceManager.Device} create new {@link TimeServiceClient} inside
+     * the {@link DeviceManager.Device}.
      */
     @Override
-    public void onAnnouncement(final String serviceName, final short port, final BusObjectDescription[] objectDescriptions, final Map<String, Variant> serviceMetadata) {
+    public void announced(final String serviceName, final int version, final short port, final AboutObjectDescription[] objectDescriptions, final Map<String, Variant> serviceMetadata) {
         Log.i(TAG, "onAnnouncement ");
         UUID appId;
         String deviceName;
@@ -277,12 +288,13 @@ public class DeviceManager implements AnnouncementHandler {
 
     /**
      * Handles onDeviceLost callback.
-     *
+     * 
      * @param servicename
-     *            used to compare with {@link DeviceManager.Device#serviceName} while traversing {@link DeviceManager#devicesMap} Delete from {@link DeviceManager#devicesMap} ,notify
+     *            used to compare with {@link DeviceManager.Device#serviceName}
+     *            while traversing {@link DeviceManager#devicesMap} Delete from
+     *            {@link DeviceManager#devicesMap} ,notify
      *            {@link DeviceManager#deviceManagerNotifierList}
      */
-    @Override
     public synchronized void onDeviceLost(String servicename) {
 
         Log.i(TAG, "onDeviceLost = " + servicename);
@@ -304,7 +316,6 @@ public class DeviceManager implements AnnouncementHandler {
                 deviceManagerNotifierList.get(i).devicesHaveBeenChanged();
             }
         }
-
 
     }
 
