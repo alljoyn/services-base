@@ -25,7 +25,9 @@ import java.util.UUID;
 import org.alljoyn.about.AboutKeys;
 import org.alljoyn.bus.AboutObj;
 import org.alljoyn.bus.BusAttachment;
+import org.alljoyn.bus.Mutable.ShortValue;
 import org.alljoyn.bus.SessionOpts;
+import org.alljoyn.bus.SessionPortListener;
 import org.alljoyn.bus.Status;
 import org.alljoyn.bus.alljoyn.DaemonInit;
 import org.alljoyn.ns.Notification;
@@ -79,6 +81,11 @@ public class IoeNotificationApplication extends Application implements Notificat
      * About service
      */
     private AboutObj aboutObj;
+
+    /**
+     * The application announced port
+     */
+    private static final short ANNOUNCED_PORT = 1080;
 
     /**
      * PropertyStore
@@ -207,6 +214,8 @@ public class IoeNotificationApplication extends Application implements Notificat
     /**
      * called when checking the Producer checkbox
      * 
+     * @throws Exception
+     * 
      * @throws NotificationServiceException
      */
     public void startSender() {
@@ -215,6 +224,21 @@ public class IoeNotificationApplication extends Application implements Notificat
             if (bus == null) {
                 Log.i(TAG, "Initializing AllJoyn");
                 prepareAJ();
+            }
+
+            SessionOpts sessionOpts = new SessionOpts();
+            sessionOpts.traffic = SessionOpts.TRAFFIC_MESSAGES;
+            sessionOpts.isMultipoint = false;
+            sessionOpts.proximity = SessionOpts.PROXIMITY_ANY;
+            sessionOpts.transports = SessionOpts.TRANSPORT_ANY;
+            Status status = bus.bindSessionPort(new ShortValue(ANNOUNCED_PORT), sessionOpts, new SessionPortListener() {
+                @Override
+                public boolean acceptSessionJoiner(short sessionPort, String joiner, SessionOpts opts) {
+                    return sessionPort == ANNOUNCED_PORT;
+                }
+            });
+            if (status != Status.OK) {
+                throw new NotificationServiceException("Failed to bind ANNOUNCED_PORT, Status: '" + status + "'");
             }
 
             // ////start about
@@ -233,7 +257,10 @@ public class IoeNotificationApplication extends Application implements Notificat
             // //////end about
 
             notificationSender = notificationService.initSend(bus, propertyStore);
-            aboutObj.announce((short) 1080, propertyStore);
+            status = aboutObj.announce(ANNOUNCED_PORT, propertyStore);
+            if (status != Status.OK) {
+                throw new NotificationServiceException("Failed to send announcement, Status: '" + status + "'");
+            }
             isSenderStarted = true;
         } catch (PropertyStoreException pse) {
             Log.e(TAG, "Failed on startSender - Failed to store sender settings in the PropertyStore, Error: '" + pse.getMessage() + "'");
@@ -411,6 +438,7 @@ public class IoeNotificationApplication extends Application implements Notificat
             notificationService.shutdownSender();
             aboutObj.unannounce();
             aboutObj = null;
+            bus.unbindSessionPort(ANNOUNCED_PORT);
             isSenderStarted = false;
         } catch (NotificationServiceException nse) {
             Log.e(TAG, "Failed on stopping the sender service, Error: " + nse.getMessage());
