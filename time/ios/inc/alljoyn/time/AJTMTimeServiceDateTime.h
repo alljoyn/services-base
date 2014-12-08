@@ -14,6 +14,11 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+/**
+ * This class is experimental, and as such has not been tested.
+ * Please help make it more robust by contributing fixes if you find issues
+ **/
+
 #import <Foundation/Foundation.h>
 #import "AJTMTimeServiceDate.h"
 #import "AJTMTimeServiceTime.h"
@@ -40,7 +45,7 @@
  * @return ER_OK if the object was initialized successfully and valid arguments have been passed to this method,
  * otherwise ER_BAD_ARGUMENT of the appropriate argument is returned
  */
--(QStatus)initWithDate:(AJTMTimeServiceDate*) date time:(AJTMTimeServiceTime*) time offsetMinutes:(int16_t) offsetMinutes;
+-(QStatus)populateWithDate:(AJTMTimeServiceDate*) date time:(AJTMTimeServiceTime*) time offsetMinutes:(int16_t) offsetMinutes;
 
 /**
  * Checks whether data of the object is valid, the object variables have a correct values, date and time are valid

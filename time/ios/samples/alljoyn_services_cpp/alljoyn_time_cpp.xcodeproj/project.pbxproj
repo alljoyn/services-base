@@ -100,7 +100,6 @@
 		19375C5119FE62E800689ADD /* TimeServiceServerTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeServiceServerTimer.h; path = ../../../../cpp/inc/alljoyn/time/TimeServiceServerTimer.h; sourceTree = "<group>"; };
 		19375C5219FE62E800689ADD /* TimeServiceServerTimerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeServiceServerTimerFactory.h; path = ../../../../cpp/inc/alljoyn/time/TimeServiceServerTimerFactory.h; sourceTree = "<group>"; };
 		19375C5319FE62E800689ADD /* TimeServiceSessionListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeServiceSessionListener.h; path = ../../../../cpp/inc/alljoyn/time/TimeServiceSessionListener.h; sourceTree = "<group>"; };
-		19375C5419FE62E800689ADD /* TimeServiceSignalHandlerInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeServiceSignalHandlerInterface.h; path = ../../../../cpp/inc/alljoyn/time/TimeServiceSignalHandlerInterface.h; sourceTree = "<group>"; };
 		19375C5519FE62E800689ADD /* TimeServiceTimerBusObj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeServiceTimerBusObj.h; path = ../../../../cpp/inc/alljoyn/time/TimeServiceTimerBusObj.h; sourceTree = "<group>"; };
 		19375C5619FE62E800689ADD /* TimeServiceDate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeServiceDate.h; path = ../../../../cpp/inc/alljoyn/time/TimeServiceDate.h; sourceTree = "<group>"; };
 		19375C5719FE62E800689ADD /* TimeServiceDateTime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TimeServiceDateTime.h; path = ../../../../cpp/inc/alljoyn/time/TimeServiceDateTime.h; sourceTree = "<group>"; };
@@ -312,7 +311,6 @@
 				19375C5119FE62E800689ADD /* TimeServiceServerTimer.h */,
 				19375C5219FE62E800689ADD /* TimeServiceServerTimerFactory.h */,
 				19375C5319FE62E800689ADD /* TimeServiceSessionListener.h */,
-				19375C5419FE62E800689ADD /* TimeServiceSignalHandlerInterface.h */,
 				19375C5519FE62E800689ADD /* TimeServiceTimerBusObj.h */,
 				19375C5619FE62E800689ADD /* TimeServiceDate.h */,
 				19375C5719FE62E800689ADD /* TimeServiceDateTime.h */,

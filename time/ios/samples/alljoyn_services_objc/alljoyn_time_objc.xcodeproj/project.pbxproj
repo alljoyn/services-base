@@ -28,9 +28,7 @@
 		19375D7619FFE3A500689ADD /* AJTMTimeServiceClientAlarmFactory.mm in Sources */ = {isa = PBXBuildFile; fileRef = 19375D7419FFE3A500689ADD /* AJTMTimeServiceClientAlarmFactory.mm */; };
 		19375D791A0231CE00689ADD /* AJTMTimeServiceServerClockBase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 19375D781A0231CE00689ADD /* AJTMTimeServiceServerClockBase.mm */; };
 		9AA935ED1854BC2B00378361 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AA935EC1854BC2B00378361 /* Foundation.framework */; };
-		9AA935FB1854BC2B00378361 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AA935FA1854BC2B00378361 /* XCTest.framework */; };
 		9AA935FC1854BC2B00378361 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AA935EC1854BC2B00378361 /* Foundation.framework */; };
-		9AA935FE1854BC2B00378361 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AA935FD1854BC2B00378361 /* UIKit.framework */; };
 		9AA936011854BC2B00378361 /* liballjoyn_time_objc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AA935E91854BC2B00378361 /* liballjoyn_time_objc.a */; };
 		9AA936071854BC2B00378361 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9AA936051854BC2B00378361 /* InfoPlist.strings */; };
 		9AA936091854BC2B00378361 /* alljoyn_services_objcTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AA936081854BC2B00378361 /* alljoyn_services_objcTests.m */; };
@@ -41,6 +39,11 @@
 		9AB9AC581A18BFE100A236E3 /* AJTMTimeServiceServerTimerFactoryBase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9AB9AC571A18BFE100A236E3 /* AJTMTimeServiceServerTimerFactoryBase.mm */; };
 		9AB9AC621A1B708B00A236E3 /* AJTMTimeServiceServerTimeAuthorityAdapter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9AB9AC611A1B708B00A236E3 /* AJTMTimeServiceServerTimeAuthorityAdapter.mm */; };
 		9AB9AC651A1B765600A236E3 /* AJTMTimeServiceServerTimeAuthorityBase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9AB9AC641A1B765600A236E3 /* AJTMTimeServiceServerTimeAuthorityBase.mm */; };
+		9AB9AC841A24A2DD00A236E3 /* AJTMTimeServiceSessionListenerAdapter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9AB9AC831A24A2DD00A236E3 /* AJTMTimeServiceSessionListenerAdapter.mm */; };
+		9AB9AC8B1A24B11F00A236E3 /* AJTMTimeServiceClientAlarm.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9AB9AC881A24B11F00A236E3 /* AJTMTimeServiceClientAlarm.mm */; };
+		9AB9AC8C1A24B11F00A236E3 /* AJTMTimeServiceClientClock.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9AB9AC891A24B11F00A236E3 /* AJTMTimeServiceClientClock.mm */; };
+		9AB9AC8D1A24B11F00A236E3 /* AJTMTimeServiceClientTimer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9AB9AC8A1A24B11F00A236E3 /* AJTMTimeServiceClientTimer.mm */; };
+		9AB9AC901A24B56E00A236E3 /* AJTMTimeServiceObjectIntrospector.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9AB9AC8F1A24B56E00A236E3 /* AJTMTimeServiceObjectIntrospector.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -93,7 +96,6 @@
 		19375D2B19FE65BB00689ADD /* AJTMTimeServiceServerAlarmFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AJTMTimeServiceServerAlarmFactory.h; path = time/AJTMTimeServiceServerAlarmFactory.h; sourceTree = "<group>"; };
 		19375D2C19FE65BB00689ADD /* AJTMTimeServiceServerAuthorityClock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AJTMTimeServiceServerAuthorityClock.h; path = time/AJTMTimeServiceServerAuthorityClock.h; sourceTree = "<group>"; };
 		19375D2D19FE65BB00689ADD /* AJTMTimeServiceServerClock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AJTMTimeServiceServerClock.h; path = time/AJTMTimeServiceServerClock.h; sourceTree = "<group>"; };
-		19375D2E19FE65BB00689ADD /* AJTMTimeServiceServerTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AJTMTimeServiceServerTimer.h; path = time/AJTMTimeServiceServerTimer.h; sourceTree = "<group>"; };
 		19375D2F19FE65BB00689ADD /* AJTMTimeServiceServerTimerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AJTMTimeServiceServerTimerFactory.h; path = time/AJTMTimeServiceServerTimerFactory.h; sourceTree = "<group>"; };
 		19375D3019FE65BB00689ADD /* AJTMTimeServiceTime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AJTMTimeServiceTime.h; path = time/AJTMTimeServiceTime.h; sourceTree = "<group>"; };
 		19375D3119FE65BB00689ADD /* AJTMTimeServiceTimerBusObj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AJTMTimeServiceTimerBusObj.h; path = time/AJTMTimeServiceTimerBusObj.h; sourceTree = "<group>"; };
@@ -110,12 +112,11 @@
 		19375D771A0231CE00689ADD /* AJTMTimeServiceServerClockBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AJTMTimeServiceServerClockBase.h; path = time/AJTMTimeServiceServerClockBase.h; sourceTree = "<group>"; };
 		19375D781A0231CE00689ADD /* AJTMTimeServiceServerClockBase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AJTMTimeServiceServerClockBase.mm; path = time/AJTMTimeServiceServerClockBase.mm; sourceTree = "<group>"; };
 		19375D7A1A024C1400689ADD /* AJTMTimeServiceServerClockAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AJTMTimeServiceServerClockAdapter.h; path = time/AJTMTimeServiceServerClockAdapter.h; sourceTree = "<group>"; };
+		9A5B2F361A272E2E00505A46 /* AJTMTimeServiceSessionListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AJTMTimeServiceSessionListener.h; path = time/AJTMTimeServiceSessionListener.h; sourceTree = "<group>"; };
 		9AA935E91854BC2B00378361 /* liballjoyn_time_objc.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liballjoyn_time_objc.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AA935EC1854BC2B00378361 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		9AA935F01854BC2B00378361 /* alljoyn_time_objc-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "alljoyn_time_objc-Prefix.pch"; sourceTree = "<group>"; };
 		9AA935F91854BC2B00378361 /* alljoyn_time_objcTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = alljoyn_time_objcTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		9AA935FA1854BC2B00378361 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
-		9AA935FD1854BC2B00378361 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		9AA936041854BC2B00378361 /* alljoyn_time_objcTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "alljoyn_time_objcTests-Info.plist"; sourceTree = "<group>"; };
 		9AA936061854BC2B00378361 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		9AA936081854BC2B00378361 /* alljoyn_services_objcTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = alljoyn_services_objcTests.m; sourceTree = "<group>"; };
@@ -136,6 +137,16 @@
 		9AB9AC611A1B708B00A236E3 /* AJTMTimeServiceServerTimeAuthorityAdapter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AJTMTimeServiceServerTimeAuthorityAdapter.mm; sourceTree = "<group>"; };
 		9AB9AC631A1B765600A236E3 /* AJTMTimeServiceServerTimeAuthorityBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AJTMTimeServiceServerTimeAuthorityBase.h; path = time/AJTMTimeServiceServerTimeAuthorityBase.h; sourceTree = "<group>"; };
 		9AB9AC641A1B765600A236E3 /* AJTMTimeServiceServerTimeAuthorityBase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AJTMTimeServiceServerTimeAuthorityBase.mm; path = time/AJTMTimeServiceServerTimeAuthorityBase.mm; sourceTree = "<group>"; };
+		9AB9AC7B1A2486C100A236E3 /* AJTMTimeServiceClientClock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AJTMTimeServiceClientClock.h; path = time/AJTMTimeServiceClientClock.h; sourceTree = "<group>"; };
+		9AB9AC7C1A2486D200A236E3 /* AJTMTimeServiceClientAlarm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AJTMTimeServiceClientAlarm.h; path = time/AJTMTimeServiceClientAlarm.h; sourceTree = "<group>"; };
+		9AB9AC7D1A2486E600A236E3 /* AJTMTimeServiceClientTimer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AJTMTimeServiceClientTimer.h; path = time/AJTMTimeServiceClientTimer.h; sourceTree = "<group>"; };
+		9AB9AC821A24A24A00A236E3 /* AJTMTimeServiceSessionListenerAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AJTMTimeServiceSessionListenerAdapter.h; path = time/AJTMTimeServiceSessionListenerAdapter.h; sourceTree = "<group>"; };
+		9AB9AC831A24A2DD00A236E3 /* AJTMTimeServiceSessionListenerAdapter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AJTMTimeServiceSessionListenerAdapter.mm; sourceTree = "<group>"; };
+		9AB9AC881A24B11F00A236E3 /* AJTMTimeServiceClientAlarm.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AJTMTimeServiceClientAlarm.mm; sourceTree = "<group>"; };
+		9AB9AC891A24B11F00A236E3 /* AJTMTimeServiceClientClock.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AJTMTimeServiceClientClock.mm; sourceTree = "<group>"; };
+		9AB9AC8A1A24B11F00A236E3 /* AJTMTimeServiceClientTimer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AJTMTimeServiceClientTimer.mm; sourceTree = "<group>"; };
+		9AB9AC8E1A24B32700A236E3 /* AJTMTimeServiceObjectIntrospector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AJTMTimeServiceObjectIntrospector.h; path = time/AJTMTimeServiceObjectIntrospector.h; sourceTree = "<group>"; };
+		9AB9AC8F1A24B56E00A236E3 /* AJTMTimeServiceObjectIntrospector.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AJTMTimeServiceObjectIntrospector.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -151,9 +162,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9AA935FB1854BC2B00378361 /* XCTest.framework in Frameworks */,
 				9AA936011854BC2B00378361 /* liballjoyn_time_objc.a in Frameworks */,
-				9AA935FE1854BC2B00378361 /* UIKit.framework in Frameworks */,
 				9AA935FC1854BC2B00378361 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -232,7 +241,6 @@
 		19375D5D19FFC5D400689ADD /* protocols */ = {
 			isa = PBXGroup;
 			children = (
-				19375D2E19FE65BB00689ADD /* AJTMTimeServiceServerTimer.h */,
 				19375D2F19FE65BB00689ADD /* AJTMTimeServiceServerTimerFactory.h */,
 				19375D2D19FE65BB00689ADD /* AJTMTimeServiceServerClock.h */,
 				19375D2B19FE65BB00689ADD /* AJTMTimeServiceServerAlarmFactory.h */,
@@ -246,10 +254,16 @@
 		19375D5E19FFE1B500689ADD /* client */ = {
 			isa = PBXGroup;
 			children = (
+				9A5B2F361A272E2E00505A46 /* AJTMTimeServiceSessionListener.h */,
 				19375D6219FFE21C00689ADD /* AJTMTimeServiceClient.h */,
 				19375D7219FFE39C00689ADD /* AJTMTimeServiceClientAlarmFactory.h */,
 				19375D6719FFE2A700689ADD /* AJTMTimeServiceClientBase.h */,
 				19375D6F19FFE35400689ADD /* AJTMTimeServiceClientTimerFactory.h */,
+				9AB9AC7B1A2486C100A236E3 /* AJTMTimeServiceClientClock.h */,
+				9AB9AC7C1A2486D200A236E3 /* AJTMTimeServiceClientAlarm.h */,
+				9AB9AC7D1A2486E600A236E3 /* AJTMTimeServiceClientTimer.h */,
+				9AB9AC821A24A24A00A236E3 /* AJTMTimeServiceSessionListenerAdapter.h */,
+				9AB9AC8E1A24B32700A236E3 /* AJTMTimeServiceObjectIntrospector.h */,
 			);
 			name = client;
 			sourceTree = "<group>";
@@ -310,10 +324,15 @@
 		19375D6119FFE1F800689ADD /* client */ = {
 			isa = PBXGroup;
 			children = (
+				9AB9AC881A24B11F00A236E3 /* AJTMTimeServiceClientAlarm.mm */,
+				9AB9AC891A24B11F00A236E3 /* AJTMTimeServiceClientClock.mm */,
+				9AB9AC8A1A24B11F00A236E3 /* AJTMTimeServiceClientTimer.mm */,
 				19375D6519FFE27200689ADD /* AJTMTimeServiceClient.mm */,
 				19375D7419FFE3A500689ADD /* AJTMTimeServiceClientAlarmFactory.mm */,
 				19375D6A19FFE2E300689ADD /* AJTMTimeServiceClientBase.mm */,
 				19375D7319FFE3A500689ADD /* AJTMTimeServiceClientTimerFactory.mm */,
+				9AB9AC831A24A2DD00A236E3 /* AJTMTimeServiceSessionListenerAdapter.mm */,
+				9AB9AC8F1A24B56E00A236E3 /* AJTMTimeServiceObjectIntrospector.mm */,
 			);
 			name = client;
 			sourceTree = "<group>";
@@ -342,8 +361,6 @@
 			isa = PBXGroup;
 			children = (
 				9AA935EC1854BC2B00378361 /* Foundation.framework */,
-				9AA935FA1854BC2B00378361 /* XCTest.framework */,
-				9AA935FD1854BC2B00378361 /* UIKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -474,12 +491,16 @@
 				19375CED19FE64B600689ADD /* AJTMTimeServiceServerTimerAdapter.mm in Sources */,
 				19375CE419FE64B600689ADD /* AJTMTimeServiceAlarmBusObjAdapter.mm in Sources */,
 				19375D7519FFE3A500689ADD /* AJTMTimeServiceClientTimerFactory.mm in Sources */,
+				9AB9AC8C1A24B11F00A236E3 /* AJTMTimeServiceClientClock.mm in Sources */,
+				9AB9AC901A24B56E00A236E3 /* AJTMTimeServiceObjectIntrospector.mm in Sources */,
 				9AB9AC501A18A93900A236E3 /* AJTMTimeServiceServerTimerBase.mm in Sources */,
+				9AB9AC841A24A2DD00A236E3 /* AJTMTimeServiceSessionListenerAdapter.mm in Sources */,
 				19375CEE19FE64B600689ADD /* AJTMTimeServiceServerTimerFactoryAdapter.mm in Sources */,
 				9AB9AC621A1B708B00A236E3 /* AJTMTimeServiceServerTimeAuthorityAdapter.mm in Sources */,
 				19375D6B19FFE2E300689ADD /* AJTMTimeServiceClientBase.mm in Sources */,
 				19375CE719FE64B600689ADD /* AJTMTimeServicePeriod.mm in Sources */,
 				19375CE519FE64B600689ADD /* AJTMTimeServiceDate.mm in Sources */,
+				9AB9AC8B1A24B11F00A236E3 /* AJTMTimeServiceClientAlarm.mm in Sources */,
 				19375CEB19FE64B600689ADD /* AJTMTimeServiceServerAlarmFactoryAdapter.mm in Sources */,
 				19375CE619FE64B600689ADD /* AJTMTimeServiceDateTime.mm in Sources */,
 				9AB9AC521A18BADD00A236E3 /* AJTMTimeServiceTimerBusObjAdapter.mm in Sources */,
@@ -487,6 +508,7 @@
 				19375CEA19FE64B600689ADD /* AJTMTimeServiceServerAlarmAdapter.mm in Sources */,
 				19375CE819FE64B600689ADD /* AJTMTimeServiceSchedule.mm in Sources */,
 				19375D7619FFE3A500689ADD /* AJTMTimeServiceClientAlarmFactory.mm in Sources */,
+				9AB9AC8D1A24B11F00A236E3 /* AJTMTimeServiceClientTimer.mm in Sources */,
 				19375D6619FFE27200689ADD /* AJTMTimeServiceClient.mm in Sources */,
 				19375D5B19FF8B5200689ADD /* AJTMTimeServiceConstants.m in Sources */,
 				9AB9AC651A1B765600A236E3 /* AJTMTimeServiceServerTimeAuthorityBase.mm in Sources */,

@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:../../../services_common/ios/samples/alljoyn_services_cpp/alljoyn_services_common_cpp.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "group:alljoyn_services_objc/alljoyn_time_objc.xcodeproj">
    </FileRef>
    <FileRef

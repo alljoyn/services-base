@@ -14,6 +14,11 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+/**
+ * This class is experimental, and as such has not been tested.
+ * Please help make it more robust by contributing fixes if you find issues
+ **/
+
 #import <Foundation/Foundation.h>
 #import "alljoyn/Status.h"
 #import "alljoyn/time/TimeServiceDate.h"
@@ -34,7 +39,7 @@
  * @return ER_OK if the object was initialized successfully and valid arguments have been passed to this method,
  * otherwise ER_BAD_ARGUMENT status of the appropriate argument is returned
  */
--(QStatus)initWithYear:(uint16_t) year month:(uint8_t) month day:(uint8_t) day;
+-(QStatus)populateWithYear:(uint16_t) year month:(uint8_t) month day:(uint8_t) day;
 
 /**
  * Checks whether data of the object is valid, the object variables have a correct values.

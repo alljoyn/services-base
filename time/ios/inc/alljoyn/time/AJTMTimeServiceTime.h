@@ -14,6 +14,11 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+/**
+ * This class is experimental, and as such has not been tested.
+ * Please help make it more robust by contributing fixes if you find issues
+ **/
+
 #import <Foundation/Foundation.h>
 #import "alljoyn/time/TimeServiceTime.h"
 
@@ -34,7 +39,7 @@
  * @return ER_OK if the object was initialized successfully and valid arguments have been passed to this method,
  * otherwise ER_BAD_ARGUMENT status of the appropriate argument is returned
  */
--(QStatus)initWithHour:(uint8_t) hour minute:(uint8_t) minute second:(uint8_t) second millisecond:(uint16_t) millisecond;
+-(QStatus)populateWithHour:(uint8_t) hour minute:(uint8_t) minute second:(uint8_t) second millisecond:(uint16_t) millisecond;
 
 /**
  * Checks whether data of the object is valid, the object variables have a correct values.
@@ -74,6 +79,6 @@
  */
 -(uint8_t)millisecond;
 
--(ajn::services::TimeServiceTime&)getHandle;
+-(const ajn::services::TimeServiceTime&)getHandle;
 
 @end

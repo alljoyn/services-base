@@ -14,6 +14,11 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+/**
+ * This class is experimental, and as such has not been tested.
+ * Please help make it more robust by contributing fixes if you find issues
+ **/
+
 #import "AJTMTimeServiceDateTime.h"
 #import "alljoyn/time/TimeServiceDateTime.h"
 
@@ -32,7 +37,7 @@
     return self;
 }
 
--(id)initWithHandle:(ajn::services::TimeServiceDateTime*) handle
+-(id)initWithHandle:(const ajn::services::TimeServiceDateTime*) handle
 {
     self = [super init];
     if (self) {
@@ -41,7 +46,7 @@
     return self;
 }
 
--(QStatus)initWithDate:(AJTMTimeServiceDate*) date time:(AJTMTimeServiceTime*) time offsetMinutes:(int16_t) offsetMinutes
+-(QStatus)populateWithDate:(AJTMTimeServiceDate*) date time:(AJTMTimeServiceTime*) time offsetMinutes:(int16_t) offsetMinutes
 {
     return self.handle->init([date getHandle], [time getHandle], offsetMinutes);
 }

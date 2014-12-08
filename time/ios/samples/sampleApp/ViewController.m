@@ -14,6 +14,11 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+/**
+ * This class is experimental, and as such has not been tested.
+ * Please help make it more robust by contributing fixes if you find issues
+ **/
+
 #import "ViewController.h"
 #import "alljoyn/about/AJNAnnouncementReceiver.h"
 #import "alljoyn/about/AJNAboutServiceApi.h"
@@ -26,6 +31,8 @@
 #import "SampleAlarm.h"
 #import "SampleTimer.h"
 #import "alljoyn/time/AJTMTimeServiceConstants.h"
+#import "alljoyn/time/AJTMTimeServiceClient.h"
+#import "alljoyn/time/AJTMTimeServiceClientClock.h"
 
 
 static bool ALLOWREMOTEMESSAGES = true; // About Client -  allow Remote Messages flag
@@ -36,7 +43,7 @@ static NSString *const DAEMON_QUIET_PREFIX = @"quiet@";    //About Client - quie
 static NSString *const DEFAULT_PASSCODE = @"000000";
 static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
 
-@interface ViewController ()
+@interface ViewController () <AJTMTimeServiceSessionListener>
 
 - (IBAction)startServiceButtonDidTouchUpInside:(id)sender;
 @property AJNBusAttachment* bus;
@@ -51,6 +58,13 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
 @property (strong, nonatomic) NSString *uniqueID;
 
 @property (strong, nonatomic) AuthenticationListenerImpl *authenticationListenerImpl;
+
+// About Client properties
+@property (strong, nonatomic) AJNBusAttachment *clientBusAttachment;
+@property (nonatomic) bool isAboutClientConnected;
+@property (strong, nonatomic) NSMutableDictionary *clientInformationDict; // Store the client related information
+
+@property (strong,nonatomic) AJTMTimeServiceClient *timeClient;
 
 //BusAttachment* bus                           = NULL;
 //CommonBusListener* busListener               = NULL;
@@ -68,6 +82,7 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
     self.uniqueID = [[NSUUID UUID] UUIDString];
     self.realmBusName = @"org.alljoyn.BusNode.timeService";
     [self startAboutService];
+    [self startAboutClient];
 }
 
 - (IBAction)startServiceButtonDidTouchUpInside:(id)sender {
@@ -255,7 +270,7 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
 
 
     self.authenticationListenerImpl = [[AuthenticationListenerImpl alloc] init];
-    status = [self enableClientSecurity];
+    status = [self enableServiceSecurity];
 
     if (ER_OK != status) {
         NSLog(@"Failed to enable security on the bus. %@", [AJNStatus descriptionForStatusCode:status]);
@@ -399,83 +414,73 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
 {
     QStatus status;
 
-    NSLog(@"Start About Client");
+    // Create a dictionary to contain announcements using a key in the format of: "announcementUniqueName + announcementObj"
+    self.clientInformationDict = [[NSMutableDictionary alloc] init];
+
+    //    [[AJCFGConfigLogger sharedInstance] debugTag:[[self class] description] text:@"Start About Client"];
 
     // Init AJNBusAttachment
-    self.bus = [[AJNBusAttachment alloc] initWithApplicationName:(APPNAME) allowRemoteMessages:(ALLOWREMOTEMESSAGES)];
+    self.clientBusAttachment = [[AJNBusAttachment alloc] initWithApplicationName:APPNAME allowRemoteMessages:(ALLOWREMOTEMESSAGES)];
 
     // Start AJNBusAttachment
-    status = [self.bus start];
+    status = [self.clientBusAttachment start];
     if (status != ER_OK) {
-        [AppDelegate alertAndLog:@"Failed at AJNBusAttachment start" status:status];
+        [AppDelegate alertAndLog:@"Failed AJNBusAttachment start" status:status];
         [self stopAboutClient];
         return;
     }
 
     // Connect AJNBusAttachment
-    status = [self.bus connectWithArguments:(@"")];
+    status = [self.clientBusAttachment connectWithArguments:@""];
     if (status != ER_OK) {
-        [AppDelegate alertAndLog:@"Failed at AJNBusAttachment connectWithArguments" status:status];
+        [AppDelegate alertAndLog:@"Failed AJNBusAttachment connectWithArguments" status:status];
         [self stopAboutClient];
         return;
     }
 
-    NSLog(@"set aboutClientListener");
 
-    [self.bus registerBusListener:self];
+    [self.clientBusAttachment registerBusListener:self];
 
-    self.announcementReceiver = [[AJNAnnouncementReceiver alloc] initWithAnnouncementListener:self andBus:self.bus];
-    status = [self.announcementReceiver registerAnnouncementReceiverForInterfaces:nil withNumberOfInterfaces:0];
+    self.announcementReceiver = [[AJNAnnouncementReceiver alloc] initWithAnnouncementListener:self andBus:self.clientBusAttachment];
+    const char* interfaces[] = { "org.allseen.Time*" };
+    status = [self.announcementReceiver registerAnnouncementReceiverForInterfaces:interfaces withNumberOfInterfaces:1];
     if (status != ER_OK) {
-        [AppDelegate alertAndLog:@"Failed to register Announcement Receiver" status:status];
+        [AppDelegate alertAndLog:@"Failed to registerAnnouncementReceiver" status:status];
         [self stopAboutClient];
         return;
     }
 
-    //    [AnnouncementManager sharedInstance]; //announcement manager for all no gw annoncement
-
-    // Advertise Daemon for tcl
-    status = [self.bus requestWellKnownName:self.realmBusName withFlags:kAJNBusNameFlagDoNotQueue];
+     // Advertise Daemon for tcl
+    status = [self.clientBusAttachment requestWellKnownName:self.realmBusName withFlags:kAJNBusNameFlagDoNotQueue];
     if (status == ER_OK) {
         // Advertise the name with a quite prefix for TC to find it
-        NSUUID *UUID = [NSUUID UUID];
-        NSString *stringUUID = [UUID UUIDString];
-
-        self.realmBusName = [self.realmBusName stringByAppendingFormat:@"-%@", stringUUID];
-
-        status = [self.bus advertiseName:[NSString stringWithFormat:@"%@%@", DAEMON_QUIET_PREFIX, self.realmBusName] withTransportMask:kAJNTransportMaskAny];
+        status = [self.clientBusAttachment advertiseName:[NSString stringWithFormat:@"%@%@", DAEMON_QUIET_PREFIX, self.realmBusName] withTransportMask:kAJNTransportMaskAny];
         if (status != ER_OK) {
-            [AppDelegate alertAndLog:@"Failed at AJNBusAttachment advertiseName" status:status];
+            [AppDelegate alertAndLog:@"Failed to advertise name" status:status];
             [self stopAboutClient];
             return;
         }
         else {
             NSLog(@"Successfully advertised: %@%@", DAEMON_QUIET_PREFIX, self.realmBusName);
         }
-    } else {
-        [AppDelegate alertAndLog:@"Failed at AJNBusAttachment requestWellKnownName" status:status];
+    }
+    else {
+        [AppDelegate alertAndLog:@"Failed to requestWellKnownName" status:status];
         [self stopAboutClient];
         return;
     }
 
-    //    [self.connectButton setTitle:self.ajdisconnect forState:UIControlStateNormal]; //change title to "Disconnect from AllJoyn"
-
-
-    // Create NSMutableDictionary dictionary of peers passcodes
-    //    self.peersPasscodes = [[NSMutableDictionary alloc] init];
+//    [self.connectButton setTitle:self.ajdisconnect forState:UIControlStateNormal]; //change title to "Disconnect from AllJoyn"
 
     // Enable Client Security
-    self.authenticationListenerImpl = [[AuthenticationListenerImpl alloc] init];
     status = [self enableClientSecurity];
-
     if (ER_OK != status) {
         NSLog(@"Failed to enable security on the bus. %@", [AJNStatus descriptionForStatusCode:status]);
+    } else {
+         NSLog(@"Successfully enabled security for the bus");
     }
-    else {
-        NSLog(@"Successfully enabled security for the bus");
-    }
-    //    self.isAboutClientConnected = true;
-    //    [self.servicesTable reloadData];
+
+    self.isAboutClientConnected = true;
 }
 
 
@@ -565,7 +570,7 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
     //    }
 }
 
-- (QStatus)enableClientSecurity
+- (QStatus)enableServiceSecurity
 {
     QStatus status;
 
@@ -585,6 +590,25 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
     return status;
 }
 
+- (QStatus)enableClientSecurity
+{
+    QStatus status;
+    status = [self.clientBusAttachment enablePeerSecurity:AUTH_MECHANISM authenticationListener:self keystoreFileName:KEYSTORE_FILE_PATH sharing:YES];
+
+    if (status != ER_OK) { //try to delete the keystore and recreate it, if that fails return failure
+        NSError *error;
+        NSString *keystoreFilePath = [NSString stringWithFormat:@"%@/alljoyn_keystore/s_central.ks", [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0]];
+        [[NSFileManager defaultManager] removeItemAtPath:keystoreFilePath error:&error];
+        if (error) {
+            NSLog(@"ERROR: Unable to delete keystore. %@", error);
+            return ER_AUTH_FAIL;
+        }
+
+        status = [self.clientBusAttachment enablePeerSecurity:AUTH_MECHANISM authenticationListener:self keystoreFileName:KEYSTORE_FILE_PATH sharing:YES];
+    }
+
+    return status;
+}
 
 #pragma mark - AJNAuthenticationListener protocol methods
 - (AJNSecurityCredentials *)requestSecurityCredentialsWithAuthenticationMechanism:(NSString *)authenticationMechanism peerName:(NSString *)peerName authenticationCount:(uint16_t)authenticationCount userName:(NSString *)userName credentialTypeMask:(AJNSecurityCredentialType)mask
@@ -623,12 +647,62 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
 // Here we receive an announcement from AJN and add it to the client's list of services avaialble
 - (void)announceWithVersion:(uint16_t)version port:(uint16_t)port busName:(NSString *)busName objectDescriptions:(NSMutableDictionary *)objectDescs aboutData:(NSMutableDictionary **)aboutData
 {
-    //TODO
+
+    // Start Config Client
+    self.timeClient = [[AJTMTimeServiceClient alloc] init ];
+    QStatus status = [self.timeClient populateWithBus:self.clientBusAttachment serverBusName:busName deviceId:@"1231232145667745675477" appId:self.uniqueID objDescs:objectDescs];
+    if (status != ER_OK) {
+        [AppDelegate alertAndLog:@"Failed to start Config Client" status:status];
+        [self stopAboutClient];
+        return;
+    }
+
+    [self.timeClient joinSessionAsyncWithListener:self];
+
+
 }
 
-#pragma mark - AJNAuthenticationListener protocol method
+#pragma mark - AJNAuthenticationListener protocol methods
+
 - (void)authenticationUsing:(NSString *)authenticationMechanism forRemotePeer:(NSString *)peerName didCompleteWithStatus:(BOOL)success
 {
-    
+    NSString *status;
+    status = (success == YES ? @"was successful" : @"failed");
+
+    NSLog(@"authenticationUsing:%@ forRemotePeer%@ %@", authenticationMechanism, peerName, status);
 }
+
+-(void)sessionLost:(AJTMTimeServiceClient*)timeServiceClient SessionListener:(AJNSessionLostReason)reason
+{
+    NSLog(@"client lost session");
+}
+
+-(void)sessionJoined:(AJTMTimeServiceClient*)timeServiceClient staus:(QStatus)status
+{
+        NSLog(@"client joined session");
+
+    NSArray *announcedClockList = [self.timeClient getAnnouncedClockList];
+
+    AJTMTimeServiceClientClock *firstClock = announcedClockList[0];
+
+    AJTMTimeServiceDate *ldate = [[AJTMTimeServiceDate alloc]init ];
+    [ldate populateWithYear:1995 month:10 day:12];
+    AJTMTimeServiceTime *ltime = [[AJTMTimeServiceTime alloc]init];
+    [ltime populateWithHour:14 minute:25 second:12 millisecond:80];
+
+    AJTMTimeServiceDateTime *dateTime = [[AJTMTimeServiceDateTime alloc]init ];
+    [dateTime populateWithDate:ldate time:ltime offsetMinutes:0];
+     status = [firstClock setDateTime:dateTime];
+
+    if (status != ER_OK) {
+        return;
+    }
+
+    AJTMTimeServiceDateTime *gotDateTime;
+    [firstClock retrieveDateTime:&gotDateTime];
+
+    NSLog(@"%@",gotDateTime);
+
+}
+
 @end
