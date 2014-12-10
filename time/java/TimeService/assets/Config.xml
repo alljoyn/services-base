@@ -52,5 +52,8 @@
 		<key name="SupportUrl" writable="n"  announce="y"  public="y">
 			<value>http://www.allseenalliance.org</value>
 		</key>
+		<key name="AJSoftwareVersion" writable="n"  announce="n"  public="y">
+            <value>14.12</value>
+        </key>
 	</keys>
 </config>

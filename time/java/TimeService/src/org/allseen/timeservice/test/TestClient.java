@@ -26,6 +26,7 @@ import java.util.UUID;
 import org.alljoyn.about.AboutKeys;
 import org.alljoyn.bus.AboutListener;
 import org.alljoyn.bus.AboutObjectDescription;
+import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.ProxyBusObject;
 import org.alljoyn.bus.Status;
@@ -84,7 +85,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
 
     /**
      * Constructor
-     * 
+     *
      * @param app
      *            Test application
      * @throws Exception
@@ -134,8 +135,11 @@ public class TestClient implements AboutListener, SessionListenerHandler {
     @Override
     public void announced(String busName, int version, short port, AboutObjectDescription[] objDescs, Map<String, Variant> aboutData) {
 
+        BusAttachment bus = app.getBusAttachment();
+        bus.enableConcurrentCallbacks();
+
         Variant deviceIdVar = aboutData.get(AboutKeys.ABOUT_DEVICE_ID);
-        Variant appIdVar = aboutData.get(AboutKeys.ABOUT_APP_ID);
+        Variant appIdVar    = aboutData.get(AboutKeys.ABOUT_APP_ID);
 
         if (deviceIdVar == null || appIdVar == null) {
 
@@ -147,9 +151,9 @@ public class TestClient implements AboutListener, SessionListenerHandler {
         UUID appId;
         try {
 
-            deviceId = deviceIdVar.getObject(String.class);
+            deviceId         = deviceIdVar.getObject(String.class);
             byte[] appIdByte = appIdVar.getObject(byte[].class);
-            appId = TransportUtil.byteArrayToUUID(appIdByte);
+            appId            = TransportUtil.byteArrayToUUID(appIdByte);
         } catch (BusException be) {
 
             Log.e(TAG, "A bad announcement received from '" + busName + "', failed to unmarshal data", be);
@@ -173,7 +177,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
             timeClient.release();
         }
 
-        timeClient = new TimeServiceClient(app.getBusAttachment(), busName, deviceId, appId, objDescs);
+        timeClient = new TimeServiceClient(bus, busName, deviceId, appId, objDescs);
         timeClients.put(key, timeClient);
     }// onAnnouncement
 
@@ -216,7 +220,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
     /**
      * Disconnect {@link TimeServiceClient} identified by the given key from the
      * {@link TimeServiceServer}
-     * 
+     *
      * @param key
      */
     public void disconnect(String key) {
@@ -271,7 +275,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
 
     /**
      * Set the clock
-     * 
+     *
      * @param key
      * @param objectPath
      */
@@ -301,7 +305,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
 
     /**
      * Register TimeSync signals listener
-     * 
+     *
      * @param key
      * @param objectPath
      */
@@ -325,7 +329,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
 
     /**
      * Register TimeSync signals listener
-     * 
+     *
      * @param key
      * @param objectPath
      */
@@ -343,7 +347,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
 
     /**
      * Find clock
-     * 
+     *
      * @param key
      * @param objectPath
      * @return {@link Clock} or NULL
@@ -401,7 +405,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
 
     /**
      * Print out Custom Alarm info
-     * 
+     *
      * @param objectPath
      */
     public void printCsAlarm(String key, String objectPath) {
@@ -434,7 +438,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
 
     /**
      * Set Alarm
-     * 
+     *
      * @param days
      *            Comma separated string of i.e.: sun,mon,tue,wen,thu,fri,sat
      * @param title
@@ -518,7 +522,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
 
     /**
      * Register AlarmHandler
-     * 
+     *
      * @param key
      * @param obj
      */
@@ -541,7 +545,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
 
     /**
      * Unregister Alarm Handler
-     * 
+     *
      * @param key
      * @param obj
      */
@@ -559,7 +563,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
 
     /**
      * Find Alarm
-     * 
+     *
      * @param key
      * @param objectPath
      * @return {@link Alarm}
@@ -596,7 +600,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
 
     /**
      * Find Alarm Factory
-     * 
+     *
      * @param key
      * @param objectPath
      * @return {@link Alarm}
@@ -623,7 +627,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
 
     /**
      * Create new {@link Alarm} with the {@link AlarmFactory}
-     * 
+     *
      * @param key
      *            device
      * @param objectPath
@@ -651,7 +655,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
 
     /**
      * Delete {@link Alarm} of the {@link AlarmFactory}
-     * 
+     *
      * @param key
      *            device
      * @param objectPath
@@ -688,7 +692,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
 
     /**
      * Retrieve {@link Alarm} objects of the given {@link AlarmFactory}
-     * 
+     *
      * @param key
      *            device
      * @param objectPath
@@ -723,7 +727,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
 
     /**
      * Find Timer
-     * 
+     *
      * @param key
      * @param objectPath
      * @return {@link Timer}
@@ -789,7 +793,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
 
     /**
      * Set timer
-     * 
+     *
      * @param key
      * @param objectPath
      * @param interval
@@ -846,7 +850,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
 
     /**
      * Register Timer signal handler
-     * 
+     *
      * @param key
      * @param objectPath
      */
@@ -876,7 +880,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
 
     /**
      * Unregister Timer signal handler
-     * 
+     *
      * @param key
      * @param objectPath
      */
@@ -894,7 +898,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
 
     /**
      * Start the Timer
-     * 
+     *
      * @param key
      * @param objectPath
      */
@@ -918,7 +922,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
 
     /**
      * Pause the Timer
-     * 
+     *
      * @param key
      * @param objectPath
      */
@@ -942,7 +946,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
 
     /**
      * Reset the Timer
-     * 
+     *
      * @param key
      * @param objectPath
      */
@@ -966,7 +970,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
 
     /**
      * Find Timer Factory
-     * 
+     *
      * @param key
      * @param objectPath
      * @return {@link Alarm}
@@ -993,7 +997,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
 
     /**
      * Create new {@link Timer} with the {@link TimerFactory}
-     * 
+     *
      * @param key
      *            device
      * @param objectPath
@@ -1021,7 +1025,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
 
     /**
      * Delete {@link Timer} of the {@link TimerFactory}
-     * 
+     *
      * @param key
      *            device
      * @param objectPath
@@ -1058,7 +1062,7 @@ public class TestClient implements AboutListener, SessionListenerHandler {
 
     /**
      * Retrieve {@link Timer} objects of the given {@link TimerFactory}
-     * 
+     *
      * @param key
      *            device
      * @param objectPath

@@ -72,7 +72,7 @@ public abstract class BaseAlarmBusObj implements BusObject /* implements Alarm *
 
     /**
      * Initialize the object
-     * 
+     *
      * @param alarm
      *            {@link org.allseen.timeservice.server.Alarm} delegate
      * @param parentObj
@@ -114,16 +114,17 @@ public abstract class BaseAlarmBusObj implements BusObject /* implements Alarm *
         // No need to send announcement if this Alarm object was created with
         // AlarmFactory
         if (needAnnounce) {
+
             announcedInterfaces = tsServer.getAnnouncedInterfaces(this, notAnnounced, true);
-            if (announcedInterfaces != null) {
-                for (String announcedInterface : announcedInterfaces) {
-                    try {
-                        getBus().setAnnounceFlag(this, announcedInterface, true);
-                        Log.i(TAG, "Added announced interface: '" + announcedInterface + "'");
-                    } catch (TimeServiceException tse) {
-                        Log.e(TAG, "Failed to setAnnounceFlag to true, interface: '" + announcedInterface + "'", tse);
-                        throw tse;
-                    }
+
+            for (String announcedInterface : announcedInterfaces) {
+
+                try {
+                    getBus().setAnnounceFlag(this, announcedInterface, true);
+                    Log.i(TAG, "Added announced interface: '" + announcedInterface + "'");
+                } catch (TimeServiceException tse) {
+                    Log.e(TAG, "Failed to setAnnounceFlag to true, interface: '" + announcedInterface + "'", tse);
+                    throw tse;
                 }
             }
         }
@@ -289,7 +290,7 @@ public abstract class BaseAlarmBusObj implements BusObject /* implements Alarm *
 
     /**
      * {@link org.allseen.timeservice.server.Alarm} object path
-     * 
+     *
      * @return object path
      */
     String getObjectPath() {
@@ -299,7 +300,7 @@ public abstract class BaseAlarmBusObj implements BusObject /* implements Alarm *
 
     /**
      * Send AlarmReached signal
-     * 
+     *
      * @throws TimeServiceException
      *             Is thrown if failed to send the signal
      * @see org.allseen.timeservice.ajinterfaces.Alarm#alarmReached()
@@ -352,7 +353,7 @@ public abstract class BaseAlarmBusObj implements BusObject /* implements Alarm *
      * Access {@link TimeServiceServer} to get the {@link BusAttachment}. If
      * {@link BusAttachment} is undefined, {@link TimeServiceException} is
      * thrown.
-     * 
+     *
      * @return {@link BusAttachment}
      * @throws TimeServiceException
      */
@@ -370,7 +371,7 @@ public abstract class BaseAlarmBusObj implements BusObject /* implements Alarm *
 
     /**
      * Checks whether the object has already been created
-     * 
+     *
      * @return {@link org.allseen.timeservice.server.Alarm}
      * @throws TimeServiceException
      *             if {@link org.allseen.timeservice.server.Alarm} hasn't been

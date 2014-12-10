@@ -73,7 +73,7 @@ public abstract class BaseTimerBusObj implements BusObject /* implements Timer *
 
     /**
      * Initialize the object
-     * 
+     *
      * @param timer
      *            {@link org.allseen.timeservice.server.Timer} delegate
      * @param parentObj
@@ -115,15 +115,17 @@ public abstract class BaseTimerBusObj implements BusObject /* implements Timer *
         // No need to send announcement if this Timer object was created with
         // TimerFactory
         if (needAnnounce) {
-            if (announcedInterfaces != null) {
-                for (String announcedInterface : announcedInterfaces) {
-                    try {
-                        getBus().setAnnounceFlag(this, announcedInterface, true);
-                        Log.i(TAG, "Added announced interface: '" + announcedInterface + "'");
-                    } catch (TimeServiceException tse) {
-                        Log.e(TAG, "Failed to setAnnounceFlag to true, interface: '" + announcedInterface + "'", tse);
-                        throw tse;
-                    }
+
+            announcedInterfaces = tsServer.getAnnouncedInterfaces(this, notAnnounced, true);
+
+            for (String announcedInterface : announcedInterfaces) {
+
+                try {
+                    getBus().setAnnounceFlag(this, announcedInterface, true);
+                    Log.i(TAG, "Added announced interface: '" + announcedInterface + "'");
+                } catch (TimeServiceException tse) {
+                    Log.e(TAG, "Failed to setAnnounceFlag to true, interface: '" + announcedInterface + "'", tse);
+                    throw tse;
                 }
             }
         }
@@ -405,7 +407,7 @@ public abstract class BaseTimerBusObj implements BusObject /* implements Timer *
 
     /**
      * {@link Time} object path
-     * 
+     *
      * @return object path
      */
     String getObjectPath() {
@@ -415,7 +417,7 @@ public abstract class BaseTimerBusObj implements BusObject /* implements Timer *
 
     /**
      * Send TimerEvent as a session-less-signal
-     * 
+     *
      * @throws TimeServiceException
      *             Is thrown if failed to send the signal
      * @see {@link org.allseen.timeservice.ajinterfaces.Timer#timerEvent()}
@@ -438,7 +440,7 @@ public abstract class BaseTimerBusObj implements BusObject /* implements Timer *
 
     /**
      * Send RunStateChanged signal
-     * 
+     *
      * @throws TimeServiceException
      *             Is thrown if failed to send the signal
      * @see {@link org.allseen.timeservice.ajinterfaces.Timer#runStateChanged(boolean)}
@@ -495,7 +497,7 @@ public abstract class BaseTimerBusObj implements BusObject /* implements Timer *
      * Access {@link TimeServiceServer} to get the {@link BusAttachment}. If
      * {@link BusAttachment} is undefined, {@link TimeServiceException} is
      * thrown.
-     * 
+     *
      * @return {@link BusAttachment}
      * @throws TimeServiceException
      */
@@ -513,7 +515,7 @@ public abstract class BaseTimerBusObj implements BusObject /* implements Timer *
 
     /**
      * Checks whether the object has already been created
-     * 
+     *
      * @return {@link org.allseen.timeservice.server.Timer}
      * @throws TimeServiceException
      *             if {@link org.allseen.timeservice.server.Timer} hasn't been
