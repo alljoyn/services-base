@@ -14,19 +14,11 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-/**
- * This class is experimental, and as such has not been tested.
- * Please help make it more robust by contributing fixes if you find issues
- **/
+#import <Foundation/Foundation.h>
+#import "AJTMTimeServicePeriod.h"
 
-#import "alljoyn/time/AJTMTimeServiceServerTimerBase.h"
-#import "alljoyn/time/AJTMTimeServiceServerTimer.h"
+@protocol AJTMTimeServiceServerTimer <NSObject>
 
-@interface SampleTimer : AJTMTimeServiceServerTimerBase <AJTMTimeServiceServerTimer>
-
--(id)init;
-
-#pragma mark AJTMTimeServiceServerTimer protocol methods
 /**
  * Returns TimeServiceSchedule of this Timer
  *
@@ -105,5 +97,6 @@
  * Releases object resources
  */
 -(void)releaseObject;
+
 
 @end
