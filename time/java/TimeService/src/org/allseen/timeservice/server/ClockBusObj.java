@@ -24,7 +24,6 @@ import org.allseen.timeservice.ajinterfaces.Clock;
  * communication with this clock.
  */
 class ClockBusObj extends BaseClockBusObj implements Clock {
-    private static final String TAG = "ajts" + ClockBusObj.class.getSimpleName();
 
     /**
      * Prefix of the Clock object path
@@ -33,7 +32,7 @@ class ClockBusObj extends BaseClockBusObj implements Clock {
 
     /**
      * Constructor
-     * 
+     *
      * @param clock
      *            Clock events delegate. This clock receives all the
      *            {@link org.allseen.timeservice.server.Clock} related events.

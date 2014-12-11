@@ -20,6 +20,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.alljoyn.bus.AboutObj;
+import org.alljoyn.bus.BusAttachment;
+import org.alljoyn.bus.Mutable.ShortValue;
+import org.alljoyn.bus.SessionOpts;
+import org.alljoyn.bus.SessionPortListener;
+import org.alljoyn.bus.Status;
 import org.alljoyn.services.android.storage.PropertyStoreImpl;
 import org.allseen.timeservice.AuthorityType;
 import org.allseen.timeservice.TimeServiceException;
@@ -70,33 +75,63 @@ public class TestServer {
      */
     private final Map<String, TimerFactory> timerFactories;
 
+    /**
+     * About Object which is used to send Announcements
+     */
     private AboutObj aboutObj;
 
     /**
+     * Port number which is sent in the Announcement signal
+     */
+    public static final short ANNOUNCED_PORT = 1080;
+
+    /**
      * Constructor
-     * 
+     *
      * @param app
      *            Test application throws {@link Exception}
      */
     public TestServer(TimeServiceTestApp app) {
 
-        this.app = app;
-        clocks = new HashMap<String, Clock>();
-        alarms = new HashMap<String, Alarm>();
+        this.app       = app;
+        clocks         = new HashMap<String, Clock>();
+        alarms         = new HashMap<String, Alarm>();
         alarmFactories = new HashMap<String, AlarmFactory>();
-        timers = new HashMap<String, Timer>();
+        timers         = new HashMap<String, Timer>();
         timerFactories = new HashMap<String, TimerFactory>();
     }
 
     /**
      * Init {@link TimeServiceServer}
-     * 
+     *
      * @throws Exception
      */
     public void init() throws Exception {
 
-        aboutObj = new AboutObj(app.getBusAttachment());
-        TimeServiceServer.getInstance().init(app.getBusAttachment());
+        BusAttachment bus = app.getBusAttachment();
+
+        SessionOpts sessionOpts  = new SessionOpts();
+        sessionOpts.traffic      = SessionOpts.TRAFFIC_MESSAGES;
+        sessionOpts.isMultipoint = false;
+        sessionOpts.proximity    = SessionOpts.PROXIMITY_ANY;
+        sessionOpts.transports   = SessionOpts.TRANSPORT_ANY;
+
+        Status status = bus.bindSessionPort(new ShortValue(ANNOUNCED_PORT), sessionOpts, new SessionPortListener() {
+
+            @Override
+            public boolean acceptSessionJoiner(short sessionPort, String joiner, SessionOpts opts) {
+
+                return sessionPort == ANNOUNCED_PORT;
+            }
+        });
+
+        if ( status != Status.OK ) {
+
+            throw new Exception("Failed to bind ANNOUNCED_PORT, Status: '" + status + "'");
+        }
+
+        aboutObj = new AboutObj(bus);
+        TimeServiceServer.getInstance().init(bus);
     }
 
     /**
@@ -137,6 +172,7 @@ public class TestServer {
         TimeServiceServer.getInstance().shutdown();
 
         aboutObj.unannounce();
+        app.getBusAttachment().unbindSessionPort(ANNOUNCED_PORT);
     }
 
     /**
@@ -145,7 +181,7 @@ public class TestServer {
     public void announceServer() {
 
         Log.d(TAG, "Sending Announcement");
-        aboutObj.announce((short) 1080, new PropertyStoreImpl(app));
+        aboutObj.announce(ANNOUNCED_PORT, new PropertyStoreImpl(app));
     }
 
     /**
@@ -187,7 +223,7 @@ public class TestServer {
     /**
      * Sends {@link TimeAuthorityClock#timeSync()} signal if the given object is
      * a {@link TimeAuthorityClock}
-     * 
+     *
      * @param objPath
      *            {@link TimeAuthorityClock} object
      */
@@ -303,7 +339,7 @@ public class TestServer {
     /**
      * Search for the {@link Alarm} in the alarms map or in the
      * {@link AlarmFactory}
-     * 
+     *
      * @return {@link Alarm}
      */
     private Alarm findAlarm(String objectPath) {
