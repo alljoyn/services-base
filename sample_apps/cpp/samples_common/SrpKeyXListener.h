@@ -45,7 +45,7 @@ class SrpKeyXListener : public ajn::AuthListener {
      * setGetPassCode
      * @param getPassCode - callback function to set
      */
-    void setGetPassCode(const char* (*getPassCode)());
+    void setGetPassCode(void (*getPassCode)(qcc::String&));
 
     /**
      * RequestCredentials
@@ -71,7 +71,7 @@ class SrpKeyXListener : public ajn::AuthListener {
   private:
     qcc::String m_PassCode;
 
-    const char* (*m_GetPassCode)();
+    void (*m_GetPassCode)(qcc::String&);
 };
 
 #endif /* SRPKEYLISTENER_H_ */

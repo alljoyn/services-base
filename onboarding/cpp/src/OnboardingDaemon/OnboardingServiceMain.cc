@@ -146,18 +146,19 @@ static void cleanup() {
     }
 }
 
-const char* readPassword() {
+void readPassword(qcc::String& passCode) {
     std::map<qcc::String, qcc::String> data;
     if (!IniParser::ParseFile(configFile.c_str(), data)) {
-        return NULL;
+        return;
     }
 
     std::map<qcc::String, qcc::String>::iterator iter = data.find("passcode");
     if (iter == data.end()) {
-        return NULL;
+        return;
     }
 
-    return iter->second.c_str();
+    passCode = iter->second;
+    return;
 }
 
 /** Advertise the service name, report the result to stdout, and return the status code. */
