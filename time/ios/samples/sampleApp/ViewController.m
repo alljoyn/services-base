@@ -62,9 +62,11 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
 // About Client properties
 @property (strong, nonatomic) AJNBusAttachment *clientBusAttachment;
 @property (nonatomic) bool isAboutClientConnected;
-@property (strong, nonatomic) NSMutableDictionary *clientInformationDict; // Store the client related information
+// NOT USED @property (strong, nonatomic) NSMutableDictionary *clientInformationDict; // Store the client related information
 
 @property (strong,nonatomic) AJTMTimeServiceClient *timeClient;
+
+@property (nonatomic) BOOL active;
 
 //BusAttachment* bus                           = NULL;
 //CommonBusListener* busListener               = NULL;
@@ -79,13 +81,89 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
 {
     [super viewDidLoad];
 
+    NSError *error = nil;
+    NSString *keystoreFilePath = [NSString stringWithFormat:@"%@/alljoyn_keystore/s_central.ks", [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0]];
+
+    if ([[NSFileManager defaultManager] fileExistsAtPath:keystoreFilePath]) {
+
+        [[NSFileManager defaultManager] removeItemAtPath:keystoreFilePath error:&error];
+        if (error) {
+            NSLog(@"ERROR: Unable to delete keystore. %@", error);
+        }
+    }
+
     self.uniqueID = [[NSUUID UUID] UUIDString];
     self.realmBusName = @"org.alljoyn.BusNode.timeService";
-    [self startAboutService];
-    [self startAboutClient];
+
+    QStatus status = [self startAboutClient];
+    if ((status != ER_OK) || (error)) {
+        [self.startServiceButton setTitle:@"error in start about client" forState:UIControlStateNormal];
+        [self.startServiceButton setEnabled:FALSE];
+
+    }
+
+    _active = NO;
 }
 
+- (void)stopAboutService
+{
+    QStatus status;
+
+    // BusAttachment cleanup
+    status = [self.bus cancelAdvertisedName:[self.bus uniqueName] withTransportMask:kAJNTransportMaskAny];
+    if (status == ER_OK) {
+        NSLog(@"Successfully cancel advertised nam");
+    }
+
+    status = [self.bus unbindSessionFromPort:SERVICE_PORT];
+    if (status == ER_OK) {
+        NSLog(@"Successfully unbind Session");
+    }
+
+    // Delete AboutSessionPortListener
+    [self.bus unregisterBusListener:self.aboutSessionPortListener];
+    self.aboutSessionPortListener = nil;
+
+    // Stop bus attachment
+    status = [self.bus stop];
+    if (status == ER_OK) {
+        NSLog(@"Successfully stopped bus");
+    }
+    self.bus = nil;
+} /* stopAboutService */
+
+
+- (void)announce
+{
+    QStatus serviceStatus;
+
+    NSLog(@"[%@] [%@] Calling Announce", @"DEBUG", [[self class] description]);
+    serviceStatus = [self.aboutServiceApi announce];
+
+    if (serviceStatus == ER_OK) {
+        NSLog(@"[%@] [%@] Successfully announced", @"DEBUG", [[self class] description]);
+    }
+}
+
+
 - (IBAction)startServiceButtonDidTouchUpInside:(id)sender {
+
+    if (_active == YES) {
+        [self stopAboutClient];
+        [self stopAboutService];
+
+        [_startServiceButton setTitle :@"Stopped Server" forState:(UIControlStateNormal)];
+
+        [_startServiceButton setEnabled:FALSE];
+        return;
+
+    }
+
+
+
+
+
+    [self startAboutService];
 
     AJTMTimeServiceServer* server = [AJTMTimeServiceServer sharedInstance];
 
@@ -162,6 +240,8 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
      */
 
     [self announce];
+
+    _active = YES;
 }
 
 - (void)startAboutService
@@ -278,23 +358,7 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
     else {
         NSLog(@"Successfully enabled security for the bus");
     }
-
-
-    // self.isAboutServiceConnected = true;
 }
-
-- (void)announce
-{
-    QStatus serviceStatus;
-
-    NSLog(@"[%@] [%@] Calling Announce", @"DEBUG", [[self class] description]);
-    serviceStatus = [self.aboutServiceApi announce];
-
-    if (serviceStatus == ER_OK) {
-        NSLog(@"[%@] [%@] Successfully announced", @"DEBUG", [[self class] description]);
-    }
-}
-
 
 - (QStatus)fillAboutPropertyStoreImplData
 {
@@ -410,12 +474,9 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
     return status;
 }
 
-- (void)startAboutClient
+- (QStatus)startAboutClient
 {
     QStatus status;
-
-    // Create a dictionary to contain announcements using a key in the format of: "announcementUniqueName + announcementObj"
-    self.clientInformationDict = [[NSMutableDictionary alloc] init];
 
     //    [[AJCFGConfigLogger sharedInstance] debugTag:[[self class] description] text:@"Start About Client"];
 
@@ -427,7 +488,7 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
     if (status != ER_OK) {
         [AppDelegate alertAndLog:@"Failed AJNBusAttachment start" status:status];
         [self stopAboutClient];
-        return;
+        return status;
     }
 
     // Connect AJNBusAttachment
@@ -435,7 +496,7 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
     if (status != ER_OK) {
         [AppDelegate alertAndLog:@"Failed AJNBusAttachment connectWithArguments" status:status];
         [self stopAboutClient];
-        return;
+        return status;
     }
 
 
@@ -447,7 +508,7 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
     if (status != ER_OK) {
         [AppDelegate alertAndLog:@"Failed to registerAnnouncementReceiver" status:status];
         [self stopAboutClient];
-        return;
+        return status;
     }
 
      // Advertise Daemon for tcl
@@ -458,7 +519,7 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
         if (status != ER_OK) {
             [AppDelegate alertAndLog:@"Failed to advertise name" status:status];
             [self stopAboutClient];
-            return;
+            return status;
         }
         else {
             NSLog(@"Successfully advertised: %@%@", DAEMON_QUIET_PREFIX, self.realmBusName);
@@ -467,7 +528,7 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
     else {
         [AppDelegate alertAndLog:@"Failed to requestWellKnownName" status:status];
         [self stopAboutClient];
-        return;
+        return status;
     }
 
 //    [self.connectButton setTitle:self.ajdisconnect forState:UIControlStateNormal]; //change title to "Disconnect from AllJoyn"
@@ -481,16 +542,23 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
     }
 
     self.isAboutClientConnected = true;
+
+    return status;
 }
 
 
 - (void)stopAboutClient
 {
-    QStatus status;
     NSLog(@"Stop About Client");
-    /*
+
+    QStatus status;
+    status = [self.clientBusAttachment enablePeerSecurity:nil authenticationListener:self keystoreFileName:KEYSTORE_FILE_PATH sharing:FALSE];
+    if (status == ER_OK) {
+        NSLog(@"Successfully disabled peer security");
+    }
+
      // Bus attachment cleanup
-     status = [self.bus cancelAdvertisedName:[NSString stringWithFormat:@"%@%@", DAEMON_QUIET_PREFIX, self.realmBusName] withTransportMask:kAJNTransportMaskAny];
+     status = [self.clientBusAttachment cancelAdvertisedName:[NSString stringWithFormat:@"%@%@", DAEMON_QUIET_PREFIX, self.realmBusName] withTransportMask:kAJNTransportMaskAny];
      if (status == ER_OK) {
      NSLog(@"Successfully cancel advertised name");
      }
@@ -503,24 +571,8 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
      NSLog(@"Successfully remove MatchRule");
      }
 
-     // Cancel advertise name for each announcement bus
-     for (NSString *key in[self.clientInformationDict allKeys]) {
-     ClientInformation *clientInfo = (self.clientInformationDict)[key];
-     status = [self.bus cancelFindAdvertisedName:[[clientInfo announcement] busName]];
-     if (status != ER_OK) {
-     NSLog(@"Failed to cancelAdvertisedName for %@: %@", key, [AJNStatus descriptionForStatusCode:status]);
-     }
-     }
-     self.clientInformationDict = nil;
-
-     [[AnnouncementManager sharedInstance] destroyInstance];
-
-     status = [self.announcementReceiver unRegisterAnnouncementReceiverForInterfaces:nil withNumberOfInterfaces:0];
-     if (status == ER_OK) {
-     NSLog(@"Successfully unregistered AnnouncementReceiver");
-     }
-
-     self.announcementReceiver = nil;
+     // Cancel listening to advertisements
+	 [self.bus unregisterAllAboutListeners];
 
      // Stop bus attachment
      status = [self.bus stop];
@@ -535,13 +587,8 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
      // Set flag
      self.isAboutClientConnected  = false;
 
-     // UI cleanup
-     [self.connectButton setTitle:self.ajconnect forState:UIControlStateNormal];
-
-     [self.servicesTable performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
-
      NSLog(@"About Client is stopped");
-     */
+
 
 }
 
@@ -574,38 +621,14 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
 {
     QStatus status;
 
-    status = [self.bus enablePeerSecurity:AUTH_MECHANISM authenticationListener:self.authenticationListenerImpl keystoreFileName:KEYSTORE_FILE_PATH sharing:YES];
-
-    if (status != ER_OK) { //try to delete the keystore and recreate it, if that fails return failure
-        NSError *error;
-        NSString *keystoreFilePath = [NSString stringWithFormat:@"%@/alljoyn_keystore/s_central.ks", [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0]];
-        [[NSFileManager defaultManager] removeItemAtPath:keystoreFilePath error:&error];
-        if (error) {
-            NSLog(@"ERROR: Unable to delete keystore. %@", error);
-            return ER_AUTH_FAIL;
-        }
-        status = [self.bus enablePeerSecurity:AUTH_MECHANISM authenticationListener:self.authenticationListenerImpl keystoreFileName:KEYSTORE_FILE_PATH sharing:YES];
-    }
-
+    status = [self.bus enablePeerSecurity:@"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX ALLJOYN_ECDHE_PSK" authenticationListener:self keystoreFileName:@"Documents/alljoyn_keystore/s_central.ks" sharing:FALSE];
     return status;
 }
 
 - (QStatus)enableClientSecurity
 {
     QStatus status;
-    status = [self.clientBusAttachment enablePeerSecurity:AUTH_MECHANISM authenticationListener:self keystoreFileName:KEYSTORE_FILE_PATH sharing:YES];
-
-    if (status != ER_OK) { //try to delete the keystore and recreate it, if that fails return failure
-        NSError *error;
-        NSString *keystoreFilePath = [NSString stringWithFormat:@"%@/alljoyn_keystore/s_central.ks", [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0]];
-        [[NSFileManager defaultManager] removeItemAtPath:keystoreFilePath error:&error];
-        if (error) {
-            NSLog(@"ERROR: Unable to delete keystore. %@", error);
-            return ER_AUTH_FAIL;
-        }
-
-        status = [self.clientBusAttachment enablePeerSecurity:AUTH_MECHANISM authenticationListener:self keystoreFileName:KEYSTORE_FILE_PATH sharing:YES];
-    }
+    status = [self.clientBusAttachment enablePeerSecurity:AUTH_MECHANISM authenticationListener:self keystoreFileName:KEYSTORE_FILE_PATH sharing:FALSE];
 
     return status;
 }
@@ -686,7 +709,7 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
     AJTMTimeServiceClientClock *firstClock = announcedClockList[0];
 
     AJTMTimeServiceDate *ldate = [[AJTMTimeServiceDate alloc]init ];
-    [ldate populateWithYear:1995 month:10 day:12];
+    [ldate populateWithYear:2010 month:10 day:12];
     AJTMTimeServiceTime *ltime = [[AJTMTimeServiceTime alloc]init];
     [ltime populateWithHour:14 minute:25 second:12 millisecond:80];
 
@@ -700,8 +723,10 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
 
     AJTMTimeServiceDateTime *gotDateTime;
     [firstClock retrieveDateTime:&gotDateTime];
+    AJTMTimeServiceDate *date = [gotDateTime date];
+    AJTMTimeServiceTime *time = [gotDateTime time];
 
-    NSLog(@"%@",gotDateTime);
+    NSLog(@"%d/%d/%d %d:%d:%d.%d",date.year,date.month,date.day,time.hour,time.minute,time.second,time.millisecond);
 
 }
 
