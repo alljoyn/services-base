@@ -38,8 +38,12 @@ const ajn::services::TimeServiceDateTime& AJTMTimeServiceServerClockAdapter::get
 
 void AJTMTimeServiceServerClockAdapter::setDateTime(ajn::services::TimeServiceDateTime const& dateTime)
 {
+    ajn::services::TimeServiceDateTime *dt = new ajn::services::TimeServiceDateTime;
+
+    dt->init(dateTime.getDate(), dateTime.getTime(), dateTime.getOffsetMinutes());
+
     AJTMTimeServiceDateTime *dateTimeTmp;
-    dateTimeTmp = [[AJTMTimeServiceDateTime alloc] initWithHandle:&dateTime];
+    dateTimeTmp = [[AJTMTimeServiceDateTime alloc] initWithHandle:dt];
     [handle setDateTime:dateTimeTmp];
 }
 

@@ -408,9 +408,9 @@
 				INFOPLIST_FILE = "TimeService/TimeService-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = (
+					"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib",
 					"$(OPENSSL_ROOT)/build/$(CONFIGURATION)-$(PLATFORM_NAME)",
 					"$(inherited)",
-					"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib",
 					../../../cpp/lib,
 					../../lib,
 					"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/about/lib",
@@ -418,7 +418,6 @@
 					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/time/ios/samples/alljoyn_services_objc/build/Debug-iphoneos\"",
 					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/services_common/ios/samples/alljoyn_services_cpp/build/Debug-iphoneos\"",
 					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/services_common/ios/samples/alljoyn_services_objc/build/Debug-iphoneos\"",
-					"/Users/skedem/master_allseen/services/base/services_common/ios/samples/alljoyn_services_cpp/build/Debug-iphoneos",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
