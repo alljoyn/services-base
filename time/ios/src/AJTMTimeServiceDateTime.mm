@@ -58,14 +58,13 @@
 
 -(AJTMTimeServiceDate*)date
 {
-    ajn::services::TimeServiceDate timeServiceDate = self.handle->getDate();
-    return [[AJTMTimeServiceDate alloc] initWithHandle:&timeServiceDate];
+   
+    return [[AJTMTimeServiceDate alloc] initWithHandle:(ajn::services::TimeServiceDate*)&self.handle->getDate()];
 }
 
 -(AJTMTimeServiceTime*)time
 {
-    ajn::services::TimeServiceTime timeServiceTime  = self.handle->getTime();
-    return [[AJTMTimeServiceTime alloc] initWithHandle:&timeServiceTime]; 
+    return [[AJTMTimeServiceTime alloc] initWithHandle:(ajn::services::TimeServiceTime*)&self.handle->getTime()];
 }
 
 -(int16_t)offsetMinutes
