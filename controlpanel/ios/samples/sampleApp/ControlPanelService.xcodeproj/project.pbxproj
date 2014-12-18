@@ -431,7 +431,7 @@
 				);
 				PRODUCT_NAME = ControlPanelService;
 				PROVISIONING_PROFILE = "";
-				VALID_ARCHS = "armv7 armv7s i386";
+				VALID_ARCHS = "armv7 i386";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -486,7 +486,7 @@
 				);
 				PRODUCT_NAME = ControlPanelService;
 				PROVISIONING_PROFILE = "";
-				VALID_ARCHS = "armv7 armv7s i386";
+				VALID_ARCHS = "armv7 i386";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
