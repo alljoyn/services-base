@@ -20,8 +20,7 @@
  **/
 
 #import "ViewController.h"
-#import "alljoyn/about/AJNAnnouncementReceiver.h"
-#import "alljoyn/about/AJNAboutServiceApi.h"
+#import "AJNAboutObject.h"
 #import "alljoyn/time/AJTMTimeServiceServer.h"
 #import "AJNVersion.h"
 #import "AppDelegate.h"
@@ -42,21 +41,20 @@ static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX ALL
 static NSString *const DAEMON_QUIET_PREFIX = @"quiet@";    //About Client - quiet advertising
 static NSString *const DEFAULT_PASSCODE = @"000000";
 static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
+static NSString *const TIME_INTERFACES = @"org.allseen.Time*"; // The interfaces that implement the time service
+static NSString *const DEVICEID = @"1231232145667745675477";
 
-@interface ViewController () <AJTMTimeServiceSessionListener>
+
+@interface ViewController () <AJTMTimeServiceSessionListener, AJNAboutDataListener>
 
 - (IBAction)startServiceButtonDidTouchUpInside:(id)sender;
 @property AJNBusAttachment* bus;
 
 @property (strong, nonatomic) NSMutableDictionary *peersPasscodes; // Store the peers passcodes
-@property (strong, nonatomic) AJNAnnouncementReceiver *announcementReceiver;
 @property (strong, nonatomic) NSString *realmBusName;
-
-@property (strong, nonatomic) AJNAboutPropertyStoreImpl *aboutPropertyStoreImpl;
-@property (strong, nonatomic) AJNAboutServiceApi *aboutServiceApi;
 @property (strong, nonatomic) CommonBusListener *aboutSessionPortListener;
 @property (strong, nonatomic) NSString *uniqueID;
-
+@property (strong, nonatomic) AJNAboutObject *aboutObject;
 @property (strong, nonatomic) AuthenticationListenerImpl *authenticationListenerImpl;
 
 // About Client properties
@@ -67,11 +65,6 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
 @property (strong,nonatomic) AJTMTimeServiceClient *timeClient;
 
 @property (nonatomic) BOOL active;
-
-//BusAttachment* bus                           = NULL;
-//CommonBusListener* busListener               = NULL;
-//AboutPropertyStoreImpl* propertyStoreImpl    = NULL;
-//SrpKeyXListener* srpKeyXListener             = NULL;
 
 @end
 
@@ -135,16 +128,12 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
 
 - (void)announce
 {
-    QStatus serviceStatus;
-
-    NSLog(@"[%@] [%@] Calling Announce", @"DEBUG", [[self class] description]);
-    serviceStatus = [self.aboutServiceApi announce];
-
-    if (serviceStatus == ER_OK) {
-        NSLog(@"[%@] [%@] Successfully announced", @"DEBUG", [[self class] description]);
-    }
+	NSLog(@"[%@] [%@] Calling announceForSessionPort", @"DEBUG", [[self class] description]);
+	QStatus status = [self.aboutObject announceForSessionPort:SERVICE_PORT withAboutDataListener:self];
+	if (status == ER_OK) {
+		NSLog(@"[%@] [%@] Successfully announced", @"DEBUG", [[self class] description]);
+	}
 }
-
 
 - (IBAction)startServiceButtonDidTouchUpInside:(id)sender {
 
@@ -294,47 +283,8 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
         [self.bus registerBusListener:self.aboutSessionPortListener];
     }
 
-    // prepare data for propertyStoreImpl
-    self.aboutPropertyStoreImpl = [[AJNAboutPropertyStoreImpl alloc] init];
-
-    if (!self.aboutPropertyStoreImpl) {
-        NSLog(@"Failed to create propertyStoreImpl object - exiting application");
-        [AppDelegate alertAndLog:@"Failed to create propertyStoreImpl object - exiting application" status:ER_FAIL];
-        exit(status);
-    }
-    status = [self fillAboutPropertyStoreImplData];
-
-    if (status != ER_OK) {
-        NSLog(@"Failed to fill propertyStore - exiting application");
-        [AppDelegate alertAndLog:@"Failed to fill propertyStore - exiting application" status:status];
-        exit(status);
-    }
-
-    NSLog(@"[%@] [%@] Create aboutServiceApi", @"DEBUG", [[self class] description]);
-
-    self.aboutServiceApi = [AJNAboutServiceApi sharedInstance];
-    if (!self.aboutServiceApi) {
-        NSLog(@"Failed to create aboutServiceApi - exiting application");
-        [AppDelegate alertAndLog:@"Failed to create aboutServiceApi - exiting application" status:status];
-        exit(status);
-    }
-
-    NSLog(@"[%@] [%@] Start aboutServiceApi", @"DEBUG", [[self class] description]);
-
-    [self.aboutServiceApi startWithBus:self.bus andPropertyStore:self.aboutPropertyStoreImpl];
-
-    // Register Port
-    NSLog(@"[%@] [%@] Register the AboutService on the AllJoyn bus", @"DEBUG", [[self class] description]);
-
-    if (self.aboutServiceApi.isServiceStarted) {
-        status = [self.aboutServiceApi registerPort:(SERVICE_PORT)];
-    }
-
-    if (status != ER_OK) {
-        NSLog(@"Failed register port - exiting application");
-        [AppDelegate alertAndLog:@"Failed register port - exiting application" status:status];
-        exit(status);
-    }
+	//start AboutObject
+	self.aboutObject = [[AJNAboutObject alloc] initWithBusAttachment:self.bus withAnnounceFlag:ANNOUNCED];
 
     // Bind session port
     AJNSessionOptions *opt = [[AJNSessionOptions alloc] initWithTrafficType:kAJNTrafficMessages supportsMultipoint:false proximity:kAJNProximityAny transportMask:kAJNTransportMaskAny];
@@ -358,120 +308,6 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
     else {
         NSLog(@"Successfully enabled security for the bus");
     }
-}
-
-- (QStatus)fillAboutPropertyStoreImplData
-{
-    QStatus status;
-
-    // AppId
-    status = [self.aboutPropertyStoreImpl setAppId:self.uniqueID];
-    if (status != ER_OK) {
-        return status;
-    }
-
-    // AppName
-    status = [self.aboutPropertyStoreImpl setAppName:@"AboutConfig"];
-    if (status != ER_OK) {
-        return status;
-    }
-
-    // DeviceId
-    status = [self.aboutPropertyStoreImpl setDeviceId:@"1231232145667745675477"];
-    if (status != ER_OK) {
-        return status;
-    }
-
-    // DeviceName
-    status = [self.aboutPropertyStoreImpl setDeviceName:@"TimeService" language:@"en"];
-    if (status != ER_OK) {
-        return status;
-    }
-
-    status = [self.aboutPropertyStoreImpl setDeviceName:@"TempsService" language:@"fr"];
-    if (status != ER_OK) {
-        return status;
-    }
-
-    status = [self.aboutPropertyStoreImpl setDeviceName:@"HoraService" language:@"sp"];
-    if (status != ER_OK) {
-        return status;
-    }
-
-    // SupportedLangs
-    NSArray *languages = @[@"en", @"sp", @"fr"];
-    status = [self.aboutPropertyStoreImpl setSupportedLangs:languages];
-    if (status != ER_OK) {
-        return status;
-    }
-
-    //  DefaultLang
-    status = [self.aboutPropertyStoreImpl setDefaultLang:@"en"];
-    if (status != ER_OK) {
-        return status;
-    }
-
-    //  ModelNumbe
-    status = [self.aboutPropertyStoreImpl setModelNumber:@"Wxfy388i"];
-    if (status != ER_OK) {
-        return status;
-    }
-
-    //  DateOfManufacture
-    status = [self.aboutPropertyStoreImpl setDateOfManufacture:@"10/1/2199"];
-    if (status != ER_OK) {
-        return status;
-    }
-    //  SoftwareVersion
-    status = [self.aboutPropertyStoreImpl setSoftwareVersion:@"12.20.44 build 44454"];
-    if (status != ER_OK) {
-        return status;
-    }
-
-    //  AjSoftwareVersion
-    status = [self.aboutPropertyStoreImpl setAjSoftwareVersion:[AJNVersion versionInformation]];
-    if (status != ER_OK) {
-        return status;
-    }
-
-    //  HardwareVersion
-    status = [self.aboutPropertyStoreImpl setHardwareVersion:@"355.499. b"];
-    if (status != ER_OK) {
-        return status;
-    }
-    //  Description
-    status = [self.aboutPropertyStoreImpl setDescription:@"This is an Alljoyn Application" language:@"en"];
-    if (status != ER_OK) {
-        return status;
-    }
-    status = [self.aboutPropertyStoreImpl setDescription:@"Esta es una Alljoyn aplicación" language:@"sp"];
-    if (status != ER_OK) {
-        return status;
-    }
-    status = [self.aboutPropertyStoreImpl setDescription:@"C'est une Alljoyn application"  language:@"fr"];
-    if (status != ER_OK) {
-        return status;
-    }
-    //  Manufacturer
-    status = [self.aboutPropertyStoreImpl setManufacturer:@"Company" language:@"en"];
-    if (status != ER_OK) {
-        return status;
-    }
-    status = [self.aboutPropertyStoreImpl setManufacturer:@"Empresa" language:@"sp"];
-    if (status != ER_OK) {
-        return status;
-    }
-    status = [self.aboutPropertyStoreImpl setManufacturer:@"Entreprise" language:@"fr"];
-    if (status != ER_OK) {
-        return status;
-    }
-
-    //  SupportedUrl
-    status = [self.aboutPropertyStoreImpl setSupportUrl:@"http://www.alljoyn.org"];
-    if (status != ER_OK) {
-        return status;
-    }
-    return status;
 }
 
 - (QStatus)startAboutClient
@@ -502,11 +338,14 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
 
     [self.clientBusAttachment registerBusListener:self];
 
-    self.announcementReceiver = [[AJNAnnouncementReceiver alloc] initWithAnnouncementListener:self andBus:self.clientBusAttachment];
-    const char* interfaces[] = { "org.allseen.Time*" };
-    status = [self.announcementReceiver registerAnnouncementReceiverForInterfaces:interfaces withNumberOfInterfaces:1];
-    if (status != ER_OK) {
-        [AppDelegate alertAndLog:@"Failed to registerAnnouncementReceiver" status:status];
+	// registering for Announcements has two steps:
+	// (1) registerAboutListener - register the listener to the announce callback
+	// (2) whoImplementsInterfaces - filters which announcements will be received by stating the interfaces
+	[self.clientBusAttachment registerAboutListener:self];
+	NSArray* interfaces = [NSArray arrayWithObject:[NSString stringWithString:TIME_INTERFACES]];
+	status = [self.clientBusAttachment whoImplementsInterfaces:interfaces numberOfInterfaces:[interfaces count]];
+	if (status != ER_OK) {
+        [AppDelegate alertAndLog:@"Failed whoImplementsInterfaces" status:status];
         [self stopAboutClient];
         return status;
     }
@@ -574,6 +413,9 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
      // Cancel listening to advertisements
 	 [self.bus unregisterAllAboutListeners];
 
+	 // Cancel listening to annoucements
+	[self.bus cancelWhoImplements:TIME_INTERFACES];
+
      // Stop bus attachment
      status = [self.bus stop];
      if (status == ER_OK) {
@@ -601,7 +443,7 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
 - (void)didLoseAdvertisedName:(NSString *)name withTransportMask:(AJNTransportMask)transport namePrefix:(NSString *)namePrefix
 {
     NSLog(@"didLoseAdvertisedName has been called");
-    QStatus status;
+    //QStatus status;
     //    // Find the button title that should be removed
     //    for (NSString *key in[self.clientInformationDict allKeys]) {
     //        if ([[[[self.clientInformationDict valueForKey:key] announcement] busName] isEqualToString:name]) {
@@ -666,14 +508,13 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
     return creds;
 }
 
-#pragma mark - AJNAnnouncementListener protocol method
+#pragma mark - AJNAboutListener protocol method
 // Here we receive an announcement from AJN and add it to the client's list of services avaialble
-- (void)announceWithVersion:(uint16_t)version port:(uint16_t)port busName:(NSString *)busName objectDescriptions:(NSMutableDictionary *)objectDescs aboutData:(NSMutableDictionary **)aboutData
+-(void)didReceiveAnnounceOnBus:(NSString *)busName withVersion:(uint16_t)version withSessionPort:(AJNSessionPort)port withObjectDescription:(AJNMessageArgument *)objectDescriptionArg withAboutDataArg:(AJNMessageArgument *)aboutDataArg
 {
-
-    // Start Config Client
+	// Start Config Client
     self.timeClient = [[AJTMTimeServiceClient alloc] init ];
-    QStatus status = [self.timeClient populateWithBus:self.clientBusAttachment serverBusName:busName deviceId:@"1231232145667745675477" appId:self.uniqueID objDescs:objectDescs];
+    QStatus status = [self.timeClient populateWithBus:self.clientBusAttachment serverBusName:busName deviceId:DEVICEID appId:self.uniqueID objDescArgs:objectDescriptionArg];
     if (status != ER_OK) {
         [AppDelegate alertAndLog:@"Failed to start Config Client" status:status];
         [self stopAboutClient];
@@ -681,8 +522,6 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
     }
 
     [self.timeClient joinSessionAsyncWithListener:self];
-
-
 }
 
 #pragma mark - AJNAuthenticationListener protocol methods
@@ -729,5 +568,167 @@ static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
     NSLog(@"%d/%d/%d %d:%d:%d.%d",date.year,date.month,date.day,time.hour,time.minute,time.second,time.millisecond);
 
 }
+
+#pragma mark - AJNAboutListener delegate methods
+- (QStatus)getAboutDataForLanguage:(NSString *)language usingDictionary:(NSMutableDictionary **)aboutData
+{
+    QStatus status = ER_OK;
+    *aboutData = [[NSMutableDictionary alloc] initWithCapacity:16];
+
+	AJNMessageArgument *appID = [[AJNMessageArgument alloc] init];
+    uint8_t originalAppId[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    [appID setValue:@"ay", sizeof(originalAppId) / sizeof(originalAppId[0]), originalAppId];
+    [appID stabilize];
+    [*aboutData setValue:appID forKey:@"AppId"];
+
+    AJNMessageArgument *defaultLang = [[AJNMessageArgument alloc] init];
+    [defaultLang setValue:@"s", "en"];
+    [defaultLang stabilize];
+    [*aboutData setValue:defaultLang forKey:@"DefaultLanguage"];
+
+    AJNMessageArgument *deviceName = [[AJNMessageArgument alloc] init];
+    [deviceName setValue:@"s", "TimeService"];
+    [deviceName stabilize];
+    [*aboutData setValue:deviceName forKey:@"DeviceName"];
+
+    AJNMessageArgument *deviceId = [[AJNMessageArgument alloc] init];
+    [deviceId setValue:@"s", DEVICEID];
+    [deviceId stabilize];
+    [*aboutData setValue:deviceId forKey:@"DeviceId"];
+
+    AJNMessageArgument *appName = [[AJNMessageArgument alloc] init];
+    [appName setValue:@"s", "Timer Sample App"];
+    [appName stabilize];
+    [*aboutData setValue:appName forKey:@"AppName"];
+
+    AJNMessageArgument *manufacturer = [[AJNMessageArgument alloc] init];
+    [manufacturer setValue:@"s", "Company"];
+    [manufacturer stabilize];
+    [*aboutData setValue:manufacturer forKey:@"Manufacturer"];
+
+    AJNMessageArgument *modelNo = [[AJNMessageArgument alloc] init];
+    [modelNo setValue:@"s", "Wxfy388i"];
+    [modelNo stabilize];
+    [*aboutData setValue:modelNo forKey:@"ModelNumber"];
+
+    AJNMessageArgument *supportedLang = [[AJNMessageArgument alloc] init];
+    const char *supportedLangs[] = {"en"};
+    [supportedLang setValue:@"as", 1, supportedLangs];
+    [supportedLang stabilize];
+    [*aboutData setValue:supportedLang forKey:@"SupportedLanguages"];
+
+    AJNMessageArgument *description = [[AJNMessageArgument alloc] init];
+    [description setValue:@"s", "This is an Alljoyn Application"];
+    [description stabilize];
+    [*aboutData setValue:description forKey:@"Description"];
+
+    AJNMessageArgument *dateOfManufacture = [[AJNMessageArgument alloc] init];
+    [dateOfManufacture setValue:@"s", "1-1-2099"];
+    [dateOfManufacture stabilize];
+    [*aboutData setValue:dateOfManufacture forKey:@"DateOfManufacture"];
+
+    AJNMessageArgument *softwareVersion = [[AJNMessageArgument alloc] init];
+    [softwareVersion setValue:@"s", "1.0"];
+    [softwareVersion stabilize];
+    [*aboutData setValue:softwareVersion forKey:@"SoftwareVersion"];
+
+    AJNMessageArgument *ajSoftwareVersion = [[AJNMessageArgument alloc] init];
+    [ajSoftwareVersion setValue:@"s", [AJNVersion versionInformation]];
+    [ajSoftwareVersion stabilize];
+    [*aboutData setValue:ajSoftwareVersion forKey:@"AJSoftwareVersion"];
+
+    AJNMessageArgument *hwSoftwareVersion = [[AJNMessageArgument alloc] init];
+    [hwSoftwareVersion setValue:@"s", [AJNVersion versionInformation]];
+    [hwSoftwareVersion stabilize];
+    [*aboutData setValue:hwSoftwareVersion forKey:@"HardwareVersion"];
+
+    AJNMessageArgument *supportURL = [[AJNMessageArgument alloc] init];
+    [supportURL setValue:@"s", "http://www.alljoyn.org"];
+    [supportURL stabilize];
+    [*aboutData setValue:supportURL forKey:@"SupportUrl"];
+
+    return status;
+}
+
+-(QStatus)getDefaultAnnounceData:(NSMutableDictionary **)aboutData
+{
+    QStatus status = ER_OK;
+    *aboutData = [[NSMutableDictionary alloc] initWithCapacity:16];
+
+    AJNMessageArgument *appID = [[AJNMessageArgument alloc] init];
+    uint8_t originalAppId[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    [appID setValue:@"ay", sizeof(originalAppId) / sizeof(originalAppId[0]), originalAppId];
+    [appID stabilize];
+    [*aboutData setValue:appID forKey:@"AppId"];
+
+    AJNMessageArgument *defaultLang = [[AJNMessageArgument alloc] init];
+    [defaultLang setValue:@"s", "en"];
+    [defaultLang stabilize];
+    [*aboutData setValue:defaultLang forKey:@"DefaultLanguage"];
+
+    AJNMessageArgument *deviceName = [[AJNMessageArgument alloc] init];
+    [deviceName setValue:@"s", "TimeService"];
+    [deviceName stabilize];
+    [*aboutData setValue:deviceName forKey:@"DeviceName"];
+
+    AJNMessageArgument *deviceId = [[AJNMessageArgument alloc] init];
+    [deviceId setValue:@"s", DEVICEID];
+    [deviceId stabilize];
+    [*aboutData setValue:deviceId forKey:@"DeviceId"];
+
+    AJNMessageArgument *appName = [[AJNMessageArgument alloc] init];
+    [appName setValue:@"s", "Timer Sample App"];
+    [appName stabilize];
+    [*aboutData setValue:appName forKey:@"AppName"];
+
+    AJNMessageArgument *manufacturer = [[AJNMessageArgument alloc] init];
+    [manufacturer setValue:@"s", "Company"];
+    [manufacturer stabilize];
+    [*aboutData setValue:manufacturer forKey:@"Manufacturer"];
+
+    AJNMessageArgument *modelNo = [[AJNMessageArgument alloc] init];
+    [modelNo setValue:@"s", "Wxfy388i"];
+    [modelNo stabilize];
+    [*aboutData setValue:modelNo forKey:@"ModelNumber"];
+
+    AJNMessageArgument *supportedLang = [[AJNMessageArgument alloc] init];
+    const char *supportedLangs[] = {"en"};
+    [supportedLang setValue:@"as", 1, supportedLangs];
+    [supportedLang stabilize];
+    [*aboutData setValue:supportedLang forKey:@"SupportedLanguages"];
+
+    AJNMessageArgument *description = [[AJNMessageArgument alloc] init];
+    [description setValue:@"s", "This is an Alljoyn Application"];
+    [description stabilize];
+    [*aboutData setValue:description forKey:@"Description"];
+
+    AJNMessageArgument *dateOfManufacture = [[AJNMessageArgument alloc] init];
+    [dateOfManufacture setValue:@"s", "1-1-2099"];
+    [dateOfManufacture stabilize];
+    [*aboutData setValue:dateOfManufacture forKey:@"DateOfManufacture"];
+
+    AJNMessageArgument *softwareVersion = [[AJNMessageArgument alloc] init];
+    [softwareVersion setValue:@"s", "1.0"];
+    [softwareVersion stabilize];
+    [*aboutData setValue:softwareVersion forKey:@"SoftwareVersion"];
+
+    AJNMessageArgument *ajSoftwareVersion = [[AJNMessageArgument alloc] init];
+    [ajSoftwareVersion setValue:@"s", [AJNVersion versionInformation]];
+    [ajSoftwareVersion stabilize];
+    [*aboutData setValue:ajSoftwareVersion forKey:@"AJSoftwareVersion"];
+
+    AJNMessageArgument *hwSoftwareVersion = [[AJNMessageArgument alloc] init];
+    [hwSoftwareVersion setValue:@"s", [AJNVersion versionInformation]];
+    [hwSoftwareVersion stabilize];
+    [*aboutData setValue:hwSoftwareVersion forKey:@"HardwareVersion"];
+
+    AJNMessageArgument *supportURL = [[AJNMessageArgument alloc] init];
+    [supportURL setValue:@"s", "http://www.alljoyn.org"];
+    [supportURL stabilize];
+    [*aboutData setValue:supportURL forKey:@"SupportUrl"];
+
+	return status;
+}
+
 
 @end

@@ -22,9 +22,9 @@
 #import <UIKit/UIKit.h>
 #import "AJNBusListener.h"
 #import "AJNAuthenticationListener.h"
-#import "alljoyn/about/AJNAnnouncementListener.h"
+#import "AJNAboutListener.h"
 
-@interface ViewController : UIViewController <AJNBusListener, AJNAuthenticationListener, AJNAnnouncementListener>
+@interface ViewController : UIViewController <AJNBusListener, AJNAuthenticationListener, AJNAboutListener>
 @property (weak, nonatomic) IBOutlet UIButton *startServiceButton;
 
 @end

@@ -20,7 +20,7 @@
  **/
 
 #import "alljoyn/time/AJTMTimeServiceClient.h"
-#import "alljoyn/about/AnnounceHandler.h"
+#import "AJNAboutObjectDescription.h"
 #import "AJTMTimeServiceClientClock.h"
 #import "AJTMTimeServiceClientAlarm.h"
 #import "AJTMTimeServiceClientTimer.h"
@@ -54,39 +54,14 @@
     return self;
 }
 
--(QStatus)populateWithBus:(AJNBusAttachment*) busAttachment serverBusName:(NSString *)serverBusName deviceId:(NSString *)deviceId appId:(NSString *)appId objDescs:(NSDictionary *)objDescs
+-(QStatus)populateWithBus:(AJNBusAttachment*) busAttachment serverBusName:(NSString *)serverBusName deviceId:(NSString *)deviceId appId:(NSString *)appId objDescArgs:(AJNMessageArgument *)objDescsArgs
 {
-    ajn::services::AnnounceHandler::ObjectDescriptions nativeObjDescs;
-  //  NSMutableDictionary *dict = [[NSMutableDictionary alloc]init];
+	AJNAboutObjectDescription* nativeObjDescs = [[AJNAboutObjectDescription alloc] initWithMsgArg:objDescsArgs];
 
-    for (NSString *key in objDescs.allKeys) {
-            std::vector<qcc::String> nativeArray;
-            for (NSString *value in objDescs[key]) {
-                nativeArray.push_back([value UTF8String]);
-            }
-            nativeObjDescs.insert(std::pair<qcc::String, std::vector<qcc::String> >([key UTF8String],nativeArray));
-    }
-
-   QStatus status = self.handle->init((ajn::BusAttachment*)busAttachment.handle, [serverBusName UTF8String], [deviceId UTF8String], [appId UTF8String], nativeObjDescs);
-
-//    ajn::services::AnnounceHandler::ObjectDescriptions::iterator itr;
-//    for(itr=nativeObjDescs.begin();itr!=nativeObjDescs.end();itr++)
-//    {
-//        std::vector<qcc::String> *objectDesc = &itr->second;
-//        std::vector<qcc::String>::iterator descitr;
-//        NSMutableArray *descriptions = [[NSMutableArray alloc]init];
-//        for (descitr = objectDesc->begin(); descitr!=objectDesc->end(); descitr++) {
-//            [descriptions addObject:[NSString stringWithUTF8String:descitr->c_str()]];
-//        }
-//
-//        [dict setObject:descriptions forKey:[NSString stringWithUTF8String:itr->first.c_str()]];
-//    }
-//
-//    objDescs = dict;
+	QStatus status = self.handle->init((ajn::BusAttachment*)busAttachment.handle, [serverBusName UTF8String], [deviceId UTF8String], [appId UTF8String], *(ajn::AboutObjectDescription*)nativeObjDescs.handle);
 
     return status;
 }
-
 
 -(void) releaseObject
 {

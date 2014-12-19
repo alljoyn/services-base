@@ -44,7 +44,7 @@
      *
      * @return ER_OK if succeeded to initialize the TimeServiceClient
      */
--(QStatus)populateWithBus:(AJNBusAttachment*) busAttachment serverBusName:(NSString *)serverBusName deviceId:(NSString *)deviceId appId:(NSString *)appId objDescs:(NSDictionary *)objDescs;
+-(QStatus)populateWithBus:(AJNBusAttachment*) busAttachment serverBusName:(NSString *)serverBusName deviceId:(NSString *)deviceId appId:(NSString *)appId objDescArgs:(AJNMessageArgument *)objDescsArgs;
 
     /**
      * Cleans the object and releases its resources.
