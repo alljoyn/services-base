@@ -16,31 +16,29 @@
 
 #ifndef ANNOUNCEHANDLERSAMPLE_H_
 #define ANNOUNCEHANDLERSAMPLE_H_
-
-#include <alljoyn/about/AnnounceHandler.h>
+#include <alljoyn/AboutListener.h>
+#include <alljoyn/AboutData.h>
 
 typedef void (*BasicAnnounceHandlerCallback)(qcc::String const& busName, unsigned short port);
 typedef void (*FullAnnounceHandlerCallback)(qcc::String const& busName, unsigned short version,
-                                            unsigned short port, const ajn::services::AnnounceHandler::ObjectDescriptions& objectDescs,
-                                            const ajn::services::AnnounceHandler::AboutData& aboutData);
+                                            unsigned short port, const ajn::AboutObjectDescription& objectDescription,
+                                            const ajn::AboutData& aboutData);
 /**
  * class AnnounceHandlerImpl
  */
-class AnnounceHandlerImpl : public ajn::services::AnnounceHandler {
+class AnnounceHandlerImpl : public ajn::AboutListener {
 
   public:
 
     /**
-     * Announce
+     * Announced - announced callback
+     * @param busName
      * @param version
      * @param port
-     * @param busName
-     * @param objectDescs
-     * @param aboutData
+     * @param objectDescriptionArg
+     * @param aboutDataArg
      */
-    virtual void Announce(unsigned short version, unsigned short port, const char* busName, const ObjectDescriptions& objectDescs,
-                          const AboutData& aboutData);
-
+    virtual void Announced(const char* busName, uint16_t version, ajn::SessionPort port, const ajn::MsgArg& objectDescriptionArg, const ajn::MsgArg& aboutDataArg);
     /**
      * AnnounceHandlerImpl
      * @param basicCallback

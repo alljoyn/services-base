@@ -77,8 +77,7 @@ QStatus HttpControl::registerObjects(BusAttachment* bus, qcc::String const& unit
 
     AboutServiceApi* aboutService = AboutServiceApi::getInstance();
     if (!aboutService) {
-        QCC_DbgHLPrintf(("Could not retrieve AboutService. It has not been initialized"));
-        return ER_FAIL;
+        QCC_DbgHLPrintf(("AboutService has not been initialized"));
     }
 
     QStatus status = ER_OK;
@@ -94,9 +93,11 @@ QStatus HttpControl::registerObjects(BusAttachment* bus, qcc::String const& unit
         return status;
     }
 
-    std::vector<qcc::String> interfaces;
-    interfaces.push_back(AJ_HTTPCONTROL_INTERFACE);
-    aboutService->AddObjectDescription(objectPath, interfaces);
+    if (aboutService) {
+        std::vector<qcc::String> interfaces;
+        interfaces.push_back(AJ_HTTPCONTROL_INTERFACE);
+        aboutService->AddObjectDescription(objectPath, interfaces);
+    }
 
     return status;
 }

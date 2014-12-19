@@ -19,8 +19,11 @@
 
 #include <alljoyn/BusAttachment.h>
 #include <qcc/String.h>
-#include <alljoyn/about/AboutPropertyStoreImpl.h>
+#include <alljoyn/AboutData.h>
+#include <alljoyn/AboutObj.h>
+#include "AboutObjApi.h"
 #include "CommonBusListener.h"
+#include <map>
 
 typedef std::map<qcc::String, qcc::String> DeviceNamesType;
 
@@ -39,7 +42,7 @@ class CommonSampleUtil {
 
     /**
      * static method fillPropertyStore
-     * @param propertyStore
+     * @param aboutData
      * @param appIdHex
      * @param appName
      * @param deviceId
@@ -47,19 +50,20 @@ class CommonSampleUtil {
      * @param defaultLanguage
      * @return the property store created. NULL if failed
      */
-    static QStatus fillPropertyStore(ajn::services::AboutPropertyStoreImpl* propertyStore, qcc::String const& appIdHex,
+    static QStatus fillPropertyStore(ajn::AboutData* aboutData, qcc::String const& appIdHex,
                                      qcc::String const& appName, qcc::String const& deviceId, DeviceNamesType const& deviceNames,
                                      qcc::String const& defaultLanguage = "en");
 
     /**
      * static method prepareAboutService
      * @param bus
-     * @param propertyStore
+     * @param aboutData
+     * @param aboutObj
      * @param busListener
      * @param port
      * @return Qstatus
      */
-    static QStatus prepareAboutService(ajn::BusAttachment* bus, ajn::services::AboutPropertyStoreImpl* propertyStore,
+    static QStatus prepareAboutService(ajn::BusAttachment* bus, ajn::AboutData* aboutData, ajn::AboutObj* aboutObj,
                                        CommonBusListener* busListener, uint16_t port);
 
     /**
@@ -79,6 +83,8 @@ class CommonSampleUtil {
 
     /**
      * EnableSecurity
+     * @param bus
+     * @param authListener
      * @return success/failure
      */
     static QStatus EnableSecurity(ajn::BusAttachment* bus, ajn::AuthListener* authListener);

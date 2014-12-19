@@ -62,14 +62,22 @@ QStatus createAJInterface(const qcc::String& ifaceName, bool isSecure, const qcc
                           BusAttachment* bus, InterfaceDescription** ptrIfaceDesc);
 
 /**
- * Subtract from the source vector all the elements that are in the subtract vector, so that
- * in the source vector will be all the elements that belong to the source vector and not in the subtract vector.
- * Note: source vector changes following the fork of this function.
- *
- * @param source Vector to search for the elements that are NOT in the subtract vector
- * @param subtract Elements that should be removed from the source vector
+ * Set interface descriptions of the given bus object to be not announced if its name exists in the substruct vector
+ * @param busObject
+ * @param bus
+ * @param notAnnounced - interfaces that shouldn't be announced.
  */
-void subtract(std::vector<qcc::String>* source, const std::vector<qcc::String>& subtract);
+void subtract(BusObject* busObject, BusAttachment* bus, const std::vector<qcc::String>& notAnnounced);
+
+/**
+ * Adds allseen introspectable interface to be announced.
+ * @param busObject
+ * @param bus
+ * @param ifaceName
+ * @param isAnnounced
+ * @return QStatus
+ */
+QStatus setInterfaceAnnounce(BusObject* busObject, BusAttachment* bus, const qcc::String& ifaceName, bool isAnnounced);
 
 /**
  * Set Interface description to the BusObject

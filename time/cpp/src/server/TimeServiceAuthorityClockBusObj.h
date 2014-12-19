@@ -69,11 +69,6 @@ class TimeServiceAuthorityClockBusObj : public TimeServiceClockBusObj {
     virtual QStatus addClockInterface(BusAttachment* bus);
 
     /**
-     * Adds to the m_AnnouncedInterfaces the interfaces to be announced
-     */
-    virtual void addAnnouncedInterfaces();
-
-    /**
      * Callback for Alljoyn when GetProperty is called on this BusObject
      *
      * @param interfaceName - the name of the Interface

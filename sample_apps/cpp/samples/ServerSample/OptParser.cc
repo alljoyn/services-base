@@ -15,9 +15,10 @@
  ******************************************************************************/
 
 #include "OptParser.h"
+#include <iostream>
 #include <IniParser.h>
-#include <alljoyn/about/AboutPropertyStoreImpl.h>
 #include <alljoyn/services_common/GuidUtil.h>
+#include <alljoyn/AboutData.h>
 
 static const char versionPreamble[] = "AC Server Sample %s";
 
@@ -116,7 +117,7 @@ bool OptParser::FillDeviceNames() {
     for (it_data iterator = data.begin(); iterator != data.end(); iterator++) {
 
 
-        if (iterator->first.find(AboutPropertyStoreImpl::getPropertyStoreName(DEVICE_NAME).c_str()) == 0) {
+        if (iterator->first.find(AboutData::DEVICE_NAME) == 0) {
             size_t lastDotLocation = iterator->first.find(".");
             if ((lastDotLocation ==  std::string::npos) || (lastDotLocation + 1 >= iterator->first.length())) {
                 continue;
@@ -142,17 +143,17 @@ bool OptParser::ParseExternalXML() {
         return false;
     }
 
-    iter = data.find(AboutPropertyStoreImpl::getPropertyStoreName(APP_ID).c_str());
+    iter = data.find(AboutData::APP_ID);
     if (iter != data.end()) {
         appGUID = iter->second.c_str();
     }
 
-    iter = data.find(AboutPropertyStoreImpl::getPropertyStoreName(APP_NAME).c_str());
+    iter = data.find(AboutData::APP_NAME);
     if (iter != data.end()) {
         appName = iter->second.c_str();
     }
 
-    iter = data.find(AboutPropertyStoreImpl::getPropertyStoreName(DEFAULT_LANG).c_str());
+    iter = data.find(AboutData::DEFAULT_LANGUAGE);
     if (iter != data.end()) {
         defaultLanguage = iter->second.c_str();
     }

@@ -70,22 +70,12 @@ class TimeServiceClockBusObj : public ajn::BusObject {
   protected:
 
     /**
-     * Interfaces to be announced
-     */
-    std::vector<qcc::String> m_AnnouncedInterfaces;
-
-    /**
      * Creates Clock interface if hasn't been created before and adds it to the BusObject
      *
      * @param bus
      * @return QStatus of creating and interface
      */
     virtual QStatus addClockInterface(BusAttachment* bus);
-
-    /**
-     * Adds to the m_AnnouncedInterfaces the interfaces to be announced
-     */
-    virtual void addAnnouncedInterfaces();
 
     /**
      * Callback for Alljoyn when GetProperty is called on this BusObject

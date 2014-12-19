@@ -25,6 +25,7 @@
 #include <alljoyn/notification/NotificationText.h>
 #include <alljoyn/notification/RichAudioUrl.h>
 #include <alljoyn/notification/NotificationEnums.h>
+#include <alljoyn/AboutData.h>
 #include <alljoyn/about/PropertyStore.h>
 
 namespace ajn {
@@ -46,6 +47,31 @@ class PayloadAdapter {
      * Destructor of PayloadAdapter
      */
     ~PayloadAdapter() { };
+
+    /**
+     * SendPayload Marshals the Arguments to be sent
+     * @param propertyStore
+     * @param messageType
+     * @param notificationText
+     * @param customAttributes
+     * @param ttl
+     * @param richIconUrl
+     * @param richAudioUrl
+     * @param richIconObjectPath
+     * @param richAudioObjectPath
+     * @param controlPanelServiceObjectPath
+     * @param originalSender
+     * @return status - success/failure
+     */
+    static QStatus sendPayload(ajn::AboutData* propertyStore,
+                               NotificationMessageType messageType,
+                               std::vector<NotificationText> const&  notificationText,
+                               std::map<qcc::String, qcc::String> const& customAttributes,
+                               uint16_t ttl,
+                               const char* richIconUrl, std::vector<RichAudioUrl> const&  richAudioUrl,
+                               const char* richIconObjectPath, const char* richAudioObjectPath,
+                               const char* controlPanelServiceObjectPath,
+                               const char* originalSender);
 
     /**
      * SendPayload Marshals the Arguments to be sent

@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -15,14 +15,12 @@
  ******************************************************************************/
 
 #include "AnnounceHandlerImpl.h"
-#include <alljoyn/about/AboutClient.h>
 #include <iostream>
 
 using namespace ajn;
-using namespace services;
 
 AnnounceHandlerImpl::AnnounceHandlerImpl(BasicAnnounceHandlerCallback basicCallback, FullAnnounceHandlerCallback fullCallback) :
-    AnnounceHandler(), m_BasicCallback(basicCallback), m_FullCallback(fullCallback)
+    m_BasicCallback(basicCallback), m_FullCallback(fullCallback)
 {
 
 }
@@ -31,44 +29,18 @@ AnnounceHandlerImpl::~AnnounceHandlerImpl()
 {
 }
 
-void AnnounceHandlerImpl::Announce(unsigned short version, unsigned short port, const char* busName, const ObjectDescriptions& objectDescs,
-                                   const AboutData& aboutData)
+void AnnounceHandlerImpl::Announced(const char* busName, uint16_t version, SessionPort port, const MsgArg& objectDescriptionArg, const MsgArg& aboutDataArg)
 {
-    std::cout << std::endl << std::endl << "*********************************************************************************"
-              << std::endl;
-    std::cout << "version  " << version << std::endl;
-    std::cout << "port  " << port << std::endl;
-    std::cout << "busName  " << busName << std::endl;
-    std::cout << "ObjectDescriptions" << std::endl;
-    for (AboutClient::ObjectDescriptions::const_iterator it = objectDescs.begin(); it != objectDescs.end(); ++it) {
-        qcc::String key = it->first;
-        std::vector<qcc::String> vector = it->second;
-        std::cout << "key=" << key.c_str();
-        for (std::vector<qcc::String>::const_iterator itv = vector.begin(); itv != vector.end(); ++itv) {
-            std::cout << " value=" << itv->c_str() << std::endl;
-        }
-    }
+    std::cout << "*********************************************************************************" << std::endl;
+    std::cout << "Announce signal discovered" << std::endl;
+    std::cout << "\tFrom bus " << busName << std::endl;
+    std::cout << "\tAbout version " << version << std::endl;
+    std::cout << "\tSessionPort " << port << std::endl;
+    std::cout << "\tObjectDescription" << std::endl << objectDescriptionArg.ToString().c_str() << std::endl;
+    std::cout << "\tAboutData:" << std::endl << aboutDataArg.ToString().c_str() << std::endl;
+    std::cout << "*********************************************************************************" << std::endl;
 
-    std::cout << "Announcedata" << std::endl;
-    for (AboutClient::AboutData::const_iterator it = aboutData.begin(); it != aboutData.end(); ++it) {
-        qcc::String key = it->first;
-        ajn::MsgArg value = it->second;
-        if (value.typeId == ALLJOYN_STRING) {
-            std::cout << "Key name=" << key.c_str() << " value=" << value.v_string.str << std::endl;
-        } else if (value.typeId == ALLJOYN_BYTE_ARRAY) {
-            std::cout << "Key name=" << key.c_str() << " value:" << std::hex << std::uppercase;
-            uint8_t* AppIdBuffer;
-            size_t numElements;
-            value.Get("ay", &numElements, &AppIdBuffer);
-            for (size_t i = 0; i < numElements; i++) {
-                std::cout << (unsigned int)AppIdBuffer[i];
-            }
-            std::cout << std::nouppercase << std::dec << std::endl;
-        }
-    }
-
-    std::cout << "*********************************************************************************" << std::endl << std::endl;
-
+    std::cout << "AnnounceHandlerImpl::Announced()" << std::endl;
     if (m_BasicCallback) {
         std::cout << "Calling AnnounceHandler Callback" << std::endl;
         m_BasicCallback(busName, port);
@@ -76,7 +48,11 @@ void AnnounceHandlerImpl::Announce(unsigned short version, unsigned short port, 
 
     if (m_FullCallback) {
         std::cout << "Calling AnnounceHandler Callback" << std::endl;
-        m_FullCallback(busName, version, port, objectDescs, aboutData);
+        AboutData aboutData;
+        aboutData.CreatefromMsgArg(aboutDataArg);
+        AboutObjectDescription aboutObjectDescription;
+        aboutObjectDescription.CreateFromMsgArg(objectDescriptionArg);
+        m_FullCallback(busName, version, port, aboutObjectDescription, aboutData);
     }
 }
 

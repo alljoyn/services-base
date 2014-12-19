@@ -18,7 +18,6 @@
 #include <alljoyn/time/LogModule.h>
 #include <alljoyn/time/TimeServiceServer.h>
 #include "../common/TimeServiceClockUtility.h"
-#include <alljoyn/about/AboutServiceApi.h>
 #include <alljoyn/time/TimeServiceConstants.h>
 
 using namespace ajn;
@@ -78,17 +77,6 @@ QStatus TimeServiceClockBusObj::init(TimeServiceServerClock* clock)
         return status;
     }
 
-    addAnnouncedInterfaces();
-
-    AboutServiceApi* aboutService = AboutServiceApi::getInstance();
-    if (!aboutService) {
-
-        QCC_LogError(ER_FAIL, ("AboutService hasn't been initialized"));
-        return ER_FAIL;
-    }
-
-    aboutService->AddObjectDescription(m_ObjectPath, m_AnnouncedInterfaces);
-
     return ER_OK;
 }
 
@@ -107,12 +95,6 @@ void TimeServiceClockBusObj::release()
     }
 
     bus->UnregisterBusObject(*this);
-
-    AboutServiceApi* aboutService = AboutServiceApi::getInstance();
-    if (aboutService && m_AnnouncedInterfaces.size() > 0) {
-
-        aboutService->RemoveObjectDescription(m_ObjectPath, m_AnnouncedInterfaces);
-    }
 }
 
 //Returns object path of this Clock
@@ -259,14 +241,6 @@ QStatus TimeServiceClockBusObj::handleSetDateTime(MsgArg& msgArg)
     return status;
 }
 
-//Add Announced interfaces
-void TimeServiceClockBusObj::addAnnouncedInterfaces()
-{
-
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
-    m_AnnouncedInterfaces.push_back(tsConsts::CLOCK_IFACE);
-}
-
 //Create and add interface
 QStatus TimeServiceClockBusObj::addClockInterface(BusAttachment* bus)
 {
@@ -287,7 +261,7 @@ QStatus TimeServiceClockBusObj::addClockInterface(BusAttachment* bus)
         }
     }
 
-    status = AddInterface(*ifaceDesc);
+    status = AddInterface(*ifaceDesc, ANNOUNCED);
     if (status != ER_OK) {
 
         QCC_LogError(status, ("Failed to add Clock interface"));

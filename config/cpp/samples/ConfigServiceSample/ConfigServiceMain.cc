@@ -18,16 +18,15 @@
 #include <signal.h>
 
 #include <alljoyn/BusAttachment.h>
-#include <alljoyn/about/AboutIconService.h>
-#include <alljoyn/about/AboutServiceApi.h>
 #include <alljoyn/config/ConfigService.h>
-
+#include <alljoyn/AboutIconObj.h>
 #include <SrpKeyXListener.h>
 #include <CommonBusListener.h>
 #include <CommonSampleUtil.h>
 #include <IniParser.h>
 
-#include "PropertyStoreImpl.h"
+#include "AboutDataStore.h"
+#include <alljoyn/AboutObj.h>
 #include "ConfigServiceListenerImpl.h"
 #include "OptParser.h"
 #include <alljoyn/services_common/LogModulesNames.h>
@@ -47,9 +46,12 @@ static SrpKeyXListener* keyListener = NULL;
 
 static ConfigService* configService = NULL;
 
-static AboutIconService* aboutIconService = NULL;
+static AboutIcon* icon = NULL;
+static AboutIconObj* aboutIconObj = NULL;
 
-static PropertyStoreImpl* propertyStore = NULL;
+
+static AboutDataStore* aboutDataStore = NULL;
+static AboutObj* aboutObj = NULL;
 
 static ConfigServiceListenerImpl* configServiceListener = NULL;
 
@@ -74,8 +76,8 @@ static void daemonDisconnectCB()
 
 static void cleanup() {
 
-    if (AboutServiceApi::getInstance()) {
-        AboutServiceApi::DestroyInstance();
+    if (AboutObjApi::getInstance()) {
+        AboutObjApi::DestroyInstance();
     }
 
     if (configService) {
@@ -99,16 +101,25 @@ static void cleanup() {
         busListener = NULL;
     }
 
-    if (aboutIconService) {
-        delete aboutIconService;
-        aboutIconService = NULL;
+    if (aboutIconObj) {
+        delete aboutIconObj;
+        aboutIconObj = NULL;
     }
 
-    if (propertyStore) {
-        delete propertyStore;
-        propertyStore = NULL;
+    if (icon) {
+        delete icon;
+        icon = NULL;
     }
 
+    if (aboutDataStore) {
+        delete aboutDataStore;
+        aboutDataStore = NULL;
+    }
+
+    if (aboutObj) {
+        delete aboutObj;
+        aboutObj = NULL;
+    }
     /* Clean up msg bus */
     if (msgBus) {
         delete msgBus;
@@ -217,25 +228,26 @@ start:
     busListener = new CommonBusListener(msgBus, daemonDisconnectCB);
     busListener->setSessionPort(SERVICE_PORT);
 
-    propertyStore = new PropertyStoreImpl(opts.GetFactoryConfigFile().c_str(), opts.GetConfigFile().c_str());
-    status = CommonSampleUtil::fillPropertyStore(propertyStore, opts.GetAppId(), opts.GetAppName(), opts.GetDeviceId(),
+    aboutDataStore = new AboutDataStore(opts.GetFactoryConfigFile().c_str(), opts.GetConfigFile().c_str());
+    status = CommonSampleUtil::fillPropertyStore(aboutDataStore, opts.GetAppId(), opts.GetAppName(), opts.GetDeviceId(),
                                                  opts.GetDeviceNames(), opts.GetDefaultLanguage());
-    propertyStore->Initialize();
+
+    aboutDataStore->Initialize();
     if (status != ER_OK) {
         std::cout << "Could not fill PropertyStore." << std::endl;
         cleanup();
         return 1;
     }
-
-    status = CommonSampleUtil::prepareAboutService(msgBus, propertyStore, busListener, SERVICE_PORT);
+    aboutObj = new ajn::AboutObj(*msgBus, BusObject::ANNOUNCED);
+    status = CommonSampleUtil::prepareAboutService(msgBus, static_cast<AboutData*>(aboutDataStore), aboutObj, busListener, SERVICE_PORT);
     if (status != ER_OK) {
         std::cout << "Could not set up the AboutService." << std::endl;
         cleanup();
         return 1;
     }
 
-    AboutService* aboutService = AboutServiceApi::getInstance();
-    if (!aboutService) {
+    AboutObjApi* aboutObjApi = AboutObjApi::getInstance();
+    if (!aboutObjApi) {
         std::cout << "Could not set up the AboutService." << std::endl;
         cleanup();
         return 1;
@@ -252,36 +264,19 @@ start:
                                    0x01, 0xB7, 0xED, 0x4B, 0x53, 0x2C, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82 };
 
     qcc::String mimeType("image/png");
-    qcc::String url(""); //put your url here
-
-    std::vector<qcc::String> interfaces;
-    interfaces.push_back("org.alljoyn.Icon");
-    aboutService->AddObjectDescription("/About/DeviceIcon", interfaces);
-
-    aboutIconService = new AboutIconService(*msgBus, mimeType, url, aboutIconContent, sizeof(aboutIconContent) / sizeof(*aboutIconContent));
-    status = aboutIconService->Register();
-    if (status != ER_OK) {
-        std::cout << "Could not register the AboutIconService." << std::endl;
-        cleanup();
-        return 1;
+    icon = new ajn::AboutIcon();
+    status = icon->SetContent(mimeType.c_str(), aboutIconContent, sizeof(aboutIconContent) / sizeof(*aboutIconContent));
+    if (ER_OK != status) {
+        printf("Failed to setup the AboutIcon.\n");
     }
 
-    status = msgBus->RegisterBusObject(*aboutIconService);
-    if (status != ER_OK) {
-        std::cout << "Could not register the AboutIconService BusObject." << std::endl;
-        cleanup();
-        return 1;
-    }
+    aboutIconObj = new ajn::AboutIconObj(*msgBus, *icon);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     //ConfigService
 
-    configServiceListener = new ConfigServiceListenerImpl(*propertyStore, *msgBus, *busListener);
-    configService = new ConfigService(*msgBus, *propertyStore, *configServiceListener);
-
-    interfaces.clear();
-    interfaces.push_back("org.alljoyn.Config");
-    aboutService->AddObjectDescription("/Config", interfaces);
+    configServiceListener = new ConfigServiceListenerImpl(*aboutDataStore, *msgBus, *busListener);
+    configService = new ConfigService(*msgBus, *aboutDataStore, *configServiceListener);
 
     status = configService->Register();
     if (status != ER_OK) {
@@ -299,7 +294,7 @@ start:
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     if (ER_OK == status) {
-        status = aboutService->Announce();
+        status = aboutObjApi->Announce();
     }
 
     /* Perform the service asynchronously until the user signals for an exit. */

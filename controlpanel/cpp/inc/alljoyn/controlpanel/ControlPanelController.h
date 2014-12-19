@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -18,8 +18,8 @@
 #define CONTROLPANELCONTROLLER_H_
 
 #include <alljoyn/controlpanel/ControlPanelDevice.h>
-#include <alljoyn/about/AnnounceHandler.h>
 #include <map>
+#include <alljoyn/about/AnnounceHandler.h>
 
 namespace ajn {
 namespace services {
@@ -38,6 +38,15 @@ class ControlPanelController {
      * ~ControlPanelController()
      */
     virtual ~ControlPanelController();
+
+    /**
+     * create a controllable device by parsing announce descriptions.
+     * @param sender
+     * @param objectDescs - ObjectDescriptions received in announce
+     * @return a ControlPanelDevice
+     */
+    ControlPanelDevice* createControllableDevice(qcc::String const& sender,
+                                                 const AboutObjectDescription& objectDescs);
 
     /**
      * create a controllable device by parsing announce descriptions.

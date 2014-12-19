@@ -26,7 +26,6 @@
 #include <CommonSampleUtil.h>
 #include <alljoyn/services_common/LogModulesNames.h>
 #include <alljoyn/services_common/GuidUtil.h>
-#include <alljoyn/about/AnnouncementRegistrar.h>
 
 #include "TimeClientAnnouncementHandler.h"
 #include <alljoyn/time/TimeServiceConstants.h>
@@ -35,6 +34,7 @@
 #include "TimeServiceSessionListenerImpl.h"
 #include "SampleTestUtils.h"
 #include "TimeClientSignalHandler.h"
+#include <alljoyn/AboutObjectDescription.h>
 
 using namespace ajn;
 using namespace services;
@@ -127,7 +127,7 @@ void onAnnouncement(const qcc::String& busName,
                     const qcc::String& deviceId,
                     const qcc::String& appId,
                     const qcc::String& uniqKey,
-                    const ajn::services::AnnounceHandler::ObjectDescriptions& objectDescs);
+                    const ajn::AboutObjectDescription& objectDescription);
 
 //===========================================================//
 //Time Service Client actions
@@ -253,12 +253,15 @@ void cleanAnnounceHandler()
         return;
     }
 
-    QStatus status = AnnouncementRegistrar::UnRegisterAnnounceHandler(*bus, *announceHandler, interfaces, 1);
+    QStatus status = bus->CancelWhoImplements(interfaces, sizeof(interfaces) / sizeof(interfaces[0]));
     if (status != ER_OK) {
 
         std::cout << "Failed to unregister AnnouncementHandler" << std::endl;
         return;
     }
+
+
+    bus->UnregisterAboutListener(*announceHandler);
 
     delete announceHandler;
     announceHandler = NULL;
@@ -661,7 +664,13 @@ void startService(const std::vector<std::string>& actionArgs)
     }
 
     announceHandler       = new TimeClientAnnouncementHandler(onAnnouncement);
-    QStatus status        = AnnouncementRegistrar::RegisterAnnounceHandler(*bus, *announceHandler, interfaces, 1);
+    bus->RegisterAboutListener(*announceHandler);
+    QStatus status = bus->WhoImplements(interfaces, sizeof(interfaces) / sizeof(interfaces[0]));
+    if (ER_OK == status) {
+        std::cout << "WhoImplements called." << std::endl;
+    } else {
+        std::cout << "ERROR - WhoImplements failed." << std::endl;
+    }
 
     if (status != ER_OK) {
 
@@ -1731,7 +1740,7 @@ void onAnnouncement(const qcc::String& busName,
                     const qcc::String& deviceId,
                     const qcc::String& appId,
                     const qcc::String& uniqKey,
-                    const ajn::services::AnnounceHandler::ObjectDescriptions& objectDescs)
+                    const ajn::AboutObjectDescription& objectDescription)
 {
 
     bus->EnableConcurrentCallbacks();
@@ -1760,7 +1769,7 @@ void onAnnouncement(const qcc::String& busName,
     }
 
     TimeServiceClient* timeClient = new TimeServiceClient();
-    timeClient->init(bus, busName, deviceId, appId, objectDescs);
+    timeClient->init(bus, busName, deviceId, appId, objectDescription);
 
     timeClients.insert(std::pair<qcc::String, TimeServiceClient*>(uniqKey, timeClient));
 

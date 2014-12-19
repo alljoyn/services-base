@@ -17,7 +17,6 @@
 #ifndef ASYNCSESSIONJOINER_H_
 #define ASYNCSESSIONJOINER_H_
 
-#include <alljoyn/about/AboutClient.h>
 #include <alljoyn/BusAttachment.h>
 
 typedef void (*SessionJoinedCallback)(qcc::String const& busName, ajn::SessionId id);

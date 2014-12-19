@@ -17,13 +17,15 @@
 #include <signal.h>
 #include <SrpKeyXListener.h>
 #include <CommonSampleUtil.h>
-#include <PropertyStoreImpl.h>
+#include <AboutDataStore.h>
+#include <alljoyn/AboutObj.h>
+#include <alljoyn/AboutData.h>
 #include <IniParser.h>
 #include <OptParser.h>
 #include <alljoyn/services_common/LogModulesNames.h>
-
-#include <alljoyn/about/AboutIconService.h>
-#include <alljoyn/about/AboutServiceApi.h>
+#include <alljoyn/AboutIconObj.h>
+#include <AboutDataStore.h>
+#include <qcc/StringUtil.h>
 
 #ifdef _CONFIG_
 #include <alljoyn/config/ConfigService.h>
@@ -59,9 +61,11 @@ static char const* const QCC_MODULE = "ServerSample";
 /** static variables need for sample */
 static BusAttachment* msgBus = NULL;
 static SrpKeyXListener* keyListener = NULL;
-static AboutIconService* aboutIconService = NULL;
-static PropertyStoreImpl* propertyStoreImpl = NULL;
 static CommonBusListener* busListener = NULL;
+static AboutIcon* icon = NULL;
+static AboutIconObj* aboutIconObj = NULL;
+static AboutDataStore* aboutDataStore = NULL;
+static AboutObj* aboutObj = NULL;
 
 static SessionPort SERVICE_PORT;
 static qcc::String configFile;
@@ -98,8 +102,8 @@ static void daemonDisconnectCB()
 
 static void cleanup() {
 
-    if (AboutServiceApi::getInstance()) {
-        AboutServiceApi::DestroyInstance();
+    if (AboutObjApi::getInstance()) {
+        AboutObjApi::DestroyInstance();
     }
 
     if (keyListener) {
@@ -107,14 +111,24 @@ static void cleanup() {
         keyListener = NULL;
     }
 
-    if (aboutIconService) {
-        delete aboutIconService;
-        aboutIconService = NULL;
+    if (aboutIconObj) {
+        delete aboutIconObj;
+        aboutIconObj = NULL;
     }
 
-    if (propertyStoreImpl) {
-        delete propertyStoreImpl;
-        propertyStoreImpl = NULL;
+    if (icon) {
+        delete icon;
+        icon = NULL;
+    }
+
+    if (aboutDataStore) {
+        delete aboutDataStore;
+        aboutDataStore = NULL;
+    }
+
+    if (aboutObj) {
+        delete aboutObj;
+        aboutObj = NULL;
     }
 
     if (busListener) {
@@ -217,19 +231,22 @@ void FillNotification(NotificationMessageType& messageType, std::vector<Notifica
 #endif
 
 #define CHECK_RETURN(x) if ((status = x) != ER_OK) { return status; }
-QStatus fillPropertyStore(AboutPropertyStoreImpl* propertyStore, qcc::String const& appIdHex,
+QStatus fillPropertyStore(AboutData* aboutdata, qcc::String const& appIdHex,
                           qcc::String const& appName, qcc::String const& deviceId, DeviceNamesType const& deviceNames,
                           qcc::String const& defaultLanguage)
 {
-    if (!propertyStore) {
+    if (!aboutdata) {
         return ER_BAD_ARG_1;
     }
 
     QStatus status = ER_OK;
 
-    CHECK_RETURN(propertyStore->setDeviceId(deviceId))
-    CHECK_RETURN(propertyStore->setAppId(appIdHex))
-    CHECK_RETURN(propertyStore->setAppName(appName))
+    CHECK_RETURN(aboutdata->SetDeviceId(deviceId.c_str()))
+
+    uint8_t outBytes[16];
+    size_t sizeOfOutBytes = sizeof(outBytes) / sizeof(outBytes[0]);
+    sizeOfOutBytes = qcc::HexStringToBytes(appIdHex, outBytes, sizeOfOutBytes);
+    CHECK_RETURN(aboutdata->SetAppId(outBytes, sizeOfOutBytes));
 
 #ifdef _CONTROLPANEL_
     std::vector<qcc::String> languagesVec;
@@ -255,39 +272,53 @@ QStatus fillPropertyStore(AboutPropertyStoreImpl* propertyStore, qcc::String con
     languagesVec[1] = "de-AT";
     languagesVec[2] = "zh-Hans-CN";
 #endif
+    for (size_t i = 0; i < languagesVec.size(); i++) {
+        CHECK_RETURN(aboutdata->SetSupportedLanguage(languagesVec[i].c_str()))
+    }
+    CHECK_RETURN(aboutdata->SetDefaultLanguage(defaultLanguage.c_str()))
 
-    DeviceNamesType::const_iterator iter = deviceNames.find(languagesVec[0]);
+    CHECK_RETURN(aboutdata->SetAppName(appName.c_str(), languagesVec[0].c_str()))
+    CHECK_RETURN(aboutdata->SetAppName(appName.c_str(), languagesVec[1].c_str()))
+    CHECK_RETURN(aboutdata->SetAppName(appName.c_str(), languagesVec[2].c_str()))
+
+    DeviceNamesType::const_iterator iter = deviceNames.find(languagesVec[0].c_str());
     if (iter != deviceNames.end()) {
-        CHECK_RETURN(propertyStore->setDeviceName(iter->second.c_str(), languagesVec[0]));
+        CHECK_RETURN(aboutdata->SetDeviceName(iter->second.c_str(), languagesVec[0].c_str()));
     } else {
-        CHECK_RETURN(propertyStore->setDeviceName("My device name", languagesVec[0]));
+        CHECK_RETURN(aboutdata->SetDeviceName("My device name", languagesVec[0].c_str()));
     }
 
-    iter = deviceNames.find(languagesVec[1]);
+    iter = deviceNames.find(languagesVec[1].c_str());
     if (iter != deviceNames.end()) {
-        CHECK_RETURN(propertyStore->setDeviceName(iter->second.c_str(), languagesVec[1]));
+        CHECK_RETURN(aboutdata->SetDeviceName(iter->second.c_str(), languagesVec[1].c_str()));
     } else {
-        CHECK_RETURN(propertyStore->setDeviceName("Mein Gerätname", languagesVec[1]));
+        CHECK_RETURN(aboutdata->SetDeviceName("Mein Gerätname", languagesVec[1].c_str()));
     }
 
-    iter = deviceNames.find(languagesVec[2]);
+    iter = deviceNames.find(languagesVec[2].c_str());
     if (iter != deviceNames.end()) {
-        CHECK_RETURN(propertyStore->setDeviceName(iter->second.c_str(), languagesVec[2]));
+        CHECK_RETURN(aboutdata->SetDeviceName(iter->second.c_str(), languagesVec[2].c_str()));
     } else {
-        CHECK_RETURN(propertyStore->setDeviceName("我的設備名稱", languagesVec[2]));
+        CHECK_RETURN(aboutdata->SetDeviceName("我的設備名稱", languagesVec[2].c_str()));
     }
 
-    CHECK_RETURN(propertyStore->setSupportedLangs(languagesVec))
-    CHECK_RETURN(propertyStore->setDefaultLang(defaultLanguage))
-    CHECK_RETURN(propertyStore->setModelNumber("Wxfy388i"))
-    CHECK_RETURN(propertyStore->setDateOfManufacture("10/1/2199"))
-    CHECK_RETURN(propertyStore->setSoftwareVersion("12.20.44 build 44454"))
-    CHECK_RETURN(propertyStore->setAjSoftwareVersion(ajn::GetVersion()))
-    CHECK_RETURN(propertyStore->setHardwareVersion("355.499. b"))
-    CHECK_RETURN(propertyStore->setDescription("This is an Alljoyn Application"))
-    CHECK_RETURN(propertyStore->setManufacturer("Company"))
-    CHECK_RETURN(propertyStore->setSupportUrl("http://www.alljoyn.org"))
+    CHECK_RETURN(aboutdata->SetModelNumber("Wxfy388i"))
+    CHECK_RETURN(aboutdata->SetDateOfManufacture("10/1/2199"))
+    CHECK_RETURN(aboutdata->SetSoftwareVersion("12.20.44 build 44454"))
+    CHECK_RETURN(aboutdata->SetSoftwareVersion(ajn::GetVersion()))
+    CHECK_RETURN(aboutdata->SetHardwareVersion("355.499. b"))
+    CHECK_RETURN(aboutdata->SetDescription("This is an Alljoyn Application", languagesVec[0].c_str()))
+    CHECK_RETURN(aboutdata->SetDescription("This is an Alljoyn Application", languagesVec[1].c_str()))
+    CHECK_RETURN(aboutdata->SetDescription("This is an Alljoyn Application", languagesVec[2].c_str()))
+    CHECK_RETURN(aboutdata->SetManufacturer("Company", languagesVec[0].c_str()))
+    CHECK_RETURN(aboutdata->SetManufacturer("Company", languagesVec[1].c_str()))
+    CHECK_RETURN(aboutdata->SetManufacturer("Company", languagesVec[2].c_str()))
+    CHECK_RETURN(aboutdata->SetSupportUrl("http://www.alljoyn.org"))
 
+    if (!aboutdata->IsValid()) {
+        printf("failed to setup about data.\n");
+        return ER_FAIL;
+    }
     return status;
 }
 
@@ -370,25 +401,26 @@ start:
     }
 #endif
 
-    propertyStoreImpl = new PropertyStoreImpl(opts.GetFactoryConfigFile().c_str(), opts.GetConfigFile().c_str());
-    status = fillPropertyStore(propertyStoreImpl, opts.GetAppId(), opts.GetAppName(), opts.GetDeviceId(),
+    aboutDataStore = new AboutDataStore(opts.GetFactoryConfigFile().c_str(), opts.GetConfigFile().c_str());
+    status = fillPropertyStore(aboutDataStore, opts.GetAppId(), opts.GetAppName(), opts.GetDeviceId(),
                                opts.GetDeviceNames(), opts.GetDefaultLanguage());
-    propertyStoreImpl->Initialize();
+    aboutDataStore->Initialize();
     if (status != ER_OK) {
         std::cout << "Could not fill PropertyStore." << std::endl;
         cleanup();
         return 1;
     }
 
-    status = CommonSampleUtil::prepareAboutService(msgBus, propertyStoreImpl, busListener, SERVICE_PORT);
+    aboutObj = new ajn::AboutObj(*msgBus, BusObject::ANNOUNCED);
+    status = CommonSampleUtil::prepareAboutService(msgBus, aboutDataStore, aboutObj, busListener, SERVICE_PORT);
     if (status != ER_OK) {
         std::cout << "Could not set up the AboutService." << std::endl;
         cleanup();
         return 1;
     }
 
-    AboutService* aboutService = AboutServiceApi::getInstance();
-    if (!aboutService) {
+    AboutObjApi* aboutObjApi = AboutObjApi::getInstance();
+    if (!aboutObjApi) {
         std::cout << "Could not set up the AboutService." << std::endl;
         cleanup();
         return 1;
@@ -430,38 +462,21 @@ start:
                                    , 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82, 0x82 };
 
     qcc::String mimeType("image/png");
-    qcc::String url(""); //put your url here
-
-    std::vector<qcc::String> interfaces;
-    interfaces.push_back("org.alljoyn.Icon");
-    aboutService->AddObjectDescription("/About/DeviceIcon", interfaces);
-
-    aboutIconService = new AboutIconService(*msgBus, mimeType, url, aboutIconContent, sizeof(aboutIconContent) / sizeof(*aboutIconContent));
-    status = aboutIconService->Register();
-    if (status != ER_OK) {
-        std::cout << "Could not register the AboutIconService." << std::endl;
-        cleanup();
-        return 1;
+    icon = new ajn::AboutIcon();
+    status = icon->SetContent(mimeType.c_str(), aboutIconContent, sizeof(aboutIconContent) / sizeof(*aboutIconContent));
+    if (ER_OK != status) {
+        printf("Failed to setup the AboutIcon.\n");
     }
 
-    status = msgBus->RegisterBusObject(*aboutIconService);
-    if (status != ER_OK) {
-        std::cout << "Could not register the AboutIconService BusObject." << std::endl;
-        cleanup();
-        return 1;
-    }
+    aboutIconObj = new ajn::AboutIconObj(*msgBus, *icon);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     //ConfigService
 #ifdef _CONFIG_
-    configServiceListenerImpl = new ConfigServiceListenerImpl(*propertyStoreImpl, *msgBus, *busListener);
-    configService = new ConfigService(*msgBus, *propertyStoreImpl, *configServiceListenerImpl);
+    configServiceListenerImpl = new ConfigServiceListenerImpl(*aboutDataStore, *msgBus, *busListener);
+    configService = new ConfigService(*msgBus, *aboutDataStore, *configServiceListenerImpl);
     configFile = opts.GetConfigFile().c_str();
     keyListener->setGetPassCode(readPassword);
-
-    interfaces.clear();
-    interfaces.push_back("org.alljoyn.Config");
-    aboutService->AddObjectDescription("/Config", interfaces);
 
     status = configService->Register();
     if (status != ER_OK) {
@@ -496,7 +511,7 @@ start:
     QCC_SetDebugLevel(logModules::NOTIFICATION_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
 
 #ifdef _TESTMODE_
-    if (!notifTester->Initialize(msgBus, propertyStoreImpl)) {
+    if (!notifTester->Initialize(msgBus, aboutDataStore)) {
         std::cout << "Could not initialize NotificationTester - exiting application" << std::endl;
         cleanup();
         return 1;
@@ -504,8 +519,9 @@ start:
 #else
     // Initialize Service object and Sender Object
     prodService = NotificationService::getInstance();
+    QCC_SetDebugLevel(logModules::NOTIFICATION_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
+    sender = prodService->initSend(msgBus, aboutDataStore);
 
-    sender = prodService->initSend(msgBus, propertyStoreImpl);
     if (!sender) {
         std::cout << "Could not initialize Sender - exiting application" << std::endl;
         cleanup();

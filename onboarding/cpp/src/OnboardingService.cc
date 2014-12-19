@@ -71,7 +71,7 @@ QStatus OnboardingService::Register()
     } //if (!intf)
 
     //Add the handlers
-    CHECK_RETURN(AddInterface(*intf));
+    CHECK_RETURN(AddInterface(*intf, ANNOUNCED));
     CHECK_RETURN(AddMethodHandler(intf->GetMember("ConfigureWiFi"),
                                   static_cast<MessageReceiver::MethodHandler>(&OnboardingService::ConfigureWiFiHandler)));
     CHECK_RETURN(AddMethodHandler(intf->GetMember("Connect"),

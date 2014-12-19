@@ -41,7 +41,8 @@ NotificationSender* Sender = 0;
 NotificationReceiverTestImpl* Receiver = 0;
 
 BusAttachment* testBus = 0;
-AboutPropertyStoreImpl* propertyStoreImpl = 0;
+AboutData* aboutData = 0;
+AboutObj* aboutObj = 0;
 CommonBusListener* notificationBusListener = 0;
 NotificationMessageType messageType =  UNSET;
 std::vector<NotificationText> vecMessages;
@@ -99,9 +100,14 @@ bool initSend(std::map<qcc::String, qcc::String>& params)
         notificationBusListener = new CommonBusListener();
     }
 
-    if (!propertyStoreImpl) {
-        propertyStoreImpl = new AboutPropertyStoreImpl();
+    if (!aboutData) {
+        aboutData = new AboutData("en");
     }
+
+    if (!aboutObj) {
+        aboutObj = new AboutObj(*testBus, BusObject::ANNOUNCED);
+    }
+
 
     qcc::String deviceid;
     GuidUtil::GetInstance()->GetDeviceIdString(&deviceid);
@@ -112,21 +118,21 @@ bool initSend(std::map<qcc::String, qcc::String>& params)
     deviceNames.insert(std::pair<qcc::String, qcc::String>("en", params["device_name"]));
 
     QStatus status;
-    status = CommonSampleUtil::fillPropertyStore(propertyStoreImpl, appid, params["app_name"].c_str(),
+    status = CommonSampleUtil::fillPropertyStore(aboutData, appid, params["app_name"].c_str(),
                                                  deviceid, deviceNames);
     if (status != ER_OK) {
         std::cout << "Could not fill PropertyStore." << std::endl;
         return false;
     }
 
-    status = CommonSampleUtil::prepareAboutService(testBus, propertyStoreImpl,
+    status = CommonSampleUtil::prepareAboutService(testBus, aboutData, aboutObj,
                                                    notificationBusListener, SERVICE_PORT);
     if (status != ER_OK) {
         std::cout << "Could not set up the AboutService." << std::endl;
         return false;
     }
 
-    Sender = Service->initSend(testBus, propertyStoreImpl);
+    Sender = Service->initSend(testBus, aboutData);
     if (!Sender) {
         std::cout << "Could not initialize the sender";
         return false;
@@ -294,11 +300,14 @@ bool shutdown(std::map<qcc::String, qcc::String>& params)
         notificationBusListener = 0;
     }
 
-    if (propertyStoreImpl) {
-        delete propertyStoreImpl;
-        propertyStoreImpl = 0;
+    if (aboutData) {
+        delete aboutData;
+        aboutData = 0;
     }
-
+    if (aboutObj) {
+        delete aboutObj;
+        aboutObj = NULL;
+    }
     if (Service) {
         Service->shutdown();
         Service = 0;

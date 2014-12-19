@@ -18,7 +18,6 @@
 #include <sstream>
 #include <cstdio>
 #include <signal.h>
-#include <alljoyn/about/AnnouncementRegistrar.h>
 #include <alljoyn/notification/NotificationService.h>
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include <alljoyn/controlpanel/ControlPanelController.h>
@@ -54,7 +53,9 @@ static void SigIntHandler(int sig)
 void cleanup()
 {
     if (bus && announceHandler) {
-        AnnouncementRegistrar::UnRegisterAnnounceHandler(*bus, *announceHandler, NULL, 0);
+        const char* interfaces[] = { "*" };
+        bus->CancelWhoImplements(interfaces, sizeof(interfaces) / sizeof(interfaces[0]));
+        bus->UnregisterAboutListener(*announceHandler);
     }
 
     if (controlPanelService) {
@@ -92,10 +93,12 @@ void cleanup()
     }
 }
 
-static void announceHandlerCallback(qcc::String const& busName, unsigned short version, unsigned short port,
-                                    const AnnounceHandler::ObjectDescriptions& objectDescs, const AnnounceHandler::AboutData& aboutData)
+static void announceHandlerCallback(qcc::String const& busName, unsigned short version,
+                                    unsigned short port, const ajn::AboutObjectDescription& objectDescription,
+                                    const ajn::AboutData& aboutData)
 {
-    controlPanelController->createControllableDevice(busName, objectDescs);
+    std::cout << "Got announceHandlerCallback" << std::endl;
+    controlPanelController->createControllableDevice(busName, objectDescription);
 }
 
 void WaitForSigInt(void) {
@@ -144,7 +147,15 @@ int main()
     }
 
     announceHandler = new AnnounceHandlerImpl(NULL, announceHandlerCallback);
-    AnnouncementRegistrar::RegisterAnnounceHandler(*bus, *announceHandler, NULL, 0);
+    bus->RegisterAboutListener(*announceHandler);
+
+    const char* interfaces[] = { "*" };
+    status = bus->WhoImplements(interfaces, sizeof(interfaces) / sizeof(interfaces[0]));
+    if (ER_OK == status) {
+        std::cout << "WhoImplements called." << std::endl;
+    } else {
+        std::cout << "ERROR - WhoImplements failed." << std::endl;
+    }
 
     conService = NotificationService::getInstance();
     receiver = new ControllerNotificationReceiver(controlPanelController);

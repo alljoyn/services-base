@@ -21,7 +21,6 @@
 #include <vector>
 #include <alljoyn/BusAttachment.h>
 #include <alljoyn/Status.h>
-#include <alljoyn/about/AnnounceHandler.h>
 #include <alljoyn/time/TimeServiceClientAlarm.h>
 #include <alljoyn/time/TimeServiceClientAlarmFactory.h>
 #include <alljoyn/time/TimeServiceClientClock.h>
@@ -63,12 +62,12 @@ class TimeServiceClient {
      * @param serverBusName The bus name to reach the TimeServiceServer
      * @param deviceId The id of the device hosting the TimeServiceServer
      * @param appId The name of the application that started the TimeServiceServer
-     * @param objDescs AnnounceHandler::ObjectDescriptions received with Announcement
+     * @param aboutObjectDescription AboutObjectDescription received with Announcement
      *
      * @return ER_OK if succeeded to initialize the TimeServiceClient
      */
     QStatus init(BusAttachment* bus, const qcc::String& serverBusName, const qcc::String& deviceId,
-                 const qcc::String& appId, const AnnounceHandler::ObjectDescriptions& objDescs);
+                 const qcc::String& appId, const ajn::AboutObjectDescription& aboutObjectDescription);
 
     /**
      * Cleans the object and releases its resources.
@@ -342,7 +341,7 @@ class TimeServiceClient {
      *
      * @param objDescs Object Descriptions received with the Announcement
      */
-    void analyzeObjectDescriptions(const AnnounceHandler::ObjectDescriptions& objDescs);
+    void analyzeObjectDescriptions(const AboutObjectDescription& objectDescs);
 };
 
 } /* namespace services */

@@ -65,7 +65,7 @@ QStatus TimeServiceAuthorityClockBusObj::addClockInterface(BusAttachment* bus)
         }
     }
 
-    status = AddInterface(*ifaceDesc);
+    status = AddInterface(*ifaceDesc, ANNOUNCED);
     if (status != ER_OK) {
 
         QCC_LogError(status, ("Failed to add TimeAuthority interface"));
@@ -75,16 +75,6 @@ QStatus TimeServiceAuthorityClockBusObj::addClockInterface(BusAttachment* bus)
     m_TimeSyncSignalMethod = ifaceDesc->GetMember(tsClockUtility::IFACE_AUTH_SIG_TIME_SYNC.c_str());
 
     return status;
-}
-
-//Add announced interface
-void TimeServiceAuthorityClockBusObj::addAnnouncedInterfaces()
-{
-
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, getObjectPath().c_str()));
-
-    TimeServiceClockBusObj::addAnnouncedInterfaces();
-    m_AnnouncedInterfaces.push_back(tsConsts::TIME_AUTHORITY_IFACE);
 }
 
 //Hanlde Get request

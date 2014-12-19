@@ -20,7 +20,6 @@
 #include <alljoyn/time/TimeServiceServer.h>
 #include "../common/TimeServiceUtility.h"
 #include "../common/TimeServiceTimerUtility.h"
-#include <alljoyn/about/AboutServiceApi.h>
 #include <alljoyn/time/TimeServiceConstants.h>
 
 using namespace ajn;
@@ -45,7 +44,7 @@ TimeServiceTimerBusObj::~TimeServiceTimerBusObj()
 }
 
 
-//Initialize the Bus Object. Register it on the BusAttachment and in the AboutService for Announcement
+//Initialize the Bus Object. Register it on the BusAttachment
 QStatus TimeServiceTimerBusObj::init(TimeServiceServerTimer* Timer, const std::vector<qcc::String>& notAnnounced)
 {
 
@@ -59,30 +58,30 @@ QStatus TimeServiceTimerBusObj::init(TimeServiceServerTimer* Timer, const std::v
 
     QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
 
+    BusAttachment* bus = TimeServiceServer::getInstance()->getBusAttachment();
+    if (!bus) {
+
+        QCC_LogError(ER_FAIL, ("TimeService Server hasn't been initialized"));
+        return ER_FAIL;
+    }
+
     m_IsAnnounced  = true;
     QStatus status = init(Timer, description, language, translator);
-
-    AboutServiceApi* aboutService = AboutServiceApi::getInstance();
-    if (!aboutService) {
-
-        QCC_LogError(ER_FAIL, ("AboutService hasn't been initialized"));
-        return ER_FAIL;
+    if (status != ER_OK) {
+        QCC_LogError(status, ("Failed to initialize timer. Object:'%s'", m_ObjectPath.c_str()));
+        return status;
     }
 
     //org.allseen.Timer interface has AllSeenIntrospectable descriptions, so we add the AllSeenIntrospectable interface
     //to the announcement to support Events & Actions feature
-    m_AnnouncedInterfaces.push_back(org::allseen::Introspectable::InterfaceName);
+    status = tsUtility::setInterfaceAnnounce(this, bus, org::allseen::Introspectable::InterfaceName, true);
+    if (status != ER_OK) {
+        QCC_LogError(status, ("Failed to add org::allseen::Introspectable interface, Object:'%s'", m_ObjectPath.c_str()));
+        return status;
+    }
 
     //Subtract from the interfaces to be announced those that shouldn't be announced
-    tsUtility::subtract(&m_AnnouncedInterfaces, notAnnounced);
-
-    if (m_AnnouncedInterfaces.size() > 0) {
-
-        aboutService->AddObjectDescription(m_ObjectPath, m_AnnouncedInterfaces);
-    } else {
-
-        QCC_DbgPrintf(("Not found any interfaces to be announced!!!, objectPath: '%s'", m_ObjectPath.c_str()));
-    }
+    tsUtility::subtract(this, bus, notAnnounced);
 
     return status;
 }
@@ -154,12 +153,6 @@ void TimeServiceTimerBusObj::release()
     }
 
     bus->UnregisterBusObject(*this);
-
-    AboutServiceApi* aboutService = AboutServiceApi::getInstance();
-    if (aboutService && m_AnnouncedInterfaces.size() > 0) {
-
-        aboutService->RemoveObjectDescription(m_ObjectPath, m_AnnouncedInterfaces);
-    }
 
     m_IsInitialized = false;
 }
@@ -255,22 +248,15 @@ QStatus TimeServiceTimerBusObj::addTimerInterface(const InterfaceDescription& if
 {
 
     QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
-
+#if !defined(NDEBUG)
     const char* ifaceName = iface.GetName();
-
-    QStatus status = AddInterface(iface);
+#endif
+    QStatus status = AddInterface(iface, m_IsAnnounced ? ANNOUNCED : UNANNOUNCED);
     if (status != ER_OK) {
-
+#if !defined(NDEBUG)
         QCC_LogError(status, ("Failed to add the Interface: '%s', objectPath: '%s'", ifaceName, m_ObjectPath.c_str()));
+#endif
         return status;
-    }
-
-    if (m_IsAnnounced) {
-
-        QCC_DbgPrintf(("Adding announced interface: '%s', objectPath: '%s'", ifaceName, m_ObjectPath.c_str()));
-
-        //Add the name of this interface to be announced;
-        m_AnnouncedInterfaces.push_back(ifaceName);
     }
 
     return status;

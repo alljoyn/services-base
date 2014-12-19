@@ -17,7 +17,8 @@
 #ifndef OPTPARSER_H_
 #define OPTPARSER_H_
 
-#include <alljoyn/about/AboutServiceApi.h>
+#include <map>
+#include <qcc/String.h>
 
 typedef std::map<qcc::String, qcc::String> DeviceNamesType;
 
