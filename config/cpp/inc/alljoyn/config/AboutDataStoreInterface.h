@@ -44,6 +44,7 @@
  * WRITE is for data that is marked as write
  */
 struct DataPermission {
+    //!< Filter has three possible values ANNOUNCE, READ,WRITE
     typedef enum {
         ANNOUNCE,         //!< ANNOUNCE Property that has  ANNOUNCE  enabled
         READ,            //!< READ     Property that has READ  enabled
