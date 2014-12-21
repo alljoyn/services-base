@@ -33,7 +33,7 @@ TimeServiceClientClock::TimeServiceClientClock(const TimeServiceClient& tsClient
     m_TimeAuthorityHandler(NULL)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     initInterfaces(tsConsts::CLOCK_IFACE, &m_ClockIface, &tsClockUtility::createInterface);
     initInterfaces(tsConsts::TIME_AUTHORITY_IFACE, &m_TimeAuthIface, &tsClockUtility::createAuthorityInterface);
 }
@@ -42,7 +42,7 @@ TimeServiceClientClock::TimeServiceClientClock(const TimeServiceClient& tsClient
 TimeServiceClientClock::~TimeServiceClientClock()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     release();
 }
 
@@ -50,7 +50,7 @@ TimeServiceClientClock::~TimeServiceClientClock()
 void TimeServiceClientClock::release()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     QCC_DbgHLPrintf(("Releasing ClientClock, objectPath: '%s'", getObjectPath().c_str()));
 
     if (m_IsAuthority) {
@@ -73,7 +73,7 @@ bool TimeServiceClientClock::isAuthority() const
 QStatus TimeServiceClientClock::retrieveDateTime(TimeServiceDateTime* dateTime)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!dateTime) {
 
@@ -96,7 +96,7 @@ QStatus TimeServiceClientClock::retrieveDateTime(TimeServiceDateTime* dateTime)
 QStatus TimeServiceClientClock::setDateTime(const TimeServiceDateTime& dateTime)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     QCC_DbgPrintf(("Setting DateTime, objectPath: '%s'", m_ObjectPath.c_str()));
 
     if (!dateTime.isValid()) {
@@ -121,7 +121,7 @@ QStatus TimeServiceClientClock::setDateTime(const TimeServiceDateTime& dateTime)
 QStatus TimeServiceClientClock::retrieveIsSet(bool* isSet)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!isSet) {
 
@@ -144,7 +144,7 @@ QStatus TimeServiceClientClock::retrieveIsSet(bool* isSet)
 QStatus TimeServiceClientClock::retrieveAuthorityType(tsConsts::ClockAuthorityType* authType)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!m_IsAuthority) {
 
@@ -180,7 +180,7 @@ void TimeServiceClientClock::setAuthority(bool isAuthority)
 QStatus TimeServiceClientClock::registerTimeAuthorityHandler(TimeAuthorityHandler* handler)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!m_IsAuthority) {
 
@@ -202,7 +202,7 @@ QStatus TimeServiceClientClock::registerTimeAuthorityHandler(TimeAuthorityHandle
 void TimeServiceClientClock::unRegisterTimeAuthorityHandler()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!m_TimeAuthorityHandler) {
 

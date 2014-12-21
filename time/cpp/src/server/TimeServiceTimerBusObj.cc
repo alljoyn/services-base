@@ -32,14 +32,14 @@ TimeServiceTimerBusObj::TimeServiceTimerBusObj(qcc::String const& objectPath) : 
 
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, objectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, objectPath.c_str()));
 }
 
 //Destructor
 TimeServiceTimerBusObj::~TimeServiceTimerBusObj()
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     release();
 }
 
@@ -56,7 +56,7 @@ QStatus TimeServiceTimerBusObj::init(TimeServiceServerTimer* Timer, const std::v
                                      const qcc::String& description, const qcc::String& language, Translator* translator)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     BusAttachment* bus = TimeServiceServer::getInstance()->getBusAttachment();
     if (!bus) {
@@ -91,7 +91,7 @@ QStatus TimeServiceTimerBusObj::init(TimeServiceServerTimer* Timer, const qcc::S
                                      Translator* translator)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     QStatus status = ER_OK;
 
@@ -142,7 +142,7 @@ QStatus TimeServiceTimerBusObj::init(TimeServiceServerTimer* Timer, const qcc::S
 void TimeServiceTimerBusObj::release()
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgHLPrintf(("Releasing Timer '%s'", m_ObjectPath.c_str()));
 
     m_Timer = NULL;
@@ -175,7 +175,7 @@ qcc::String const& TimeServiceTimerBusObj::getObjectPath() const
 QStatus TimeServiceTimerBusObj::createTimerInterface(BusAttachment* bus)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     QStatus status = ER_OK;
     InterfaceDescription* ifaceDesc = const_cast<InterfaceDescription*>(bus->GetInterface(tsConsts::TIMER_IFACE.c_str()));
@@ -239,7 +239,7 @@ QStatus TimeServiceTimerBusObj::createTimerInterface(BusAttachment* bus)
 QStatus TimeServiceTimerBusObj::createCustomInterfaceHook(BusAttachment* bus)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     return ER_OK;
 }
 
@@ -247,7 +247,7 @@ QStatus TimeServiceTimerBusObj::createCustomInterfaceHook(BusAttachment* bus)
 QStatus TimeServiceTimerBusObj::addTimerInterface(const InterfaceDescription& iface)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 #if !defined(NDEBUG)
     const char* ifaceName = iface.GetName();
 #endif
@@ -266,7 +266,7 @@ QStatus TimeServiceTimerBusObj::addTimerInterface(const InterfaceDescription& if
 QStatus TimeServiceTimerBusObj::Get(const char* interfaceName, const char* propName, MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     BusAttachment* bus = TimeServiceServer::getInstance()->getBusAttachment();
     if (!bus) {
@@ -322,7 +322,7 @@ QStatus TimeServiceTimerBusObj::Get(const char* interfaceName, const char* propN
 QStatus TimeServiceTimerBusObj::Set(const char* interfaceName, const char* propName, MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     BusAttachment* bus = TimeServiceServer::getInstance()->getBusAttachment();
     if (!bus) {
@@ -362,7 +362,7 @@ QStatus TimeServiceTimerBusObj::Set(const char* interfaceName, const char* propN
 QStatus TimeServiceTimerBusObj::handleGetVersion(MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     msgArg.typeId       = ALLJOYN_UINT16;
     msgArg.v_uint16     = tsConsts::TIMER_IFACE_VERSION;
@@ -374,7 +374,7 @@ QStatus TimeServiceTimerBusObj::handleGetVersion(MsgArg& msgArg)
 QStatus TimeServiceTimerBusObj::handleGetInterval(MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgPrintf(("Handling Get.interval() property call, objectPath: '%s'", m_ObjectPath.c_str()));
 
     const TimeServicePeriod interval = m_Timer->getInterval();
@@ -399,7 +399,7 @@ QStatus TimeServiceTimerBusObj::handleGetInterval(MsgArg& msgArg)
 QStatus TimeServiceTimerBusObj::handleGetTimeLeft(MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgPrintf(("Handling Get.TimeLeft() property call, objectPath: '%s'", m_ObjectPath.c_str()));
 
     const TimeServicePeriod interval = m_Timer->getTimeLeft();
@@ -424,7 +424,7 @@ QStatus TimeServiceTimerBusObj::handleGetTimeLeft(MsgArg& msgArg)
 QStatus TimeServiceTimerBusObj::handleGetTitle(MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgPrintf(("Handling Get.Title() property call, objectPath: '%s'", m_ObjectPath.c_str()));
 
     const qcc::String title  = m_Timer->getTitle();
@@ -442,7 +442,7 @@ QStatus TimeServiceTimerBusObj::handleGetTitle(MsgArg& msgArg)
 QStatus TimeServiceTimerBusObj::handleGetIsRunning(MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgPrintf(("Handling isRunning() property call, objectPath: '%s'", m_ObjectPath.c_str()));
 
     const bool isRunning = m_Timer->isRunning();
@@ -460,7 +460,7 @@ QStatus TimeServiceTimerBusObj::handleGetIsRunning(MsgArg& msgArg)
 QStatus TimeServiceTimerBusObj::handleGetRepeat(MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgPrintf(("Handling Get.Repeat() property call, objectPath: '%s'", m_ObjectPath.c_str()));
 
     const uint16_t repeat = m_Timer->getRepeat();
@@ -478,7 +478,7 @@ QStatus TimeServiceTimerBusObj::handleGetRepeat(MsgArg& msgArg)
 QStatus TimeServiceTimerBusObj::handleSetInterval(MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgPrintf(("Handling Set.Interval() property call, objectPath: '%s'", m_ObjectPath.c_str()));
 
     TimeServicePeriod interval;
@@ -505,7 +505,7 @@ QStatus TimeServiceTimerBusObj::handleSetInterval(MsgArg& msgArg)
 QStatus TimeServiceTimerBusObj::handleSetTitle(MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgPrintf(("Handling Set.Title() property call, objectPath: '%s'", m_ObjectPath.c_str()));
 
     qcc::String title;
@@ -527,7 +527,7 @@ QStatus TimeServiceTimerBusObj::handleSetTitle(MsgArg& msgArg)
 QStatus TimeServiceTimerBusObj::handleSetRepeat(MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgPrintf(("Handling Set.Repeat() property call, objectPath: '%s'", m_ObjectPath.c_str()));
 
     uint16_t repeat;
@@ -551,7 +551,7 @@ QStatus TimeServiceTimerBusObj::handleSetRepeat(MsgArg& msgArg)
 QStatus TimeServiceTimerBusObj::sendTimerEvent()
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     if (!m_TimerEventSignalMethod) {
 
@@ -579,7 +579,7 @@ QStatus TimeServiceTimerBusObj::sendTimerEvent()
 QStatus TimeServiceTimerBusObj::sendRunStateChanged(bool isRunning)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     if (!m_RunStateChangedSignalMethod) {
 
@@ -618,7 +618,7 @@ QStatus TimeServiceTimerBusObj::sendRunStateChanged(bool isRunning)
 void TimeServiceTimerBusObj::handleStart(const InterfaceDescription::Member* member, Message& msg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     bus->EnableConcurrentCallbacks();
 
@@ -632,7 +632,7 @@ void TimeServiceTimerBusObj::handleStart(const InterfaceDescription::Member* mem
 void TimeServiceTimerBusObj::handlePause(const InterfaceDescription::Member* member, Message& msg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     bus->EnableConcurrentCallbacks();
 
@@ -646,7 +646,7 @@ void TimeServiceTimerBusObj::handlePause(const InterfaceDescription::Member* mem
 void TimeServiceTimerBusObj::handleReset(const InterfaceDescription::Member* member, Message& msg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     bus->EnableConcurrentCallbacks();
 

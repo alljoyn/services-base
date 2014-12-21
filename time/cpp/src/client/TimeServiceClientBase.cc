@@ -28,14 +28,14 @@ TimeServiceClientBase::TimeServiceClientBase(const TimeServiceClient& tsClient, 
     m_ProxyObj(NULL)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 }
 
 //Destructor
 TimeServiceClientBase::~TimeServiceClientBase()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (m_ProxyObj) {
 
@@ -62,7 +62,7 @@ const TimeServiceClient& TimeServiceClientBase::getTsClient() const
 QStatus TimeServiceClientBase::getConnectionData(ConnectionData* connData) const
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     BusAttachment* bus = m_TsClient.getBus();
 
@@ -91,7 +91,7 @@ void TimeServiceClientBase::initInterfaces(const qcc::String& ifaceName, Interfa
                                            IntefaceFactoryMethod factoryMethod)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     BusAttachment* bus = m_TsClient.getBus();
     (*ptrIface)        = const_cast<InterfaceDescription*>(bus->GetInterface(ifaceName.c_str()));
@@ -116,7 +116,7 @@ void TimeServiceClientBase::initInterfaces(const qcc::String& ifaceName, Interfa
 QStatus TimeServiceClientBase::prepareProxyObject(InterfaceDescription* ifaceDesc)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     ConnectionData connData;
     QStatus status = getConnectionData(&connData);
@@ -161,7 +161,7 @@ QStatus TimeServiceClientBase::retrieveServerProperty(InterfaceDescription* ifac
                                                       MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     QCC_DbgPrintf(("Retrieving '%s' property, objectPath: '%s'", propName.c_str(), m_ObjectPath.c_str()));
 
     QStatus status = prepareProxyObject(ifaceDesc);
@@ -187,7 +187,7 @@ QStatus TimeServiceClientBase::setServerProperty(InterfaceDescription* ifaceDesc
                                                  MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     QCC_DbgPrintf(("Setting '%s' property, objectPath: '%s'", propName.c_str(), m_ObjectPath.c_str()));
 
     QStatus status = prepareProxyObject(ifaceDesc);
@@ -213,7 +213,7 @@ QStatus TimeServiceClientBase::serverMethodCall(InterfaceDescription* ifaceDesc,
                                                 const ajn::MsgArg* argsIn, size_t numArgs, Message* msgOut)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     QCC_DbgPrintf(("Calling method '%s' , objectPath: '%s'", methodName.c_str(), m_ObjectPath.c_str()));
 
     QStatus status = prepareProxyObject(ifaceDesc);

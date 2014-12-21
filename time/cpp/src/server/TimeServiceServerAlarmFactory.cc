@@ -24,14 +24,14 @@ using namespace services;
 TimeServiceServerAlarmFactory::TimeServiceServerAlarmFactory() : m_AlarmFactoryBusObj(NULL)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 }
 
 //Destructor
 TimeServiceServerAlarmFactory::~TimeServiceServerAlarmFactory()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     release();
 }
 
@@ -39,7 +39,7 @@ TimeServiceServerAlarmFactory::~TimeServiceServerAlarmFactory()
 void TimeServiceServerAlarmFactory::release()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!m_AlarmFactoryBusObj) {
 

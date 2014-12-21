@@ -25,14 +25,14 @@ using namespace services;
 TimeServiceServerClock::TimeServiceServerClock() : m_ClockBusObj(NULL)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 }
 
 // Destructor
 TimeServiceServerClock::~TimeServiceServerClock()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     release();
 }
 
@@ -40,7 +40,7 @@ TimeServiceServerClock::~TimeServiceServerClock()
 void TimeServiceServerClock::release()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!m_ClockBusObj) {
 

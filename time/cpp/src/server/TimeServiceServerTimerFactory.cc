@@ -24,14 +24,14 @@ using namespace services;
 TimeServiceServerTimerFactory::TimeServiceServerTimerFactory() : m_TimerFactoryBusObj(NULL)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 }
 
 //Destructor
 TimeServiceServerTimerFactory::~TimeServiceServerTimerFactory()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     release();
 }
 
@@ -39,7 +39,7 @@ TimeServiceServerTimerFactory::~TimeServiceServerTimerFactory()
 void TimeServiceServerTimerFactory::release()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!m_TimerFactoryBusObj) {
 

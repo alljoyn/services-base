@@ -31,7 +31,7 @@ TimeServiceClientTimer::TimeServiceClientTimer(const TimeServiceClient& tsClient
     m_TimerIface(NULL)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     initInterfaces(tsConsts::TIMER_IFACE, &m_TimerIface, &tsTimerUtility::createInterface);
 }
 
@@ -39,7 +39,7 @@ TimeServiceClientTimer::TimeServiceClientTimer(const TimeServiceClient& tsClient
 TimeServiceClientTimer::~TimeServiceClientTimer()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     release();
 }
 
@@ -47,7 +47,7 @@ TimeServiceClientTimer::~TimeServiceClientTimer()
 void TimeServiceClientTimer::release()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     QCC_DbgHLPrintf(("Releasing ClientTimer, objectPath: '%s'", getObjectPath().c_str()));
     unRegisterTimerHandler();
 
@@ -58,7 +58,7 @@ void TimeServiceClientTimer::release()
 QStatus TimeServiceClientTimer::registerTimerHandler(TimerHandler*handler)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     m_TimerHandler = handler;
     return TimerSignalHandler::getInstance()->registerTimer(this);
 }
@@ -67,7 +67,7 @@ QStatus TimeServiceClientTimer::registerTimerHandler(TimerHandler*handler)
 void TimeServiceClientTimer::unRegisterTimerHandler()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!m_TimerHandler) {
 
@@ -90,7 +90,7 @@ TimerHandler* TimeServiceClientTimer::getTimerHandler()
 QStatus TimeServiceClientTimer::retrieveInterval(TimeServicePeriod* interval)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!interval) {
 
@@ -114,7 +114,7 @@ QStatus TimeServiceClientTimer::retrieveInterval(TimeServicePeriod* interval)
 QStatus TimeServiceClientTimer::setInterval(const TimeServicePeriod& interval)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     QCC_DbgPrintf(("Setting interval, objectPath: '%s'", m_ObjectPath.c_str()));
 
     if (!interval.isValid()) {
@@ -139,7 +139,7 @@ QStatus TimeServiceClientTimer::setInterval(const TimeServicePeriod& interval)
 QStatus TimeServiceClientTimer::retrieveTimeLeft(TimeServicePeriod* period)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     QCC_DbgPrintf(("Retrieving timeleft, objectPath: '%s'", m_ObjectPath.c_str()));
 
     if (!period) {
@@ -163,7 +163,7 @@ QStatus TimeServiceClientTimer::retrieveTimeLeft(TimeServicePeriod* period)
 QStatus TimeServiceClientTimer::retrieveIsRunning(bool& isRunning)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     QCC_DbgPrintf(("Retrieving isRunning, objectPath: '%s'", m_ObjectPath.c_str()));
 
     MsgArg msgArg;
@@ -182,7 +182,7 @@ QStatus TimeServiceClientTimer::retrieveIsRunning(bool& isRunning)
 QStatus TimeServiceClientTimer::retrieveRepeat(uint16_t& repeat)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     QCC_DbgPrintf(("Retrieving repeat, objectPath: '%s'", m_ObjectPath.c_str()));
 
     MsgArg msgArg;
@@ -201,7 +201,7 @@ QStatus TimeServiceClientTimer::retrieveRepeat(uint16_t& repeat)
 QStatus TimeServiceClientTimer::setRepeat(short repeat)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     QCC_DbgPrintf(("Setting repeat, objectPath: '%s'", m_ObjectPath.c_str()));
 
     MsgArg msgArg;
@@ -220,7 +220,7 @@ QStatus TimeServiceClientTimer::setRepeat(short repeat)
 QStatus TimeServiceClientTimer::retrieveTitle(qcc::String* title)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!title) {
 
@@ -243,7 +243,7 @@ QStatus TimeServiceClientTimer::retrieveTitle(qcc::String* title)
 QStatus TimeServiceClientTimer::setTitle(const qcc::String& title)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     QCC_DbgPrintf(("Setting Title, objectPath: '%s'", m_ObjectPath.c_str()));
 
     MsgArg msgArg;
@@ -262,7 +262,7 @@ QStatus TimeServiceClientTimer::setTitle(const qcc::String& title)
 QStatus TimeServiceClientTimer::start()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     return serverMethodCall(m_TimerIface, tsTimerUtility::IFACE_METHOD_START, NULL, 0);
 }
 
@@ -270,7 +270,7 @@ QStatus TimeServiceClientTimer::start()
 QStatus TimeServiceClientTimer::pause()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     return serverMethodCall(m_TimerIface, tsTimerUtility::IFACE_METHOD_PAUSE, NULL, 0);
 }
 
@@ -278,7 +278,7 @@ QStatus TimeServiceClientTimer::pause()
 QStatus TimeServiceClientTimer::reset()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     ConnectionData connectionData;
     QStatus status = getConnectionData(&connectionData);

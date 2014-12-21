@@ -30,14 +30,14 @@ TimeServiceTimerFactoryBusObj::TimeServiceTimerFactoryBusObj(qcc::String const& 
     m_ObjectPath(objectPath), m_Translator(NULL)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, objectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, objectPath.c_str()));
 }
 
 //Destructor
 TimeServiceTimerFactoryBusObj::~TimeServiceTimerFactoryBusObj()
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     release();
 }
 
@@ -53,7 +53,7 @@ QStatus TimeServiceTimerFactoryBusObj::init(TimeServiceServerTimerFactory* Timer
                                             const qcc::String& language, Translator* translator)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     QStatus status = ER_OK;
 
@@ -98,7 +98,7 @@ QStatus TimeServiceTimerFactoryBusObj::init(TimeServiceServerTimerFactory* Timer
 void TimeServiceTimerFactoryBusObj::release()
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgHLPrintf(("Releasing TimerFactory '%s'", m_ObjectPath.c_str()));
 
     m_TimerFactory     = NULL;
@@ -122,7 +122,7 @@ qcc::String const& TimeServiceTimerFactoryBusObj::getObjectPath() const
 QStatus TimeServiceTimerFactoryBusObj::addTimerFactoryInterface(BusAttachment* bus)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     QStatus status = ER_OK;
 
@@ -174,7 +174,7 @@ QStatus TimeServiceTimerFactoryBusObj::addTimerFactoryInterface(BusAttachment* b
 QStatus TimeServiceTimerFactoryBusObj::Get(const char* interfaceName, const char* propName, MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     BusAttachment* bus = TimeServiceServer::getInstance()->getBusAttachment();
     if (!bus) {
@@ -205,7 +205,7 @@ QStatus TimeServiceTimerFactoryBusObj::Get(const char* interfaceName, const char
 QStatus TimeServiceTimerFactoryBusObj::handleGetVersion(MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     msgArg.typeId   = ALLJOYN_UINT16;
     msgArg.v_uint16 = tsConsts::TIMER_FACTORY_IFACE_VERSION;
@@ -217,7 +217,7 @@ QStatus TimeServiceTimerFactoryBusObj::handleGetVersion(MsgArg& msgArg)
 void TimeServiceTimerFactoryBusObj::handleNewTimer(const InterfaceDescription::Member* member, Message& msg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgPrintf(("Handling NewTimer() method call, objectPath: '%s'", m_ObjectPath.c_str()));
 
     BusAttachment* bus = TimeServiceServer::getInstance()->getBusAttachment();
@@ -310,7 +310,7 @@ void TimeServiceTimerFactoryBusObj::handleNewTimer(const InterfaceDescription::M
 void TimeServiceTimerFactoryBusObj::handleDeleteTimer(const InterfaceDescription::Member* member, Message& msg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgPrintf(("Handling DeleteTimer() method call, objectPath: '%s'", m_ObjectPath.c_str()));
 
     BusAttachment* bus = TimeServiceServer::getInstance()->getBusAttachment();

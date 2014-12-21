@@ -39,14 +39,14 @@ TimeServiceServer* TimeServiceServer::s_Instance(NULL);
 TimeServiceServer::TimeServiceServer() : SessionListener(), SessionPortListener(), m_Sid(0), m_Bus(NULL)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 }
 
 //Desctructor
 TimeServiceServer::~TimeServiceServer()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     shutdown();
 }
 
@@ -104,7 +104,7 @@ QStatus TimeServiceServer::init(BusAttachment* busAttachment)
 void TimeServiceServer::shutdown()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!m_Bus) {
 
@@ -158,7 +158,7 @@ bool TimeServiceServer::isStarted() const
 void TimeServiceServer::SessionLost(ajn::SessionId sessionId, SessionLostReason reason)
 {
 
-    QCC_DbgTrace(("%s, SID: '%u'", __func__, sessionId));
+    QCC_DbgTrace(("%s, SID: '%u'", __FUNCTION__, sessionId));
 
     if (!m_Bus) {
 
@@ -178,7 +178,7 @@ void TimeServiceServer::SessionLost(ajn::SessionId sessionId, SessionLostReason 
 bool TimeServiceServer::AcceptSessionJoiner(ajn::SessionPort sessionPort, const char* joiner, const ajn::SessionOpts& opts)
 {
 
-    QCC_DbgTrace(("%s, Joiner: '%s'", __func__, joiner));
+    QCC_DbgTrace(("%s, Joiner: '%s'", __FUNCTION__, joiner));
 
     if (sessionPort != tsConsts::PORT) {
 
@@ -194,7 +194,7 @@ bool TimeServiceServer::AcceptSessionJoiner(ajn::SessionPort sessionPort, const 
 void TimeServiceServer::SessionJoined(ajn::SessionPort sessionPort, ajn::SessionId id, const char* joiner)
 {
 
-    QCC_DbgTrace(("%s, SID: '%u'", __func__, id));
+    QCC_DbgTrace(("%s, SID: '%u'", __FUNCTION__, id));
 
     if (!m_Bus) {
 
@@ -219,7 +219,7 @@ void TimeServiceServer::SessionJoined(ajn::SessionPort sessionPort, ajn::Session
 QStatus TimeServiceServer::activateClock(TimeServiceServerClock* clock) const
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     qcc::String objectPath(tsClockUtility::OBJ_PATH_PREFIX);
     QStatus status = generateObjectPath(&objectPath);
@@ -262,7 +262,7 @@ QStatus TimeServiceServer::activateTimeAuthorityClock(TimeServiceServerAuthority
                                                       tsConsts::ClockAuthorityType type) const
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     qcc::String objectPath(tsClockUtility::OBJ_PATH_AUTH_PREFIX);
     QStatus status = generateObjectPath(&objectPath);
@@ -313,7 +313,7 @@ QStatus TimeServiceServer::activateAlarm(TimeServiceServerAlarm* alarm, const qc
                                          const qcc::String& language, Translator* translator) const
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!alarm) {
 
@@ -368,7 +368,7 @@ QStatus TimeServiceServer::registerCustomAlarm(TimeServiceAlarmBusObj* alarmBusO
                                                const qcc::String& language, Translator* translator) const
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!alarmBusObj) {
 
@@ -414,7 +414,7 @@ QStatus TimeServiceServer::activateAlarmFactory(TimeServiceServerAlarmFactory* a
                                                 const qcc::String& language, Translator* translator) const
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!alarmFactory) {
 
@@ -467,7 +467,7 @@ QStatus TimeServiceServer::activateTimer(TimeServiceServerTimer* Timer, const qc
                                          const qcc::String& language, Translator* translator) const
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!Timer) {
 
@@ -522,7 +522,7 @@ QStatus TimeServiceServer::registerCustomTimer(TimeServiceTimerBusObj* TimerBusO
                                                const qcc::String& language, Translator* translator) const
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!TimerBusObj) {
 
@@ -568,7 +568,7 @@ QStatus TimeServiceServer::activateTimerFactory(TimeServiceServerTimerFactory* t
                                                 const qcc::String& language, Translator* translator) const
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!timerFactory) {
 

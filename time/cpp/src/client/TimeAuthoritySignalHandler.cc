@@ -41,7 +41,7 @@ class TimeAuthoritySignalData : public TaskData {
         m_Clock(clock)
     {
 
-        QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, clock->getObjectPath().c_str()));
+        QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, clock->getObjectPath().c_str()));
     };
 
     const ajn::MsgArg* m_Args;
@@ -67,7 +67,7 @@ AsyncTaskQueue TimeAuthoritySignalHandler::s_SignalQueue(&TimeAuthoritySignalHan
 void TimeAuthoritySignalTask::OnTask(const ajn::services::TaskData* taskdata)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     const TimeAuthoritySignalData* signalData = static_cast<const TimeAuthoritySignalData*>(taskdata);
 
@@ -80,7 +80,7 @@ void TimeAuthoritySignalTask::OnTask(const ajn::services::TaskData* taskdata)
 TimeAuthoritySignalHandler::TimeAuthoritySignalHandler() : m_Protector(), m_ClockSignalMethod(NULL)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 }
 
 TimeAuthoritySignalHandler::~TimeAuthoritySignalHandler()
@@ -100,7 +100,7 @@ TimeAuthoritySignalHandler* TimeAuthoritySignalHandler::getInstance()
 QStatus TimeAuthoritySignalHandler::registerClock(TimeServiceClientClock* clock)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, clock->getObjectPath().c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, clock->getObjectPath().c_str()));
 
     QStatus status = ER_OK;
 
@@ -177,7 +177,7 @@ QStatus TimeAuthoritySignalHandler::registerClock(TimeServiceClientClock* clock)
 void TimeAuthoritySignalHandler::unRegisterClock(TimeServiceClientClock* clock)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, clock->getObjectPath().c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, clock->getObjectPath().c_str()));
 
     QStatus status = m_Protector.Lock();
     if (status != ER_OK) {
@@ -248,7 +248,7 @@ void TimeAuthoritySignalHandler::unRegisterClock(TimeServiceClientClock* clock)
 TimeServiceClientClock* TimeAuthoritySignalHandler::findClockByObjectPathForDevice(qcc::String objPath, qcc::String sender)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, objPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, objPath.c_str()));
 
     QStatus status = m_Protector.Lock();
     if (status != ER_OK) {
@@ -289,7 +289,7 @@ void TimeAuthoritySignalHandler::handleClockSignal(const ajn::InterfaceDescripti
                                                    const char* srcPath, ajn::Message& msg)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     const char* sender = msg->GetSender();
     QCC_DbgHLPrintf(("Received TimeSync signal from the object: '%s', sender: '%s'", srcPath, sender));

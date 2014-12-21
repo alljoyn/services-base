@@ -28,7 +28,7 @@ TimeServiceClientAlarmFactory::TimeServiceClientAlarmFactory(const TimeServiceCl
     m_AlarmFactoryIface(NULL)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     initInterfaces(tsConsts::ALARM_FACTORY_IFACE, &m_AlarmFactoryIface, &tsAlarmUtility::createFactoryInterface);
 }
 
@@ -36,7 +36,7 @@ TimeServiceClientAlarmFactory::TimeServiceClientAlarmFactory(const TimeServiceCl
 TimeServiceClientAlarmFactory::~TimeServiceClientAlarmFactory()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     release();
 }
 
@@ -44,7 +44,7 @@ TimeServiceClientAlarmFactory::~TimeServiceClientAlarmFactory()
 void TimeServiceClientAlarmFactory::release()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     QCC_DbgHLPrintf(("Releasing TimeServiceAlarmFactory, objectPath: '%s'", m_ObjectPath.c_str()));
 
     m_AlarmFactoryIface = NULL;
@@ -54,7 +54,7 @@ void TimeServiceClientAlarmFactory::release()
 QStatus TimeServiceClientAlarmFactory::newAlarm(qcc::String* objectPath)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!objectPath) {
 
@@ -96,7 +96,7 @@ QStatus TimeServiceClientAlarmFactory::newAlarm(qcc::String* objectPath)
 QStatus TimeServiceClientAlarmFactory::deleteAlarm(const qcc::String& objectPath)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     MsgArg msgArg;
     QStatus status = tsAlarmUtility::marshalObjectPath(msgArg, objectPath);
@@ -126,7 +126,7 @@ QStatus TimeServiceClientAlarmFactory::deleteAlarm(const qcc::String& objectPath
 QStatus TimeServiceClientAlarmFactory::retrieveAlarmList(std::vector<qcc::String>* objectPathList)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     return retrieveChildObjects(objectPathList);
 }

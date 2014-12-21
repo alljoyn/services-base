@@ -33,7 +33,7 @@ TimeServiceClientAlarm::TimeServiceClientAlarm(const TimeServiceClient& tsClient
     m_AlarmHandler(NULL)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, objectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, objectPath.c_str()));
     initInterfaces(tsConsts::ALARM_IFACE, &m_AlarmIface, &tsAlarmUtility::createInterface);
 }
 
@@ -41,7 +41,7 @@ TimeServiceClientAlarm::TimeServiceClientAlarm(const TimeServiceClient& tsClient
 TimeServiceClientAlarm::~TimeServiceClientAlarm()
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     release();
 }
 
@@ -49,7 +49,7 @@ TimeServiceClientAlarm::~TimeServiceClientAlarm()
 void TimeServiceClientAlarm::release()
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgHLPrintf(("Releasing ClientAlarm, objectPath: '%s'", getObjectPath().c_str()));
 
     unRegisterAlarmHandler();
@@ -61,7 +61,7 @@ void TimeServiceClientAlarm::release()
 QStatus TimeServiceClientAlarm::retrieveSchedule(TimeServiceSchedule* schedule)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!schedule) {
 
@@ -84,7 +84,7 @@ QStatus TimeServiceClientAlarm::retrieveSchedule(TimeServiceSchedule* schedule)
 QStatus TimeServiceClientAlarm::setSchedule(const TimeServiceSchedule& schedule)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     QCC_DbgPrintf(("Setting Schedule, objectPath: '%s'", m_ObjectPath.c_str()));
 
     if (!schedule.isValid()) {
@@ -109,7 +109,7 @@ QStatus TimeServiceClientAlarm::setSchedule(const TimeServiceSchedule& schedule)
 QStatus TimeServiceClientAlarm::retrieveTitle(qcc::String* title)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     if (!title) {
 
         QCC_LogError(ER_BAD_ARG_1, ("Undefined Title"));
@@ -131,7 +131,7 @@ QStatus TimeServiceClientAlarm::retrieveTitle(qcc::String* title)
 QStatus TimeServiceClientAlarm::setTitle(const qcc::String& title)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     QCC_DbgPrintf(("Setting Title, objectPath: '%s'", m_ObjectPath.c_str()));
 
     MsgArg msgArg;
@@ -150,7 +150,7 @@ QStatus TimeServiceClientAlarm::setTitle(const qcc::String& title)
 QStatus TimeServiceClientAlarm::retrieveIsEnabled(bool* isEnabled)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!isEnabled) {
 
@@ -173,7 +173,7 @@ QStatus TimeServiceClientAlarm::retrieveIsEnabled(bool* isEnabled)
 QStatus TimeServiceClientAlarm::setEnabled(bool isEnabled)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     QCC_DbgPrintf(("Setting IsEnabled, objectPath: '%s'", m_ObjectPath.c_str()));
 
     MsgArg msgArg;
@@ -192,7 +192,7 @@ QStatus TimeServiceClientAlarm::setEnabled(bool isEnabled)
 QStatus TimeServiceClientAlarm::registerAlarmHandler(AlarmHandler* handler)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     if (!handler) {
 
         QCC_LogError(ER_FAIL, ("No handler given."));
@@ -207,7 +207,7 @@ QStatus TimeServiceClientAlarm::registerAlarmHandler(AlarmHandler* handler)
 void TimeServiceClientAlarm::unRegisterAlarmHandler()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     if (!m_AlarmHandler) {
 
         QCC_DbgPrintf(("Can not unregister AlarmHandler, it hasn't been registered before."));

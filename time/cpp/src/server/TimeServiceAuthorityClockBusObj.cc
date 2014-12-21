@@ -28,21 +28,21 @@ TimeServiceAuthorityClockBusObj::TimeServiceAuthorityClockBusObj(qcc::String con
     TimeServiceClockBusObj(objectPath), m_TimeSyncSignalMethod(NULL), m_Type(type)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, objectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, objectPath.c_str()));
 }
 
 //Destructor
 TimeServiceAuthorityClockBusObj::~TimeServiceAuthorityClockBusObj()
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, getObjectPath().c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, getObjectPath().c_str()));
 }
 
 //Add TimeAuthority interface
 QStatus TimeServiceAuthorityClockBusObj::addClockInterface(BusAttachment* bus)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, getObjectPath().c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, getObjectPath().c_str()));
 
     QStatus status = ER_OK;
 
@@ -81,7 +81,7 @@ QStatus TimeServiceAuthorityClockBusObj::addClockInterface(BusAttachment* bus)
 QStatus TimeServiceAuthorityClockBusObj::Get(const char* interfaceName, const char* propName, MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, getObjectPath().c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, getObjectPath().c_str()));
 
     QStatus status = TimeServiceClockBusObj::Get(interfaceName, propName, msgArg);
 
@@ -111,7 +111,7 @@ QStatus TimeServiceAuthorityClockBusObj::Get(const char* interfaceName, const ch
 QStatus TimeServiceAuthorityClockBusObj::handleGetAuthVersion(MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, getObjectPath().c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, getObjectPath().c_str()));
 
     msgArg.typeId   = ALLJOYN_UINT16;
     msgArg.v_uint16 = tsConsts::TIME_AUTHORITY_IFACE_VERSION;
@@ -123,7 +123,7 @@ QStatus TimeServiceAuthorityClockBusObj::handleGetAuthVersion(MsgArg& msgArg)
 QStatus TimeServiceAuthorityClockBusObj::handleGetAuthorityType(MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, getObjectPath().c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, getObjectPath().c_str()));
     QCC_DbgPrintf(("Handling Get.AuthorityType() property call, objectPath: '%s'", getObjectPath().c_str()));
 
     QStatus status = tsClockUtility::marshalAuthorityType(msgArg, m_Type);
@@ -140,7 +140,7 @@ QStatus TimeServiceAuthorityClockBusObj::handleGetAuthorityType(MsgArg& msgArg)
 QStatus TimeServiceAuthorityClockBusObj::sendTimeSync()
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, getObjectPath().c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, getObjectPath().c_str()));
 
     if (!m_TimeSyncSignalMethod) {
 

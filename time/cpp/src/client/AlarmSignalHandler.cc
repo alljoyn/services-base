@@ -40,7 +40,7 @@ class AlarmSignalData : public TaskData {
     AlarmSignalData(const ajn::MsgArg* returnArgs,  TimeServiceClientAlarm*alarm) : m_Args(returnArgs), m_Alarm(alarm)
     {
 
-        QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, alarm->getObjectPath().c_str()));
+        QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, alarm->getObjectPath().c_str()));
     };
 
 
@@ -66,7 +66,7 @@ AsyncTaskQueue AlarmSignalHandler::s_SignalQueue(&AlarmSignalHandler::s_SignalTa
 void AlarmSignalTask::OnTask(const ajn::services::TaskData*taskdata)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     const AlarmSignalData* signalData = static_cast<const AlarmSignalData*>(taskdata);
 
@@ -79,13 +79,13 @@ void AlarmSignalTask::OnTask(const ajn::services::TaskData*taskdata)
 AlarmSignalHandler::AlarmSignalHandler() : m_Protector(), m_AlarmSignalMethod(NULL)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 }
 
 AlarmSignalHandler::~AlarmSignalHandler()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 }
 
 AlarmSignalHandler* AlarmSignalHandler::getInstance() {
@@ -101,7 +101,7 @@ AlarmSignalHandler* AlarmSignalHandler::getInstance() {
 QStatus AlarmSignalHandler::registerAlarm(TimeServiceClientAlarm* alarm)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, alarm->getObjectPath().c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, alarm->getObjectPath().c_str()));
 
     QStatus status = ER_OK;
 
@@ -176,7 +176,7 @@ QStatus AlarmSignalHandler::registerAlarm(TimeServiceClientAlarm* alarm)
 void AlarmSignalHandler::unRegisterAlarm(TimeServiceClientAlarm* alarm)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, alarm->getObjectPath().c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, alarm->getObjectPath().c_str()));
 
     QStatus status = m_Protector.Lock();
     if (status != ER_OK) {
@@ -248,7 +248,7 @@ void AlarmSignalHandler::unRegisterAlarm(TimeServiceClientAlarm* alarm)
 TimeServiceClientAlarm* AlarmSignalHandler::findAlarmByObjectPathForDevice(qcc::String objPath, qcc::String sender)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, objPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, objPath.c_str()));
 
     QStatus status = m_Protector.Lock();
     if (status != ER_OK) {
@@ -289,7 +289,7 @@ void AlarmSignalHandler::handleAlarmSignal(const ajn::InterfaceDescription::Memb
                                            const char* srcPath, ajn::Message& msg)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     const char* sender = msg->GetSender();
     QCC_DbgHLPrintf(("Received AlarmReached signal from the object: '%s', sender: '%s'", srcPath, sender));

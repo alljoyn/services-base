@@ -44,7 +44,7 @@ class TimerSignalData : public TaskData {
         m_Timer(timer), m_Name(name)
     {
 
-        QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, timer->getObjectPath().c_str()));
+        QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, timer->getObjectPath().c_str()));
     };
 
 
@@ -72,7 +72,7 @@ AsyncTaskQueue TimerSignalHandler::s_SignalQueue(&TimerSignalHandler::s_SignalTa
 void TimerSignalTask::OnTask(const ajn::services::TaskData*taskdata)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     const TimerSignalData* signalData = static_cast<const TimerSignalData*>(taskdata);
 
@@ -101,13 +101,13 @@ TimerSignalHandler::TimerSignalHandler() : m_Protector(),
 
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 }
 
 TimerSignalHandler::~TimerSignalHandler()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 }
 
 TimerSignalHandler* TimerSignalHandler::getInstance() {
@@ -122,7 +122,7 @@ TimerSignalHandler* TimerSignalHandler::getInstance() {
 QStatus TimerSignalHandler::registerTimer(TimeServiceClientTimer* timer)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, timer->getObjectPath().c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, timer->getObjectPath().c_str()));
 
     QStatus status = ER_OK;
 
@@ -224,7 +224,7 @@ QStatus TimerSignalHandler::registerTimer(TimeServiceClientTimer* timer)
 void TimerSignalHandler::unRegisterTimer(TimeServiceClientTimer* timer)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, timer->getObjectPath().c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, timer->getObjectPath().c_str()));
 
     QStatus status = m_Protector.Lock();
     if (status != ER_OK) {
@@ -317,7 +317,7 @@ void TimerSignalHandler::unRegisterTimer(TimeServiceClientTimer* timer)
 TimeServiceClientTimer* TimerSignalHandler::findTimerByObjectPathForDevice(qcc::String objPath, qcc::String sender)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, objPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, objPath.c_str()));
 
     QStatus status = m_Protector.Lock();
     if (status != ER_OK) {
@@ -360,7 +360,7 @@ void TimerSignalHandler::handleTimerSignal(const ajn::InterfaceDescription::Memb
                                            const char* srcPath, ajn::Message& msg)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     const char* sender = msg->GetSender();
     QCC_DbgHLPrintf(("Received TimerSignal signal from the object: '%s', sender: '%s'", srcPath, sender));

@@ -24,14 +24,14 @@ using namespace services;
 TimeServiceServerAlarm::TimeServiceServerAlarm() : m_AlarmBusObj(NULL)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 }
 
 //Destructor
 TimeServiceServerAlarm::~TimeServiceServerAlarm()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     release();
 }
 
@@ -39,7 +39,7 @@ TimeServiceServerAlarm::~TimeServiceServerAlarm()
 void TimeServiceServerAlarm::release()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!m_AlarmBusObj) {
 
@@ -95,7 +95,7 @@ const TimeServiceAlarmBusObj* TimeServiceServerAlarm::getAlarmBusObj()
 QStatus TimeServiceServerAlarm::alarmReached()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!m_AlarmBusObj) {
 

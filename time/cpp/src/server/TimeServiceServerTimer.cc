@@ -24,14 +24,14 @@ using namespace services;
 TimeServiceServerTimer::TimeServiceServerTimer() : m_TimerBusObj(NULL)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 }
 
 //Destructor
 TimeServiceServerTimer::~TimeServiceServerTimer()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     release();
 }
 
@@ -39,7 +39,7 @@ TimeServiceServerTimer::~TimeServiceServerTimer()
 void TimeServiceServerTimer::release()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!m_TimerBusObj) {
 
@@ -96,7 +96,7 @@ const TimeServiceTimerBusObj* TimeServiceServerTimer::getTimerBusObj()
 QStatus TimeServiceServerTimer::timerEvent()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!m_TimerBusObj) {
 
@@ -112,7 +112,7 @@ QStatus TimeServiceServerTimer::timerEvent()
 QStatus TimeServiceServerTimer::runStateChanged(bool isRunning)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!m_TimerBusObj) {
 

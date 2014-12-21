@@ -30,14 +30,14 @@ TimeServiceAlarmFactoryBusObj::TimeServiceAlarmFactoryBusObj(qcc::String const& 
     m_ObjectPath(objectPath), m_Translator(NULL)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, objectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, objectPath.c_str()));
 }
 
 //Destructor
 TimeServiceAlarmFactoryBusObj::~TimeServiceAlarmFactoryBusObj()
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     release();
 }
 
@@ -45,7 +45,7 @@ TimeServiceAlarmFactoryBusObj::~TimeServiceAlarmFactoryBusObj()
 QStatus TimeServiceAlarmFactoryBusObj::init(TimeServiceServerAlarmFactory* alarmFactory)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     return init(alarmFactory, qcc::String::Empty, qcc::String::Empty, NULL);
 }
 
@@ -54,7 +54,7 @@ QStatus TimeServiceAlarmFactoryBusObj::init(TimeServiceServerAlarmFactory* alarm
                                             const qcc::String& language, Translator* translator)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     QStatus status = ER_OK;
 
@@ -99,7 +99,7 @@ QStatus TimeServiceAlarmFactoryBusObj::init(TimeServiceServerAlarmFactory* alarm
 void TimeServiceAlarmFactoryBusObj::release()
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgHLPrintf(("Releasing AlarmFactory '%s'", m_ObjectPath.c_str()));
 
     m_AlarmFactory     = NULL;
@@ -123,7 +123,7 @@ qcc::String const& TimeServiceAlarmFactoryBusObj::getObjectPath() const
 QStatus TimeServiceAlarmFactoryBusObj::addAlarmFactoryInterface(BusAttachment* bus)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     QStatus status = ER_OK;
 
@@ -175,7 +175,7 @@ QStatus TimeServiceAlarmFactoryBusObj::addAlarmFactoryInterface(BusAttachment* b
 QStatus TimeServiceAlarmFactoryBusObj::Get(const char* interfaceName, const char* propName, MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     BusAttachment* bus = TimeServiceServer::getInstance()->getBusAttachment();
     if (!bus) {
@@ -206,7 +206,7 @@ QStatus TimeServiceAlarmFactoryBusObj::Get(const char* interfaceName, const char
 QStatus TimeServiceAlarmFactoryBusObj::handleGetVersion(MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     msgArg.typeId   = ALLJOYN_UINT16;
     msgArg.v_uint16 = tsConsts::ALARM_FACTORY_IFACE_VERSION;
@@ -218,7 +218,7 @@ QStatus TimeServiceAlarmFactoryBusObj::handleGetVersion(MsgArg& msgArg)
 void TimeServiceAlarmFactoryBusObj::handleNewAlarm(const InterfaceDescription::Member* member, Message& msg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgPrintf(("Handling NewAlarm() method call, objectPath: '%s'", m_ObjectPath.c_str()));
 
     BusAttachment* bus = TimeServiceServer::getInstance()->getBusAttachment();
@@ -311,7 +311,7 @@ void TimeServiceAlarmFactoryBusObj::handleNewAlarm(const InterfaceDescription::M
 void TimeServiceAlarmFactoryBusObj::handleDeleteAlarm(const InterfaceDescription::Member* member, Message& msg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgPrintf(("Handling DeleteAlarm() method call, objectPath: '%s'", m_ObjectPath.c_str()));
 
     BusAttachment* bus = TimeServiceServer::getInstance()->getBusAttachment();
@@ -364,7 +364,7 @@ void TimeServiceAlarmFactoryBusObj::handleDeleteAlarm(const InterfaceDescription
 void TimeServiceAlarmFactoryBusObj::replyError(QStatus status, const tsConsts::ErrorInfo* errorInfo, Message& msg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     QStatus replyStatus = ER_OK;
 

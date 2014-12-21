@@ -27,14 +27,14 @@ using namespace services;
 TimeServiceClient::TimeServiceClient() : m_Bus(NULL), m_SessionHandler(NULL)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 }
 
 //Destructor
 TimeServiceClient::~TimeServiceClient()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     release();
 }
 
@@ -44,7 +44,7 @@ QStatus TimeServiceClient::init(BusAttachment* bus, const qcc::String& serverBus
                                 const qcc::String& appId, const ajn::AboutObjectDescription& aboutObjectDescription)
 {
 
-    QCC_DbgTrace(("%s, ServerBusName: '%s', DeviceId: '%s', AppId: '%s'", __func__, serverBusName.c_str(),
+    QCC_DbgTrace(("%s, ServerBusName: '%s', DeviceId: '%s', AppId: '%s'", __FUNCTION__, serverBusName.c_str(),
                   deviceId.c_str(), appId.c_str()));
 
     QStatus status = checkObjectsValidity(bus, serverBusName);
@@ -70,7 +70,7 @@ QStatus TimeServiceClient::init(BusAttachment* bus, const qcc::String& serverBus
 void TimeServiceClient::release()
 {
 
-    QCC_DbgTrace(("%s, ServerBusName: '%s', DeviceId: '%s', AppId: '%s'", __func__, m_ServerBusName.c_str(),
+    QCC_DbgTrace(("%s, ServerBusName: '%s', DeviceId: '%s', AppId: '%s'", __FUNCTION__, m_ServerBusName.c_str(),
                   m_DeviceId.c_str(), m_AppId.c_str()));
 
     QCC_DbgHLPrintf(("Releasing TimeServiceClient for the server: '%s'", m_ServerBusName.c_str()));
@@ -159,7 +159,7 @@ const std::vector<TimeServiceClientTimerFactory*>& TimeServiceClient::getAnnounc
 QStatus TimeServiceClient::joinSessionAsync(TimeServiceSessionListener* sessionListener)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!m_SessionHandler) {
 
@@ -173,7 +173,7 @@ QStatus TimeServiceClient::joinSessionAsync(TimeServiceSessionListener* sessionL
 QStatus TimeServiceClient::leaveSession()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!m_SessionHandler) {
 
@@ -201,7 +201,7 @@ bool TimeServiceClient::isConnected() const
 QStatus TimeServiceClient::getSessionId(ajn::SessionId& sessionId) const
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!m_SessionHandler) {
 
@@ -224,7 +224,7 @@ QStatus TimeServiceClient::getSessionId(ajn::SessionId& sessionId) const
 QStatus TimeServiceClient::checkObjectsValidity(BusAttachment* bus, const qcc::String& serverBusName)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (m_Bus != NULL) {
 
@@ -271,7 +271,7 @@ void TimeServiceClient::initManagerMap()
 void TimeServiceClient::analyzeObjectDescriptions(const AboutObjectDescription& aboutObjectDescription)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     size_t numPaths = aboutObjectDescription.GetPaths(NULL, 0);
     const char** paths = new const char*[numPaths];
@@ -338,14 +338,14 @@ void TimeServiceClient::analyzeObjectDescriptions(const AboutObjectDescription& 
 TimeServiceClient::TsItemsManagerBase::TsItemsManagerBase()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 }
 
 //Base class destructor for the TsItemsManager providing its API
 TimeServiceClient::TsItemsManagerBase::~TsItemsManagerBase()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 }
 
 
@@ -357,7 +357,7 @@ TimeServiceClient::TSItemsManager<TSItem>::TSItemsManager(const TimeServiceClien
     m_TsClient(tsClient)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 }
 
 
@@ -366,7 +366,7 @@ template <class TSItem>
 TimeServiceClient::TSItemsManager<TSItem>::~TSItemsManager()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     release();
 }
 
@@ -375,7 +375,7 @@ template <class TSItem>
 TimeServiceClientBase* TimeServiceClient::TSItemsManager<TSItem>::create(const qcc::String& objectPath)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     TSItem* tsItem = new TSItem(m_TsClient, objectPath);
     m_Storage->push_back(tsItem);
@@ -388,7 +388,7 @@ template <class TSItem>
 void TimeServiceClient::TSItemsManager<TSItem>::release()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     //After deleting the TSItem object its destructor calls release() method on the object
     for (typename std::vector<TSItem*>::iterator iter = m_Storage->begin(); iter != m_Storage->end(); ++iter) {

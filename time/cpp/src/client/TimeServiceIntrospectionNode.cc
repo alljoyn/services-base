@@ -25,7 +25,7 @@ using namespace services;
 TimeServiceIntrospectionNode::TimeServiceIntrospectionNode(qcc::String objectPath) : m_ObjectPath(objectPath)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 }
 
 
@@ -33,7 +33,7 @@ TimeServiceIntrospectionNode::TimeServiceIntrospectionNode(qcc::String objectPat
 TimeServiceIntrospectionNode::~TimeServiceIntrospectionNode()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 }
 
 //Returns ObjectDescription
@@ -55,7 +55,7 @@ QStatus TimeServiceIntrospectionNode::parse(BusAttachment* bus, const qcc::Strin
                                             const qcc::String& language)
 {
 
-    QCC_DbgTrace(("%s, BusName: '%s', SID: '%u', Language: '%s'", __func__, busName.c_str(), sessionId, language.c_str()));
+    QCC_DbgTrace(("%s, BusName: '%s', SID: '%u', Language: '%s'", __FUNCTION__, busName.c_str(), sessionId, language.c_str()));
 
     qcc::String xml;
     QStatus status = introspect(bus, busName, sessionId, language, xml);
@@ -91,7 +91,7 @@ QStatus TimeServiceIntrospectionNode::introspect(BusAttachment* bus, const qcc::
                                                  const qcc::String& language, qcc::String& xml)
 {
 
-    QCC_DbgTrace(("%s, BusName: '%s', SID: '%u', Language: '%s'", __func__, busName.c_str(), sessionId, language.c_str()));
+    QCC_DbgTrace(("%s, BusName: '%s', SID: '%u', Language: '%s'", __FUNCTION__, busName.c_str(), sessionId, language.c_str()));
 
     QStatus status;
     ProxyBusObject proxyObj(*bus, busName.c_str(), m_ObjectPath.c_str(), sessionId);
@@ -134,7 +134,7 @@ QStatus TimeServiceIntrospectionNode::introspect(BusAttachment* bus, const qcc::
 QStatus TimeServiceIntrospectionNode::unmarshalXml(Message& msg, qcc::String& xml)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     const MsgArg* arg = msg->GetArg(0);
     if (!arg) {
@@ -158,7 +158,7 @@ QStatus TimeServiceIntrospectionNode::unmarshalXml(Message& msg, qcc::String& xm
 QStatus TimeServiceIntrospectionNode::loadXml(const qcc::String& xml, xmlDocPtr* doc)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     (*doc) = xmlReadMemory(xml.c_str(), xml.size(), NULL, "UTF-8", XML_PARSE_NOERROR | XML_PARSE_NOBLANKS);
 
@@ -181,7 +181,7 @@ QStatus TimeServiceIntrospectionNode::loadXml(const qcc::String& xml, xmlDocPtr*
 void TimeServiceIntrospectionNode::parseXml(xmlDocPtr doc)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     xmlNode* root_element = xmlDocGetRootElement(doc);
 

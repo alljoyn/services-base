@@ -31,14 +31,14 @@ TimeServiceAlarmBusObj::TimeServiceAlarmBusObj(qcc::String const& objectPath) : 
     m_ObjectPath(objectPath), m_AlarmReachedSignalMethod(NULL), m_IsInitialized(false), m_IsAnnounced(false)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, objectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, objectPath.c_str()));
 }
 
 //Destructor
 TimeServiceAlarmBusObj::~TimeServiceAlarmBusObj()
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     release();
 }
 
@@ -55,7 +55,7 @@ QStatus TimeServiceAlarmBusObj::init(TimeServiceServerAlarm* alarm, const std::v
                                      const qcc::String& description, const qcc::String& language, Translator* translator)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     BusAttachment* bus = TimeServiceServer::getInstance()->getBusAttachment();
     if (!bus) {
@@ -90,7 +90,7 @@ QStatus TimeServiceAlarmBusObj::init(TimeServiceServerAlarm* alarm, const qcc::S
                                      Translator* translator)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     QStatus status = ER_OK;
 
@@ -141,7 +141,7 @@ QStatus TimeServiceAlarmBusObj::init(TimeServiceServerAlarm* alarm, const qcc::S
 void TimeServiceAlarmBusObj::release()
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgHLPrintf(("Releasing Alarm '%s'", m_ObjectPath.c_str()));
 
     m_Alarm = NULL;
@@ -174,7 +174,7 @@ qcc::String const& TimeServiceAlarmBusObj::getObjectPath() const
 QStatus TimeServiceAlarmBusObj::createAlarmInterface(BusAttachment* bus)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     QStatus status = ER_OK;
     InterfaceDescription* ifaceDesc = const_cast<InterfaceDescription*>(bus->GetInterface(tsConsts::ALARM_IFACE.c_str()));
@@ -206,7 +206,7 @@ QStatus TimeServiceAlarmBusObj::createAlarmInterface(BusAttachment* bus)
 QStatus TimeServiceAlarmBusObj::createCustomInterfaceHook(BusAttachment* bus)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     return ER_OK;
 }
 
@@ -214,7 +214,7 @@ QStatus TimeServiceAlarmBusObj::createCustomInterfaceHook(BusAttachment* bus)
 QStatus TimeServiceAlarmBusObj::addAlarmInterface(const InterfaceDescription& iface)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 #if !defined(NDEBUG)
     const char* ifaceName = iface.GetName();
 #endif
@@ -233,7 +233,7 @@ QStatus TimeServiceAlarmBusObj::addAlarmInterface(const InterfaceDescription& if
 QStatus TimeServiceAlarmBusObj::Get(const char* interfaceName, const char* propName, MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     BusAttachment* bus = TimeServiceServer::getInstance()->getBusAttachment();
     if (!bus) {
@@ -279,7 +279,7 @@ QStatus TimeServiceAlarmBusObj::Get(const char* interfaceName, const char* propN
 QStatus TimeServiceAlarmBusObj::Set(const char* interfaceName, const char* propName, MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     BusAttachment* bus = TimeServiceServer::getInstance()->getBusAttachment();
     if (!bus) {
@@ -319,7 +319,7 @@ QStatus TimeServiceAlarmBusObj::Set(const char* interfaceName, const char* propN
 QStatus TimeServiceAlarmBusObj::handleGetVersion(MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     msgArg.typeId       = ALLJOYN_UINT16;
     msgArg.v_uint16     = tsConsts::ALARM_IFACE_VERSION;
@@ -331,7 +331,7 @@ QStatus TimeServiceAlarmBusObj::handleGetVersion(MsgArg& msgArg)
 QStatus TimeServiceAlarmBusObj::handleGetSchedule(MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     QCC_DbgPrintf(("Handling Get.Schedule() property call, objectPath: '%s'", m_ObjectPath.c_str()));
 
@@ -356,7 +356,7 @@ QStatus TimeServiceAlarmBusObj::handleGetSchedule(MsgArg& msgArg)
 //Handle Get Title request
 QStatus TimeServiceAlarmBusObj::handleGetTitle(MsgArg& msgArg)
 {
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgPrintf(("Handling Get.Title() property call, objectPath: '%s'", m_ObjectPath.c_str()));
 
     const qcc::String title  = m_Alarm->getTitle();
@@ -374,7 +374,7 @@ QStatus TimeServiceAlarmBusObj::handleGetTitle(MsgArg& msgArg)
 QStatus TimeServiceAlarmBusObj::handleGetEnabled(MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgPrintf(("Handling Get.Enabled() property call, objectPath: '%s'", m_ObjectPath.c_str()));
 
     const bool isEnabled = m_Alarm->isEnabled();
@@ -392,7 +392,7 @@ QStatus TimeServiceAlarmBusObj::handleGetEnabled(MsgArg& msgArg)
 QStatus TimeServiceAlarmBusObj::handleSetSchedule(MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgPrintf(("Handling Set.Schedule() property call, objectPath: '%s'", m_ObjectPath.c_str()));
 
     TimeServiceSchedule schedule;
@@ -419,7 +419,7 @@ QStatus TimeServiceAlarmBusObj::handleSetSchedule(MsgArg& msgArg)
 QStatus TimeServiceAlarmBusObj::handleSetTitle(MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgPrintf(("Handling Set.Title() property call, objectPath: '%s'", m_ObjectPath.c_str()));
 
     qcc::String title;
@@ -441,7 +441,7 @@ QStatus TimeServiceAlarmBusObj::handleSetTitle(MsgArg& msgArg)
 QStatus TimeServiceAlarmBusObj::handleSetEnabled(MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgPrintf(("Handling Set.Enabled() property call, objectPath: '%s'", m_ObjectPath.c_str()));
 
     bool isEnabled;
@@ -463,7 +463,7 @@ QStatus TimeServiceAlarmBusObj::handleSetEnabled(MsgArg& msgArg)
 QStatus TimeServiceAlarmBusObj::sendAlarmReached()
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     if (!m_AlarmReachedSignalMethod) {
 
         QCC_LogError(ER_FAIL, ("AlarmReached signal method was not set, objectPath: '%s'", m_ObjectPath.c_str()));

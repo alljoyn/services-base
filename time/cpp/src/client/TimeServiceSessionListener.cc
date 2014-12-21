@@ -23,12 +23,12 @@ using namespace services;
 TimeServiceSessionListener::TimeServiceSessionListener()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 }
 
 //Destructor
 TimeServiceSessionListener::~TimeServiceSessionListener()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 }

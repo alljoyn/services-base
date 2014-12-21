@@ -28,7 +28,7 @@ TimeServiceClientTimerFactory::TimeServiceClientTimerFactory(const TimeServiceCl
     m_TimerFactoryIface(NULL)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     initInterfaces(tsConsts::TIMER_FACTORY_IFACE, &m_TimerFactoryIface, &tsTimerUtility::createFactoryInterface);
 }
 
@@ -36,7 +36,7 @@ TimeServiceClientTimerFactory::TimeServiceClientTimerFactory(const TimeServiceCl
 TimeServiceClientTimerFactory::~TimeServiceClientTimerFactory()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     release();
 }
 
@@ -44,7 +44,7 @@ TimeServiceClientTimerFactory::~TimeServiceClientTimerFactory()
 void TimeServiceClientTimerFactory::release()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     QCC_DbgHLPrintf(("Releasing TimeServiceTimerFactory, objectPath: '%s'", m_ObjectPath.c_str()));
 
     m_TimerFactoryIface = NULL;
@@ -54,7 +54,7 @@ void TimeServiceClientTimerFactory::release()
 QStatus TimeServiceClientTimerFactory::newTimer(qcc::String* objectPath)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!objectPath) {
 
@@ -96,7 +96,7 @@ QStatus TimeServiceClientTimerFactory::newTimer(qcc::String* objectPath)
 QStatus TimeServiceClientTimerFactory::deleteTimer(const qcc::String& objectPath)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     MsgArg msgArg;
     QStatus status = tsTimerUtility::marshalObjectPath(msgArg, objectPath);
@@ -126,6 +126,6 @@ QStatus TimeServiceClientTimerFactory::deleteTimer(const qcc::String& objectPath
 QStatus TimeServiceClientTimerFactory::retrieveTimerList(std::vector<qcc::String>* objectPathList)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     return retrieveChildObjects(objectPathList);
 }

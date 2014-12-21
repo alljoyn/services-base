@@ -30,14 +30,14 @@ TimeServiceSessionHandler::TimeServiceSessionHandler(TimeServiceClient* tsClient
     m_IsConnected(false)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 }
 
 //Destructor
 TimeServiceSessionHandler::~TimeServiceSessionHandler()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     release();
 }
 
@@ -45,7 +45,7 @@ TimeServiceSessionHandler::~TimeServiceSessionHandler()
 void TimeServiceSessionHandler::release()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     QCC_DbgPrintf(("Releasing SessionHandler"));
     leaveSession();
 
@@ -72,7 +72,7 @@ ajn::SessionId TimeServiceSessionHandler::getSessionId() const
 QStatus TimeServiceSessionHandler::joinSessionAsync(TimeServiceSessionListener* sessionListener)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!sessionListener) {
 
@@ -113,7 +113,7 @@ QStatus TimeServiceSessionHandler::joinSessionAsync(TimeServiceSessionListener* 
 QStatus TimeServiceSessionHandler::leaveSession()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     if (!m_IsConnected) {
 
@@ -156,7 +156,7 @@ QStatus TimeServiceSessionHandler::leaveSession()
 void TimeServiceSessionHandler::JoinSessionCB(QStatus status, ajn::SessionId id, const ajn::SessionOpts& opts, void* context)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     QCC_DbgPrintf(("JoinSessionCb was called, Status: '%u', SessionId: '%u'", status, id));
 
     if (status == ER_OK || status == ER_ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED) {
@@ -184,7 +184,7 @@ void TimeServiceSessionHandler::JoinSessionCB(QStatus status, ajn::SessionId id,
 void TimeServiceSessionHandler::SessionLost(ajn::SessionId sessionId, SessionLostReason reason)
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     QCC_DbgPrintf(("SessionLost has been called SessionId: '%u', reason: '%u'", sessionId, reason));
 
     m_IsConnected = false;

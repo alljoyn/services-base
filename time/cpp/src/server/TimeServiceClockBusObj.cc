@@ -28,14 +28,14 @@ TimeServiceClockBusObj::TimeServiceClockBusObj(qcc::String const& objectPath) : 
     m_ObjectPath(objectPath)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, objectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, objectPath.c_str()));
 }
 
 //Destructor
 TimeServiceClockBusObj::~TimeServiceClockBusObj()
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     release();
 }
 
@@ -43,7 +43,7 @@ TimeServiceClockBusObj::~TimeServiceClockBusObj()
 QStatus TimeServiceClockBusObj::init(TimeServiceServerClock* clock)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     QStatus status = ER_OK;
 
@@ -84,7 +84,7 @@ QStatus TimeServiceClockBusObj::init(TimeServiceServerClock* clock)
 void TimeServiceClockBusObj::release()
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgHLPrintf(("Releasing Clock '%s'", m_ObjectPath.c_str()));
 
     m_Clock = NULL;
@@ -108,7 +108,7 @@ qcc::String const& TimeServiceClockBusObj::getObjectPath() const
 QStatus TimeServiceClockBusObj::Get(const char* interfaceName, const char* propName, MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     BusAttachment* bus = TimeServiceServer::getInstance()->getBusAttachment();
     if (!bus) {
@@ -144,7 +144,7 @@ QStatus TimeServiceClockBusObj::Get(const char* interfaceName, const char* propN
 QStatus TimeServiceClockBusObj::Set(const char* interfaceName, const char* propName, MsgArg& val)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     BusAttachment* bus = TimeServiceServer::getInstance()->getBusAttachment();
     if (!bus) {
@@ -170,7 +170,7 @@ QStatus TimeServiceClockBusObj::Set(const char* interfaceName, const char* propN
 QStatus TimeServiceClockBusObj::handleGetVersion(MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     msgArg.typeId   = ALLJOYN_UINT16;
     msgArg.v_uint16 = tsConsts::CLOCK_IFACE_VERSION;
@@ -182,7 +182,7 @@ QStatus TimeServiceClockBusObj::handleGetVersion(MsgArg& msgArg)
 QStatus TimeServiceClockBusObj::handleGetDateTime(MsgArg& msg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgPrintf(("Handling Get.DateTime() property call, objectPath: '%s'", m_ObjectPath.c_str()));
 
     TimeServiceDateTime dateTime = m_Clock->getDateTime();
@@ -206,7 +206,7 @@ QStatus TimeServiceClockBusObj::handleGetDateTime(MsgArg& msg)
 QStatus TimeServiceClockBusObj::handleGetIsSet(MsgArg& msg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgPrintf(("Handling Get.IsSet() property call, objectPath: '%s'", m_ObjectPath.c_str()));
 
     QStatus status = tsClockUtility::marshalIsSet(msg, m_Clock->isSet());
@@ -223,7 +223,7 @@ QStatus TimeServiceClockBusObj::handleGetIsSet(MsgArg& msg)
 QStatus TimeServiceClockBusObj::handleSetDateTime(MsgArg& msgArg)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgPrintf(("Handling Set.DateTime() property call, objectPath: '%s'", m_ObjectPath.c_str()));
 
     TimeServiceDateTime dateTime;
@@ -245,7 +245,7 @@ QStatus TimeServiceClockBusObj::handleSetDateTime(MsgArg& msgArg)
 QStatus TimeServiceClockBusObj::addClockInterface(BusAttachment* bus)
 {
 
-    QCC_DbgTrace(("%s, ObjectPath: '%s'", __func__, m_ObjectPath.c_str()));
+    QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     QStatus status = ER_OK;
 

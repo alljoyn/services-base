@@ -25,21 +25,21 @@ using namespace services;
 TimeServiceServerAuthorityClock::TimeServiceServerAuthorityClock() : TimeServiceServerClock()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 }
 
 //Destructor
 TimeServiceServerAuthorityClock::~TimeServiceServerAuthorityClock()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 }
 
 //Emit TimeSync signal
 QStatus TimeServiceServerAuthorityClock::timeSync()
 {
 
-    QCC_DbgTrace(("%s", __func__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     TimeServiceAuthorityClockBusObj* authClock = (TimeServiceAuthorityClockBusObj*)TimeServiceServerClock::getClockBusObj();
 
