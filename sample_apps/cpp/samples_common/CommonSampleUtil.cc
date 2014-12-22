@@ -63,9 +63,13 @@ QStatus CommonSampleUtil::fillPropertyStore(AboutData* aboutdata, qcc::String co
 
     QStatus status = ER_OK;
 
-    CHECK_RETURN(aboutdata->SetDeviceId(deviceId.c_str()))
-    CHECK_RETURN(aboutdata->SetAppId(appIdHex.c_str()));
+    if (!appIdHex.empty()) {
+        CHECK_RETURN(aboutdata->SetAppId(appIdHex.c_str()));
+    }
 
+    if (deviceId != "") {
+        CHECK_RETURN(aboutdata->SetDeviceId(deviceId.c_str()))
+    }
 
     std::vector<qcc::String> languages(3);
     languages[0] = "en";
@@ -75,11 +79,16 @@ QStatus CommonSampleUtil::fillPropertyStore(AboutData* aboutdata, qcc::String co
     for (size_t i = 0; i < languages.size(); i++) {
         CHECK_RETURN(aboutdata->SetSupportedLanguage(languages[i].c_str()))
     }
-    CHECK_RETURN(aboutdata->SetDefaultLanguage(defaultLanguage.c_str()))
 
-    CHECK_RETURN(aboutdata->SetAppName(appName.c_str(), languages[0].c_str()))
-    CHECK_RETURN(aboutdata->SetAppName(appName.c_str(), languages[1].c_str()))
-    CHECK_RETURN(aboutdata->SetAppName(appName.c_str(), languages[2].c_str()))
+    if (defaultLanguage != "") {
+        CHECK_RETURN(aboutdata->SetDefaultLanguage(defaultLanguage.c_str()))
+    }
+
+    if (appName != "") {
+        CHECK_RETURN(aboutdata->SetAppName(appName.c_str(), languages[0].c_str()))
+        CHECK_RETURN(aboutdata->SetAppName(appName.c_str(), languages[1].c_str()))
+        CHECK_RETURN(aboutdata->SetAppName(appName.c_str(), languages[2].c_str()))
+    }
 
     CHECK_RETURN(aboutdata->SetModelNumber("Wxfy388i"))
     CHECK_RETURN(aboutdata->SetDateOfManufacture("10/1/2199"))

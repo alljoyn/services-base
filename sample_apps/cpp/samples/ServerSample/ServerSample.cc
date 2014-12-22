@@ -20,7 +20,6 @@
 #include <AboutDataStore.h>
 #include <alljoyn/AboutObj.h>
 #include <alljoyn/AboutData.h>
-#include <IniParser.h>
 #include <OptParser.h>
 #include <alljoyn/services_common/LogModulesNames.h>
 #include <alljoyn/AboutIconObj.h>
@@ -67,7 +66,7 @@ static AboutIconObj* aboutIconObj = NULL;
 static AboutDataStore* aboutDataStore = NULL;
 static AboutObj* aboutObj = NULL;
 
-static SessionPort SERVICE_PORT;
+static SessionPort servicePort = 900;
 static qcc::String configFile;
 static volatile sig_atomic_t s_interrupt = false;
 static volatile sig_atomic_t s_restart = false;
@@ -193,17 +192,12 @@ static void cleanup() {
 }
 
 void readPassword(qcc::String& passCode) {
-    std::map<qcc::String, qcc::String> data;
-    if (!IniParser::ParseFile(configFile.c_str(), data)) {
-        return;
-    }
 
-    std::map<qcc::String, qcc::String>::iterator iter = data.find("passcode");
-    if (iter == data.end()) {
-        return;
-    }
-
-    passCode = iter->second;
+    ajn::MsgArg*argPasscode;
+    char*tmp;
+    aboutDataStore->GetField("Passcode", argPasscode);
+    argPasscode->Get("s", &tmp);
+    passCode = tmp;
     return;
 }
 
@@ -231,22 +225,13 @@ void FillNotification(NotificationMessageType& messageType, std::vector<Notifica
 #endif
 
 #define CHECK_RETURN(x) if ((status = x) != ER_OK) { return status; }
-QStatus fillPropertyStore(AboutData* aboutdata, qcc::String const& appIdHex,
-                          qcc::String const& appName, qcc::String const& deviceId, DeviceNamesType const& deviceNames,
-                          qcc::String const& defaultLanguage)
+QStatus fillPropertyStore(AboutData* aboutdata)
 {
     if (!aboutdata) {
         return ER_BAD_ARG_1;
     }
 
     QStatus status = ER_OK;
-
-    CHECK_RETURN(aboutdata->SetDeviceId(deviceId.c_str()))
-
-    uint8_t outBytes[16];
-    size_t sizeOfOutBytes = sizeof(outBytes) / sizeof(outBytes[0]);
-    sizeOfOutBytes = qcc::HexStringToBytes(appIdHex, outBytes, sizeOfOutBytes);
-    CHECK_RETURN(aboutdata->SetAppId(outBytes, sizeOfOutBytes));
 
 #ifdef _CONTROLPANEL_
     std::vector<qcc::String> languagesVec;
@@ -275,37 +260,14 @@ QStatus fillPropertyStore(AboutData* aboutdata, qcc::String const& appIdHex,
     for (size_t i = 0; i < languagesVec.size(); i++) {
         CHECK_RETURN(aboutdata->SetSupportedLanguage(languagesVec[i].c_str()))
     }
-    CHECK_RETURN(aboutdata->SetDefaultLanguage(defaultLanguage.c_str()))
 
-    CHECK_RETURN(aboutdata->SetAppName(appName.c_str(), languagesVec[0].c_str()))
-    CHECK_RETURN(aboutdata->SetAppName(appName.c_str(), languagesVec[1].c_str()))
-    CHECK_RETURN(aboutdata->SetAppName(appName.c_str(), languagesVec[2].c_str()))
-
-    DeviceNamesType::const_iterator iter = deviceNames.find(languagesVec[0].c_str());
-    if (iter != deviceNames.end()) {
-        CHECK_RETURN(aboutdata->SetDeviceName(iter->second.c_str(), languagesVec[0].c_str()));
-    } else {
-        CHECK_RETURN(aboutdata->SetDeviceName("My device name", languagesVec[0].c_str()));
-    }
-
-    iter = deviceNames.find(languagesVec[1].c_str());
-    if (iter != deviceNames.end()) {
-        CHECK_RETURN(aboutdata->SetDeviceName(iter->second.c_str(), languagesVec[1].c_str()));
-    } else {
-        CHECK_RETURN(aboutdata->SetDeviceName("Mein Gerätname", languagesVec[1].c_str()));
-    }
-
-    iter = deviceNames.find(languagesVec[2].c_str());
-    if (iter != deviceNames.end()) {
-        CHECK_RETURN(aboutdata->SetDeviceName(iter->second.c_str(), languagesVec[2].c_str()));
-    } else {
-        CHECK_RETURN(aboutdata->SetDeviceName("我的設備名稱", languagesVec[2].c_str()));
-    }
+    CHECK_RETURN(aboutdata->SetDeviceName("My device name", languagesVec[0].c_str()));
+    CHECK_RETURN(aboutdata->SetDeviceName("Mein Gerätname", languagesVec[1].c_str()));
+    CHECK_RETURN(aboutdata->SetDeviceName("我的設備名稱", languagesVec[2].c_str()));
 
     CHECK_RETURN(aboutdata->SetModelNumber("Wxfy388i"))
     CHECK_RETURN(aboutdata->SetDateOfManufacture("10/1/2199"))
     CHECK_RETURN(aboutdata->SetSoftwareVersion("12.20.44 build 44454"))
-    CHECK_RETURN(aboutdata->SetSoftwareVersion(ajn::GetVersion()))
     CHECK_RETURN(aboutdata->SetHardwareVersion("355.499. b"))
     CHECK_RETURN(aboutdata->SetDescription("This is an Alljoyn Application", languagesVec[0].c_str()))
     CHECK_RETURN(aboutdata->SetDescription("This is an Alljoyn Application", languagesVec[1].c_str()))
@@ -343,18 +305,10 @@ int main(int argc, char**argv, char**envArg) {
         return SERVICE_OPTION_ERROR;
     }
 
-    SERVICE_PORT = opts.GetPort();
-    printf("using port %d\n", opts.GetPort());
+    printf("using port %d\n", servicePort);
 
     if (!opts.GetConfigFile().empty()) {
         printf("using Config-file %s\n", opts.GetConfigFile().c_str());
-        if (!opts.ParseExternalXML()) {
-            return 1;
-        }
-    }
-
-    if (!opts.GetAppId().empty()) {
-        printf("using appID %s\n", opts.GetAppId().c_str());
     }
 
     /* Install SIGINT handler so Ctrl + C deallocates memory properly */
@@ -390,7 +344,7 @@ start:
     }
 
     busListener = new CommonBusListener(msgBus, daemonDisconnectCB);
-    busListener->setSessionPort(SERVICE_PORT);
+    busListener->setSessionPort(servicePort);
 
 #ifdef _CONTROLPANEL_
     status = ControlPanelGenerated::PrepareWidgets(controlPanelControllee);
@@ -402,9 +356,13 @@ start:
 #endif
 
     aboutDataStore = new AboutDataStore(opts.GetFactoryConfigFile().c_str(), opts.GetConfigFile().c_str());
-    status = fillPropertyStore(aboutDataStore, opts.GetAppId(), opts.GetAppName(), opts.GetDeviceId(),
-                               opts.GetDeviceNames(), opts.GetDefaultLanguage());
+    fillPropertyStore(aboutDataStore);
     aboutDataStore->Initialize();
+    if (!opts.GetAppId().empty()) {
+        std::cout << "using appID " << opts.GetAppId().c_str() << std::endl;
+        aboutDataStore->SetAppId(opts.GetAppId().c_str());
+    }
+
     if (status != ER_OK) {
         std::cout << "Could not fill PropertyStore." << std::endl;
         cleanup();
@@ -412,7 +370,7 @@ start:
     }
 
     aboutObj = new ajn::AboutObj(*msgBus, BusObject::ANNOUNCED);
-    status = CommonSampleUtil::prepareAboutService(msgBus, aboutDataStore, aboutObj, busListener, SERVICE_PORT);
+    status = CommonSampleUtil::prepareAboutService(msgBus, aboutDataStore, aboutObj, busListener, servicePort);
     if (status != ER_OK) {
         std::cout << "Could not set up the AboutService." << std::endl;
         cleanup();
@@ -425,17 +383,6 @@ start:
         cleanup();
         return 1;
     }
-
-    std::cout << "DeviceId: " << opts.GetDeviceId().c_str() << std::endl;
-
-    DeviceNamesType deviceNames = opts.GetDeviceNames();
-    DeviceNamesType::const_iterator iter = deviceNames.find(opts.GetDefaultLanguage());
-    if (iter != deviceNames.end()) {
-        std::cout << "DeviceName: " << iter->second.c_str() << std::endl;
-    }
-    std::cout << "AppId: " << opts.GetAppId().c_str() << std::endl;
-    std::cout << "AppName: " << opts.GetAppName().c_str() << std::endl;
-
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     //aboutIconService

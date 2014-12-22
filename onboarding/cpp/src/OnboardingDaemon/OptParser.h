@@ -20,8 +20,6 @@
 #include <map>
 #include <qcc/String.h>
 
-typedef std::map<qcc::String, qcc::String> DeviceNamesType;
-
 /**
  * Class to parse arguments
  */
@@ -41,34 +39,6 @@ class OptParser {
 
     qcc::String const& GetAppId() const;
 
-    qcc::String const& GetAppName() const;
-
-    qcc::String const& GetDeviceId() const;
-
-    DeviceNamesType GetDeviceNames() const;
-
-    qcc::String const& GetDefaultLanguage() const;
-
-    qcc::String const& GetScanFile() const;
-
-    qcc::String const& GetStateFile() const;
-
-    qcc::String const& GetErrorFile() const;
-
-    qcc::String const& GetConfigureCmd() const;
-
-    qcc::String const& GetConnectCmd() const;
-
-    qcc::String const& GetOffboardCmd() const;
-
-    qcc::String const& GetScanCmd() const;
-
-    int GetConcurrency() const;
-
-    int GetPort() const;
-
-    bool ParseExternalXML();
-
   private:
     int argc;
     char** argv;
@@ -77,24 +47,9 @@ class OptParser {
 
     void PrintUsage();
 
-    bool FillDeviceNames();
-
     qcc::String factoryConfigFile;
     qcc::String configFile;
     qcc::String appGUID;
-    qcc::String appName;
-    qcc::String defaultLanguage;
-    qcc::String deviceId;
-    DeviceNamesType deviceNames;
-    qcc::String scanFile;
-    qcc::String stateFile;
-    qcc::String errorFile;
-    qcc::String configureCmd;
-    qcc::String connectCmd;
-    qcc::String offboardCmd;
-    qcc::String m_scanCmd;
-    int port;
-    int concurrency;
 };
 
 #endif /* OPTPARSER_H_ */

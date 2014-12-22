@@ -20,8 +20,6 @@
 #include <map>
 #include <qcc/String.h>
 
-typedef std::map<qcc::String, qcc::String> DeviceNamesType;
-
 /**
  * Class to parse arguments
  */
@@ -41,18 +39,6 @@ class OptParser {
 
     qcc::String GetAppId() const;
 
-    qcc::String GetAppName() const;
-
-    qcc::String GetDeviceId() const;
-
-    DeviceNamesType GetDeviceNames() const;
-
-    qcc::String GetDefaultLanguage() const;
-
-    int GetPort() const;
-
-    bool ParseExternalXML();
-
   private:
     int argc;
     char** argv;
@@ -61,16 +47,9 @@ class OptParser {
 
     void PrintUsage();
 
-    bool FillDeviceNames();
-
     qcc::String factoryConfigFile;
     qcc::String configFile;
     qcc::String appGUID;
-    qcc::String appName;
-    qcc::String defaultLanguage;
-    qcc::String deviceId;
-    DeviceNamesType deviceNames;
-    int port;
 };
 
 #endif /* OPTPARSER_H_ */

@@ -126,7 +126,6 @@ QStatus ControlPanel::registerObjects(BusAttachment* bus, qcc::String const& uni
     AboutServiceApi* aboutService = AboutServiceApi::getInstance();
     if (!aboutService) {
         QCC_DbgHLPrintf(("Could not retrieve AboutService. It has not been initialized"));
-        return ER_BUS_TRANSPORT_NOT_STARTED;
     }
 
     QStatus status = ER_OK;

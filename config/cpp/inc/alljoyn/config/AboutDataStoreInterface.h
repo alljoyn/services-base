@@ -37,13 +37,17 @@
  */
 #define ER_MAX_SIZE_EXCEEDED            ((QStatus)0xb004)
 
+
+/**
+ * Structure to hold Filter enum
+ */
+struct DataPermission {
 /**
  * Filter has three possible values ANNOUNCE, READ,WRITE
  * READ is for data that is marked as read
  * ANNOUNCE is for data that is marked as announce
  * WRITE is for data that is marked as write
  */
-struct DataPermission {
     typedef enum {
         ANNOUNCE,         //!< ANNOUNCE Property that has  ANNOUNCE  enabled
         READ,            //!< READ     Property that has READ  enabled
