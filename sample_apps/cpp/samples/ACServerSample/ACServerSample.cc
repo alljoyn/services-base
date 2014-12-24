@@ -20,7 +20,6 @@
 #include <AboutDataStore.h>
 #include <alljoyn/AboutObj.h>
 #include <alljoyn/AboutData.h>
-#include <IniParser.h>
 #include <OptParser.h>
 #include <alljoyn/services_common/LogModulesNames.h>
 #include <alljoyn/AboutIconObj.h>
@@ -64,8 +63,7 @@ static AboutIconObj* aboutIconObj = NULL;
 static AboutDataStore* aboutDataStore = NULL;
 static AboutObj* aboutObj = NULL;
 
-static SessionPort SERVICE_PORT;
-static qcc::String configFile;
+static SessionPort servicePort = 900;
 static volatile sig_atomic_t s_interrupt = false;
 static volatile sig_atomic_t s_restart = false;
 
@@ -179,17 +177,12 @@ static void cleanup()
 }
 
 void readPassword(qcc::String& passCode) {
-    std::map<qcc::String, qcc::String> data;
-    if (!IniParser::ParseFile(configFile.c_str(), data)) {
-        return;
-    }
 
-    std::map<qcc::String, qcc::String>::iterator iter = data.find("passcode");
-    if (iter == data.end()) {
-        return;
-    }
-
-    passCode = iter->second;
+    ajn::MsgArg*argPasscode;
+    char*tmp;
+    aboutDataStore->GetField("Passcode", argPasscode);
+    argPasscode->Get("s", &tmp);
+    passCode = tmp;
     return;
 }
 
@@ -214,18 +207,10 @@ int main(int argc, char**argv, char**envArg) {
         return SERVICE_OPTION_ERROR;
     }
 
-    SERVICE_PORT = opts.GetPort();
-    printf("using port %d\n", opts.GetPort());
+    printf("using port %d\n", servicePort);
 
     if (!opts.GetConfigFile().empty()) {
         printf("using Config-file %s\n", opts.GetConfigFile().c_str());
-        if (!opts.ParseExternalXML()) {
-            return 1;
-        }
-    }
-
-    if (!opts.GetAppId().empty()) {
-        printf("using appID %s\n", opts.GetAppId().c_str());
     }
 
     /* Install SIGINT handler so Ctrl + C deallocates memory properly */
@@ -262,12 +247,14 @@ start:
     }
 
     busListener = new CommonBusListener(msgBus, daemonDisconnectCB);
-    busListener->setSessionPort(SERVICE_PORT);
+    busListener->setSessionPort(servicePort);
 
     aboutDataStore = new AboutDataStore(opts.GetFactoryConfigFile().c_str(), opts.GetConfigFile().c_str());
-    status = CommonSampleUtil::fillPropertyStore(aboutDataStore, opts.GetAppId(), opts.GetAppName(), opts.GetDeviceId(),
-                                                 opts.GetDeviceNames(), opts.GetDefaultLanguage());
     aboutDataStore->Initialize();
+    if (!opts.GetAppId().empty()) {
+        std::cout << "using appID " << opts.GetAppId().c_str() << std::endl;
+        aboutDataStore->SetAppId(opts.GetAppId().c_str());
+    }
     if (status != ER_OK) {
         std::cout << "Could not fill PropertyStore." << std::endl;
         cleanup();
@@ -275,7 +262,7 @@ start:
     }
 
     aboutObj = new ajn::AboutObj(*msgBus, BusObject::ANNOUNCED);
-    status = CommonSampleUtil::prepareAboutService(msgBus, static_cast<AboutData*>(aboutDataStore), aboutObj, busListener, SERVICE_PORT);
+    status = CommonSampleUtil::prepareAboutService(msgBus, static_cast<AboutData*>(aboutDataStore), aboutObj, busListener, servicePort);
     if (status != ER_OK) {
         std::cout << "Could not set up the AboutService." << std::endl;
         cleanup();
@@ -307,7 +294,6 @@ start:
 #ifdef _CONFIG_
     configServiceListenerImpl = new ConfigServiceListenerImpl(*aboutDataStore, *msgBus, *busListener);
     configService = new ConfigService(*msgBus, *aboutDataStore, *configServiceListenerImpl);
-    configFile = opts.GetConfigFile().c_str();
     keyListener->setGetPassCode(readPassword);
 
     status = configService->Register();

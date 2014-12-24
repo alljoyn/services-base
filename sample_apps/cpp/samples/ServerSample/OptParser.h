@@ -20,8 +20,6 @@
 #include <map>
 #include <qcc/String.h>
 
-typedef std::map<qcc::String, qcc::String> DeviceNamesType;
-
 /**
  * Class to parse arguments
  */
@@ -65,84 +63,6 @@ class OptParser {
      */
     qcc::String const& GetAppId() const;
 
-    /**
-     * GetAppName
-     * @return
-     */
-    qcc::String const& GetAppName() const;
-
-    /**
-     * GetDeviceId
-     * @return
-     */
-    qcc::String const& GetDeviceId() const;
-
-    /**
-     * GetDeviceNames
-     * @return
-     */
-    DeviceNamesType const& GetDeviceNames() const;
-
-    /**
-     * GetDefaultLanguage
-     * @return
-     */
-    qcc::String const& GetDefaultLanguage() const;
-
-    /**
-     * GetScanFile
-     * @return
-     */
-    qcc::String const& GetScanFile() const;
-
-    /**
-     * GetStateFile
-     * @return
-     */
-    qcc::String const& GetStateFile() const;
-
-    /**
-     * GetErrorFile
-     * @return
-     */
-    qcc::String const& GetErrorFile() const;
-
-    /**
-     * GetConfigureCmd
-     * @return
-     */
-    qcc::String const& GetConfigureCmd() const;
-
-    /**
-     * GetConnectCmd
-     * @return
-     */
-    qcc::String const& GetConnectCmd() const;
-
-    /**
-     * GetOffboardCmd
-     * @return
-     */
-    qcc::String const& GetOffboardCmd() const;
-
-    /**
-     * GetConcurrency
-     * @return
-     */
-    int GetConcurrency() const;
-
-    /**
-     * GetPort
-     * @return
-     */
-    int GetPort() const;
-
-    /**
-     * ParseExternalXML
-     * @return
-     */
-    bool ParseExternalXML();
-
   private:
     int argc;
     char** argv;
@@ -151,24 +71,9 @@ class OptParser {
 
     void PrintUsage();
 
-    bool FillDeviceNames();
-
     qcc::String factoryConfigFile;
     qcc::String configFile;
     qcc::String appGUID;
-    qcc::String appName;
-    qcc::String defaultLanguage;
-    qcc::String deviceId;
-    qcc::String deviceName;
-    qcc::String scanFile;
-    qcc::String stateFile;
-    qcc::String errorFile;
-    qcc::String configureCmd;
-    qcc::String connectCmd;
-    qcc::String offboardCmd;
-    int port;
-    int concurrency;
-    DeviceNamesType deviceNames;
 };
 
 #endif /* OPTPARSER_H_ */

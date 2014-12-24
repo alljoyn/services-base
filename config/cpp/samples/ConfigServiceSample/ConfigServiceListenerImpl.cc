@@ -15,7 +15,6 @@
  ******************************************************************************/
 
 #include "ConfigServiceListenerImpl.h"
-#include <IniParser.h>
 #include <AboutObjApi.h>
 #include <iostream>
 
@@ -50,7 +49,7 @@ QStatus ConfigServiceListenerImpl::FactoryReset()
     return status;
 }
 
-QStatus ConfigServiceListenerImpl::SetPassphrase(const char* daemonRealm, size_t passcodeSize, const char* passcode, SessionId sessionId)
+QStatus ConfigServiceListenerImpl::SetPassphrase(const char* daemonRealm, size_t passcodeSize, const char* passcode, ajn::SessionId sessionId)
 {
     qcc::String passCodeString(passcode, passcodeSize);
     std::cout << "SetPassphrase has been called daemonRealm=" << daemonRealm << " passcode="
@@ -70,6 +69,7 @@ QStatus ConfigServiceListenerImpl::SetPassphrase(const char* daemonRealm, size_t
         m_Bus->LeaveSession(sessionIds[i]);
         std::cout << "Leaving session with id: " << sessionIds[i];
     }
+    m_AboutDataStore->write();
     return ER_OK;
 }
 
@@ -79,9 +79,10 @@ ConfigServiceListenerImpl::~ConfigServiceListenerImpl()
 
 void ConfigServiceListenerImpl::PersistPassword(const char* daemonRealm, const char* passcode)
 {
-    std::map<qcc::String, qcc::String> data;
-    data["daemonrealm"] = daemonRealm;
-    data["passcode"] = passcode;
-    IniParser::UpdateFile(m_AboutDataStore->GetConfigFileName().c_str(), data);
+    MsgArg argPasscode;
+    MsgArg argDaemonrealm;
+    argPasscode.Set("s", passcode);
+    argDaemonrealm.Set("s", daemonRealm);
+    m_AboutDataStore->SetField("Passcode", argPasscode);
+    m_AboutDataStore->SetField("Daemonrealm", argDaemonrealm);
 }
-

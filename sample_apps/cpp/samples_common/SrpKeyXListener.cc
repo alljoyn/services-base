@@ -49,8 +49,8 @@ bool SrpKeyXListener::RequestCredentials(const char* authMechanism, const char* 
                 if (m_GetPassCode) {
                     m_GetPassCode(passCodeFromGet);
                 }
-                std::cout << "RequestCredentials setPasscode to " << (passCodeFromGet.c_str() ? passCodeFromGet.c_str() : m_PassCode.c_str()) << std::endl;
-                creds.SetPassword(passCodeFromGet.c_str() ? passCodeFromGet.c_str() : m_PassCode.c_str());
+                std::cout << "RequestCredentials setPasscode to " << (m_GetPassCode ? passCodeFromGet.c_str() : m_PassCode.c_str()) << std::endl;
+                creds.SetPassword(m_GetPassCode ? passCodeFromGet.c_str() : m_PassCode.c_str());
                 return true;
             } else {
                 return false;

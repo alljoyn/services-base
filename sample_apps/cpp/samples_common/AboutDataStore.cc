@@ -30,16 +30,20 @@ AboutDataStore::AboutDataStore(const char* factoryConfigFile, const char* config
     std::cout << "AboutDataStore::AboutDataStore" << std::endl;
     m_configFileName.assign(configFile);
     m_factoryConfigFileName.assign(factoryConfigFile);
+    SetNewFieldDetails("Passcode", EMPTY_MASK, "s");
+    SetNewFieldDetails("Daemonrealm", EMPTY_MASK, "s");
+    MsgArg arg("s", "");
+    SetField("Daemonrealm", arg);
 }
 
 void AboutDataStore::Initialize()
 {
-    std::cout << "AboutDataStore::Initialize " << m_factoryConfigFileName << std::endl;
-    std::ifstream factoryConfigFile(m_factoryConfigFileName.c_str(), std::ios::binary);
-    if (factoryConfigFile) {
-        std::string str((std::istreambuf_iterator<char>(factoryConfigFile)),
+    std::cout << "AboutDataStore::Initialize " << m_configFileName << std::endl;
+    std::ifstream configFile(m_configFileName.c_str(), std::ios::binary);
+    if (configFile) {
+        std::string str((std::istreambuf_iterator<char>(configFile)),
                         std::istreambuf_iterator<char>());
-        std::cout << "Contains:" << str << std::endl;
+        std::cout << "Contains:" << std::endl << str << std::endl;
         QStatus status;
         status = CreateFromXml(qcc::String(str.c_str()));
 
@@ -49,11 +53,39 @@ void AboutDataStore::Initialize()
         }
         size_t numFields = GetFields();
         std::cout << "AboutDataStore::Initialize() numFields=" << numFields << std::endl;
-
     }
 
-    m_IsInitialized = true;
-    std::cout << "AboutDataStore::Initialize End" << std::endl;
+    if (!IsValid()) {
+        std::cout << "AboutDataStore::Initialize FAIL" << std::endl;
+    } else {
+        m_IsInitialized = true;
+        std::cout << "AboutDataStore::Initialize End" << std::endl;
+    }
+}
+
+void AboutDataStore::SetOBCFG()
+{
+    SetNewFieldDetails("scan_file", EMPTY_MASK, "s");
+    MsgArg argScanFile("s", "/tmp/wifi_scan_results");
+    SetField("scan_file", argScanFile);
+    SetNewFieldDetails("error_file", EMPTY_MASK, "s");
+    MsgArg argErrorFile("s", "/tmp/state/alljoyn-onboarding-lasterror");
+    SetField("error_file", argErrorFile);
+    SetNewFieldDetails("state_file", EMPTY_MASK, "s");
+    MsgArg argStateFile("s", "/tmp/state/alljoyn-onboarding-lasterror");
+    SetField("state_file", argStateFile);
+    SetNewFieldDetails("connect_cmd", EMPTY_MASK, "s");
+    MsgArg argConnectCmd("s", "/tmp/state/alljoyn-onboarding");
+    SetField("connect_cmd", argConnectCmd);
+    SetNewFieldDetails("offboard_cmd", EMPTY_MASK, "s");
+    MsgArg argOffboardCmd("s", "/tmp/state/alljoyn-onboarding");
+    SetField("offboard_cmd", argOffboardCmd);
+    SetNewFieldDetails("configure_cmd", EMPTY_MASK, "s");
+    MsgArg argConfigureCmd("s", "/tmp/state/alljoyn-onboarding");
+    SetField("configure_cmd", argConfigureCmd);
+    SetNewFieldDetails("scan_cmd", EMPTY_MASK, "s");
+    MsgArg argScanCmd("s", "/tmp/state/alljoyn-onboarding");
+    SetField("scan_cmd", argScanCmd);
 }
 
 void AboutDataStore::FactoryReset()
@@ -69,54 +101,50 @@ void AboutDataStore::FactoryReset()
     configFileWrite.write(str.c_str(), str.length());
     configFileWrite.close();
 
-
-    if (factoryConfigFile) {
-        AboutData factoryAboutData;
-        QStatus status = factoryAboutData.CreateFromXml(qcc::String(str.c_str()));
-        if (status != ER_OK) {
-            std::cout << "AboutDataStore::FactoryReset CreateFromXml ERROR" << std::endl;
-            return;
-        }
-        size_t numFields = factoryAboutData.GetFields();
-
-        std::cout << "AboutDataStore::FactoryReset() numFields=" << numFields << std::endl;
-        if (0 == numFields) {
-            return;
-        }
-        const char* fieldNames[512];
-        factoryAboutData.GetFields(fieldNames, numFields);
-        char* defaultLanguage;
-        status = factoryAboutData.GetDefaultLanguage(&defaultLanguage);
-        if (ER_OK != status) {
-            return;
-        }
-        size_t numLangs = factoryAboutData.GetSupportedLanguages();
-        std::cout << "numLangs=" << numLangs << std::endl;
-        const char** langs = new const char*[numLangs];
-        factoryAboutData.GetSupportedLanguages(langs, numLangs);
-        for (size_t i = 0; i < numFields; i++) {
-            ajn::MsgArg* arg;
-            factoryAboutData.GetField(fieldNames[i], arg);
-            if (arg->Signature() != "s") {
-                continue;
-            }
-            SetField(fieldNames[i], *arg);
-
-            if (!factoryAboutData.IsFieldLocalized(fieldNames[i])) {
-                continue;
-            }
-
-            for (size_t j = 0; j < numLangs; j++) {
-                if (langs[j] == defaultLanguage) {
-                    continue;
-                }
-                factoryAboutData.GetField(fieldNames[i], arg, langs[j]);
-                SetField(fieldNames[i], *arg, langs[j]);
-            }
-        }
-        delete [] langs;
+    AboutData factoryAboutData;
+    QStatus status = factoryAboutData.CreateFromXml(qcc::String(str.c_str()));
+    if (status != ER_OK) {
+        std::cout << "AboutDataStore::FactoryReset CreateFromXml ERROR" << std::endl;
+        return;
     }
+    size_t numFields = factoryAboutData.GetFields();
 
+    std::cout << "AboutDataStore::FactoryReset() numFields=" << numFields << std::endl;
+    if (0 == numFields) {
+        return;
+    }
+    const char* fieldNames[512];
+    factoryAboutData.GetFields(fieldNames, numFields);
+    char* defaultLanguage;
+    status = factoryAboutData.GetDefaultLanguage(&defaultLanguage);
+    if (ER_OK != status) {
+        return;
+    }
+    size_t numLangs = factoryAboutData.GetSupportedLanguages();
+    std::cout << "numLangs=" << numLangs << std::endl;
+    const char** langs = new const char*[numLangs];
+    factoryAboutData.GetSupportedLanguages(langs, numLangs);
+    for (size_t i = 0; i < numFields; i++) {
+        ajn::MsgArg* arg;
+        factoryAboutData.GetField(fieldNames[i], arg);
+        if (arg->Signature() != "s") {
+            continue;
+        }
+        SetField(fieldNames[i], *arg);
+
+        if (!factoryAboutData.IsFieldLocalized(fieldNames[i])) {
+            continue;
+        }
+
+        for (size_t j = 0; j < numLangs; j++) {
+            if (langs[j] == defaultLanguage) {
+                continue;
+            }
+            factoryAboutData.GetField(fieldNames[i], arg, langs[j]);
+            SetField(fieldNames[i], *arg, langs[j]);
+        }
+    }
+    delete [] langs;
 }
 
 AboutDataStore::~AboutDataStore()
@@ -255,6 +283,17 @@ const qcc::String& AboutDataStore::GetConfigFileName()
     return m_configFileName;
 }
 
+void AboutDataStore::write()
+{
+    //Generate xml
+    qcc::String str = ToXml();
+    //write to config file
+    std::ofstream iniFileWrite(m_configFileName.c_str(), std::ofstream::out | std::ofstream::trunc);
+    //write to config file
+    iniFileWrite.write(str.c_str(), str.length());
+    iniFileWrite.close();
+}
+
 qcc::String AboutDataStore::ToXml()
 {
     std::cout << "AboutDataStore::ToXml" << std::endl;
@@ -279,9 +318,24 @@ qcc::String AboutDataStore::ToXml()
         ajn::MsgArg* arg;
         char* val;
         GetField(fieldNames[i], arg);
+        if (!strcmp(fieldNames[i], "AppId")) {
+            res += "  <" + qcc::String(fieldNames[i]) + ">";
+            size_t lay;
+            uint8_t* pay;
+            arg->Get("ay", &lay, &pay);
+            std::stringstream ss;
+            for (size_t j = 0; j < lay; ++j) {
+                ss << std::hex << static_cast<int>(pay[j]);
+            }
+            res += ss.str().c_str();
+            res += "</" + qcc::String(fieldNames[i]) + ">\n";
+            continue;
+        }
+
         if (arg->Signature() != "s") {
             continue;
         }
+
         arg->Get("s", &val);
         res += "  <" + qcc::String(fieldNames[i]) + ">";
         res += val;

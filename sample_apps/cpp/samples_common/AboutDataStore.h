@@ -35,6 +35,11 @@ class AboutDataStore : public AboutDataStoreInterface {
     AboutDataStore(const char* factoryConfigFile, const char* configFile);
 
     /**
+     * SetOBCFG
+     */
+    void SetOBCFG();
+
+    /**
      * FactoryReset
      */
     void FactoryReset();
@@ -75,6 +80,11 @@ class AboutDataStore : public AboutDataStoreInterface {
      * @return QStatus
      */
     virtual QStatus Delete(const char* name, const char* languageTag);
+
+    /**
+     * Write about data store as an xml config file
+     */
+    void write();
 
     /**
      * method Initialize

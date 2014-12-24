@@ -22,7 +22,6 @@
 
 #include <SrpKeyXListener.h>
 #include <CommonBusListener.h>
-#include <IniParser.h>
 #include <CommonSampleUtil.h>
 #include <OptParser.h>
 #include "ConfigServiceListenerImpl.h"
@@ -73,9 +72,7 @@ OnboardingService* onboardingService = NULL;
 
 static CommonBusListener* busListener = NULL;
 
-static SessionPort SERVICE_PORT;
-
-static qcc::String configFile;
+static SessionPort servicePort = 900;
 
 static volatile sig_atomic_t s_interrupt = false;
 
@@ -157,17 +154,12 @@ static void cleanup() {
 }
 
 void readPassword(qcc::String& passCode) {
-    std::map<qcc::String, qcc::String> data;
-    if (!IniParser::ParseFile(configFile.c_str(), data)) {
-        return;
-    }
 
-    std::map<qcc::String, qcc::String>::iterator iter = data.find("passcode");
-    if (iter == data.end()) {
-        return;
-    }
-
-    passCode = iter->second;
+    ajn::MsgArg*argPasscode;
+    char*tmp;
+    aboutDataStore->GetField("Passcode", argPasscode);
+    argPasscode->Get("s", &tmp);
+    passCode = tmp;
     return;
 }
 
@@ -211,18 +203,10 @@ int main(int argc, char**argv, char**envArg) {
         return SERVICE_OPTION_ERROR;
     }
 
-    SERVICE_PORT = opts.GetPort();
-    std::cout << "using port " << opts.GetPort() << std::endl;
+    std::cout << "using port " << servicePort << std::endl;
 
     if (!opts.GetConfigFile().empty()) {
-        std::cout << "using Config-file " << configFile.c_str() << std::endl;
-        if (!opts.ParseExternalXML()) {
-            return 1;
-        }
-    }
-
-    if (!opts.GetAppId().empty()) {
-        std::cout << "using appID " << opts.GetAppId().c_str() << std::endl;
+        std::cout << "using Config-file " << opts.GetConfigFile().c_str() << std::endl;
     }
 
     /* Install SIGINT handler so Ctrl + C deallocates memory properly */
@@ -261,12 +245,16 @@ start:
     }
 
     busListener = new CommonBusListener(msgBus, daemonDisconnectCB);
-    busListener->setSessionPort(SERVICE_PORT);
+    busListener->setSessionPort(servicePort);
 
     aboutDataStore = new AboutDataStore(opts.GetFactoryConfigFile().c_str(), opts.GetConfigFile().c_str());
-    status = CommonSampleUtil::fillPropertyStore(aboutDataStore, opts.GetAppId(), opts.GetAppName(), opts.GetDeviceId(),
-                                                 opts.GetDeviceNames(), opts.GetDefaultLanguage());
+    aboutDataStore->SetOBCFG();
     aboutDataStore->Initialize();
+    if (!opts.GetAppId().empty()) {
+        std::cout << "using appID " << opts.GetAppId().c_str() << std::endl;
+        aboutDataStore->SetAppId(opts.GetAppId().c_str());
+    }
+
     if (status != ER_OK) {
         std::cout << "Could not fill PropertyStore." << std::endl;
         cleanup();
@@ -274,7 +262,7 @@ start:
     }
 
     aboutObj = new ajn::AboutObj(*msgBus, BusObject::ANNOUNCED);
-    status = CommonSampleUtil::prepareAboutService(msgBus, static_cast<AboutData*>(aboutDataStore), aboutObj, busListener, SERVICE_PORT);
+    status = CommonSampleUtil::prepareAboutService(msgBus, static_cast<AboutData*>(aboutDataStore), aboutObj, busListener, servicePort);
     if (status != ER_OK) {
         std::cout << "Could not set up the AboutService." << std::endl;
         cleanup();
@@ -309,14 +297,31 @@ start:
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     //OnboardingService
 
-    obController = new OnboardingControllerImpl(opts.GetScanFile(),
-                                                opts.GetStateFile(),
-                                                opts.GetErrorFile(),
-                                                opts.GetConfigureCmd(),
-                                                opts.GetConnectCmd(),
-                                                opts.GetOffboardCmd(),
-                                                opts.GetScanCmd(),
-                                                (OBConcurrency)opts.GetConcurrency(),
+    ajn::MsgArg*arg;
+    char*ScanFile, *StateFile, *ErrorFile, *ConfigureCmd, *ConnectCmd, *OffboardCmd, *ScanCmd;
+    aboutDataStore->GetField("scan_file", arg);
+    arg->Get("s", &ScanFile);
+    aboutDataStore->GetField("state_file", arg);
+    arg->Get("s", &StateFile);
+    aboutDataStore->GetField("error_file", arg);
+    arg->Get("s", &ErrorFile);
+    aboutDataStore->GetField("connect_cmd", arg);
+    arg->Get("s", &ConnectCmd);
+    aboutDataStore->GetField("offboard_cmd", arg);
+    arg->Get("s", &OffboardCmd);
+    aboutDataStore->GetField("configure_cmd", arg);
+    arg->Get("s", &ConfigureCmd);
+    aboutDataStore->GetField("scan_cmd", arg);
+    arg->Get("s", &ScanCmd);
+
+    obController = new OnboardingControllerImpl(ScanFile,
+                                                StateFile,
+                                                ErrorFile,
+                                                ConfigureCmd,
+                                                ConnectCmd,
+                                                OffboardCmd,
+                                                ScanCmd,
+                                                (OBConcurrency)0,
                                                 *msgBus);
     onboardingService = new OnboardingService(*msgBus, *obController);
 
@@ -339,7 +344,6 @@ start:
 
     configServiceListener = new ConfigServiceListenerImpl(*aboutDataStore, *msgBus, *busListener, *obController);
     configService = new ConfigService(*msgBus, *aboutDataStore, *configServiceListener);
-    configFile = opts.GetConfigFile().c_str();
     keyListener->setGetPassCode(readPassword);
 
     status = configService->Register();
