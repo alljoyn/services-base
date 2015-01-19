@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2015, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -18,6 +18,7 @@
 #include <alljoyn/config/AboutDataStoreInterface.h>
 #include <alljoyn/AboutData.h>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <sys/stat.h>
@@ -325,7 +326,7 @@ qcc::String AboutDataStore::ToXml()
             arg->Get("ay", &lay, &pay);
             std::stringstream ss;
             for (size_t j = 0; j < lay; ++j) {
-                ss << std::hex << static_cast<int>(pay[j]);
+                ss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(pay[j]);
             }
             res += ss.str().c_str();
             res += "</" + qcc::String(fieldNames[i]) + ">\n";

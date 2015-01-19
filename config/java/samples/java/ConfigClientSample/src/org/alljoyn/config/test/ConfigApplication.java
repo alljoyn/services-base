@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2014, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2014-2015, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -355,13 +355,13 @@ public class ConfigApplication extends Application implements AuthPasswordHandle
          */
         Log.d(TAG, "Disconnecting from AllJoyn");
         try {
-            busAttachment.cancelWhoImplements(ANNOUNCEMENT_IFACES);
-            busAttachment.unregisterAboutListener(this);
             if (configService != null) {
                 stopConfigSession();
                 configService.stopConfigClient();
             }
             if (busAttachment != null) {
+                busAttachment.cancelWhoImplements(ANNOUNCEMENT_IFACES);
+                busAttachment.unregisterAboutListener(this);
                 busAttachment.clearKeyStore();
                 Log.i(TAG_PASSWORD, "Bus attachment clear key store");
                 busAttachment.cancelAdvertiseName(DAEMON_QUIET_PREFIX + daemonName, SessionOpts.TRANSPORT_ANY);
