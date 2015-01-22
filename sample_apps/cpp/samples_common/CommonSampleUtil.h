@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2015, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -41,7 +41,7 @@ class CommonSampleUtil {
     static ajn::BusAttachment* prepareBusAttachment(ajn::AuthListener* authListener = 0);
 
     /**
-     * static method fillPropertyStore
+     * static method fillAboutData
      * @param aboutData
      * @param appIdHex
      * @param appName
@@ -50,9 +50,9 @@ class CommonSampleUtil {
      * @param defaultLanguage
      * @return the property store created. NULL if failed
      */
-    static QStatus fillPropertyStore(ajn::AboutData* aboutData, qcc::String const& appIdHex,
-                                     qcc::String const& appName, qcc::String const& deviceId, DeviceNamesType const& deviceNames,
-                                     qcc::String const& defaultLanguage = "en");
+    static QStatus fillAboutData(ajn::AboutData* aboutData, qcc::String const& appIdHex,
+                                 qcc::String const& appName, qcc::String const& deviceId, DeviceNamesType const& deviceNames,
+                                 qcc::String const& defaultLanguage = "en");
 
     /**
      * static method prepareAboutService

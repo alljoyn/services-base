@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2015, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -28,7 +28,7 @@ static const char* CONFIG_INTERFACE_NAME = "org.alljoyn.Config";
 ConfigClient::ConfigClient(ajn::BusAttachment& bus) :
     m_BusAttachment(&bus)
 {
-    QCC_DbgTrace(("In ConfigClient Constructor"));
+    QCC_DbgTrace(("In ConfigClient basic Constructor"));
 
     QStatus status = ER_OK;
 

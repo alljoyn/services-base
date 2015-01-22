@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2015, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -37,7 +37,7 @@ static HandleOnboardingSignals* s_signalHandler = NULL;
 OnboardingClient::OnboardingClient(BusAttachment& bus, OnboardingClientListener& listener) :
     m_BusAttachment(&bus)
 {
-    QCC_DbgTrace(("In OnboardingClient Constructor"));
+    QCC_DbgTrace(("In OnboardingClient basic Constructor"));
 
     QStatus status = ER_OK;
     const InterfaceDescription* getIface = NULL;

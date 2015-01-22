@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2014, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2014-2015, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -541,15 +541,15 @@ int main()
     qcc::String appId;
     GuidUtil::GetInstance()->GenerateGUID(&appId);
 
-    //Initialize and fill PropertyStore
+    //Initialize and fill About Data
     DeviceNamesType deviceNames;
     deviceNames.insert(std::pair<qcc::String, qcc::String>(LANG, DEVICE_NAME));
     aboutData = new AboutData(LANG);
 
-    QStatus status = CommonSampleUtil::fillPropertyStore(aboutData, appId, APP_NAME, deviceId, deviceNames);
+    QStatus status = CommonSampleUtil::fillAboutData(aboutData, appId, APP_NAME, deviceId, deviceNames);
     if (status != ER_OK) {
 
-        std::cout << "Could not fill PropertyStore." << std::endl;
+        std::cout << "Could not fill About Data." << std::endl;
         cleanup();
         return 1;
     }

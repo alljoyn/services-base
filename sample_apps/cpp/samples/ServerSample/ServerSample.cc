@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2015, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -225,7 +225,7 @@ void FillNotification(NotificationMessageType& messageType, std::vector<Notifica
 #endif
 
 #define CHECK_RETURN(x) if ((status = x) != ER_OK) { return status; }
-QStatus fillPropertyStore(AboutData* aboutdata)
+QStatus fillAboutData(AboutData* aboutdata)
 {
     if (!aboutdata) {
         return ER_BAD_ARG_1;
@@ -243,7 +243,7 @@ QStatus fillPropertyStore(AboutData* aboutdata)
         for (size_t i = 0; i < languagesVec.size(); i++) {
             for (size_t j = 0; j < languages[i].size(); j++)
                 languagesVec[i].append((languages[i][j] == '_' ? '-' : languages[i][j]));
-            printf("AllJoyn languagesVec[%lu]: %s\n", i, languagesVec[i].c_str());
+            printf("AllJoyn languagesVec[%lu]: %s\n", static_cast<long unsigned int>(i), languagesVec[i].c_str());
         }
     } else {
         languagesVec.reserve(3);
@@ -356,7 +356,7 @@ start:
 #endif
 
     aboutDataStore = new AboutDataStore(opts.GetFactoryConfigFile().c_str(), opts.GetConfigFile().c_str());
-    fillPropertyStore(aboutDataStore);
+    fillAboutData(aboutDataStore);
     aboutDataStore->Initialize();
     if (!opts.GetAppId().empty()) {
         std::cout << "using appID " << opts.GetAppId().c_str() << std::endl;
@@ -364,7 +364,7 @@ start:
     }
 
     if (status != ER_OK) {
-        std::cout << "Could not fill PropertyStore." << std::endl;
+        std::cout << "Could not fill About Data." << std::endl;
         cleanup();
         return 1;
     }

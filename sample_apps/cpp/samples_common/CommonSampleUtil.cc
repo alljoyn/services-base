@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2015, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -53,9 +53,9 @@ BusAttachment* CommonSampleUtil::prepareBusAttachment(ajn::AuthListener* authLis
     return bus;
 }
 
-QStatus CommonSampleUtil::fillPropertyStore(AboutData* aboutdata, qcc::String const& appIdHex,
-                                            qcc::String const& appName, qcc::String const& deviceId, DeviceNamesType const& deviceNames,
-                                            qcc::String const& defaultLanguage)
+QStatus CommonSampleUtil::fillAboutData(AboutData* aboutdata, qcc::String const& appIdHex,
+                                        qcc::String const& appName, qcc::String const& deviceId, DeviceNamesType const& deviceNames,
+                                        qcc::String const& defaultLanguage)
 {
     if (!aboutdata) {
         return ER_BAD_ARG_1;

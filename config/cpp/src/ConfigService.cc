@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2015, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -38,7 +38,7 @@ ConfigService::ConfigService(ajn::BusAttachment& bus, AboutDataStoreInterface& s
 ConfigService::ConfigService(ajn::BusAttachment& bus, PropertyStore& store, Listener& listener) :
     BusObject("/Config"), m_BusAttachment(&bus), m_AboutDataStore(NULL), m_PropertyStore(&store), m_Listener(&listener)
 {
-    QCC_DbgTrace(("In ConfigService old Constructor"));
+    QCC_DbgTrace(("In ConfigService 14.06 Constructor"));
 }
 
 ConfigService::~ConfigService()

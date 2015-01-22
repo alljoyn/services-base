@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2014, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2014-2015, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -19,6 +19,7 @@
 
 #include <alljoyn/notification/NotificationService.h>
 #include "NotificationReceiverImpl.h"
+#include <AboutDataStore.h>
 
 /**
  * Class for testing notification functionality based on runtime configuration.
@@ -43,7 +44,7 @@ class NotificationTesterImpl {
      * @param store
      * @return true if initialization was successful
      */
-    bool Initialize(ajn::BusAttachment* bus, ajn::services::PropertyStore* store);
+    bool Initialize(ajn::BusAttachment* bus, AboutDataStore* store);
 
     /**
      * LoopHandler - function that executes the test functionality

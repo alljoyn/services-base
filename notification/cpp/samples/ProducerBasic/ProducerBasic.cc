@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2015, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -136,9 +136,9 @@ int main()
     aboutData = new AboutData("en");
     DeviceNamesType deviceNames;
     deviceNames.insert(std::pair<qcc::String, qcc::String>("en", "ProducerBasicDeviceName"));
-    status = CommonSampleUtil::fillPropertyStore(aboutData, appid, APP_NAME, deviceid, deviceNames);
+    status = CommonSampleUtil::fillAboutData(aboutData, appid, APP_NAME, deviceid, deviceNames);
     if (status != ER_OK) {
-        std::cout << "Could not fill PropertyStore." << std::endl;
+        std::cout << "Could not fill About Data." << std::endl;
         cleanup();
         return 1;
     }
