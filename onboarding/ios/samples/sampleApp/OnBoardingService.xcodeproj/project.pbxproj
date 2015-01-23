@@ -18,6 +18,7 @@
 		19E2F07417E88B120005851F /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 19E2F07117E88B120005851F /* libc++.dylib */; };
 		19E2F07517E88B120005851F /* libc++abi.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 19E2F07217E88B120005851F /* libc++abi.dylib */; };
 		49838F67189930CE0007FCC6 /* AuthenticationListenerImpl.m in Sources */ = {isa = PBXBuildFile; fileRef = 49838F66189930CE0007FCC6 /* AuthenticationListenerImpl.m */; };
+		87B941181A76B1E200DED7C3 /* libc++.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 19E2F07017E88B120005851F /* libc++.1.dylib */; };
 		9A0118C5187402B400975CE6 /* CommonBusListener.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A0118BF187402B400975CE6 /* CommonBusListener.m */; };
 		9A3DB0BC183A0D2A0063D6BE /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9A3DAFFD183A0D290063D6BE /* Default-568h@2x.png */; };
 		9A3DB0BD183A0D2A0063D6BE /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 9A3DAFFE183A0D290063D6BE /* Default.png */; };
@@ -31,21 +32,12 @@
 		9A5CC10C183D04AA002327C0 /* alljoynicon.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 9A5CC10B183D04AA002327C0 /* alljoynicon.jpeg */; };
 		9A5CC10F183D073E002327C0 /* GetAboutCallViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A5CC10E183D073E002327C0 /* GetAboutCallViewController.m */; };
 		9A5EFF7D187044BC002833C1 /* ClientInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A5EFF7C187044BC002833C1 /* ClientInformation.m */; };
-		9A76170318C8C0520016BF6E /* liballjoyn_services_common_cpp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A76170118C8C0520016BF6E /* liballjoyn_services_common_cpp.a */; };
-		9A76170418C8C0520016BF6E /* liballjoyn_services_common_objc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A76170218C8C0520016BF6E /* liballjoyn_services_common_objc.a */; };
-		9A80CE0D18B23433000083D3 /* liballjoyn_onboarding_cpp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A80CE0B18B23433000083D3 /* liballjoyn_onboarding_cpp.a */; };
-		9A80CE0E18B23433000083D3 /* liballjoyn_onboarding_objc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A80CE0C18B23433000083D3 /* liballjoyn_onboarding_objc.a */; };
 		9AD3D2DE187191AC00D15544 /* AnnounceTextViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AD3D2DD187191AC00D15544 /* AnnounceTextViewController.m */; };
-		9AFAA9B51861EFFB00E9C4ED /* liballjoyn_about_cpp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AFAA9B21861EFFB00E9C4ED /* liballjoyn_about_cpp.a */; };
-		9AFAA9B61861EFFB00E9C4ED /* liballjoyn_about_objc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AFAA9B31861EFFB00E9C4ED /* liballjoyn_about_objc.a */; };
-		9AFAA9B71861EFFB00E9C4ED /* libAllJoynFramework_iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AFAA9B41861EFFB00E9C4ED /* libAllJoynFramework_iOS.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		19C40C2718B24A8100D3F62B /* OnboardingViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OnboardingViewController.h; sourceTree = "<group>"; };
 		19C40C2818B24A8100D3F62B /* OnboardingViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OnboardingViewController.m; sourceTree = "<group>"; };
-		19DBCE02188E61B9000B048A /* liballjoyn_controlpanel_cpp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liballjoyn_controlpanel_cpp.a; path = "../alljoyn_services_cpp/build/Debug-iphoneos/liballjoyn_controlpanel_cpp.a"; sourceTree = "<group>"; };
-		19DBCE04188E61BD000B048A /* liballjoyn_controlpanel_objc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liballjoyn_controlpanel_objc.a; path = "../alljoyn_services_objc/build/Debug-iphoneos/liballjoyn_controlpanel_objc.a"; sourceTree = "<group>"; };
 		19E2F03F17E87CE10005851F /* OnBoardingService.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OnBoardingService.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		19E2F04217E87CE10005851F /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		19E2F04417E87CE10005851F /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -79,17 +71,8 @@
 		9A5CC10E183D073E002327C0 /* GetAboutCallViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GetAboutCallViewController.m; sourceTree = "<group>"; };
 		9A5EFF7B187044BC002833C1 /* ClientInformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClientInformation.h; sourceTree = "<group>"; };
 		9A5EFF7C187044BC002833C1 /* ClientInformation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClientInformation.m; sourceTree = "<group>"; };
-		9A76170118C8C0520016BF6E /* liballjoyn_services_common_cpp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liballjoyn_services_common_cpp.a; path = "../../../../../../Library/Developer/Xcode/DerivedData/OnboardingServiceWorkspace-dlszaurmhtfvhbfsjxxypzfkyhey/Build/Products/Debug-iphoneos/liballjoyn_services_common_cpp.a"; sourceTree = "<group>"; };
-		9A76170218C8C0520016BF6E /* liballjoyn_services_common_objc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liballjoyn_services_common_objc.a; path = "../../../../../../Library/Developer/Xcode/DerivedData/OnboardingServiceWorkspace-dlszaurmhtfvhbfsjxxypzfkyhey/Build/Products/Debug-iphoneos/liballjoyn_services_common_objc.a"; sourceTree = "<group>"; };
-		9A80CE0B18B23433000083D3 /* liballjoyn_onboarding_cpp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liballjoyn_onboarding_cpp.a; path = "../alljoyn_services_cpp/build/Debug-iphoneos/liballjoyn_onboarding_cpp.a"; sourceTree = "<group>"; };
-		9A80CE0C18B23433000083D3 /* liballjoyn_onboarding_objc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liballjoyn_onboarding_objc.a; path = "../alljoyn_services_objc/build/Debug-iphoneos/liballjoyn_onboarding_objc.a"; sourceTree = "<group>"; };
 		9AD3D2DC187191AC00D15544 /* AnnounceTextViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnnounceTextViewController.h; sourceTree = "<group>"; };
 		9AD3D2DD187191AC00D15544 /* AnnounceTextViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnnounceTextViewController.m; sourceTree = "<group>"; };
-		9AF884AD18AB68AB0060D742 /* liballjoyn_services_common_cpp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liballjoyn_services_common_cpp.a; path = "../../../../services_common/ios/samples/alljoyn_services_cpp/build/Debug-iphoneos/liballjoyn_services_common_cpp.a"; sourceTree = "<group>"; };
-		9AF884AE18AB68AB0060D742 /* liballjoyn_services_common_objc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liballjoyn_services_common_objc.a; path = "../../../../services_common/ios/samples/alljoyn_services_objc/build/Debug-iphoneos/liballjoyn_services_common_objc.a"; sourceTree = "<group>"; };
-		9AFAA9B21861EFFB00E9C4ED /* liballjoyn_about_cpp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liballjoyn_about_cpp.a; path = "../alljoyn_services_cpp/build/Debug-iphoneos/liballjoyn_about_cpp.a"; sourceTree = "<group>"; };
-		9AFAA9B31861EFFB00E9C4ED /* liballjoyn_about_objc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liballjoyn_about_objc.a; path = "../alljoyn_services_objc/build/Debug-iphoneos/liballjoyn_about_objc.a"; sourceTree = "<group>"; };
-		9AFAA9B41861EFFB00E9C4ED /* libAllJoynFramework_iOS.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAllJoynFramework_iOS.a; path = "../../../../../alljoyn_objc/AllJoynFramework_iOS/build/Debug-iphoneos/libAllJoynFramework_iOS.a"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,19 +80,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9A76170318C8C0520016BF6E /* liballjoyn_services_common_cpp.a in Frameworks */,
-				9A76170418C8C0520016BF6E /* liballjoyn_services_common_objc.a in Frameworks */,
-				9A80CE0D18B23433000083D3 /* liballjoyn_onboarding_cpp.a in Frameworks */,
-				9A80CE0E18B23433000083D3 /* liballjoyn_onboarding_objc.a in Frameworks */,
-				9AFAA9B71861EFFB00E9C4ED /* libAllJoynFramework_iOS.a in Frameworks */,
-				9AFAA9B51861EFFB00E9C4ED /* liballjoyn_about_cpp.a in Frameworks */,
-				9AFAA9B61861EFFB00E9C4ED /* liballjoyn_about_objc.a in Frameworks */,
 				9A3DB315183A19CB0063D6BE /* libc.dylib in Frameworks */,
 				19E2F07417E88B120005851F /* libc++.dylib in Frameworks */,
+				87B941181A76B1E200DED7C3 /* libc++.1.dylib in Frameworks */,
 				19E2F07517E88B120005851F /* libc++abi.dylib in Frameworks */,
-				19E2F06D17E88B030005851F /* libstdc++.6.0.9.dylib in Frameworks */,
-				19E2F06E17E88B030005851F /* libstdc++.6.dylib in Frameworks */,
 				19E2F06F17E88B030005851F /* libstdc++.dylib in Frameworks */,
+				19E2F06E17E88B030005851F /* libstdc++.6.dylib in Frameworks */,
+				19E2F06D17E88B030005851F /* libstdc++.6.0.9.dylib in Frameworks */,
 				19E2F06917E88AF20005851F /* SystemConfiguration.framework in Frameworks */,
 				19E2F04317E87CE10005851F /* UIKit.framework in Frameworks */,
 				19E2F04517E87CE10005851F /* Foundation.framework in Frameworks */,
@@ -143,25 +120,14 @@
 		19E2F04117E87CE10005851F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				9A76170118C8C0520016BF6E /* liballjoyn_services_common_cpp.a */,
-				9A76170218C8C0520016BF6E /* liballjoyn_services_common_objc.a */,
-				9A80CE0B18B23433000083D3 /* liballjoyn_onboarding_cpp.a */,
-				9A80CE0C18B23433000083D3 /* liballjoyn_onboarding_objc.a */,
-				9AF884AD18AB68AB0060D742 /* liballjoyn_services_common_cpp.a */,
-				9AF884AE18AB68AB0060D742 /* liballjoyn_services_common_objc.a */,
-				19DBCE04188E61BD000B048A /* liballjoyn_controlpanel_objc.a */,
-				19DBCE02188E61B9000B048A /* liballjoyn_controlpanel_cpp.a */,
+				9A3DB314183A19CB0063D6BE /* libc.dylib */,
 				19E2F07117E88B120005851F /* libc++.dylib */,
 				19E2F07017E88B120005851F /* libc++.1.dylib */,
 				19E2F07217E88B120005851F /* libc++abi.dylib */,
-				19E2F06A17E88B030005851F /* libstdc++.6.0.9.dylib */,
-				19E2F06B17E88B030005851F /* libstdc++.6.dylib */,
 				19E2F06C17E88B030005851F /* libstdc++.dylib */,
+				19E2F06B17E88B030005851F /* libstdc++.6.dylib */,
+				19E2F06A17E88B030005851F /* libstdc++.6.0.9.dylib */,
 				19E2F06817E88AF20005851F /* SystemConfiguration.framework */,
-				9AFAA9B21861EFFB00E9C4ED /* liballjoyn_about_cpp.a */,
-				9AFAA9B31861EFFB00E9C4ED /* liballjoyn_about_objc.a */,
-				9AFAA9B41861EFFB00E9C4ED /* libAllJoynFramework_iOS.a */,
-				9A3DB314183A19CB0063D6BE /* libc.dylib */,
 				19E2F04217E87CE10005851F /* UIKit.framework */,
 				19E2F04417E87CE10005851F /* Foundation.framework */,
 				19E2F04617E87CE10005851F /* CoreGraphics.framework */,
@@ -401,22 +367,27 @@
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = (
 					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
-					"\"$(ALLJOYN_SDK_ROOT)/alljoyn_objc/AllJoynFramework/AllJoynFramework/\"",
-					"$(BUILT_PRODUCTS_DIR)/inc/**",
 					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"",
-					"\"../../inc/\"",
-					"\"../../../cpp/inc\"",
-					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/about/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/common/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/alljoyn_objc/AllJoynFramework/AllJoynFramework/\"",
+					"\"$(ALLJOYN_SDK_ROOT)/services/about/ios/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/services/about/cpp/inc\"",
+					"\"$(SRCROOT)/../../inc\"",
+					"\"$(SRCROOT)/../../../cpp/inc\"",
+					"\"$(SRCROOT)/../../../../services_common/cpp/inc\"",
+					"\"$(SRCROOT)/../../../../services_common/ios/inc\"",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/OnboardingService/OnBoardingService-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib",
 					"$(OPENSSL_ROOT)/build/$(CONFIGURATION)-$(PLATFORM_NAME)",
+					"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib",
 					"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/about/lib",
-					"\"../../../cpp/lib\"",
-					"\"../../lib\"",
+					"\"$(SRCROOT)/../alljoyn_services_cpp/build/$(CONFIGURATION)-$(PLATFORM_NAME)\"",
+					"\"$(SRCROOT)/../alljoyn_services_objc/build/$(CONFIGURATION)-$(PLATFORM_NAME)\"",
+					"\"$(SRCROOT)/../../../../services_common/ios/samples/alljoyn_services_cpp/build/$(CONFIGURATION)-$(PLATFORM_NAME)\"",
+					"\"$(SRCROOT)/../../../../services_common/ios/samples/alljoyn_services_objc/build/$(CONFIGURATION)-$(PLATFORM_NAME)\"",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
@@ -429,6 +400,13 @@
 					"-lBundledRouter.o",
 					"-lssl",
 					"-lcrypto",
+					"-lalljoyn_services_common_objc",
+					"-lalljoyn_services_common_cpp",
+					"-lalljoyn_onboarding_objc",
+					"-lalljoyn_onboarding_cpp",
+					"-lalljoyn_about_objc",
+					"-lalljoyn_about_cpp",
+					"-lAllJoynFramework_iOS",
 				);
 				PRODUCT_NAME = OnBoardingService;
 				PROVISIONING_PROFILE = "";
@@ -455,22 +433,27 @@
 				GCC_PREFIX_HEADER = "OnboardingService/OnBoardingService-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
-					"\"$(ALLJOYN_SDK_ROOT)/alljoyn_objc/AllJoynFramework/AllJoynFramework/\"",
-					"$(BUILT_PRODUCTS_DIR)/inc/**",
 					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"",
-					"\"../../inc/\"",
-					"\"../../../cpp/inc\"",
-					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/about/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/common/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/alljoyn_objc/AllJoynFramework/AllJoynFramework/\"",
+					"\"$(ALLJOYN_SDK_ROOT)/services/about/ios/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/services/about/cpp/inc\"",
+					"\"$(SRCROOT)/../../inc\"",
+					"\"$(SRCROOT)/../../../cpp/inc\"",
+					"\"$(SRCROOT)/../../../../services_common/cpp/inc\"",
+					"\"$(SRCROOT)/../../../../services_common/ios/inc\"",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/OnboardingService/OnBoardingService-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib",
 					"$(OPENSSL_ROOT)/build/$(CONFIGURATION)-$(PLATFORM_NAME)",
+					"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib",
 					"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/about/lib",
-					"\"../../../cpp/lib\"",
-					"\"../../lib\"",
+					"\"$(SRCROOT)/../alljoyn_services_cpp/build/$(CONFIGURATION)-$(PLATFORM_NAME)\"",
+					"\"$(SRCROOT)/../alljoyn_services_objc/build/$(CONFIGURATION)-$(PLATFORM_NAME)\"",
+					"\"$(SRCROOT)/../../../../services_common/ios/samples/alljoyn_services_cpp/build/$(CONFIGURATION)-$(PLATFORM_NAME)\"",
+					"\"$(SRCROOT)/../../../../services_common/ios/samples/alljoyn_services_objc/build/$(CONFIGURATION)-$(PLATFORM_NAME)\"",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
@@ -484,6 +467,13 @@
 					"-lBundledRouter.o",
 					"-lssl",
 					"-lcrypto",
+					"-lalljoyn_services_common_objc",
+					"-lalljoyn_services_common_cpp",
+					"-lalljoyn_onboarding_objc",
+					"-lalljoyn_onboarding_cpp",
+					"-lalljoyn_about_objc",
+					"-lalljoyn_about_cpp",
+					"-lAllJoynFramework_iOS",
 				);
 				PRODUCT_NAME = OnBoardingService;
 				PROVISIONING_PROFILE = "";

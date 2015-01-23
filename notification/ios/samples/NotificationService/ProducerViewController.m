@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2015, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -18,7 +18,7 @@
 #import <alljoyn/Status.h>
 #import "AJNVersion.h"
 #import "alljoyn/about/AJNAboutServiceApi.h"
-#import "alljoyn/samples_common/AJSCCommonBusListener.h"
+#import "samples_common/AJSCCommonBusListener.h"
 #import "AJNPasswordManager.h"
 #import "alljoyn/notification/AJNSNotificationSender.h"
 #import "alljoyn/notification/AJNSNotificationService.h"

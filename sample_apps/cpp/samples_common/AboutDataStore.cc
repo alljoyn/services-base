@@ -93,6 +93,8 @@ void AboutDataStore::FactoryReset()
 {
     std::cout << "AboutDataStore::FactoryReset" << std::endl;
 
+    m_IsInitialized = false;
+
     std::ifstream factoryConfigFile(m_factoryConfigFileName.c_str(), std::ios::binary);
     std::string str((std::istreambuf_iterator<char>(factoryConfigFile)),
                     std::istreambuf_iterator<char>());
@@ -102,50 +104,7 @@ void AboutDataStore::FactoryReset()
     configFileWrite.write(str.c_str(), str.length());
     configFileWrite.close();
 
-    AboutData factoryAboutData;
-    QStatus status = factoryAboutData.CreateFromXml(qcc::String(str.c_str()));
-    if (status != ER_OK) {
-        std::cout << "AboutDataStore::FactoryReset CreateFromXml ERROR" << std::endl;
-        return;
-    }
-    size_t numFields = factoryAboutData.GetFields();
-
-    std::cout << "AboutDataStore::FactoryReset() numFields=" << numFields << std::endl;
-    if (0 == numFields) {
-        return;
-    }
-    const char* fieldNames[512];
-    factoryAboutData.GetFields(fieldNames, numFields);
-    char* defaultLanguage;
-    status = factoryAboutData.GetDefaultLanguage(&defaultLanguage);
-    if (ER_OK != status) {
-        return;
-    }
-    size_t numLangs = factoryAboutData.GetSupportedLanguages();
-    std::cout << "numLangs=" << numLangs << std::endl;
-    const char** langs = new const char*[numLangs];
-    factoryAboutData.GetSupportedLanguages(langs, numLangs);
-    for (size_t i = 0; i < numFields; i++) {
-        ajn::MsgArg* arg;
-        factoryAboutData.GetField(fieldNames[i], arg);
-        if (arg->Signature() != "s") {
-            continue;
-        }
-        SetField(fieldNames[i], *arg);
-
-        if (!factoryAboutData.IsFieldLocalized(fieldNames[i])) {
-            continue;
-        }
-
-        for (size_t j = 0; j < numLangs; j++) {
-            if (langs[j] == defaultLanguage) {
-                continue;
-            }
-            factoryAboutData.GetField(fieldNames[i], arg, langs[j]);
-            SetField(fieldNames[i], *arg, langs[j]);
-        }
-    }
-    delete [] langs;
+    Initialize();
 }
 
 AboutDataStore::~AboutDataStore()

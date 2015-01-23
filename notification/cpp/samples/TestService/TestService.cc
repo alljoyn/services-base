@@ -119,7 +119,7 @@ bool initSend(std::map<qcc::String, qcc::String>& params)
 
     QStatus status;
     status = CommonSampleUtil::fillAboutData(aboutData, appid, params["app_name"].c_str(),
-                                                 deviceid, deviceNames);
+                                             deviceid, deviceNames);
     if (status != ER_OK) {
         std::cout << "Could not fill About Data." << std::endl;
         return false;

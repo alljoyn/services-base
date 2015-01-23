@@ -210,7 +210,9 @@ QStatus ConfigClient::UpdateConfigurations(const char* busName, const char* lang
         std::vector<MsgArg> tempconfigMapDictEntries(configs.size());
         int i = 0;
         for (std::map<qcc::String, ajn::MsgArg>::const_iterator it = configs.begin(); it != configs.end(); ++it) {
-            CHECK_BREAK(tempconfigMapDictEntries[i].Set("{sv}", it->first.c_str(), new MsgArg(it->second)))
+            MsgArg* arg = new MsgArg(it->second);
+            arg->SetOwnershipFlags(MsgArg::OwnsArgs, true);
+            CHECK_BREAK(tempconfigMapDictEntries[i].Set("{sv}", it->first.c_str(), arg))
             i++;
         }
         if (status != ER_OK) {

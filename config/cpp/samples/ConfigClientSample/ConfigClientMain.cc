@@ -414,6 +414,10 @@ int main(int argc, char**argv, char**envArg)
     std::cout << "AllJoyn Library version: " << ajn::GetVersion() << std::endl;
     std::cout << "AllJoyn Library build info: " << ajn::GetBuildInfo() << std::endl;
 
+    std::cout << "*********************************************************************************" << std::endl;
+    std::cout << "PLEASE NOTE THAT AS OF NOW THIS PROGRAM DOES NOT SUPPORT INTERACTION WITH THE ALLJOYN THIN CLIENT BASED CONFIGSAMPLE. SO PLEASE USE THIS PROGRAM ONLY WITH ALLJOYN STANDARD CLIENT BASED CONFIGSERVICESAMPLE" << std::endl;
+    std::cout << "*********************************************************************************" << std::endl;
+
     //Enable this line to see logs from config service:
     //QCC_SetDebugLevel(services::logModules::CONFIG_MODULE_LOG_NAME, services::logModules::ALL_LOG_LEVELS);
 

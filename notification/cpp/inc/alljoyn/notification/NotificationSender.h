@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2015, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -74,12 +74,12 @@ class NotificationSender {
   private:
 
     /**
-     * Device Id that will be sent with the Notifications
+     * Pointer to AboutData implementing the storage.
      */
     ajn::AboutData* m_aboutdata;
 
     /**
-     * Device Id that will be sent with the Notifications
+     * Pointer to PropertyStore implementing the storage.
      */
     ajn::services::PropertyStore* m_PropertyStore;
 
