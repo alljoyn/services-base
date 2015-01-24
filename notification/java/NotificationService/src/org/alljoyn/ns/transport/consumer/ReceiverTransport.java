@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2015, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -352,6 +352,23 @@ public class ReceiverTransport implements AboutListener {
         GenericLogger logger = nativePlatform.getNativeLogger();
         BusAttachment busAttachment = Transport.getInstance().getBusAttachment();
 
+        // Check if the objects have the interface of a Super Agent
+        boolean foundSuperAgent = false;
+        if (objectDescriptions != null) {
+            for (AboutObjectDescription o : objectDescriptions) {
+                for (String s : o.interfaces) {
+                    if ( s.equals(NotificationTransportSuperAgent.IF_NAME) ) {
+                        foundSuperAgent = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (!foundSuperAgent) {
+            return;
+        }
+
+        // We found a Super Agent, continue
         busAttachment.enableConcurrentCallbacks();
 
         // if SA is already found no need to parse this announcement
