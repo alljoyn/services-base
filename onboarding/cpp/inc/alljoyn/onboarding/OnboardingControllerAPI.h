@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2015, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -50,7 +50,7 @@ class OnboardingControllerAPI {
     /**
      * ConfigureWiFi passing connection info to connect to WIFI
      * @param[in] SSID  of WIFI AP
-     * @param[in] passphrase of WIFI AP
+     * @param[in] passphrase of WIFI AP in hex
      * @param[in] authType used by  WIFI AP
      * @param[out] status
      * @param[out] error

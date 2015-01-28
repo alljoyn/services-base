@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2015, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -124,25 +124,25 @@ void WidgetBusObject::PropertyChanged(const InterfaceDescription::Member* member
 QStatus WidgetBusObject::SendPropertyChangedSignal()
 {
     ControlPanelBusListener* busListener = ControlPanelService::getInstance()->getBusListener();
-    QStatus status = ER_BUS_PROPERTY_VALUE_NOT_SET;
+    QStatus status = ER_OK;
 
     if (!m_SignalPropertyChanged) {
         QCC_DbgHLPrintf(("Can't send propertyChanged signal. Signal to set"));
-        return status;
+        return ER_FAIL;
     }
 
-    if (!busListener) {
-        QCC_DbgHLPrintf(("Can't send valueChanged signal. SessionIds are unknown"));
-        return status;
-    }
-
-    const std::vector<SessionId>& sessionIds = busListener->getSessionIds();
-    for (size_t indx = 0; indx < sessionIds.size(); indx++) {
-        status = Signal(NULL, sessionIds[indx], *m_SignalPropertyChanged, NULL, 0);
-        if (status != ER_OK) {
-            QCC_LogError(status, ("Could not send PropertyChanged Signal for sessionId: %s", sessionIds[indx]));
+    if (busListener) {
+        const std::vector<SessionId>& sessionIds = busListener->getSessionIds();
+        for (size_t indx = 0; indx < sessionIds.size(); indx++) {
+            status = Signal(NULL, sessionIds[indx], *m_SignalPropertyChanged, NULL, 0);
+            if (status != ER_OK) {
+                QCC_LogError(status, ("Could not send PropertyChanged Signal for sessionId: %s", sessionIds[indx]));
+            }
         }
+    } else {
+        QCC_DbgHLPrintf(("No BusListener registered"));
     }
+
     return status;
 }
 

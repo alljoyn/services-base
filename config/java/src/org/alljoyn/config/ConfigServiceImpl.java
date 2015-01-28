@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2015, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -68,7 +68,7 @@ public class ConfigServiceImpl extends ServiceCommonImpl implements ConfigServic
 
     /**
      * A singleton ConfigService instance
-     * 
+     *
      * @return {@link ConfigService} instance
      */
     public static ConfigService getInstance() {
@@ -85,6 +85,12 @@ public class ConfigServiceImpl extends ServiceCommonImpl implements ConfigServic
     /**
      * **************** Server **************
      */
+    @Override
+    public void startConfigServer(ConfigDataStore configDataStore, ConfigChangeListener configChangeListener, RestartHandler restartHandler, FactoryResetHandler factoryResetHandler,
+            PassphraseChangedListener passphraseChangeListener, BusAttachment bus) throws Exception {
+        startConfigServer((PropertyStore)configDataStore, configChangeListener, restartHandler, factoryResetHandler, passphraseChangeListener, bus);
+    }
+
     @Override
     public void startConfigServer(PropertyStore propertyStore, ConfigChangeListener configChangeListener, RestartHandler restartHandler, FactoryResetHandler factoryResetHandler,
             PassphraseChangedListener passphraseChangeListener, BusAttachment bus) throws Exception {
@@ -110,7 +116,7 @@ public class ConfigServiceImpl extends ServiceCommonImpl implements ConfigServic
 
     /**
      * Returns the ConfigInterface field
-     * 
+     *
      * @return the ConfigInterface field
      */
     public ConfigInterface getConfigInterface() {
@@ -155,6 +161,7 @@ public class ConfigServiceImpl extends ServiceCommonImpl implements ConfigServic
         @Override
         public Map<String, Variant> GetConfigurations(String languageTag) throws BusException {
             Map<String, Object> persistedConfiguration = new HashMap<String, Object>();
+
             try {
                 m_propertyStore.readAll(languageTag, Filter.WRITE, persistedConfiguration);
             } catch (PropertyStoreException e) {
@@ -164,6 +171,7 @@ public class ConfigServiceImpl extends ServiceCommonImpl implements ConfigServic
                     e.printStackTrace();
                 }
             }
+
             Map<String, Variant> configuration = TransportUtil.toVariantMap(persistedConfiguration);
             return configuration;
         }
@@ -205,6 +213,7 @@ public class ConfigServiceImpl extends ServiceCommonImpl implements ConfigServic
                         }
                     }
                 }
+
                 if (m_configChangeListener != null) {
                     m_configChangeListener.onConfigChanged(configuration, languageTag);
                 }
@@ -216,6 +225,7 @@ public class ConfigServiceImpl extends ServiceCommonImpl implements ConfigServic
             if (m_setPasswordHandler != null) {
                 m_setPasswordHandler.setPassword(daemonRealm, TransportUtil.toCharArray(passphrase));
             }
+
             if (m_passphraseChangeListener != null) {
                 m_passphraseChangeListener.onPassphraseChanged(passphrase);
             }
@@ -226,9 +236,9 @@ public class ConfigServiceImpl extends ServiceCommonImpl implements ConfigServic
             try {
                 m_propertyStore.resetAll();
             } catch (PropertyStoreException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+
             if (m_factoryResetHandler != null) {
                 m_factoryResetHandler.doFactoryReset();
             }

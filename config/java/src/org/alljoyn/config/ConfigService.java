@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2015, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -29,7 +29,7 @@ import org.alljoyn.services.common.ServiceAvailabilityListener;
 import org.alljoyn.services.common.ServiceCommon;
 
 /**
- * An interface for both Config client (consumer) and server (producer). 
+ * An interface for both Config client (consumer) and server (producer).
  * An application may want to implement both, but still use one bus, so for convenience both functionalities are encapsulated here.
  */
 public interface ConfigService extends ServiceCommon
@@ -41,7 +41,7 @@ public interface ConfigService extends ServiceCommon
 
 	/**
 	 * Start server mode.  The application creates the BusAttachment
-	 * @param propertyStore a map of device/application properties. 
+	 * @param configDataStore a map of device/application data values.
 	 * @param configChangeListener listener to configuration changes coming from remote client peers.
 	 * @param restartHandler handler for restart requests coming from remote client peers.
 	 * @param factoryResetHandler handler for factory reset requests coming from remote client peers.
@@ -50,8 +50,24 @@ public interface ConfigService extends ServiceCommon
 	 * @throws Exception
 	 * @see AboutKeys
 	 */
-	void startConfigServer(PropertyStore propertyStore,ConfigChangeListener configChangeListener,RestartHandler restartHandler,
-			FactoryResetHandler factoryResetHandler,PassphraseChangedListener passphraseChangeListener, BusAttachment bus) throws Exception;
+    public void startConfigServer(ConfigDataStore configDataStore, ConfigChangeListener configChangeListener, RestartHandler restartHandler, FactoryResetHandler factoryResetHandler,
+            PassphraseChangedListener passphraseChangeListener, BusAttachment bus) throws Exception;
+
+	/**
+	 * Start server mode.  The application creates the BusAttachment
+	 * @param propertyStore a map of device/application properties.
+	 * @param configChangeListener listener to configuration changes coming from remote client peers.
+	 * @param restartHandler handler for restart requests coming from remote client peers.
+	 * @param factoryResetHandler handler for factory reset requests coming from remote client peers.
+	 * @param passphraseChangeListener listener to password changes coming from remote client peers.
+	 * @param bus the AllJoyn bus attachment.
+	 * @throws Exception
+	 * @see AboutKeys
+	 * @deprecated use {@link startConfigServer(AboutDataListener, ConfigChangeListener, RestartHandler, FactoryResetHandler, PassphraseChangedListener, BusAttachment) startConfigServer} instead
+	 */
+    @Deprecated
+	public void startConfigServer(PropertyStore propertyStore, ConfigChangeListener configChangeListener, RestartHandler restartHandler,
+			FactoryResetHandler factoryResetHandler, PassphraseChangedListener passphraseChangeListener, BusAttachment bus) throws Exception;
 
 	/**
 	 * Stop server mode.
@@ -67,10 +83,10 @@ public interface ConfigService extends ServiceCommon
 	public void startConfigClient(BusAttachment bus) throws Exception;
 	
 	/**
-	 * Create an Config client for a peer. 
+	 * Create an Config client for a peer.
 	 * @param deviceName the remote device
 	 * @param serviceAvailabilityListener listener for connection loss
-	 * @param port the peer's bound port of the About server  
+	 * @param port the peer's bound port of the About server
 	 * @return ConfigClient for running a session with the peer
 	 * @throws Exception
 	 */
@@ -83,7 +99,7 @@ public interface ConfigService extends ServiceCommon
 	public void stopConfigClient() throws Exception;
 	
 	/**
-	 * Handler of passpword change requests coming from remote peer clients.
+	 * Handler of password change requests coming from remote peer clients.
 	 * @param setPasswordHandler the application
 	 */
 	public void setSetPasswordHandler(SetPasswordHandler setPasswordHandler);

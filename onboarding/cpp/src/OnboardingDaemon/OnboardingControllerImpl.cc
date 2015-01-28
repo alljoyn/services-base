@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2015, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -538,12 +538,13 @@ void OnboardingControllerImpl::Offboard()
 {
     QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
     CancelAdvertise();
+    pthread_t thread;
 #ifdef _WIN32
     m_scanWifiThread = reinterpret_cast<HANDLE>(_beginthreadex(NULL, 256 * 1024, (unsigned int (__stdcall*)(void*))ScanWifiThread, this, 0, NULL));
     CloseHandle(m_scanWifiThread);
 #else
-    pthread_create(&m_scanWifiThread, NULL, ScanWifiThread, this);
-    pthread_detach(m_scanWifiThread);
+    pthread_create(&thread, NULL, OnboardingControllerImpl::OBS_Offboard, this);
+    pthread_detach(thread);
 #endif
 } /* Offboard() */
 

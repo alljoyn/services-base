@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013-2015, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2015, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -15,6 +15,7 @@
  ******************************************************************************/
 #ifdef NEED_DATA_STORE
 #include "AboutDataStore.h"
+#include "AboutObjApi.h"
 #include <alljoyn/config/AboutDataStoreInterface.h>
 #include <alljoyn/AboutData.h>
 #include <fstream>
@@ -24,6 +25,7 @@
 #include <sys/stat.h>
 
 using namespace ajn;
+using namespace services;
 
 AboutDataStore::AboutDataStore(const char* factoryConfigFile, const char* configFile) :
     AboutDataStoreInterface(factoryConfigFile, configFile), m_IsInitialized(false)
@@ -122,69 +124,103 @@ QStatus AboutDataStore::Update(const char* name, const char* languageTag, const 
 {
     std::cout << "AboutDataStore::Update" << " name:" << name << " languageTag:" <<  languageTag << " value:" << value << std::endl;
 
-    QStatus status = ER_OK;
+    QStatus status = ER_FAIL;
     if (strcmp(name, AboutData::APP_ID) == 0) {
         uint8_t* appId = NULL;
         size_t* num = NULL;
         status = value->Get("ay", num, &appId);
-        status = SetAppId(appId, *num);
+        if (status == ER_OK) {
+            status = SetAppId(appId, *num);
+        }
     } else if (strcmp(name, AboutData::DEFAULT_LANGUAGE) == 0) {
         char* defaultLanguage;
         status = value->Get("s", &defaultLanguage);
-        status = SetDefaultLanguage(defaultLanguage);
+        if (status == ER_OK) {
+            status = SetDefaultLanguage(defaultLanguage);
+        }
     } else if (strcmp(name, AboutData::DEVICE_NAME) == 0) {
         std::cout << "Got device name" << std::endl;
         char* deviceName = NULL;
         status = value->Get("s", &deviceName);
-        status = SetDeviceName(deviceName, languageTag);
+        if (status == ER_OK) {
+            status = SetDeviceName(deviceName, languageTag);
+        }
     } else if (strcmp(name, AboutData::DEVICE_ID) == 0) {
         char* deviceId = NULL;
         status = value->Get("s", &deviceId);
-        status = SetDeviceId(deviceId);
+        if (status == ER_OK) {
+            status = SetDeviceId(deviceId);
+        }
     } else if (strcmp(name, AboutData::APP_NAME) == 0) {
         char* appName = NULL;
         status = value->Get("s", &appName);
-        status = SetAppName(appName, languageTag);
+        if (status == ER_OK) {
+            status = SetAppName(appName, languageTag);
+        }
     } else if (strcmp(name, AboutData::MANUFACTURER) == 0) {
         char* chval = NULL;
         status = value->Get("s", &chval);
-        status = SetManufacturer(chval);
+        if (status == ER_OK) {
+            status = SetManufacturer(chval);
+        }
     } else if (strcmp(name, AboutData::MODEL_NUMBER) == 0) {
         char* chval = NULL;
         status = value->Get("s", chval);
-        status = SetModelNumber(chval);
+        if (status == ER_OK) {
+            status = SetModelNumber(chval);
+        }
     } else if (strcmp(name, AboutData::SUPPORTED_LANGUAGES) == 0) {
         //Added automatically when adding value
         std::cout << "AboutDataStore::Update - supported languages will be added automatically when adding value" << std::endl;
     } else if (strcmp(name, AboutData::DESCRIPTION) == 0) {
         char* chval = NULL;
         status = value->Get("s", &chval);
-        status = SetDescription(chval);
+        if (status == ER_OK) {
+            status = SetDescription(chval);
+        }
     } else if (strcmp(name, AboutData::DATE_OF_MANUFACTURE) == 0) {
         char* chval = NULL;
         status = value->Get("s", &chval);
-        status = SetDateOfManufacture(chval);
+        if (status == ER_OK) {
+            status = SetDateOfManufacture(chval);
+        }
     } else if (strcmp(name, AboutData::SOFTWARE_VERSION) == 0) {
         char* chval = NULL;
         status = value->Get("s", &chval);
-        status = SetSoftwareVersion(chval);
+        if (status == ER_OK) {
+            status = SetSoftwareVersion(chval);
+        }
     } else if (strcmp(name, AboutData::HARDWARE_VERSION) == 0) {
         char* chval = NULL;
         status = value->Get("s", &chval);
-        status = SetHardwareVersion(chval);
+        if (status == ER_OK) {
+            status = SetHardwareVersion(chval);
+        }
     } else if (strcmp(name, AboutData::SUPPORT_URL) == 0) {
         char* chval = NULL;
         status = value->Get("s", &chval);
-        status = SetSupportUrl(chval);
+        if (status == ER_OK) {
+            status = SetSupportUrl(chval);
+        }
     }
 
-    //Generate xml
-    qcc::String str = ToXml();
-    //write to config file
-    std::ofstream iniFileWrite(m_configFileName.c_str(), std::ofstream::out | std::ofstream::trunc);
-    //write to config file
-    iniFileWrite.write(str.c_str(), str.length());
-    iniFileWrite.close();
+    if (status == ER_OK) {
+        //Generate xml
+        qcc::String str = ToXml();
+        //write to config file
+        std::ofstream iniFileWrite(m_configFileName.c_str(), std::ofstream::out | std::ofstream::trunc);
+        //write to config file
+        iniFileWrite.write(str.c_str(), str.length());
+        iniFileWrite.close();
+
+        if (IsFieldAnnounced(name)) {
+            AboutObjApi* aboutObjApi = AboutObjApi::getInstance();
+            if (aboutObjApi) {
+                status = aboutObjApi->Announce();
+                std::cout << "Announce status " << QCC_StatusText(status) << std::endl;
+            }
+        }
+    }
 
     return status;
 }
@@ -192,7 +228,7 @@ QStatus AboutDataStore::Update(const char* name, const char* languageTag, const 
 QStatus AboutDataStore::Delete(const char* name, const char* languageTag)
 {
     std::cout << "AboutDataStore::Delete(" << name << ")" << std::endl;
-    QStatus status = ER_OK;
+    QStatus status = ER_FAIL;
     char emptyCharValue = '\0';
     if (strcmp(name, AboutData::APP_ID) == 0) {
         uint8_t appId = 0;
@@ -227,13 +263,24 @@ QStatus AboutDataStore::Delete(const char* name, const char* languageTag)
         status = SetSupportUrl(&emptyCharValue);
     }
 
-    //Generate xml
-    qcc::String str = ToXml();
-    //write to config file
-    std::ofstream iniFileWrite(m_configFileName.c_str(), std::ofstream::out | std::ofstream::trunc);
-    //write to config file
-    iniFileWrite.write(str.c_str(), str.length());
-    iniFileWrite.close();
+    if (status == ER_OK) {
+        //Generate xml
+        qcc::String str = ToXml();
+        //write to config file
+        std::ofstream iniFileWrite(m_configFileName.c_str(), std::ofstream::out | std::ofstream::trunc);
+        //write to config file
+        iniFileWrite.write(str.c_str(), str.length());
+        iniFileWrite.close();
+
+        if (IsFieldAnnounced(name)) {
+            AboutObjApi* aboutObjApi = AboutObjApi::getInstance();
+            if (aboutObjApi) {
+                status = aboutObjApi->Announce();
+                std::cout << "Announce status " << QCC_StatusText(status) << std::endl;
+            }
+        }
+    }
+
     return status;
 }
 
