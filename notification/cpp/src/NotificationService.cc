@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2015, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -74,14 +74,16 @@ NotificationSender* NotificationService::initSend(BusAttachment* bus, AboutData*
     MsgArg configArgs;
     MsgArg* configEntries;
     size_t configNum = 0;
-    QStatus status;
+    QStatus status = ER_OK;
 
-    if ((status = store->GetAboutData(&configArgs))) {
+    status = store->GetAboutData(&configArgs);
+    if (status != ER_OK) {
         QCC_LogError(status, ("Error reading all in configuration data"));
         return NULL;
     }
 
-    if ((status = configArgs.Get(AJPARAM_ARR_DICT_STR_VAR.c_str(), &configNum, &configEntries))) {
+    status = configArgs.Get(AJPARAM_ARR_DICT_STR_VAR.c_str(), &configNum, &configEntries);
+    if (status != ER_OK) {
         QCC_LogError(status, ("Error reading in configuration data"));
         return NULL;
     }

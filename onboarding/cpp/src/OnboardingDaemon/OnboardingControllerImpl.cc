@@ -538,11 +538,11 @@ void OnboardingControllerImpl::Offboard()
 {
     QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
     CancelAdvertise();
-    pthread_t thread;
 #ifdef _WIN32
     m_scanWifiThread = reinterpret_cast<HANDLE>(_beginthreadex(NULL, 256 * 1024, (unsigned int (__stdcall*)(void*))ScanWifiThread, this, 0, NULL));
     CloseHandle(m_scanWifiThread);
 #else
+    pthread_t thread;
     pthread_create(&thread, NULL, OnboardingControllerImpl::OBS_Offboard, this);
     pthread_detach(thread);
 #endif
