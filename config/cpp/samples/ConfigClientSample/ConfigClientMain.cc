@@ -41,6 +41,7 @@ static SrpKeyXListener* srpKeyXListener = 0;
 static std::set<qcc::String> handledAnnouncements;
 
 static volatile sig_atomic_t s_interrupt = false;
+static volatile sig_atomic_t s_stopped = false;
 
 static void SigIntHandler(int sig) {
     s_interrupt = true;
@@ -130,6 +131,16 @@ void printAllAboutData(AboutProxy& aboutProxy)
     }
 }
 
+void interruptibleDelay(int seconds) {
+    for (int i = 0; !s_interrupt && i < seconds; i++) {
+#ifdef _WIN32
+        Sleep(1000);
+#else
+        usleep(1000 * 1000);
+#endif
+    }
+}
+
 void sessionJoinedCallback(qcc::String const& busName, SessionId id)
 {
     std::cout << "sessionJoinedCallback(" << "busName=" << busName.c_str() << " SessionId=" << id << ")" << std::endl;
@@ -145,77 +156,85 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
     objectDescription.CreateFromMsgArg(objArg);
 
     bool isIconInterface = false;
-    isIconInterface = objectDescription.HasInterface("/About/DeviceIcon", "org.alljoyn.Icon");
+    if (!s_interrupt) {
+        isIconInterface = objectDescription.HasInterface("/About/DeviceIcon", "org.alljoyn.Icon");
 
-    if (isIconInterface) {
-        std::cout << "The given interface 'org.alljoyn.Icon' is found in a given path '/About/DeviceIcon'" << std::endl;
-    } else {
-        std::cout << "WARNING - The given interface 'org.alljoyn.Icon' is not found in a given path '/About/DeviceIcon'" << std::endl;
+        if (isIconInterface) {
+            std::cout << "The given interface 'org.alljoyn.Icon' is found in a given path '/About/DeviceIcon'" << std::endl;
+        } else {
+            std::cout << "WARNING - The given interface 'org.alljoyn.Icon' is not found in a given path '/About/DeviceIcon'" << std::endl;
+        }
     }
 
     bool isConfigInterface = false;
-    isConfigInterface = objectDescription.HasInterface("/Config", "org.alljoyn.Config");
-    if (isConfigInterface) {
-        std::cout << "The given interface 'org.alljoyn.Config' is found in a given path '/Config'" << std::endl;
-    } else {
-        std::cout << "WARNING - The given interface 'org.alljoyn.Config' is not found in a given path '/Config'" << std::endl;
-    }
-
-    printAllAboutData(aboutProxy);
-
-    std::cout << "aboutProxy GetVersion " << std::endl;
-    std::cout << "-----------------------" << std::endl;
-
-    uint16_t version = 0;
-    status = aboutProxy.GetVersion(version);
-    if (status != ER_OK) {
-        std::cout << "WARNING - Call to getVersion failed " << QCC_StatusText(status) << std::endl;
-    } else {
-        std::cout << "Version=" << version << std::endl;
-    }
-
-    if (isIconInterface) {
-        AboutIconProxy aiProxy(*busAttachment, busName.c_str(), id);
-        AboutIcon aboutIcon;
-
-        std::cout << std::endl << busName.c_str() << " AboutIconProxy GetIcon" << std::endl;
-        std::cout << "-----------------------------------" << std::endl;
-
-        status = aiProxy.GetIcon(aboutIcon);
-        if (status != ER_OK) {
-            std::cout << "WARNING - Call to GetIcon failed: " << QCC_StatusText(status) << std::endl;
+    if (!s_interrupt) {
+        isConfigInterface = objectDescription.HasInterface("/Config", "org.alljoyn.Config");
+        if (isConfigInterface) {
+            std::cout << "The given interface 'org.alljoyn.Config' is found in a given path '/Config'" << std::endl;
+        } else {
+            std::cout << "WARNING - The given interface 'org.alljoyn.Config' is not found in a given path '/Config'" << std::endl;
         }
 
-        std::cout << "url=" << aboutIcon.url.c_str() << std::endl;
-        std::cout << "Content size = " << aboutIcon.contentSize << std::endl;
-        std::cout << "Content =\t";
-        for (size_t i = 0; i < aboutIcon.contentSize; i++) {
-            if (i % 8 == 0 && i > 0) {
-                std::cout << "\n\t\t";
-            }
-            std::cout << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << (unsigned int)aboutIcon.content[i]
-                      << std::nouppercase << std::dec;
+        printAllAboutData(aboutProxy);
+    }
 
-            //std::cout << std::endl;
-        }
-        std::cout << std::endl;
-        std::cout << "Mimetype =\t" << aboutIcon.mimetype.c_str() << std::endl;
-        std::cout << std::endl << busName.c_str() << " AboutIcontClient GetVersion" << std::endl;
-        std::cout << "-----------------------------------" << std::endl;
+    if (!s_interrupt) {
+        std::cout << "aboutProxy GetVersion " << std::endl;
+        std::cout << "-----------------------" << std::endl;
 
-        uint16_t version;
-        status = aiProxy.GetVersion(version);
+        uint16_t version = 0;
+        status = aboutProxy.GetVersion(version);
         if (status != ER_OK) {
-            std::cout << "WARNING - Call to getVersion failed: " << QCC_StatusText(status) << std::endl;
+            std::cout << "WARNING - Call to getVersion failed " << QCC_StatusText(status) << std::endl;
         } else {
             std::cout << "Version=" << version << std::endl;
         }
     }
 
+    if (!s_interrupt) {
+        if (isIconInterface) {
+            AboutIconProxy aiProxy(*busAttachment, busName.c_str(), id);
+            AboutIcon aboutIcon;
+
+            std::cout << std::endl << busName.c_str() << " AboutIconProxy GetIcon" << std::endl;
+            std::cout << "-----------------------------------" << std::endl;
+
+            status = aiProxy.GetIcon(aboutIcon);
+            if (status != ER_OK) {
+                std::cout << "WARNING - Call to GetIcon failed: " << QCC_StatusText(status) << std::endl;
+            }
+
+            std::cout << "url=" << aboutIcon.url.c_str() << std::endl;
+            std::cout << "Content size = " << aboutIcon.contentSize << std::endl;
+            std::cout << "Content =\t";
+            for (size_t i = 0; i < aboutIcon.contentSize; i++) {
+                if (i % 8 == 0 && i > 0) {
+                    std::cout << "\n\t\t";
+                }
+                std::cout << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << (unsigned int)aboutIcon.content[i]
+                          << std::nouppercase << std::dec;
+
+                //std::cout << std::endl;
+            }
+            std::cout << std::endl;
+            std::cout << "Mimetype =\t" << aboutIcon.mimetype.c_str() << std::endl;
+            std::cout << std::endl << busName.c_str() << " AboutIcontClient GetVersion" << std::endl;
+            std::cout << "-----------------------------------" << std::endl;
+
+            uint16_t version;
+            status = aiProxy.GetVersion(version);
+            if (status != ER_OK) {
+                std::cout << "WARNING - Call to getVersion failed: " << QCC_StatusText(status) << std::endl;
+            } else {
+                std::cout << "Version=" << version << std::endl;
+            }
+        }
+    }
+
     services::ConfigClient* configClient = NULL;
-    if (isConfigInterface) {
+    if (!s_interrupt && isConfigInterface) {
         configClient = new services::ConfigClient(*busAttachment);
-        if (configClient) {
+        if (!s_interrupt && configClient) {
             std::cout << "\nConfigClient GetVersion" << std::endl;
             std::cout << "-----------------------------------" << std::endl;
             int version;
@@ -225,67 +244,69 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
                 std::cout << "WARNING - Call to getVersion failed: " << QCC_StatusText(status) << std::endl;
             }
 
-            services::ConfigClient::Configurations configurations;
-            std::cout << "\nConfigClient GetConfigurations (en)" << std::endl;
-            std::cout << "-----------------------------------" << std::endl;
+            if (!s_interrupt) {
+                services::ConfigClient::Configurations configurations;
+                std::cout << "\nConfigClient GetConfigurations (en)" << std::endl;
+                std::cout << "-----------------------------------" << std::endl;
 
-            if ((status = configClient->GetConfigurations(busName.c_str(), "en", configurations, id))
-                == ER_OK) {
+                if ((status = configClient->GetConfigurations(busName.c_str(), "en", configurations, id))
+                    == ER_OK) {
 
-                for (services::ConfigClient::Configurations::iterator it = configurations.begin();
-                     it != configurations.end(); ++it) {
-                    qcc::String key = it->first;
-                    ajn::MsgArg value = it->second;
-                    if (value.typeId == ALLJOYN_STRING) {
-                        std::cout << "Key name=" << key.c_str() << " value=" << value.v_string.str << std::endl;
-                    } else if (value.typeId == ALLJOYN_ARRAY && value.Signature().compare("as") == 0) {
-                        std::cout << "Key name=" << key.c_str() << " values: ";
-                        const MsgArg* stringArray;
-                        size_t fieldListNumElements;
-                        status = value.Get("as", &fieldListNumElements, &stringArray);
-                        for (unsigned int i = 0; i < fieldListNumElements; i++) {
-                            char* tempString;
-                            stringArray[i].Get("s", &tempString);
-                            std::cout << tempString << " ";
+                    for (services::ConfigClient::Configurations::iterator it = configurations.begin();
+                         it != configurations.end(); ++it) {
+                        qcc::String key = it->first;
+                        ajn::MsgArg value = it->second;
+                        if (value.typeId == ALLJOYN_STRING) {
+                            std::cout << "Key name=" << key.c_str() << " value=" << value.v_string.str << std::endl;
+                        } else if (value.typeId == ALLJOYN_ARRAY && value.Signature().compare("as") == 0) {
+                            std::cout << "Key name=" << key.c_str() << " values: ";
+                            const MsgArg* stringArray;
+                            size_t fieldListNumElements;
+                            status = value.Get("as", &fieldListNumElements, &stringArray);
+                            for (unsigned int i = 0; i < fieldListNumElements; i++) {
+                                char* tempString;
+                                stringArray[i].Get("s", &tempString);
+                                std::cout << tempString << " ";
+                            }
+                            std::cout << std::endl;
                         }
-                        std::cout << std::endl;
                     }
+                } else {
+                    std::cout << "WARNING - Call to GetConfigurations failed: " << QCC_StatusText(status) << std::endl;
                 }
-            } else {
-                std::cout << "WARNING - Call to GetConfigurations failed: " << QCC_StatusText(status) << std::endl;
             }
 
-            std::cout << "\nGoing to call to ConfigClient Restart" << std::endl;
-            std::cout << "-----------------------------------" << std::endl;
+            if (!s_interrupt) {
+                std::cout << "\nGoing to call to ConfigClient Restart" << std::endl;
+                std::cout << "-----------------------------------" << std::endl;
 
-            if ((status = configClient->Restart(busName.c_str(), id)) == ER_OK) {
-                std::cout << "Restart succeeded" << std::endl;
-            } else {
-                std::cout << "WARNING - Call to Restart failed: " << QCC_StatusText(status) << std::endl;
+                if ((status = configClient->Restart(busName.c_str(), id)) == ER_OK) {
+                    std::cout << "Restart succeeded" << std::endl;
+                } else {
+                    std::cout << "WARNING - Call to Restart failed: " << QCC_StatusText(status) << std::endl;
+                }
             }
 
-            std::cout << "\nGoing to call to UpdateConfigurations: key=DeviceName value=This is my new English name ! ! ! !" << std::endl;
-            std::cout << "-----------------------------------------------------------------------------------------------" << std::endl;
-            services::ConfigClient::Configurations updateConfigurations;
-            updateConfigurations.insert(
-                std::pair<qcc::String, ajn::MsgArg>("DeviceName",
-                                                    MsgArg("s", "This is my new English name ! ! ! !")));
+            if (!s_interrupt) {
+                std::cout << "\nGoing to call to UpdateConfigurations: key=DeviceName value=This is my new English name ! ! ! !" << std::endl;
+                std::cout << "-----------------------------------------------------------------------------------------------" << std::endl;
+                services::ConfigClient::Configurations updateConfigurations;
+                updateConfigurations.insert(
+                    std::pair<qcc::String, ajn::MsgArg>("DeviceName",
+                                                        MsgArg("s", "This is my new English name ! ! ! !")));
 
-            if ((status = configClient->UpdateConfigurations(busName.c_str(), "en", updateConfigurations, id)) == ER_OK) {
-                std::cout << "UpdateConfigurations succeeded" << std::endl;
-            } else {
-                std::cout << "WARNING - Call to UpdateConfigurations failed: " << QCC_StatusText(status) << std::endl;
+                if ((status = configClient->UpdateConfigurations(busName.c_str(), "en", updateConfigurations, id)) == ER_OK) {
+                    std::cout << "UpdateConfigurations succeeded" << std::endl;
+                } else {
+                    std::cout << "WARNING - Call to UpdateConfigurations failed: " << QCC_StatusText(status) << std::endl;
+                }
+
+                printAllAboutData(aboutProxy);
             }
 
-            printAllAboutData(aboutProxy);
+            interruptibleDelay(3);
 
-   #ifdef _WIN32
-            Sleep(3000);
-   #else
-            usleep(3000 * 1000);
-   #endif
-
-            {
+            if (!s_interrupt) {
                 std::cout << "\nGoing to call to UpdateConfigurations: key=DefaultLanguage value=es" << std::endl;
                 std::cout << "-------------------------------------------------------------------" << std::endl;
                 services::ConfigClient::Configurations updateConfigurations;
@@ -301,13 +322,9 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
                 printAllAboutData(aboutProxy);
             }
 
-   #ifdef _WIN32
-            Sleep(3000);
-   #else
-            usleep(3000 * 1000);
-   #endif
+            interruptibleDelay(3);
 
-            {
+            if (!s_interrupt) {
                 std::vector<qcc::String> configNames;
                 configNames.push_back("DeviceName");
 
@@ -323,46 +340,46 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
                 printAllAboutData(aboutProxy);
             }
 
-   #ifdef _WIN32
-            Sleep(3000);
-   #else
-            usleep(3000 * 1000);
-   #endif
+            interruptibleDelay(3);
 
-            std::cout << "\nGoing to call to ConfigClient SetPasscode" << std::endl;
-            std::cout << "-----------------------------------" << std::endl;
-            if ((status = configClient->SetPasscode(busName.c_str(), "MyDeamonRealm", 8,
-                                                    (const uint8_t*) NEW_PASSCODE, id)) == ER_OK) {
-                std::cout << "SetPasscode succeeded" << std::endl;
-                srpKeyXListener->setPassCode(NEW_PASSCODE);
-                qcc::String guid;
-                status = busAttachment->GetPeerGUID(busName.c_str(), guid);
-                if (status == ER_OK) {
+            if (!s_interrupt) {
+                std::cout << "\nGoing to call to ConfigClient SetPasscode" << std::endl;
+                std::cout << "-----------------------------------" << std::endl;
+                if ((status = configClient->SetPasscode(busName.c_str(), "MyDeamonRealm", 8,
+                                                        (const uint8_t*) NEW_PASSCODE, id)) == ER_OK) {
+                    std::cout << "SetPasscode succeeded" << std::endl;
+                    srpKeyXListener->setPassCode(NEW_PASSCODE);
+                    qcc::String guid;
+                    status = busAttachment->GetPeerGUID(busName.c_str(), guid);
+                    if (status == ER_OK) {
 
-                    status = busAttachment->ClearKeys(guid);
-                    std::cout << "busAttachment->ClearKey for " << guid.c_str() << ". Status: " << QCC_StatusText(status) << std::endl;
+                        status = busAttachment->ClearKeys(guid);
+                        std::cout << "busAttachment->ClearKey for " << guid.c_str() << ". Status: " << QCC_StatusText(status) << std::endl;
+                    }
+                } else {
+                    std::cout << "WARNING - Call to SetPasscode failed: " << QCC_StatusText(status) << std::endl;
                 }
-            } else {
-                std::cout << "WARNING - Call to SetPasscode failed: " << QCC_StatusText(status) << std::endl;
             }
 
-            std::cout << "\nGoing to call to ConfigClient FactoryReset" << std::endl;
-            std::cout << "-----------------------------------" << std::endl;
+            if (!s_interrupt) {
+                std::cout << "\nGoing to call to ConfigClient FactoryReset" << std::endl;
+                std::cout << "-----------------------------------" << std::endl;
 
-            if ((status = configClient->FactoryReset(busName.c_str(), id)) == ER_OK) {
-                std::cout << "FactoryReset succeeded" << std::endl;
-                srpKeyXListener->setPassCode(INITIAL_PASSCODE);
-                qcc::String guid;
-                status = busAttachment->GetPeerGUID(busName.c_str(), guid);
-                if (status == ER_OK) {
-                    busAttachment->ClearKeys(guid);
+                if ((status = configClient->FactoryReset(busName.c_str(), id)) == ER_OK) {
+                    std::cout << "FactoryReset succeeded" << std::endl;
+                    srpKeyXListener->setPassCode(INITIAL_PASSCODE);
+                    qcc::String guid;
+                    status = busAttachment->GetPeerGUID(busName.c_str(), guid);
+                    if (status == ER_OK) {
+                        busAttachment->ClearKeys(guid);
+                    }
+
+                } else {
+                    std::cout << "WARNING - Call to FactoryReset failed: " << QCC_StatusText(status) << std::endl;
                 }
 
-            } else {
-                std::cout << "WARNING - Call to FactoryReset failed: " << QCC_StatusText(status) << std::endl;
+                printAllAboutData(aboutProxy);
             }
-
-            printAllAboutData(aboutProxy);
         } //if (configClient)
     } //if (isConfigInterface)
 
@@ -373,6 +390,8 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
         delete configClient;
         configClient = NULL;
     }
+
+    s_stopped = true;
 }
 
 class MyAboutListener : public AboutListener {
@@ -399,7 +418,7 @@ class MyAboutListener : public AboutListener {
 };
 
 void WaitForSigInt(void) {
-    while (s_interrupt == false) {
+    while (s_interrupt == false && s_stopped == false) {
 #ifdef _WIN32
         Sleep(100);
 #else
@@ -468,14 +487,33 @@ int main(int argc, char**argv, char**envArg)
 
     WaitForSigInt();
 
-    status = busAttachment->CancelWhoImplements(interfaces, sizeof(interfaces) / sizeof(interfaces[0]));
+    std::cout << "Preparing to exit..." << std::endl;
+
+    if (!s_stopped) {
+        std::cout << "Waiting for a few seconds for commands to complete... " << std::endl;
+
+        for (int i = 0; !s_stopped && i < 5; i++) {
+#ifdef _WIN32
+            Sleep(1000);
+#else
+            usleep(1000 * 1000);
+#endif
+        }
+    }
+
+    std::cout << "Cleaning up (press Ctrl-C to abort)... " << std::endl;
+
+    busAttachment->CancelWhoImplements(interfaces, sizeof(interfaces) / sizeof(interfaces[0]));
     busAttachment->UnregisterAboutListener(*aboutListener);
+    busAttachment->EnablePeerSecurity(NULL, NULL, NULL, true);
 
     delete srpKeyXListener;
     delete aboutListener;
 
     busAttachment->Stop();
     delete busAttachment;
+
+    std::cout << "Done." << std::endl;
 
     return 0;
 

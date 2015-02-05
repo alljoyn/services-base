@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013-2014, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013-2015, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -18,23 +18,21 @@
 #import "AJNBusAttachment.h"
 #import "ClientInformation.h"
 #import "alljoyn/config/AJCFGConfigClient.h"
+#import "AJNSessionListener.h"
 
-@interface ConfigSetupViewController : UIViewController
+@interface ConfigSetupViewController : UITableViewController <UITableViewDelegate, UITableViewDataSource>
 
-@property (weak, nonatomic) AJNBusAttachment *clientBusAttachment;
+@property (nonatomic, weak) AJNBusAttachment *clientBusAttachment;
+@property (nonatomic, strong) ClientInformation *clientInformation;
+@property (nonatomic, weak) AJCFGConfigClient *configClient;
+@property (nonatomic, strong) NSString *realmBusName;
+@property (nonatomic, strong) NSMutableDictionary *peersPasscodes; // Store the peers passcodes
+@property (nonatomic, weak) IBOutlet UIBarButtonItem *btnFactoryReset;
+@property (nonatomic, weak) IBOutlet UIBarButtonItem *btnRestart;
+@property (nonatomic, weak) IBOutlet UIBarButtonItem *btnSetPassword;
 
-@property (strong, nonatomic) ClientInformation *clientInformation;
-
-@property (weak, nonatomic) AJCFGConfigClient *configClient;
-
-@property (strong, nonatomic) NSString *realmBusName;
-
-@property (strong, nonatomic) NSMutableDictionary *peersPasscodes; // Store the peers passcodes
-
-@property (weak, nonatomic) IBOutlet UIButton *btnFactoryReset;
-
-@property (weak, nonatomic) IBOutlet UIButton *btnRestart;
-
-@property (weak, nonatomic) IBOutlet UIButton *btnSetPassword;
+-(IBAction)factoryResetPressed: (id)sender;
+-(IBAction)restartPressed: (id)sender;
+-(IBAction)setPasswordPressed: (id)sender;
 
 @end

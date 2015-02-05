@@ -418,16 +418,17 @@
 					"-lBundledRouter.o",
 					"-lssl",
 					"-lcrypto",
-					"-lalljoyn_services_common_objc",
-					"-lalljoyn_services_common_cpp",
 					"-lalljoyn_config_objc",
 					"-lalljoyn_config_cpp",
 					"-lalljoyn_about_objc",
 					"-lalljoyn_about_cpp",
+					"-lalljoyn_services_common_objc",
+					"-lalljoyn_services_common_cpp",
 					"-lAllJoynFramework_iOS",
 				);
 				PRODUCT_NAME = ConfigService;
 				PROVISIONING_PROFILE = "";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = "armv7 i386";
 				WRAPPER_EXTENSION = app;
 			};
@@ -484,16 +485,17 @@
 					"-lBundledRouter.o",
 					"-lssl",
 					"-lcrypto",
-					"-lalljoyn_services_common_objc",
-					"-lalljoyn_services_common_cpp",
 					"-lalljoyn_config_objc",
 					"-lalljoyn_config_cpp",
 					"-lalljoyn_about_objc",
 					"-lalljoyn_about_cpp",
+					"-lalljoyn_services_common_objc",
+					"-lalljoyn_services_common_cpp",
 					"-lAllJoynFramework_iOS",
 				);
 				PRODUCT_NAME = ConfigService;
 				PROVISIONING_PROFILE = "";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VALID_ARCHS = "armv7 i386";
 				WRAPPER_EXTENSION = app;
 			};

@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (c) 2013 - 2014, AllSeen Alliance. All rights reserved.
+ * Copyright (c) 2013 - 2015, AllSeen Alliance. All rights reserved.
  *
  *    Permission to use, copy, modify, and/or distribute this software for any
  *    purpose with or without fee is hereby granted, provided that the above
@@ -33,7 +33,7 @@ static uint16_t currentMode = 4;
 static uint16_t previousMode = 4;
 static uint16_t fanSpeed = 1;
 static uint16_t previousFanSpeed = 1;
-static char statusText[30] = "Unit is off \0";
+static char statusText[150] = "Unit is off \0";
 static char* statusString = statusText;
 static uint16_t triggerAnUpdate = 0;
 static char notificationText[50] = "Notification text goes here";
