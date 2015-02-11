@@ -155,7 +155,14 @@ void ConfigService::GetConfigurationsHandler(const InterfaceDescription::Member*
         return;
     } while (0);
 
-    if (status == ER_LANGUAGE_NOT_SUPPORTED) {
+    /*
+     * This looks hacky. But we need this because ER_LANGUAGE_NOT_SUPPORTED was not a part of
+     * AllJoyn Core in 14.06 and is defined in alljoyn/services/about/cpp/inc/alljoyn/about/PropertyStore.h
+     * with a value 0xb001 whereas in 14.12 the About support was incorporated in AllJoyn Core and
+     * ER_LANGUAGE_NOT_SUPPORTED is now a part of QStatus enum with a value of 0x911a and AboutData
+     * returns this if a language is not supported
+     */
+    if ((status == ER_LANGUAGE_NOT_SUPPORTED) || (status == ((QStatus)0x911a))) {
         MethodReply(msg, "org.alljoyn.Error.LanguageNotSupported", "The language specified is not supported");
     } else if (status != ER_OK) {
         MethodReply(msg, status);
@@ -214,7 +221,14 @@ void ConfigService::UpdateConfigurationsHandler(const InterfaceDescription::Memb
     } else if (status == ER_FEATURE_NOT_AVAILABLE) {
         MethodReply(msg, "org.alljoyn.Error.FeatureNotAvailable", "Feature not available");
         return;
-    } else if (status == ER_LANGUAGE_NOT_SUPPORTED) {
+    } else if ((status == ER_LANGUAGE_NOT_SUPPORTED) || (status == ((QStatus)0x911a))) {
+        /*
+         * This looks hacky. But we need this because ER_LANGUAGE_NOT_SUPPORTED was not a part of
+         * AllJoyn Core in 14.06 and is defined in alljoyn/services/about/cpp/inc/alljoyn/about/PropertyStore.h
+         * with a value 0xb001 whereas in 14.12 the About support was incorporated in AllJoyn Core and
+         * ER_LANGUAGE_NOT_SUPPORTED is now a part of QStatus enum with a value of 0x911a and AboutData
+         * returns this if a language is not supported
+         */
         MethodReply(msg, "org.alljoyn.Error.LanguageNotSupported",
                     "The language specified is not supported");
     } else if (status != ER_OK) {
@@ -271,7 +285,14 @@ void ConfigService::ResetConfigurationsHandler(const InterfaceDescription::Membe
         MethodReply(msg, "org.alljoyn.Error.InvalidValue", "Invalid value");
     } else if (status == ER_FEATURE_NOT_AVAILABLE) {
         MethodReply(msg, "org.alljoyn.Error.FeatureNotAvailable", "Feature not available");
-    } else if (status == ER_LANGUAGE_NOT_SUPPORTED) {
+    } else if ((status == ER_LANGUAGE_NOT_SUPPORTED) || (status == ((QStatus)0x911a))) {
+        /*
+         * This looks hacky. But we need this because ER_LANGUAGE_NOT_SUPPORTED was not a part of
+         * AllJoyn Core in 14.06 and is defined in alljoyn/services/about/cpp/inc/alljoyn/about/PropertyStore.h
+         * with a value 0xb001 whereas in 14.12 the About support was incorporated in AllJoyn Core and
+         * ER_LANGUAGE_NOT_SUPPORTED is now a part of QStatus enum with a value of 0x911a and AboutData
+         * returns this if a language is not supported
+         */
         MethodReply(msg, "org.alljoyn.Error.LanguageNotSupported",
                     "The language specified is not supported");
     } else if (status != ER_OK) {

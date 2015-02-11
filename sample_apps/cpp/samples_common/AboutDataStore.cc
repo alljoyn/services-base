@@ -117,14 +117,16 @@ AboutDataStore::~AboutDataStore()
 QStatus AboutDataStore::ReadAll(const char* languageTag, DataPermission::Filter filter, ajn::MsgArg& all)
 {
     std::cout << "AboutDataStore::ReadAll" << std::endl;
-    return GetAboutData(&all, languageTag);
+    QStatus status = GetAboutData(&all, languageTag);
+    std::cout << "GetAboutData status = " << QCC_StatusText(status) << std::endl;
+    return status;
 }
 
 QStatus AboutDataStore::Update(const char* name, const char* languageTag, const ajn::MsgArg* value)
 {
     std::cout << "AboutDataStore::Update" << " name:" << name << " languageTag:" <<  languageTag << " value:" << value << std::endl;
 
-    QStatus status = ER_FAIL;
+    QStatus status = ER_INVALID_VALUE;
     if (strcmp(name, AboutData::APP_ID) == 0) {
         uint8_t* appId = NULL;
         size_t* num = NULL;
@@ -136,12 +138,20 @@ QStatus AboutDataStore::Update(const char* name, const char* languageTag, const 
         char* defaultLanguage;
         status = value->Get("s", &defaultLanguage);
         if (status == ER_OK) {
-            status = SetDefaultLanguage(defaultLanguage);
+            if (0 == strcmp(defaultLanguage, "")) {
+                status = ER_LANGUAGE_NOT_SUPPORTED;
+            } else {
+                status = IsLanguageSupported(defaultLanguage);
+                if (status == ER_OK) {
+                    status = SetDefaultLanguage(defaultLanguage);
+                }
+            }
         }
     } else if (strcmp(name, AboutData::DEVICE_NAME) == 0) {
         std::cout << "Got device name" << std::endl;
         char* deviceName = NULL;
         status = value->Get("s", &deviceName);
+        status = IsLanguageSupported(languageTag);
         if (status == ER_OK) {
             status = SetDeviceName(deviceName, languageTag);
         }
@@ -213,12 +223,10 @@ QStatus AboutDataStore::Update(const char* name, const char* languageTag, const 
         iniFileWrite.write(str.c_str(), str.length());
         iniFileWrite.close();
 
-        if (IsFieldAnnounced(name)) {
-            AboutObjApi* aboutObjApi = AboutObjApi::getInstance();
-            if (aboutObjApi) {
-                status = aboutObjApi->Announce();
-                std::cout << "Announce status " << QCC_StatusText(status) << std::endl;
-            }
+        AboutObjApi* aboutObjApi = AboutObjApi::getInstance();
+        if (aboutObjApi) {
+            status = aboutObjApi->Announce();
+            std::cout << "Announce status " << QCC_StatusText(status) << std::endl;
         }
     }
 
@@ -227,40 +235,113 @@ QStatus AboutDataStore::Update(const char* name, const char* languageTag, const 
 
 QStatus AboutDataStore::Delete(const char* name, const char* languageTag)
 {
-    std::cout << "AboutDataStore::Delete(" << name << ")" << std::endl;
-    QStatus status = ER_FAIL;
-    char emptyCharValue = '\0';
+    std::cout << "AboutDataStore::Delete(" << name << ", " << languageTag << ")" << std::endl;
+    QStatus status = ER_INVALID_VALUE;
+
+    ajn::AboutData factorySettings("en");
+    std::ifstream configFile(m_factoryConfigFileName.c_str(), std::ios::binary);
+    if (configFile) {
+        std::string str((std::istreambuf_iterator<char>(configFile)),
+                        std::istreambuf_iterator<char>());
+        std::cout << "Contains:" << std::endl << str << std::endl;
+        QStatus status;
+        status = factorySettings.CreateFromXml(qcc::String(str.c_str()));
+
+        if (status != ER_OK) {
+            std::cout << "AboutDataStore::Initialize ERROR" << std::endl;
+            return status;
+        }
+    }
+
     if (strcmp(name, AboutData::APP_ID) == 0) {
-        uint8_t appId = 0;
-        size_t num = 0;
-        status = SetAppId(&appId, num);
+        uint8_t* appId;
+        size_t num;
+        status = factorySettings.GetAppId(&appId, &num);
+        if (status == ER_OK) {
+            status = SetAppId(appId, num);
+        }
     } else if (strcmp(name, AboutData::DEFAULT_LANGUAGE) == 0) {
-        status = SetDefaultLanguage(&emptyCharValue);
+        char* defaultLanguage;
+        status = factorySettings.GetDefaultLanguage(&defaultLanguage);
+        if (status == ER_OK) {
+            status = SetDefaultLanguage(defaultLanguage);
+        }
     } else if (strcmp(name, AboutData::DEVICE_NAME) == 0) {
-        status = SetDeviceName(&emptyCharValue, languageTag);
-        char* deviceName = NULL;
-        GetDeviceName(&deviceName, languageTag);
-        std::cout <<  "==== deviceName:" << deviceName << std::endl;
+        status = IsLanguageSupported(languageTag);
+        if (status == ER_OK) {
+            char* deviceName = NULL;
+            status = factorySettings.GetDeviceName(&deviceName, languageTag);
+            std::cout << "GetDeviceName status " << QCC_StatusText(status) << std::endl;
+            if (status == ER_OK) {
+                status = SetDeviceName(deviceName, languageTag);
+                std::cout << "SetDeviceName status " << QCC_StatusText(status) << std::endl;
+            }
+        }
     } else if (strcmp(name, AboutData::DEVICE_ID) == 0) {
-        status = SetDeviceId(&emptyCharValue);
+        char* deviceId = NULL;
+        status = factorySettings.GetDeviceId(&deviceId);
+        if (status == ER_OK) {
+            status = SetDeviceId(deviceId);
+        }
     } else if (strcmp(name, AboutData::APP_NAME) == 0) {
-        status = SetAppName(&emptyCharValue, languageTag);
+        char* appName;
+        status = factorySettings.GetAppName(&appName);
+        if (status == ER_OK) {
+            status = SetAppName(appName, languageTag);
+        }
     } else if (strcmp(name, AboutData::MANUFACTURER) == 0) {
-        status = SetManufacturer(&emptyCharValue);
+        char* manufacturer = NULL;
+        status = factorySettings.GetManufacturer(&manufacturer, languageTag);
+        if (status == ER_OK) {
+            status = SetManufacturer(manufacturer, languageTag);
+        }
     } else if (strcmp(name, AboutData::MODEL_NUMBER) == 0) {
-        status = SetModelNumber(&emptyCharValue);
+        char* modelNumber = NULL;
+        status = factorySettings.GetModelNumber(&modelNumber);
+        if (status == ER_OK) {
+            status = SetModelNumber(modelNumber);
+        }
     } else if (strcmp(name, AboutData::SUPPORTED_LANGUAGES) == 0) {
-        //Added automatically when adding value
+        size_t langNum;
+        langNum = factorySettings.GetSupportedLanguages();
+        std::cout << "Number of supported languages: " << langNum << std::endl;
+        if (langNum > 0) {
+            const char** langs = new const char*[langNum];
+            factorySettings.GetSupportedLanguages(langs, langNum);
+            for (size_t i = 0; i < langNum; ++i) {
+                SetSupportedLanguage(langs[i]);
+            }
+        }
     } else if (strcmp(name, AboutData::DESCRIPTION) == 0) {
-        status = SetDescription(&emptyCharValue);
+        char* description = NULL;
+        status = factorySettings.GetDescription(&description, languageTag);
+        if (status == ER_OK) {
+            status = SetDescription(description, languageTag);
+        }
     } else if (strcmp(name, AboutData::DATE_OF_MANUFACTURE) == 0) {
-        status = SetDateOfManufacture(&emptyCharValue);
+        char* date = NULL;
+        status = factorySettings.GetDateOfManufacture(&date);
+        if (status == ER_OK) {
+            status = SetDateOfManufacture(date);
+        }
     } else if (strcmp(name, AboutData::SOFTWARE_VERSION) == 0) {
-        status = SetSoftwareVersion(&emptyCharValue);
+        char* version = NULL;
+        status = factorySettings.GetSoftwareVersion(&version);
+        if (status == ER_OK) {
+            status = SetSoftwareVersion(version);
+        }
     } else if (strcmp(name, AboutData::HARDWARE_VERSION) == 0) {
-        status = SetHardwareVersion(&emptyCharValue);
+        char* version = NULL;
+        status = factorySettings.GetHardwareVersion(&version);
+        if (status == ER_OK) {
+            status = SetHardwareVersion(version);
+        }
     } else if (strcmp(name, AboutData::SUPPORT_URL) == 0) {
-        status = SetSupportUrl(&emptyCharValue);
+        char* url = NULL;
+        status = factorySettings.GetSupportUrl(&url);
+        if (status == ER_OK) {
+            status = SetSupportUrl(url);
+        }
     }
 
     if (status == ER_OK) {
@@ -272,12 +353,10 @@ QStatus AboutDataStore::Delete(const char* name, const char* languageTag)
         iniFileWrite.write(str.c_str(), str.length());
         iniFileWrite.close();
 
-        if (IsFieldAnnounced(name)) {
-            AboutObjApi* aboutObjApi = AboutObjApi::getInstance();
-            if (aboutObjApi) {
-                status = aboutObjApi->Announce();
-                std::cout << "Announce status " << QCC_StatusText(status) << std::endl;
-            }
+        AboutObjApi* aboutObjApi = AboutObjApi::getInstance();
+        if (aboutObjApi) {
+            status = aboutObjApi->Announce();
+            std::cout << "Announce status " << QCC_StatusText(status) << std::endl;
         }
     }
 
@@ -299,6 +378,12 @@ void AboutDataStore::write()
     //write to config file
     iniFileWrite.write(str.c_str(), str.length());
     iniFileWrite.close();
+
+    AboutObjApi* aboutObjApi = AboutObjApi::getInstance();
+    if (aboutObjApi) {
+        QStatus status = aboutObjApi->Announce();
+        std::cout << "Announce status " << QCC_StatusText(status) << std::endl;
+    }
 }
 
 qcc::String AboutDataStore::ToXml()
@@ -368,6 +453,36 @@ qcc::String AboutDataStore::ToXml()
     delete [] langs;
     std::cout << "end" << std::endl;
     return res;
+}
+
+QStatus AboutDataStore::IsLanguageSupported(const char* languageTag)
+{
+    /*
+     * This looks hacky. But we need this because ER_LANGUAGE_NOT_SUPPORTED was not a part of
+     * AllJoyn Core in 14.06 and is defined in alljoyn/services/about/cpp/inc/alljoyn/about/PropertyStore.h
+     * with a value 0xb001 whereas in 14.12 the About support was incorporated in AllJoyn Core and
+     * ER_LANGUAGE_NOT_SUPPORTED is now a part of QStatus enum with a value of 0x911a and AboutData
+     * returns this if a language is not supported
+     */
+    QStatus status = ((QStatus)0x911a);
+    std::cout << "AboutDataStore::IsLanguageSupported languageTag = " << languageTag << std::endl;
+    size_t langNum;
+    langNum = GetSupportedLanguages();
+    std::cout << "Number of supported languages: " << langNum << std::endl;
+    if (langNum > 0) {
+        const char** langs = new const char*[langNum];
+        GetSupportedLanguages(langs, langNum);
+        for (size_t i = 0; i < langNum; ++i) {
+            if (0 == strcmp(languageTag, langs[i])) {
+                status = ER_OK;
+                break;
+            }
+        }
+        delete [] langs;
+    }
+
+    std::cout << "Returning " << QCC_StatusText(status) << std::endl;
+    return status;
 }
 
 #endif //NEED_DATA_STORE

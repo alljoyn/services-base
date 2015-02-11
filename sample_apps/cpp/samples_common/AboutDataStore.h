@@ -97,6 +97,8 @@ class AboutDataStore : public AboutDataStoreInterface {
     qcc::String m_factoryConfigFileName;
 
     qcc::String ToXml();
+
+    QStatus IsLanguageSupported(const char* languageTag);
 };
 
 #endif /* ABOUT_DATA_STORE_H_ */
