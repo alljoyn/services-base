@@ -18,8 +18,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.alljoyn.about.sample"
-    android:versionCode="1406"
-    android:versionName="14.06" >
+    android:versionCode="1412"
+    android:versionName="14.12" >
 
     <uses-sdk
         android:minSdkVersion="8"
