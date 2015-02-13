@@ -52,16 +52,6 @@ ACEventsAndActions::ACEventsAndActions(BusAttachment* busAttachment) :
 {
     printf("ACEventsAndActions::ACEventsAndActions()\n");
     QStatus status = ER_OK;
-    //About service
-    std::vector<qcc::String> interfaces;
-    interfaces.push_back(org::allseen::Introspectable::InterfaceName);
-    //In purpose i not pushing the events and actions interfaces - they should appear for the client in introspectable.
-    AboutService* aboutService = AboutServiceApi::getInstance();
-    if (!aboutService) {
-        printf("Could not set up the AboutService.\n");
-        return;
-    }
-    aboutService->AddObjectDescription(AC_EVENTS_AND_ACTIONS_SERVICE_PATH, interfaces);
 
     EventsInterface();
     ActionsInterface();

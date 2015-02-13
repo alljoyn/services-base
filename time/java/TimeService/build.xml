@@ -109,7 +109,7 @@
               </fileset>
 
               <doctitle><![CDATA[<h1> Time Service </h1>]]></doctitle>
-              <bottom><![CDATA[<small>Time Service Java API Reference Manual Version 1.0.0 (Thu Mar 06  08:00:00 2014)<br/>Copyright &copy; AllSeen Alliance.<br/><b> THIS DOCUMENT AND ALL INFORMATION CONTAIN HER EIN ARE PROVIDED ON AN "AS-IS" BASIS WITHOUT WARRANTY OF ANY KIND</b>.<br/><b>MAY CONTAIN U.S. AND INTERNATIONAL EXPORT CONTROLLED INFOR MATION</b><br/></small>]]></bottom>
+              <bottom><![CDATA[<small>Time Service Java API Reference Manual Version 1.0.0 (Thu Mar 06  08:00:00 2014)<br/>Copyright AllSeen Alliance.<br/><b> THIS DOCUMENT AND ALL INFORMATION CONTAIN HER EIN ARE PROVIDED ON AN "AS-IS" BASIS WITHOUT WARRANTY OF ANY KIND</b>.<br/><b>MAY CONTAIN U.S. AND INTERNATIONAL EXPORT CONTROLLED INFOR MATION</b><br/></small>]]></bottom>
          </javadoc>
 
       </target>

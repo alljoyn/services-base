@@ -170,7 +170,6 @@ QStatus Transport::deleteMsg(int32_t msgId)
 QStatus Transport::startSenderTransport(BusAttachment* bus, bool startSuperAgent)
 {
     QCC_DbgTrace(("Transport::startSenderTransport"));
-    std::vector<String> interfaces;
     QStatus status;
 
     if ((status = setBusAttachment(bus)) != ER_OK) {
@@ -183,12 +182,7 @@ QStatus Transport::startSenderTransport(BusAttachment* bus, bool startSuperAgent
         goto exit;
     }
 
-    { //Handling AboutService
-        AboutServiceApi* aboutService = AboutServiceApi::getInstance();
-        if (!aboutService) {
-            QCC_DbgPrintf(("AboutService is not defined"));
-        }
-
+    {
 
         for (int32_t messageTypeIndx = 0; messageTypeIndx < MESSAGE_TYPE_CNT; messageTypeIndx++) {
             status = ER_OK;
@@ -199,29 +193,12 @@ QStatus Transport::startSenderTransport(BusAttachment* bus, bool startSuperAgent
                 if (status != ER_OK) {
                     goto exit;
                 }
-
-                if (!interfaces.size()) {
-                    interfaces.push_back(AJ_SA_INTERFACE_NAME);
-                }
-
-                if (aboutService) {
-                    status = aboutService->AddObjectDescription(AJ_PRODUCER_SERVICE_PATH_PREFIX +
-                                                                MessageTypeUtil::getMessageTypeString(messageTypeIndx), interfaces);
-                }
             } else {
                 m_Producers[messageTypeIndx] = new NotificationTransportProducer(m_Bus,
                                                                                  AJ_PRODUCER_SERVICE_PATH_PREFIX + MessageTypeUtil::getMessageTypeString(messageTypeIndx), status);
 
                 if (status != ER_OK) {
                     goto exit;
-                }
-
-                if (!interfaces.size()) {
-                    interfaces.push_back(AJ_NOTIFICATION_INTERFACE_NAME);
-                }
-                if (aboutService) {
-                    status = aboutService->AddObjectDescription(AJ_PRODUCER_SERVICE_PATH_PREFIX +
-                                                                MessageTypeUtil::getMessageTypeString(messageTypeIndx), interfaces);
                 }
             }
 
@@ -297,27 +274,19 @@ QStatus Transport::listenForAnnouncements()
 {
     m_AnnounceListener = new NotificationAnnounceListener();
 
-    AboutServiceApi* aboutService = AboutServiceApi::getInstance();
     const char* interfaces[] = { "org.alljoyn.Notification.Superagent" };
 
     QStatus status;
-    if (aboutService) {
-        status = AnnouncementRegistrar::RegisterAnnounceHandler(*m_Bus, *m_AnnounceListener, interfaces, 1);
-        if (status != ER_OK) {
-            QCC_DbgHLPrintf(("Could not create AnnouncementListener. AnnounceHandlerApi not initialized"));
-            cleanupAnnouncementListener();
-        }
+
+    m_Bus->RegisterAboutListener(*m_AnnounceListener);
+
+    status = m_Bus->WhoImplements(interfaces, sizeof(interfaces) / sizeof(interfaces[0]));
+    if (ER_OK == status) {
+        QCC_DbgTrace(("WhoImplements called.\n"));
     } else {
-        m_Bus->RegisterAboutListener(*m_AnnounceListener);
-
-        status = m_Bus->WhoImplements(interfaces, sizeof(interfaces) / sizeof(interfaces[0]));
-        if (ER_OK == status) {
-            QCC_DbgTrace(("WhoImplements called.\n"));
-        } else {
-            QCC_LogError(status, ("WhoImplements call FAILED with status %s\n"));
-        }
-
+        QCC_LogError(status, ("WhoImplements call FAILED with status %s\n"));
     }
+
     return status;
 }
 
@@ -706,13 +675,8 @@ void Transport::cleanupAnnouncementListener(bool unregister)
 
     if (unregister) {
         const char* interfaces[] = { "org.alljoyn.Notification.Superagent" };
-        AboutServiceApi* aboutService = AboutServiceApi::getInstance();
-        if (aboutService) {
-            AnnouncementRegistrar::UnRegisterAnnounceHandler(*m_Bus, *m_AnnounceListener, interfaces, 1);
-        } else {
-            m_Bus->CancelWhoImplements(interfaces, sizeof(interfaces) / sizeof(interfaces[0]));
-            m_Bus->UnregisterAboutListener(*m_AnnounceListener);
-        }
+        m_Bus->CancelWhoImplements(interfaces, sizeof(interfaces) / sizeof(interfaces[0]));
+        m_Bus->UnregisterAboutListener(*m_AnnounceListener);
     }
     delete m_AnnounceListener;
     m_AnnounceListener = 0;
