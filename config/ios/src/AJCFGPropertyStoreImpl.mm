@@ -56,12 +56,17 @@
 	[[NSUserDefaults standardUserDefaults] removeObjectForKey:DEVICE_ID_STR];
 	[[NSUserDefaults standardUserDefaults] removeObjectForKey:PASS_CODE_STR];
 	[[NSUserDefaults standardUserDefaults] synchronize];
-    
-	// Set the values from the factory store
-	[self setDefaultLang:nil];
-	[self setDeviceName:nil language:nil];
-	[self setDeviceId:nil];
-	[self setPasscode:nil];
+
+    // Set the values from the factory store
+    [self setDefaultLang:nil];
+    [self setDeviceId:@"1231232145667745675477"];
+    [self setPasscode:nil];
+
+    NSDictionary *deviceNames = [self.factoryProperties objectForKey:DEVICE_NAME_STR];
+    for (NSString *lang in [deviceNames allKeys])
+    {
+        [self setDeviceName:nil language:lang];
+    }
 }
 
 - (QStatus)populateWritableMsgArgs:(const char *)languageTag ajnMsgArg:(AJNMessageArgument **)all

@@ -20,7 +20,7 @@
 #include <alljoyn/AboutData.h>
 
 static const char versionPreamble[] = "OnboardingService version: 1\n"
-                                      "Copyright (c) 2009-2013 AllSeen Alliance.\n";
+                                      "Copyright AllSeen Alliance.\n";
 
 using namespace ajn;
 using namespace services;

@@ -52,7 +52,7 @@ HttpControlBusObject::HttpControlBusObject(BusAttachment* bus, String const& obj
         return;
     }
 
-    status = AddInterface(*m_InterfaceDescription);
+    status = AddInterface(*m_InterfaceDescription, ANNOUNCED);
     if (status != ER_OK) {
         QCC_LogError(status, ("Could not add interface"));
         return;

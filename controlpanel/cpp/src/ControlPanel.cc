@@ -123,11 +123,6 @@ QStatus ControlPanel::registerObjects(BusAttachment* bus, qcc::String const& uni
         return ER_BUS_TRANSPORT_NOT_STARTED;
     }
 
-    AboutServiceApi* aboutService = AboutServiceApi::getInstance();
-    if (!aboutService) {
-        QCC_DbgHLPrintf(("Could not retrieve AboutService. It has not been initialized"));
-    }
-
     QStatus status = ER_OK;
     qcc::String objectPath = AJ_OBJECTPATH_PREFIX + unitName + "/" + m_RootWidget->getWidgetName();
     m_ControlPanelBusObject = new ControlPanelBusObject(bus, objectPath.c_str(), status);
@@ -155,12 +150,6 @@ QStatus ControlPanel::registerObjects(BusAttachment* bus, qcc::String const& uni
     if (status != ER_OK) {
         QCC_LogError(status, ("Could not register ControlPanelBusObject."));
         return status;
-    }
-
-    if (aboutService) {
-        std::vector<qcc::String> interfaces;
-        interfaces.push_back(AJ_CONTROLPANEL_INTERFACE);
-        aboutService->AddObjectDescription(objectPath, interfaces);
     }
 
     status = m_RootWidget->registerObjects(bus, m_LanguageSet, objectPath + "/", "", true);
