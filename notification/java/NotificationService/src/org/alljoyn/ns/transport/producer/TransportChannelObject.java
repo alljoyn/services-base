@@ -214,6 +214,7 @@ class TransportChannelObject {
      * transportObj
      */
     public void clean(BusAttachment busAttachment) {
+        deleteNotification();
         busAttachment.unregisterBusObject(transportObj);
 
         transportObj = null;
