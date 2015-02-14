@@ -320,10 +320,17 @@ static NSString *const DEFAULT_MSG_TYPE = @"INFO";
 		
 	}
     
-	// Set audio
+	// Set English audio
 	if (self.audioSwitch.on == true && ([NotificationUtils textFieldIsValid:(self.audioTextField.text)])) {
 		AJNSRichAudioUrl *richAudioUrlObj = [[AJNSRichAudioUrl alloc] initRichAudioUrlWithLang:@"en" andUrl:self.audioTextField.text];
 		[self.richAudioUrlArray addObject:richAudioUrlObj];
+
+        // Set other language audio
+        if (self.otherLang)
+        {
+            AJNSRichAudioUrl *richAudioUrlObj = [[AJNSRichAudioUrl alloc] initRichAudioUrlWithLang:self.otherLang andUrl:self.audioTextField.text];
+            [self.richAudioUrlArray addObject:richAudioUrlObj];
+        }
 	}
     
 	// Set icon

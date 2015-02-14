@@ -483,6 +483,12 @@ public class PropertyStoreImpl implements PropertyStore, AboutDataListener
         storeConfiguration();
         loadFactoryDefaults();
         loadStoredConfiguration();
+
+        // since the default language may be reset
+        if (AboutKeys.ABOUT_DEFAULT_LANGUAGE.equals(key))
+        {
+            setDefaultLanguageFromProperties();
+        }
     }
 
     /**

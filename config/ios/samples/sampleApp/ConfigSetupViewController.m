@@ -144,7 +144,7 @@
     if (status != ER_OK) {
 		[[[AJCFGConfigLogger sharedInstance] logger] errorTag:[[self class] description] text:[NSString stringWithFormat:@"Failed to get configuration from bus: %@", [AJNStatus descriptionForStatusCode:status]]];
 
-        [[[UIAlertView alloc] initWithTitle:@"Error" message:@"Failed to get configuration" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+        //[[[UIAlertView alloc] initWithTitle:@"Error" message:@"Failed to get configuration" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
 
         // disable buttons
 		[self.btnFactoryReset setEnabled:NO];
