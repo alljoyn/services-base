@@ -1,101 +1,50 @@
 
-AllJoyn Onboarding Version 14.06 Release Notes
+AllJoyn Onboarding Version 14.12 Release Notes
 ----------------------------------------------
 
 Platform Support
 ----------------
+
  1) Linux Ubuntu (64 bit x86)
- 2) Android Gingerbread 2.3.4 (ARM7)
- 3) Android Ice Cream Sandwich 4.0 (ARM7)
- 4) Android JellyBean 4.1 (ARM7)
- 5) Android KitKat 4.4 (ARM7)
- 6) iOS 7 and 7.1
- 7) OpenWRT (trunk)
+ 2) OpenWRT (trunk)
 
 
-Features added in Version 14.06
+Features added in Version 14.12
 -------------------------------
 
-Android: Added Onboarding Manager library that streamlines the process of onboarding and offboarding for Android application developers. 
-The Android Onboarding Manager encapsulates the Android Wi-Fi and AllJoyn APIs that are part of the process.
-A sample Android application that tests the Onboarding Manager is included.
 
-OpenWRT Onboarding service library is replaced with a daemon application. This way there is only a single instance of Onboarding app running on a device.
-During connect to a new network, the onboarding application restarts the AllJoyn Routing Node.
-
-Issues Addressed in Version 14.06
+Issues Addressed in Version 14.12
 --------------------------------
+ASABASE-369 - Need a C++ Onboarding Client application for Linux / Windows
+ASABASE-364 - Onboarding service not showing up on make menuconfig item.
+ASABASE-442 - onboarding certification test ConfigureWiFiWithWrongPassword fail on OpenWRT
+ASABASE-432 - Compliance Test Onboarding #11 Fails
+ASABASE-417 - Onboarding certification test fails with OpenWRT
+ASABASE-407 - Unable to offboard an already onboarded device using iOS OBS sample app.
+ASABASE-394 - Android Onboarding SDK broken on Android Lollipop
+ASABASE-386 - Need Notification Service and Onboarding Service apps build for iOS.
+ASABASE-347 - For Config Interface of Onboarding service on OpenWRT target update configuration and factory reset methods not functioning.
+ASABASE-304 - Document that hex password is needed for ConfigureWifi, or change password to hex in ConfigureWifi
 
-ASABASE-2   - refactor getscaninfo 
-ASABASE-3   - The Onboarding Service should run as a daemon 
-ASABASE-5   - Remove introspection from GetProperty 
-ASABASE-6   - onboarding should support ConnectionResult signal 
-ASABASE-7   - Add quotes for every parameter in OB scripts that could contain spaces 
-ASABASE-8   - There should be comment or boolean in /etc/config/alljoyn-onboarding for provisioning Soft AP with a password. 
-ASABASE-10  - ACServerSample Does Not Revert To SoftAP When WIFI Network is disconnected 
-ASABASE-12  - improve wifi_mgmnt script by dealing with null result from wpa_cli call 
-ASABASE-16  - Remove dependency on luci-lib-json 
-ASABASE-26  - OnboardingSampleClient often switches AP before Onboarding.Connect() is sent 
-ASABASE-63  - Erroneous "offboarding" message during "onboarding" on the OBS Manager sample app 
-ASABASE-64  - There is no Error message when trying to Offboard with incorrect passcode. 
-ASABASE-66  - OnboardingSDKAndroidSampleApp - MainActivity was Forced to Finish by ActivityManager During Consecutive Onboarding / Offboarding Attempts 
-ASABASE-69  - When Configure Method Receives 'Any' and 'wifi_scan_results' file is Empty , Code is Stuck in Endless Loop 
-ASABASE-70  - OpenWRT - Configure Wi-Fi is sending result=0 instead of 1 or 2 
-ASABASE-71  - When onboarding or offboarding the alljoyn daemon needs to be restarted after network change 
-ASABASE-83  - When changing Network Security Type After Board Reboot and Onboarding Configure Method Receives 'Any' older Network Configuration are Still used 
-ASABASE-86  - Onboarding Service - The list of devices doesn't refresh after changing the device name. 
-ASABASE-88  - The OpenWRT/TPLINK842ND does not retain a unique soft ap name. 
-ASABASE-98  - Onboarding Manager cannot achieve onboarding operation on Ginger Bread version
-ASABASE-99  - Wrong headline for "All Networks" screen 
-ASABASE-100 - Text "OnboardingSDKSampleApp" should be revised to "Onboarding Manager Sample App" 
-ASABASE-102 - Replace _AUTO in Auth types with either _TKIP or _CCMP to improve discovery time for Onboarding.
-ASABASE-103 - missing intent "CONNECTING_ORIGINAL_WIFI" after calling abortOnboarding() API. 
-ASABASE-105 - The Buttons at the Onboarding Manager Sample App do not all share the same naming convention. 
-ASABASE-107 - Onboarding process is stuck when Onboardee announcement arrives before OBS Manager enter WAITING_FOR_ONBOARDEE_ANNOUNCEMENT state 
-ASABASE-110 - Executing runOnboarding() after recieving intent_keys.error = VERIFICATION_TIMEOUT never reaches Verified even though the Alljoyn node has received the announcement.
-ASABASE-112 - Add scrolling capablities to RunOnboarding screen at OB Manager Sample APP 
-ASABASE-117 - OnboardingManager Reports to have 3 Announcements after Verification Timeout 
-ASABASE-135 - Onboarding Java Simulator cannot be offboarded: join session fails 
-ASABASE-140 - Onboarding Manager returns error when trying to connect to wifi SSID containing quotation mark, even though handset actually connects. 
-ASABASE-141 - prevent duplicate addition of obswifi firewall zone 
-ASABASE-143 - iOS Onboarding sample app: Change "Soft AP" to "Access Point". 
-ASABASE-144 - Memory consumption of onboarding-daemon is growing in each onboarding iteration 
-ASABASE-148 - Onboarding service ConfigWifi fails 
-ASABASE-149 - JAVA Onboarding service does not treat correctly illegal result for configureWiFi result=
-ASABASE-152 - wifi_scan_results is empty after reboot 
-ASABASE-154 - ssid stays as "OpenWrt" after installing the onboarding package 
-ASABASE-159 - Could not Complete Onboarding- Offboarding Iteration with OnboardingSampleApp with OpenWRT AJ Based 
-ASABASE-164 - OpenWRT is configured to Wrong SSID After Rebooting When it had Incorrect Credentials Before 
-ASABASE-165 - OpenWRT Onboarding State is not Updated After Reboot When the Router is Available Again
-ASABASE-166 - OpenWRT Onboarding Retry Mechanism Methods can be overlapped and running multiple
-ASABASE-168 - OpenWRT scan_wifi script returns duplicated entries 
-ASABASE-175 - Onboarding-Daemon memory keeps rising while performing Consecutive Onboarding Commands 
-ASABASE-186 - WifiScanResults File fails to hold SSID Name with Spaces 
-ASABASE-187 - OpenWRT Onboarding Configure Does not Allow 64 character password for WPA2 Networks 
-ASABASE-195 - Onboarding client crashes after trying to onboard following a factory reset. 
-
+The complete list of addressed issues can be found at:
+https://jira.allseenalliance.org/issues/?jql=project%20%3D%20ASABASE%20AND%20resolution%20%3D%20Fixed%20AND%20fixVersion%20%3D%20%2214.12%22%20AND%20component%20%3D%20%22Onboarding%20Service%20Framework%22%20AND%20%22Language%20Binding%22%20in%20%28Unity%2C%20Javascript%2C%20Java%2C%20iOS%2C%20%22C%2B%2B%22%2C%20None%2C%20Client%29
 
 Known Issues
 ------------
-ASABASE-9   - Onboarding process to wep configured networks failed and the TP-LINK WR842ND stays in Soft AP mode.
-ASABASE-85  - The Java Onboarding server (simulator) is not receiving auto type ANY. 
-ASABASE-108 – Connecting WiFi network with Gingerbread Android version handset can take longer than on newer version of Android.
-ASABASE-189 - Onboarding Script Offboard method should delete key1 as well 
-ASABASE-207 - OpenWRT Onboarding Fail when 'Any' is passed to configure Method and RouterSSID is Hidden
+ASABASE-428 - OpenWRT Barrier Braker onboardee doesn't remain onboarded if WEP Shared Key auth is used
+Android, Windows and IOS support have not been verified for this release
 
+The complete list of known issues in 14.12 can be found at:
+https://jira.allseenalliance.org/issues/?jql=project%20%3D%20ASABASE%20AND%20component%20%3D%20%22Onboarding%20Service%20Framework%22%20AND%20labels%20%3D%20%22Known_Issues_in_14.12%22%20AND%20%22Language%20Binding%22%20in%20%28Unity%2C%20Javascript%2C%20Java%2C%20iOS%2C%20%22C%2B%2B%22%2C%20None%2C%20Client%29
 
 Compatibility
 -------------
-
-The Android Onboarding Manager is incompatible with 14.02 C++ Onboardee implementation (Openwrt). 
-
-The Android Onboarding Manager is compatible with 14.02 Thin Client Onboardee implementation. 
-
-C++/OpenWRT application using 14.02 are not compatible to Onboarding service 14.06. they need to deal with Alljoyn Routing Node restart.
+14.12 based onboarding service is back compatible with the 14.06 AllJoyn Core and onboarding service
+New API functions have been added to accept AboutDataStore instead of PropertyStore as required by 14.12 AllJoyn Core About support
 
 Change history
 --------------
 
+14.12 - Bug fixes and updates needed to match new core 14.12
 14.06 - changed onboarding from a service to a daemon in openWRT, added android onboarding manager 
-
 14.02 - 1st AllSeen Alliance release
