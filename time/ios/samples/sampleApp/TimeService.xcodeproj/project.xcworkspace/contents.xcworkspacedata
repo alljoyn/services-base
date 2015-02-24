@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:ConfigService.xcodeproj">
+      location = "self:TimeService.xcodeproj">
    </FileRef>
 </Workspace>
