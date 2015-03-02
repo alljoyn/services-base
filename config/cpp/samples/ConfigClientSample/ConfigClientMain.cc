@@ -43,7 +43,7 @@ static std::set<qcc::String> handledAnnouncements;
 static volatile sig_atomic_t s_interrupt = false;
 static volatile sig_atomic_t s_stopped = false;
 
-static void SigIntHandler(int sig) {
+static void CDECL_CALL SigIntHandler(int sig) {
     s_interrupt = true;
 }
 

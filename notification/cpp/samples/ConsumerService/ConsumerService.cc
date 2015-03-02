@@ -52,7 +52,7 @@ void cleanup()
     std::cout << "cleanup() - end" << std::endl;
 }
 
-void signal_callback_handler(int32_t signum)
+void CDECL_CALL signal_callback_handler(int32_t signum)
 {
     std::cout << "got signal_callback_handler" << std::endl;
     s_interrupt = true;

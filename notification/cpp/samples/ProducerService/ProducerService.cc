@@ -326,7 +326,7 @@ void cleanup()
     std::cout << "Goodbye!" << std::endl;
 }
 
-void signal_callback_handler(int32_t signum)
+void CDECL_CALL signal_callback_handler(int32_t signum)
 {
     s_interrupt = true;
 }

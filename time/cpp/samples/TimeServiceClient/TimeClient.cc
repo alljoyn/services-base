@@ -226,7 +226,7 @@ std::map<Actions, ActionFunction> actions;
 /**
  * Interrupt (CTRL+C) handler
  */
-static void SigIntHandler(int sig)
+static void CDECL_CALL SigIntHandler(int sig)
 {
 
     std::cout << "got SigIntHandler" << std::endl;

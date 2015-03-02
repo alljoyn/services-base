@@ -577,7 +577,7 @@ void Usage(TestFunction*testFunctions, qcc::String funcName = "", int32_t*functi
     return;
 }
 
-void signal_callback_handler(int32_t signum)
+void CDECL_CALL signal_callback_handler(int32_t signum)
 {
     s_interrupt = true;
 }

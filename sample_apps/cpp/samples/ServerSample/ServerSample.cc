@@ -89,7 +89,7 @@ ControlPanelService* controlPanelService = NULL;
 ControlPanelControllee* controlPanelControllee = NULL;
 #endif
 
-static void SigIntHandler(int sig) {
+static void CDECL_CALL SigIntHandler(int sig) {
     s_interrupt = true;
 }
 

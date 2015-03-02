@@ -45,7 +45,7 @@ static volatile sig_atomic_t quit = false;
 static BusAttachment* busAttachment = NULL;
 static std::set<qcc::String> handledAnnouncements;
 
-static void SigIntHandler(int sig)
+static void CDECL_CALL SigIntHandler(int sig)
 {
     quit = true;
 }
