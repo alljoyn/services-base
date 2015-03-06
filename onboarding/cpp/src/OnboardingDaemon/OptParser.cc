@@ -27,14 +27,18 @@ using namespace services;
 
 OptParser::OptParser(int argc, char** argv) :
     argc(argc), argv(argv) {
-    //GuidUtil::GetInstance()->GetDeviceIdString(&deviceId);
-    //GuidUtil::GetInstance()->GenerateGUID(&appGUID);
+    GuidUtil::GetInstance()->GetDeviceIdString(&deviceId);
+    GuidUtil::GetInstance()->GenerateGUID(&appGUID);
     factoryConfigFile.assign("FactoryOnboardingService.conf");
     configFile.assign("OnboardingService.conf");
 }
 
 qcc::String const& OptParser::GetAppId() const {
     return appGUID;
+}
+
+qcc::String const& OptParser::GetDeviceId() const {
+    return deviceId;
 }
 
 qcc::String const& OptParser::GetFactoryConfigFile() const {

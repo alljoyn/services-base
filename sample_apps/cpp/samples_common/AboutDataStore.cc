@@ -23,6 +23,7 @@
 #include <iostream>
 #include <sstream>
 #include <sys/stat.h>
+#include <alljoyn/services_common/GuidUtil.h>
 
 using namespace ajn;
 using namespace services;
@@ -39,21 +40,63 @@ AboutDataStore::AboutDataStore(const char* factoryConfigFile, const char* config
     SetField("Daemonrealm", arg);
 }
 
-void AboutDataStore::Initialize()
+void AboutDataStore::Initialize(qcc::String deviceId, qcc::String appId)
 {
     std::cout << "AboutDataStore::Initialize " << m_configFileName << std::endl;
     std::ifstream configFile(m_configFileName.c_str(), std::ios::binary);
+    QStatus status;
     if (configFile) {
         std::string str((std::istreambuf_iterator<char>(configFile)),
                         std::istreambuf_iterator<char>());
         std::cout << "Contains:" << std::endl << str << std::endl;
-        QStatus status;
         status = CreateFromXml(qcc::String(str.c_str()));
 
         if (status != ER_OK) {
             std::cout << "AboutDataStore::Initialize ERROR" << std::endl;
             return;
         }
+
+        if ((!deviceId.empty()) || (!appId.empty())) {
+            AboutData factoryData;
+            std::ifstream factoryFile(m_factoryConfigFileName.c_str(), std::ios::binary);
+            if (factoryFile) {
+                std::string factoryStr((std::istreambuf_iterator<char>(factoryFile)),
+                                std::istreambuf_iterator<char>());
+                std::cout << "Contains:" << std::endl << factoryStr << std::endl;
+                status = factoryData.CreateFromXml(qcc::String(factoryStr.c_str()));
+                if (status != ER_OK) {
+                    std::cout << "AboutDataStore::Initialize ERROR" << std::endl;
+                    return;
+                }
+            }
+
+        	if(!deviceId.empty()){
+                SetDeviceId(deviceId.c_str());
+                factoryData.SetDeviceId(deviceId.c_str());
+        	}
+
+        	if(!appId.empty()) {
+                SetAppId(appId.c_str());
+                factoryData.SetAppId(appId.c_str());
+        	}
+
+            //Generate xml
+            qcc::String str = ToXml(this);
+            //write to config file
+            std::ofstream iniFileWrite(m_configFileName.c_str(), std::ofstream::out | std::ofstream::trunc);
+            //write to config file
+            iniFileWrite.write(str.c_str(), str.length());
+            iniFileWrite.close();
+
+            //Generate xml
+            qcc::String writeStr = ToXml(&factoryData);
+            //write to config file
+            std::ofstream factoryFileWrite(m_factoryConfigFileName.c_str(), std::ofstream::out | std::ofstream::trunc);
+            //write to config file
+            factoryFileWrite.write(writeStr.c_str(), writeStr.length());
+            factoryFileWrite.close();
+        }
+
         size_t numFields = GetFields();
         std::cout << "AboutDataStore::Initialize() numFields=" << numFields << std::endl;
     }
@@ -216,7 +259,7 @@ QStatus AboutDataStore::Update(const char* name, const char* languageTag, const 
 
     if (status == ER_OK) {
         //Generate xml
-        qcc::String str = ToXml();
+        qcc::String str = ToXml(this);
         //write to config file
         std::ofstream iniFileWrite(m_configFileName.c_str(), std::ofstream::out | std::ofstream::trunc);
         //write to config file
@@ -346,7 +389,7 @@ QStatus AboutDataStore::Delete(const char* name, const char* languageTag)
 
     if (status == ER_OK) {
         //Generate xml
-        qcc::String str = ToXml();
+        qcc::String str = ToXml(this);
         //write to config file
         std::ofstream iniFileWrite(m_configFileName.c_str(), std::ofstream::out | std::ofstream::trunc);
         //write to config file
@@ -372,7 +415,7 @@ const qcc::String& AboutDataStore::GetConfigFileName()
 void AboutDataStore::write()
 {
     //Generate xml
-    qcc::String str = ToXml();
+    qcc::String str = ToXml(this);
     //write to config file
     std::ofstream iniFileWrite(m_configFileName.c_str(), std::ofstream::out | std::ofstream::trunc);
     //write to config file
@@ -386,30 +429,32 @@ void AboutDataStore::write()
     }
 }
 
-qcc::String AboutDataStore::ToXml()
+qcc::String AboutDataStore::ToXml(AboutData* aboutData)
 {
     std::cout << "AboutDataStore::ToXml" << std::endl;
     QStatus status = ER_OK;
-    size_t numFields = GetFields();
+    size_t numFields = aboutData->GetFields();
     if (0 == numFields) {
+        std::cout << "numFields is 0" << std::endl;
         return "";
     }
     const char* fieldNames[512];
-    GetFields(fieldNames, numFields);
+    aboutData->GetFields(fieldNames, numFields);
     char* defaultLanguage;
-    status = GetDefaultLanguage(&defaultLanguage);
+    status = aboutData->GetDefaultLanguage(&defaultLanguage);
     if (ER_OK != status) {
+        std::cout << "GetDefaultLanguage failed" << std::endl;
         return "";
     }
-    size_t numLangs = GetSupportedLanguages();
+    size_t numLangs = aboutData->GetSupportedLanguages();
     const char** langs = new const char*[numLangs];
-    GetSupportedLanguages(langs, numLangs);
+    aboutData->GetSupportedLanguages(langs, numLangs);
     qcc::String res;
     res += "<AboutData>\n";
     for (size_t i = 0; i < numFields; i++) {
         ajn::MsgArg* arg;
         char* val;
-        GetField(fieldNames[i], arg);
+        aboutData->GetField(fieldNames[i], arg);
         if (!strcmp(fieldNames[i], "AppId")) {
             res += "  <" + qcc::String(fieldNames[i]) + ">";
             size_t lay;
@@ -432,7 +477,7 @@ qcc::String AboutDataStore::ToXml()
         res += "  <" + qcc::String(fieldNames[i]) + ">";
         res += val;
         res += "</" + qcc::String(fieldNames[i]) + ">\n";
-        if (!IsFieldLocalized(fieldNames[i])) {
+        if (!aboutData->IsFieldLocalized(fieldNames[i])) {
             continue;
         }
 
@@ -442,7 +487,7 @@ qcc::String AboutDataStore::ToXml()
             }
 
             res += "  <" + qcc::String(fieldNames[i]) + " lang=\"" + langs[j] + "\">";
-            GetField(fieldNames[i], arg, langs[j]);
+            aboutData->GetField(fieldNames[i], arg, langs[j]);
             arg->Get("s", &val);
             res += val;
             res += "</" + qcc::String(fieldNames[i]) + ">\n";
@@ -451,7 +496,6 @@ qcc::String AboutDataStore::ToXml()
     res += "</AboutData>";
 
     delete [] langs;
-    std::cout << "end" << std::endl;
     return res;
 }
 
