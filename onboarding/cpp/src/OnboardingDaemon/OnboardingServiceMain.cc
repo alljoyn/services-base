@@ -249,17 +249,7 @@ start:
 
     aboutDataStore = new AboutDataStore(opts.GetFactoryConfigFile().c_str(), opts.GetConfigFile().c_str());
     aboutDataStore->SetOBCFG();
-    aboutDataStore->Initialize();
-    if (!opts.GetAppId().empty()) {
-        std::cout << "using appID " << opts.GetAppId().c_str() << std::endl;
-        aboutDataStore->SetAppId(opts.GetAppId().c_str());
-    }
-
-    if (status != ER_OK) {
-        std::cout << "Could not fill About Data." << std::endl;
-        cleanup();
-        return 1;
-    }
+    aboutDataStore->Initialize(opts.GetDeviceId(), opts.GetAppId());
 
     aboutObj = new ajn::AboutObj(*msgBus, BusObject::ANNOUNCED);
     status = CommonSampleUtil::prepareAboutService(msgBus, static_cast<AboutData*>(aboutDataStore), aboutObj, busListener, servicePort);
