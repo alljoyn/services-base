@@ -89,14 +89,14 @@ class AboutDataStore : public AboutDataStoreInterface {
     /**
      * method Initialize
      */
-    void Initialize();
+    void Initialize(qcc::String deviceId = qcc::String(), qcc::String appId = qcc::String());
 
   private:
     bool m_IsInitialized;
     qcc::String m_configFileName;
     qcc::String m_factoryConfigFileName;
 
-    qcc::String ToXml();
+    qcc::String ToXml(AboutData* aboutData);
 
     QStatus IsLanguageSupported(const char* languageTag);
 };

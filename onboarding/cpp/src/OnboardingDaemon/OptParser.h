@@ -39,6 +39,8 @@ class OptParser {
 
     qcc::String const& GetAppId() const;
 
+    qcc::String const& GetDeviceId() const;
+
   private:
     int argc;
     char** argv;
@@ -50,6 +52,7 @@ class OptParser {
     qcc::String factoryConfigFile;
     qcc::String configFile;
     qcc::String appGUID;
+    qcc::String deviceId;
 };
 
 #endif /* OPTPARSER_H_ */
