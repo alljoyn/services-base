@@ -38,6 +38,14 @@ if 'java' in env['bindings'] and not env.has_key('_ALLJOYN_JAVA_') and os.path.e
 
 config_env = env.Clone()
 
+# ASABASE-452, ASACORE-1419
+# Even though we have deprecated the About Service code the config service is
+# designed so a developer can use the deprecated AboutService or the new
+# About Feature code. So the config service can continue to support the deprecated
+# methods we must turn off the deprecated-declarations warning.
+if config_env['OS_GROUP'] == 'posix':
+    config_env.Append(CXXFLAGS = ['-Wno-deprecated-declarations'])
+
 for b in config_env['bindings']:
     if os.path.exists('%s/SConscript' % b):
         config_env.VariantDir('$OBJDIR_SERVICES_CONFIG/%s' % b, b, duplicate = 0)

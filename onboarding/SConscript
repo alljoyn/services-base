@@ -41,6 +41,14 @@ if 'java' in env['bindings'] and not env.has_key('_ALLJOYN_JAVA_') and os.path.e
 
 onb_env = env.Clone()
 
+# ASABASE-452, ASACORE-1419
+# Even though we have deprecated the About Service code the onboarding service
+# is designed so a developer can use the deprecated AboutService or the new
+# About Feature code. So the onboarding service can continue to support the
+# deprecated methods we must turn off the deprecated-declarations warning.
+if onb_env['OS_GROUP'] == 'posix':
+    onb_env.Append(CXXFLAGS = ['-Wno-deprecated-declarations'])
+
 for b in onb_env['bindings']:
     if os.path.exists('%s/SConscript' % b):
         onb_env.VariantDir('$OBJDIR_SERVICES_ONBOARDING/%s' % b, b, duplicate = 0)
