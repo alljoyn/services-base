@@ -234,19 +234,46 @@ class Transport {
      */
     void cleanupNotificationProducerReceiver();
     /**
+     * cleanupSenderProducerReceiver
+     */
+    void cleanupNotificationProducerReceiverInternal();
+    /**
      * cleanupNotificationDismisserSender
      */
     void cleanupNotificationDismisserSender();
     /**
+     * cleanupNotificationDismisserSender
+     */
+    void cleanupNotificationDismisserSenderInternal();
+    /**
      * cleanupNotificationDismisserReceiver
      */
     void cleanupNotificationDismisserReceiver();
+    /**
+     * cleanupNotificationDismisserReceiver
+     */
+    void cleanupNotificationDismisserReceiverInternal();
+    /**
+     * Cleanup cleanupNotificationProducerSender. and Unregister the BusObject.
+     */
+    void cleanupNotificationProducerSenderInternal();
+    /**
+     * Cleanup the TransportConsumer objects. Also Unregisteres the BusObject depending on input param
+     * @param unregister - should BusObject be Unregistered from Bus
+     */
+    void cleanupTransportConsumerInternal(void);
     /**
      * ListenForSuperAgent uses AllJoyn's announcement interface to try and find a SuperAgent
      * Messages are sessionless
      * @return status
      */
     QStatus listenForAnnouncements();
+
+    /**
+     * Cleanup the TransportSuperAgent object. Also Unregisteres the BusObject depending on input param
+     * @param unregister - should BusObject be Unregistered from Bus
+     */
+    void cleanupTransportSuperAgentInternal(void);
 
     /**
      * Static instance of Transport. Makes Transport a singleton

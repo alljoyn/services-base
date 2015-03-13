@@ -216,6 +216,8 @@ QStatus Transport::startSenderTransport(BusAttachment* bus, bool startSuperAgent
     }
 
     //Code handles NotificationProducerReceiver - Start
+    cleanupNotificationProducerReceiverInternal();
+    cleanupNotificationProducerSenderInternal();
     m_NotificationProducerReceiver = new NotificationProducerReceiver(m_Bus, status);
     if (status != ER_OK) {
         goto exit;
@@ -246,6 +248,8 @@ QStatus Transport::startSenderTransport(BusAttachment* bus, bool startSuperAgent
     //Code handles NotificationProducerReceiver - End
 
     //Handling NotificationDismisserSender - start here
+    cleanupNotificationDismisserSenderInternal();
+    cleanupNotificationDismisserReceiverInternal();
     m_NotificationDismisserSender = new NotificationDismisserSender(m_Bus, AJ_NOTIFICATION_DISMISSER_PATH, status);
     if (status != ER_OK) {
         QCC_LogError(status, ("Could not create NotificationDismisserSender."));
@@ -300,6 +304,7 @@ QStatus Transport::startReceiverTransport(BusAttachment* bus)
     }
 
     if (m_Consumer == NULL) {
+        cleanupTransportSuperAgentInternal();
         m_Consumer = new NotificationTransportConsumer(m_Bus, AJ_CONSUMER_SERVICE_PATH, status);
         if (status != ER_OK) {
             QCC_LogError(status, ("Could not create Consumer BusObject."));
@@ -325,6 +330,7 @@ QStatus Transport::startReceiverTransport(BusAttachment* bus)
 
     //Handling NotificationProducerSender - Start
     if (m_NotificationProducerSender == NULL) {
+        cleanupNotificationProducerReceiverInternal();
         m_NotificationProducerSender = new NotificationProducerSender(m_Bus, status);
         if (status != ER_OK) {
             QCC_LogError(status, ("Could not create NotificationProducerSender BusObject."));
@@ -340,6 +346,7 @@ QStatus Transport::startReceiverTransport(BusAttachment* bus)
 
     //Handling NotificationDismisserReceiver - Start
     if (m_NotificationDismisserReceiver == NULL) {
+        cleanupNotificationDismisserSenderInternal();
         m_NotificationDismisserReceiver = new NotificationDismisserReceiver(m_Bus, status);
         if (status != ER_OK) {
             QCC_LogError(status, ("Could not create NotificationDismisserReceiver BusObject."));
@@ -364,6 +371,7 @@ QStatus Transport::startReceiverTransport(BusAttachment* bus)
 
     //Handling NotificationDismisserSender - Start
     if (m_NotificationDismisserSender == NULL) {
+        cleanupNotificationDismisserReceiverInternal();
         m_NotificationDismisserSender = new NotificationDismisserSender(m_Bus, AJ_NOTIFICATION_DISMISSER_PATH, status);
         if (status != ER_OK) {
             QCC_LogError(status, ("Could not create NotificationDismisserSender."));
@@ -383,6 +391,7 @@ QStatus Transport::startReceiverTransport(BusAttachment* bus)
     }
 
     if (!m_IsSuperAgentDisabled && !m_SuperAgent) {
+        cleanupTransportConsumerInternal();
         m_SuperAgent = new NotificationTransportSuperAgent(m_Bus, AJ_CONSUMER_SERVICE_PATH, status);
 
         if (status != ER_OK) {
@@ -560,13 +569,24 @@ void Transport::cleanupNotificationProducerReceiver()
     }
 
     if (m_NotificationProducerReceiver) {
-        QCC_DbgPrintf(("cleaning NotificationProducerReceiver"));
         m_NotificationProducerReceiver->unregisterHandler(m_Bus);
-        m_Bus->UnregisterBusObject(*m_NotificationProducerReceiver);
-        delete m_NotificationProducerReceiver;
-        m_NotificationProducerReceiver = NULL;
+        cleanupNotificationProducerReceiverInternal();
     }
+    delete m_NotificationProducerReceiver;
+    m_NotificationProducerReceiver = NULL;
+
     QCC_DbgTrace(("Transport::cleanupNotificationProducerReceiver end"));
+}
+
+void Transport::cleanupNotificationProducerReceiverInternal()
+{
+    QCC_DbgTrace(("Transport::cleanupNotificationProducerReceiverInternal start"));
+
+    if (m_NotificationProducerReceiver) {
+        QCC_DbgPrintf(("cleaning NotificationProducerReceiver"));
+        m_Bus->UnregisterBusObject(*m_NotificationProducerReceiver);
+    }
+    QCC_DbgTrace(("Transport::cleanupNotificationProducerReceiverInternal end"));
 }
 
 void Transport::cleanupNotificationDismisserSender()
@@ -575,10 +595,19 @@ void Transport::cleanupNotificationDismisserSender()
         return;
     }
 
-    m_Bus->UnregisterBusObject(*m_NotificationDismisserSender);
+    cleanupNotificationDismisserSenderInternal();
 
     delete m_NotificationDismisserSender;
     m_NotificationDismisserSender = 0;
+}
+
+void Transport::cleanupNotificationDismisserSenderInternal()
+{
+    if (!m_NotificationDismisserSender) {
+        return;
+    }
+
+    m_Bus->UnregisterBusObject(*m_NotificationDismisserSender);
 }
 
 void Transport::cleanupNotificationDismisserReceiver()
@@ -587,15 +616,23 @@ void Transport::cleanupNotificationDismisserReceiver()
     if (!m_NotificationDismisserReceiver) {
         return;
     }
-
     m_NotificationDismisserReceiver->unregisterHandler(m_Bus);
-    m_Bus->UnregisterBusObject(*m_NotificationDismisserReceiver);
-
+    cleanupNotificationDismisserReceiverInternal();
     delete m_NotificationDismisserReceiver;
     m_NotificationDismisserReceiver = 0;
     QCC_DbgTrace(("Transport::cleanupNotificationDismisserReceiver end"));
 }
 
+void Transport::cleanupNotificationDismisserReceiverInternal()
+{
+    QCC_DbgTrace(("Transport::cleanupNotificationDismisserReceiverInternal start"));
+
+    if (m_NotificationDismisserReceiver) {
+        m_Bus->UnregisterBusObject(*m_NotificationDismisserReceiver);
+    }
+
+    QCC_DbgTrace(("Transport::cleanupNotificationDismisserReceiverInternal end"));
+}
 
 void Transport::cleanupSenderTransport()
 {
@@ -626,13 +663,22 @@ void Transport::cleanupTransportConsumer(bool unregister)
 
     if (unregister) {
         m_Consumer->unregisterHandler(m_Bus);
-        m_Bus->UnregisterBusObject(*m_Consumer);
+        cleanupTransportConsumerInternal();
     }
     delete m_Consumer;
     m_Consumer = 0;
     QCC_DbgTrace(("Transport::cleanupTransportConsumer end"));
 }
 
+void Transport::cleanupTransportConsumerInternal(void)
+{
+    QCC_DbgTrace(("Transport::cleanupTransportConsumerInternal start"));
+    if (!m_Consumer) {
+        return;
+    }
+    m_Bus->UnregisterBusObject(*m_Consumer);
+    QCC_DbgTrace(("Transport::cleanupTransportConsumerInternal end"));
+}
 
 void Transport::cleanupTransportSuperAgent(bool unregister)
 {
@@ -643,11 +689,19 @@ void Transport::cleanupTransportSuperAgent(bool unregister)
 
     if (unregister) {
         m_SuperAgent->unregisterHandler(m_Bus);
-        m_Bus->UnregisterBusObject(*m_SuperAgent);
+        cleanupTransportSuperAgentInternal();
     }
-    delete m_SuperAgent;
-    m_SuperAgent = 0;
     QCC_DbgTrace(("Transport::cleanupTransportSuperAgent end"));
+}
+
+void Transport::cleanupTransportSuperAgentInternal(void)
+{
+    QCC_DbgTrace(("Transport::cleanupTransportSuperAgentInternal start"));
+    if (!m_SuperAgent) {
+        return;
+    }
+    m_Bus->UnregisterBusObject(*m_SuperAgent);
+    QCC_DbgTrace(("Transport::cleanupTransportSuperAgentInternal end"));
 }
 
 void Transport::cleanupSuperAgentBusListener(bool unregister)
@@ -690,10 +744,22 @@ void Transport::cleanupNotificationProducerSender()
         return;
     }
 
-    m_Bus->UnregisterBusObject(*m_NotificationProducerSender);
+    cleanupNotificationProducerSenderInternal();
 
     delete m_NotificationProducerSender;
     m_NotificationProducerSender = 0;
+    QCC_DbgTrace(("Transport::cleanupNotificationProducerSender end"));
+}
+
+void Transport::cleanupNotificationProducerSenderInternal()
+{
+    QCC_DbgTrace(("Transport::cleanupNotificationProducerSender start"));
+    if (!m_NotificationProducerSender) {
+        return;
+    }
+
+    m_Bus->UnregisterBusObject(*m_NotificationProducerSender);
+
     QCC_DbgTrace(("Transport::cleanupNotificationProducerSender end"));
 }
 
