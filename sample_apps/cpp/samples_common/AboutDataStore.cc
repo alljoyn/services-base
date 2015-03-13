@@ -61,7 +61,7 @@ void AboutDataStore::Initialize(qcc::String deviceId, qcc::String appId)
             std::ifstream factoryFile(m_factoryConfigFileName.c_str(), std::ios::binary);
             if (factoryFile) {
                 std::string factoryStr((std::istreambuf_iterator<char>(factoryFile)),
-                                std::istreambuf_iterator<char>());
+                                       std::istreambuf_iterator<char>());
                 std::cout << "Contains:" << std::endl << factoryStr << std::endl;
                 status = factoryData.CreateFromXml(qcc::String(factoryStr.c_str()));
                 if (status != ER_OK) {
@@ -70,15 +70,15 @@ void AboutDataStore::Initialize(qcc::String deviceId, qcc::String appId)
                 }
             }
 
-        	if(!deviceId.empty()){
+            if (!deviceId.empty()) {
                 SetDeviceId(deviceId.c_str());
                 factoryData.SetDeviceId(deviceId.c_str());
-        	}
+            }
 
-        	if(!appId.empty()) {
+            if (!appId.empty()) {
                 SetAppId(appId.c_str());
                 factoryData.SetAppId(appId.c_str());
-        	}
+            }
 
             //Generate xml
             qcc::String str = ToXml(this);
