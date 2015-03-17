@@ -40,6 +40,14 @@ if 'java' in env['bindings'] and not env.has_key('_ALLJOYN_JAVA_') and os.path.e
 
 cpsenv = env.Clone()
 
+# ASABASE-452, ASACORE-1419
+# Even though we have deprecated the About Service code the controlpanel service
+# is designed so a developer can use the deprecated AboutService or the new
+# About Feature code. So the controlpanel service can continue to support the
+# deprecated methods we must turn off the deprecated-declarations warning.
+if cpsenv['OS_GROUP'] == 'posix':
+    cpsenv.Append(CXXFLAGS = ['-Wno-deprecated-declarations'])
+
 for b in cpsenv['bindings']:
     if os.path.exists('%s/SConscript' % b):
         cpsenv.VariantDir('$OBJDIR_SERVICES_CONTROLPANEL/%s' % b, b, duplicate = 0)

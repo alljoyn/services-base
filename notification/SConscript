@@ -37,6 +37,14 @@ if 'java' in env['bindings'] and not env.has_key('_ALLJOYN_JAVA_') and os.path.e
 
 nsenv = env.Clone()
 
+# ASABASE-452, ASACORE-1419
+# Even though we have deprecated the About Service code the notification service is
+# designed so a developer can use the deprecated AboutService or the new
+# About Feature code. So the notification service can continue to support the
+# deprecated methods we must turn off the deprecated-declarations warning.
+if nsenv['OS_GROUP'] == 'posix':
+    nsenv.Append(CXXFLAGS = ['-Wno-deprecated-declarations'])
+
 for b in nsenv['bindings']:
     if os.path.exists('%s/SConscript' % b):
         nsenv.VariantDir('$OBJDIR_SERVICES_NOTIFICATION/%s' % b, b, duplicate = 0)
