@@ -53,6 +53,7 @@ NotificationTransportSuperAgent::NotificationTransportSuperAgent(
         return;
     }
 
+    SetAnnounceFlag(bus->GetInterface(AJ_SA_INTERFACE_NAME.c_str()), BusObject::UNANNOUNCED);
     m_receiveNotificationTaskQueue = new AsyncTaskQueue(&m_receiveNotificationAsyncTask);
     m_receiveNotificationTaskQueue->Start();
 
