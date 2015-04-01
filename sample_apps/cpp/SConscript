@@ -18,8 +18,6 @@ Import('server_sample_env')
 if not server_sample_env.has_key('_ALLJOYNCORE_'):
     server_sample_env.Append(LIBS = ['alljoyn'])
     if server_sample_env['BR'] == 'on' :
-        brFile = server_sample_env.subst('$DISTDIR') + '/cpp/lib/BundledRouter.o'
-        server_sample_env['brobj'] = File(brFile)
         server_sample_env['ajrlib'] = 'ajrouter'
     if server_sample_env['OS'] == 'openwrt':
         server_sample_env.AppendUnique(LIBS = [ 'stdc++', 'pthread' ])

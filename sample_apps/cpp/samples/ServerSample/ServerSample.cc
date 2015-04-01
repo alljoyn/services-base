@@ -25,6 +25,7 @@
 #include <alljoyn/AboutIconObj.h>
 #include <AboutDataStore.h>
 #include <qcc/StringUtil.h>
+#include <AJInitializer.h>
 
 #ifdef _CONFIG_
 #include <alljoyn/config/ConfigService.h>
@@ -287,6 +288,13 @@ QStatus fillAboutData(AboutData* aboutdata)
 int main(int argc, char**argv, char**envArg) {
 
     QStatus status = ER_OK;
+
+    // Initialize AllJoyn
+    AJInitializer ajInit;
+    if (ajInit.Initialize() != ER_OK) {
+        return 1;
+    }
+
     printf("AllJoyn Library version: %s\n", ajn::GetVersion());
     printf("AllJoyn Library build info: %s\n", ajn::GetBuildInfo());
     QCC_SetLogLevels("ALLJOYN_ABOUT_SERVICE=7;");
