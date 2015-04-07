@@ -19,6 +19,13 @@
 #include <alljoyn/controlpanel/CPSDate.h>
 #include <alljoyn/controlpanel/CPSTime.h>
 
+#if defined(QCC_OS_GROUP_WINDOWS)
+/* Disabling warning C 4100. unreferenced formal parameter */
+#pragma warning(push)
+#pragma warning(disable: 4100)
+#endif
+
+
 #define AJ_Printf(fmat, ...) \
     do { printf(fmat, ## __VA_ARGS__); } while (0)
 

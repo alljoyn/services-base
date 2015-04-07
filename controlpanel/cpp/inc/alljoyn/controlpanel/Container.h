@@ -19,6 +19,13 @@
 
 #include <alljoyn/controlpanel/RootWidget.h>
 
+#if defined(QCC_OS_GROUP_WINDOWS)
+/* Disabling warning C 4100. Function doesnt use all passed in parameters */
+#pragma warning(push)
+#pragma warning(disable: 4100)
+#endif
+
+
 namespace ajn {
 namespace services {
 

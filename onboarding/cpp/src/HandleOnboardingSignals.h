@@ -22,6 +22,13 @@
 #include <alljoyn/onboarding/OnboardingClientListener.h>
 #include <alljoyn/services_common/AsyncTaskQueue.h>
 
+#if defined(QCC_OS_GROUP_WINDOWS)
+/* Disabling warning C 4701/4703. Potentially uninitialized local variable */
+#pragma warning(push)
+#pragma warning(disable: 4701)
+#pragma warning(disable: 4703)
+#endif
+
 
 /**
  * HandleOnboardingSignals

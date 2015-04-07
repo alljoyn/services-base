@@ -19,6 +19,12 @@
 
 #include <alljoyn/controlpanel/Dialog.h>
 
+#if defined(QCC_OS_GROUP_WINDOWS)
+/* Disabling warning C 4702. unreachable code */
+#pragma warning(push)
+#pragma warning(disable: 4702)
+#endif
+
 namespace ajn {
 namespace services {
 

@@ -27,6 +27,16 @@
 #endif
 #include <queue>
 
+#if defined(QCC_OS_GROUP_WINDOWS)
+/* Disabling warning C 4100. Function doesnt use all passed in parameters */
+/* Disabling warning C 4007. main must be __cdecl */
+/* Disabling warning C 4512. assignment operator could not be generated */
+#pragma warning(push)
+#pragma warning(disable: 4100)
+#pragma warning(disable: 4007)
+#pragma warning(disable: 4512)
+#endif
+
 namespace ajn {
 namespace services {
 

@@ -19,6 +19,13 @@
 
 #include <qcc/String.h>
 
+#if defined(QCC_OS_GROUP_WINDOWS)
+/* Disabling warning C 4706. Assignment within conditional expression */
+#pragma warning(push)
+#pragma warning(disable: 4706)
+#endif
+
+
 /*
  * Common Macros
  */

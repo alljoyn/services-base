@@ -20,6 +20,13 @@
 #include <qcc/String.h>
 #include <alljoyn/BusAttachment.h>
 
+#if defined(QCC_OS_GROUP_WINDOWS)
+/* Disabling warning C 4512. assignment operator could not be generated */
+#pragma warning(push)
+#pragma warning(disable: 4512)
+#endif
+
+
 namespace ajn {
 namespace services {
 

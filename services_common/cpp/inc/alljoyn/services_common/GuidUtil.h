@@ -21,6 +21,13 @@
 #include <qcc/Debug.h>
 #include <qcc/String.h>
 
+#if defined(QCC_OS_GROUP_WINDOWS)
+/* Disabling warning C 4100. Function doesnt use all passed in parameters */
+#pragma warning(push)
+#pragma warning(disable: 4100)
+#endif
+
+
 static const unsigned int GUID_STRING_MAX_LENGTH = 32;
 static const unsigned int GUID_HYPHEN_MAX_LENGTH = 4;
 static const unsigned int END_OF_STRING_LENGTH = 1;

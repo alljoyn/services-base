@@ -19,6 +19,13 @@
 #include <alljoyn/AboutListener.h>
 #include <alljoyn/AboutData.h>
 
+#if defined(QCC_OS_GROUP_WINDOWS)
+/* Disabling warning C 4100. Function doesnt use all passed in parameters */
+#pragma warning(push)
+#pragma warning(disable: 4100)
+#endif
+
+
 typedef void (*BasicAnnounceHandlerCallback)(qcc::String const& busName, unsigned short port);
 typedef void (*FullAnnounceHandlerCallback)(qcc::String const& busName, unsigned short version,
                                             unsigned short port, const ajn::AboutObjectDescription& objectDescription,

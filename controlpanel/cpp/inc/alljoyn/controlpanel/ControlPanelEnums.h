@@ -24,6 +24,13 @@ namespace services {
 #define UINT32_MAX      (4294967295U)
 #endif
 
+#if defined(QCC_OS_GROUP_WINDOWS)
+/* Disabling warning C 4706. assignment within conditional expression */
+#pragma warning(push)
+#pragma warning(disable: 4706)
+#endif
+
+
 /**
  * Typedefs for functionPointers used
  */
