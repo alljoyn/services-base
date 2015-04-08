@@ -30,9 +30,9 @@ local_env.Prepend(LIBS = [ 'alljoyn_onboarding',
                            'alljoyn_about',
                            'alljoyn_services_common'])
 
-if local_env['BR'] == 'on' and local_env.has_key('brobj') and local_env.has_key('ajrlib'):
+if local_env['BR'] == 'on' and local_env.has_key('ajrlib'):
     # Build apps with bundled daemon support
-    local_env.Prepend(LIBS = [local_env['brobj'], local_env['ajrlib']])
+    local_env.Prepend(LIBS = [local_env['ajrlib']])
 
 # copy the wifi_scan_results to the dist for easier debug
 local_env.Install('$ONBOARDING_DISTDIR/bin', 'wifi_scan_results')

@@ -16,8 +16,6 @@ Import('tsenv')
 if not tsenv.has_key('_ALLJOYNCORE_'):
     tsenv.Append(LIBS = ['alljoyn'])
     if tsenv['BR'] == 'on' :
-        brFile = tsenv.subst('$DISTDIR') + '/cpp/lib/BundledRouter.o'
-        tsenv['brobj'] = File(brFile)
         tsenv['ajrlib'] = 'ajrouter'
     if tsenv['OS'] == 'openwrt':
         tsenv.AppendUnique(LIBS = [ 'stdc++', 'pthread' ])

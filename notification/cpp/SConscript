@@ -17,8 +17,6 @@ Import('nsenv')
 if not nsenv.has_key('_ALLJOYNCORE_'):
     nsenv.Append(LIBS = ['alljoyn'])
     if nsenv['BR'] == 'on' :
-        brFile = nsenv.subst('$DISTDIR') + '/cpp/lib/BundledRouter.o'
-        nsenv['brobj'] = File(brFile)
         nsenv['ajrlib'] = 'ajrouter'
     if nsenv['OS'] == 'openwrt':
         nsenv.AppendUnique(LIBS = [ 'stdc++', 'pthread' ])

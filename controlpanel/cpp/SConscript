@@ -17,8 +17,6 @@ Import('cpsenv')
 if not cpsenv.has_key('_ALLJOYNCORE_'):
     cpsenv.Append(LIBS = ['alljoyn'])
     if cpsenv['BR'] == 'on' :
-        brFile = cpsenv.subst('$DISTDIR') + '/cpp/lib/BundledRouter.o'
-        cpsenv['brobj'] = File(brFile)
         cpsenv['ajrlib'] = 'ajrouter'
     if cpsenv['OS'] == 'openwrt':
         cpsenv.AppendUnique(LIBS = [ 'stdc++', 'pthread' ])
