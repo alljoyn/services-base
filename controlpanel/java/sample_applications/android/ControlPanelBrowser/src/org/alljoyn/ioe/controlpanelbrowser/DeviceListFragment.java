@@ -156,7 +156,7 @@ public class DeviceListFragment extends ListFragment {
     /**
      * Supported Authentication mechanisms
      */
-    private final String[] AUTH_MECHANISMS = new String[] { "ALLJOYN_SRP_KEYX", "ALLJOYN_PIN_KEYX", "ALLJOYN_ECDHE_PSK" };
+    private final String[] AUTH_MECHANISMS = new String[] { "ALLJOYN_SRP_KEYX", "ALLJOYN_ECDHE_PSK" };
 
     private static final String[] ANNOUNCE_IFACES = new String[] { ControlPanel.IFNAME, HTTPControl.IFNAME };
 

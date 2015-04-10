@@ -18,7 +18,6 @@
 #import "alljoyn/notification/AJNSNotificationService.h"
 #import "alljoyn/notification/AJNSNotificationReceiver.h"
 #import "alljoyn/services_common/AJSVCGenericLoggerUtil.h"
-#import "AJNPasswordManager.h"
 #import "DetailsCell.h"
 #import "NotificationEntry.h"
 #import "alljoyn/controlpanel/AJCPSGetControlPanelViewController.h"

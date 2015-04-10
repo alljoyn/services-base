@@ -41,7 +41,7 @@ public class AuthManager implements AuthPasswordHandler {
     /**
      * The authentication mechanisms that this application supports
      */
-    private static final String[] AUTH_MECHANISMS = new String[] { "ALLJOYN_SRP_KEYX", "ALLJOYN_PIN_KEYX", "ALLJOYN_ECDHE_PSK" };
+    private static final String[] AUTH_MECHANISMS = new String[] { "ALLJOYN_SRP_KEYX", "ALLJOYN_ECDHE_PSK" };
 
     /**
      * Constructor

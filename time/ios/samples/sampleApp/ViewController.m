@@ -37,7 +37,7 @@
 static bool ALLOWREMOTEMESSAGES = true; // About Client -  allow Remote Messages flag
 static NSString *const APPNAME = @"TimeServiceApp";  //About Client - default application name
 static NSString *const KEYSTORE_FILE_PATH = @"Documents/alljoyn_keystore/s_central.ks";
-static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX ALLJOYN_ECDHE_PSK";
+static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK";
 static NSString *const DAEMON_QUIET_PREFIX = @"quiet@";    //About Client - quiet advertising
 static NSString *const DEFAULT_PASSCODE = @"000000";
 static AJNSessionPort SERVICE_PORT = 900; // About Service - service port
@@ -463,7 +463,7 @@ static NSString *const DEVICEID = @"1231232145667745675477";
 {
     QStatus status;
 
-    status = [self.bus enablePeerSecurity:@"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX ALLJOYN_ECDHE_PSK" authenticationListener:self keystoreFileName:@"Documents/alljoyn_keystore/s_central.ks" sharing:FALSE];
+    status = [self.bus enablePeerSecurity:@"ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK" authenticationListener:self keystoreFileName:@"Documents/alljoyn_keystore/s_central.ks" sharing:FALSE];
     return status;
 }
 
@@ -483,7 +483,7 @@ static NSString *const DEVICEID = @"1231232145667745675477";
 
     NSLog(@"requestSecurityCredentialsWithAuthenticationMechanism:%@ forRemotePeer%@ userName:%@", authenticationMechanism, peerName, userName);
 
-    if ([authenticationMechanism isEqualToString:@"ALLJOYN_SRP_KEYX"] || [authenticationMechanism isEqualToString:@"ALLJOYN_PIN_KEYX"] || [authenticationMechanism isEqualToString:@"ALLJOYN_ECDHE_PSK"]) {
+    if ([authenticationMechanism isEqualToString:@"ALLJOYN_SRP_KEYX"] || [authenticationMechanism isEqualToString:@"ALLJOYN_ECDHE_PSK"]) {
         if (mask & kAJNSecurityCredentialTypePassword) {
             if (authenticationCount <= 3) {
                 creds = [[AJNSecurityCredentials alloc] init];

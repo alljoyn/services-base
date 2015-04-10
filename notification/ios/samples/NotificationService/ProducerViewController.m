@@ -19,7 +19,6 @@
 #import "AJNVersion.h"
 #import "alljoyn/about/AJNAboutServiceApi.h"
 #import "samples_common/AJSCCommonBusListener.h"
-#import "AJNPasswordManager.h"
 #import "alljoyn/notification/AJNSNotificationSender.h"
 #import "alljoyn/notification/AJNSNotificationService.h"
 #import "alljoyn/services_common/AJSVCGenericLoggerUtil.h"

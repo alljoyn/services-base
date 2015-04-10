@@ -17,7 +17,6 @@
 #include <signal.h>
 #include <iostream>
 #include <sstream>
-#include <alljoyn/PasswordManager.h>
 #include <alljoyn/notification/NotificationService.h>
 #include <alljoyn/notification/NotificationSender.h>
 #include <alljoyn/notification/NotificationEnums.h>
@@ -86,10 +85,6 @@ bool createService(std::map<qcc::String, qcc::String>& params)
         }
     }
     Service = NotificationService::getInstance();
-//set Daemon passowrd only for bundled app
-#ifdef QCC_USING_BD
-    PasswordManager::SetCredentials("ALLJOYN_PIN_KEYX", "000000");
-#endif
     std::cout << "Service Created" << std::endl;
     return true;
 }

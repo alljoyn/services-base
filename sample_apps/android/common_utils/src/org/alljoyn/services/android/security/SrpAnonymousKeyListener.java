@@ -61,8 +61,7 @@ public class SrpAnonymousKeyListener implements AuthListener
 		}
 		m_passwordHandler = passwordHandler;
 		
-		authMechanisms = new ArrayList<String>(3);
-		authMechanisms.add("ALLJOYN_PIN_KEYX");
+		authMechanisms = new ArrayList<String>(2);
 		authMechanisms.add("ALLJOYN_SRP_KEYX");
 		authMechanisms.add("ALLJOYN_ECDHE_PSK");
 	}

@@ -16,7 +16,6 @@
 
 #import "MainViewController.h"
 #import "AJNStatus.h"
-#import "AJNPasswordManager.h"
 #import "alljoyn/about/AJNAnnouncement.h"
 #import "alljoyn/about/AJNAnnouncementReceiver.h"
 #import "alljoyn/about/AJNAboutDataConverter.h"
@@ -38,7 +37,7 @@ static NSString * const HTTPCONTROL_INTERFACE_NAME = @"org.alljoyn.ControlPanel.
 static NSString * const DEFAULT_REALM_BUS_NAME = @"org.alljoyn.BusNode.ControlPanelClient";
 
 static NSString * const KEYSTORE_FILE_PATH = @"Documents/alljoyn_keystore/s_central.ks";
-static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX ALLJOYN_ECDHE_PSK";
+static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK";
 
 @interface MainViewController ()
 @property NSString *className;

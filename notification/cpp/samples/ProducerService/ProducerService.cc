@@ -18,7 +18,6 @@
 #include <sstream>
 #include <cstdio>
 #include <signal.h>
-#include <alljoyn/PasswordManager.h>
 #include <alljoyn/notification/NotificationService.h>
 #include <alljoyn/notification/NotificationSender.h>
 #include <alljoyn/notification/NotificationEnums.h>
@@ -341,10 +340,6 @@ int main()
 
     // Initialize Service object
     prodService = NotificationService::getInstance();
-//set Daemon passowrd only for bundled app
-#ifdef QCC_USING_BD
-    PasswordManager::SetCredentials("ALLJOYN_PIN_KEYX", "000000");
-#endif
 
     QCC_SetDebugLevel(logModules::NOTIFICATION_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
 
