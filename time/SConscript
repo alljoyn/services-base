@@ -16,6 +16,17 @@ import os
 
 Import('env')
 
+vars = Variables()
+vars.Add(PathVariable('LIBXML2_INCLUDE',
+                      'Directory containing libxml2 include files.',
+                       os.environ.get('LIBXML2_INCLUDE','/usr/include/libxml2')))
+vars.Add(PathVariable('LIBICONV_INCLUDE',
+                      'Directory containing iconv include files.',
+                       os.environ.get('LIBICONV_INCLUDE','/usr/include/')))
+vars.Update(env)
+Help(vars.GenerateHelpText(env))
+
+
 env['_ALLJOYN_TIME_'] = True
 env['OBJDIR_SERVICES_TIME'] = env['OBJDIR'] + '/services/time'
 

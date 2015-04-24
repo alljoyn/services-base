@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <alljoyn/services_common/LogModulesNames.h>
 #include <alljoyn/services_common/GuidUtil.h>
+#include <AJInitializer.h>
 
 #define SERVICE_PORT 900
 
@@ -333,6 +334,12 @@ void CDECL_CALL signal_callback_handler(int32_t signum)
 
 int main()
 {
+    // Initialize AllJoyn
+    AJInitializer ajInit;
+    if (ajInit.Initialize() != ER_OK) {
+        return 1;
+    }
+
     notificationBusListener = new CommonBusListener();
     aboutData = new AboutData("en");
 

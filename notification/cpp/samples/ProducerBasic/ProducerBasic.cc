@@ -27,6 +27,7 @@
 #include <alljoyn/notification/Notification.h>
 #include <alljoyn/services_common/GuidUtil.h>
 #include <alljoyn/services_common/LogModulesNames.h>
+#include <AJInitializer.h>
 
 using namespace qcc;
 using namespace ajn;
@@ -108,6 +109,12 @@ void WaitForSigInt() {
 
 int main()
 {
+    // Initialize AllJoyn
+    AJInitializer ajInit;
+    if (ajInit.Initialize() != ER_OK) {
+        return 1;
+    }
+
     // Allow CTRL+C to end application
     signal(SIGINT, signal_callback_handler);
 

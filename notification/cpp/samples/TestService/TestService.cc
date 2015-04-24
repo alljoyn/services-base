@@ -28,6 +28,7 @@
 #include "TestFunction.h"
 #include <alljoyn/services_common/GuidUtil.h>
 #include <alljoyn/services_common/LogModulesNames.h>
+#include <AJInitializer.h>
 
 #define SERVICE_PORT 900
 
@@ -685,6 +686,12 @@ bool processInput(const qcc::String& input, qcc::String& funcName, std::map<qcc:
 
 int main(int argc, char* argv[])
 {
+    // Initialize AllJoyn
+    AJInitializer ajInit;
+    if (ajInit.Initialize() != ER_OK) {
+        return 1;
+    }
+
     std::cout << "Beginning TestService Application. (Press CTRL+C and Enter to end application)" << std::endl;
 
     TestFunction testFunctions[NUM_OF_FUNCTIONS];

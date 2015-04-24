@@ -24,6 +24,7 @@
 #include <alljoyn/services_common/LogModulesNames.h>
 #include <alljoyn/AboutIconObj.h>
 #include <AboutDataStore.h>
+#include <AJInitializer.h>
 
 #ifdef _CONFIG_
 #include <alljoyn/config/ConfigService.h>
@@ -187,6 +188,11 @@ void readPassword(qcc::String& passCode) {
 }
 
 int main(int argc, char**argv, char**envArg) {
+    // Initialize AllJoyn
+    AJInitializer ajInit;
+    if (ajInit.Initialize() != ER_OK) {
+        return 1;
+    }
 
     QStatus status = ER_OK;
     printf("AllJoyn Library version: %s\n", ajn::GetVersion());

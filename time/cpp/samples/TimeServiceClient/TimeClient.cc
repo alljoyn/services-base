@@ -26,6 +26,7 @@
 #include <CommonSampleUtil.h>
 #include <alljoyn/services_common/LogModulesNames.h>
 #include <alljoyn/services_common/GuidUtil.h>
+#include <AJInitializer.h>
 
 #include "TimeClientAnnouncementHandler.h"
 #include <alljoyn/time/TimeServiceConstants.h>
@@ -562,6 +563,12 @@ void populateActions()
  */
 int main()
 {
+    // Initialize AllJoyn
+    AJInitializer ajInit;
+    if (ajInit.Initialize() != ER_OK) {
+        return 1;
+    }
+
     // Allow CTRL+C to end application
     signal(SIGINT, SigIntHandler);
     std::cout << "Beginning TimeService Client Application. (Press CTRL+C and enter or CTRL+D to end application)" << std::endl;

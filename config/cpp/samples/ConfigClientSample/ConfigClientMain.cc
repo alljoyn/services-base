@@ -30,6 +30,7 @@
 #include <SessionListenerImpl.h>
 #include <iostream>
 #include <iomanip>
+#include <AJInitializer.h>
 
 using namespace ajn;
 
@@ -429,6 +430,12 @@ void WaitForSigInt(void) {
 
 int main(int argc, char**argv, char**envArg)
 {
+    // Initialize AllJoyn
+    AJInitializer ajInit;
+    if (ajInit.Initialize() != ER_OK) {
+        return 1;
+    }
+
     QStatus status = ER_OK;
     std::cout << "AllJoyn Library version: " << ajn::GetVersion() << std::endl;
     std::cout << "AllJoyn Library build info: " << ajn::GetBuildInfo() << std::endl;

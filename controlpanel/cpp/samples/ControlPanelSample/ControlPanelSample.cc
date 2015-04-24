@@ -25,6 +25,7 @@
 #include <ControlPanelGenerated.h>
 #include <alljoyn/services_common/LogModulesNames.h>
 #include <alljoyn/services_common/GuidUtil.h>
+#include <AJInitializer.h>
 
 #define SERVICE_PORT 900
 
@@ -102,6 +103,12 @@ void WaitForSigInt(void) {
 
 int main()
 {
+    // Initialize AllJoyn
+    AJInitializer ajInit;
+    if (ajInit.Initialize() != ER_OK) {
+        return 1;
+    }
+
     QStatus status;
 
     // Allow CTRL+C to end application

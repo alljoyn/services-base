@@ -22,6 +22,7 @@
 #include "../common/NotificationReceiverTestImpl.h"
 #include "CommonSampleUtil.h"
 #include <alljoyn/services_common/LogModulesNames.h>
+#include <AJInitializer.h>
 
 using namespace ajn;
 using namespace services;
@@ -71,6 +72,12 @@ void WaitForSigInt() {
 
 int main()
 {
+    // Initialize AllJoyn
+    AJInitializer ajInit;
+    if (ajInit.Initialize() != ER_OK) {
+        return 1;
+    }
+
     std::string listOfApps;
 
     // Allow CTRL+C to end application
