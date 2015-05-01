@@ -17,7 +17,6 @@
 #include <iostream>
 #include <sstream>
 #include <signal.h>
-#include <alljoyn/PasswordManager.h>
 #include <alljoyn/notification/NotificationService.h>
 #include "../common/NotificationReceiverTestImpl.h"
 #include "CommonSampleUtil.h"
@@ -90,10 +89,6 @@ int main()
 
     // Initialize Service object and send it Notification Receiver object
     conService = NotificationService::getInstance();
-//set Daemon passowrd only for bundled app
-#ifdef QCC_USING_BD
-    PasswordManager::SetCredentials("ALLJOYN_PIN_KEYX", "000000");
-#endif
 
     // change loglevel to debug:
     QCC_SetLogLevels("ALLJOYN_ABOUT_CLIENT=7");

@@ -19,7 +19,6 @@
 #import "alljoyn/about/AJNAboutDataConverter.h"
 #import "alljoyn/about/AJNAnnouncement.h"
 #import "alljoyn/about/AJNAnnouncementReceiver.h"
-#import "AJNPasswordManager.h"
 #import "alljoyn/services_common/AJSVCGenericLoggerDefaultImpl.h"
 #import "alljoyn/config/AJCFGConfigClient.h"
 #import "alljoyn/config/AJCFGConfigLogger.h"
@@ -38,7 +37,7 @@ static NSString *const DEFAULT_REALM_BUS_NAME = @"org.alljoyn.BusNode.configClie
 
 static NSString *const DEFAULT_PASSCODE = @"000000";
 static NSString *const KEYSTORE_FILE_PATH = @"Documents/alljoyn_keystore/s_central.ks";
-static NSString *const  AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX ALLJOYN_ECDHE_PSK";
+static NSString *const  AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK";
 
 @interface ViewController ()
 
@@ -670,7 +669,7 @@ static NSString *const  AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX ALL
     
 	[self.logger debugTag:[[self class] description] text:[NSString stringWithFormat:@"requestSecurityCredentialsWithAuthenticationMechanism:%@ forRemotePeer%@ userName:%@", authenticationMechanism, peerName, userName]];
     
-	if ([authenticationMechanism isEqualToString:@"ALLJOYN_SRP_KEYX"] || [authenticationMechanism isEqualToString:@"ALLJOYN_PIN_KEYX"] || [authenticationMechanism isEqualToString:@"ALLJOYN_ECDHE_PSK"]) {
+	if ([authenticationMechanism isEqualToString:@"ALLJOYN_SRP_KEYX"] || [authenticationMechanism isEqualToString:@"ALLJOYN_ECDHE_PSK"]) {
 		if (mask & kAJNSecurityCredentialTypePassword) {
 			if (authenticationCount <= 3) {
 				creds = [[AJNSecurityCredentials alloc] init];

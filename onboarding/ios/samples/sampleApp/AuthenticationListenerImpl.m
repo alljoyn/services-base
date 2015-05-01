@@ -106,7 +106,7 @@ static NSString * const DEFAULT_PASSCODE = @"000000";
     
     NSLog(@"requestSecurityCredentialsWithAuthenticationMechanism:%@ forRemotePeer%@ userName:%@", authenticationMechanism, peerName, userName);
     
-	if ([authenticationMechanism isEqualToString:@"ALLJOYN_SRP_KEYX"] || [authenticationMechanism isEqualToString:@"ALLJOYN_PIN_KEYX"] || [authenticationMechanism isEqualToString:@"ALLJOYN_ECDHE_PSK"]) {
+	if ([authenticationMechanism isEqualToString:@"ALLJOYN_SRP_KEYX"] || [authenticationMechanism isEqualToString:@"ALLJOYN_ECDHE_PSK"]) {
 		if (mask & kAJNSecurityCredentialTypePassword) {
 			if (authenticationCount <= 3) {
 				creds = [[AJNSecurityCredentials alloc] init];

@@ -116,9 +116,6 @@ int main()
     std::cout << "Beginning ControlPanel Application. (Press CTRL+C to end application)" << std::endl;
 
     // Initialize Service objects
-#ifdef QCC_USING_BD
-    PasswordManager::SetCredentials("ALLJOYN_PIN_KEYX", "000000");
-#endif
 
 start:
     controlPanelService = ControlPanelService::getInstance();

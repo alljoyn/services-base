@@ -45,7 +45,7 @@ public class ControlPanelApplication extends Application implements AuthPassword
      */
     private static final String DAEMON_QUIET_PREFIX = "quiet@";
 
-    private static final String[] authMechanisms = new String[] { "ALLJOYN_SRP_KEYX", "ALLJOYN_PIN_KEYX", "ALLJOYN_ECDHE_PSK" };
+    private static final String[] authMechanisms = new String[] { "ALLJOYN_SRP_KEYX", "ALLJOYN_ECDHE_PSK" };
 
     static {
         System.loadLibrary("alljoyn_java");

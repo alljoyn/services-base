@@ -127,9 +127,6 @@ int main()
     std::cout << "Beginning ControlPanel Application. (Press CTRL+C to end application)" << std::endl;
 
     // Initialize Service objects
-#ifdef QCC_USING_BD
-    PasswordManager::SetCredentials("ALLJOYN_PIN_KEYX", "000000");
-#endif
 
     controlPanelService = ControlPanelService::getInstance();
     QCC_SetDebugLevel(logModules::CONTROLPANEL_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);

@@ -450,11 +450,6 @@ int main(int argc, char**argv, char**envArg)
     /* Install SIGINT handler so Ctrl + C deallocates memory properly */
     signal(SIGINT, SigIntHandler);
 
-    //set Daemon password only for bundled app
-#ifdef QCC_USING_BD
-    PasswordManager::SetCredentials("ALLJOYN_PIN_KEYX", "000000");
-#endif
-
     busAttachment = new BusAttachment("ConfigClient", true);
 
     status = busAttachment->Start();
@@ -476,10 +471,15 @@ int main(int argc, char**argv, char**envArg)
     srpKeyXListener = new SrpKeyXListener();
     srpKeyXListener->setPassCode(INITIAL_PASSCODE);
 
-    status = busAttachment->EnablePeerSecurity("ALLJOYN_SRP_KEYX ALLJOYN_PIN_KEYX ALLJOYN_ECDHE_PSK", srpKeyXListener,
+    status = busAttachment->EnablePeerSecurity("ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK", srpKeyXListener,
                                                "/.alljoyn_keystore/central.ks", true);
 
-
+    if (ER_OK == status) {
+        std::cout << "EnablePeerSecurity called." << std::endl;
+    } else {
+        std::cout << "ERROR - EnablePeerSecurity call FAILED with status " << QCC_StatusText(status) << std::endl;
+        return 1;
+    }
     const char* interfaces[] = { "org.alljoyn.Config" };
     MyAboutListener* aboutListener = new MyAboutListener();
     busAttachment->RegisterAboutListener(*aboutListener);
