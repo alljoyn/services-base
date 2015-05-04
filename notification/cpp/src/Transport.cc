@@ -140,6 +140,17 @@ QStatus Transport::deleteLastMsg(NotificationMessageType messageType)
     return m_Producers[messageType]->deleteLastMsg(messageType);
 }
 
+QStatus Transport::getLastMsgId(NotificationMessageType messageType, int32_t* messageId)
+{
+    if (m_Producers[messageType] == 0) {
+        QCC_LogError(ER_BUS_OBJECT_NOT_REGISTERED, ("Sender is not initialized"));
+        return ER_BUS_OBJECT_NOT_REGISTERED;
+    }
+
+    return m_Producers[messageType]->getLastMsgId(messageType, messageId);
+}
+
+
 QStatus Transport::deleteMsg(int32_t msgId)
 {
     QCC_DbgTrace(("Transport::deleteMsg() msgId=%d", msgId));

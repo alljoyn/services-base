@@ -95,3 +95,16 @@ QStatus NotificationSender::deleteLastMsg(NotificationMessageType messageType)
     return transport->deleteLastMsg(messageType);
 }
 
+QStatus NotificationSender::getLastMsgId(NotificationMessageType messageType, int32_t* messageId)
+{
+    QCC_DbgTrace(("Get Last Message Id called"));
+
+    if (messageType < 0 || messageType >= MESSAGE_TYPE_CNT) {
+        QCC_LogError(ER_BAD_ARG_1, ("MessageType sent is not a valid MessageType"));
+        return ER_BAD_ARG_1;
+    }
+
+    Transport* transport = Transport::getInstance();
+    return transport->getLastMsgId(messageType, messageId);
+}
+

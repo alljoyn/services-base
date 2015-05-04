@@ -128,6 +128,15 @@ class Transport {
      * @return status
      */
     QStatus deleteMsg(int32_t msgId);
+
+    /**
+     * Get the notification id of the last message that was sent with given MessageType
+     * @param messageType
+     * @param messageId
+     * @return status
+     */
+    QStatus getLastMsgId(NotificationMessageType messageType, int32_t* messageId);
+
     /**
      * Pass on the notification received to the NotificationReceiver
      * @param notification
