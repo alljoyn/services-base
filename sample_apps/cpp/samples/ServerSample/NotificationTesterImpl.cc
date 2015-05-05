@@ -14,6 +14,10 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+#if defined (QCC_OS_GROUP_WINDOWS)
+#define _CRT_RAND_S
+#endif
+
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,9 +25,6 @@
 #include <alljoyn/notification/NotificationText.h>
 #include <alljoyn/notification/RichAudioUrl.h>
 #include <alljoyn/Status.h>
-#include <iostream>
-#include <algorithm>
-#include <sstream>
 #include "NotificationTesterImpl.h"
 
 using namespace ajn;
@@ -31,8 +32,6 @@ using namespace services;
 using namespace qcc;
 
 #include <qcc/Debug.h>
-#include <qcc/time.h>
-#include <qcc/Util.h>
 
 static char const* const QCC_MODULE = "ServerSample";
 
@@ -175,11 +174,64 @@ bool NotificationTesterImpl::Initialize(ajn::BusAttachment* bus, AboutDataStore*
     return true;
 }
 
+// Generate a "good enough" random number for testing purposes. We want the
+// distribution to be random and the likelihood of collisions to be very low.
+// We can't use rand() as it is being seeded elsewhere based on the current
+// time in seconds and since we're potentially running many instances on
+// devices with closely synchronized clocks, we could end up with multiple
+// devices generating the same random number sequences. On windows, we'll use
+// rand_s() and on Linux we'll use /dev/urandom.
+uint32_t GetRandomNumber() {
+    uint32_t randomNumber;
+#if defined (QCC_OS_GROUP_WINDOWS)
+    errno_t err = rand_s(&randomNumber);
+    if (err != 0) {
+        QCC_LogError(ER_FAIL, ("rand_s() returned error: %d", err));
+    }
+#endif
+#if defined (QCC_OS_GROUP_POSIX)
+    FILE* f = fopen("/dev/urandom", "r");
+    if (f != NULL) {
+        uint32_t size = fread(&randomNumber, 1, sizeof(uint32_t), f);
+        if (size != sizeof(uint32_t)) {
+            QCC_LogError(ER_FAIL, ("Unable to read enough data from /dev/urandom. Wanted: %d; Got: %d", sizeof(uint32_t), size));
+        }
+        fclose(f);
+    } else {
+        QCC_LogError(ER_FAIL, ("Unable to open /dev/urandom"));
+    }
+#endif
+    return randomNumber;
+}
+
+uint64_t GetTimestamp() {
+    uint64_t timestamp;
+
+#if defined (QCC_OS_GROUP_WINDOWS)
+    static const uint64_t startingOffset = ::GetTickCount64();
+    timestamp = (::GetTickCount64() - startingOffset);
+#endif
+
+#if defined (QCC_OS_GROUP_POSIX)
+    struct timespec ts;
+    static uint64_t startingOffset = 0;
+
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    if (startingOffset == 0) {
+        startingOffset = ts.tv_sec;
+    }
+    timestamp = ((uint64_t)(ts.tv_sec - startingOffset)) * 1000;
+    timestamp += (uint64_t)ts.tv_nsec / 1000000;
+#endif
+
+    return timestamp;
+}
+
 int32_t NotificationTesterImpl::LoopHandler() {
     int32_t sleepTime = 5;
 
     if (notifProdEnabled) {
-        uint64_t currentTimestamp = qcc::GetTimestamp64();
+        uint64_t currentTimestamp = GetTimestamp();
         if ((nextMessageTime == 0) || (currentTimestamp > nextMessageTime)) {
             if (nextMessageTime == 0) {
                 if (notifIntervalOffset > 0) {
@@ -195,7 +247,7 @@ int32_t NotificationTesterImpl::LoopHandler() {
                 // setup for the next interval
                 if (notifRatePriorityType == PRIORITY_RANDOM) {
                     // random priority type
-                    uint32_t randomNum = qcc::Rand32();
+                    uint32_t randomNum = GetRandomNumber();
                     messageType = NotificationMessageType(
                         (randomNum % NotificationMessageType::MESSAGE_TYPE_CNT));
                 } else {
@@ -222,7 +274,7 @@ int32_t NotificationTesterImpl::LoopHandler() {
             }
             if (notifRateType == RATE_RANDOM) {
                 // random rate type
-                uint32_t randomNum = qcc::Rand32();
+                uint32_t randomNum = GetRandomNumber();
                 uint64_t nextMessageInterval = (randomNum % intervalInMsecs);
                 nextMessageTime = currentTimestamp + (nextMessageInterval) + intervalOffset;
                 intervalOffset = intervalInMsecs - nextMessageInterval;
@@ -237,3 +289,4 @@ int32_t NotificationTesterImpl::LoopHandler() {
     }
     return sleepTime;
 }
+

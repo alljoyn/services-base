@@ -56,9 +56,6 @@ if build_notification:
     if not env.has_key('_ALLJOYN_NOTIFICATION_') and os.path.exists('../notification/SConscript'):
         env.SConscript('../notification/SConscript')
 
-if (ARGUMENTS.get('TESTMODE', 0)):
-    env.Append(CPPDEFINES = '_TESTMODE_')
-
 if build_cps:
     env.Append(CPPDEFINES = '_CONTROLPANEL_')
     if not env.has_key('_ALLJOYN_CONTROLPANEL_') and os.path.exists('../controlpanel/SConscript'):

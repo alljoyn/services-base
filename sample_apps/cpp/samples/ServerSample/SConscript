@@ -34,7 +34,7 @@ if '_CONTROLPANEL_' in local_env["CPPDEFINES"] :
     objs.extend(genobjs)
     objs.extend(providedobjs)
     
-if '_TESTMODE_' in local_env["CPPDEFINES"] :
+if '_NOTIFICATION_' in local_env["CPPDEFINES"] :
     notifSrcs = ['NotificationReceiverImpl.cc', 'NotificationTesterImpl.cc']
     notifObjs = local_env.Object(notifSrcs)
     objs.extend(notifObjs)
