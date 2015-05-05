@@ -122,14 +122,16 @@
 	ajn::services::NotificationService::getInstance()->shutdown();
 }
 
-/**
- * Disabling superagent mode. Needs to be called before
+/** @deprecated SuperAgent was deprecated in May 2015 for 15.04
+ * release
+ * Disabling superagent mode. 
+ * Needs to be called before
  * starting receiver
  * @return status
  */
 - (QStatus)disableSuperAgent
 {
-	return (ajn::services::NotificationService::getInstance()->disableSuperAgent());
+	return ER_OK;
 }
 
 #pragma mark *** Logger methods ***

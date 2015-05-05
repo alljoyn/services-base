@@ -84,7 +84,6 @@ static const qcc::String AJ_NOTIFY_PARAMS = AJPARAM_UINT16 + AJPARAM_INT + AJPAR
                                             AJPARAM_ARR_DICT_INT_VAR + AJPARAM_ARR_DICT_STR_STR + AJPARAM_ARR_STRUCT_STR_STR;
 static const qcc::String AJ_NOTIFY_PARAM_NAMES = "version, notificationId, messageType, deviceId, deviceName, appId, appName, attributes, customAttributes, notificationText";
 static const qcc::String AJ_SESSIONLESS_MATCH = "sessionless='t'";
-static const qcc::String AJ_SA_INTERFACE_NAME = "org.alljoyn.Notification.Superagent";
 
 static const qcc::String AJ_NOTIFICATION_PRODUCER_INTERFACE = "org.alljoyn.Notification.Producer";
 static const qcc::String AJ_NOTIFICATION_PRODUCER_PATH = "/notificationProducer";

@@ -27,12 +27,9 @@
 #include "NotificationProducerListener.h"
 #include "NotificationDismisserSender.h"
 #include "NotificationDismisserReceiver.h"
-#include "SuperAgentBusListener.h"
-#include "NotificationAnnounceListener.h"
 #include "NotificationConstants.h"
 #include "NotificationTransportConsumer.h"
 #include "NotificationTransportProducer.h"
-#include "NotificationTransportSuperAgent.h"
 #include <alljoyn/notification/LogModule.h>
 
 using namespace ajn;
@@ -42,9 +39,9 @@ using namespace qcc;
 
 Transport* Transport::s_Instance(NULL);
 
-Transport::Transport() : m_Bus(0), m_Receiver(0), m_Consumer(0), m_SuperAgent(0), m_AnnounceListener(0), m_SuperAgentBusListener(0),
-    m_IsSendingDisabled(false), m_IsReceivingDisabled(false), m_IsSuperAgentDisabled(false),
-    m_IsListeningToSuperAgent(false), m_NotificationProducerSender(0), m_NotificationProducerReceiver(0),
+Transport::Transport() : m_Bus(0), m_Receiver(0), m_Consumer(0),
+    m_IsSendingDisabled(false), m_IsReceivingDisabled(false),
+    m_NotificationProducerSender(0), m_NotificationProducerReceiver(0),
     m_NotificationProducerListener(0), m_NotificationDismisserSender(0), m_NotificationDismisserReceiver(0)
 {
     Notification::m_AsyncTaskQueue.Start();
@@ -81,16 +78,6 @@ QStatus Transport::setBusAttachment(ajn::BusAttachment* bus)
     }
 
     m_Bus = bus;
-    return ER_OK;
-}
-
-QStatus Transport::disableSuperAgent()
-{
-    if (m_Consumer || m_SuperAgent) {
-        return ER_BUS_ALREADY_CONNECTED;         // Receiver already started
-
-    }
-    m_IsSuperAgentDisabled = true;
     return ER_OK;
 }
 
@@ -167,7 +154,7 @@ QStatus Transport::deleteMsg(int32_t msgId)
     return ret;
 }
 
-QStatus Transport::startSenderTransport(BusAttachment* bus, bool startSuperAgent)
+QStatus Transport::startSenderTransport(BusAttachment* bus)
 {
     QCC_DbgTrace(("Transport::startSenderTransport"));
     QStatus status;
@@ -186,21 +173,10 @@ QStatus Transport::startSenderTransport(BusAttachment* bus, bool startSuperAgent
 
         for (int32_t messageTypeIndx = 0; messageTypeIndx < MESSAGE_TYPE_CNT; messageTypeIndx++) {
             status = ER_OK;
-            if (startSuperAgent) {
-                m_Producers[messageTypeIndx] = new NotificationTransportProducer(m_Bus,
-                                                                                 AJ_PRODUCER_SERVICE_PATH_PREFIX + MessageTypeUtil::getMessageTypeString(messageTypeIndx),
-                                                                                 status, AJ_SA_INTERFACE_NAME);
-                if (status != ER_OK) {
-                    goto exit;
-                }
-            } else {
+            
                 m_Producers[messageTypeIndx] = new NotificationTransportProducer(m_Bus,
                                                                                  AJ_PRODUCER_SERVICE_PATH_PREFIX + MessageTypeUtil::getMessageTypeString(messageTypeIndx), status);
-
-                if (status != ER_OK) {
-                    goto exit;
-                }
-            }
+           
 
             if (status != ER_OK) {
                 QCC_LogError(status, ("Could not create BusObject."));
@@ -274,26 +250,6 @@ exit:    //label exit
     return status;
 }
 
-QStatus Transport::listenForAnnouncements()
-{
-    m_AnnounceListener = new NotificationAnnounceListener();
-
-    const char* interfaces[] = { "org.alljoyn.Notification.Superagent" };
-
-    QStatus status;
-
-    m_Bus->RegisterAboutListener(*m_AnnounceListener);
-
-    status = m_Bus->WhoImplements(interfaces, sizeof(interfaces) / sizeof(interfaces[0]));
-    if (ER_OK == status) {
-        QCC_DbgTrace(("WhoImplements called.\n"));
-    } else {
-        QCC_LogError(status, ("WhoImplements call FAILED with status %s\n"));
-    }
-
-    return status;
-}
-
 QStatus Transport::startReceiverTransport(BusAttachment* bus)
 {
     QStatus status = ER_OK;
@@ -304,7 +260,6 @@ QStatus Transport::startReceiverTransport(BusAttachment* bus)
     }
 
     if (m_Consumer == NULL) {
-        cleanupTransportSuperAgentInternal();
         m_Consumer = new NotificationTransportConsumer(m_Bus, AJ_CONSUMER_SERVICE_PATH, status);
         if (status != ER_OK) {
             QCC_LogError(status, ("Could not create Consumer BusObject."));
@@ -385,47 +340,6 @@ QStatus Transport::startReceiverTransport(BusAttachment* bus)
         }
     }
 
-    if (!m_IsSuperAgentDisabled && !m_SuperAgentBusListener) {
-        m_SuperAgentBusListener = new SuperAgentBusListener(m_Bus);
-        m_Bus->RegisterBusListener(*m_SuperAgentBusListener);
-    }
-
-    if (!m_IsSuperAgentDisabled && !m_SuperAgent) {
-        cleanupTransportConsumerInternal();
-        m_SuperAgent = new NotificationTransportSuperAgent(m_Bus, AJ_CONSUMER_SERVICE_PATH, status);
-
-        if (status != ER_OK) {
-            QCC_LogError(status, ("Could not create SuperAgent BusObject."));
-            goto exit;
-        }
-
-        status = m_Bus->RegisterBusObject(*m_SuperAgent);
-        if (status != ER_OK) {
-            QCC_LogError(status, ("Could not register SuperAgent BusObject."));
-            goto exit;
-        }
-
-        String AJ_SUPERAGENT_INTERFACE_MATCH = "type='signal',sessionless='t',interface='" + AJ_SA_INTERFACE_NAME + "'";
-        QCC_DbgPrintf(("SuperAgent Match String is: %s", AJ_SUPERAGENT_INTERFACE_MATCH.c_str()));
-
-        status = m_Bus->AddMatch(AJ_SUPERAGENT_INTERFACE_MATCH.c_str());
-        if (status != ER_OK) {
-            QCC_LogError(status, ("Could not add filter match."));
-            goto exit;
-        }
-    }
-
-    //Handling NotificationDismisserSender - End
-    if (!m_IsSuperAgentDisabled) {
-        status = listenForAnnouncements();
-        if (status != ER_OK) {
-            QCC_LogError(status, ("Could not listen for announcements."));
-            goto exit;
-        } else {
-            QCC_DbgPrintf(("successfully listens announcements."));
-        }
-    }
-
 exit:
     if (status != ER_OK) {
         QCC_LogError(status, ("Not listening to any producers"));
@@ -433,105 +347,6 @@ exit:
     } else {
         QCC_DbgPrintf(("Started Receiver successfully"));
     }
-    return status;
-}
-
-QStatus Transport::FindSuperAgent(const char* busName)
-{
-    m_SuperAgentBusListener->SetBusUniqueName(busName);
-    return m_Bus->FindAdvertisedName(busName);
-}
-
-QStatus Transport::listenToSuperAgent(const char* senderId)
-{
-    QStatus status = ER_OK;
-
-    if (m_IsListeningToSuperAgent == true) {
-        QCC_DbgHLPrintf(("Already listening to super agent %s", senderId));
-        return status;
-    }
-
-    QCC_DbgPrintf(("Got listenToSuperAgent: %s", senderId));
-
-    m_SuperAgent->setIsFirstSuperAgent(false);
-    m_Bus->EnableConcurrentCallbacks();
-
-    String AJ_REMOVE_MATCH = "type='signal',sessionless='t',interface='" + AJ_NOTIFICATION_INTERFACE_NAME + "'";
-    String AJ_SA_REMOVE_MATCH = "type='signal',sessionless='t',interface='" + AJ_SA_INTERFACE_NAME + "'";
-
-    status = m_Bus->RemoveMatch(AJ_REMOVE_MATCH.c_str());
-    if (status != ER_OK) {
-        QCC_LogError(status, ("Could not remove regular match from bus."));
-        goto exit;
-    }
-
-    cleanupTransportConsumer(true);
-    cleanupAnnouncementListener(true);
-
-    { //add mach sender id
-        String AJ_SA_ADD_MATCH = "type='signal',sessionless='t',sender='" + String(senderId) + "'" + ",interface='" + AJ_SA_INTERFACE_NAME + "'";
-        QCC_DbgPrintf(("SuperAgent add match:%s", AJ_SA_ADD_MATCH.c_str()));
-
-        status = m_Bus->AddMatch(AJ_SA_ADD_MATCH.c_str());
-        if (status != ER_OK) {
-            QCC_LogError(status, ("Could not add Super Agent filter match."));
-            goto exit;
-        }
-    }
-
-    status = m_Bus->RemoveMatch(AJ_SA_REMOVE_MATCH.c_str());
-    if (status != ER_OK) {
-        QCC_LogError(status, ("Could not remove super agent match from bus."));
-        goto exit;
-    }
-
-    m_IsListeningToSuperAgent = true;
-
-exit:
-    if (status == ER_OK) {
-        QCC_DbgPrintf(("Added Super Agent successfully"));
-        QCC_DbgPrintf(("NOTE: Starting to run in SuperAgent Mode"));
-    }
-
-    return status;
-}
-
-QStatus Transport::cancelListenToSuperAgent(const char* senderId)
-{
-    QCC_DbgTrace(("Transport::cancelListenToSuperAgent - Start"));
-    QStatus status = ER_OK;
-
-    if (m_IsListeningToSuperAgent == false) {
-        QCC_DbgHLPrintf(("Already not listening to super agent"));
-        return status;
-    }
-
-    m_IsListeningToSuperAgent = false;
-    m_Bus->EnableConcurrentCallbacks();
-
-    //remove match sender
-    String AJ_SA_ADD_MATCH = "type='signal',sessionless='t',sender='" + String(senderId) + "'" + ",interface='" + AJ_SA_INTERFACE_NAME + "'";
-    status = m_Bus->RemoveMatch(AJ_SA_ADD_MATCH.c_str());
-    if (status != ER_OK) {
-        QCC_LogError(status, ("Could not remove super agent match from bus."));
-        return status;
-    }
-    startReceiverTransport(m_Bus);
-
-    String AJ_SUPERAGENT_INTERFACE_MATCH = "type='signal',sessionless='t',interface='" + AJ_SA_INTERFACE_NAME + "'";
-    QCC_DbgPrintf(("SuperAgent Match String is: %s", AJ_SUPERAGENT_INTERFACE_MATCH.c_str()));
-
-    status = m_Bus->AddMatch(AJ_SUPERAGENT_INTERFACE_MATCH.c_str());
-    if (status != ER_OK) {
-        QCC_LogError(status, ("Could not add filter match."));
-        return status;
-    }
-
-    if (m_SuperAgent) {
-        m_SuperAgent->setIsFirstSuperAgent(true);
-    }
-
-    QCC_DbgTrace(("Transport::cancelListenToSuperAgent - End"));
     return status;
 }
 
@@ -648,9 +463,6 @@ void Transport::cleanupReceiverTransport()
     cleanupNotificationDismisserReceiver();
     cleanupNotificationProducerSender();
     cleanupTransportConsumer(true);
-    cleanupTransportSuperAgent(true);
-    cleanupSuperAgentBusListener(true);
-    cleanupAnnouncementListener(true);
     QCC_DbgTrace(("Transport::cleanupReceiverTransport end"));
 }
 
@@ -678,63 +490,6 @@ void Transport::cleanupTransportConsumerInternal(void)
     }
     m_Bus->UnregisterBusObject(*m_Consumer);
     QCC_DbgTrace(("Transport::cleanupTransportConsumerInternal end"));
-}
-
-void Transport::cleanupTransportSuperAgent(bool unregister)
-{
-    QCC_DbgTrace(("Transport::cleanupTransportSuperAgent start"));
-    if (!m_SuperAgent) {
-        return;
-    }
-
-    if (unregister) {
-        m_SuperAgent->unregisterHandler(m_Bus);
-        cleanupTransportSuperAgentInternal();
-    }
-    QCC_DbgTrace(("Transport::cleanupTransportSuperAgent end"));
-}
-
-void Transport::cleanupTransportSuperAgentInternal(void)
-{
-    QCC_DbgTrace(("Transport::cleanupTransportSuperAgentInternal start"));
-    if (!m_SuperAgent) {
-        return;
-    }
-    m_Bus->UnregisterBusObject(*m_SuperAgent);
-    QCC_DbgTrace(("Transport::cleanupTransportSuperAgentInternal end"));
-}
-
-void Transport::cleanupSuperAgentBusListener(bool unregister)
-{
-    QCC_DbgTrace(("Transport::cleanupSuperAgentBusListener start"));
-    if (!m_SuperAgentBusListener) {
-        return;
-    }
-
-    if (unregister) {
-        m_Bus->UnregisterBusListener(*m_SuperAgentBusListener);
-    }
-
-    delete m_SuperAgentBusListener;
-    m_SuperAgentBusListener = 0;
-    QCC_DbgTrace(("Transport::cleanupSuperAgentBusListener end"));
-}
-
-void Transport::cleanupAnnouncementListener(bool unregister)
-{
-    QCC_DbgTrace(("Transport::cleanupAnnouncementListener start"));
-    if (!m_AnnounceListener) {
-        return;
-    }
-
-    if (unregister) {
-        const char* interfaces[] = { "org.alljoyn.Notification.Superagent" };
-        m_Bus->CancelWhoImplements(interfaces, sizeof(interfaces) / sizeof(interfaces[0]));
-        m_Bus->UnregisterAboutListener(*m_AnnounceListener);
-    }
-    delete m_AnnounceListener;
-    m_AnnounceListener = 0;
-    QCC_DbgTrace(("Transport::cleanupAnnouncementListener end"));
 }
 
 void Transport::cleanupNotificationProducerSender()

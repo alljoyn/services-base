@@ -28,13 +28,12 @@ import org.alljoyn.ns.commons.NativePlatformFactoryException;
 import org.alljoyn.ns.transport.Transport;
 import org.alljoyn.ns.transport.TransportNotificationText;
 import org.alljoyn.ns.transport.interfaces.NotificationTransport;
-import org.alljoyn.ns.transport.interfaces.NotificationTransportSuperAgent;
 
 
 /**
  * The class is used to receive AllJoyn notify session-less-signals
  */
-class NotificationTransportConsumer implements NotificationTransport, NotificationTransportSuperAgent {
+class NotificationTransportConsumer implements NotificationTransport {
 	private static final String TAG = "ioe" + NotificationTransportConsumer.class.getSimpleName();
 	
 	/**
@@ -42,11 +41,6 @@ class NotificationTransportConsumer implements NotificationTransport, Notificati
 	 */
 	public static final String FROM_PRODUCER_RECEIVER_PATH    = "/producerReceiver";
 
-	/**
-	 * Identify object that receives signals arrived from superagent
-	 */
-	public static final String FROM_SUPERAGENT_RECEIVER_PATH  = "/superagentReceiver";
-	
 	/**
 	 * The service path identifying the object 
 	 */
@@ -86,13 +80,6 @@ class NotificationTransportConsumer implements NotificationTransport, Notificati
 			try {
 				String sender = busAttachment.getMessageContext().sender;
 				logger.debug(TAG, "Received notification from: '" + sender + "' by '" + servicePath + "' object, notification id: '" + msgId + "', handling");
-				
-				//If super agent still not found and we received signal in the SuperAgent object
-				//then handle such signal appropriately
-				if ( !transport.getIsSuperAgentFound() && FROM_SUPERAGENT_RECEIVER_PATH.equals(servicePath) ) {
-					logger.debug(TAG, "The received message id: '" + msgId + "' is the first we received from a SuperAgent, remove producer handling and handle current received message");
-					transport.onReceivedFirstSuperAgentNotification(sender);
-				}
 				
 				logger.debug(TAG, "Forwarding the received notification id: '" + msgId + "' to PayloadAdapter");
 				PayloadAdapter.receivePayload(version, msgId, sender, messageType, deviceId, deviceName, appId, appName, attributes, customAttributes, text);

@@ -91,11 +91,12 @@ class NotificationService {
     void shutdown();
 
     /**
-     * Disabling superagent mode. Needs to be called before
-     * starting receiver
-     * @return status
+     * @deprecated May 2015 for 15.04 release.
+     * Disabling superagent mode.
+     * Needs to be called before starting receiver
+     * @return ER_OK
      */
-    QStatus disableSuperAgent();
+    QCC_DEPRECATED(QStatus disableSuperAgent() {return ER_OK; });
 
     /**
      * Virtual method to get the busAttachment used in the service.

@@ -237,13 +237,6 @@ void NotificationService::shutdown()
     delete this;
 }
 
-QStatus NotificationService::disableSuperAgent()
-{
-    QCC_DbgTrace(("Disabling SuperAgent"));
-    Transport* transport = Transport::getInstance();
-    return transport->disableSuperAgent();
-}
-
 
 BusAttachment* NotificationService::getBusAttachment()
 {

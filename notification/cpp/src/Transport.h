@@ -32,12 +32,9 @@ class NotificationProducerReceiver;
 class NotificationProducerListener;
 class NotificationDismisserSender;
 class NotificationDismisserReceiver;
-class SuperAgentBusListener;
-class NotificationAnnounceListener;
 class NotificationConstants;
 class NotificationTransportConsumer;
 class NotificationTransportProducer;
-class NotificationTransportSuperAgent;
 /**
  * Class Used for all Transport related tasks including initializing and shutting
  * down the BusObjects of the services and sending and receiving messages
@@ -58,13 +55,6 @@ class Transport {
     static Transport* getInstance();
 
     /**
-     * Disabling superagent mode. Needs to be called before
-     * starting receiver
-     * @return status
-     */
-    QStatus disableSuperAgent();
-
-    /**
      * Sets the internal NotificationReceiver to the one
      * provided in the parameter
      * @param notificationReceiver
@@ -76,10 +66,9 @@ class Transport {
      * Create a BusAttachment if one doesn't exist.
      * Create the NotificationTransportProducers (one per MessageType)
      * @param bus - The busAttachment to be used
-     * @param startSuperAgent - should the superAgent be started. Defaults to false
      * @return status
      */
-    QStatus startSenderTransport(ajn::BusAttachment* bus, bool startSuperAgent = false);
+    QStatus startSenderTransport(ajn::BusAttachment* bus);
 
     /**
      * Start the Receiver Transport:
@@ -89,20 +78,6 @@ class Transport {
      * @return status
      */
     QStatus startReceiverTransport(ajn::BusAttachment* bus);
-
-    /**
-     * Begin listening to found SuperAgent
-     * @param senderId
-     * @return status - success/failure
-     */
-    QStatus listenToSuperAgent(const char* senderId);
-
-    /**
-     * Begin listening to found SuperAgent
-     * @param senderId
-     * @return status - success/failure
-     */
-    QStatus cancelListenToSuperAgent(const char* senderId);
 
     /**
      * Send Notification
@@ -144,18 +119,6 @@ class Transport {
      * @param unregister - should BusObject be Unregistered from Bus
      */
     void cleanupTransportConsumer(bool unregister = false);
-
-    /**
-     * Cleanup the TransportSuperAgent object. Also Unregisteres the BusObject depending on input param
-     * @param unregister - should BusObject be Unregistered from Bus
-     */
-    void cleanupTransportSuperAgent(bool unregister = false);
-
-    /**
-     * Cleanup the SuperAgent bus listener. Also Unregisteres the BusListener depending on input param
-     * @param unregister - should BusListener be Unregistered from Bus
-     */
-    void cleanupSuperAgentBusListener(bool unregister = false);
 
     /**
      * Cleanup all Sender Transport objects. and Unregister the BusObject
@@ -200,11 +163,6 @@ class Transport {
      * get function for NotificationReceiver
      */
     NotificationReceiver* getNotificationReceiver();
-
-    /**
-     * FindSuperAgent
-     */
-    QStatus FindSuperAgent(const char* busName);
 
 
   private:
@@ -262,18 +220,6 @@ class Transport {
      * @param unregister - should BusObject be Unregistered from Bus
      */
     void cleanupTransportConsumerInternal(void);
-    /**
-     * ListenForSuperAgent uses AllJoyn's announcement interface to try and find a SuperAgent
-     * Messages are sessionless
-     * @return status
-     */
-    QStatus listenForAnnouncements();
-
-    /**
-     * Cleanup the TransportSuperAgent object. Also Unregisteres the BusObject depending on input param
-     * @param unregister - should BusObject be Unregistered from Bus
-     */
-    void cleanupTransportSuperAgentInternal(void);
 
     /**
      * Static instance of Transport. Makes Transport a singleton
@@ -302,20 +248,6 @@ class Transport {
     NotificationTransportConsumer* m_Consumer;
 
     /**
-     * The BusObjects for the SuperAgent.
-     */
-    NotificationTransportSuperAgent* m_SuperAgent;
-
-    /**
-     * NotificationAnnounceListener to listen for superAgent announce
-     */
-    NotificationAnnounceListener* m_AnnounceListener;
-
-    /**
-     * SuperAgentBusListener - receive found and lost advertise name
-     */
-    SuperAgentBusListener* m_SuperAgentBusListener;
-    /**
      * Boolean to dictate whether we send notifications or swallow them
      */
     bool m_IsSendingDisabled;
@@ -324,16 +256,6 @@ class Transport {
      * Boolean to dictate whether we receive notifications or swallow them
      */
     bool m_IsReceivingDisabled;
-
-    /**
-     * Boolean to dictate whether Super Agent functionality is enabled or not
-     */
-    bool m_IsSuperAgentDisabled;
-
-    /**
-     * Boolean to indicate whether a Super Agent was found and being listened to
-     */
-    bool m_IsListeningToSuperAgent;
 
     /**
      * NotificationProducerSender

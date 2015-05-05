@@ -145,18 +145,6 @@ public class Transport {
 	}//getAppId
 	
 	/**
-	 * @return Returns TRUE if SuperAgent was found
-	 */
-	public synchronized boolean getIsSuperAgentFound() {
-		if ( receiverTransport == null ) {
-			return false;
-		}
-		return receiverTransport.getIsSuperAgentFound();
-	}//getSuperAgentFound
-	
-	
-	
-	/**
 	 * Starts the service in the Sender mode
 	 * @param propertyStore The reference to the application {@link PropertyStore} object
 	 * @param bus The {@link BusAttachment} to be used by this {@link Transport} object
@@ -335,28 +323,6 @@ public class Transport {
 		receiverTransport.onReceivedNotificationDismiss(msgId, appId);
 	}//onDismissReceived
 
-	/**
-	 * Handle receiving a first Notification from a SuperAgent
-	 */
-	public void onReceivedFirstSuperAgentNotification(String superAgentUniqueName) {
-		
-		GenericLogger logger;
-		try {
-			logger = getLogger();
-		}
-		catch (NotificationServiceException nse) {
-		    System.out.println("Could not get logger in onReceivedFirstSuperAgentNotification error: '" + nse.getMessage() + "'");
-		    return;
-		}
-		
-		if ( !isReceiverTransportCalled ) {
-			logger.error(TAG, "The method 'onReceivedFirstSuperAgentNotification' was called, but the Notification Received is stopped");
-			return;
-		}
-		
-		receiverTransport.onReceivedFirstSuperAgentNotification(superAgentUniqueName);
-	}//onReceivedFirstSuperAgentNotification
-	
 	/**
 	 * Stop Notification Service
 	 * @throws NotificationServiceException

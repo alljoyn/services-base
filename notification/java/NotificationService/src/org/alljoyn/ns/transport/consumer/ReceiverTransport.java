@@ -39,7 +39,6 @@ import org.alljoyn.ns.transport.Transport;
 import org.alljoyn.ns.transport.TransportNotificationText;
 import org.alljoyn.ns.transport.interfaces.NotificationDismisser;
 import org.alljoyn.ns.transport.interfaces.NotificationTransport;
-import org.alljoyn.ns.transport.interfaces.NotificationTransportSuperAgent;
 
 /**
  * The class manages NotificationReceiver transport logic
@@ -61,33 +60,10 @@ public class ReceiverTransport implements AboutListener {
     private static final String NOTIF_TRANS_MATCH_RULE = "type='signal',interface='" + NotificationTransport.IF_NAME + "'," + SESSION_LESS_RULE;
 
     /**
-     * addMatch rule to receive {@link NotificationTransportSuperAgent}
-     * session-less-signals
-     */
-    private static final String SUPER_AGENT_MATCH_RULE = "type='signal',interface='" + NotificationTransportSuperAgent.IF_NAME + "'," + SESSION_LESS_RULE;
-
-    /**
      * addMatch rule to receive {@link NotificationDismisser}
      * session-less-signals
      */
     private static final String DISMISSER_MATCH_RULE = "type='signal',interface='" + NotificationDismisser.IF_NAME + "'," + SESSION_LESS_RULE;
-
-    /**
-     * To receive Announcement signals from a Super Agent
-     */
-    private static final String[] ANNOUNCEMENT_IFACES = new String[] { NotificationTransportSuperAgent.IF_NAME };
-
-    /**
-     * addMatch rule to receive session-less-signals from a specific SuperAgent
-     * identified by the superAgentSenderName
-     */
-    private String superAgentSpecificRule;
-
-    /**
-     * The sender name of the SuperAgent that this consumer is listening to
-     * receive Notification signals
-     */
-    private String superAgentSenderName;
 
     /**
      * The name of the notification signal
@@ -100,20 +76,9 @@ public class ReceiverTransport implements AboutListener {
     private static final String DISMISS_SIGNAL_NAME = "dismiss";
 
     /**
-     * TRUE if we need to look for the SuperAgent
-     */
-    private final boolean isNeedSearchSA = true;
-
-    /**
      * TRUE means stop forwarding notification messages to notificationReceiver
      */
     private final boolean stopReceiving = false;
-
-    /**
-     * TRUE means received message from SuperAgent, possible to stop receiving
-     * message from a regular consumers
-     */
-    private AtomicBoolean isSuperAgentFound;
 
     /**
      * A BusListener object to handle lostAdvertisedName callbacks
@@ -125,12 +90,6 @@ public class ReceiverTransport implements AboutListener {
      * from a regular producers
      */
     private NotificationTransport fromProducerChannel;
-
-    /**
-     * Notification transport super agent Receives and handles session less
-     * signals from Super Agent
-     */
-    private NotificationTransport fromSuperAgentChannel;
 
     /**
      * Receives the Dismiss signals
@@ -152,15 +111,6 @@ public class ReceiverTransport implements AboutListener {
         this.notificationReceiver = receiver;
         this.nativePlatform = nativePlatform;
     }
-
-    /**
-     * Is SuperAgent found
-     * 
-     * @return TRUE if the SuperAgent was found
-     */
-    public boolean getIsSuperAgentFound() {
-        return isSuperAgentFound.get();
-    }// getIsSuperAgentFound
 
     /**
      * Starts the service in the Notification Receiver mode
@@ -194,32 +144,6 @@ public class ReceiverTransport implements AboutListener {
         // Add Match rule to receive dismiss signals
         addMatchRule(DISMISSER_MATCH_RULE);
 
-        isSuperAgentFound = new AtomicBoolean(false);
-
-        if (isNeedSearchSA) {
-            logger.debug(TAG, "Need to search for SuperAgent, register SuperAgent signal receiver and announcement receiver");
-
-            superAgentSenderName = "";
-
-            // Register to receive signals directly from SA
-            fromSuperAgentChannel = new NotificationTransportConsumer(NotificationTransportConsumer.FROM_SUPERAGENT_RECEIVER_PATH);
-            boolean regSAHandler = registerNotificationSignalHandlerChannel(fromSuperAgentChannel, NotificationTransportConsumer.FROM_SUPERAGENT_RECEIVER_PATH, NotificationTransportSuperAgent.IF_NAME);
-
-            if (!regSAHandler) {
-                logger.error(TAG, "Failed to register a SuperAgent signal handler");
-                throw new NotificationServiceException("Failed to register a SuperAgent signal handler");
-            }
-
-            // Register to receive announcements from SA
-            logger.debug(TAG, "Registering AnnouncementReceiver");
-            busAttachment.registerAboutListener(this);
-            busAttachment.whoImplements(ANNOUNCEMENT_IFACES);
-
-            // Add SuperAgent match rule, this allows to receive Notification
-            // signals from all the SuperAgents in proximity
-            addMatchRule(SUPER_AGENT_MATCH_RULE);
-        }// if :: isNeedSearchSA
-
     }// startReceiverTransp
 
     /**
@@ -233,29 +157,6 @@ public class ReceiverTransport implements AboutListener {
         logger.debug(TAG, "Stopping ReceiverTransport");
 
         Method notifConsumerMethod = getNotificationConsumerSignalMethod();
-
-        if (fromSuperAgentChannel != null) {
-
-            logger.debug(TAG, "Searched for a SuperAgent, cleaning up...");
-            logger.debug(TAG, "Unregister SuperAgent signal handler");
-
-            if (notifConsumerMethod != null) {
-                busAttachment.unregisterSignalHandler(fromSuperAgentChannel, notifConsumerMethod);
-            }
-
-            busAttachment.unregisterBusObject(fromSuperAgentChannel);
-
-            if (isSuperAgentFound.get()) {
-                removeMatchRule(superAgentSpecificRule);
-                superAgentSpecificRule = "";
-            } else {
-                removeMatchRule(SUPER_AGENT_MATCH_RULE);
-            }
-
-            fromSuperAgentChannel = null;
-            isSuperAgentFound = null;
-
-        }// if ::SuperAgent
 
         logger.debug(TAG, "Remove the AnnouncementReceiver");
         busAttachment.cancelWhoImplements(ANNOUNCEMENT_IFACES);
@@ -344,154 +245,6 @@ public class ReceiverTransport implements AboutListener {
         }
     }// onReceivedNotificationDismiss
 
-    /**
-     * Called on received an Announcement signal
-     */
-    @Override
-    public void announced(String serviceName, int version, short port, AboutObjectDescription[] objectDescriptions, Map<String, Variant> serviceMetadata) {
-        GenericLogger logger = nativePlatform.getNativeLogger();
-        BusAttachment busAttachment = Transport.getInstance().getBusAttachment();
-
-        // Check if the objects have the interface of a Super Agent
-        boolean foundSuperAgent = false;
-        if (objectDescriptions != null) {
-            for (AboutObjectDescription o : objectDescriptions) {
-                for (String s : o.interfaces) {
-                    if ( s.equals(NotificationTransportSuperAgent.IF_NAME) ) {
-                        foundSuperAgent = true;
-                        break;
-                    }
-                }
-            }
-        }
-        if (!foundSuperAgent) {
-            return;
-        }
-
-        // We found a Super Agent, continue
-        busAttachment.enableConcurrentCallbacks();
-
-        // if SA is already found no need to parse this announcement
-        if (isSuperAgentFound.get()) {
-            return;
-        }
-
-        logger.debug(TAG, "Received announcement signal from SA, call onReceivedFirstSuperAgentNotification");
-        onReceivedFirstSuperAgentNotification(busAttachment.getMessageContext().sender);
-    }// onReceivedAnnouncement
-
-    /**
-     * When first Notification from SuperAgent is received: 1. Unregister
-     * producer signal handler 2. remove existing match rule 3. add match rule
-     * only of this SuperAgent
-     */
-    public synchronized void onReceivedFirstSuperAgentNotification(String superAgentSenderName) {
-
-        GenericLogger logger = nativePlatform.getNativeLogger();
-        BusAttachment busAttachment = Transport.getInstance().getBusAttachment();
-
-        if (isSuperAgentFound.get()) {
-            logger.info(TAG, "The SuperAgent has already been found, returning");
-            return;
-        }
-
-        // Build the AddMatch rule to receive Notification from the specified
-        // SuperAgent
-        superAgentSpecificRule = SUPER_AGENT_MATCH_RULE + ",sender='" + superAgentSenderName + "'";
-        logger.debug(TAG, "Add the Match rule to receive Notifications from the specific SuperAgent, Rule: '" + superAgentSpecificRule + "'");
-        try {
-            addMatchRule(superAgentSpecificRule);
-        } catch (NotificationServiceException nse) {
-            logger.error(TAG, "Failed to add the new Match rule: '" + superAgentSpecificRule + "', not listening to this SuperAgent, Error: '" + nse.getMessage() + "'");
-            return;
-        }
-
-        // Remove the Match rule to receive notifications from ALL the
-        // SuperAgents
-        logger.debug(TAG, "Remove the generic SuperAgent Match rule: '" + SUPER_AGENT_MATCH_RULE + "'");
-        Status status = removeMatchRule(SUPER_AGENT_MATCH_RULE);
-        if (status != Status.OK) {
-            logger.warn(TAG, "Failed to remove the generic SuperAgent Match rule: '" + SUPER_AGENT_MATCH_RULE + "', we may continue receiving Notifications from another SuperAgents");
-        }
-
-        logger.debug(TAG, "Remove the Producer Match rule: '" + NOTIF_TRANS_MATCH_RULE + "'");
-        status = removeMatchRule(NOTIF_TRANS_MATCH_RULE);
-        if (status != Status.OK) {
-            logger.warn(TAG, "Failed to remove Notification Producer Match rule: '" + NOTIF_TRANS_MATCH_RULE + "', we may continue receiving Notifications from Notification Producers");
-        }
-
-        logger.debug(TAG, "Set SuperAgent found as TRUE");
-        isSuperAgentFound.set(true);
-
-        this.superAgentSenderName = superAgentSenderName;
-
-        logger.debug(TAG, "Unregister from Producer signal handler");
-        busAttachment.unregisterSignalHandler(fromProducerChannel, getNotificationConsumerSignalMethod());
-
-        logger.debug(TAG, "Unregister from Producer bus object");
-        busAttachment.unregisterBusObject(fromProducerChannel);
-        fromProducerChannel = null;
-
-        // Start tracking SA's presence
-        if (lostAdvertisedNameBusListener == null) {
-            lostAdvertisedNameBusListener = new BusListener() {
-                @Override
-                public void lostAdvertisedName(String name, short transport, String namePrefix) {
-                    GenericLogger logger = nativePlatform.getNativeLogger();
-                    logger.debug(TAG, "lostAdvertisedName: '" + name + "'");
-                    BusAttachment busAttachment = Transport.getInstance().getBusAttachment();
-                    busAttachment.enableConcurrentCallbacks();
-                    onDeviceLost(name);
-                }
-            };
-        }
-        busAttachment.registerBusListener(lostAdvertisedNameBusListener);
-        busAttachment.findAdvertisedName(this.superAgentSenderName);
-
-    }// onReceivedFirstSuperAgentNotification
-
-    private void onDeviceLost(String senderName) {
-        GenericLogger logger = nativePlatform.getNativeLogger();
-        BusAttachment busAttachment = Transport.getInstance().getBusAttachment();
-
-        logger.debug(TAG, "onDeviceLost: '" + senderName + "'");
-
-        if (!senderName.equals(superAgentSenderName)) {
-            return;
-        }
-
-        logger.debug(TAG, "Received lostAdvertisedName for SuperAgent: '" + superAgentSenderName + "', registering to listen for Producer and SuperAgent notifications");
-
-        // Register signal handler to receive Notifications directly from
-        // consumers
-        try {
-
-            registerReceivingProducerNotifications();
-            addMatchRule(NOTIF_TRANS_MATCH_RULE);
-        } catch (NotificationServiceException nse) {
-            logger.error(TAG, "Failed to register receiving Notifications back directly from Producers, Error: '" + nse.getMessage() + "'");
-            return;
-        }
-
-        // Add the match rule to receive Notifications from all the SuperAgents
-        // in the proximity
-        try {
-            addMatchRule(SUPER_AGENT_MATCH_RULE);
-        } catch (NotificationServiceException nse) {
-            logger.warn(TAG, "Failed to add SuperAgent generic match rule: '" + SUPER_AGENT_MATCH_RULE + "', possibly we will not receive Notifications from a SuperAgent, Error: '" + nse.getMessage()
-                    + "'");
-        }
-
-        logger.debug(TAG, "Removing the specific SuperAgent Match rule: '" + superAgentSpecificRule + "'");
-        removeMatchRule(superAgentSpecificRule);
-
-        busAttachment.unregisterBusListener(lostAdvertisedNameBusListener);
-        lostAdvertisedNameBusListener = null;
-        busAttachment.cancelFindAdvertisedName(this.superAgentSenderName);
-        superAgentSenderName = "";
-        superAgentSpecificRule = "";
-        isSuperAgentFound.set(false);
-    }// onDeviceLost
 
     /**
      * Register receiving {@link Notification} messages directly from

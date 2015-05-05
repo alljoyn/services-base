@@ -14,7 +14,6 @@
 		9AA93A841855C20800378361 /* NotificationService.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9AB9CE0918547B6D004660C5 /* NotificationService.h */; };
 		9AA93A851855C20800378361 /* NotificationText.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9AB9CE0A18547B6D004660C5 /* NotificationText.h */; };
 		9AA93A861855C20800378361 /* RichAudioUrl.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9AB9CE0B18547B6D004660C5 /* RichAudioUrl.h */; };
-		9AB3A6A0189E7B6200F152F7 /* SuperAgentBusListener.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9AB3A69F189E7B6200F152F7 /* SuperAgentBusListener.cc */; };
 		9AB3A6B0189E7B6E00F152F7 /* NotificationProducerSender.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9AB3A6A2189E7B6E00F152F7 /* NotificationProducerSender.cc */; };
 		9AB3A6B1189E7B6E00F152F7 /* NotificationProducerReceiver.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9AB3A6A4189E7B6E00F152F7 /* NotificationProducerReceiver.cc */; };
 		9AB3A6B2189E7B6E00F152F7 /* NotificationProducerListener.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9AB3A6A6189E7B6E00F152F7 /* NotificationProducerListener.cc */; };
@@ -26,7 +25,6 @@
 		9AB3A6B8189E7B9900F152F7 /* NotificationAsyncTaskEvents.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9AB3A69D189E7B5600F152F7 /* NotificationAsyncTaskEvents.h */; };
 		9AB9CDD618547B37004660C5 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AB9CDD518547B37004660C5 /* Foundation.framework */; };
 		9AB9CF4E18547B6E004660C5 /* Notification.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9AB9CE2B18547B6D004660C5 /* Notification.cc */; };
-		9AB9CF4F18547B6E004660C5 /* NotificationAnnounceListener.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9AB9CE2C18547B6D004660C5 /* NotificationAnnounceListener.cc */; };
 		9AB9CF5018547B6E004660C5 /* NotificationConstants.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9AB9CE2E18547B6D004660C5 /* NotificationConstants.cc */; };
 		9AB9CF5118547B6E004660C5 /* NotificationEnums.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9AB9CE3018547B6D004660C5 /* NotificationEnums.cc */; };
 		9AB9CF5218547B6E004660C5 /* NotificationReceiver.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9AB9CE3118547B6D004660C5 /* NotificationReceiver.cc */; };
@@ -36,7 +34,6 @@
 		9AB9CF5618547B6E004660C5 /* NotificationTransport.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9AB9CE3518547B6D004660C5 /* NotificationTransport.cc */; };
 		9AB9CF5718547B6E004660C5 /* NotificationTransportConsumer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9AB9CE3718547B6D004660C5 /* NotificationTransportConsumer.cc */; };
 		9AB9CF5818547B6E004660C5 /* NotificationTransportProducer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9AB9CE3918547B6D004660C5 /* NotificationTransportProducer.cc */; };
-		9AB9CF5918547B6E004660C5 /* NotificationTransportSuperAgent.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9AB9CE3B18547B6D004660C5 /* NotificationTransportSuperAgent.cc */; };
 		9AB9CF5A18547B6E004660C5 /* PayloadAdapter.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9AB9CE3D18547B6D004660C5 /* PayloadAdapter.cc */; };
 		9AB9CF5B18547B6E004660C5 /* RichAudioUrl.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9AB9CE3F18547B6D004660C5 /* RichAudioUrl.cc */; };
 		9AB9CF5C18547B6E004660C5 /* Transport.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9AB9CE4118547B6D004660C5 /* Transport.cc */; };
@@ -64,8 +61,6 @@
 
 /* Begin PBXFileReference section */
 		9AB3A69D189E7B5600F152F7 /* NotificationAsyncTaskEvents.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotificationAsyncTaskEvents.h; sourceTree = "<group>"; };
-		9AB3A69E189E7B6200F152F7 /* SuperAgentBusListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SuperAgentBusListener.h; sourceTree = "<group>"; };
-		9AB3A69F189E7B6200F152F7 /* SuperAgentBusListener.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SuperAgentBusListener.cc; sourceTree = "<group>"; };
 		9AB3A6A1189E7B6E00F152F7 /* NotificationProducerSender.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotificationProducerSender.h; sourceTree = "<group>"; };
 		9AB3A6A2189E7B6E00F152F7 /* NotificationProducerSender.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NotificationProducerSender.cc; sourceTree = "<group>"; };
 		9AB3A6A3189E7B6E00F152F7 /* NotificationProducerReceiver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotificationProducerReceiver.h; sourceTree = "<group>"; };
@@ -94,8 +89,6 @@
 		9AB9CE0A18547B6D004660C5 /* NotificationText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotificationText.h; sourceTree = "<group>"; };
 		9AB9CE0B18547B6D004660C5 /* RichAudioUrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RichAudioUrl.h; sourceTree = "<group>"; };
 		9AB9CE2B18547B6D004660C5 /* Notification.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Notification.cc; sourceTree = "<group>"; };
-		9AB9CE2C18547B6D004660C5 /* NotificationAnnounceListener.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NotificationAnnounceListener.cc; sourceTree = "<group>"; };
-		9AB9CE2D18547B6D004660C5 /* NotificationAnnounceListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotificationAnnounceListener.h; sourceTree = "<group>"; };
 		9AB9CE2E18547B6D004660C5 /* NotificationConstants.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NotificationConstants.cc; sourceTree = "<group>"; };
 		9AB9CE2F18547B6D004660C5 /* NotificationConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotificationConstants.h; sourceTree = "<group>"; };
 		9AB9CE3018547B6D004660C5 /* NotificationEnums.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NotificationEnums.cc; sourceTree = "<group>"; };
@@ -109,8 +102,6 @@
 		9AB9CE3818547B6D004660C5 /* NotificationTransportConsumer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotificationTransportConsumer.h; sourceTree = "<group>"; };
 		9AB9CE3918547B6D004660C5 /* NotificationTransportProducer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NotificationTransportProducer.cc; sourceTree = "<group>"; };
 		9AB9CE3A18547B6D004660C5 /* NotificationTransportProducer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotificationTransportProducer.h; sourceTree = "<group>"; };
-		9AB9CE3B18547B6D004660C5 /* NotificationTransportSuperAgent.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NotificationTransportSuperAgent.cc; sourceTree = "<group>"; };
-		9AB9CE3C18547B6D004660C5 /* NotificationTransportSuperAgent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotificationTransportSuperAgent.h; sourceTree = "<group>"; };
 		9AB9CE3D18547B6D004660C5 /* PayloadAdapter.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PayloadAdapter.cc; sourceTree = "<group>"; };
 		9AB9CE3E18547B6D004660C5 /* PayloadAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PayloadAdapter.h; sourceTree = "<group>"; };
 		9AB9CE3F18547B6D004660C5 /* RichAudioUrl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RichAudioUrl.cc; sourceTree = "<group>"; };
@@ -241,11 +232,7 @@
 				9AB3A6AD189E7B6E00F152F7 /* NotificationDismisser.h */,
 				9AB3A6AE189E7B6E00F152F7 /* NotificationDismisser.cc */,
 				9AB3A6AF189E7B6E00F152F7 /* NotificationAsyncTaskEvents.cc */,
-				9AB3A69E189E7B6200F152F7 /* SuperAgentBusListener.h */,
-				9AB3A69F189E7B6200F152F7 /* SuperAgentBusListener.cc */,
 				9AB9CE2B18547B6D004660C5 /* Notification.cc */,
-				9AB9CE2C18547B6D004660C5 /* NotificationAnnounceListener.cc */,
-				9AB9CE2D18547B6D004660C5 /* NotificationAnnounceListener.h */,
 				9AB9CE2E18547B6D004660C5 /* NotificationConstants.cc */,
 				9AB9CE2F18547B6D004660C5 /* NotificationConstants.h */,
 				9AB9CE3018547B6D004660C5 /* NotificationEnums.cc */,
@@ -259,8 +246,6 @@
 				9AB9CE3818547B6D004660C5 /* NotificationTransportConsumer.h */,
 				9AB9CE3918547B6D004660C5 /* NotificationTransportProducer.cc */,
 				9AB9CE3A18547B6D004660C5 /* NotificationTransportProducer.h */,
-				9AB9CE3B18547B6D004660C5 /* NotificationTransportSuperAgent.cc */,
-				9AB9CE3C18547B6D004660C5 /* NotificationTransportSuperAgent.h */,
 				9AB9CE3D18547B6D004660C5 /* PayloadAdapter.cc */,
 				9AB9CE3E18547B6D004660C5 /* PayloadAdapter.h */,
 				9AB9CE3F18547B6D004660C5 /* RichAudioUrl.cc */,
@@ -325,10 +310,8 @@
 				9AB9CF5618547B6E004660C5 /* NotificationTransport.cc in Sources */,
 				9AB3A6B2189E7B6E00F152F7 /* NotificationProducerListener.cc in Sources */,
 				9AB3A6B0189E7B6E00F152F7 /* NotificationProducerSender.cc in Sources */,
-				9AB9CF4F18547B6E004660C5 /* NotificationAnnounceListener.cc in Sources */,
 				9AB9CF5818547B6E004660C5 /* NotificationTransportProducer.cc in Sources */,
 				9AB3A6B1189E7B6E00F152F7 /* NotificationProducerReceiver.cc in Sources */,
-				9AB9CF5918547B6E004660C5 /* NotificationTransportSuperAgent.cc in Sources */,
 				9AB3A6B6189E7B6E00F152F7 /* NotificationDismisser.cc in Sources */,
 				9AB3A6B5189E7B6E00F152F7 /* NotificationDismisserReceiver.cc in Sources */,
 				9AB9CF4E18547B6E004660C5 /* Notification.cc in Sources */,
@@ -337,7 +320,6 @@
 				9AB9CF5018547B6E004660C5 /* NotificationConstants.cc in Sources */,
 				9AB3A6B4189E7B6E00F152F7 /* NotificationDismisserSender.cc in Sources */,
 				9AB9CF5C18547B6E004660C5 /* Transport.cc in Sources */,
-				9AB3A6A0189E7B6200F152F7 /* SuperAgentBusListener.cc in Sources */,
 				9AB3A6B3189E7B6E00F152F7 /* NotificationProducer.cc in Sources */,
 				9AB9CF5418547B6E004660C5 /* NotificationService.cc in Sources */,
 				9AB9CF5518547B6E004660C5 /* NotificationText.cc in Sources */,

@@ -205,16 +205,6 @@ bool setLogger(std::map<qcc::String, qcc::String>& params)
     return true;
 }
 
-bool disableSuperAgent(std::map<qcc::String, qcc::String>& params)
-{
-    if (!Service->disableSuperAgent()) {
-        std::cout << "Could not disable SuperAgent." << std::endl;
-        return false;
-    }
-    std::cout << "SuperAgentMode disabled" << std::endl;
-    return true;
-}
-
 bool initReceive(std::map<qcc::String, qcc::String>& params)
 {
     Receiver = new NotificationReceiverTestImpl();
@@ -476,14 +466,7 @@ void createListOfFunctions(TestFunction*testFunctions)
 
     i++;
     checkNumFunctions(&i);
-    // disableSuperAgent
-    testFunctions[i].functionName  = "disablesuperagent";
-    testFunctions[i].usage = testFunctions[i].functionName;
-    testFunctions[i].activateTest = disableSuperAgent;
-    testFunctions[i].requiredSteps.push_back("Service");
 
-    i++;
-    checkNumFunctions(&i);
     // clearParams
     testFunctions[i].functionName  = "clearparams";
     testFunctions[i].usage = testFunctions[i].functionName;
