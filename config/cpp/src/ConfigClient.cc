@@ -211,8 +211,11 @@ QStatus ConfigClient::UpdateConfigurations(const char* busName, const char* lang
         int i = 0;
         for (std::map<qcc::String, ajn::MsgArg>::const_iterator it = configs.begin(); it != configs.end(); ++it) {
             MsgArg* arg = new MsgArg(it->second);
-            arg->SetOwnershipFlags(MsgArg::OwnsArgs, true);
-            CHECK_BREAK(tempconfigMapDictEntries[i].Set("{sv}", it->first.c_str(), arg))
+            if ((status = tempconfigMapDictEntries[i].Set("{sv}", it->first.c_str(), arg)) != ER_OK) {
+                delete arg;
+                break;
+            }
+            tempconfigMapDictEntries[i].SetOwnershipFlags(MsgArg::OwnsArgs, true);
             i++;
         }
         if (status != ER_OK) {

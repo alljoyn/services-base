@@ -118,9 +118,9 @@ void printAllAboutData(AboutProxy& aboutProxy)
                     std::cout << "Calling GetAboutData: language=" << langs[i] << std::endl;
                     status = aboutProxy.GetAboutData(langs[i], aArg);
                     if (ER_OK == status) {
-                        aboutData.CreatefromMsgArg(aArg, langs[i]);
+                        AboutData localized(aArg, langs[i]);
                         std::cout <<  "GetAboutData: (" << langs[i] << ")" << std::endl;
-                        printAboutData(aboutData, langs[i]);
+                        printAboutData(localized, langs[i]);
                     } else {
                         std::cout <<  "GetAboutData failed " << QCC_StatusText(status)  << std::endl;
                     }
