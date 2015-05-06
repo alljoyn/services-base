@@ -425,6 +425,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
 				CLANG_CXX_LIBRARY = "compiler-default";
 				CLANG_ENABLE_MODULES = YES;
@@ -439,12 +440,16 @@
 				HEADER_SEARCH_PATHS = (
 					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/notification/cpp/inc\"",
 					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/\"",
+					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/\"",
 					"$(inherited)",
 					"\"$(ALLJOYN_SDK_ROOT)/services/about/cpp/inc\"",
 					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/services_common/cpp/inc\"",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
-				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/../../../../../build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib\"";
+				LIBRARY_SEARCH_PATHS = (
+					"\"$(SRCROOT)/../../../../../build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib\"",
+					"\"$(SRCROOT)/../../../../../build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib\"",
+				);
 				OTHER_CFLAGS = (
 					"-DQCC_OS_GROUP_POSIX",
 					"-DQCC_OS_DARWIN",
@@ -460,6 +465,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
 				CLANG_CXX_LIBRARY = "compiler-default";
 				CLANG_ENABLE_MODULES = YES;
@@ -475,11 +481,15 @@
 					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/services_common/cpp/inc\"",
 					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/notification/cpp/inc\"",
 					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/\"",
+					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/\"",
 					"$(inherited)",
 					"\"$(ALLJOYN_SDK_ROOT)/services/about/cpp/inc\"",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
-				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/../../../../../build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib\"";
+				LIBRARY_SEARCH_PATHS = (
+					"\"$(SRCROOT)/../../../../../build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib\"",
+					"\"$(SRCROOT)/../../../../../build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib\"",
+				);
 				OTHER_CFLAGS = (
 					"-DQCC_OS_GROUP_POSIX",
 					"-DQCC_OS_DARWIN",

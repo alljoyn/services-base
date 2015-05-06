@@ -624,6 +624,7 @@
 				GCC_PREFIX_HEADER = "alljoyn_services_objc/alljoyn_controlpanel_objc-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/\"",
+					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/\"",
 					"$(inherited)",
 					"\"$(ALLJOYN_SDK_ROOT)/services/about/cpp/inc\"",
 					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/controlpanel/cpp/inc\"",
@@ -642,7 +643,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = alljoyn_controlpanel_objc;
 				SKIP_INSTALL = YES;
-				VALID_ARCHS = "armv7 armv7s i386";
+				VALID_ARCHS = "arm64 armv7 armv7s i386";
 			};
 			name = Debug;
 		};
@@ -658,6 +659,7 @@
 				GCC_PREFIX_HEADER = "alljoyn_services_objc/alljoyn_controlpanel_objc-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
 					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/\"",
+					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/\"",
 					"$(inherited)",
 					"\"$(ALLJOYN_SDK_ROOT)/services/about/cpp/inc\"",
 					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/controlpanel/cpp/inc\"",
@@ -676,7 +678,7 @@
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = alljoyn_controlpanel_objc;
 				SKIP_INSTALL = YES;
-				VALID_ARCHS = "armv7 armv7s i386";
+				VALID_ARCHS = "arm64 armv7 armv7s i386";
 			};
 			name = Release;
 		};
@@ -695,8 +697,10 @@
 					"$(inherited)",
 				);
 				HEADER_SEARCH_PATHS = (
-					"\"$(SRCROOT)/../../../../../alljoyn_core/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
-					"\"$(SRCROOT)/../../../../../alljoyn_core/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"/**",
+					"\"$(SRCROOT)/../../../../../build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
+					"\"$(SRCROOT)/../../../../../build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"/**",
+					"\"$(SRCROOT)/../../../../../build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
+					"\"$(SRCROOT)/../../../../../build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"/**",
 					"\"$(ALLSEEN_BASE_SERVICES_ROOT)\"/**",
 					"\"$(SRCROOT)/../../../../../common/inc\"",
 					"\"$(SRCROOT)/../../../../../alljoyn_objc/AllJoynFramework/AllJoynFramework\"",
@@ -720,8 +724,10 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "alljoyn_services_objc/alljoyn_services_objc-Prefix.pch";
 				HEADER_SEARCH_PATHS = (
-					"\"$(SRCROOT)/../../../../../alljoyn_core/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
-					"\"$(SRCROOT)/../../../../../alljoyn_core/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"/**",
+					"\"$(SRCROOT)/../../../../../build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
+					"\"$(SRCROOT)/../../../../../build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"/**",
+					"\"$(SRCROOT)/../../../../../build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
+					"\"$(SRCROOT)/../../../../../build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"/**",
 					"\"$(ALLSEEN_BASE_SERVICES_ROOT)\"/**",
 					"\"$(SRCROOT)/../../../../../common/inc\"",
 					"\"$(SRCROOT)/../../../../../alljoyn_objc/AllJoynFramework/AllJoynFramework\"",

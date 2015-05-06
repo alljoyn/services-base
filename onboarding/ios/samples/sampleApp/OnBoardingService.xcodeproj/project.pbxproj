@@ -368,6 +368,8 @@
 				HEADER_SEARCH_PATHS = (
 					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
 					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"",
+					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"",
 					"\"$(ALLJOYN_SDK_ROOT)/common/inc\"",
 					"\"$(ALLJOYN_SDK_ROOT)/alljoyn_objc/AllJoynFramework/AllJoynFramework/\"",
 					"\"$(ALLJOYN_SDK_ROOT)/services/about/ios/inc\"",
@@ -382,8 +384,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(OPENSSL_ROOT)/build/$(CONFIGURATION)-$(PLATFORM_NAME)",
-					"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib",
+					"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib",
 					"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/about/lib",
+					"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib",
+					"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/about/lib",
 					"\"$(SRCROOT)/../alljoyn_services_cpp/build/$(CONFIGURATION)-$(PLATFORM_NAME)\"",
 					"\"$(SRCROOT)/../alljoyn_services_objc/build/$(CONFIGURATION)-$(PLATFORM_NAME)\"",
 					"\"$(SRCROOT)/../../../../services_common/ios/samples/alljoyn_services_cpp/build/$(CONFIGURATION)-$(PLATFORM_NAME)\"",
@@ -410,7 +414,7 @@
 				PRODUCT_NAME = OnBoardingService;
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = 1;
-				VALID_ARCHS = "armv7 i386";
+				VALID_ARCHS = "armv7 i386 arm64";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -433,6 +437,8 @@
 				HEADER_SEARCH_PATHS = (
 					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
 					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"",
+					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"",
 					"\"$(ALLJOYN_SDK_ROOT)/common/inc\"",
 					"\"$(ALLJOYN_SDK_ROOT)/alljoyn_objc/AllJoynFramework/AllJoynFramework/\"",
 					"\"$(ALLJOYN_SDK_ROOT)/services/about/ios/inc\"",
@@ -447,8 +453,10 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(OPENSSL_ROOT)/build/$(CONFIGURATION)-$(PLATFORM_NAME)",
-					"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib",
+					"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib",
 					"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/about/lib",
+					"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/lib",
+					"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/about/lib",
 					"\"$(SRCROOT)/../alljoyn_services_cpp/build/$(CONFIGURATION)-$(PLATFORM_NAME)\"",
 					"\"$(SRCROOT)/../alljoyn_services_objc/build/$(CONFIGURATION)-$(PLATFORM_NAME)\"",
 					"\"$(SRCROOT)/../../../../services_common/ios/samples/alljoyn_services_cpp/build/$(CONFIGURATION)-$(PLATFORM_NAME)\"",
@@ -476,7 +484,7 @@
 				PRODUCT_NAME = OnBoardingService;
 				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = 1;
-				VALID_ARCHS = "armv7 i386";
+				VALID_ARCHS = "armv7 i386 arm64";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
