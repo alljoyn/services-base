@@ -70,6 +70,13 @@ class NotificationSender {
      */
     QStatus deleteLastMsg(NotificationMessageType messageType);
 
+    /**
+     * Get the notification id of the last message sent with the given MessageType
+     * @param messageType type of message
+     * @param messageId pointer to hold the notification id of the last message
+     * @return success/failure
+     */
+    QStatus getLastMsgId(NotificationMessageType messageType, int32_t* messageId);
 
   private:
 

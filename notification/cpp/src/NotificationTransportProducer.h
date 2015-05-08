@@ -73,6 +73,15 @@ class NotificationTransportProducer : public NotificationTransport {
      */
     QStatus deleteMsg(int32_t msgId);
 
+    /**
+     * get the notification id of the last message sent with the given MessageType
+     * @param messageType type of message
+     * @param messageId pointer to hold the notification id of the last message
+     * @return status
+     */
+    QStatus getLastMsgId(NotificationMessageType messageType, int32_t* messageId);
+
+
   private:
 
     /**

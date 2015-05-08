@@ -262,7 +262,9 @@ int32_t NotificationTesterImpl::LoopHandler() {
                 if (status != ER_OK) {
                     QCC_LogError(status, ("Could not send the message successfully."));
                 } else {
-                    QCC_DbgHLPrintf(("Sent Message with Type: %d; TTL: %d sec", messageType, notifTTL));
+                    int32_t messageId;
+                    sender->getLastMsgId(messageType, &messageId);
+                    QCC_DbgHLPrintf(("Sent Message with Type: %d; TTL: %d sec and id: %d", messageType, notifTTL, messageId));
                 }
             }
 

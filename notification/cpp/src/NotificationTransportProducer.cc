@@ -81,6 +81,20 @@ QStatus NotificationTransportProducer::deleteLastMsg(NotificationMessageType mes
     return status;
 }
 
+QStatus NotificationTransportProducer::getLastMsgId(NotificationMessageType messageType, int32_t* messageId)
+{
+    QCC_DbgTrace(("NotificationTransportProducer::getLastMsgId()"));
+
+    if (m_SerialNumber == 0) {
+        QCC_LogError(ER_BUS_INVALID_HEADER_SERIAL, ("No message on this object."));
+        return ER_BUS_INVALID_HEADER_SERIAL;
+    }
+
+    *messageId = m_MsgId;
+    return ER_OK;
+}
+
+
 QStatus NotificationTransportProducer::deleteMsg(int32_t msgId)
 {
     QCC_DbgTrace(("NotificationTransportProducer::deleteMsg()"));
