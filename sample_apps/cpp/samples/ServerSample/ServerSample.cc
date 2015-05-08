@@ -36,9 +36,6 @@
 #include <alljoyn/notification/NotificationService.h>
 #include <alljoyn/notification/NotificationText.h>
 #include <alljoyn/notification/Notification.h>
-#endif
-
-#if defined (_TESTMODE_) && defined (_NOTIFICATION_)
 #include "NotificationTesterImpl.h"
 #endif
 
@@ -80,9 +77,8 @@ static ConfigServiceListenerImpl* configServiceListenerImpl = NULL;
 #ifdef _NOTIFICATION_
 NotificationService* prodService = NULL;
 NotificationSender* sender = NULL;
-#ifdef _TESTMODE_
-NotificationTesterImpl* notifTester = new NotificationTesterImpl();
-#endif
+NotificationTesterImpl* notifTester = NULL;
+bool interactiveMode = true;
 #endif
 
 #ifdef _CONTROLPANEL_
@@ -152,14 +148,10 @@ static void cleanup() {
 #endif
 
 #ifdef _NOTIFICATION_
-
-#ifdef _TESTMODE_
     if (notifTester) {
         delete notifTester;
         notifTester = NULL;
     }
-#endif
-
     if (prodService) {
         prodService->shutdown();
         prodService = NULL;
@@ -460,25 +452,33 @@ start:
 #ifdef _NOTIFICATION_
     QCC_SetDebugLevel(logModules::NOTIFICATION_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
 
-#ifdef _TESTMODE_
-    if (!notifTester->Initialize(msgBus, aboutDataStore)) {
-        std::cout << "Could not initialize NotificationTester - exiting application" << std::endl;
-        cleanup();
-        return 1;
+    const char* value = getenv("AJNS_INTERACTIVE_MODE");
+    if (value != NULL) {
+        interactiveMode = (0 == strcmp(value, "true"));
+        std::cout << "Read AJNS_INTERACTIVE_MODE from environment: " << (interactiveMode ? "true" : "false") << std::endl;
     }
-#else
-    // Initialize Service object and Sender Object
-    prodService = NotificationService::getInstance();
-    QCC_SetDebugLevel(logModules::NOTIFICATION_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
-    sender = prodService->initSend(msgBus, aboutDataStore);
 
-    if (!sender) {
-        std::cout << "Could not initialize Sender - exiting application" << std::endl;
-        cleanup();
-        return 1;
+    if (interactiveMode) {
+        // Initialize Service object and Sender Object
+        prodService = NotificationService::getInstance();
+        QCC_SetDebugLevel(logModules::NOTIFICATION_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
+        sender = prodService->initSend(msgBus, aboutDataStore);
+
+        if (!sender) {
+            std::cout << "Could not initialize Sender - exiting application" << std::endl;
+            cleanup();
+            return 1;
+        }
+    } else {
+        // we're not running interactively
+        // use the NotificationTesterImpl to generate/receive notifications
+        notifTester = new NotificationTesterImpl();
+        if (!notifTester->Initialize(msgBus, aboutDataStore)) {
+            std::cout << "Could not initialize NotificationTester - exiting application" << std::endl;
+            cleanup();
+            return 1;
+        }
     }
-#endif
-
 #endif
 
     status = CommonSampleUtil::aboutServiceAnnounce();
@@ -495,26 +495,27 @@ start:
         int32_t sleepTime = 5;
 
 #ifdef _NOTIFICATION_
+        if (interactiveMode) {
+            std::cout << "Press any key to send a notification" << std::endl;
+            getchar();
 
-#ifdef _TESTMODE_
-        sleepTime = notifTester->LoopHandler();
-#else
-        std::cout << "Press any key to send a notification" << std::endl;
-        getchar();
+            NotificationMessageType messageType = NotificationMessageType(INFO);
+            std::vector<NotificationText> vecMessages;
+            uint16_t ttl;
 
-        NotificationMessageType messageType = NotificationMessageType(INFO);
-        std::vector<NotificationText> vecMessages;
-        uint16_t ttl;
+            FillNotification(messageType, vecMessages, ttl, sleepTime);
+            Notification notification(messageType, vecMessages);
 
-        FillNotification(messageType, vecMessages, ttl, sleepTime);
-        Notification notification(messageType, vecMessages);
-
-        if (sender->send(notification, ttl) != ER_OK) {
-            std::cout << "Could not send the message successfully. Sleeping 5 seconds" << std::endl;
+            if (sender->send(notification, ttl) != ER_OK) {
+                std::cout << "Could not send the message successfully. Sleeping 5 seconds" << std::endl;
+            } else {
+                std::cout << "Notification sent. Sleeping 5 seconds" << std::endl;
+            }
         } else {
-            std::cout << "Notification sent. Sleeping 5 seconds" << std::endl;
+            // let the NotificationTesterImpl check whether it should send a notification
+            // and how long to sleep before we need to check again
+            sleepTime = notifTester->LoopHandler();
         }
-#endif
 #endif
 
         if (WaitForSigInt(sleepTime)) {
