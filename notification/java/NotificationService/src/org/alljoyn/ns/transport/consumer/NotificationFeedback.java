@@ -133,7 +133,7 @@ public class NotificationFeedback extends OnJoinSessionListener {
                 // and the original sender
                 if (version < 2 || origSender == null) {
                     logger.debug(TAG, "The notification sender version: '" + version + "', doesn't support the NotificationProducer interface, notifId: '" + notifId
-                            + "', can't call the Dismiss method, sending the Dismiss signal");
+                            + "'; appId: '" + appId + "', can't call the Dismiss method, sending the Dismiss signal");
                     DismissEmitter.send(notifId, appId);
                     return;
                 }
@@ -155,7 +155,7 @@ public class NotificationFeedback extends OnJoinSessionListener {
 
         BusAttachment bus = transport.getBusAttachment();
         if (bus == null) {
-            logger.error(TAG, "Failed to call Dismiss for notifId: '" + notifId + "', BusAttachment is not defined, returning...");
+            logger.error(TAG, "Failed to call Dismiss for notifId: '" + notifId + "'; appId: '" + appId + "', BusAttachment is not defined, returning...");
             return;
         }
 
@@ -163,23 +163,24 @@ public class NotificationFeedback extends OnJoinSessionListener {
         Status status = establishSession(bus, sid);
 
         if (status != Status.OK) {
-            logger.error(TAG, "Failed to call Dismiss method for notifId: '" + notifId + "', session is not established, Error: '" + status + "', Sending a Dismiss signal");
+            logger.error(TAG, "Failed to call Dismiss method for notifId: '" + notifId + "'; appId: '" + appId + "', session is not established, Error: '" + status + "', Sending a Dismiss signal");
             DismissEmitter.send(notifId, appId);
             return;
         }
 
-        logger.debug(TAG, "Handling Dismiss method call for notifId: '" + notifId + "', session: '" + sid.value + "', SessionJoin status: '" + status + "'");
+        logger.debug(TAG, "Handling Dismiss method call for notifId: '" + notifId + "'; appId: '" + appId + "', session: '" + sid.value + "', SessionJoin status: '" + status + "'");
         NotificationProducer notifProducer = getProxyObject(bus, sid.value);
 
         try {
             notifProducer.dismiss(notifId);
         } catch (ErrorReplyBusException erbe) {
-            logger.error(TAG, "Failed to call Dismiss for notifId: '" + notifId + "', ErrorName: '" + erbe.getErrorName() + "', ErrorMessage: '" + erbe.getErrorMessage() + "', sending Dismiss signal");
+            logger.error(TAG, "Failed to call Dismiss for notifId: '" + notifId + "'; appId: '" + appId + "', ErrorName: '" + erbe.getErrorName() + "', ErrorMessage: '" + erbe.getErrorMessage() + "', sending Dismiss signal");
             DismissEmitter.send(notifId, appId);
         } catch (BusException be) {
-            logger.error(TAG, "Failed to call Dismiss method for notifId: '" + notifId + "', Error: '" + be.getMessage() + "', Sending Dismiss signal");
+            logger.error(TAG, "Failed to call Dismiss method for notifId: '" + notifId + "'; appId: '" + appId + "', Error: '" + be.getMessage() + "', Sending Dismiss signal");
             DismissEmitter.send(notifId, appId);
         } finally {
+            logger.debug(TAG, "Handled Dismiss for notifId: '" + notifId + "'; appId: '" + appId + "'");
             leaveSession(bus, sid.value);
         }
 
