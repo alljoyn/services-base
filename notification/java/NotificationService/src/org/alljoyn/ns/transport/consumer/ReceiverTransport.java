@@ -22,7 +22,6 @@ import java.util.UUID;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.alljoyn.bus.AboutListener;
 import org.alljoyn.bus.AboutObjectDescription;
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.BusListener;
@@ -43,7 +42,7 @@ import org.alljoyn.ns.transport.interfaces.NotificationTransport;
 /**
  * The class manages NotificationReceiver transport logic
  */
-public class ReceiverTransport implements AboutListener {
+public class ReceiverTransport {
     private static final String TAG = "ioe" + ReceiverTransport.class.getSimpleName();
 
     /**
@@ -157,10 +156,6 @@ public class ReceiverTransport implements AboutListener {
         logger.debug(TAG, "Stopping ReceiverTransport");
 
         Method notifConsumerMethod = getNotificationConsumerSignalMethod();
-
-        logger.debug(TAG, "Remove the AnnouncementReceiver");
-        busAttachment.cancelWhoImplements(ANNOUNCEMENT_IFACES);
-        busAttachment.unregisterAboutListener(this);
 
         if (fromProducerChannel != null) {
             logger.debug(TAG, "Unregister Producer signal handler");
