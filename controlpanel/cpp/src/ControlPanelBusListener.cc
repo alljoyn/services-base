@@ -43,6 +43,8 @@ SessionPort ControlPanelBusListener::getSessionPort()
 
 bool ControlPanelBusListener::AcceptSessionJoiner(ajn::SessionPort sessionPort, const char* joiner, const ajn::SessionOpts& opts)
 {
+    QCC_UNUSED(joiner);
+    QCC_UNUSED(opts);
     if (sessionPort != m_SessionPort) {
         return false;
     }
@@ -53,6 +55,8 @@ bool ControlPanelBusListener::AcceptSessionJoiner(ajn::SessionPort sessionPort, 
 
 void ControlPanelBusListener::SessionJoined(SessionPort sessionPort, SessionId sessionId, const char* joiner)
 {
+    QCC_UNUSED(sessionPort);
+    QCC_UNUSED(joiner);
     if (std::find(m_SessionIds.begin(), m_SessionIds.end(), sessionId) != m_SessionIds.end()) {
         return;
     }
@@ -61,6 +65,7 @@ void ControlPanelBusListener::SessionJoined(SessionPort sessionPort, SessionId s
 
 void ControlPanelBusListener::SessionMemberAdded(SessionId sessionId, const char* uniqueName)
 {
+    QCC_UNUSED(uniqueName);
     if (std::find(m_SessionIds.begin(), m_SessionIds.end(), sessionId) != m_SessionIds.end()) {
         return;
     }
@@ -69,6 +74,7 @@ void ControlPanelBusListener::SessionMemberAdded(SessionId sessionId, const char
 
 void ControlPanelBusListener::SessionMemberRemoved(SessionId sessionId, const char* uniqueName)
 {
+    QCC_UNUSED(uniqueName);
     std::vector<SessionId>::iterator it = std::find(m_SessionIds.begin(), m_SessionIds.end(), sessionId);
     if (it != m_SessionIds.end()) {
         m_SessionIds.erase(it);
@@ -77,6 +83,7 @@ void ControlPanelBusListener::SessionMemberRemoved(SessionId sessionId, const ch
 
 void ControlPanelBusListener::SessionLost(SessionId sessionId, SessionLostReason reason)
 {
+    QCC_UNUSED(reason);
     std::vector<SessionId>::iterator it = std::find(m_SessionIds.begin(), m_SessionIds.end(), sessionId);
     if (it != m_SessionIds.end()) {
         m_SessionIds.erase(it);

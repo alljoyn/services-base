@@ -164,6 +164,7 @@ QStatus Dialog::fillMessageArg(MsgArg& val, uint16_t languageIndx)
 
 QStatus Dialog::fillNumActionArg(MsgArg& val, uint16_t languageIndx)
 {
+    QCC_UNUSED(languageIndx);
     if (!m_NumActions) {
         return ER_BUS_PROPERTY_VALUE_NOT_SET;
     }

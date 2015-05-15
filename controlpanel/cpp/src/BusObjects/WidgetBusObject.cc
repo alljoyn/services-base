@@ -91,6 +91,7 @@ QStatus WidgetBusObject::UnregisterSignalHandler(BusAttachment* bus)
 
 QStatus WidgetBusObject::Get(const char* interfaceName, const char* propName, MsgArg& val)
 {
+    QCC_UNUSED(interfaceName);
     QCC_DbgTrace(("Get property was called - in WidgetBusObject class:"));
 
     if (0 == strcmp(AJ_PROPERTY_VERSION.c_str(), propName)) {
@@ -106,11 +107,16 @@ QStatus WidgetBusObject::Get(const char* interfaceName, const char* propName, Ms
 
 QStatus WidgetBusObject::Set(const char* interfaceName, const char* propName, MsgArg& val)
 {
+    QCC_UNUSED(interfaceName);
+    QCC_UNUSED(propName);
+    QCC_UNUSED(val);
     return ER_ALLJOYN_ACCESS_PERMISSION_ERROR;
 }
 
 void WidgetBusObject::PropertyChanged(const InterfaceDescription::Member* member, const char* srcPath, Message& msg)
 {
+    QCC_UNUSED(member);
+    QCC_UNUSED(srcPath);
     if (msg.unwrap()->GetSender() && strcmp(msg.unwrap()->GetSender(), m_Widget->getDevice()->getDeviceBusName().c_str()) != 0) {
         QCC_DbgPrintf(("Received PropertyChanged signal for someone else"));
         return;
@@ -261,11 +267,14 @@ QStatus WidgetBusObject::fillAllProperties(MsgArg const& allPropValues)
 
 QStatus WidgetBusObject::fillProperty(char* key, MsgArg* variant)
 {
+    QCC_UNUSED(key);
+    QCC_UNUSED(variant);
     return ER_BUS_NO_SUCH_PROPERTY;
 }
 
 QStatus WidgetBusObject::Introspect(std::vector<IntrospectionNode>& childNodes)
 {
+    QCC_UNUSED(childNodes);
     return ER_OK;
 }
 

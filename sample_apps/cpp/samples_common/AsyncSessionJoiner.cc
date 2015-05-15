@@ -35,6 +35,7 @@ AsyncSessionJoiner::~AsyncSessionJoiner()
 
 void AsyncSessionJoiner::JoinSessionCB(QStatus status, SessionId id, const SessionOpts& opts, void* context)
 {
+    QCC_UNUSED(opts);
     if (status == ER_OK) {
         std::cout << "JoinSessionCB(" << m_Busname.c_str() << ") succeeded with id" << id << std::endl;
         if (m_Callback) {

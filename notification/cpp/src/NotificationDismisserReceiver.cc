@@ -81,6 +81,8 @@ NotificationDismisserReceiver::NotificationDismisserReceiver(BusAttachment* bus,
 
 void NotificationDismisserReceiver::Signal(const InterfaceDescription::Member* member, const char* srcPath, Message& msg)
 {
+    QCC_UNUSED(member);
+    QCC_UNUSED(srcPath);
     QCC_DbgPrintf(("Received dismisser signal."));
 #ifdef _WIN32
     EnterCriticalSection(&m_Lock);

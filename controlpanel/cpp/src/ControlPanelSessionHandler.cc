@@ -38,6 +38,7 @@ ControlPanelSessionHandler::~ControlPanelSessionHandler()
 
 void ControlPanelSessionHandler::SessionLost(ajn::SessionId sessionId)
 {
+    QCC_UNUSED(sessionId); //session id only used in debug build
     QCC_DbgPrintf(("Session lost for sessionId: %u", sessionId));
     m_SessionId = 0;
 
@@ -49,6 +50,8 @@ void ControlPanelSessionHandler::SessionLost(ajn::SessionId sessionId)
 
 void ControlPanelSessionHandler::JoinSessionCB(QStatus status, ajn::SessionId id, const ajn::SessionOpts& opts, void* context)
 {
+    QCC_UNUSED(opts);
+    QCC_UNUSED(context);
     if (status != ER_OK) {
         QCC_LogError(status, ("Joining session failed."));
         ControlPanelListener* listener = m_Device->getListener();

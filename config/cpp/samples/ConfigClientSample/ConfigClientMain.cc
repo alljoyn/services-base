@@ -45,6 +45,7 @@ static volatile sig_atomic_t s_interrupt = false;
 static volatile sig_atomic_t s_stopped = false;
 
 static void CDECL_CALL SigIntHandler(int sig) {
+    QCC_UNUSED(sig);
     s_interrupt = true;
 }
 
@@ -398,6 +399,9 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
 class MyAboutListener : public AboutListener {
     void Announced(const char* busName, uint16_t version, SessionPort port, const MsgArg& objectDescriptionArg, const MsgArg& aboutDataArg)
     {
+        QCC_UNUSED(version);
+        QCC_UNUSED(objectDescriptionArg);
+        QCC_UNUSED(aboutDataArg);
         std::set<qcc::String>::iterator searchIterator = handledAnnouncements.find(qcc::String(busName));
         if (searchIterator == handledAnnouncements.end()) {
             handledAnnouncements.insert(busName);
@@ -430,6 +434,9 @@ void WaitForSigInt(void) {
 
 int main(int argc, char**argv, char**envArg)
 {
+    QCC_UNUSED(argc);
+    QCC_UNUSED(argv);
+    QCC_UNUSED(envArg);
     // Initialize AllJoyn
     AJInitializer ajInit;
     if (ajInit.Initialize() != ER_OK) {

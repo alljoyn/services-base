@@ -47,6 +47,8 @@ SessionPort NotificationProducerListener::getSessionPort()
 
 bool NotificationProducerListener::AcceptSessionJoiner(ajn::SessionPort sessionPort, const char* joiner, const ajn::SessionOpts& opts)
 {
+    QCC_UNUSED(joiner); //joiner only used in debug build not release
+    QCC_UNUSED(opts);
     if (sessionPort != m_SessionPort) {
         return false;
     }
@@ -57,5 +59,7 @@ bool NotificationProducerListener::AcceptSessionJoiner(ajn::SessionPort sessionP
 
 void NotificationProducerListener::SessionJoined(SessionPort sessionPort, SessionId sessionId, const char* joiner)
 {
-
+    QCC_UNUSED(sessionPort);
+    QCC_UNUSED(sessionId);
+    QCC_UNUSED(joiner);
 }

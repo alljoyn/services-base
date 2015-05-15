@@ -35,6 +35,8 @@ TimeClientAnnouncementHandler::~TimeClientAnnouncementHandler()
 //Handle received Announcement signal
 void TimeClientAnnouncementHandler::Announced(const char* busName, uint16_t version, SessionPort port, const MsgArg& objectDescriptionArg, const MsgArg& aboutDataArg)
 {
+    QCC_UNUSED(version);
+    QCC_UNUSED(port);
     printf("Received Announcement from '%s', handling... \n", busName);
 
     AboutData aboutData;

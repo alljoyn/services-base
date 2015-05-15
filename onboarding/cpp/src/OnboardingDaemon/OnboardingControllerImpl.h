@@ -120,11 +120,18 @@ class OnboardingControllerImpl : public ajn::services::OnboardingControllerAPI {
     /**
      * operator=
      */
-    virtual OnboardingControllerImpl operator=(const OnboardingControllerImpl& otherOnboardingControllerAPI) { return *this; }
+    virtual OnboardingControllerImpl operator=(const OnboardingControllerImpl& otherOnboardingControllerAPI)
+    {
+        QCC_UNUSED(otherOnboardingControllerAPI);
+        return *this;
+    }
     /**
      * copy constructor
      */
-    OnboardingControllerImpl(const OnboardingControllerImpl& otherOnboardingControllerImpl) { }
+    OnboardingControllerImpl(const OnboardingControllerImpl& otherOnboardingControllerImpl)
+    {
+        QCC_UNUSED(otherOnboardingControllerImpl);
+    }
 
     /*
      * Parse scan info

@@ -288,7 +288,7 @@ TimeServiceClientClock* TimeAuthoritySignalHandler::findClockByObjectPathForDevi
 void TimeAuthoritySignalHandler::handleClockSignal(const ajn::InterfaceDescription::Member* member,
                                                    const char* srcPath, ajn::Message& msg)
 {
-
+    QCC_UNUSED(member);
     QCC_DbgTrace(("%s", __FUNCTION__));
 
     const char* sender = msg->GetSender();

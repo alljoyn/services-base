@@ -271,6 +271,7 @@ QStatus ConstraintRange::setConstraintIncrement(double incrementValue)
 
 QStatus ConstraintRange::fillConstraintArg(MsgArg& val, uint16_t languageIndx, PropertyType propertyType)
 {
+    QCC_UNUSED(languageIndx);
     if (m_PropertyType != propertyType) {
         return ER_BUS_SIGNATURE_MISMATCH;
     }

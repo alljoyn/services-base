@@ -254,30 +254,35 @@ void ACEventsAndActions::Check_MethodReply(const Message& msg, QStatus status)
 
 void ACEventsAndActions::ActionSetModeToAuto(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
 {
+    QCC_UNUSED(member);
     printf("ACEventsAndActions::ActionSetModeToAuto\n");
     setCurrentMode(0);
     Check_MethodReply(msg, ER_OK);
 }
 void ACEventsAndActions::ActionSetModeToCool(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
 {
+    QCC_UNUSED(member);
     printf("ACEventsAndActions::ActionSetModeToCool\n");
     setCurrentMode(1);
     Check_MethodReply(msg, ER_OK);
 }
 void ACEventsAndActions::ActionSetModeToHeat(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
 {
+    QCC_UNUSED(member);
     printf("ACEventsAndActions::ActionSetModeToHeat\n");
     setCurrentMode(2);
     Check_MethodReply(msg, ER_OK);
 }
 void ACEventsAndActions::ActionSetModeToFan(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
 {
+    QCC_UNUSED(member);
     printf("ACEventsAndActions::ActionSetModeToFan\n");
     setCurrentMode(3);
     Check_MethodReply(msg, ER_OK);
 }
 void ACEventsAndActions::ActionSetModeToOff(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
 {
+    QCC_UNUSED(member);
     printf("ACEventsAndActions::ActionSetModeToOff\n");
     setCurrentMode(4);
     Check_MethodReply(msg, ER_OK);
@@ -289,6 +294,7 @@ ACEventsAndActions::~ACEventsAndActions() {
 
 QStatus ACEventsAndActions::Get(const char* ifcName, const char* propName, MsgArg& val)
 {
+    QCC_UNUSED(ifcName);
     printf("Get property was called.");
 
     if (0 != strcmp(PROPERTY_NAME_VERSION, propName)) {
@@ -303,6 +309,9 @@ QStatus ACEventsAndActions::Get(const char* ifcName, const char* propName, MsgAr
 
 QStatus ACEventsAndActions::Set(const char* ifcName, const char* propName, MsgArg& val)
 {
+    QCC_UNUSED(ifcName);
+    QCC_UNUSED(propName);
+    QCC_UNUSED(val);
     return ER_ALLJOYN_ACCESS_PERMISSION_ERROR;
 }
 

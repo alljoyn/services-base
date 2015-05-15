@@ -41,10 +41,12 @@ Widget::Widget(qcc::String const& name, Widget* rootWidget, ControlPanelDevice* 
 
 Widget::Widget(const Widget& widget)
 {
+    QCC_UNUSED(widget);
 }
 
 Widget& Widget::operator=(const Widget& widget)
 {
+    QCC_UNUSED(widget);
     return *this;
 }
 
@@ -368,6 +370,7 @@ QStatus Widget::unregisterObjects(BusAttachment* bus)
 
 QStatus Widget::fillStatesArg(MsgArg& val, uint16_t languageIndx)
 {
+    QCC_UNUSED(languageIndx);
     if (m_GetEnabled) {
         setEnabled(m_GetEnabled());
     }
@@ -531,11 +534,13 @@ QStatus Widget::checkVersions()
 
 QStatus Widget::addChildren(BusAttachment* bus)
 {
+    QCC_UNUSED(bus);
     return ER_OK;
 }
 
 QStatus Widget::refreshChildren(BusAttachment* bus)
 {
+    QCC_UNUSED(bus);
     return ER_OK;
 }
 

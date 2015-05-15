@@ -48,6 +48,7 @@ static std::set<qcc::String> handledAnnouncements;
 
 static void CDECL_CALL SigIntHandler(int sig)
 {
+    QCC_UNUSED(sig);
     quit = true;
 }
 
@@ -391,6 +392,9 @@ void announceHandlerCallback(qcc::String const& busName, unsigned short port)
 }
 
 int main(int argc, char**argv, char**envArg) {
+    QCC_UNUSED(argc);
+    QCC_UNUSED(argv);
+    QCC_UNUSED(envArg);
     // Initialize AllJoyn
     AJInitializer ajInit;
     if (ajInit.Initialize() != ER_OK) {

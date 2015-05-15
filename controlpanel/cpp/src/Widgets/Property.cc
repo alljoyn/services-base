@@ -245,6 +245,7 @@ QStatus Property::setGetValue(const CPSTime& (*getTimeValue)())
 
 QStatus Property::fillPropertyValueArg(MsgArg& val, uint16_t languageIndx)
 {
+    QCC_UNUSED(languageIndx);
     QStatus status = ER_BUS_NO_SUCH_PROPERTY;
 
     if (!m_GetValue.getBoolValue) {
@@ -405,6 +406,7 @@ QStatus Property::fillOptParamsArg(MsgArg& val, uint16_t languageIndx)
 
 QStatus Property::setPropertyValue(MsgArg& val, uint16_t languageIndx)
 {
+    QCC_UNUSED(languageIndx);
     QStatus status;
 
     switch (m_PropertyType) {

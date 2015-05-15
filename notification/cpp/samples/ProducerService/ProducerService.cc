@@ -328,6 +328,7 @@ void cleanup()
 
 void CDECL_CALL signal_callback_handler(int32_t signum)
 {
+    QCC_UNUSED(signum);
     s_interrupt = true;
 }
 

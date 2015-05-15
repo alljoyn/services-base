@@ -70,6 +70,7 @@ NotificationProducerReceiver::~NotificationProducerReceiver()
 
 void NotificationProducerReceiver::unregisterHandler(BusAttachment* bus)
 {
+    QCC_UNUSED(bus);
 #ifdef _WIN32
     EnterCriticalSection(&m_Lock);
     while (!m_MessageQueue.empty()) {
@@ -114,6 +115,7 @@ void NotificationProducerReceiver::Dismiss(const ajn::InterfaceDescription::Memb
 
 void NotificationProducerReceiver::HandleMethodCall(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
 {
+    QCC_UNUSED(member);
     QCC_DbgTrace(("NotificationProducerReceiver::HandleMethodCall()"));
     const ajn::MsgArg* args = 0;
     size_t numArgs = 0;

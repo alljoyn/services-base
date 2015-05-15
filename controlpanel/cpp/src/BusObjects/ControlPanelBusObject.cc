@@ -126,6 +126,7 @@ QStatus ControlPanelBusObject::SendDismissSignal()
 
 QStatus ControlPanelBusObject::Get(const char* interfaceName, const char* propName, MsgArg& val)
 {
+    QCC_UNUSED(interfaceName);
     QCC_DbgPrintf(("Get property was called - in ControlPanelBusObject class."));
 
     if (0 == strcmp(AJ_PROPERTY_VERSION.c_str(), propName)) {
@@ -136,6 +137,9 @@ QStatus ControlPanelBusObject::Get(const char* interfaceName, const char* propNa
 
 QStatus ControlPanelBusObject::Set(const char* interfaceName, const char* propName, MsgArg& val)
 {
+    QCC_UNUSED(interfaceName);
+    QCC_UNUSED(propName);
+    QCC_UNUSED(val);
     return ER_ALLJOYN_ACCESS_PERMISSION_ERROR;
 }
 

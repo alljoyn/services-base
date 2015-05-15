@@ -140,6 +140,7 @@ bool getWriteableFunc()
 
 const char* getTestString(uint16_t language)
 {
+    QCC_UNUSED(language);
     return sampleString.c_str();
 }
 
@@ -211,6 +212,7 @@ void setProgram(uint16_t program)
 
 const char* getProgramString(uint16_t language)
 {
+    QCC_UNUSED(language);
     return programString.c_str();
 }
 

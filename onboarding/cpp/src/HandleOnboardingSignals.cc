@@ -35,10 +35,12 @@ HandleOnboardingSignals::~HandleOnboardingSignals()
 HandleOnboardingSignals::HandleOnboardingSignals(const HandleOnboardingSignals& handler) :
     m_bus(NULL), m_userListener(NULL), m_asyncTaskQueue(NULL)
 {
+    QCC_UNUSED(handler);
 }
 
 HandleOnboardingSignals& HandleOnboardingSignals::operator=(const HandleOnboardingSignals& handler)
 {
+    QCC_UNUSED(handler);
     return *this;
 }
 
@@ -75,7 +77,8 @@ QStatus HandleOnboardingSignals::UnregisterConnectionResultSignalHandler(const a
 void HandleOnboardingSignals::ConnectionResultSignal(const ajn::InterfaceDescription::Member* member,
                                                      const char* srcPath, ajn::Message& message)
 {
-
+    QCC_UNUSED(member);
+    QCC_UNUSED(srcPath);
     QCC_DbgTrace(("ConnectionResultHandler::%s", __FUNCTION__));
 
     QCC_DbgPrintf(("received signal interface=%s method=%s", message->GetInterface(), message->GetMemberName()));

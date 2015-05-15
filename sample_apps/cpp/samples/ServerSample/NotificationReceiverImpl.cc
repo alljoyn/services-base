@@ -57,5 +57,7 @@ void NotificationReceiverImpl::Receive(Notification const& notification) {
 
 void NotificationReceiverImpl::Dismiss(const int32_t msgId, const qcc::String appId)
 {
+    QCC_UNUSED(msgId); //only used in debug build
+    QCC_UNUSED(appId); //only used in debug build
     QCC_DbgHLPrintf(("NotificationReceiverImpl::Dismiss with msgId=%d appId=%s", msgId, appId.c_str()));
 }

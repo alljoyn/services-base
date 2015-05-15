@@ -87,6 +87,7 @@ ControlPanelControllee* controlPanelControllee = NULL;
 #endif
 
 static void CDECL_CALL SigIntHandler(int sig) {
+    QCC_UNUSED(sig);
     s_interrupt = true;
 }
 
@@ -278,7 +279,7 @@ QStatus fillAboutData(AboutData* aboutdata)
 }
 
 int main(int argc, char**argv, char**envArg) {
-
+    QCC_UNUSED(envArg);
     QStatus status = ER_OK;
 
     // Initialize AllJoyn

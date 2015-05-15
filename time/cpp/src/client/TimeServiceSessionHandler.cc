@@ -155,7 +155,8 @@ QStatus TimeServiceSessionHandler::leaveSession()
 //Called when JoinSessionAsync() completes.
 void TimeServiceSessionHandler::JoinSessionCB(QStatus status, ajn::SessionId id, const ajn::SessionOpts& opts, void* context)
 {
-
+    QCC_UNUSED(opts);
+    QCC_UNUSED(context);
     QCC_DbgTrace(("%s", __FUNCTION__));
     QCC_DbgPrintf(("JoinSessionCb was called, Status: '%u', SessionId: '%u'", status, id));
 

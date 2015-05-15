@@ -106,6 +106,7 @@ QStatus PropertyBusObject::Get(const char* interfaceName, const char* propName, 
 
 QStatus PropertyBusObject::Set(const char* interfaceName, const char* propName, MsgArg& val)
 {
+    QCC_UNUSED(interfaceName);
     QCC_DbgTrace(("Set property was called - in PropertyBusObject class."));
 
     if (0 != strcmp(AJ_PROPERTY_VALUE.c_str(), propName)) {
@@ -168,6 +169,8 @@ QStatus PropertyBusObject::SendValueChangedSignal()
 
 void PropertyBusObject::ValueChanged(const InterfaceDescription::Member* member, const char* srcPath, Message& msg)
 {
+    QCC_UNUSED(member);
+    QCC_UNUSED(srcPath);
     if (msg.unwrap()->GetSender() && strcmp(msg.unwrap()->GetSender(), m_Widget->getDevice()->getDeviceBusName().c_str()) != 0) {
         QCC_DbgPrintf(("Received ValueChanged signal for someone else"));
         return;

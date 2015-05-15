@@ -79,6 +79,7 @@ ActionBusObject::~ActionBusObject()
 
 void ActionBusObject::ActionExecute(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
 {
+    QCC_UNUSED(member);
     QStatus status = ER_OK;
 
     QCC_DbgPrintf(("Execute was called"));

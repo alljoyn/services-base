@@ -91,22 +91,28 @@ void ControlPanelListenerImpl::sessionLost(ControlPanelDevice* device)
 void ControlPanelListenerImpl::errorOccured(ControlPanelDevice* device, QStatus status, ControlPanelTransaction transaction,
                                             qcc::String const& error)
 {
+    QCC_UNUSED(status);
+    QCC_UNUSED(transaction);
     std::cout << "Received an error from service for device " << device->getDeviceBusName().c_str() << std::endl;
     std::cout << "    Error Message: " << error.c_str() << std::endl;
 }
 
 void ControlPanelListenerImpl::signalPropertiesChanged(ControlPanelDevice* device, Widget* widget)
 {
+    QCC_UNUSED(device);
     std::cout << "Received PropertiesChanged Signal for Widget " << widget->getWidgetName().c_str() << std::endl;
 }
 
 void ControlPanelListenerImpl::signalPropertyValueChanged(ControlPanelDevice* device, Property* property)
 {
+    QCC_UNUSED(device);
     std::cout << "Received ValueChanged Signal for Widget " << property->getWidgetName().c_str() << std::endl;
     ControllerUtil::printPropertyValue(property->getPropertyValue(), property->getPropertyType());
 }
 
 void ControlPanelListenerImpl::signalDismiss(ControlPanelDevice* device, NotificationAction* notificationAction)
 {
+    QCC_UNUSED(device);
+    QCC_UNUSED(notificationAction);
     std::cout << "Received Dismiss Signal for NotificationAction" << std::endl;
 }

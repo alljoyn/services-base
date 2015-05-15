@@ -54,6 +54,7 @@ static volatile sig_atomic_t s_restart = false;
 
 static void CDECL_CALL SigIntHandler(int sig)
 {
+    QCC_UNUSED(sig);
     s_interrupt = true;
 }
 

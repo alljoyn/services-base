@@ -82,6 +82,7 @@ uint16_t HttpControlBusObject::getInterfaceVersion()
 
 QStatus HttpControlBusObject::Get(const char* interfaceName, const char* propName, MsgArg& val)
 {
+    QCC_UNUSED(interfaceName);
     QCC_DbgTrace(("Get property was called - in HttpControlBusObject class."));
 
     if (0 == strcmp(AJ_PROPERTY_VERSION.c_str(), propName)) {
@@ -93,11 +94,15 @@ QStatus HttpControlBusObject::Get(const char* interfaceName, const char* propNam
 
 QStatus HttpControlBusObject::Set(const char* interfaceName, const char* propName, MsgArg& val)
 {
+    QCC_UNUSED(interfaceName);
+    QCC_UNUSED(propName);
+    QCC_UNUSED(val);
     return ER_ALLJOYN_ACCESS_PERMISSION_ERROR;
 }
 
 void HttpControlBusObject::HttpControlGetUrl(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
 {
+    QCC_UNUSED(member);
     QCC_DbgTrace(("Get Url was called"));
 
     MsgArg url;

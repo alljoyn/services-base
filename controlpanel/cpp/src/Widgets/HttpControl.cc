@@ -37,11 +37,12 @@ HttpControl::HttpControl(qcc::String const& objectPath, ControlPanelDevice* devi
 
 HttpControl::HttpControl(const HttpControl& httpControl)
 {
-
+    QCC_UNUSED(httpControl);
 }
 
 HttpControl& HttpControl::operator=(const HttpControl& httpControl)
 {
+    QCC_UNUSED(httpControl);
     return *this;
 }
 

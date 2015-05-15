@@ -63,6 +63,7 @@ QStatus NotificationTransportProducer::sendSignal(ajn::MsgArg const notification
 
 QStatus NotificationTransportProducer::deleteLastMsg(NotificationMessageType messageType)
 {
+    QCC_UNUSED(messageType);
     if (m_SerialNumber == 0) {
         QCC_LogError(ER_BUS_INVALID_HEADER_SERIAL, ("Unable to delete the last message.  No message on this object."));
         return ER_BUS_INVALID_HEADER_SERIAL;
@@ -83,6 +84,7 @@ QStatus NotificationTransportProducer::deleteLastMsg(NotificationMessageType mes
 
 QStatus NotificationTransportProducer::getLastMsgId(NotificationMessageType messageType, int32_t* messageId)
 {
+    QCC_UNUSED(messageType);
     QCC_DbgTrace(("NotificationTransportProducer::getLastMsgId()"));
 
     if (m_SerialNumber == 0) {

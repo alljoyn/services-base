@@ -89,6 +89,7 @@ QStatus ConfigService::Register()
 
 void ConfigService::SetPasscodeHandler(const InterfaceDescription::Member* member, Message& msg)
 {
+    QCC_UNUSED(member);
     QCC_DbgTrace(("In ConfigService SetPassCodeHandler"));
     QStatus status = ER_OK;
     const ajn::MsgArg* args = 0;
@@ -122,6 +123,7 @@ void ConfigService::SetPasscodeHandler(const InterfaceDescription::Member* membe
 
 void ConfigService::GetConfigurationsHandler(const InterfaceDescription::Member* member, Message& msg)
 {
+    QCC_UNUSED(member);
     QCC_DbgTrace(("In ConfigService GetConfigurationsHandler"));
 
     const ajn::MsgArg* args;
@@ -173,6 +175,7 @@ void ConfigService::GetConfigurationsHandler(const InterfaceDescription::Member*
 
 void ConfigService::UpdateConfigurationsHandler(const InterfaceDescription::Member* member, Message& msg)
 {
+    QCC_UNUSED(member);
     QCC_DbgTrace(("In ConfigService UpdateConfigurationsHandler"));
 
     const ajn::MsgArg* args;
@@ -241,6 +244,7 @@ void ConfigService::UpdateConfigurationsHandler(const InterfaceDescription::Memb
 
 void ConfigService::ResetConfigurationsHandler(const InterfaceDescription::Member* member, Message& msg)
 {
+    QCC_UNUSED(member);
     QCC_DbgTrace(("In ConfigService ResetConfigurationsHandler"));
 
     const ajn::MsgArg* args;
@@ -305,6 +309,7 @@ void ConfigService::ResetConfigurationsHandler(const InterfaceDescription::Membe
 
 void ConfigService::FactoryResetHandler(const InterfaceDescription::Member* member, Message& msg)
 {
+    QCC_UNUSED(member);
     QCC_DbgTrace(("In ConfigService FactoryResetHandler"));
 
     const ajn::MsgArg* args;
@@ -327,6 +332,7 @@ void ConfigService::FactoryResetHandler(const InterfaceDescription::Member* memb
 
 void ConfigService::RestartHandler(const InterfaceDescription::Member* member, Message& msg)
 {
+    QCC_UNUSED(member);
     QCC_DbgTrace(("In ConfigService RestartHandler"));
 
     const ajn::MsgArg* args;

@@ -125,6 +125,7 @@ QStatus HexToRaw(const char* hex, size_t hexLen, char* raw, size_t rawLen)
 
 void OnboardingService::ConfigureWiFiHandler(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
 {
+    QCC_UNUSED(member);
     QCC_DbgTrace(("In OnboardingService ConfigureWiFiHandler"));
     const ajn::MsgArg* args;
     size_t numArgs;
@@ -243,6 +244,7 @@ void OnboardingService::Check_MethodReply(const Message& msg, QStatus status)
 
 void OnboardingService::ConnectHandler(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
 {
+    QCC_UNUSED(member);
     QCC_DbgTrace(("In OnboardingService ConnectHandler"));
     const ajn::MsgArg* args = 0;
     size_t numArgs = 0;
@@ -262,6 +264,7 @@ void OnboardingService::ConnectHandler(const ajn::InterfaceDescription::Member* 
 
 void OnboardingService::OffboardHandler(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
 {
+    QCC_UNUSED(member);
     QCC_DbgTrace(("In OnboardingService OffboardHandler"));
     const ajn::MsgArg* args = 0;
     size_t numArgs = 0;
@@ -281,6 +284,7 @@ void OnboardingService::OffboardHandler(const ajn::InterfaceDescription::Member*
 
 void OnboardingService::GetScanInfoHandler(const ajn::InterfaceDescription::Member* member, ajn::Message& msg)
 {
+    QCC_UNUSED(member);
     QCC_DbgTrace(("In OnboardingService GetScanInfoHandler"));
     const ajn::MsgArg* args = NULL;
     size_t numArgs = 0;

@@ -77,6 +77,7 @@ void resetParams()
 
 bool createService(std::map<qcc::String, qcc::String>& params)
 {
+    QCC_UNUSED(params);
     // Initialize Service object and sent it Notification Receiver object
     if (!testBus) {
         testBus = CommonSampleUtil::prepareBusAttachment();
@@ -201,12 +202,14 @@ bool setCustomAttributes(std::map<qcc::String, qcc::String>& params)
 
 bool setLogger(std::map<qcc::String, qcc::String>& params)
 {
+    QCC_UNUSED(params);
     QCC_SetDebugLevel(logModules::NOTIFICATION_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
     return true;
 }
 
 bool initReceive(std::map<qcc::String, qcc::String>& params)
 {
+    QCC_UNUSED(params);
     Receiver = new NotificationReceiverTestImpl();
     if (Service->initReceive(testBus, Receiver) != ER_OK) {
         std::cout << "Could not initialize receiver." << std::endl;
@@ -221,6 +224,7 @@ bool initReceive(std::map<qcc::String, qcc::String>& params)
 
 bool ResponseToNotification(std::map<qcc::String, qcc::String>& params)
 {
+    QCC_UNUSED(params);
     NotificationReceiverTestImpl::NotificationAction action = ((NotificationReceiverTestImpl::NotificationAction)atoi(params["action"].c_str()));
     Receiver->SetNotificationAction(action);
     return true;
@@ -269,6 +273,7 @@ bool setControlPanelServiceObjectPath(std::map<qcc::String, qcc::String>& params
 
 bool shutdownSender(std::map<qcc::String, qcc::String>& params)
 {
+    QCC_UNUSED(params);
     didInitSend = false;
     CommonSampleUtil::aboutServiceDestroy(testBus, notificationBusListener);
 
@@ -279,6 +284,7 @@ bool shutdownSender(std::map<qcc::String, qcc::String>& params)
 
 bool shutdown(std::map<qcc::String, qcc::String>& params)
 {
+    QCC_UNUSED(params);
     // clean up
     CommonSampleUtil::aboutServiceDestroy(testBus, notificationBusListener);
     if (notificationBusListener) {
@@ -316,6 +322,7 @@ bool shutdown(std::map<qcc::String, qcc::String>& params)
 
 bool shutdownReceiver(std::map<qcc::String, qcc::String>& params)
 {
+    QCC_UNUSED(params);
     didInitReceive = false;
     Service->shutdownReceiver();
     std::cout << "service receiver stopped" << std::endl;
@@ -336,6 +343,7 @@ bool deleteLastMsg(std::map<qcc::String, qcc::String>& params)
 
 bool clearParams(std::map<qcc::String, qcc::String>& params)
 {
+    QCC_UNUSED(params);
     std::cout << "Clearing out message data. " << std::endl;
     resetParams();
     return true;
@@ -558,6 +566,7 @@ void Usage(TestFunction*testFunctions, qcc::String funcName = "", int32_t*functi
 
 void CDECL_CALL signal_callback_handler(int32_t signum)
 {
+    QCC_UNUSED(signum);
     s_interrupt = true;
 }
 
@@ -664,6 +673,7 @@ bool processInput(const qcc::String& input, qcc::String& funcName, std::map<qcc:
 
 int main(int argc, char* argv[])
 {
+    QCC_UNUSED(argv);
     // Initialize AllJoyn
     AJInitializer ajInit;
     if (ajInit.Initialize() != ER_OK) {

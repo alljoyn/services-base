@@ -64,6 +64,7 @@ NotificationTransport::~NotificationTransport()
 
 QStatus NotificationTransport::Get(const char* ifcName, const char* propName, MsgArg& val)
 {
+    QCC_UNUSED(ifcName);
     QCC_DbgTrace(("Get property was called"));
 
     if (0 != strcmp(AJ_PROPERTY_VERSION.c_str(), propName)) {
@@ -78,5 +79,8 @@ QStatus NotificationTransport::Get(const char* ifcName, const char* propName, Ms
 
 QStatus NotificationTransport::Set(const char* ifcName, const char* propName, MsgArg& val)
 {
+    QCC_UNUSED(ifcName);
+    QCC_UNUSED(propName);
+    QCC_UNUSED(val);
     return ER_ALLJOYN_ACCESS_PERMISSION_ERROR;
 }

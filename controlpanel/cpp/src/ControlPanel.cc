@@ -56,6 +56,7 @@ ControlPanel::ControlPanel(const ControlPanel& controlPanel) : m_LanguageSet(con
 
 ControlPanel& ControlPanel::operator=(const ControlPanel& controlPanel)
 {
+    QCC_UNUSED(controlPanel);
     return *this;
 }
 

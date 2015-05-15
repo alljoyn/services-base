@@ -229,7 +229,7 @@ std::map<Actions, ActionFunction> actions;
  */
 static void CDECL_CALL SigIntHandler(int sig)
 {
-
+    QCC_UNUSED(sig);
     std::cout << "got SigIntHandler" << std::endl;
     s_interrupt = true;
 }
@@ -663,7 +663,7 @@ bool isDynamicTimer(const qcc::String& objectPath)
 //Start service
 void startService(const std::vector<std::string>& actionArgs)
 {
-
+    QCC_UNUSED(actionArgs);
     if (isClientStarted) {
 
         std::cout << "TimeServiceClient has been started previously " << std::endl;
@@ -695,7 +695,7 @@ void startService(const std::vector<std::string>& actionArgs)
 //Stop service
 void stopService(const std::vector<std::string>& actionArgs)
 {
-
+    QCC_UNUSED(actionArgs);
     if (!isClientStarted) {
 
         std::cout << "TimeServiceClient hasn't been started" << std::endl;
@@ -803,7 +803,7 @@ void disconnect(const std::vector<std::string>& actionArgs)
 //Print Devices
 void printDevices(const std::vector<std::string>& actionArgs)
 {
-
+    QCC_UNUSED(actionArgs);
     printf("Current Time servers: \n=====================\n");
 
     for (std::map<qcc::String, TimeServiceClient*>::iterator iter = timeClients.begin();

@@ -87,6 +87,7 @@ NotificationActionBusObject::~NotificationActionBusObject()
 
 QStatus NotificationActionBusObject::Get(const char* interfaceName, const char* propName, MsgArg& val)
 {
+    QCC_UNUSED(interfaceName);
     QCC_DbgTrace(("Get property was called - in NotificationActionBusObject class."));
 
     if (0 == strcmp(AJ_PROPERTY_VERSION.c_str(), propName)) {
@@ -97,6 +98,9 @@ QStatus NotificationActionBusObject::Get(const char* interfaceName, const char* 
 
 QStatus NotificationActionBusObject::Set(const char* interfaceName, const char* propName, MsgArg& val)
 {
+    QCC_UNUSED(interfaceName);
+    QCC_UNUSED(propName);
+    QCC_UNUSED(val);
     return ER_ALLJOYN_ACCESS_PERMISSION_ERROR;
 }
 
@@ -130,6 +134,9 @@ QStatus NotificationActionBusObject::SendDismissSignal()
 
 void NotificationActionBusObject::DismissSignal(const InterfaceDescription::Member* member, const char* srcPath, Message& msg)
 {
+    QCC_UNUSED(member);
+    QCC_UNUSED(srcPath);
+    QCC_UNUSED(msg);
     QCC_DbgTrace(("Received DismissSignal signal"));
 
     return m_NotificationAction->DismissSignal();

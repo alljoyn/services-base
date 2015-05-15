@@ -55,6 +55,7 @@ NotificationAction::NotificationAction(const NotificationAction& notificationAct
 
 NotificationAction& NotificationAction::operator=(const NotificationAction& notificationAction)
 {
+    QCC_UNUSED(notificationAction);
     return *this;
 }
 

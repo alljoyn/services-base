@@ -129,6 +129,7 @@ char const* getCurrentTemperatureString()
 
 void setCurrentTemperatureString(char const* newTemp)
 {
+    QCC_UNUSED(newTemp);
     //do nothing
 }
 
@@ -146,6 +147,7 @@ char const* getCurrentHumidityString()
 
 void setCurrentHumidityString(char const* newHumidity)
 {
+    QCC_UNUSED(newHumidity);
     //do nothing
 }
 

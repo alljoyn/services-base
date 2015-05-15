@@ -38,6 +38,8 @@ WidgetProxyBusObjectListener::~WidgetProxyBusObjectListener()
 
 void WidgetProxyBusObjectListener::GetAllPropertiesCallBack(QStatus status, ProxyBusObject* obj, const MsgArg& values, void* context)
 {
+    QCC_UNUSED(obj);
+    QCC_UNUSED(context);
     if (!m_Widget || !m_BusObject) {
         QCC_DbgHLPrintf(("WidgetProxyBusObjectListener does not have widget or BusObject set"));
         delete this;     //Finished using listener - needs to be deleted

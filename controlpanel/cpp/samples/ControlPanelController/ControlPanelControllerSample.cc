@@ -48,6 +48,7 @@ static volatile sig_atomic_t s_interrupt = false;
 
 static void CDECL_CALL SigIntHandler(int sig)
 {
+    QCC_UNUSED(sig);
     s_interrupt = true;
 }
 
@@ -98,6 +99,10 @@ static void announceHandlerCallback(qcc::String const& busName, unsigned short v
                                     unsigned short port, const ajn::AboutObjectDescription& objectDescription,
                                     const ajn::AboutData& aboutData)
 {
+
+    QCC_UNUSED(version);
+    QCC_UNUSED(port);
+    QCC_UNUSED(aboutData);
     std::cout << "Got announceHandlerCallback" << std::endl;
     controlPanelController->createControllableDevice(busName, objectDescription);
 }

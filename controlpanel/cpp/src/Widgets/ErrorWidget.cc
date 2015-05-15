@@ -39,11 +39,17 @@ ErrorWidget::~ErrorWidget()
 WidgetBusObject* ErrorWidget::createWidgetBusObject(BusAttachment* bus, qcc::String const& objectPath,
                                                     uint16_t langIndx, QStatus& status)
 {
+    QCC_UNUSED(bus);
+    QCC_UNUSED(objectPath);
+    QCC_UNUSED(langIndx);
+    QCC_UNUSED(status);
     return NULL;
 }
 
 QStatus ErrorWidget::registerObjects(BusAttachment* bus, qcc::String const& objectPath)
 {
+    QCC_UNUSED(bus);
+    QCC_UNUSED(objectPath);
     return ER_OK;
 }
 

@@ -74,6 +74,8 @@ NotificationTransportConsumer::NotificationTransportConsumer(
 
 void NotificationTransportConsumer::handleSignal(const InterfaceDescription::Member* member, const char* srcPath, Message& msg)
 {
+    QCC_UNUSED(member);
+    QCC_UNUSED(srcPath);
     QCC_DbgPrintf(("Received Message from producer."));
 #ifdef _WIN32
     EnterCriticalSection(&m_Lock);

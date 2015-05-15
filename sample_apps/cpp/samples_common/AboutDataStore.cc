@@ -159,6 +159,7 @@ AboutDataStore::~AboutDataStore()
 
 QStatus AboutDataStore::ReadAll(const char* languageTag, DataPermission::Filter filter, ajn::MsgArg& all)
 {
+    QCC_UNUSED(filter);
     std::cout << "AboutDataStore::ReadAll" << std::endl;
     QStatus status = GetAboutData(&all, languageTag);
     std::cout << "GetAboutData status = " << QCC_StatusText(status) << std::endl;

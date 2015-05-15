@@ -76,7 +76,10 @@ class AboutDataStoreInterface : public ajn::AboutData {
      */
     AboutDataStoreInterface(const char* factoryConfigFile, const char* configFile)
         : ajn::AboutData("en")
-    { }
+    {
+        QCC_UNUSED(factoryConfigFile);
+        QCC_UNUSED(configFile);
+    }
 
     /**
      * FactoryReset

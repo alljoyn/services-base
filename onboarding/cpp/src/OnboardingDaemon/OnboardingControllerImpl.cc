@@ -141,6 +141,8 @@ OnboardingControllerImpl::~OnboardingControllerImpl()
  * it with the developer's implementation of the ConfigureWiFi method handler.
  *-----------------------------------------------------------------------------*/
 void OnboardingControllerImpl::ConfigureWiFi(qcc::String SSID, qcc::String passphrase, short authType, short& status, qcc::String&  error, qcc::String& errorMessage) {
+    QCC_UNUSED(error);
+    QCC_UNUSED(errorMessage);
     QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
 
     // Set the return value based on presence of fast switching feature
@@ -588,6 +590,9 @@ int OnboardingControllerImpl::execute_configure(const char* SSID, const int auth
     snprintf(cmd, CMD_SIZE, m_configureCmd.c_str(), SSID, authTypeString.c_str(), passphrase);
     return execute_system(cmd);
 #else
+    QCC_UNUSED(SSID);
+    QCC_UNUSED(authType);
+    QCC_UNUSED(passphrase);
     return 0;
 #endif
 }
@@ -621,6 +626,7 @@ static int execute_system(const char*cmd)
     }
     return result;
 #else
+    QCC_UNUSED(cmd);
     return 0;
 #endif
 }
