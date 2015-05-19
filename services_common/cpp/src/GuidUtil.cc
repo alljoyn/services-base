@@ -31,6 +31,9 @@
 #include <Rpc.h>
 #pragma comment(lib, "rpcrt4.lib")
 #endif
+#if defined(QCC_OS_DARWIN)
+#include <uuid/uuid.h>
+#endif
 
 static const char DEVICE_ID_FILE_NAME[] = "alljoyn-deviceId.txt";
 
@@ -127,9 +130,15 @@ void GuidUtil::GenerateGUIDUtil(char* strGUID)
     strGUID[GUID_STRING_MAX_LENGTH + GUID_HYPHEN_MAX_LENGTH + 1] = 0;
     RpcStringFreeA(&str);
 #else
+#if defined(QCC_OS_DARWIN)
+    uuid_t uuid;
+    uuid_generate(uuid);
+    uuid_unparse(uuid, strGUID);
+#else
     std::ifstream ifs("/proc/sys/kernel/random/uuid", std::ifstream::in);
     ifs.getline(strGUID, GUID_STRING_MAX_LENGTH + GUID_HYPHEN_MAX_LENGTH + END_OF_STRING_LENGTH);
     ifs.close();
+#endif
     NormalizeString(strGUID);
 #endif
 }
