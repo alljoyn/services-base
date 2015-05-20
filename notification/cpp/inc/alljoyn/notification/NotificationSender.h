@@ -47,8 +47,9 @@ class NotificationSender {
      * Constructor for NotificationSenderImpl
      * @param propertyStore - propertyStoreImplementation that includes entries
      * for deviceId, deviceName, appId and appName
+     * @deprecated see NotificationSender(ajn::AboutData*)
      */
-    NotificationSender(ajn::services::PropertyStore* propertyStore);
+    QCC_DEPRECATED(NotificationSender(ajn::services::PropertyStore* propertyStore));
 
     /**
      * Destructor for NotificationSenderImpl
