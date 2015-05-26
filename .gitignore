@@ -15,6 +15,7 @@ QA
 ajlite.nvram
 alljoyn-daemon
 bin
+!build_core/tools/bin
 build
 deploy
 docs/*.html
