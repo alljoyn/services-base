@@ -14,7 +14,7 @@
 
 import os
 
-env = SConscript('../../../core/alljoyn/build_core/SConscript')
+env = SConscript('../build_core/SConscript')
 
 vars = Variables()
 vars.Add('BINDINGS', 'Bindings to build (comma separated list): cpp, java', 'cpp,java')
@@ -28,7 +28,8 @@ if env.get('ALLJOYN_DISTDIR'):
     # normalize ALLJOYN_DISTDIR first
     env['ALLJOYN_DISTDIR'] = env.Dir('$ALLJOYN_DISTDIR')
     env.Append(CPPPATH = [ env.Dir('$ALLJOYN_DISTDIR/cpp/inc') ])
-    env.Append(LIBPATH = [ env.Dir('$ALLJOYN_DISTDIR/cpp/lib') ])
+    env.Append(LIBPATH = [ env.Dir('$ALLJOYN_DISTDIR/cpp/lib'),
+                           env.Dir('$ALLJOYN_DISTDIR/c/lib') ])
 
 env['bindings'] = set([ b.strip() for b in env['BINDINGS'].split(',') ])
 
