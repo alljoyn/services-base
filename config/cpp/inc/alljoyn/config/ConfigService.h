@@ -75,8 +75,10 @@ class ConfigService : public ajn::BusObject {
      * @param bus reference
      * @param store reference
      * @param listener reference
+     *
+     * @deprecated Please see ConfigService(ajn::BusAttachment&, AboutDataStoreInterface&, Listener&)
      */
-    ConfigService(ajn::BusAttachment& bus, PropertyStore& store, Listener& listener);
+    QCC_DEPRECATED(ConfigService(ajn::BusAttachment& bus, PropertyStore& store, Listener& listener));
     /**
      * Destructor of ConfigService
      */

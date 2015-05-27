@@ -52,9 +52,12 @@ class ControlPanelController {
      * create a controllable device by parsing announce descriptions.
      * @param deviceBusName - BusName of device received in announce
      * @param objectDescs - ObjectDescriptions received in announce
+     *
+     * @deprecated see createControllableDevice(qcc::String const&, const AboutObjectDescription&)
+     *
      * @return a ControlPanelDevice
      */
-    ControlPanelDevice* createControllableDevice(qcc::String const& deviceBusName, const AnnounceHandler::ObjectDescriptions& objectDescs);
+    QCC_DEPRECATED(ControlPanelDevice* createControllableDevice(qcc::String const& deviceBusName, const AnnounceHandler::ObjectDescriptions& objectDescs));
 
     /**
      * GetControllableDevice - get a device using the busName - creates it if it doesn't exist
