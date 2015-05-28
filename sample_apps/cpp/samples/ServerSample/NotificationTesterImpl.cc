@@ -18,6 +18,13 @@
 #define _CRT_RAND_S
 #endif
 
+#if defined(QCC_OS_DARWIN)
+#include <sys/time.h>
+#include <mach/mach_time.h>
+#include <mach/clock.h>
+#include <mach/mach.h>
+#endif
+
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -212,11 +219,20 @@ uint64_t GetTimestamp() {
     timestamp = (::GetTickCount64() - startingOffset);
 #endif
 
-#if defined (QCC_OS_GROUP_POSIX)
+#if defined (QCC_OS_DARWIN) || defined (QCC_OS_GROUP_POSIX)
     struct timespec ts;
     static uint64_t startingOffset = 0;
-
+#if defined (QCC_OS_DARWIN)
+    clock_serv_t cclock;
+    mach_timespec_t mts;
+    host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+    clock_get_time(cclock, &mts);
+    mach_port_deallocate(mach_task_self(), cclock);
+    ts.tv_sec = mts.tv_sec;
+    ts.tv_nsec = mts.tv_nsec;
+#else
     clock_gettime(CLOCK_MONOTONIC, &ts);
+#endif
     if (startingOffset == 0) {
         startingOffset = ts.tv_sec;
     }
