@@ -17,7 +17,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.alljoyn.ns.sampleapp"
     android:versionCode="1412"
-    android:versionName="14.12" >
+    android:versionName="15.04" >
 
     <uses-sdk
         android:minSdkVersion="11"

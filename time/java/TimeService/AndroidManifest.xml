@@ -18,8 +18,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.alljoyn.timeservice"
-    android:versionCode="1412"
-    android:versionName="14.12" >
+    android:versionCode="1504"
+    android:versionName="15.04" >
 
     <uses-sdk
         android:minSdkVersion="15"
