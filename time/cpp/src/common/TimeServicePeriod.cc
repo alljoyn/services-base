@@ -57,6 +57,7 @@ bool TimeServicePeriod::isValid() const
 //Checks whether data of the object is valid, the object variables have a correct values.
 bool TimeServicePeriod::isValid(uint32_t hour, uint8_t minute, uint8_t second, uint16_t millisecond, QStatus& status) const
 {
+    QCC_UNUSED(hour);
     status = ER_OK;
 
     if (minute > 59) {

@@ -143,7 +143,7 @@ QStatus TimeServiceClockBusObj::Get(const char* interfaceName, const char* propN
 //Handle Set Property
 QStatus TimeServiceClockBusObj::Set(const char* interfaceName, const char* propName, MsgArg& val)
 {
-
+    QCC_UNUSED(interfaceName);
     QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     BusAttachment* bus = TimeServiceServer::getInstance()->getBusAttachment();

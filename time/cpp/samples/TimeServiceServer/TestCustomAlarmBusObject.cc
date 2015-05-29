@@ -72,6 +72,7 @@ QStatus TestCustomAlarmBusObject::createCustomInterfaceHook(BusAttachment* bus)
 
 void TestCustomAlarmBusObject::getCoolTitle(const InterfaceDescription::Member* member, Message& msg)
 {
+    QCC_UNUSED(member);
     ajn::MsgArg replyArg[1];
     QStatus status = replyArg[0].Set("s", "This is the coolest message title");
     if (status != ER_OK) {

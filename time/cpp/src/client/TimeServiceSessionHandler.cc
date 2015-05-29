@@ -184,7 +184,7 @@ void TimeServiceSessionHandler::JoinSessionCB(QStatus status, ajn::SessionId id,
 //SessionLost called when a session is lost
 void TimeServiceSessionHandler::SessionLost(ajn::SessionId sessionId, SessionLostReason reason)
 {
-
+    QCC_UNUSED(sessionId);
     QCC_DbgTrace(("%s", __FUNCTION__));
     QCC_DbgPrintf(("SessionLost has been called SessionId: '%u', reason: '%u'", sessionId, reason));
 

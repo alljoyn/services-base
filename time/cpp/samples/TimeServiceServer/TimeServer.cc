@@ -158,7 +158,7 @@ std::map<Actions, ActionFunction> actions;
  */
 static void CDECL_CALL SigIntHandler(int sig)
 {
-
+    QCC_UNUSED(sig);
     std::cout << "got SigIntHandler" << std::endl;
     s_interrupt = true;
 }
@@ -596,7 +596,7 @@ int main()
  */
 void startService(const std::vector<std::string>& actionArgs)
 {
-
+    QCC_UNUSED(actionArgs);
     std::cout << "Initializing TimeServiceServer" << std::endl;
 
     //TimeServiceServer::getInstance();
@@ -614,7 +614,7 @@ void startService(const std::vector<std::string>& actionArgs)
  */
 void stopService(const std::vector<std::string>& actionArgs)
 {
-
+    QCC_UNUSED(actionArgs);
     if (server) {
 
         cleanupTimeObjects();
@@ -630,7 +630,7 @@ void stopService(const std::vector<std::string>& actionArgs)
  */
 void announce(const std::vector<std::string>& actionArgs)
 {
-
+    QCC_UNUSED(actionArgs);
     if (!server || !server->isStarted()) {
 
         std::cout << "Server hasn't been started" << std::endl;
@@ -651,7 +651,7 @@ void announce(const std::vector<std::string>& actionArgs)
  */
 void createClock(const std::vector<std::string>& actionArgs)
 {
-
+    QCC_UNUSED(actionArgs);
     if (!server || !server->isStarted()) {
 
         std::cout << "Server hasn't been started" << std::endl;
@@ -1191,6 +1191,7 @@ void createTimerFactory(const std::vector<std::string>& actionArgs)
  */
 void printObjectPaths(const std::vector<std::string>& actionArgs)
 {
+    QCC_UNUSED(actionArgs);
     if (!server || !server->isStarted()) {
 
         std::cout << "Server hasn't been started" << std::endl;

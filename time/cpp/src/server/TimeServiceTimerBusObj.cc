@@ -238,7 +238,7 @@ QStatus TimeServiceTimerBusObj::createTimerInterface(BusAttachment* bus)
 //Hook method to allow creating custom interface
 QStatus TimeServiceTimerBusObj::createCustomInterfaceHook(BusAttachment* bus)
 {
-
+    QCC_UNUSED(bus);
     QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     return ER_OK;
 }
@@ -617,7 +617,8 @@ QStatus TimeServiceTimerBusObj::sendRunStateChanged(bool isRunning)
  */
 void TimeServiceTimerBusObj::handleStart(const InterfaceDescription::Member* member, Message& msg)
 {
-
+    QCC_UNUSED(member);
+    QCC_UNUSED(msg);
     QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     bus->EnableConcurrentCallbacks();
@@ -631,7 +632,8 @@ void TimeServiceTimerBusObj::handleStart(const InterfaceDescription::Member* mem
  */
 void TimeServiceTimerBusObj::handlePause(const InterfaceDescription::Member* member, Message& msg)
 {
-
+    QCC_UNUSED(member);
+    QCC_UNUSED(msg);
     QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     bus->EnableConcurrentCallbacks();
@@ -645,7 +647,7 @@ void TimeServiceTimerBusObj::handlePause(const InterfaceDescription::Member* mem
  */
 void TimeServiceTimerBusObj::handleReset(const InterfaceDescription::Member* member, Message& msg)
 {
-
+    QCC_UNUSED(member);
     QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
 
     bus->EnableConcurrentCallbacks();

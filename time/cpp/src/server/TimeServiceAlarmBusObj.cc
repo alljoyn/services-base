@@ -205,7 +205,7 @@ QStatus TimeServiceAlarmBusObj::createAlarmInterface(BusAttachment* bus)
 //Hook method to allow creating custom interface
 QStatus TimeServiceAlarmBusObj::createCustomInterfaceHook(BusAttachment* bus)
 {
-
+    QCC_UNUSED(bus);
     QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     return ER_OK;
 }

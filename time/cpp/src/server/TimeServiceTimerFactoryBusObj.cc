@@ -216,7 +216,7 @@ QStatus TimeServiceTimerFactoryBusObj::handleGetVersion(MsgArg& msgArg)
 //Handle New Timer
 void TimeServiceTimerFactoryBusObj::handleNewTimer(const InterfaceDescription::Member* member, Message& msg)
 {
-
+    QCC_UNUSED(member);
     QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgPrintf(("Handling NewTimer() method call, objectPath: '%s'", m_ObjectPath.c_str()));
 
@@ -309,7 +309,7 @@ void TimeServiceTimerFactoryBusObj::handleNewTimer(const InterfaceDescription::M
 //Handle Delete Timer
 void TimeServiceTimerFactoryBusObj::handleDeleteTimer(const InterfaceDescription::Member* member, Message& msg)
 {
-
+    QCC_UNUSED(member);
     QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgPrintf(("Handling DeleteTimer() method call, objectPath: '%s'", m_ObjectPath.c_str()));
 
