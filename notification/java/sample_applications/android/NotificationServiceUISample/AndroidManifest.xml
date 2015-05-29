@@ -16,8 +16,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.alljoyn.ns.sampleapp"
-    android:versionCode="1412"
-    android:versionName="14.12" >
+    android:versionCode="1504"
+    android:versionName="15.04" >
 
     <uses-sdk
         android:minSdkVersion="11"
@@ -48,7 +48,7 @@
         </activity>
         <activity
             android:name=".controlpanel.ControlPanelActivity"
-            android:label="@string/title_activity_control_panel" 
+            android:label="@string/title_activity_control_panel"
             android:screenOrientation="portrait">
         </activity>
     </application>
