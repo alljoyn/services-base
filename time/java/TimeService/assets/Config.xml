@@ -53,7 +53,7 @@
             <value>http://www.allseenalliance.org</value>
         </key>
         <key name="AJSoftwareVersion" writable="n"  announce="n"  public="y">
-            <value>15.04</value>
+            <value>00.01</value>
         </key>
     </keys>
 </config>
