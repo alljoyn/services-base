@@ -46,7 +46,7 @@ void TestAlarmFactory::testRelease()
 //Create new Alarm
 QStatus TestAlarmFactory::newAlarm(TimeServiceServerAlarm** ptrAlarm, tsConsts::ErrorInfo* errorInfo)
 {
-
+    QCC_UNUSED(errorInfo);
     TestAlarm* alarm = new TestAlarm();
     (*ptrAlarm)      = alarm;
 

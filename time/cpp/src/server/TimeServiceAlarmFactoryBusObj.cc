@@ -217,7 +217,7 @@ QStatus TimeServiceAlarmFactoryBusObj::handleGetVersion(MsgArg& msgArg)
 //Handle New Alarm
 void TimeServiceAlarmFactoryBusObj::handleNewAlarm(const InterfaceDescription::Member* member, Message& msg)
 {
-
+    QCC_UNUSED(member);
     QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgPrintf(("Handling NewAlarm() method call, objectPath: '%s'", m_ObjectPath.c_str()));
 
@@ -310,7 +310,7 @@ void TimeServiceAlarmFactoryBusObj::handleNewAlarm(const InterfaceDescription::M
 //Handle Delete Alarm
 void TimeServiceAlarmFactoryBusObj::handleDeleteAlarm(const InterfaceDescription::Member* member, Message& msg)
 {
-
+    QCC_UNUSED(member);
     QCC_DbgTrace(("%s, ObjectPath: '%s'", __FUNCTION__, m_ObjectPath.c_str()));
     QCC_DbgPrintf(("Handling DeleteAlarm() method call, objectPath: '%s'", m_ObjectPath.c_str()));
 

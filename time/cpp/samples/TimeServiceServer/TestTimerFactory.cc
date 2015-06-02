@@ -46,7 +46,7 @@ void TestTimerFactory::testRelease()
 //Create new Timer
 QStatus TestTimerFactory::newTimer(TimeServiceServerTimer** ptrTimer, tsConsts::ErrorInfo* errorInfo)
 {
-
+    QCC_UNUSED(errorInfo);
     TestTimer* Timer = new TestTimer();
     (*ptrTimer)      = Timer;
 

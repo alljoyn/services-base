@@ -157,7 +157,7 @@ bool TimeServiceServer::isStarted() const
 //Handle session lost
 void TimeServiceServer::SessionLost(ajn::SessionId sessionId, SessionLostReason reason)
 {
-
+    QCC_UNUSED(reason);
     QCC_DbgTrace(("%s, SID: '%u'", __FUNCTION__, sessionId));
 
     if (!m_Bus) {
@@ -177,7 +177,8 @@ void TimeServiceServer::SessionLost(ajn::SessionId sessionId, SessionLostReason 
 //Handle session join request
 bool TimeServiceServer::AcceptSessionJoiner(ajn::SessionPort sessionPort, const char* joiner, const ajn::SessionOpts& opts)
 {
-
+    QCC_UNUSED(joiner);
+    QCC_UNUSED(opts);
     QCC_DbgTrace(("%s, Joiner: '%s'", __FUNCTION__, joiner));
 
     if (sessionPort != tsConsts::PORT) {
@@ -193,7 +194,8 @@ bool TimeServiceServer::AcceptSessionJoiner(ajn::SessionPort sessionPort, const 
 //Handle joiner
 void TimeServiceServer::SessionJoined(ajn::SessionPort sessionPort, ajn::SessionId id, const char* joiner)
 {
-
+    QCC_UNUSED(sessionPort);
+    QCC_UNUSED(joiner);
     QCC_DbgTrace(("%s, SID: '%u'", __FUNCTION__, id));
 
     if (!m_Bus) {
