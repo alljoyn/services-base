@@ -32,8 +32,24 @@ NotificationTransport::NotificationTransport(ajn::BusAttachment* bus,
     status = bus->CreateInterface(interfaceName.c_str(), intf);
 
     if (status == ER_OK) {
-        intf->AddSignal(AJ_SIGNAL_METHOD.c_str(), AJ_NOTIFY_PARAMS.c_str(), AJ_NOTIFY_PARAM_NAMES.c_str(), 0);
-        intf->AddProperty(AJ_PROPERTY_VERSION.c_str(), AJPARAM_UINT16.c_str(), PROP_ACCESS_READ);
+        status = intf->AddSignal(AJ_SIGNAL_METHOD.c_str(), AJ_NOTIFY_PARAMS.c_str(), AJ_NOTIFY_PARAM_NAMES.c_str(), 0);
+        if (status != ER_OK) {
+            QCC_LogError(status, ("AddSignal failed."));
+            return;
+        }
+
+        // Mark the signal as sessionless.
+        status = intf->SetMemberDescription(AJ_SIGNAL_METHOD.c_str(), AJ_NOTIFY_SIGNAL_DESCRIPTION.c_str(), true);
+        if (status != ER_OK) {
+            QCC_LogError(status, ("SetMemberDescription failed."));
+            return;
+        }
+
+        status = intf->AddProperty(AJ_PROPERTY_VERSION.c_str(), AJPARAM_UINT16.c_str(), PROP_ACCESS_READ);
+        if (status != ER_OK) {
+            QCC_LogError(status, ("AddProperty failed."));
+            return;
+        }
         intf->Activate();
     } else if (status == ER_BUS_IFACE_ALREADY_EXISTS) {
         intf = (InterfaceDescription*) bus->GetInterface(interfaceName.c_str());
