@@ -1,40 +1,46 @@
+AllJoyn Notification Service Version 15.04 Release Notes
+========================================================
 
-AllJoyn Notification Service Version 14.06 Release Notes
---------------------------------------------------------
+Fully Supported Platforms
+-------------------------
+1) Linux Ubuntu (64 bit x86)
+2) Android Lollipop (ARM7)
+3) OpenWRT Barrier Breaker
 
-Platform Support
-----------------
-
- 1) Linux Ubuntu (64 bit x86)
- 2) Android Gingerbread 2.3.4 (ARM7)
- 3) Android Ice Cream Sandwich 4.0 (ARM7)
- 4) Android JellyBean 4.1 (ARM7)
- 5) Android KitKat 4.4 (ARM7)
- 6) iOS 7 and 7.1
- 7) OpenWRT 
-
-Features added in Version 14.06
+Features added in Version 15.04
 -------------------------------
+None
 
-
-Issues Addressed in Version 14.06
+Issues Addressed in Version 15.04
 ---------------------------------
-ASABASE-27 	Notification should not be sent when giving an empty/ null value for the appID 
-ASABASE-34 	IOS: It is not possible to scroll down to the bottom notification and perform an action/dismiss on it 
-ASABASE-73 Add notification + actions to ac sample app
-ASABASE-127 Remove the addMatch method call from the application layer of the sample applications 
-ASABASE-134 Align with changes made to aj_introspect.c where wildcard object path '*' was replaced with '!' 
-ASABASE-145 Setting DeviceName does not take effect in some applications 
-ASABASE-169 Notification sample app does not display CPS from notification with actions 
-ASABASE-181 No need to set password for router now that it is open 
+ASABASE-452 Deprecate older About related base service APIs
+ASABASE-454 NotificationDismisserSender and NotificationDismisserReceiver bus
+            objects have the same path
+ASABASE-470 Remove SuperAgent from Notificiation service
+ASABASE-489 Notification service reports bad introspection XML
+
+For a complete list of fixed issues:
+https://jira.allseenalliance.org/issues/?jql=project%20%3D%20ASABASE%20AND%20issuetype%20%3D%20Bug%20AND%20fixVersion%20%3D%20%2215.04%22%20AND%20component%20%3D%20%22Notification%20Service%20Framework%22%20AND%20status%20in%20%28Resolved%2C%20Closed%29
 
 Known Issues
 ------------
+Windows and iOS support have not been verified for this release
+
+For a complete list of known issues:
+https://jira.allseenalliance.org/issues/?jql=project%20%3D%20ASABASE%20AND%20issuetype%20%3D%20Bug%20AND%20component%20%3D%20%22Notification%20Service%20Framework%22%20AND%20status%20in%20%28Open%2C%20%22In%20Progress%22%2C%20Reopened%2C%20New%2C%20%22Monitor%20%2F%20On%20Hold%22%29
 
 Compatibility
 -------------
+The removal of PIN_KEYX from Standard Core Library (ASACORE-1641) has
+introduced inter-version inter-operability issues with the samples such that
+pre-15.04 samples using security will no longer interoperate with their 15.04
+peers. More details are available in the Core 15.04 release notes.
+
 
 Change history
 --------------
-14.06 - bug fixes, updates needed to match new core 14.06, added notification with actions to samples that didn't support it.
+15.04 - Bug fixes, compatibility with Core 15.04
+14.12 - Bug fixes, compatibility with Core 14.12
+14.06 - bug fixes, updates needed to match new core 14.06, added notification
+        with actions to samples that didn't support it.
 14.02 - 1st AllSeen Alliance release
