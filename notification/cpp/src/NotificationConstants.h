@@ -83,6 +83,7 @@ static const qcc::String AJ_PRODUCER_SERVICE_PATH_PREFIX = "/";
 static const qcc::String AJ_NOTIFY_PARAMS = AJPARAM_UINT16 + AJPARAM_INT + AJPARAM_UINT16 + AJPARAM_STR + AJPARAM_STR + AJPARAM_ARR_BYTE + AJPARAM_STR +
                                             AJPARAM_ARR_DICT_INT_VAR + AJPARAM_ARR_DICT_STR_STR + AJPARAM_ARR_STRUCT_STR_STR;
 static const qcc::String AJ_NOTIFY_PARAM_NAMES = "version, notificationId, messageType, deviceId, deviceName, appId, appName, attributes, customAttributes, notificationText";
+static const qcc::String AJ_NOTIFY_SIGNAL_DESCRIPTION = "AllJoyn signal-carrying notification message.";
 static const qcc::String AJ_SESSIONLESS_MATCH = "sessionless='t'";
 
 static const qcc::String AJ_NOTIFICATION_PRODUCER_INTERFACE = "org.alljoyn.Notification.Producer";
@@ -94,6 +95,7 @@ static const qcc::String AJ_DISMISS_METHOD_PARAMS_NAMES = "msgId";
 static const qcc::String AJ_NOTIFICATION_DISMISSER_INTERFACE = "org.alljoyn.Notification.Dismisser";
 static const qcc::String AJ_DISMISS_SIGNAL_NAME = "Dismiss";
 static const qcc::String AJ_DISMISS_SIGNAL_PARAMS = AJPARAM_INT + AJPARAM_ARR_BYTE;
+static const qcc::String AJ_DISMISS_SIGNAL_DESCRIPTION = "Notifies consumers that the notification has been dismissed.";
 static const qcc::String AJ_DISMISS_PARAM_NAMES = "msgId, appId";
 static const int32_t AJ_DISMISSER_NUM_PARAMS = 2;
 static const qcc::String AJ_NOTIFICATION_DISMISSER_PATH = "/notificationDismisser";

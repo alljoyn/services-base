@@ -45,6 +45,14 @@ NotificationDismisser::NotificationDismisser(ajn::BusAttachment* bus, qcc::Strin
             QCC_LogError(status, ("AddSignal failed."));
             return;
         }
+
+        // Mark the signal as sessionless.
+        status = m_InterfaceDescription->SetMemberDescription(AJ_DISMISS_SIGNAL_NAME.c_str(), AJ_DISMISS_SIGNAL_DESCRIPTION.c_str(), true);
+        if (status != ER_OK) {
+            QCC_LogError(status, ("SetMemberDescription failed."));
+            return;
+        }
+
         status = m_InterfaceDescription->AddProperty(AJ_PROPERTY_VERSION.c_str(), AJPARAM_UINT16.c_str(), PROP_ACCESS_READ);
         if (status != ER_OK) {
             QCC_LogError(status, ("AddProperty failed."));
@@ -59,7 +67,7 @@ NotificationDismisser::NotificationDismisser(ajn::BusAttachment* bus, qcc::Strin
         return;
     }
 
-    // Get the signal method for future use
+    // Get the signal method for future use.
     m_SignalMethod = m_InterfaceDescription->GetMember(AJ_DISMISS_SIGNAL_NAME.c_str());
     if (m_SignalMethod == NULL) {
         status = ER_FAIL;
