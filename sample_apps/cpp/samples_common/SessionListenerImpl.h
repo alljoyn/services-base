@@ -45,8 +45,9 @@ class SessionListenerImpl : public ajn::SessionListener {
     /**
      * SessionLost
      * @param sessionId
+     * @param reason
      */
-    void SessionLost(ajn::SessionId sessionId);
+    void SessionLost(ajn::SessionId sessionId, ajn::SessionListener::SessionLostReason reason);
 
   private:
 

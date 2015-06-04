@@ -36,8 +36,10 @@ ControlPanelSessionHandler::~ControlPanelSessionHandler()
 }
 
 
-void ControlPanelSessionHandler::SessionLost(ajn::SessionId sessionId)
+void ControlPanelSessionHandler::SessionLost(ajn::SessionId sessionId, ajn::SessionListener::SessionLostReason reason)
 {
+    QCC_UNUSED(sessionId);
+    QCC_UNUSED(reason);
     QCC_DbgPrintf(("Session lost for sessionId: %u", sessionId));
     m_SessionId = 0;
 
