@@ -190,7 +190,7 @@
                author="false"
                version="false"
                use="true"
-               windowtitle="Notification Service">
+               windowtitle="AllJoyn Notification Service">
     
                <classpath id="classpath">               
 	                <fileset dir="${libs.dir}" includes="*/**"/>
@@ -212,8 +212,8 @@
                      <include name="org/alljoyn/ns/**"/>
                </fileset>
             
-               <doctitle><![CDATA[<h1> Notification Service </h1>]]></doctitle> 
-               <bottom><![CDATA[<small>AllJoyn Notification Java API Reference Manual Version 14.06.00<br/>Copyright AllSeen Alliance.<br/><b>THIS DOCUMENT AND ALL INFORMATION CONTAIN HEREIN ARE PROVIDED ON AN "AS-IS" BASIS WITHOUT WARRANTY OF ANY KIND</b>.<br/><b>MAY CONTAIN U.S. AND INTERNATIONAL EXPORT CONTROLLED INFORMATION</b><br/></small>]]></bottom> 
+               <doctitle><![CDATA[<h1>AllJoyn&trade; Notification Service Version 15.04.00</h1>]]></doctitle> 
+               <bottom><![CDATA[<small>AllJoyn&trade; Notification Service Java API Reference Manual Version 15.04.00<br/>Copyright AllSeen Alliance, Inc. All Rights Reserved.<br/><br/>AllSeen, AllSeen Alliance, and AllJoyn are trademarks of the AllSeen Alliance, Inc in the United States and other jurisdictions.<br/><br/><b>THIS DOCUMENT AND ALL INFORMATION CONTAIN HEREIN ARE PROVIDED ON AN "AS-IS" BASIS WITHOUT WARRANTY OF ANY KIND</b>.<br/><b>MAY CONTAIN U.S. AND INTERNATIONAL EXPORT CONTROLLED INFORMATION</b><br/></small>]]></bottom>
          </javadoc>
      </target>
      

@@ -149,7 +149,9 @@ bool initSend(std::map<qcc::String, qcc::String>& params)
 bool send(std::map<qcc::String, qcc::String>& params)
 {
     int32_t type = atoi(params["type"].c_str());
-    String typeString = static_cast<std::ostringstream*>(&(std::ostringstream() << type))->str().c_str();
+    std::ostringstream oss;
+    oss << type;
+    String typeString = oss.str().c_str();
     if (!(params["type"].compare(typeString) == 0)) {
         std::cout << "Could not send message: Message Type is not an integer value." << std::endl;
         return false;
