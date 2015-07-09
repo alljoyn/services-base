@@ -22,7 +22,7 @@
     android:versionName="00.01">
 
     <uses-sdk
-        android:minSdkVersion="10"
+        android:minSdkVersion="11"
         android:targetSdkVersion="16" />
 
 </manifest>
