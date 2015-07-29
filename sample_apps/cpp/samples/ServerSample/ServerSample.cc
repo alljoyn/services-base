@@ -93,7 +93,7 @@ static void CDECL_CALL SigIntHandler(int sig) {
 
 static void daemonDisconnectCB()
 {
-    QCC_DbgHLPrintf(("Received daemonDisconnectCB"));
+    QCC_LogMsg(("Received daemonDisconnectCB"));
     s_restart = true;
 }
 
@@ -529,7 +529,7 @@ start:
     cleanup();
 
     if (s_restart) {
-        QCC_DbgHLPrintf(("restarting..."));
+        QCC_LogMsg(("restarting..."));
         s_restart = false;
         goto start;
     }

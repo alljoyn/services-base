@@ -253,7 +253,7 @@ int32_t NotificationTesterImpl::LoopHandler() {
                 if (notifIntervalOffset > 0) {
                     // add the initial offset to the notification time
                     intervalOffset = notifIntervalOffset;
-                    QCC_DbgHLPrintf(("First notification will be offset by: %dms", intervalOffset));
+                    QCC_LogMsg(("First notification will be offset by: %dms", intervalOffset));
                 }
             } else {
                 // send a message
@@ -280,7 +280,7 @@ int32_t NotificationTesterImpl::LoopHandler() {
                 } else {
                     int32_t messageId;
                     sender->getLastMsgId(messageType, &messageId);
-                    QCC_DbgHLPrintf(("Sent Message with Type: %d; TTL: %d sec and id: %d", messageType, notifTTL, messageId));
+                    QCC_LogMsg(("Sent Message with Type: %d; TTL: %d sec and id: %d", messageType, notifTTL, messageId));
                 }
             }
 
@@ -302,7 +302,7 @@ int32_t NotificationTesterImpl::LoopHandler() {
             }
 
             sleepTime = ((nextMessageTime - currentTimestamp) + 999) / 1000;
-            QCC_DbgHLPrintf(("Next message will be sent in %d sec", sleepTime));
+            QCC_LogMsg(("Next message will be sent in %d sec", sleepTime));
         }
     }
     return sleepTime;
