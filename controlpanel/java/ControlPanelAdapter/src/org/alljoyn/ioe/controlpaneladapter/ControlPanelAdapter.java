@@ -77,6 +77,7 @@ import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
@@ -741,6 +742,9 @@ public class ControlPanelAdapter {
                     break;
                 case RADIO_BUTTON:
                     returnView = createRadioButtonView(propertyWidget, initialValue);
+                    break;
+                case NUMBER_PICKER:
+                    returnView = createNumberPickerView(propertyWidget, initialValue);
                     break;
                 case NUMERIC_VIEW:
                     returnView = createNumericView(propertyWidget, initialValue);
@@ -1612,58 +1616,81 @@ public class ControlPanelAdapter {
 
         // create the label
         final LinearLayout layout = new LinearLayout(uiContext);
-        layout.setOrientation(LinearLayout.HORIZONTAL);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        final LinearLayout innerLayout = new LinearLayout(uiContext);
+        innerLayout.setOrientation(LinearLayout.HORIZONTAL);
         final TextView nameTextView = new TextView(uiContext);
         nameTextView.setText(propertyWidget.getLabel());
         final TextView valueTextView = new TextView(uiContext);
-        layout.addView(nameTextView);
+        valueTextView.setTag(PROPERTY_VALUE);
+        final TextView unitsOfMeasureTextView = new TextView(uiContext);
+
+        innerLayout.addView(nameTextView);
         LinearLayout.LayoutParams hLinearLayoutParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         hLinearLayoutParams.setMargins(10, 0, 0, 0);
-        layout.addView(valueTextView, hLinearLayoutParams);
+        innerLayout.addView(valueTextView, hLinearLayoutParams);
+        innerLayout.addView(unitsOfMeasureTextView, hLinearLayoutParams);
 
-        // initialize meta data
-        // if (propertyWidget.getBgColor() != null)
-        // valueTextView.setBackgroundColor(propertyWidget.getBgColor());
+        LinearLayout.LayoutParams vLinearLayoutParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        layout.addView(innerLayout, vLinearLayoutParams);
+
+        ValueType valueType       = propertyWidget.getValueType();
+        final int initialValueNum = (initialValue == null ? 0 : ValueType.SHORT.equals(valueType) ?
+        		((Short) initialValue) : ValueType.INT.equals(valueType) ? ((Integer) initialValue) : 0);
+
+        Log.d(TAG, "number picker initial value is: " + initialValueNum);
+
+        valueTextView.setText(String.valueOf(initialValueNum));
+
+        String unitOfMeasure = propertyWidget.getUnitOfMeasure();
+        Log.d(TAG, "Setting property units of measure to: " + unitOfMeasure);
+        unitsOfMeasureTextView.setText(unitOfMeasure);
+
+        RangeConstraint<?> propertyRangeConstraint = propertyWidget.getPropertyRangeConstraint();
+        if (propertyRangeConstraint == null) {
+        	Log.e(TAG, "Found null property-range. Disabling Number Picker. Returning a plain label.");
+        	valueTextView.setEnabled(false);
+        	return layout;
+        }
 
         Log.d(TAG, "Property isWritable? " + propertyWidget.isWritable() + ", isEnabled? " + propertyWidget.isEnabled());
         enableViewGroup(layout, propertyWidget.isEnabled() && propertyWidget.isWritable());
 
-        RangeConstraint<?> propertyRangeConstraint = propertyWidget.getPropertyRangeConstraint();
-        if (propertyRangeConstraint == null) {
-            Log.e(TAG, "Found null property-range. Disabling Number Picker. Returning a plain label.");
-            valueTextView.setEnabled(false);
-            return layout;
+        // Number picker only works for Honeycomb(API 11) and above
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) 
+        {
+        	final NumberPicker picker = new NumberPicker(uiContext);
+        	picker.setTag(PROPERTY_EDITOR);
+
+        	layout.addView(picker, vLinearLayoutParams);
+
+        	Object minT = propertyRangeConstraint.getMin();
+        	Log.d(TAG, "number picker min value is: " + minT.toString());
+        	final int min = ValueType.SHORT.equals(valueType) ? ((Short) minT) : ValueType.INT.equals(valueType) ? ((Integer) minT) : 0;
+
+        	Object maxT = propertyRangeConstraint.getMax();
+        	Log.d(TAG, "number picker max value is: " + maxT.toString());
+        	int max = ValueType.SHORT.equals(valueType) ? ((Short) maxT) : ValueType.INT.equals(valueType) ? ((Integer) maxT) : 0;
+
+        	picker.setValue(initialValueNum);
+
+        	picker.setMinValue(min);
+
+        	picker.setMaxValue(max);
+
+        	picker.setWrapSelectorWheel(true);
+
+        	picker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+
+        		public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+
+        			Log.d(TAG, "New value is: " + newVal);
+        			valueTextView.setText(String.valueOf(newVal));
+        		}
+        	});
+
         }
 
-        if (initialValue != null) {
-            valueTextView.setText(initialValue.toString());
-        }
-
-        // register touch listener
-        /*
-         * Only in honeycomb 3.0 final int min = (Integer)
-         * propertyRangeConstraint.getMin(); final int max = (Integer)
-         * propertyRangeConstraint.getMax(); //final int increment = (Integer)
-         * propertyRangeConstraint.getIncrement();
-         * numericTextView.setOnTouchListener(new OnTouchListener() {
-         *
-         * @Override public boolean onTouch (View v, MotionEvent event) { if
-         * (event.getAction() == MotionEvent.ACTION_DOWN) {
-         *
-         * final NumberPicker picker = new NumberPicker(uiContext);
-         * picker.setMaxValue(max); picker.setMinValue(min);
-         * picker.setValue(Integer
-         * .valueOf(numericTextView.getText().toString())); AlertDialog
-         * alertDialog = new AlertDialog.Builder(uiContext) .setView(picker)
-         * .setTitle(propertyWidget.getLabel())
-         * .setPositiveButton(R.string.dialog_set, new
-         * DialogInterface.OnClickListener() { public void
-         * onClick(DialogInterface dialog, int whichButton) {
-         * setPropertyValue(propertyWidget, picker.getValue());
-         * numericTextView.setText(String.valueOf(picker.getValue())); }})
-         * .setNegativeButton(R.string.dialog_cancel, null).create();
-         * alertDialog.show(); return true; } return false; } });
-         */
         return layout;
     }
 
@@ -2076,6 +2103,9 @@ public class ControlPanelAdapter {
                 case RADIO_BUTTON:
                     onRadioButtonValueChange(propertyView, propertyWidget, newValue);
                     break;
+                case NUMBER_PICKER:
+                    onNumberPickerValueChange(propertyView, propertyWidget, newValue);
+                    break;
                 case NUMERIC_VIEW:
                     onNumericViewValueChange(propertyView, propertyWidget, newValue);
                     break;
@@ -2206,7 +2236,20 @@ public class ControlPanelAdapter {
         valueTextView.setText(newValue.toString());
 
     }
+ // =====================================================================================================================
 
+    private void onNumberPickerValueChange(View propertyView, PropertyWidget propertyWidget, Object newValue) {
+        Log.d(TAG, "Refreshing the NumericPicker of property " + propertyWidget.getLabel());
+
+        // extract the text view
+        final ViewGroup layout = (ViewGroup) propertyView;
+        final TextView valueTextView = (TextView) layout.findViewWithTag(PROPERTY_VALUE);
+
+        // set the current value
+        Log.d(TAG, "Setting property value to: " + newValue.toString());
+        valueTextView.setText(newValue.toString());
+
+    }
     // =====================================================================================================================
 
     private void onNumericKeypadValueChange(View propertyView, PropertyWidget propertyWidget, Object newValue) {
