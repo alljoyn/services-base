@@ -40,12 +40,15 @@ NotificationReceiverImpl::~NotificationReceiverImpl() {
 
 void NotificationReceiverImpl::Receive(Notification const& notification) {
 
-    QCC_LogMsg(("Received message with msgId: %d; msgType: %d; from DeviceId: %s; DeviceName: %s; AppId: %s; AppName: %s; SenderBusName: %s;\n", notification.getMessageId(), notification.getMessageType(), notification.getDeviceId(), notification.getDeviceName(), notification.getAppId(), notification.getAppName(), notification.getSenderBusName()));
+    QCC_LogMsg(("Received message with msgId: %d; msgType: %d; from DeviceId: %s; DeviceName: %s; AppId: %s; AppName: %s; SenderBusName: %s;",
+                notification.getMessageId(), notification.getMessageType(), notification.getDeviceId(),
+                notification.getDeviceName(), notification.getAppId(), notification.getAppName(),
+                notification.getSenderBusName()));
 
     // output the message text(s)
     std::vector<NotificationText> vecMessages = notification.getText();
     for (std::vector<NotificationText>::const_iterator vecMessage_it = vecMessages.begin(); vecMessage_it != vecMessages.end(); ++vecMessage_it) {
-        QCC_LogMsg(("Message[%s]: %s;\n", vecMessage_it->getLanguage().c_str(),
+        QCC_LogMsg(("Message[%s]: %s;", vecMessage_it->getLanguage().c_str(),
                     vecMessage_it->getText().c_str()));
     }
 
