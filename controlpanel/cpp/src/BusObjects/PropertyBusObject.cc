@@ -161,7 +161,7 @@ QStatus PropertyBusObject::SendValueChangedSignal()
     for (size_t indx = 0; indx < sessionIds.size(); indx++) {
         status = Signal(NULL, sessionIds[indx], *m_SignalValueChanged, &value, 1);
         if (status != ER_OK) {
-            QCC_LogError(status, ("Could not send ValueChanged Signal for sessionId: %s", sessionIds[indx]));
+            QCC_LogError(status, ("Could not send ValueChanged Signal for sessionId: %u", sessionIds[indx]));
         }
     }
     return status;
