@@ -13,11 +13,18 @@
 #    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 # 
 
-Import('env')
+Import('env', 'CheckCXXFlag')
 import os
 
 # Darwin specific flags
 env.Append(CPPDEFINES=['QCC_OS_DARWIN'])
+
+config = Configure(env, custom_tests = { 'CheckCXXFlag' : CheckCXXFlag })
+if not config.CheckCXXFlag('-std=c++11'):
+   if not config.CheckCXXFlag('-std=c++0x'):
+      print '*** Compiler too old to build AllJoyn.  Aborting.'
+      Exit(1)
+env = config.Finish()
 
 env.Append(CFLAGS=['-Wall',
                    '-pipe',
@@ -28,7 +35,6 @@ env.Append(CFLAGS=['-Wall',
 env.Append(CXXFLAGS=['-Wall',
                      '-Werror=non-virtual-dtor',
                      '-pipe',
-                     '-std=gnu++11',
                      '-fno-exceptions',
                      '-fno-strict-aliasing',
                      '-Wno-deprecated'])
@@ -47,3 +53,23 @@ else:
    print 'Using release settings for darwin build...'
 
 env.SConscript('${CPU}/SConscript')
+
+env.Append(CPPDEFINES=['MECHANISM_PIPE'])
+env.AppendUnique(LIBS =['stdc++', 'pthread'])
+if env['CRYPTO'] == 'openssl':
+    env.AppendUnique(LIBS =['crypto', 'ssl'])
+    if env['CPU'] in ['arm', 'armv7', 'armv7s', 'arm64']:
+        vars = Variables()
+        vars.Add(PathVariable('OPENSSL_ROOT', 'Base OpenSSL directory (darwin only)', os.environ.get('OPENSSL_ROOT')))
+        vars.Update(env)
+        Help(vars.GenerateHelpText(env))
+        if '' == env.subst('$OPENSSL_ROOT'):
+            # Must specify OPENSSL_ROOT for darwin, arm
+            print 'Must specify OPENSSL_ROOT when building for OS=darwin, CPU=arm'
+            if not GetOption('help'):
+                Exit(1)
+        env.Append(CPPPATH = ['$OPENSSL_ROOT/include'])
+        env.Append(LIBPATH = ['$OPENSSL_ROOT/build/' + os.environ.get('CONFIGURATION') + '-' + os.environ.get('PLATFORM_NAME')])
+    print 'Using OpenSSL crypto'
+else:
+    print 'Using builtin crypto'

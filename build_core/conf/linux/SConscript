@@ -13,15 +13,23 @@
 #    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 # 
 
-Import('env')
+Import('env', 'CheckCXXFlag')
 import os
 
 # Linux specific vars
 vars = Variables()
 vars.Add(BoolVariable('GCOV', 'Compile with gcov support', 'no'))
+vars.Add(BoolVariable('ASAN', 'Enable Address Sanitizer runtime checks', 'no'))
 vars.Update(env)
 
 Help(vars.GenerateHelpText(env))
+
+config = Configure(env, custom_tests = { 'CheckCXXFlag' : CheckCXXFlag })
+if not config.CheckCXXFlag('-std=c++11'):
+   if not config.CheckCXXFlag('-std=c++0x'):
+      print '*** Compiler too old to build AllJoyn.  Aborting.'
+      Exit(1)
+env = config.Finish()
 
 # Linux specific flags
 env.Append(CPPDEFINES = ['QCC_OS_LINUX'])
@@ -42,7 +50,6 @@ env.Append(CFLAGS = ['-Wall',
 env.Append(CXXFLAGS = ['-Wall',
                        '-Werror',
                        '-pipe',
-                       '-std=gnu++0x',
                        '-fno-exceptions',
                        '-fno-strict-aliasing',
                        '-fno-asynchronous-unwind-tables',
@@ -61,15 +68,28 @@ if env['VARIANT'] == 'debug':
    env.Append(CFLAGS = '-g')
    env.Append(CXXFLAGS = '-g')
    env.Append(JAVACFLAGS = '-g')
+   env.Append(CPPDEFINES = ['_GLIBCXX_DEBUG', '_GLIBCXX_DEBUG_PEDANTIC'])
 else:
    env.Append(CFLAGS = '-Os')
    env.Append(CXXFLAGS = '-Os')
    env.Append(LINKFLAGS = ['-s', '-Wl,--gc-sections'])
 
-
+# Code coverage control
 if env['GCOV']:
     env.Append(CCFLAGS = ['-fprofile-arcs', '-ftest-coverage'])
     env.Append(LIBS = ['gcov'])
 
+# Address sanitizer control
+if env['ASAN']:
+   env.Append(CFLAGS = ['-fno-omit-frame-pointer', '-fsanitize=address'])
+   env.Append(CXXFLAGS = ['-fno-omit-frame-pointer', '-fsanitize=address'])
+   env.Append(LINKFLAGS = '-fsanitize=address')
 
 env.SConscript('${CPU}/SConscript')
+
+env.AppendUnique(LIBS =['rt', 'stdc++', 'pthread', 'm'])
+if env['CRYPTO'] == 'openssl':
+    env.AppendUnique(LIBS =['crypto', 'ssl'])
+    print 'Using OpenSSL crypto'
+else:
+    print 'Using builtin crypto'

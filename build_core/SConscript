@@ -16,6 +16,19 @@
 import os
 import platform
 
+def CheckCXXFlag(context, flag):
+   prog = "int main(void) { return 0; }"
+   context.Message('Checking c++ compiler support for %s flag... ' % flag)
+   prevCXXFLAGS = context.env.get('CXXFLAGS')
+
+   context.env.Replace(CXXFLAGS = [ flag ])
+   r = context.TryCompile(prog, '.cc')
+   if not r:
+      context.env.Replace(CXXFLAGS = prevCXXFLAGS)
+   context.Result(r)
+   return r
+
+
 if platform.system() == 'Linux':
     default_target_os = 'linux'
     allowed_target_oss = ('linux', 'android', 'openwrt')
@@ -33,7 +46,7 @@ if platform.system() == 'Linux':
 
 elif platform.system() == 'Windows':
     default_target_os = 'win7'
-    allowed_target_oss = ('winxp', 'win7', 'android')
+    allowed_target_oss = ('win7', 'win10', 'android')
 
     if platform.machine() == 'x86_64':
         default_target_cpu = 'x86_64'
@@ -44,7 +57,7 @@ elif platform.system() == 'Windows':
     default_msvc_version = '12.0'
 
     default_crypto = 'cng'
-    allowed_crypto = ('cng', 'openssl')
+    allowed_crypto = ('cng', 'openssl', 'builtin')
 
 elif platform.system() == 'Darwin':
     default_target_os = 'darwin'
@@ -70,7 +83,7 @@ vars.Add(EnumVariable('BR', 'Have bundled router built-in for C++ test samples',
 vars.Add(EnumVariable('DOCS', '''Output doc type. Setting the doc type to "dev" will produce HTML 
     output that includes all developer files not just the public API.
     ''', 'none', allowed_values=('none', 'pdf', 'html', 'dev', 'chm', 'sandcastle')))
-vars.Add(EnumVariable('WS', 'Whitespace Policy Checker', 'check', allowed_values=('check', 'detail', 'fix', 'off')))
+vars.Add(EnumVariable('WS', 'Whitespace Policy Checker', 'off', allowed_values=('check', 'detail', 'fix', 'off')))
 vars.Add(PathVariable('GTEST_DIR', 'The path to Google Test (gTest) source code',  os.environ.get('GTEST_DIR'), PathVariable.PathIsDir))
 vars.Add(PathVariable('BULLSEYE_BIN', 'The path to Bullseye Code Coverage',  os.environ.get('BULLSEYE_BIN'), PathVariable.PathIsDir))
 vars.Add(EnumVariable('NDEBUG', 'Override NDEBUG default for release variant', 'defined', allowed_values=('defined', 'undefined')))
@@ -78,7 +91,7 @@ vars.Add('CXX', 'C++ compiler to use')
 
 
 if default_msvc_version:
-    vars.Add(EnumVariable('MSVC_VERSION', 'MSVC compiler version - Windows', default_msvc_version, allowed_values=('9.0', '10.0', '11.0', '11.0Exp', '12.0', '12.0Exp')))
+    vars.Add(EnumVariable('MSVC_VERSION', 'MSVC compiler version - Windows', default_msvc_version, allowed_values=('11.0', '11.0Exp', '12.0', '12.0Exp', '14.0', '14.0Exp')))
 
 
 # Standard variant directories
@@ -94,9 +107,9 @@ if target_os == 'android':
     default_crypto = 'builtin'
 vars.Add(EnumVariable('CRYPTO', 'Crypto implementation', default_crypto, allowed_values = allowed_crypto))
 
-if target_os in ['win7', 'winxp']:
-    # The Win7 MSI installation package takes a long time to build. Let it be optional.
-    if target_os == 'win7':
+if target_os in ['win10', 'win7']:
+    # The Win7/Win10 MSI installation package takes a long time to build. Let it be optional.
+    if target_os in ['win10', 'win7']:
         vars.Add(EnumVariable('WIN7_MSI', 'Build the .MSI installation package', 'false', allowed_values=('false', 'true')))
 
     path = []
@@ -154,7 +167,7 @@ if env['OS'] == 'linux':
     env['OS_GROUP'] = 'posix'
     env['OS_CONF'] = 'linux'
 
-elif env['OS'] in ['win7', 'winxp']:
+elif env['OS'] in ['win10', 'win7']:
     env['OS_GROUP'] = 'windows'
     env['OS_CONF'] = 'windows'
 
@@ -238,7 +251,7 @@ else:
     env['LIBTYPE'] = 'static'
 
 # Read OS and CPU specific SConscript file
-Export('env')
+Export('env', 'CheckCXXFlag')
 env.SConscript('conf/${OS_CONF}/SConscript')
 
 # Whitespace policy

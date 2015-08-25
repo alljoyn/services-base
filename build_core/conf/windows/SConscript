@@ -27,8 +27,7 @@ if env['MSVC_VERSION'] >= '8.0':
     env.Append(SHLINKCOM=[env['SHLINKCOM'], 'mt.exe -nologo -manifest ${TARGET}.manifest -outputresource:$TARGET;2'])
 
 # Windows specific compiler flags
-env.Append(CPPDEFINES=['QCC_CPU_X86',
-                       'UNICODE',
+env.Append(CPPDEFINES=['UNICODE',
                        '_UNICODE',
                        'WIN32_LEAN_AND_MEAN',
                        ('_VARIADIC_MAX','10')])
@@ -42,13 +41,15 @@ env.Append(CPPDEFINES=['QCC_CPU_X86',
 env.Append(CPPDEFINES=['_CRT_SECURE_NO_WARNINGS'])
 
 # Set MS OS version number
-if env['OS'] == 'win7':
+if env['OS'] == 'win10':
+    # Windows 10
+    env.Append(CPPDEFINES=[('_WIN32_WINNT', '_WIN32_WINNT_WIN10')])
+elif env['OS'] == 'win7':
     # Windows 7
     env.Append(CPPDEFINES=[('_WIN32_WINNT', '_WIN32_WINNT_WIN7')])
-elif env['OS'] == 'winxp':
-    # WinXP SP3
-    env.Append(CPPDEFINES=[('_WIN32_WINNT', '_WIN32_WINNT_WINXP')])
-    env.Append(CPPDEFINES=[('NTDDI_VERSION', '0x05010300')])
+else:
+    print 'Error: Unknown Windows OS type: ' + env['OS']
+    Exit(1)
                                
 #Suppress specific warnings
 # C4244 'conversion' conversion from one type to another type results in a possible
@@ -72,8 +73,6 @@ elif env['OS'] == 'winxp':
 #       by checking if( ptr) This also is a common problem in the language bindings
 #       with things like QCC_BOOL and jboolean being defined as integers. For this
 #       reason we are choosing to suppress this particular warning.
-# C4996 'strdup': The POSIX name for this item is deprecated. Instead, use the ISO
-#       C++ conformant name: _strdup. See online help for details.
 # C4351 "new behavior: elements of array 'array' will be default initialized"
 #       This warning is triggered when we initialize the guid array in the GUID128()
 #       constructor. We intentionally want to initialize this array, so this behavior
@@ -82,7 +81,18 @@ elif env['OS'] == 'winxp':
 #       The warning is triggered by the monty_rho() function in BigNum.cc when it
 #       negates an unsigned value before truncating it to uint32_t. This is an
 #       intentional part of the algorithm so the warning can be suppressed.
-env.Append(CXXFLAGS=['/wd4244', '/wd4267','/wd4345', '/wd4355', '/wd4800', '/wd4996', '/wd4351', '/wd4146'])
+# C4456 "declaration of 'foo' hides previous local declaration"
+#       This warning (treated as an error) is produced when a local variable
+#       is redefined multiple times under the same parent scope.
+# C4457 "declaration of 'foo' hides function parameter"
+#       This warning (treated as an error) is produced when a function parameter
+#       name is duplicated in the function body by a local variable named the same.
+# C4458 "declaration of 'foo' hides class member"
+#       This warning (treated as an error) is produced when a class data member
+#       name is duplicated in a class member method via an argument with the
+#       same type and name and/or a local variable of the same. To avoid this
+#       warning it is best to prefix data member names with "m_".
+env.Append(CXXFLAGS=['/wd4244', '/wd4267','/wd4345', '/wd4355', '/wd4800', '/wd4351', '/wd4146', '/wd4456', '/wd4457', '/wd4458'])
 
 env.Append(CFLAGS=['/nologo'])
 env.Append(CXXFLAGS=['/nologo'])
@@ -107,8 +117,9 @@ env.Append(LINKFLAGS=['/NODEFAULTLIB:libcmt.lib'])
 # using the /Z7 option to solve this problem.  Since another more acceptable
 # solution has not yet been found we are going with the recommendation from the
 # SCons documentation. 
-if env['VARIANT'] == 'debug':
-    env['CCPDBFLAGS'] = '/Z7'
+env['CCPDBFLAGS'] = '/Z7'
+env['PDB'] = '${TARGET.base}.pdb'
+env.Append(LINKFLAGS=['/PDB:${TARGET.base}.pdb'])
 
 # Debug/Release variants
 if env['VARIANT'] == 'debug':
@@ -122,13 +133,35 @@ if env['VARIANT'] == 'debug':
    env.Append(LINKFLAGS=['/debug'])
    env.Append(JAVACFLAGS='-g -Xlint -Xlint:-serial')
 else:
-   # MSVC 2010 an newer require _ITERATOR_DEBUG_LEVEL specified
-   if env['MSVC_VERSION'] >= '10.0':
-       env.Append(CPPDEFINES=[('_ITERATOR_DEBUG_LEVEL', 0)])
+   # MSVC 2010 and newer require _ITERATOR_DEBUG_LEVEL specified
+   env.Append(CPPDEFINES=[('_ITERATOR_DEBUG_LEVEL', 0)])
+   
    env.Append(CFLAGS=['/MD', '/Gy', '/O1', '/Ob2'])
    env.Append(CXXFLAGS=['/MD', '/Gy', '/O1', '/Ob2', '/W4', '/WX'])
    env.Append(LINKFLAGS=['/opt:ref'])
    env.Append(JAVACFLAGS='-Xlint -Xlint:-serial')
+
+vars = Variables()
+vars.Add(PathVariable('OPENSSL_BASE', 'Base OpenSSL directory (windows only)', os.environ.get('OPENSSL_BASE')))
+vars.Update(env)
+Help(vars.GenerateHelpText(env))
+env.AppendUnique(LIBS = ['setupapi', 'user32', 'winmm', 'ws2_32', 'iphlpapi', 'secur32', 'Advapi32'])
+
+if env['OS'] == 'win10':
+    env.AppendUnique(LIBS = ['msajapi'])
+
+if env['CRYPTO'] == 'cng':
+    env.AppendUnique(LIBS = ['bcrypt', 'ncrypt', 'crypt32'])
+    env.Append(CPPDEFINES=['CRYPTO_CNG'])
+    print 'Using CNG crypto libraries'
+elif env['CRYPTO'] == 'openssl':
+    env.Append(CPPPATH = ['$OPENSSL_BASE/include'])
+    env.Append(LIBPATH = ['$OPENSSL_BASE/lib'])
+    env.AppendUnique(LIBS = ['libeay32'])
+    print 'Using OpenSSL crypto libraries'
+else:
+    print 'Only CRYPTO=cng or CRYPTO=openssl are supported for Windows.'
+    Exit(1)
 
 # Archive expander
 def archive_expand(target, source, env):
