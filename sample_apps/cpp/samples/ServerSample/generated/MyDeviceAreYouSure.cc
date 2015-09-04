@@ -14,6 +14,11 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+#ifdef _WIN32
+/* Disable deprecation warnings */
+#pragma warning(disable: 4996)
+#endif
+
 #include "MyDeviceAreYouSure.h"
 #include "ControlPanelProvided.h"
 
@@ -42,17 +47,11 @@ bool MyDeviceAreYouSure::executeAction1CallBack()
 bool MyDeviceAreYouSure::executeAction2CallBack()
 {
     return executeActionNotDefined();
-
-    //by default return success
-    return true;
 }
 
 bool MyDeviceAreYouSure::executeAction3CallBack()
 {
     return executeActionNotDefined();
-
-    //by default return success
-    return true;
 }
 
 } /* namespace services */

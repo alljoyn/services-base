@@ -14,6 +14,11 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+#ifdef _WIN32
+/* Disable deprecation warnings */
+#pragma warning(disable: 4996)
+#endif
+
 #include "MyDeviceTurnFanOff.h"
 #include "ControlPanelProvided.h"
 
@@ -50,9 +55,6 @@ bool MyDeviceTurnFanOff::executeAction2CallBack()
 bool MyDeviceTurnFanOff::executeAction3CallBack()
 {
     return executeActionNotDefined();
-
-    //by default return success
-    return true;
 }
 
 } /* namespace services */

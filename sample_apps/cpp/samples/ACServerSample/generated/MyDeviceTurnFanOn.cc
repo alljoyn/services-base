@@ -50,9 +50,6 @@ bool MyDeviceTurnFanOn::executeAction2CallBack()
 bool MyDeviceTurnFanOn::executeAction3CallBack()
 {
     return executeActionNotDefined();
-
-    //by default return success
-    return true;
 }
 
 } /* namespace services */

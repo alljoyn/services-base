@@ -14,6 +14,11 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+#ifdef _WIN32
+/* Disable deprecation warnings */
+#pragma warning(disable: 4996)
+#endif
+
 #include <alljoyn/controlpanel/ControlPanelController.h>
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include "ControlPanelConstants.h"

@@ -49,16 +49,16 @@ void OptParser::PrintUsage() {
     cmd = cmd.substr(cmd.find_last_of('/') + 1);
 
     std::cerr << cmd.c_str() << " [--factory-config-file=FILE | --config-file=FILE |  --appId=APPID"
-    "]\n"
+        "]\n"
 
-    "    --factory-config-file=FILE\n"
-    "        Configuration file with factory settings.\n\n"
-    "    --config-file=FILE\n"
-    "        Active configuration file that persists user's updates\n\n"
-    "    --appId=\n"
-    "        Use the specified it is HexString of 16 bytes (32 chars) \n\n"
-    "    --version\n"
-    "        Print the version and copyright string, and exit." << std::endl;
+        "    --factory-config-file=FILE\n"
+        "        Configuration file with factory settings.\n\n"
+        "    --config-file=FILE\n"
+        "        Active configuration file that persists user's updates\n\n"
+        "    --appId=\n"
+        "        Use the specified it is HexString of 16 bytes (32 chars) \n\n"
+        "    --version\n"
+        "        Print the version and copyright string, and exit." << std::endl;
 }
 
 bool OptParser::IsAllHex(const char* data) {

@@ -17,6 +17,11 @@
 #include <algorithm>
 #include <sstream>
 
+#ifdef _WIN32
+/* Disable deprecation warnings */
+#pragma warning(disable: 4996)
+#endif
+
 #include <qcc/Debug.h>
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include "ControlPanelConstants.h"

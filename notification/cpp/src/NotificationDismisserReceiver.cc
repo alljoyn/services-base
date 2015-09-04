@@ -14,6 +14,11 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+#ifdef _WIN32
+/* Disable deprecation warnings */
+#pragma warning(disable: 4996)
+#endif
+
 #include <alljoyn/notification/NotificationService.h>
 #include <alljoyn/notification/NotificationReceiver.h>
 #include "NotificationDismisserReceiver.h"

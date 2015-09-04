@@ -17,6 +17,12 @@
 #include <algorithm>
 #include <iostream>
 #include <signal.h>
+
+#ifdef _WIN32
+/* Disable deprecation warnings */
+#pragma warning(disable: 4996)
+#endif
+
 #include <alljoyn/notification/NotificationService.h>
 #include <alljoyn/notification/NotificationSender.h>
 #include <alljoyn/notification/NotificationText.h>

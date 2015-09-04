@@ -29,6 +29,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef _WIN32
+/* Disable deprecation warnings */
+#pragma warning(disable: 4996)
+#endif
+
 #include <alljoyn/notification/NotificationText.h>
 #include <alljoyn/notification/RichAudioUrl.h>
 #include <alljoyn/Status.h>

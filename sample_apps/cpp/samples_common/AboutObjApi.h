@@ -39,7 +39,7 @@ namespace services {
 /**
  *      AboutObjApi is wrapper class that encapsulates the AboutObj with a Singleton.
  */
-class AboutObjApi  {
+class AboutObjApi {
 
   public:
 

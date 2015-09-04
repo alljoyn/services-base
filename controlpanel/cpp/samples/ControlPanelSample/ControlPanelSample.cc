@@ -18,6 +18,12 @@
 #include <sstream>
 #include <cstdio>
 #include <signal.h>
+
+#ifdef _WIN32
+/* Disable deprecation warnings */
+#pragma warning(disable: 4996)
+#endif
+
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include <alljoyn/controlpanel/ControlPanelControllee.h>
 #include <SrpKeyXListener.h>

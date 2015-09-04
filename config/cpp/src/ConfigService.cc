@@ -16,6 +16,11 @@
 
 #include <stdio.h>
 
+#ifdef _WIN32
+/* Disable deprecation warnings */
+#pragma warning(disable: 4996)
+#endif
+
 #include <alljoyn/config/ConfigService.h>
 #include <alljoyn/BusAttachment.h>
 #include <alljoyn/config/LogModule.h>

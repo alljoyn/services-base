@@ -17,6 +17,11 @@
 #include <time.h>
 #include <stdio.h>
 
+#ifdef _WIN32
+/* Disable deprecation warnings */
+#pragma warning(disable: 4996)
+#endif
+
 #include <alljoyn/notification/NotificationService.h>
 #include <alljoyn/notification/NotificationText.h>
 #include <alljoyn/notification/Notification.h>
