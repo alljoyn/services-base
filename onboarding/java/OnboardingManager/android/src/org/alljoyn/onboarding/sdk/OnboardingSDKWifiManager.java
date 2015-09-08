@@ -155,8 +155,9 @@ class OnboardingSDKWifiManager {
                     NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
                     if (networkInfo != null && networkInfo.getState() != null && networkInfo.isConnected()) {
                         // the state of Wi-Fi connectivity has changed.
-                        if (getCurrentConnectedAP() != null) {
-                            Log.d(TAG, "WiFi BroadcastReceiver onReceive success in connecting to " + getCurrentConnectedAP().getSSID());
+                        WiFiNetwork currentConnectedAP = getCurrentConnectedAP();
+                        if (currentConnectedAP != null) {
+                            Log.d(TAG, "WiFi BroadcastReceiver onReceive success in connecting to " + currentConnectedAP.getSSID());
                         }
                         // the wifiInfo extra indicates that the new state is
                         // CONNECTED, and provides the SSID.
