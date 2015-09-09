@@ -69,7 +69,7 @@ public class ContainerWidget extends UIElement {
     private String label;
  
     /**
-     * BGColor <br>
+     * bgColor <br>
      * Not required to be set
      */
     private Integer bgColor;
@@ -90,8 +90,12 @@ public class ContainerWidget extends UIElement {
      * @throws ControlPanelException
      */
 	public ContainerWidget(String ifName, String objectPath, DeviceControlPanel controlPanel, List<IntrospectionNode> children) throws ControlPanelException {
-		super(UIElementType.CONTAINER, ifName, objectPath, controlPanel, children);
-	}
+        super(UIElementType.CONTAINER, ifName, objectPath, controlPanel, children);
+        layoutHints = new ArrayList<LayoutHintsType>();
+        elements = new ArrayList<UIElement>();
+        bgColor = 0;
+        enabled = true;
+    }
 			
 	public List<UIElement> getElements() {
 		return elements;
