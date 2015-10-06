@@ -254,6 +254,12 @@ else:
 Export('env', 'CheckCXXFlag')
 env.SConscript('conf/${OS_CONF}/SConscript')
 
+# Services 15.09 uses deprecated Core APIs!
+if env['OS_GROUP'] == 'posix':
+    env.Append(CXXFLAGS = ['-Wno-deprecated-declarations'])
+if env['OS_GROUP'] == 'windows':
+    env.Append(CXXFLAGS = ['/wd4996'])
+
 # Whitespace policy
 if env['WS'] != 'off' and not env.GetOption('clean'):
     import sys
