@@ -36,6 +36,11 @@
 #include <alljoyn/services_common/GuidUtil.h>
 #include <AJInitializer.h>
 
+#define DEFAULT_DEVICE_NAME     "defaultDeviceName"
+#define DEFAULT_APP_NAME        "defaultAppName"
+#define DEFAULT_TTL		30
+#define DEFAULT_SLEEP_TIME	20
+
 #define SERVICE_PORT 900
 
 using namespace ajn;
@@ -88,13 +93,13 @@ bool getInput(qcc::String& device_name, qcc::String& app_name, NotificationMessa
     qcc::String tempText = "";
     qcc::String tempUrl = "";
     qcc::String tempKey;
-    qcc::String defaultDeviceName = "defaultDeviceName";
-    qcc::String defaultAppName = "defaultAppName";
+    qcc::String defaultDeviceName = DEFAULT_DEVICE_NAME;
+    qcc::String defaultAppName = DEFAULT_APP_NAME;
     qcc::String defaultLang = "en";
     qcc::String defaultText = "Using the default text.";
     qcc::String defaultRichAudioUrl = "http://myRichContentAudioUrl.wv";
     qcc::String defaultRichIconUrl = "http://myRichContentIconUrl.jpg";
-    uint16_t defaultTTL = 30;
+    uint16_t defaultTTL = DEFAULT_TTL;
     qcc::String defaultRichIconObjectPath = "/Icon/ObjectPath";
     qcc::String defaultRichAudioObjectPath = "/Audio/ObjectPath";
     qcc::String defaultControlPanelServiceObjectPath = "/ControlPanel/MyDevice/areYouSure";
@@ -338,11 +343,18 @@ void CDECL_CALL signal_callback_handler(int32_t signum)
     s_interrupt = true;
 }
 
-int main()
+int main(int argc, char* argv[])
 {
     // Initialize AllJoyn
     AJInitializer ajInit;
     if (ajInit.Initialize() != ER_OK) {
+        return 1;
+    }
+
+    bool automated = (argc > 1);
+    int count = automated ? atoi(argv[1]) : 1;
+    if (count <= 0) {
+        std::cout << "Usage: " << argv[0] << " [AutomatedMessageCount]" << std::endl;
         return 1;
     }
 
@@ -368,14 +380,18 @@ int main()
 
     aboutObj = new AboutObj(*bus, AboutObj::ANNOUNCED);
 
-    qcc::String device_id;
-    GuidUtil::GetInstance()->GetDeviceIdString(&device_id);
-    qcc::String app_id;
-    GuidUtil::GetInstance()->GenerateGUID(&app_id);
+    qcc::String device_id = "749df3c84b2e489cbd534cc8fd3fd5f4";
+    qcc::String app_id = "AC7a0787-d8b4-474f-a298-6bf0964f02d5";
+
+    if (!automated) {
+        GuidUtil::GetInstance()->GetDeviceIdString(&device_id);
+        GuidUtil::GetInstance()->GenerateGUID(&app_id);
+    }
 
     //Run in loop unless ctrl+c has been hit
     while (s_interrupt == false) {
-        qcc::String device_name, app_name;
+        qcc::String device_name = DEFAULT_DEVICE_NAME;
+        qcc::String app_name = DEFAULT_APP_NAME;
         qcc::String richIconUrl = "";
         qcc::String richIconObjectPath = "";
         qcc::String richAudioObjectPath = "";
@@ -385,13 +401,18 @@ int main()
         std::map<qcc::String, qcc::String> customAttributes;
         std::vector<RichAudioUrl> richAudioUrl;
 
-        uint16_t ttl;
-        int32_t sleepTime;
+        uint16_t ttl = DEFAULT_TTL;
+        int32_t sleepTime = DEFAULT_SLEEP_TIME;
         QStatus status;
 
-        if (!getInput(device_name, app_name, messageType, vecMessages, customAttributes,
-                      richIconUrl, richAudioUrl, richIconObjectPath, richAudioObjectPath, controlPanelServiceObjectPath, ttl, sleepTime)) {
-            break;
+        if (!automated) {
+            if (!getInput(device_name, app_name, messageType, vecMessages, customAttributes,
+                          richIconUrl, richAudioUrl, richIconObjectPath, richAudioObjectPath, controlPanelServiceObjectPath, ttl, sleepTime)) {
+                break;
+            }
+        } else {
+            NotificationText textToSend("en", "Default notification text");
+            vecMessages.push_back(textToSend);
         }
 
         DeviceNamesType deviceNames;
@@ -424,33 +445,47 @@ int main()
             return 1;
         }
 
-        Notification notification(messageType, vecMessages);
-        notification.setCustomAttributes(customAttributes);
-        notification.setRichAudioUrl(richAudioUrl);
-        if (richIconUrl.length()) {
-            notification.setRichIconUrl(richIconUrl.c_str());
-        }
-        if (richIconObjectPath.length()) {
-            notification.setRichIconObjectPath(richIconObjectPath.c_str());
-        }
-        if (richAudioObjectPath.length()) {
-            notification.setRichAudioObjectPath(richAudioObjectPath.c_str());
-        }
-        if (controlPanelServiceObjectPath.length()) {
-            notification.setControlPanelServiceObjectPath(controlPanelServiceObjectPath.c_str());
+        for (int i = 0; i < count; i++) {
+            if (i > 0) {
+#ifdef _WIN32
+        Sleep(sleepTime * 1000);
+#else
+        sleep(sleepTime);
+#endif
+            }
+
+            Notification notification(messageType, vecMessages);
+            notification.setCustomAttributes(customAttributes);
+            notification.setRichAudioUrl(richAudioUrl);
+            if (richIconUrl.length()) {
+                notification.setRichIconUrl(richIconUrl.c_str());
+            }
+            if (richIconObjectPath.length()) {
+                notification.setRichIconObjectPath(richIconObjectPath.c_str());
+            }
+            if (richAudioObjectPath.length()) {
+                notification.setRichAudioObjectPath(richAudioObjectPath.c_str());
+            }
+            if (controlPanelServiceObjectPath.length()) {
+                notification.setControlPanelServiceObjectPath(controlPanelServiceObjectPath.c_str());
+            }
+
+            if (Sender->send(notification, ttl) != ER_OK) {
+                std::cout << "Could not send the message successfully" << std::endl;
+            } else {
+                std::cout << "Notification sent with ttl of " << ttl << std::endl;
+            }
         }
 
-        if (Sender->send(notification, ttl) != ER_OK) {
-            std::cout << "Could not send the message successfully" << std::endl;
+        if (!automated) {
+            std::string input;
+            do {
+                std::cout << "To delete the bus connection and start again please push 'c' character:" << std::endl;
+                getline(std::cin, input);
+            } while ((std::cin) && (input != "c"));
         } else {
-            std::cout << "Notification sent with ttl of " << ttl << std::endl;
+            s_interrupt = true;
         }
-
-        std::string input;
-        do {
-            std::cout << "To delete the bus connection and start again please push 'c' character:" << std::endl;
-            getline(std::cin, input);
-        } while ((std::cin) && (input != "c"));
 
         prodService->shutdownSender();
         if (Sender) {

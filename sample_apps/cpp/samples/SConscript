@@ -54,7 +54,6 @@ cobjs = local_env.SConscript('AppCommon/SConscript', {'env': local_env})
 local_env2 = local_env.Clone()
 
 sample_dirs = [
-    'ServerSample',
     'ACServerSample'
     ]
 

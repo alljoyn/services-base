@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
- <project name="NSNativePlatformAndr" basedir="." default="produce_ui_sample">
+ <project name="NSNativePlatformAndr" basedir="." default="jar">
      
      
      

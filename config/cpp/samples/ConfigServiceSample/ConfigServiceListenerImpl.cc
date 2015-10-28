@@ -21,10 +21,13 @@
 
 #include "ConfigServiceListenerImpl.h"
 #include <AboutObjApi.h>
+#include <signal.h>
 #include <iostream>
 
 using namespace ajn;
 using namespace services;
+
+extern volatile sig_atomic_t s_restart;
 
 ConfigServiceListenerImpl::ConfigServiceListenerImpl(AboutDataStore& store, BusAttachment& bus, CommonBusListener& busListener) :
     ConfigService::Listener(), m_AboutDataStore(&store), m_Bus(&bus), m_BusListener(&busListener)
@@ -34,6 +37,7 @@ ConfigServiceListenerImpl::ConfigServiceListenerImpl(AboutDataStore& store, BusA
 QStatus ConfigServiceListenerImpl::Restart()
 {
     std::cout << "Restart has been called !!!" << std::endl;
+    s_restart = true;
     return ER_OK;
 }
 

@@ -26,7 +26,7 @@ if 'java' in env['bindings']:
 
 if int(build_all):
     build_notification = 1
-    build_cps          = 1
+    build_cps          = 0
     build_config       = 1
     if not 'cpp' in env['bindings']:
         build_onboarding = 1
@@ -35,7 +35,7 @@ if int(build_all):
 else:
     build_config       = int(ARGUMENTS.get('CONFIG',       0))
     build_notification = int(ARGUMENTS.get('NOTIFICATION', 0))
-    build_cps          = int(ARGUMENTS.get('CPS',          0))
+    build_cps          = 0
     build_onboarding   = int(ARGUMENTS.get('ONBOARDING',   0))
 
 env.Append(CPPDEFINES = 'NEED_DATA_STORE')
