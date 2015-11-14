@@ -1,58 +1,44 @@
+AllJoyn Sample Applications for Services Version 15.09 Release Notes
+====================================================================
 
-AllJoyn Sample Application for Services Version 14.06 Release Notes
---------------------------------------------------------
-
-Platform Support
-----------------
- 1) Linux Ubuntu (32 and 64 bit x86)
- 2) Android Gingerbread 2.3.4 (ARM7)
- 3) Android Ice Cream Sandwich 4.0 (ARM7)
- 4) Android JellyBean 4.1 (ARM7)
- 5) iOS 7
- 6) OpenWRT (trunk)
+Fully Supported Platforms
+-------------------------
+The Sample Applications source code is available in the source code
+repository, but is no longer part of the Base Services release,
+and is not supported.
 
 
-Features added in Version 14.06
+Features added in Version 15.09
 -------------------------------
+None
 
-When AllJoyn Routing Node disconnects, sample apps will reconnect to a new Routing Node
 
-Issues Addressed in Version 14.06
---------------------------------
+Issues Addressed in Version 15.09
+---------------------------------
+ASABASE-532: Update logging messages in SC ServerSample for system testing
+ASABASE-553: Update 15.09 SC base services to only use Config, Notification on Linux
 
-ASABASE-52  - When Alljoyn-sample_apps installed without Onboarding Service, Factory Reset fails to trigger new announcement
-ASABASE-106 - application exit should not be done on the interrupt thread 
-ASABASE-113 - All Service sample apps need to be able to handle daemon disconnect 
-ASABASE-118 - iOS sample apps: replace every exit scenario with a UIAlert view 
-ASABASE-119 - iOS sample apps: remove 'realm name' and 'Are you Sure' UIAlert views 
-ASABASE-122 - Sample Apps should include the ConfigService 
-ASABASE-127 - Remove the addMatch method call from the application layer of the sample applications 
-ASABASE-145 - Setting DeviceName does not take effect in some applications 
-ASABASE-147 - iOS sample apps: delete keystore and recreate when enableClientSecurity fails 
-ASABASE-155 - ios sample apps: update api calls (registerAnnouncementReceiverForInterfaces, unRegisterAnnouncementReceiverForInterfaces) 
-ASABASE-158 - Onboarding Client sample application has a spelling mistake: "massage" instead of "message" 
-ASABASE-160 - Secure methods fail due to non completed authentication handshake 
-ASABASE-174 - Spanish Language Code must be 'es' instead of 'sp' 
-ASABASE-181 - No need to set password for router now that it is open 
-ASABASE-182 - No need to set password for router now that it is open 
-ASABASE-206 - ACServerSample - Fixed bug on events and actions scenario 
+To search for other fixed issues:
+https://jira.allseenalliance.org/issues/?jql=project%20%3D%20ASABASE%20AND%20issuetype%20%3D%20Bug%20AND%20fixVersion%20%3D%20%2215.09%22%20AND%20component%20%3D%20%22Base%20Service%20Framework%20Sample%20Applications%22%20AND%20status%20in%20(Resolved%2C%20Closed)
 
 
 Known Issues
 ------------
+These applications are no longer released or supported
 
-ASABASE-15  - command line parameters in Service Server Sample Application are ignored 
-ASABASE-209 - C++ AppID Is not Unique between same App Different Runs
+To search for other known issues:
+https://jira.allseenalliance.org/issues/?jql=project%20%3D%20ASABASE%20AND%20issuetype%20%3D%20Bug%20AND%20fixVersion%20in%20(15.09a%2C%20%22Next%20Major%20Release%22)%20AND%20component%20%3D%20%22Base%20Service%20Framework%20Sample%20Applications%22%20AND%20status%20in%20(Open%2C%20%22In%20Progress%22%2C%20Reopened%2C%20New%2C%20%22Monitor%20%2F%20On%20Hold%22)
+
 
 Compatibility
 -------------
-Calling factory reset to ACServerSample and ServerSample will reset the app’s settings. (like temperature)
-To reset the device to soft AP call factory reset to the OB app.
+No changes
 
 
 Change history
 --------------
-
+15.09 - Not released or supported
+15.04 - Not released
+14.12 - Not released
 14.06 - 2nd AllSeen Alliance release
-
 14.02 - 1st AllSeen Alliance release

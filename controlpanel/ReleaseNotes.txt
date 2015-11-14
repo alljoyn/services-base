@@ -1,40 +1,45 @@
-AllJoyn Control Panel Service Version 15.04 Release Notes
+AllJoyn Control Panel Service Version 15.09 Release Notes
 =========================================================
 
 Fully Supported Platforms
 -------------------------
-1) Linux Ubuntu (64 bit x86)
-2) Android Lollipop (ARM7)
-3) OpenWRT Barrier Breaker
+The Control Panel service source code is available in the source code
+repository, but is no longer part of the Base Services release,
+and is not supported.
 
-Features added in Version 15.04
+
+Features added in Version 15.09
 -------------------------------
 None
 
-Issues Addressed in Version 15.04
----------------------------------
-ASABASE-452 Deprecate older About related base service APIs
-ASABASE-482 1504 SC Linux ControlPanel controller sample memory leak
 
-For a complete list of fixed issues:
-https://jira.allseenalliance.org/issues/?jql=project%20%3D%20ASABASE%20AND%20issuetype%20%3D%20Bug%20AND%20fixVersion%20%3D%20%2215.04%22%20AND%20component%20%3D%20%22Control%20Panel%20Service%20Framework%22%20AND%20status%20in%20%28Resolved%2C%20Closed%29
+Issues Addressed in Version 15.09
+---------------------------------
+ASABASE-517: Control panel android number picker is NOT working
+ASABASE-535: Replace the pink AllJoyn meatball logo with the new AllJoyn logo
+ASABASE-536: Wrong format specifier in QCC_LogError() function of PropertyBusObject.cc
+ASABASE-553: Update 15.09 SC base services to only use Config, Notification on Linux
+
+To search for other fixed issues:
+https://jira.allseenalliance.org/issues/?jql=project%20%3D%20ASABASE%20AND%20issuetype%20%3D%20Bug%20AND%20fixVersion%20%3D%20%2215.09%22%20AND%20component%20%3D%20%22Control%20Panel%20Service%20Framework%22%20AND%20status%20in%20(Resolved%2C%20Closed)
+
 
 Known Issues
 ------------
-Windows and iOS support have not been verified for this release
+This service is no longer released or supported
 
-For a complete list of known issues:
-https://jira.allseenalliance.org/issues/?jql=project%20%3D%20ASABASE%20AND%20issuetype%20%3D%20Bug%20AND%20component%20%3D%20%22Control%20Panel%20Service%20Framework%22%20AND%20status%20in%20%28Open%2C%20%22In%20Progress%22%2C%20Reopened%2C%20New%2C%20%22Monitor%20%2F%20On%20Hold%22%29
+To search for other known issues:
+https://jira.allseenalliance.org/issues/?jql=project%20%3D%20ASABASE%20AND%20issuetype%20%3D%20Bug%20AND%20fixVersion%20in%20(15.09a%2C%20%22Next%20Major%20Release%22)%20AND%20component%20%3D%20%22Control%20Panel%20Service%20Framework%22%20AND%20status%20in%20(Open%2C%20%22In%20Progress%22%2C%20Reopened%2C%20New%2C%20%22Monitor%20%2F%20On%20Hold%22)
+
 
 Compatibility
 -------------
-The removal of PIN_KEYX from Standard Core Library (ASACORE-1641) has
-introduced inter-version inter-operability issues with the samples such that
-pre-15.04 samples using security will no longer interoperate with their 15.04
-peers. More details are available in the Core 15.04 release notes.
+No changes
+
 
 Change history
 --------------
+15.09 - Not released or supported, bug fixes, compatibility with Core 15.09
 15.04 - Bug fixes, compatibility with Core 15.04
 14.12 - Bug fixes, compatibility with Core 14.12
 14.06 - 2nd AllSeen Alliance release
