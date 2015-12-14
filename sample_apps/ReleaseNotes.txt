@@ -4,8 +4,7 @@ AllJoyn Sample Applications for Services Version 15.09 Release Notes
 Fully Supported Platforms
 -------------------------
 The Sample Applications source code is available in the source code
-repository, but is no longer part of the Base Services release,
-and is not supported.
+repository and is not supported.
 
 
 Features added in Version 15.09
