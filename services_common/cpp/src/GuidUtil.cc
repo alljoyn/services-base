@@ -87,7 +87,7 @@ const char* GuidUtil::GetDeviceIdFileName()
             perror("lstat");
         }
         sFileName += buf;
-        size_t found = sFileName.find_last_of("/");
+        size_t found = sFileName.find_last_of_std("/");
         if (found !=  std::string::npos) {
             sFileName.erase(found + 1);
         }
