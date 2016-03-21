@@ -1,0 +1,6 @@
+#!/bin/bash
+pushd $ALLJOYN_CORE_DIR
+scons --jobs $JOBS VARIANT=$VARIANT CPU=$CPU BINDINGS=$BINDINGS WS=$WS
+popd
+
+export ALLJOYN_DISTDIR=$ALLJOYN_CORE_DIR/build/linux/$CPU/$VARIANT/dist
