@@ -426,6 +426,9 @@
 					"$(inherited)",
 					"\"$(ALLJOYN_SDK_ROOT)/services/about/cpp/inc\"",
 					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/services_common/cpp/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/common/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"",
+					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = (
@@ -466,6 +469,9 @@
 					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/\"",
 					"$(inherited)",
 					"\"$(ALLJOYN_SDK_ROOT)/services/about/cpp/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/common/inc\"",
+					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"",
+					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LIBRARY_SEARCH_PATHS = (

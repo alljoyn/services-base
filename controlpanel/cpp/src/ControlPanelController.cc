@@ -14,11 +14,6 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#ifdef _WIN32
-/* Disable deprecation warnings */
-#pragma warning(disable: 4996)
-#endif
-
 #include <alljoyn/controlpanel/ControlPanelController.h>
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include "ControlPanelConstants.h"
@@ -69,7 +64,7 @@ ControlPanelDevice* ControlPanelController::createControllableDevice(qcc::String
         QCC_DbgPrintf(("paths[%d]=%s", i, paths[i]));
         qcc::String key = qcc::String(paths[i]);
 
-        if (key.compare(0, ControlPanelPrefix.size(), ControlPanelPrefix) == 0) {
+        if (key.compare_std(0, ControlPanelPrefix.size(), ControlPanelPrefix) == 0) {
             if (!device) {
                 device = getControllableDevice(sender);
             }
@@ -121,7 +116,7 @@ ControlPanelDevice* ControlPanelController::createControllableDevice(qcc::String
     for (it = objectDescs.begin(); it != objectDescs.end(); ++it) {
         qcc::String key = it->first;
 
-        if (key.compare(0, ControlPanelPrefix.size(), ControlPanelPrefix) == 0) {
+        if (key.compare_std(0, ControlPanelPrefix.size(), ControlPanelPrefix) == 0) {
             if (!device) {
                 device = getControllableDevice(sender);
             }

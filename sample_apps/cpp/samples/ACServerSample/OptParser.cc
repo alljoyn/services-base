@@ -46,7 +46,7 @@ qcc::String const& OptParser::GetConfigFile() const {
 
 void OptParser::PrintUsage() {
     qcc::String cmd = argv[0];
-    cmd = cmd.substr(cmd.find_last_of('/') + 1);
+    cmd = cmd.substr(cmd.find_last_of_std('/') + 1);
 
     std::cerr << cmd.c_str() << " [--factory-config-file=FILE | --config-file=FILE |  --appId=APPID"
         "]\n"
@@ -88,16 +88,16 @@ OptParser::ParseResultCode OptParser::ParseResult() {
             std::cout << versionPreamble << std::endl;
             result = PR_EXIT_NO_ERROR;
             break;
-        } else if (arg.compare(0, sizeof("--appId") - 1, "--appId") == 0) {
+        } else if (arg.compare_std(0, sizeof("--appId") - 1, "--appId") == 0) {
             appGUID = arg.substr(sizeof("--appId"));
             if ((appGUID.length() != 32) || (!IsAllHex(appGUID.c_str()))) {
                 result = PR_INVALID_APPID;
                 std::cerr << "Invalid appId: \"" << argv[indx] << "\"" << std::endl;
                 break;
             }
-        } else if (arg.compare(0, sizeof("--factory-config-file") - 1, "--factory-config-file") == 0) {
+        } else if (arg.compare_std(0, sizeof("--factory-config-file") - 1, "--factory-config-file") == 0) {
             factoryConfigFile = arg.substr(sizeof("--factory-config-file"));
-        } else if (arg.compare(0, sizeof("--config-file") - 1, "--config-file") == 0) {
+        } else if (arg.compare_std(0, sizeof("--config-file") - 1, "--config-file") == 0) {
             configFile = arg.substr(sizeof("--config-file"));
         } else if ((arg.compare("--help") == 0) || (arg.compare("-h") == 0)) {
             PrintUsage();
