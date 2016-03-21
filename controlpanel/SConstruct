@@ -14,7 +14,9 @@
 
 import os
 
-env = SConscript('../../../core/alljoyn/build_core/SConscript')
+core_dir = os.environ.get('ALLJOYN_CORE_DIR', '../../../core/alljoyn')
+
+env = SConscript(core_dir + '/build_core/SConscript')
 
 vars = Variables()
 vars.Add('BINDINGS', 'Bindings to build (comma separated list): cpp, java', 'cpp,java')
@@ -34,8 +36,6 @@ vars.Add(PathVariable('NS_DISTDIR',
 vars.Add(PathVariable('APP_COMMON_DIR',
                       'Directory containing common sample application sources.',
                       os.environ.get('APP_COMMON_DIR','../sample_apps')))
-
-
 vars.Update(env)
 Help(vars.GenerateHelpText(env))
 
@@ -43,6 +43,7 @@ if env.get('ALLJOYN_DISTDIR'):
     # normalize ALLJOYN_DISTDIR first
     env['ALLJOYN_DISTDIR'] = env.Dir('$ALLJOYN_DISTDIR')
     env.Append(CPPPATH = [ env.Dir('$ALLJOYN_DISTDIR/cpp/inc'),
+                           env.Dir('$ALLJOYN_DISTDIR/cpp/inc/alljoyn'),
                            env.Dir('$ALLJOYN_DISTDIR/about/inc'),
                            env.Dir('$ALLJOYN_DISTDIR/services_common/inc') ])
     env.Append(LIBPATH = [ env.Dir('$ALLJOYN_DISTDIR/cpp/lib'),
