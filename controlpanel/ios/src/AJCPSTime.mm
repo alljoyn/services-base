@@ -14,13 +14,13 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#import "AJCPSCPSTime.h"
+#import "AJCPSTime.h"
 
-@interface AJCPSCPSTime ()
+@interface AJCPSTime ()
 @property (nonatomic) ajn::services::CPSTime *handle;
 @end
 
-@implementation AJCPSCPSTime
+@implementation AJCPSTime
 
 - (id)initWithHour:(uint16_t) hour minute:(uint16_t) minute second:(uint16_t) second
 {

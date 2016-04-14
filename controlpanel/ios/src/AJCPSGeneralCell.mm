@@ -14,13 +14,13 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#import "AJCPSCPSGeneralCell.h"
+#import "AJCPSGeneralCell.h"
 #import "AJCPSProperty.h"
 #import "AJCPSConstraintRange.h"
 #import "AJCPSConstraintList.h"
 #import "AJCPSErrorWidget.h"
 
-@implementation CPSGeneralCell
+@implementation AJCPSGeneralCell
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
 {
@@ -139,10 +139,7 @@
                             [str appendFormat:@"unknown property"];
                             break;
                     }
-                    
-                    
-                    
-                    
+   
                     if (hint > 0 && hint < [propertyHintsStrings count]){
                         self.hintLabel.text=[NSString stringWithFormat:@"%@", propertyHintsStrings[hint]];
                     }
@@ -171,48 +168,11 @@
                         [str appendFormat:@"%@",[constraintList getDisplay]];
                         
                         AJCPSConstraintValue propertyValue = [constraintList getConstraintValue];
+                        AJCPSPropertyType propertyType = [constraintList getPropertyType];
+                        NSString *propertyValueStr = [constraintList propertyToNSString:propertyType withValue:propertyValue];
                         
-                        switch ([constraintList getPropertyType]) {
-                            
-                            case 	AJCPS_UINT16_PROPERTY :
-                                [str appendFormat:@"(%d)",propertyValue.uint16Value];
-                                
-                                break;
-                            case 	AJCPS_INT16_PROPERTY :
-                                [str appendFormat:@"(%d)",propertyValue.int16Value];
-                                
-                                break;
-                            case 	AJCPS_UINT32_PROPERTY :
-                                [str appendFormat:@"(%d)",propertyValue.uint32Value];
-                                
-                                break;
-                            case 	AJCPS_INT32_PROPERTY :
-                                [str appendFormat:@"(%d)",propertyValue.int32Value];
-                                
-                                break;
-                            case 	AJCPS_UINT64_PROPERTY :
-                                 [str appendFormat:@"(%llu)",propertyValue.uint64Value];
-                                
-                                break;
-                            case 	AJCPS_INT64_PROPERTY :
-                                 [str appendFormat:@"(%lld)",propertyValue.int64Value];
-                                
-                                break;
-                            case 	AJCPS_DOUBLE_PROPERTY :
-                                [str appendFormat:@"(%f)",propertyValue.doubleValue];
-                                
-                                break;
-                            case 	AJCPS_STRING_PROPERTY :
-                                 [str appendFormat:@"('%s')",propertyValue.charValue];
-                                
-                                break;
-                            default:
-                                NSLog(@"unknown property");
-                                break;
-                        }
-                        
+                        [str appendFormat:@"%@", propertyValueStr];
                     }
-                    
                 }
                     break;
                     
@@ -234,11 +194,6 @@
                     else
                         self.hintLabel.text=@"UNKNOWN";
                     break;
-                    
-
-
-                    
-                    
             }
             [str appendFormat:@"%@",(i == ([hints count] - 1)) ? @"\n" : @", "];
         }

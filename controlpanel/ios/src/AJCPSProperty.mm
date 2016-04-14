@@ -135,12 +135,12 @@
 	return ((ajn::services::Property *)self.handle)->setValue(value);
 }
 
-- (QStatus)setValueFromDate:(AJCPSCPSDate *)value
+- (QStatus)setValueFromDate:(AJCPSDate *)value
 {
 	return ((ajn::services::Property *)self.handle)->setValue(*[value handle]);
 }
 
-- (QStatus)setValueFromTime:(AJCPSCPSTime *)value
+- (QStatus)setValueFromTime:(AJCPSTime *)value
 {
 	return ((ajn::services::Property *)self.handle)->setValue(value);
 }

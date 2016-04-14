@@ -19,7 +19,7 @@
 #import "AJNBusAttachment.h"
 #import "AJCPSControllerModel.h"
 
-@interface GetControlPanelViewController : UIViewController <UITableViewDataSource, UITableViewDelegate>
+@interface AJCPSGetControlPanelViewController : UIViewController <UITableViewDataSource, UITableViewDelegate>
 
 - (id)initWithNotificationSenderBusName:(NSString*) senderBusName cpsObjectPath:(NSString*) cpsObjectPath bus:(AJNBusAttachment*) bus;
 - (id)initWithAnnouncement:(AJNAnnouncement*) announcement bus:(AJNBusAttachment*) bus;

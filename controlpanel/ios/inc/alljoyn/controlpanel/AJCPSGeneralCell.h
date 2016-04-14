@@ -18,7 +18,9 @@
 #import "AJCPSWidget.h"
 #import "AJCPSControllerModel.h"
 
-@interface CPSLabelCell : UITableViewCell
+@interface AJCPSGeneralCell : UITableViewCell
 @property (strong, nonatomic) UILabel *widgetNameLabel;
+@property (strong, nonatomic) UILabel *widgetDetailsLabel;
+@property (strong, nonatomic) UILabel *hintLabel;
 @property (weak, nonatomic) AJCPSWidget *widget;
 @end

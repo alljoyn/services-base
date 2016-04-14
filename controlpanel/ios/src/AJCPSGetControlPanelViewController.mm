@@ -20,11 +20,11 @@
 #import "AJCPSControlPanelController.h"
 #import "AJCPSContainer.h"
 #import "AJCPSControllerUpdateEvents.h"
-#import "AJCPSCPSButtonCell.h"
-#import "AJCPSCPSGeneralCell.h"
-#import "AJCPSCPSLabelCell.h"
-#import "AJCPSCPSPickerCell.h"
-#import "AJCPSCPSActionDialogCell.h"
+#import "AJCPSButtonCell.h"
+#import "AJCPSGeneralCell.h"
+#import "AJCPSLabelCell.h"
+#import "AJCPSPickerCell.h"
+#import "AJCPSActionDialogCell.h"
 
 const float GENERAL_CELL_HEIGHT = 115.00;
 const float BUTTON_CELL_HEIGHT = 65.00;
@@ -38,8 +38,8 @@ static NSString * const CPS_LABEL_CELL = @"CPSLabelCell";
 static NSString * const CPS_PICKER_CELL = @"CPSPickerCell";
 static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
 
-@interface GetControlPanelViewController () <ControllerUpdateEvents,UIAlertViewDelegate>
-@property (strong, nonatomic) ControllerModel *controllerModel;
+@interface AJCPSGetControlPanelViewController () <ControllerUpdateEvents,UIAlertViewDelegate>
+@property (strong, nonatomic) AJCPSControllerModel *controllerModel;
 @property (strong, nonatomic) AJCPSControlPanelService *controlPanelService;
 @property (strong, nonatomic) AJCPSControlPanelController *controlPanelController;
 @property (strong, nonatomic) AJCPSControlPanelDevice *controlPanelDevice;
@@ -62,7 +62,7 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
 @end
 
 
-@implementation GetControlPanelViewController
+@implementation AJCPSGetControlPanelViewController
 
 - (id)initWithNotificationSenderBusName:(NSString*) senderBusName cpsObjectPath:(NSString*) cpsObjectPath bus:(AJNBusAttachment*) bus
 {
@@ -105,11 +105,11 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
         self.tableView.delegate = self;
         self.tableView.dataSource = self;
     
-        [self.tableView registerClass:[CPSButtonCell class] forCellReuseIdentifier:CPS_BUTTON_CELL];
-        [self.tableView registerClass:[CPSGeneralCell class] forCellReuseIdentifier:CPS_GENERAL_CELL];
-        [self.tableView registerClass:[CPSLabelCell class] forCellReuseIdentifier:CPS_LABEL_CELL];
-        [self.tableView registerClass:[CPSPickerCell class] forCellReuseIdentifier:CPS_PICKER_CELL];
-        [self.tableView registerClass:[CPSActionDialogCell class] forCellReuseIdentifier:CPS_ACTION_DIALOG_CELL];
+        [self.tableView registerClass:[AJCPSButtonCell class] forCellReuseIdentifier:CPS_BUTTON_CELL];
+        [self.tableView registerClass:[AJCPSGeneralCell class] forCellReuseIdentifier:CPS_GENERAL_CELL];
+        [self.tableView registerClass:[AJCPSLabelCell class] forCellReuseIdentifier:CPS_LABEL_CELL];
+        [self.tableView registerClass:[AJCPSPickerCell class] forCellReuseIdentifier:CPS_PICKER_CELL];
+        [self.tableView registerClass:[AJCPSActionDialogCell class] forCellReuseIdentifier:CPS_ACTION_DIALOG_CELL];
         
         [self.view addSubview:self.tableView];
     
@@ -147,7 +147,7 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
         }
     }
     
-    self.controllerModel = [[ControllerModel alloc] init];
+    self.controllerModel = [[AJCPSControllerModel alloc] init];
     if (!self.controllerModel) {
         NSLog(@"Could not initialize controller model.");
         return ER_FAIL;
@@ -383,7 +383,7 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
             for (NSNumber *hint  in hints) {
                 if(hint.shortValue == AJCPS_ACTIONBUTTON) {
                     
-                    CPSButtonCell *cell = (CPSButtonCell *)[tableView dequeueReusableCellWithIdentifier:CPS_BUTTON_CELL forIndexPath:indexPath];
+                    AJCPSButtonCell *cell = (AJCPSButtonCell *)[tableView dequeueReusableCellWithIdentifier:CPS_BUTTON_CELL forIndexPath:indexPath];
                     
                     cell.actionWidget = (AJCPSAction *)widget;
                     return cell;
@@ -394,7 +394,7 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
         }   
         case AJCPS_LABEL:
         {   
-             CPSLabelCell *cell = (CPSLabelCell *)[tableView dequeueReusableCellWithIdentifier:CPS_LABEL_CELL forIndexPath:indexPath];
+             AJCPSLabelCell *cell = (AJCPSLabelCell *)[tableView dequeueReusableCellWithIdentifier:CPS_LABEL_CELL forIndexPath:indexPath];
              cell.widget = widget;
              cell.selectionStyle = UITableViewCellSelectionStyleNone;
              return cell;
@@ -404,7 +404,7 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
             NSArray *hints = [widget getHints];
             for (NSNumber *hint  in hints) {
                 if(hint.shortValue == AJCPS_SPINNER) {
-                    CPSPickerCell *cell = (CPSPickerCell *)[tableView dequeueReusableCellWithIdentifier:CPS_PICKER_CELL forIndexPath:indexPath];
+                    AJCPSPickerCell *cell = (AJCPSPickerCell *)[tableView dequeueReusableCellWithIdentifier:CPS_PICKER_CELL forIndexPath:indexPath];
                     cell.widget = widget;
                     cell.selectionStyle = UITableViewCellSelectionStyleNone;
                     return cell;
@@ -415,15 +415,15 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
         }
         case AJCPS_ACTION_WITH_DIALOG:
         {
-            CPSActionDialogCell *cell = (CPSActionDialogCell *)[tableView dequeueReusableCellWithIdentifier:CPS_ACTION_DIALOG_CELL forIndexPath:indexPath];
+            AJCPSActionDialogCell *cell = (AJCPSActionDialogCell *)[tableView dequeueReusableCellWithIdentifier:CPS_ACTION_DIALOG_CELL forIndexPath:indexPath];
             cell.viewController = self;
             cell.actionDialogWidget = (AJCPSActionWithDialog *)widget;
             return cell;
         }
     }
     
-    CPSGeneralCell *cell;
-    cell = (CPSGeneralCell *)[tableView dequeueReusableCellWithIdentifier:CPS_GENERAL_CELL forIndexPath:indexPath];
+    AJCPSGeneralCell *cell;
+    cell = (AJCPSGeneralCell *)[tableView dequeueReusableCellWithIdentifier:CPS_GENERAL_CELL forIndexPath:indexPath];
     cell.widget = widget;
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     
@@ -466,7 +466,7 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
     AJCPSWidget *widget = [self.controllerModel widgetsContainer][indexPath.row];
     
     if ([widget getWidgetType] == AJCPS_CONTAINER) {
-        GetControlPanelViewController *viewController = [[GetControlPanelViewController alloc] init];
+        AJCPSGetControlPanelViewController *viewController = [[AJCPSGetControlPanelViewController alloc] init];
         
         // prepare the view we load to show the child container widgets
        

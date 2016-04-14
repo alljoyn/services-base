@@ -14,60 +14,52 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#import "AJCPSCPSDate.h"
+#import <Foundation/Foundation.h>
+#import "alljoyn/controlpanel/CPSTime.h"
 
-@interface AJCPSCPSDate ()
-@property (nonatomic) ajn::services::CPSDate *handle;
-@end
+/**
+ * AJCPSCPSTime allows sending of a Time as a Property
+ */
+@interface AJCPSTime : NSObject
 
-@implementation AJCPSCPSDate
+- (id)initWithHour:(uint16_t) hour minute:(uint16_t) minute second:(uint16_t) second;
 
-- (id)initWithDay:(uint16_t) day month:(uint16_t) month year:(uint16_t) year
-{
-    self = [super init];
-	if (self) {
-		self.handle = new ajn::services::CPSDate(day, month, year);
-	}
-	return self;
-    
-}
-- (id)initWithHandle:(ajn::services::CPSDate *)handle
-{
-	self = [super init];
-	if (self) {
-		self.handle = handle;
-	}
-	return self;
-}
+- (id)initWithHandle:(ajn ::services ::CPSTime *)handle;
 
-- (uint16_t)getDay
-{
-	return self.handle->getDay();
-}
+/**
+ * Get the hour value of the date
+ * @return hour value
+ */
+- (uint16_t)getHour;
 
-- (void)setDay:(uint16_t)day
-{
-	return self.handle->setDay(day);
-}
+/**
+ * Set the hour Value of the date
+ * @param hour value
+ */
+- (void)setHour:(uint16_t)hour;
 
-- (uint16_t)getMonth
-{
-	return self.handle->getMonth();
-}
+/**
+ * Get the Minute value of the date
+ * @return minute value
+ */
+- (uint16_t)getMinute;
 
-- (void)setMonth:(uint16_t)month
-{
-	return self.handle->setMonth(month);
-}
+/**
+ * Set the Minute value of the date
+ * @param minute value
+ */
+- (void)setMinute:(uint16_t)minute;
 
-- (uint16_t)getYear
-{
-	return self.handle->getYear();
-}
+/**
+ * Get the Second value of the date
+ * @return second value
+ */
+- (uint16_t)getSecond;
 
-- (void)setYear:(uint16_t)year
-{
-	return self.handle->setYear(year);
-}
+/**
+ * Set the Second value of the date
+ * @param second value
+ */
+- (void)setSecond:(uint16_t)second;
 
 @end

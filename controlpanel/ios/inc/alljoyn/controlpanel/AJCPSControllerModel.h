@@ -22,7 +22,7 @@
 #import "AJCPSControllerUpdateEvents.h"
 #import "AJCPSControlPanel.h"
 
-@interface ControllerModel : NSObject <AJCPSControlPanelListener>
+@interface AJCPSControllerModel : NSObject <AJCPSControlPanelListener>
 @property (strong, nonatomic) NSString *unit;
 @property (strong, nonatomic) AJCPSControlPanel *controlPanel;
 @property (strong, atomic) NSArray *widgetsContainer;

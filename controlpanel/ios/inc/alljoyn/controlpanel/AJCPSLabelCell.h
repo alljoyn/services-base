@@ -15,11 +15,10 @@
  ******************************************************************************/
 
 #import <UIKit/UIKit.h>
-#import "AJCPSActionWithDialog.h"
-#import "AJCPSGetControlPanelViewController.h"
+#import "AJCPSWidget.h"
+#import "AJCPSControllerModel.h"
 
-@interface CPSActionDialogCell : UITableViewCell
-@property (strong, nonatomic) UIButton *cpsButton; //TOD strong
-@property (weak, nonatomic) AJCPSActionWithDialog *actionDialogWidget;
-@property (weak, nonatomic) GetControlPanelViewController *viewController;
+@interface AJCPSLabelCell : UITableViewCell
+@property (strong, nonatomic) UILabel *widgetNameLabel;
+@property (weak, nonatomic) AJCPSWidget *widget;
 @end

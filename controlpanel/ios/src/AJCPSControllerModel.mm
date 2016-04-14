@@ -18,20 +18,20 @@
 #import "AJCPSAction.h"
 #import "AJCPSDialog.h"
 #import "AJCPSProperty.h"
-#import "AJCPSCPSDate.h"
-#import "AJCPSCPSTime.h"
+#import "AJCPSDate.h"
+#import "AJCPSTime.h"
 #import "AJCPSControlPanelDevice.h"
 #import "AJCPSActionWithDialog.h"
 #import "AJCPSConstraintList.h"
 #import "alljoyn/about/PropertyStore.h" //for ER codes
 
-@interface ControllerModel ()
+@interface AJCPSControllerModel ()
 @property (strong, nonatomic) NSMutableArray *containerStack; // array of AJCPSContainer *
 @property (strong, nonatomic) NSArray *supportedLanguages; //array of NSStrings of languages
 
 @end
 
-@implementation ControllerModel
+@implementation AJCPSControllerModel
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
@@ -326,46 +326,10 @@
         [str appendFormat:@"%@",[constraintList getDisplay]];
         
         AJCPSConstraintValue propertyValue = [constraintList getConstraintValue];
+        AJCPSPropertyType propertyType = [constraintList getPropertyType];
+        NSString *propertyValueStr = [constraintList propertyToNSString:propertyType withValue:propertyValue];
         
-        switch ([constraintList getPropertyType]) {
-                
-            case 	AJCPS_UINT16_PROPERTY :
-                [str appendFormat:@"(%d)",propertyValue.uint16Value];
-                
-                break;
-            case 	AJCPS_INT16_PROPERTY :
-                [str appendFormat:@"(%d)",propertyValue.int16Value];
-                
-                break;
-            case 	AJCPS_UINT32_PROPERTY :
-                [str appendFormat:@"(%d)",propertyValue.uint32Value];
-                
-                break;
-            case 	AJCPS_INT32_PROPERTY :
-                [str appendFormat:@"(%d)",propertyValue.int32Value];
-                
-                break;
-            case 	AJCPS_UINT64_PROPERTY :
-                [str appendFormat:@"(%llu)",propertyValue.uint64Value];
-                
-                break;
-            case 	AJCPS_INT64_PROPERTY :
-                [str appendFormat:@"(%lld)",propertyValue.int64Value];
-                
-                break;
-            case 	AJCPS_DOUBLE_PROPERTY :
-                [str appendFormat:@"(%f)",propertyValue.doubleValue];
-                
-                break;
-            case 	AJCPS_STRING_PROPERTY :
-                [str appendFormat:@"('%s')",propertyValue.charValue];
-                
-                break;
-            default:
-                NSLog(@"unknown property");
-                break;
-        }
-        
+        [str appendFormat:@"%@", propertyValueStr];
     }
     
     NSLog(@"%@",str);

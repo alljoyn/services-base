@@ -14,13 +14,29 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#import <UIKit/UIKit.h>
-#import "AJCPSWidget.h"
-#import "AJCPSControllerModel.h"
+#import "AJCPSLabelCell.h"
 
-@interface CPSGeneralCell : UITableViewCell
-@property (strong, nonatomic) UILabel *widgetNameLabel;
-@property (strong, nonatomic) UILabel *widgetDetailsLabel;
-@property (strong, nonatomic) UILabel *hintLabel;
-@property (weak, nonatomic) AJCPSWidget *widget;
+@implementation AJCPSLabelCell
+
+- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
+{
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    if (self) {
+        self.widgetNameLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, 310, 20)];
+        [self.contentView addSubview:self.widgetNameLabel];
+    }
+    return self;
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated
+{
+    [super setSelected:selected animated:animated];
+}
+
+-(void)setWidget:(AJCPSWidget *)widget
+{
+    _widget = widget;
+    self.widgetNameLabel.text  = [NSString stringWithFormat:@"%@",[self.widget getLabel]];
+}
+
 @end

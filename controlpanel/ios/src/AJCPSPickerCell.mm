@@ -14,10 +14,10 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#import "AJCPSCPSPickerCell.h"
+#import "AJCPSPickerCell.h"
 #import "AJCPSConstraintList.h"
 
-@implementation CPSPickerCell
+@implementation AJCPSPickerCell
 
 const NSInteger NUM_COLUMNS = 1;
 const CGFloat COMPONENT_WIDTH = 300;

@@ -19,7 +19,7 @@
 #import "AJCPSProperty.h"
 #import "AJCPSControllerModel.h"
 
-@interface CPSPickerCell : UITableViewCell<UIPickerViewDataSource, UIPickerViewDelegate>
+@interface AJCPSPickerCell : UITableViewCell<UIPickerViewDataSource, UIPickerViewDelegate>
 @property (strong, nonatomic) UIPickerView *picker;
 @property (strong, nonatomic) NSMutableArray *pickerOptions;
 @property (strong, nonatomic) UILabel *label;
