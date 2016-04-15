@@ -18,7 +18,7 @@
 #import "alljoyn/onboarding/AJOBSOnboardingClient.h"
 #import "SystemConfiguration/CaptiveNetwork.h"
 
-
+#define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 
 @interface OnboardingViewController () <AJOBOnboardingClientListener>
 @property (strong, nonatomic) AJOBSOnboardingClient *onboardingClient;
@@ -61,6 +61,22 @@
     self.ssidPassLbl.alpha = alpha;
 }
 
+- (BOOL)isSimulatorDevice
+{
+    if(SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"9.0")){
+#ifdef TARGET_OS_SIMULATOR
+        return (TARGET_OS_SIMULATOR != 0);
+#endif
+#ifdef TARGET_IPHONE_SIMULATOR
+        return (TARGET_IPHONE_SIMULATOR != 0);
+#endif
+    }
+    else{
+        NSString *deviceModel = [[UIDevice currentDevice] model];
+        return ([deviceModel isEqualToString:@"iPhone Simulator"] || [deviceModel isEqualToString:@"iPad Simulator"]);
+    }
+}
+
 -(QStatus)startOnboardingClient
 {
     self.onboardeeBus = [self.clientInformation.announcement busName];
@@ -80,10 +96,9 @@
         }
     }
     
-    NSString *model = [[UIDevice currentDevice] model];
-    //using a simulator
-    if ([model isEqualToString:@"iPhone Simulator"] || [model isEqualToString:@"iPad Simulator"]) {
-        [self updateStatusLabel:[NSString stringWithFormat:@"NOTE: Using %@ does not support network detection - all possible actions are displayed",model]];
+    if ([self isSimulatorDevice]) {
+        NSString *simulatorMessage = @"NOTE: Using the simulator does not support network detection - all possible actions are displayed";
+        [self updateStatusLabel:[NSString stringWithFormat:simulatorMessage]];
         [self displayPreOnbordingElements:1];
         self.offBoardingBtn.alpha = 1;
         self.connectBtn.enabled = NO;
@@ -237,6 +252,7 @@
     [self.connectBtn setEnabled:NO];
     [self.instructLbl setText:@"  "];
 }
+
 - (IBAction)offBoardingBtnDidTouchUpInside:(id)sender {
     
     [self updateStatusLabel:@"Calling offboard"];
