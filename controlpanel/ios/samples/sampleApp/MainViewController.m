@@ -74,6 +74,24 @@ static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK";
 	[self loadNewSession];
 }
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    if (self.isAboutClientConnected){
+        [self.clientInformationDict removeAllObjects];
+        [self.servicesTable performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
+        [self registerAnnouncementReceiver];
+    }
+}
+
+-(void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    if (self.isAboutClientConnected){
+        [self unregisterAnnouncementReceiver];
+    }
+}
+
 // Get the user's input from the alert dialog
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
@@ -243,6 +261,7 @@ static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK";
             }
 			// Remove the anouncement from the dictionary
 			[self.clientInformationDict removeObjectForKey:key];
+            [self.servicesTable performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
 		}
 	}
     
@@ -349,24 +368,7 @@ static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK";
     
 	[self.clientBusAttachment registerBusListener:self];
     
-	self.announcementReceiver = [[AJNAnnouncementReceiver alloc] initWithAnnouncementListener:self andBus:self.clientBusAttachment];
-    const char* interfaces[] = { [CONTROLPANEL_INTERFACE_NAME UTF8String], [HTTPCONTROL_INTERFACE_NAME UTF8String] };
-	status = [self.announcementReceiver registerAnnouncementReceiverForInterfaces:&interfaces[0] withNumberOfInterfaces:1];
-	if (status != ER_OK) {
-		[AppDelegate alertAndLog:@"Failed to registerAnnouncementReceiver" status:status];
-        [self stopAboutClient];
-        return;
-	}
-    
-    status = [self.announcementReceiver registerAnnouncementReceiverForInterfaces:&interfaces[1] withNumberOfInterfaces:1];
-    
-	if (status != ER_OK) {
-		[AppDelegate alertAndLog:@"Failed to registerAnnouncementReceiver" status:status];
-        [self stopAboutClient];
-        return;
-	}
-    
-
+    [self registerAnnouncementReceiver];
     
     NSUUID *UUID = [NSUUID UUID];
     NSString *stringUUID = [UUID UUIDString];
@@ -466,6 +468,44 @@ static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK";
 	return hascPanel;
 }
 
+- (void) registerAnnouncementReceiver
+{
+    QStatus status;
+    self.announcementReceiver = [[AJNAnnouncementReceiver alloc] initWithAnnouncementListener:self andBus:self.clientBusAttachment];
+    const char* interfaces[] = { [CONTROLPANEL_INTERFACE_NAME UTF8String], [HTTPCONTROL_INTERFACE_NAME UTF8String] };
+    status = [self.announcementReceiver registerAnnouncementReceiverForInterfaces:&interfaces[0] withNumberOfInterfaces:1];
+    if (status != ER_OK) {
+        [AppDelegate alertAndLog:@"Failed to registerAnnouncementReceiver" status:status];
+        [self stopAboutClient];
+        return;
+    }
+    
+    status = [self.announcementReceiver registerAnnouncementReceiverForInterfaces:&interfaces[1] withNumberOfInterfaces:1];
+    
+    if (status != ER_OK) {
+        [AppDelegate alertAndLog:@"Failed to registerAnnouncementReceiver" status:status];
+        [self stopAboutClient];
+        return;
+    }
+}
+
+- (void) unregisterAnnouncementReceiver
+{
+    QStatus status;
+    const char* interfaces[] = { [CONTROLPANEL_INTERFACE_NAME UTF8String], [HTTPCONTROL_INTERFACE_NAME UTF8String] };
+    status = [self.announcementReceiver unRegisterAnnouncementReceiverForInterfaces:&interfaces[0] withNumberOfInterfaces:1];
+    if (status == ER_OK) {
+        NSLog(@"[%@] [%@] Successfully unregistered AnnouncementReceiver", @"DEBUG", [[self class] description]);
+    }
+    
+    status = [self.announcementReceiver unRegisterAnnouncementReceiverForInterfaces:&interfaces[1] withNumberOfInterfaces:1];
+    if (status == ER_OK) {
+        NSLog(@"[%@] [%@] Successfully unregistered AnnouncementReceiver", @"DEBUG", [[self class] description]);
+    }
+    
+    self.announcementReceiver = nil;
+}
+
 #pragma mark stop AboutClient
 - (void)stopAboutClient
 {
@@ -496,18 +536,7 @@ static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK";
 	}
 	self.clientInformationDict = nil;
     
-    const char* interfaces[] = { [CONTROLPANEL_INTERFACE_NAME UTF8String], [HTTPCONTROL_INTERFACE_NAME UTF8String] };
-	status = [self.announcementReceiver unRegisterAnnouncementReceiverForInterfaces:&interfaces[0] withNumberOfInterfaces:1];
-	if (status == ER_OK) {
-        NSLog(@"[%@] [%@] Successfully unregistered AnnouncementReceiver", @"DEBUG", [[self class] description]);
-	}
-
-	status = [self.announcementReceiver unRegisterAnnouncementReceiverForInterfaces:&interfaces[1] withNumberOfInterfaces:1];
-	if (status == ER_OK) {
-        NSLog(@"[%@] [%@] Successfully unregistered AnnouncementReceiver", @"DEBUG", [[self class] description]);
-	}
-    
-	self.announcementReceiver = nil;
+    [self unregisterAnnouncementReceiver];
     
 	// Stop bus attachment
 	status = [self.clientBusAttachment stop];
