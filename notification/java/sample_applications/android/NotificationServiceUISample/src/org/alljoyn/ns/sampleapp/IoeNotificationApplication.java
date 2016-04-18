@@ -24,11 +24,15 @@ import java.util.UUID;
 
 import org.alljoyn.about.AboutKeys;
 import org.alljoyn.bus.AboutObj;
+import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.Mutable.ShortValue;
 import org.alljoyn.bus.SessionOpts;
+import org.alljoyn.bus.SessionListener;
+import org.alljoyn.bus.OnJoinSessionListener;
 import org.alljoyn.bus.SessionPortListener;
 import org.alljoyn.bus.Status;
+import org.alljoyn.bus.ProxyBusObject;
 import org.alljoyn.bus.alljoyn.DaemonInit;
 import org.alljoyn.ns.Notification;
 import org.alljoyn.ns.NotificationMessageType;
@@ -88,6 +92,11 @@ public class IoeNotificationApplication extends Application implements Notificat
     private static final short ANNOUNCED_PORT = 1080;
 
     /**
+     * The sample response object port
+     */
+    private static final short RESPONSE_OBJECT_PORT = 1081;
+
+    /**
      * PropertyStore
      */
     private PropertyStoreImpl propertyStore;
@@ -111,6 +120,16 @@ public class IoeNotificationApplication extends Application implements Notificat
      * Rich content audio Object Path
      */
     private static final String AUDIO_OBJ_PATH = "/OBJ/PATH/AUDIO";
+
+    /**
+     * Key for hash map lookup of bus name
+     */
+    private static final String BUS_NAME_KEY = "BUS_NAME";
+
+    /**
+     * Key for hash map lookup of object path
+     */
+    private static final String OBJ_PATH_KEY = "OBJ_PATH";
 
     /**
      * For testers who don't want the app to filter notifications on the app
@@ -157,6 +176,21 @@ public class IoeNotificationApplication extends Application implements Notificat
      * UI Activity
      */
     private NotificationServiceControlsActivity myActiv;
+
+    /**
+     * Response object for showcasing executing an action from a notification
+     */
+    private TestLightBusObjectImpl myResponseObject;
+
+    /**
+     * Listener to handle sessions with the response path object
+     */
+    ResponseObjectSessionListener responseObjectSessionListener;
+
+    /**
+     * Listener to handle joining sessions with the response path object
+     */
+    ResponseObjectJoinSessionListener responseObjectJoinSessionListener;
 
     /**
      * Method called when the application started
@@ -241,6 +275,10 @@ public class IoeNotificationApplication extends Application implements Notificat
                 throw new NotificationServiceException("Failed to bind ANNOUNCED_PORT, Status: '" + status + "'");
             }
 
+            Log.d(TAG, "Creating response object");
+            createResponseObject(bus);
+            Log.d(TAG, "Created response object");
+
             // ////start about
             Map<String, Object> config = new HashMap<String, Object>();
             propertyStore = new PropertyStoreImpl(this);
@@ -290,6 +328,9 @@ public class IoeNotificationApplication extends Application implements Notificat
 
             notificationService.initReceive(bus, this);
             isReceiverStarted = true;
+
+            responseObjectSessionListener = new ResponseObjectSessionListener();
+            responseObjectJoinSessionListener = new ResponseObjectJoinSessionListener();
 
         } catch (NotificationServiceException nse) {
             Log.e(TAG, "Failed on startReceiver - can't present notifications error: " + nse.getMessage());
@@ -372,6 +413,9 @@ public class IoeNotificationApplication extends Application implements Notificat
                 notif.setRichAudioUrl(audioUrl);
                 notif.setRichIconObjPath(richIconObjPath);
                 notif.setRichAudioObjPath(richAudioObjPath);
+
+                // Sample remote object path set on all notifications in this sample application.
+                notif.setResponseObjectPath(TestLightBusObject.OBJ_PATH);
 
                 notificationSender.send(notif, ttl);
 
@@ -573,7 +617,40 @@ public class IoeNotificationApplication extends Application implements Notificat
 
         // Advertise the daemon so that the thin client can find it
         advertiseDaemon();
+
+        Log.d(TAG, "Finished creating the BusAttachment");
     }// prepareAJ
+
+    /**
+     * Returns a default SessionOpts instance used for this sample application.
+     * @return {@link SessionOpts}
+     */
+    private SessionOpts createSessionOpts() {
+        SessionOpts sessionOpts = new SessionOpts();
+        sessionOpts.traffic = SessionOpts.TRAFFIC_MESSAGES;
+        sessionOpts.isMultipoint = false;
+        sessionOpts.proximity = SessionOpts.PROXIMITY_ANY;
+        sessionOpts.transports = SessionOpts.TRANSPORT_ANY;
+        return sessionOpts;
+    }
+
+    /**
+     * Creates a sample object and registers it with the bus before binding a session port
+     * so it can later be accessed by a client who receives a notification with the objects response path.
+     * @param bus
+     */
+    private void createResponseObject(BusAttachment bus) {
+        SessionOpts sessionOpts = createSessionOpts();
+
+        myResponseObject = new TestLightBusObjectImpl();
+        bus.registerBusObject(myResponseObject, TestLightBusObject.OBJ_PATH);
+        bus.bindSessionPort(new ShortValue(RESPONSE_OBJECT_PORT), sessionOpts, new SessionPortListener() {
+            @Override
+            public boolean acceptSessionJoiner(short sessionPort, String joiner, SessionOpts opts) {
+                return sessionPort == RESPONSE_OBJECT_PORT;
+            }
+        });
+    }
 
     /**
      * Advertise the daemon so that the thin client can find it
@@ -606,5 +683,79 @@ public class IoeNotificationApplication extends Application implements Notificat
         }
 
     }// advertiseDaemon
+
+    /**
+     * Creates a session with the object given by the responseObjPath. On success the method will be executed.
+     * @param sender
+     * @param responseObjPath
+     * @throws NotificationServiceException
+     */
+    public void executeResponsePathAction(String sender, String responseObjPath) throws NotificationServiceException {
+        Log.d(TAG, "Attempting to execute response path action");
+
+        Map<String, Object> context = new HashMap<String, Object>();
+        context.put(BUS_NAME_KEY, sender);
+        context.put(OBJ_PATH_KEY, responseObjPath);
+
+        SessionOpts sessionOpts = createSessionOpts();
+
+        Status result = bus.joinSession(sender, RESPONSE_OBJECT_PORT, sessionOpts, responseObjectSessionListener, responseObjectJoinSessionListener, context);
+
+        if(result != Status.OK) {
+            Log.d(TAG, "Failed to join session");
+            throw new NotificationServiceException("Failed to join session with host: " + sender + ", port: " + RESPONSE_OBJECT_PORT);
+        }
+    }
+
+    /**
+     * Listener to handle events that occur during the session with the remote object.
+     */
+    private class ResponseObjectSessionListener extends SessionListener {
+        @Override
+        public void sessionLost(int sessionId, int reason) {
+            Log.d(TAG, "Received SESSION_LOST for session: '" + sessionId + "', Reason: '" + reason + "'");
+        }
+    }
+
+    /**
+     * Listener to handle joining a session with the remote object.
+     */
+    private class ResponseObjectJoinSessionListener extends OnJoinSessionListener {
+        @Override
+        public void onJoinSession(Status status, int sessionId, SessionOpts opts, Object context) {
+            Log.d(TAG, "Joined response path object session");
+
+            super.onJoinSession(status, sessionId, opts, context);
+
+            bus.enableConcurrentCallbacks();
+
+            if(status == Status.OK) {
+                Log.d(TAG, "Executing remote method");
+
+                Map<String, Object> dict = (HashMap<String, Object>)context;
+                String busName = (String)dict.get(BUS_NAME_KEY);
+                String objPath = (String)dict.get(OBJ_PATH_KEY);
+
+                Class<?>[] interfaces = new Class<?>[]{TestLightBusObject.class};
+
+                ProxyBusObject proxyBusObject = bus.getProxyBusObject(busName, objPath, sessionId, interfaces);
+                TestLightBusObject lightBusObject = proxyBusObject.getInterface(TestLightBusObject.class);
+                try{
+                    lightBusObject.flipSwitch();
+                    boolean value = lightBusObject.isLightOn();
+                    Log.d(TAG, "Executed remote method. Value is: " + value);
+                    showToast("Executed remote method. Value is: " + value);
+                }
+                catch (BusException e) {
+                    Log.d(TAG, "Failed to execute remote method: " + e.getMessage());
+                    showToast("Failed to execute remote method");
+                }
+
+                return;
+            }
+
+            Log.d(TAG, "Failed to execute remote method.");
+        }
+    }
 
 }// IoeNotificationApplication
