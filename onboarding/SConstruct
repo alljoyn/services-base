@@ -14,9 +14,7 @@
 
 import os
 
-core_dir = os.environ.get('ALLJOYN_CORE_DIR', '../../../core/alljoyn')
-
-env = SConscript(core_dir + '/build_core/SConscript')
+env = SConscript('../build_core/SConscript')
 
 vars = Variables()
 vars.Add('BINDINGS', 'Bindings to build (comma separated list): cpp, java', 'cpp,java')
