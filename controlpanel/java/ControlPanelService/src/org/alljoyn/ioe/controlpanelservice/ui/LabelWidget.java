@@ -35,69 +35,69 @@ import org.alljoyn.ioe.controlpanelservice.communication.interfaces.Label;
 import android.util.Log;
 
 public class LabelWidget extends UIElement {
-	private static final String TAG = LabelWidget.class.getSimpleName();
-	
-	private static final int ENABLED_MASK = 0x01;
-	
+    private static final String TAG = LabelWidget.class.getSimpleName();
+
+    private static final int ENABLED_MASK = 0x01;
+
     /**
      * The remote property object
      */
-	private Label remoteControl;
-	
-	/**
-	 * Whether the label is enabled
-	 */
-	private boolean enabled;
-	
-	/**
-	 * The label
-	 */
-	private String label;
-	
-	/**
-	 * The label widget bgcolor
-	 */
-	private Integer bgColor;
-	
-	/**
-	 * The hints for this Label Widget
-	 */
-	private List<LabelWidgetHintsType> hints;
-	
+    private Label remoteControl;
 
-	/**
-	 * Constructor
-	 * @param ifName
-	 * @param objectPath
-	 * @param controlPanel
-	 * @param children
-	 * @throws ControlPanelException
-	 */
-	public LabelWidget(String ifName, String objectPath, DeviceControlPanel controlPanel, List<IntrospectionNode> children) throws ControlPanelException {
-		super(UIElementType.LABEL_WIDGET, ifName, objectPath, controlPanel, children);
-	}
-	
-	public boolean isEnabled() {
-		return enabled;
-	}
+    /**
+     * Whether the label is enabled
+     */
+    private boolean enabled;
 
-	public String getLabel() {
-		return label;
-	}
+    /**
+     * The label
+     */
+    private String label;
 
-	public Integer getBgColor() {
-		return bgColor;
-	}
-	
-	public List<LabelWidgetHintsType> getHints() {
-		return hints;
-	}
+    /**
+     * The label widget bgcolor
+     */
+    private Integer bgColor;
 
-	/**
-	 * @see org.alljoyn.ioe.controlpanelservice.ui.UIElement#setRemoteController()
-	 */
-	@Override
-	protected void setRemoteController() throws ControlPanelException {
+    /**
+     * The hints for this Label Widget
+     */
+    private List<LabelWidgetHintsType> hints;
+
+
+    /**
+     * Constructor
+     * @param ifName
+     * @param objectPath
+     * @param controlPanel
+     * @param children
+     * @throws ControlPanelException
+     */
+    public LabelWidget(String ifName, String objectPath, DeviceControlPanel controlPanel, List<IntrospectionNode> children) throws ControlPanelException {
+        super(UIElementType.LABEL_WIDGET, ifName, objectPath, controlPanel, children);
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public Integer getBgColor() {
+        return bgColor;
+    }
+
+    public List<LabelWidgetHintsType> getHints() {
+        return hints;
+    }
+
+    /**
+     * @see org.alljoyn.ioe.controlpanelservice.ui.UIElement#setRemoteController()
+     */
+    @Override
+    protected void setRemoteController() throws ControlPanelException {
         WidgetFactory widgetFactory = WidgetFactory.getWidgetFactory(ifName);
         
         if ( widgetFactory == null ) {
@@ -120,29 +120,29 @@ public class LabelWidget extends UIElement {
         remoteControl = (Label) proxyObj.getInterface(ifClass);
         
         try {
-        	this.version = remoteControl.getVersion();
-		} catch (BusException e) {
-			String msg = "Failed to call getVersion for element: '" + elementType + "'";
-			Log.e(TAG, msg);
-			throw new ControlPanelException(msg);
-		}
+            this.version = remoteControl.getVersion();
+        } catch (BusException e) {
+            String msg = "Failed to call getVersion for element: '" + elementType + "'";
+            Log.e(TAG, msg);
+            throw new ControlPanelException(msg);
+        }
         
-	}//setRemoteController
+    }//setRemoteController
 
-	/**
-	 * @see org.alljoyn.ioe.controlpanelservice.ui.UIElement#registerSignalHandler()
-	 */
-	@Override
-	protected void registerSignalHandler() throws ControlPanelException {
-		Method labelMetadataChanged = CommunicationUtil.getLabelWidgetMetadataChanged("MetadataChanged");
-		if ( labelMetadataChanged == null ) {
-    		String msg = "LabelWidget, MetadataChanged method isn't defined";
-    		Log.e(TAG, msg);
-    		throw new ControlPanelException(msg);
-		}
-		
+    /**
+     * @see org.alljoyn.ioe.controlpanelservice.ui.UIElement#registerSignalHandler()
+     */
+    @Override
+    protected void registerSignalHandler() throws ControlPanelException {
+        Method labelMetadataChanged = CommunicationUtil.getLabelWidgetMetadataChanged("MetadataChanged");
+        if ( labelMetadataChanged == null ) {
+            String msg = "LabelWidget, MetadataChanged method isn't defined";
+            Log.e(TAG, msg);
+            throw new ControlPanelException(msg);
+        }
+
         try {
-        	registerSignalHander(new LabelWidgetSignalHandler(this), labelMetadataChanged);
+            registerSignalHander(new LabelWidgetSignalHandler(this), labelMetadataChanged);
         }
         catch(ControlPanelException cpe) {
             String msg = "Device: '" + device.getDeviceId() +
@@ -150,21 +150,21 @@ public class LabelWidget extends UIElement {
             Log.e(TAG, msg);
             controlPanel.getEventsListener().errorOccurred(controlPanel, msg);
         }
-	}//registerSignalHandler
-	
+    }//registerSignalHandler
 
-	/**
-	 * @see org.alljoyn.ioe.controlpanelservice.ui.UIElement#setProperty(java.lang.String, org.alljoyn.bus.Variant)
-	 */
-	@Override
-	protected void setProperty(String propName, Variant propValue) throws ControlPanelException {
+
+    /**
+     * @see org.alljoyn.ioe.controlpanelservice.ui.UIElement#setProperty(java.lang.String, org.alljoyn.bus.Variant)
+     */
+    @Override
+    protected void setProperty(String propName, Variant propValue) throws ControlPanelException {
         try{
-        	if ( "States".equals(propName) ) {
+            if ( "States".equals(propName) ) {
                 int states = propValue.getObject(int.class);
                 enabled    =  (states & ENABLED_MASK) == ENABLED_MASK;
             }
             else if ( "Label".equals(propName) ) {
-            	label = propValue.getObject(String.class);
+                label = propValue.getObject(String.class);
             }
             else if ( "OptParams".equals(propName) ) {
                 Map<Short, Variant> optParams = propValue.getObject(new VariantTypeReference<HashMap<Short, Variant>>() {});
@@ -174,21 +174,21 @@ public class LabelWidget extends UIElement {
         catch(BusException be) {
             throw new ControlPanelException("Failed to unmarshal the property: '" + propName + "', Error: '" + be.getMessage() + "'");
         }
-	}//setProperty
-	
+    }//setProperty
 
-	/**
-	 * @see org.alljoyn.ioe.controlpanelservice.ui.UIElement#createChildWidgets()
-	 */
-	@Override
-	protected void createChildWidgets() throws ControlPanelException {
+
+    /**
+     * @see org.alljoyn.ioe.controlpanelservice.ui.UIElement#createChildWidgets()
+     */
+    @Override
+    protected void createChildWidgets() throws ControlPanelException {
         int size = children.size();
         Log.d(TAG, "Test LabelWidget validity - LabelWidget can't has child nodes. #ChildNodes: '" + size + "'");
         if ( size > 0 ) {
             throw new ControlPanelException("The LabelWidget objPath: '" + objectPath + "' is not valid, found '" + size + "' child nodes");
         }
-	}//createChildWidgets
-	
+    }//createChildWidgets
+
     /**
      * Fill LabelWidget optional parameters
      * @param optParams
@@ -216,9 +216,9 @@ public class LabelWidget extends UIElement {
                         break;
                     }
                     case HINTS: {
-   					    short[] labelHints = optParam.getObject(short[].class);
-					    fillLabelHints(labelHints);
-                    	break;
+                        short[] labelHints = optParam.getObject(short[].class);
+                        fillLabelHints(labelHints);
+                        break;
                     }
                 }//switch
             }
@@ -236,18 +236,18 @@ public class LabelWidget extends UIElement {
          hints = new ArrayList<LabelWidgetHintsType>( hIds.length );
  
          Log.v(TAG, "Searching for LabelWidget hints");
-		 
-		 //Fill layout hints
-		 for (short hintId : hIds) {
-		     LabelWidgetHintsType hintType = LabelWidgetHintsType.getEnumById(hintId);
-		     if ( hintType != null ) {
-		         Log.v(TAG, "Found LabelWidget hint: '" + hintType + "', adding");
-		         hints.add(hintType);
-		     }
-		     else {
-		         Log.w(TAG, "LabelWidget hint id: '" + hintId + "' is unknown");
-		     }
-		 }//hints
+
+         //Fill layout hints
+         for (short hintId : hIds) {
+             LabelWidgetHintsType hintType = LabelWidgetHintsType.getEnumById(hintId);
+             if ( hintType != null ) {
+                 Log.v(TAG, "Found LabelWidget hint: '" + hintType + "', adding");
+                 hints.add(hintType);
+             }
+             else {
+                 Log.w(TAG, "LabelWidget hint id: '" + hintId + "' is unknown");
+             }
+         }//hints
     }//fillLabelHints
 
 }
