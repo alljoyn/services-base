@@ -14,29 +14,12 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#import <XCTest/XCTest.h>
+#import <UIKit/UIKit.h>
+#import "AJCPSActionWithDialog.h"
+#import "AJCPSGetControlPanelViewController.h"
 
-@interface alljoyn_services_objcTests : XCTestCase
-
-@end
-
-@implementation alljoyn_services_objcTests
-
-- (void)setUp
-{
-    [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
-}
-
-- (void)tearDown
-{
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
-    [super tearDown];
-}
-
-- (void)testExample
-{
-    XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
-}
-
+@interface CPSActionDialogCell : UITableViewCell
+@property (strong, nonatomic) UIButton *cpsButton; //TOD strong
+@property (weak, nonatomic) AJCPSActionWithDialog *actionDialogWidget;
+@property (weak, nonatomic) GetControlPanelViewController *viewController;
 @end
