@@ -362,7 +362,7 @@ public class DeviceDetailFragment extends Fragment {
                     controlPanelAdapter = new ControlPanelAdapter(getActivitySafely(), DeviceController.this);
                     hideProgressDialog();
 
-                    buildControlPanel( (UIElement)result );
+                    buildControlPanel((UIElement)result);
                 }
             };
             panelLoader.execute();
