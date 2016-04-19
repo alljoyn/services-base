@@ -1,0 +1,74 @@
+diff --git a/alljoyn_core/SConscript b/alljoyn_core/SConscript
+index 40462e8..8823577 100644
+--- a/alljoyn_core/SConscript
++++ b/alljoyn_core/SConscript
+@@ -100,7 +100,7 @@ config_env.SConscript('$OBJDIR_CONFIG/cpp/SConscript', exports = ['config_env'])
+ # building for iOS. No support on iOS for command line applications.
+ if env['OS'] == 'darwin' and env['CPU'] in ['arm', 'armv7', 'armv7s', 'arm64',]:
+     progs = []
+-else:
++elif env['OS_CONF'] != 'windows':
+     # Test programs
+     progs = env.SConscript('$OBJDIR_ALLJOYN_CORE/test/SConscript')
+     ajenv.Install('$CPP_DISTDIR/bin', progs[0])
+diff --git a/alljoyn_core/router/SConscript b/alljoyn_core/router/SConscript
+index 234d972..f20597f 100644
+--- a/alljoyn_core/router/SConscript
++++ b/alljoyn_core/router/SConscript
+@@ -75,6 +75,8 @@ if router_env['OS'] == 'darwin':
+     else:
+         print 'Building unit tests for darwin...'
+         tests = router_env.SConscript('test/SConscript', exports = ['router_env', 'router_objs', 'srobj'])
++elif router_env['OS_CONF'] == 'windows':
++    tests = []
+ else:
+     tests = router_env.SConscript('test/SConscript', exports = ['router_env', 'router_objs', 'srobj'])
+     
+diff --git a/build_core/conf/windows/SConscript b/build_core/conf/windows/SConscript
+index f6905cf..9ad8a62 100644
+--- a/build_core/conf/windows/SConscript
++++ b/build_core/conf/windows/SConscript
+@@ -123,9 +123,6 @@ env.Append(LINKFLAGS=['/NODEFAULTLIB:libcmt.lib'])
+ # using the /Z7 option to solve this problem.  Since another more acceptable
+ # solution has not yet been found we are going with the recommendation from the
+ # SCons documentation. 
+-env['CCPDBFLAGS'] = '/Z7'
+-env['PDB'] = '${TARGET.base}.pdb'
+-env.Append(LINKFLAGS=['/PDB:${TARGET.base}.pdb'])
+ 
+ # Debug/Release variants
+ if env['VARIANT'] == 'debug':
+diff --git a/services/about/cpp/SConscript b/services/about/cpp/SConscript
+index 241d69f..778ac05 100644
+--- a/services/about/cpp/SConscript
++++ b/services/about/cpp/SConscript
+@@ -30,10 +30,12 @@ about_env.Install('$ABOUT_DISTDIR/inc/alljoyn/about', about_env.Glob('inc/alljoy
+ about_env.Install('$ABOUT_DISTDIR/lib', about_env.SConscript('src/SConscript', exports = ['about_env']))
+ 
+ # Sample programs
+-about_env.Install('$ABOUT_DISTDIR/bin/samples', about_env.SConscript('samples/SConscript', exports = ['about_env']))
++if about_env['OS_CONF'] != 'windows':
++    about_env.Install('$ABOUT_DISTDIR/bin/samples', about_env.SConscript('samples/SConscript', exports = ['about_env']))
+ 
+ # only include command line samples, unit test, test programs if we are not 
+ # building for iOS. No support on iOS for command line applications.
+ if not (about_env['OS'] == 'darwin' and about_env['CPU'] in ['arm', 'armv7', 'armv7s', 'arm64',]):
+-    # Build unit Tests
+-    about_env.SConscript('unit_test/SConscript', exports = ['about_env'], variant_dir='$OBJDIR_ABOUT/unittest', duplicate = 0)
++    if about_env['OS_CONF'] != 'windows':
++        # Build unit Tests
++        about_env.SConscript('unit_test/SConscript', exports = ['about_env'], variant_dir='$OBJDIR_ABOUT/unittest', duplicate = 0)
+diff --git a/services/config/cpp/SConscript b/services/config/cpp/SConscript
+index 0e196b1..bc89bdc 100644
+--- a/services/config/cpp/SConscript
++++ b/services/config/cpp/SConscript
+@@ -30,7 +30,8 @@ config_env.Install('$CONFIG_DISTDIR/inc/alljoyn/config', config_env.Glob('inc/al
+ config_env.Install('$CONFIG_DISTDIR/lib', config_env.SConscript('src/SConscript', exports = ['config_env']))
+ 
+ # Sample programs
+-config_env.Install('$CONFIG_DISTDIR/bin/samples', config_env.SConscript('samples/SConscript', exports = ['config_env']))
++if config_env['OS_CONF'] != 'windows':
++    config_env.Install('$CONFIG_DISTDIR/bin/samples', config_env.SConscript('samples/SConscript', exports = ['config_env']))
+ 
+ # only include command line samples, unit test, test programs if we are not 
+ # building for iOS. No support on iOS for command line applications.
