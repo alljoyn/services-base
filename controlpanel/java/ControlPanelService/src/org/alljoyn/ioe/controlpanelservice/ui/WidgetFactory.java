@@ -31,8 +31,6 @@ import org.alljoyn.ioe.controlpanelservice.communication.interfaces.AlertDialogS
 import org.alljoyn.ioe.controlpanelservice.communication.interfaces.Container;
 import org.alljoyn.ioe.controlpanelservice.communication.interfaces.ContainerSecured;
 import org.alljoyn.ioe.controlpanelservice.communication.interfaces.Label;
-import org.alljoyn.ioe.controlpanelservice.communication.interfaces.ListPropertyControl;
-import org.alljoyn.ioe.controlpanelservice.communication.interfaces.ListPropertyControlSecured;
 import org.alljoyn.ioe.controlpanelservice.communication.interfaces.PropertyControl;
 import org.alljoyn.ioe.controlpanelservice.communication.interfaces.PropertyControlSecured;
 
@@ -95,9 +93,6 @@ public class WidgetFactory {
             ifaceLookup.put(PropertyControlSecured.IFNAME, new WidgetFactory(PropertyControlSecured.IFNAME, PropertyControlSecured.class, getConstructorReflection(PropertyWidget.class), UIElementType.PROPERTY_WIDGET, false));
 
             ifaceLookup.put(Label.IFNAME, new WidgetFactory(Label.IFNAME, Label.class, getConstructorReflection(LabelWidget.class), UIElementType.LABEL_WIDGET, false));
-
-            ifaceLookup.put(ListPropertyControl.IFNAME, new WidgetFactory(ListPropertyControl.IFNAME, ListPropertyControl.class, getConstructorReflection(ListPropertyWidget.class), UIElementType.LIST_PROPERTY_WIDGET, false));
-            ifaceLookup.put(ListPropertyControlSecured.IFNAME, new WidgetFactory(ListPropertyControlSecured.IFNAME, ListPropertyControlSecured.class, getConstructorReflection(ListPropertyWidget.class), UIElementType.LIST_PROPERTY_WIDGET, false));
 
             isInitialized = true;
         }

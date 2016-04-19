@@ -241,16 +241,6 @@ typedef NS_ENUM (NSInteger, AJCPS_LABEL_HINTS) {
 };
 
 /**
- * Hints for ListProperty Widgets
- */
-typedef NS_ENUM (NSInteger, LIST_PROPERTY_HINTS) {
-    /**
-     * Dynamic spinner
-     */
-	AJCPS_DYNAMICSPINNER = 1
-};
-
-/**
  * Hints for Action Widgets
  */
 typedef NS_ENUM (NSInteger, ACTION_HINTS) {

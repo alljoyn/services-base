@@ -37,8 +37,6 @@ import org.alljoyn.ioe.controlpanelservice.ui.DeviceControlPanel;
 import org.alljoyn.ioe.controlpanelservice.ui.ErrorWidget;
 import org.alljoyn.ioe.controlpanelservice.ui.LabelWidget;
 import org.alljoyn.ioe.controlpanelservice.ui.LayoutHintsType;
-import org.alljoyn.ioe.controlpanelservice.ui.ListPropertyWidget;
-import org.alljoyn.ioe.controlpanelservice.ui.ListPropertyWidget.Record;
 import org.alljoyn.ioe.controlpanelservice.ui.PropertyWidget;
 import org.alljoyn.ioe.controlpanelservice.ui.PropertyWidget.ConstrainToValues;
 import org.alljoyn.ioe.controlpanelservice.ui.PropertyWidget.Date;
@@ -191,11 +189,6 @@ public class ControlPanelTestApp extends DefaultDeviceRegistry implements Device
 				 Log.i(TAG, "LabelWidget metadata IsEnabled: '" + labelWidget.isEnabled() + "'");
 		    	 break;
 		     }
-		     case LIST_PROPERTY_WIDGET: {
-		    	 ListPropertyWidget  listWidget = (ListPropertyWidget)uielement;
-				 Log.i(TAG, "ListPropertyWidget metadata IsEnabled: '" + listWidget.isEnabled() + "'");
-		    	 break;		
-		     }
 		     case ERROR_WIDGET: {
 		    	 break;
 		     }
@@ -266,11 +259,6 @@ public class ControlPanelTestApp extends DefaultDeviceRegistry implements Device
 					addToUiControls(UIElementType.CONTAINER, element, isFromList);
 					break;
 				}// CONTAINER
-				case LIST_PROPERTY_WIDGET: {
-					handlePropertyList((ListPropertyWidget) element, isFromList);
-					addToUiControls(UIElementType.LIST_PROPERTY_WIDGET, element, isFromList);
-					break;
-				}//LIST_PROPERTY_WIDGET
 				case PROPERTY_WIDGET: {
 					handleProperty((PropertyWidget) element, isFromList);
 					addToUiControls(UIElementType.PROPERTY_WIDGET, element, isFromList);
@@ -412,29 +400,7 @@ public class ControlPanelTestApp extends DefaultDeviceRegistry implements Device
 		
 		Log.i(TAG, "===== END OF LABEL profiler ===== ");
 	}//handleLabel
-	
-	private void handlePropertyList(ListPropertyWidget listProperty, boolean isFromList) {
-		String fromList = "";
-		
-		if ( isFromList ) {
-			fromList = "(FROM LIST)";
-			try {
-				listProperty.refreshProperties();
-			} catch (ControlPanelException e) {
-				Log.e(TAG, "Failed to update the properties of a AlertDialog objPath: '" + listProperty.getObjectPath() + "'");
-				return;
-			}
-		}
-		
-		Log.i(TAG, "==== " + fromList + " LIST_PROPERTY profiler ===== ");
-		
-		Log.i(TAG, "ListProperty: objPath: '" + listProperty.getObjectPath() + "'");
-		Log.i(TAG, "Version: '" + listProperty.getVersion() + "' Enabled: '" + listProperty.isEnabled() + "'" +
-		          " Label: '" + listProperty.getLabel() + "' BGColor: '" + listProperty.getBgColor() + "', LabelHints: '" + listProperty.getHints() + "'");
-		
-		Log.i(TAG, "===== END OF LIST_PROPERTY profiler ===== ");		
-	}//handlePropertyList
-	
+
 	private void handleErrorWidget(ErrorWidget errorWidget) {
 		Log.w(TAG, "==== ERROR_WIDGET profiler ===== ");
 		
@@ -685,19 +651,6 @@ public class ControlPanelTestApp extends DefaultDeviceRegistry implements Device
 					  }//for :: elements					 
 					 break;
 				 }//LABEL_WIDGET
-				 case LIST_PROPERTY_WIDGET: {
-					  List<UIElement> elements = uiControls.get(UIElementType.LIST_PROPERTY_WIDGET);
-					  for (UIElement element : elements) {
-						  ListPropertyWidget listProperty = (ListPropertyWidget)element;
-						  try {
-							  testListProperty(listProperty);
-						  }
-						  catch(ControlPanelException cpe) {
-							  Log.e(TAG, "Failed happened in calling remote object: '" + cpe.getMessage() + "'");
-						  }
-					  }//for :: elements
-					 break;
-				 }
 				 case ERROR_WIDGET: {
 					 break;
 				 }
@@ -706,206 +659,6 @@ public class ControlPanelTestApp extends DefaultDeviceRegistry implements Device
 		
 		Log.i(TAG, "==== TEST IS COMPLETED ==== ");
 	}//runTestForUiControls
-	
-	/**
-	 * Run test for ListPropertyWidget
-	 * @param listProps
-	 * @throws ControlPanelException
-	 */
-	private void testListProperty(ListPropertyWidget listProps) throws ControlPanelException {
-		Random rand = new Random();
-		
-		Log.i(TAG, UIElementType.LIST_PROPERTY_WIDGET + " - Test ListProperty: '" + listProps.getObjectPath() + "'");
-		
-		List<Record> records = listProps.getValue();
-		Log.i(TAG,  UIElementType.LIST_PROPERTY_WIDGET + " - ListProperty record values: '" + records + "'");
-		
-		Log.i(TAG,  UIElementType.LIST_PROPERTY_WIDGET + " - **** TEST ADD() ****");
-		 
-		//TEST ADD
-		for(int i=1; i<=2; ++i) {
-			boolean willCancel;
-			
-			if (i == 1) {
-				willCancel = true;
-			}
-			else {
-				willCancel = false;
-			}
-			
-			Log.i(TAG, UIElementType.LIST_PROPERTY_WIDGET + " - TEST #" + i + "  Call Add() method and then Cancel: '" + willCancel + "'");
-			ContainerWidget container = listProps.add();
-			
-			Log.i(TAG, "Handle the new Added form");
-			uiControlsList.clear();
-			handleContainer(container, true);
-			runTestForUiControls(uiControlsList);
-			
-			if ( willCancel ) {
-				Log.i(TAG, UIElementType.LIST_PROPERTY_WIDGET + " - Call Cancel() method");
-				listProps.cancel();
-			}
-			else {
-				Log.i(TAG, UIElementType.LIST_PROPERTY_WIDGET + " - Call Confirm() method");
-				listProps.confirm();
-			}
-			
-			int sizeBefore = records.size();
-			records = listProps.getValue();
-			int sizeAfter  = records.size();
-			
-			// If the Add() operation was confirmed the size should be greater
-			if ( !willCancel && sizeAfter <= sizeBefore ) {
-				Log.e(TAG, UIElementType.LIST_PROPERTY_WIDGET + " - A Possible error has happened, after the Add() operation the sizeAfter: '" + sizeAfter + "', should be greater than the sizeBefore: '" + sizeBefore + "'");
-			}
-			
-			Log.i(TAG, UIElementType.LIST_PROPERTY_WIDGET + " -  Check the recordValues: '" + records + "', size before: '" + sizeBefore + "', sizeAfter: '" + sizeAfter + "'");
-		}//for::Add
-		//================================== END ADD ==============================//	
-
-		Log.i(TAG,  UIElementType.LIST_PROPERTY_WIDGET + " - **** TEST UPDATE() ****");
-		
-		//TEST UPDATE
-		for(int i=1; i<=2; ++i) {
-			boolean willCancel;
-
-			if (i == 1) {
-				willCancel = true;
-			}
-			else {
-				willCancel = false;
-			}
-			
-			Log.i(TAG, UIElementType.LIST_PROPERTY_WIDGET + " - TEST #" + i + " Call Update() method and then Cancel: '" + willCancel + "'");
-			
-			if ( records.size() == 0 ) {
-				Log.i(TAG, UIElementType.LIST_PROPERTY_WIDGET + " - No records in the list, adding a form...");
-				ContainerWidget cont = listProps.add();
-				uiControlsList.clear();
-				handleContainer(cont, true);
-				runTestForUiControls(uiControlsList);
-				listProps.confirm();
-			}
-			
-			records   = listProps.getValue();
-			int size  = records.size();
-			if ( size == 0 ) {
-				Log.e(TAG, UIElementType.LIST_PROPERTY_WIDGET + " - No records were found, previously failed to add a new record");
-				break;
-			}
-			
-			int index     = rand.nextInt(size);
-			Record record = records.get(index);
-			
-			Log.i(TAG, UIElementType.LIST_PROPERTY_WIDGET + " - Call Update() method on the record: '" + record + "' and then Cancel: '" + willCancel + "'");
-			ContainerWidget cont = listProps.update(record.getRecordId());
-			uiControlsList.clear();
-			handleContainer(cont, true);
-			runTestForUiControls(uiControlsList);
-				
-			if ( willCancel ) {
-				Log.i(TAG, UIElementType.LIST_PROPERTY_WIDGET + " - Call Cancel() method");
-				listProps.cancel();
-			}
-			else {
-				Log.i(TAG, UIElementType.LIST_PROPERTY_WIDGET + " - Call Confirm() method");
-				listProps.confirm();
-			}
-		}//for::Update
-		//================================== END UPDATE ==============================//
-		
-		Log.i(TAG,  UIElementType.LIST_PROPERTY_WIDGET + " - **** TEST DELETE() ****");
-		
-		//TEST DELETE
-		for(int i=1; i<=2; ++i) {
-			boolean willCancel;
-
-			if (i == 1) {
-				willCancel = true;
-			}
-			else {
-				willCancel = false;
-			}
-			
-			Log.i(TAG, UIElementType.LIST_PROPERTY_WIDGET + " - TEST #" + i + " Call Delete() method and then Cancel: '" + willCancel + "'");
-			
-			if ( records.size() == 0 ) {
-				Log.i(TAG, UIElementType.LIST_PROPERTY_WIDGET + " - No records in the list, adding a form...");
-				ContainerWidget cont = listProps.add();
-				uiControlsList.clear();
-				handleContainer(cont, true);
-				runTestForUiControls(uiControlsList);
-				listProps.confirm();
-			}
-			
-			records   = listProps.getValue();
-			int size  = records.size();
-			if ( size == 0 ) {
-				Log.e(TAG, UIElementType.LIST_PROPERTY_WIDGET + " - No records were found, previously failed to add a new record");
-				break;
-			}
-			
-			int index     = rand.nextInt(size);
-			Record record = records.get(index);
-			
-			Log.i(TAG, UIElementType.LIST_PROPERTY_WIDGET + " - Call Delete() method on the record: '" + record + "' and then Cancel: '" + willCancel + "'");
-			listProps.delete(record.getRecordId());
-				
-			if ( willCancel ) {
-				Log.i(TAG, UIElementType.LIST_PROPERTY_WIDGET + " - Call Cancel() method");
-				listProps.cancel();
-			}
-			else {
-				Log.i(TAG, UIElementType.LIST_PROPERTY_WIDGET + " - Call Confirm() method");
-				listProps.confirm();
-			}
-			
-			int sizeBefore = records.size();
-			records = listProps.getValue();
-			int sizeAfter  = records.size();
-			
-			// If the Delete() operation was confirmed the size after should be smaller than the size before
-			if ( !willCancel && sizeAfter == sizeBefore ) {
-				Log.e(TAG, UIElementType.LIST_PROPERTY_WIDGET + " - A Possible error has happened, after the Delete() operation the sizeAfter: '" + sizeAfter + "', should be smaller than the sizeBefore: '" + sizeBefore + "'");
-			}
-			
-			Log.i(TAG, UIElementType.LIST_PROPERTY_WIDGET + " -  Check the recordValues: '" + records + "', size before: '" + sizeBefore + "', sizeAfter: '" + sizeAfter + "'");
-		}//for::Delete
-		//================================== END DELETE ==============================//
-
-		
-		Log.i(TAG,  UIElementType.LIST_PROPERTY_WIDGET + " - **** TEST VIEW() ****");
-		
-		//TEST VIEW
-		Log.i(TAG, UIElementType.LIST_PROPERTY_WIDGET + " - Call View() method");
-		
-		if ( records.size() == 0 ) {
-			Log.i(TAG, UIElementType.LIST_PROPERTY_WIDGET + " - No records in the list, adding a form...");
-			ContainerWidget cont = listProps.add();
-			uiControlsList.clear();
-			handleContainer(cont, true);
-			runTestForUiControls(uiControlsList);
-			listProps.confirm();
-		}
-		
-		records   = listProps.getValue();
-		int size  = records.size();
-		if ( size == 0 ) {
-			Log.e(TAG, UIElementType.LIST_PROPERTY_WIDGET + " - No records were found, previously failed to add a new record");
-			return;
-		}
-		
-		int index     = rand.nextInt(size);
-		Record record = records.get(index);
-		
-		Log.i(TAG, UIElementType.LIST_PROPERTY_WIDGET + " - Call View() method on the record: '" + record + "'");
-		ContainerWidget cont = listProps.view(record.getRecordId());
-		uiControlsList.clear();
-		handleContainer(cont, true);
-		runTestForUiControls(uiControlsList);
-    	//================================== END VIEW ==============================//
-
-	}//testListProperty
 
 
 }

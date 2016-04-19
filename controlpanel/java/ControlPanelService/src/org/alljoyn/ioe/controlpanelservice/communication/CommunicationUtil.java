@@ -27,7 +27,6 @@ import org.alljoyn.ioe.controlpanelservice.communication.interfaces.ContainerSup
 import org.alljoyn.ioe.controlpanelservice.communication.interfaces.ControlPanel;
 import org.alljoyn.ioe.controlpanelservice.communication.interfaces.HTTPControl;
 import org.alljoyn.ioe.controlpanelservice.communication.interfaces.Label;
-import org.alljoyn.ioe.controlpanelservice.communication.interfaces.ListPropertyControlSuper;
 import org.alljoyn.ioe.controlpanelservice.communication.interfaces.NotificationAction;
 import org.alljoyn.ioe.controlpanelservice.communication.interfaces.PropertyControlSuper;
 
@@ -115,18 +114,6 @@ public class CommunicationUtil {
 
 
 	/**
-	 * @return reflection for {@link ListPropertyControlSuper} signals
-	 */
-	public static Method getListPropertyWidgetSignal(String name) {
-		try {
-			return ListPropertyControlSuper.class.getMethod(name);
-		} catch (NoSuchMethodException nsme) {
-			Log.e(TAG, "Not found reflection of " + name + " method");
-		}
-		return null; 
-	}//getListPropertyWidgetSignal
-
-	/**
 	 * @return reflection for {@link NotificationAction} signal
 	 */
 	public static Method getNotificationActionDismissSignal(String name) {
@@ -136,7 +123,7 @@ public class CommunicationUtil {
 			Log.e(TAG, "Not found reflection of " + name + " method");
 		}
 		return null; 
-	}//getListPropertyWidgetSignal
+	}//getNotificationActionDismissSignal
 	
 	/**
      * Creates SessionOpts
