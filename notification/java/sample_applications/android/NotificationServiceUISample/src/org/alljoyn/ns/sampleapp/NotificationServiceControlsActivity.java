@@ -234,8 +234,6 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 		//set message text boxes
 		msg1Id = (EditText)findViewById(R.id.msg_1);
 		msg2Id = (EditText)findViewById(R.id.msg_2);
-		prepareMsgTextBox(msg1Id);
-		prepareMsgTextBox(msg2Id);
 		
 		//set Button(s)
 		shutdownButton = (Button) findViewById(R.id.b_shutdown);
@@ -375,34 +373,6 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 		return s;
 	}//prepareSpinner
 
-	/**
-	 * Adds handling of IME virtual keyboard 
-	 */
-	private void prepareMsgTextBox(EditText msgTextObj) {
-		
-		msgTextObj.setImeOptions(EditorInfo.IME_ACTION_DONE);
-		msgTextObj.setImeActionLabel(getString(R.string.send), EditorInfo.IME_ACTION_DONE);
-		msgTextObj.setOnEditorActionListener(new OnEditorActionListener() {
-			@Override
-			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-				if (EditorInfo.IME_ACTION_DONE != actionId) {
-					return false;
-				}
-				grabSendControlArea();
-				
-				View currentFocusView = getCurrentFocus();
-				if ( currentFocusView != null ) {
-					//Hide Keyboard
-					InputMethodManager inputManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-					inputManager.hideSoftInputFromWindow(currentFocusView.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-				}
-				
-				return true;
-			}//onEditorAction
-		});
-		
-	}//prepareMsgTextBox
-	
 	/**
 	 * OnClick event handler 	 
 	 * @see android.view.View.OnClickListener#onClick(android.view.View)
