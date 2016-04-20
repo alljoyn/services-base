@@ -62,6 +62,51 @@
     return [AJNConvertUtil convertQCCStringtoNSString:str];
 }
 
+- (NSString *)propertyToNSString:(AJCPSPropertyType)property withValue:(AJCPSConstraintValue) propertyValue
+{
+    NSMutableString *propertyStr = [[NSMutableString alloc] init];
+    
+    switch (property) {
+            
+        case 	AJCPS_UINT16_PROPERTY :
+            [propertyStr appendFormat:@"(%d)",propertyValue.uint16Value];
+            
+            break;
+        case 	AJCPS_INT16_PROPERTY :
+            [propertyStr appendFormat:@"(%d)",propertyValue.int16Value];
+            
+            break;
+        case 	AJCPS_UINT32_PROPERTY :
+            [propertyStr appendFormat:@"(%d)",propertyValue.uint32Value];
+            
+            break;
+        case 	AJCPS_INT32_PROPERTY :
+            [propertyStr appendFormat:@"(%d)",propertyValue.int32Value];
+            
+            break;
+        case 	AJCPS_UINT64_PROPERTY :
+            [propertyStr appendFormat:@"(%llu)",propertyValue.uint64Value];
+            
+            break;
+        case 	AJCPS_INT64_PROPERTY :
+            [propertyStr appendFormat:@"(%lld)",propertyValue.int64Value];
+            
+            break;
+        case 	AJCPS_DOUBLE_PROPERTY :
+            [propertyStr appendFormat:@"(%f)",propertyValue.doubleValue];
+            
+            break;
+        case 	AJCPS_STRING_PROPERTY :
+            [propertyStr appendFormat:@"('%s')",propertyValue.charValue];
+            
+            break;
+        default:
+            NSLog(@"unknown property");
+            break;
+    }
+    
+    return [NSString stringWithString:propertyStr];
+}
 
 - (AJCPSConstraintValue)convertToAJCPSConstraintValue:(ajn::services::ConstraintValue) constraintValue
 {

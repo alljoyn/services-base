@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		9A6A7EC918A90B5500287EF5 /* AJCPSAction.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9AC4E12718A8DF59007080F6 /* AJCPSAction.h */; };
-		9A6A7ECA18A90B5500287EF5 /* AJCPSActionWithDialog.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9AC4E12818A8DF59007080F6 /* AJCPSActionWithDialog.h */; };
 		9A6A7ECB18A90B5500287EF5 /* AJCPSConstraintList.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9AC4E12918A8DF59007080F6 /* AJCPSConstraintList.h */; };
 		9A6A7ECC18A90B5500287EF5 /* AJCPSConstraintRange.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9AC4E12A18A8DF59007080F6 /* AJCPSConstraintRange.h */; };
 		9A6A7ECD18A90B5500287EF5 /* AJCPSContainer.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9AC4E12B18A8DF59007080F6 /* AJCPSContainer.h */; };
@@ -45,7 +44,6 @@
 		9AA936071854BC2B00378361 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9AA936051854BC2B00378361 /* InfoPlist.strings */; };
 		9AA936091854BC2B00378361 /* alljoyn_services_objcTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AA936081854BC2B00378361 /* alljoyn_services_objcTests.m */; };
 		9AC4E10C18A8DEC7007080F6 /* AJCPSAction.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9AC4E0F118A8DEC7007080F6 /* AJCPSAction.mm */; };
-		9AC4E10D18A8DEC7007080F6 /* AJCPSActionWithDialog.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9AC4E0F218A8DEC7007080F6 /* AJCPSActionWithDialog.mm */; };
 		9AC4E10E18A8DEC7007080F6 /* AJCPSConstraintList.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9AC4E0F318A8DEC7007080F6 /* AJCPSConstraintList.mm */; };
 		9AC4E10F18A8DEC7007080F6 /* AJCPSConstraintRange.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9AC4E0F418A8DEC7007080F6 /* AJCPSConstraintRange.mm */; };
 		9AC4E11018A8DEC7007080F6 /* AJCPSContainer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9AC4E0F518A8DEC7007080F6 /* AJCPSContainer.mm */; };
@@ -71,6 +69,13 @@
 		9AC4E12418A8DEC7007080F6 /* AJCPSProperty.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9AC4E10918A8DEC7007080F6 /* AJCPSProperty.mm */; };
 		9AC4E12518A8DEC7007080F6 /* AJCPSRootWidget.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9AC4E10A18A8DEC7007080F6 /* AJCPSRootWidget.mm */; };
 		9AC4E12618A8DEC7007080F6 /* AJCPSWidget.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9AC4E10B18A8DEC7007080F6 /* AJCPSWidget.mm */; };
+		B07896331CBE197C00E0BA05 /* AJCPSActionWithDialog.mm in Sources */ = {isa = PBXBuildFile; fileRef = B07896321CBE197C00E0BA05 /* AJCPSActionWithDialog.mm */; };
+		B0987BB21CBDD35300FEAF3B /* AJCPSCPSActionDialogCell.mm in Sources */ = {isa = PBXBuildFile; fileRef = B0987BB11CBDD35300FEAF3B /* AJCPSCPSActionDialogCell.mm */; };
+		B0987BB41CBDD3B600FEAF3B /* AJCPSCPSActionDialogCell.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = B0987BB31CBDD38E00FEAF3B /* AJCPSCPSActionDialogCell.h */; };
+		B0D234B01CBB6058005AB2DC /* AJCPSCPSLabelCell.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = B0D234AD1CBB574E005AB2DC /* AJCPSCPSLabelCell.h */; };
+		B0D234B21CBB67EE005AB2DC /* AJCPSCPSLabelCell.mm in Sources */ = {isa = PBXBuildFile; fileRef = B0D234B11CBB67EE005AB2DC /* AJCPSCPSLabelCell.mm */; };
+		B0D234B41CBB7884005AB2DC /* AJCPSCPSPickerCell.mm in Sources */ = {isa = PBXBuildFile; fileRef = B0D234B31CBB7884005AB2DC /* AJCPSCPSPickerCell.mm */; };
+		B0D234B61CBB791E005AB2DC /* AJCPSCPSPickerCell.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = B0D234B51CBB78CE005AB2DC /* AJCPSCPSPickerCell.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -90,12 +95,14 @@
 			dstPath = inc/alljoyn/controlpanel;
 			dstSubfolderSpec = 16;
 			files = (
+				B0987BB41CBDD3B600FEAF3B /* AJCPSCPSActionDialogCell.h in CopyFiles */,
+				B0D234B61CBB791E005AB2DC /* AJCPSCPSPickerCell.h in CopyFiles */,
+				B0D234B01CBB6058005AB2DC /* AJCPSCPSLabelCell.h in CopyFiles */,
 				9A6A7EE318A90B5C00287EF5 /* AJCPSGetControlPanelViewController.h in CopyFiles */,
 				9A6A7EE418A90B5C00287EF5 /* AJCPSCPSButtonCell.h in CopyFiles */,
 				9A6A7EE518A90B5C00287EF5 /* AJCPSCPSGeneralCell.h in CopyFiles */,
 				9A6A7EE618A90B5C00287EF5 /* AJCPSControllerModel.h in CopyFiles */,
 				9A6A7EC918A90B5500287EF5 /* AJCPSAction.h in CopyFiles */,
-				9A6A7ECA18A90B5500287EF5 /* AJCPSActionWithDialog.h in CopyFiles */,
 				9A6A7ECB18A90B5500287EF5 /* AJCPSConstraintList.h in CopyFiles */,
 				9A6A7ECC18A90B5500287EF5 /* AJCPSConstraintRange.h in CopyFiles */,
 				9A6A7ECD18A90B5500287EF5 /* AJCPSContainer.h in CopyFiles */,
@@ -136,7 +143,6 @@
 		9AA936061854BC2B00378361 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		9AA936081854BC2B00378361 /* alljoyn_services_objcTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = alljoyn_services_objcTests.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		9AC4E0F118A8DEC7007080F6 /* AJCPSAction.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AJCPSAction.mm; sourceTree = "<group>"; };
-		9AC4E0F218A8DEC7007080F6 /* AJCPSActionWithDialog.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AJCPSActionWithDialog.mm; sourceTree = "<group>"; };
 		9AC4E0F318A8DEC7007080F6 /* AJCPSConstraintList.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AJCPSConstraintList.mm; sourceTree = "<group>"; };
 		9AC4E0F418A8DEC7007080F6 /* AJCPSConstraintRange.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AJCPSConstraintRange.mm; sourceTree = "<group>"; };
 		9AC4E0F518A8DEC7007080F6 /* AJCPSContainer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AJCPSContainer.mm; sourceTree = "<group>"; };
@@ -163,7 +169,6 @@
 		9AC4E10A18A8DEC7007080F6 /* AJCPSRootWidget.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AJCPSRootWidget.mm; sourceTree = "<group>"; };
 		9AC4E10B18A8DEC7007080F6 /* AJCPSWidget.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AJCPSWidget.mm; sourceTree = "<group>"; };
 		9AC4E12718A8DF59007080F6 /* AJCPSAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AJCPSAction.h; sourceTree = "<group>"; };
-		9AC4E12818A8DF59007080F6 /* AJCPSActionWithDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AJCPSActionWithDialog.h; sourceTree = "<group>"; };
 		9AC4E12918A8DF59007080F6 /* AJCPSConstraintList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AJCPSConstraintList.h; sourceTree = "<group>"; };
 		9AC4E12A18A8DF59007080F6 /* AJCPSConstraintRange.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AJCPSConstraintRange.h; sourceTree = "<group>"; };
 		9AC4E12B18A8DF59007080F6 /* AJCPSContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AJCPSContainer.h; sourceTree = "<group>"; };
@@ -192,6 +197,14 @@
 		9AC4E14218A8DF59007080F6 /* AJCPSProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AJCPSProperty.h; sourceTree = "<group>"; };
 		9AC4E14318A8DF59007080F6 /* AJCPSRootWidget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AJCPSRootWidget.h; sourceTree = "<group>"; };
 		9AC4E14418A8DF59007080F6 /* AJCPSWidget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AJCPSWidget.h; sourceTree = "<group>"; };
+		B07896311CBE197000E0BA05 /* AJCPSActionWithDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AJCPSActionWithDialog.h; sourceTree = "<group>"; };
+		B07896321CBE197C00E0BA05 /* AJCPSActionWithDialog.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AJCPSActionWithDialog.mm; sourceTree = "<group>"; };
+		B0987BB11CBDD35300FEAF3B /* AJCPSCPSActionDialogCell.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AJCPSCPSActionDialogCell.mm; sourceTree = "<group>"; };
+		B0987BB31CBDD38E00FEAF3B /* AJCPSCPSActionDialogCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AJCPSCPSActionDialogCell.h; sourceTree = "<group>"; };
+		B0D234AD1CBB574E005AB2DC /* AJCPSCPSLabelCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AJCPSCPSLabelCell.h; sourceTree = "<group>"; };
+		B0D234B11CBB67EE005AB2DC /* AJCPSCPSLabelCell.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AJCPSCPSLabelCell.mm; sourceTree = "<group>"; };
+		B0D234B31CBB7884005AB2DC /* AJCPSCPSPickerCell.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AJCPSCPSPickerCell.mm; sourceTree = "<group>"; };
+		B0D234B51CBB78CE005AB2DC /* AJCPSCPSPickerCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AJCPSCPSPickerCell.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -224,6 +237,9 @@
 				9AC4E0F618A8DEC7007080F6 /* AJCPSControllerModel.mm */,
 				9AC4E0FD18A8DEC7007080F6 /* AJCPSCPSButtonCell.mm */,
 				9AC4E0FF18A8DEC7007080F6 /* AJCPSCPSGeneralCell.mm */,
+				B0D234B11CBB67EE005AB2DC /* AJCPSCPSLabelCell.mm */,
+				B0D234B31CBB7884005AB2DC /* AJCPSCPSPickerCell.mm */,
+				B0987BB11CBDD35300FEAF3B /* AJCPSCPSActionDialogCell.mm */,
 			);
 			name = ControlPanelViewController;
 			sourceTree = "<group>";
@@ -235,6 +251,9 @@
 				9AC4E13618A8DF59007080F6 /* AJCPSCPSButtonCell.h */,
 				9AC4E13818A8DF59007080F6 /* AJCPSCPSGeneralCell.h */,
 				9AC4E12C18A8DF59007080F6 /* AJCPSControllerModel.h */,
+				B0D234AD1CBB574E005AB2DC /* AJCPSCPSLabelCell.h */,
+				B0D234B51CBB78CE005AB2DC /* AJCPSCPSPickerCell.h */,
+				B0987BB31CBDD38E00FEAF3B /* AJCPSCPSActionDialogCell.h */,
 			);
 			name = ControlPanelViewController;
 			sourceTree = "<group>";
@@ -340,8 +359,8 @@
 		9ACE622D187998630003645A /* controlpanel */ = {
 			isa = PBXGroup;
 			children = (
+				B07896311CBE197000E0BA05 /* AJCPSActionWithDialog.h */,
 				9AC4E12718A8DF59007080F6 /* AJCPSAction.h */,
-				9AC4E12818A8DF59007080F6 /* AJCPSActionWithDialog.h */,
 				9AC4E12918A8DF59007080F6 /* AJCPSConstraintList.h */,
 				9AC4E12A18A8DF59007080F6 /* AJCPSConstraintRange.h */,
 				9AC4E12B18A8DF59007080F6 /* AJCPSContainer.h */,
@@ -374,8 +393,8 @@
 		9ACE62FD187998630003645A /* src */ = {
 			isa = PBXGroup;
 			children = (
+				B07896321CBE197C00E0BA05 /* AJCPSActionWithDialog.mm */,
 				9AC4E0F118A8DEC7007080F6 /* AJCPSAction.mm */,
-				9AC4E0F218A8DEC7007080F6 /* AJCPSActionWithDialog.mm */,
 				9AC4E0F318A8DEC7007080F6 /* AJCPSConstraintList.mm */,
 				9AC4E0F418A8DEC7007080F6 /* AJCPSConstraintRange.mm */,
 				9AC4E0F518A8DEC7007080F6 /* AJCPSContainer.mm */,
@@ -502,13 +521,16 @@
 				9AC4E10F18A8DEC7007080F6 /* AJCPSConstraintRange.mm in Sources */,
 				9AC4E10C18A8DEC7007080F6 /* AJCPSAction.mm in Sources */,
 				9AC4E10E18A8DEC7007080F6 /* AJCPSConstraintList.mm in Sources */,
+				B0987BB21CBDD35300FEAF3B /* AJCPSCPSActionDialogCell.mm in Sources */,
 				9AC4E11918A8DEC7007080F6 /* AJCPSCPSDate.mm in Sources */,
 				9AC4E12118A8DEC7007080F6 /* AJCPSLanguageSet.mm in Sources */,
 				9AC4E12318A8DEC7007080F6 /* AJCPSNotificationAction.mm in Sources */,
-				9AC4E10D18A8DEC7007080F6 /* AJCPSActionWithDialog.mm in Sources */,
 				9AC4E12518A8DEC7007080F6 /* AJCPSRootWidget.mm in Sources */,
 				9AC4E11E18A8DEC7007080F6 /* AJCPSGetControlPanelViewController.mm in Sources */,
 				9AC4E11A18A8DEC7007080F6 /* AJCPSCPSGeneralCell.mm in Sources */,
+				B0D234B41CBB7884005AB2DC /* AJCPSCPSPickerCell.mm in Sources */,
+				B0D234B21CBB67EE005AB2DC /* AJCPSCPSLabelCell.mm in Sources */,
+				B07896331CBE197C00E0BA05 /* AJCPSActionWithDialog.mm in Sources */,
 				9AC4E11218A8DEC7007080F6 /* AJCPSControlPanel.mm in Sources */,
 				9AC4E11618A8DEC7007080F6 /* AJCPSControlPanelEnums.mm in Sources */,
 			);

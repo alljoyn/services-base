@@ -14,29 +14,29 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#import <XCTest/XCTest.h>
+#import "AJCPSCPSLabelCell.h"
 
-@interface alljoyn_services_objcTests : XCTestCase
+@implementation CPSLabelCell
 
-@end
-
-@implementation alljoyn_services_objcTests
-
-- (void)setUp
+- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
 {
-    [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    if (self) {
+        self.widgetNameLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, 310, 20)];
+        [self.contentView addSubview:self.widgetNameLabel];
+    }
+    return self;
 }
 
-- (void)tearDown
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated
 {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
-    [super tearDown];
+    [super setSelected:selected animated:animated];
 }
 
-- (void)testExample
+-(void)setWidget:(AJCPSWidget *)widget
 {
-    XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+    _widget = widget;
+    self.widgetNameLabel.text  = [NSString stringWithFormat:@"%@",[self.widget getLabel]];
 }
 
 @end

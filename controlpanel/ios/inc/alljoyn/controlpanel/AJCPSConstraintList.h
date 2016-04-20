@@ -85,4 +85,9 @@ typedef union {
  */
 - (NSString *)getDisplay;
 
+/**
+ * Convert property value to string representation
+ */
+- (NSString *)propertyToNSString:(AJCPSPropertyType)property withValue:(AJCPSConstraintValue) propertyValue;
+
 @end

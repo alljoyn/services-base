@@ -22,13 +22,21 @@
 #import "AJCPSControllerUpdateEvents.h"
 #import "AJCPSCPSButtonCell.h"
 #import "AJCPSCPSGeneralCell.h"
+#import "AJCPSCPSLabelCell.h"
+#import "AJCPSCPSPickerCell.h"
+#import "AJCPSCPSActionDialogCell.h"
 
 const float GENERAL_CELL_HEIGHT = 115.00;
 const float BUTTON_CELL_HEIGHT = 65.00;
+const float LABEL_CELL_HEIGHT = 55.00;
+const float PICKER_CELL_HEIGHT = 75.00;
+
 static NSString * const CLIENTDEFAULTLANG=@"";
 static NSString * const CPS_BUTTON_CELL = @"CPSButtonCell";
 static NSString * const CPS_GENERAL_CELL = @"CPSGeneralCell";
-
+static NSString * const CPS_LABEL_CELL = @"CPSLabelCell";
+static NSString * const CPS_PICKER_CELL = @"CPSPickerCell";
+static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
 
 @interface GetControlPanelViewController () <ControllerUpdateEvents,UIAlertViewDelegate>
 @property (strong, nonatomic) ControllerModel *controllerModel;
@@ -96,10 +104,12 @@ static NSString * const CPS_GENERAL_CELL = @"CPSGeneralCell";
         self.tableView = [[UITableView alloc] initWithFrame:tableViewFrame style:UITableViewStylePlain];
         self.tableView.delegate = self;
         self.tableView.dataSource = self;
-        
-        // Add two cells to UITableView :
+    
         [self.tableView registerClass:[CPSButtonCell class] forCellReuseIdentifier:CPS_BUTTON_CELL];
         [self.tableView registerClass:[CPSGeneralCell class] forCellReuseIdentifier:CPS_GENERAL_CELL];
+        [self.tableView registerClass:[CPSLabelCell class] forCellReuseIdentifier:CPS_LABEL_CELL];
+        [self.tableView registerClass:[CPSPickerCell class] forCellReuseIdentifier:CPS_PICKER_CELL];
+        [self.tableView registerClass:[CPSActionDialogCell class] forCellReuseIdentifier:CPS_ACTION_DIALOG_CELL];
         
         [self.view addSubview:self.tableView];
     
@@ -381,18 +391,40 @@ static NSString * const CPS_GENERAL_CELL = @"CPSGeneralCell";
             }
             
             break;
+        }   
+        case AJCPS_LABEL:
+        {   
+             CPSLabelCell *cell = (CPSLabelCell *)[tableView dequeueReusableCellWithIdentifier:CPS_LABEL_CELL forIndexPath:indexPath];
+             cell.widget = widget;
+             cell.selectionStyle = UITableViewCellSelectionStyleNone;
+             return cell;
+        }
+        case AJCPS_PROPERTY:
+        {
+            NSArray *hints = [widget getHints];
+            for (NSNumber *hint  in hints) {
+                if(hint.shortValue == AJCPS_SPINNER) {
+                    CPSPickerCell *cell = (CPSPickerCell *)[tableView dequeueReusableCellWithIdentifier:CPS_PICKER_CELL forIndexPath:indexPath];
+                    cell.widget = widget;
+                    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+                    return cell;
+                }
+            }
+            
+            break;
+        }
+        case AJCPS_ACTION_WITH_DIALOG:
+        {
+            CPSActionDialogCell *cell = (CPSActionDialogCell *)[tableView dequeueReusableCellWithIdentifier:CPS_ACTION_DIALOG_CELL forIndexPath:indexPath];
+            cell.viewController = self;
+            cell.actionDialogWidget = (AJCPSActionWithDialog *)widget;
+            return cell;
         }
     }
     
     CPSGeneralCell *cell;
     cell = (CPSGeneralCell *)[tableView dequeueReusableCellWithIdentifier:CPS_GENERAL_CELL forIndexPath:indexPath];
-    
     cell.widget = widget;
-    
-    
-    
-    // Configure the cell...
-    
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     
     return cell;
@@ -411,7 +443,14 @@ static NSString * const CPS_GENERAL_CELL = @"CPSGeneralCell";
     
     switch ([widget getWidgetType]) {
         case AJCPS_ACTION:
+        case AJCPS_ACTION_WITH_DIALOG:
             return BUTTON_CELL_HEIGHT;
+            break;
+        case AJCPS_LABEL:
+            return LABEL_CELL_HEIGHT;
+            break;
+        case AJCPS_PROPERTY:
+            return PICKER_CELL_HEIGHT;
             break;
     }
     
