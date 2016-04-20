@@ -20,8 +20,8 @@
 #import "AJCPSConstraintRange.h"
 #import "alljoyn/controlpanel/CPSDate.h"
 #import "alljoyn/controlpanel/CPSTime.h"
-#import "AJCPSCPSDate.h"
-#import "AJCPSCPSTime.h"
+#import "AJCPSDate.h"
+#import "AJCPSTime.h"
 
 /**
  * Union that allows the definition of a function pointer
@@ -209,13 +209,13 @@ typedef union {
  * @param value - new Value to be set to
  * @return status - success/failure
  */
-- (QStatus)setValueFromDate:(AJCPSCPSDate *)value;
+- (QStatus)setValueFromDate:(AJCPSDate *)value;
 
 /**
  * Set the new Value
  * @param value - new Value to be set to
  * @return status - success/failure
  */
-- (QStatus)setValueFromTime:(AJCPSCPSTime *)value;
+- (QStatus)setValueFromTime:(AJCPSTime *)value;
 
 @end

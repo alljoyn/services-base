@@ -14,9 +14,9 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#import "AJCPSCPSActionDialogCell.h"
+#import "AJCPSActionDialogCell.h"
 
-@implementation CPSActionDialogCell
+@implementation AJCPSActionDialogCell
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
 {
@@ -70,7 +70,7 @@
     [self.cpsButton setEnabled:[self.actionDialogWidget getIsEnabled]?YES:NO];
 }
 
--(void)setViewController:(GetControlPanelViewController *)viewController
+-(void)setViewController:(AJCPSGetControlPanelViewController *)viewController
 {
     _viewController = viewController;
 }

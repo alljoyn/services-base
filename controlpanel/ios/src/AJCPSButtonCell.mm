@@ -14,16 +14,22 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#import "AJCPSCPSLabelCell.h"
+#import "AJCPSButtonCell.h"
+#import "AJCPSAction.h"
 
-@implementation CPSLabelCell
+@implementation AJCPSButtonCell
 
 - (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
 {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
-        self.widgetNameLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, 310, 20)];
-        [self.contentView addSubview:self.widgetNameLabel];
+        self.cpsButton = [UIButton buttonWithType:UIButtonTypeSystem];
+        
+        [self.cpsButton setFrame:CGRectMake(10,0,300,60)];
+        [self.cpsButton.titleLabel setFont:[UIFont systemFontOfSize:13]];
+        [self.cpsButton addTarget:self action:@selector(touchUpInsideAction:) forControlEvents:UIControlEventTouchUpInside];
+        [self.contentView addSubview:self.cpsButton];
+        [self reloadInputViews];
     }
     return self;
 }
@@ -33,10 +39,23 @@
     [super setSelected:selected animated:animated];
 }
 
--(void)setWidget:(AJCPSWidget *)widget
+- (void)touchUpInsideAction:(id)sender {
+    
+    NSLog(@"Pressed %@",[self.cpsButton titleLabel].text);
+    
+    QStatus status = [((AJCPSAction *)self.actionWidget) executeAction];
+    if (status != ER_OK) {
+        NSLog(@"execute Action returned error %d, %@",status, [AJNStatus descriptionForStatusCode:status]);
+    }
+}
+
+-(void)setActionWidget:(AJCPSAction *)actionWidget
 {
-    _widget = widget;
-    self.widgetNameLabel.text  = [NSString stringWithFormat:@"%@",[self.widget getLabel]];
+    _actionWidget = actionWidget;
+    [self.cpsButton setTitle:[self.actionWidget getLabel] forState:UIControlStateNormal];
+    [self.cpsButton setEnabled:[self.actionWidget getIsEnabled]?YES:NO];
+    // We do not use [self.actionWidget getBgColor] so the iOS look and feel remain the same
+    
 }
 
 @end

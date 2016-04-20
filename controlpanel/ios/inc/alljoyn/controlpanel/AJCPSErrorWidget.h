@@ -19,11 +19,11 @@
 #import "AJCPSWidget.h"
 
 /**
- * AJCPSLabel class used to display a Label.
+ * AJCPSErrorWidget class used to display an error widget
  */
 @interface AJCPSErrorWidget : AJCPSWidget
 /**
- * Constructor for AJCPSLabel class
+ * Constructor for AJCPSErrorWidget class
  * @param handle handle to the c++ instance
  */
 - (id)initWithHandle:(ajn ::services ::ErrorWidget *)handle;

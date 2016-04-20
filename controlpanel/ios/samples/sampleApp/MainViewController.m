@@ -322,7 +322,7 @@ static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK";
             
 		case 3: // "CPanel"
 		{
-            GetControlPanelViewController *getCpanelView = [[GetControlPanelViewController alloc] initWithAnnouncement:[(ClientInformation *)(self.clientInformationDict)[self.announcementButtonCurrentTitle] announcement] bus:self.clientBusAttachment];
+            AJCPSGetControlPanelViewController *getCpanelView = [[AJCPSGetControlPanelViewController alloc] initWithAnnouncement:[(ClientInformation *)(self.clientInformationDict)[self.announcementButtonCurrentTitle] announcement] bus:self.clientBusAttachment];
             [self.navigationController pushViewController:getCpanelView animated:YES];
 		}
             break;

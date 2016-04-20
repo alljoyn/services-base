@@ -17,7 +17,7 @@
 #import <UIKit/UIKit.h>
 #import "AJCPSAction.h"
 
-@interface CPSButtonCell : UITableViewCell
+@interface AJCPSButtonCell : UITableViewCell
 @property (strong, nonatomic) UIButton *cpsButton; //TOD strong
 @property (weak, nonatomic) AJCPSAction *actionWidget;
 @end

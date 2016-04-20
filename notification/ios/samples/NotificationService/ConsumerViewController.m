@@ -336,7 +336,7 @@ static NSString *const CONSUMER_DEFAULT_LANG = @"en";
             NSString *cpsObjectPath = [entry.ajnsNotification controlPanelServiceObjectPath];
             if ([cpsObjectPath length])
             {
-                GetControlPanelViewController *controlPanelViewController = [[GetControlPanelViewController alloc] initWithNotificationSenderBusName:[entry.ajnsNotification senderBusName] cpsObjectPath:[entry.ajnsNotification controlPanelServiceObjectPath] bus:self.busAttachment];
+                AJCPSGetControlPanelViewController *controlPanelViewController = [[AJCPSGetControlPanelViewController alloc] initWithNotificationSenderBusName:[entry.ajnsNotification senderBusName] cpsObjectPath:[entry.ajnsNotification controlPanelServiceObjectPath] bus:self.busAttachment];
                 [self.navigationController setNavigationBarHidden:NO];
                 [self.navigationController pushViewController:controlPanelViewController animated:YES];
             } else {

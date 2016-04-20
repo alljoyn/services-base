@@ -14,24 +14,55 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#import "AJCPSLabel.h"
-#import "alljoyn/about/AJNConvertUtil.h"
-#import "AJCPSControlPanelDevice.h"
+#import <Foundation/Foundation.h>
+#import "alljoyn/controlpanel/CPSDate.h"
+
+/**
+ * AJCPSCPSDate allows sending of a Date as a Property
+ */
+@interface AJCPSDate : NSObject
+
+- (id)initWithDay:(uint16_t) day month:(uint16_t) month year:(uint16_t) year;
 
 
-@interface AJCPSLabel ()
+- (id)initWithHandle:(ajn ::services ::CPSDate *)handle;
 
-@end
+/**
+ * Get the day value of the date
+ * @return day value
+ */
+- (uint16_t)getDay;
 
+/**
+ * Set the day Value of the date
+ * @param day value
+ */
+- (void)setDay:(uint16_t)day;
 
-@implementation AJCPSLabel
+/**
+ * Get the Month value of the date
+ * @return month value
+ */
+- (uint16_t)getMonth;
 
-- (id)initWithHandle:(ajn::services::Label *)handle
-{
-	self = [super initWithHandle:handle];
-	if (self) {
-	}
-	return self;
-}
+/**
+ * Set the Month value of the date
+ * @param month value
+ */
+- (void)setMonth:(uint16_t)month;
+
+/**
+ * Get the Year value of the date
+ * @return year value
+ */
+- (uint16_t)getYear;
+
+/**
+ * Set the Year value of the date
+ * @param year value
+ */
+- (void)setYear:(uint16_t)year;
+
+@property (nonatomic, readonly)ajn::services::CPSDate * handle;
 
 @end
