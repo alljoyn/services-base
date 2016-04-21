@@ -22,10 +22,10 @@ echo Build completed
 IF %ERRORLEVEL% GTR 0 exit %ERRORLEVEL%
 popd
 setlocal enableextensions
-md %ALLJOYN_DIST_DIR%
 rd /s /q %ALLJOYN_DIST_DIR%
-xcopy /E %ALLJOYN_SRC_DIST_DIR% %ALLJOYN_DIST_DIR%\
-rem xcopy /E %ALLJOYN_CORE_DIR%\common\inc\qcc %ALLJOYN_DIST_DIR%\cpp\inc\
+md %ALLJOYN_DIST_DIR%
+xcopy /e /i %ALLJOYN_SRC_DIST_DIR%\java\jar %ALLJOYN_DIST_DIR%\java\jar
+xcopy /e /i %ALLJOYN_SRC_DIST_DIR%\java\lib %ALLJOYN_DIST_DIR%\java\lib
 echo Core cached!!!
 endlocal 
 exit 0
