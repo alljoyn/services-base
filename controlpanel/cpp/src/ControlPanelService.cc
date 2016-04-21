@@ -126,7 +126,7 @@ QStatus ControlPanelService::initControllee(BusAttachment* bus, ControlPanelCont
     m_Bus->RegisterBusListener(*m_BusListener);
 
     SessionPort servicePort = CONTROLPANELSERVICE_PORT;
-    SessionOpts sessionOpts(SessionOpts::TRAFFIC_MESSAGES, true, SessionOpts::PROXIMITY_ANY, TRANSPORT_ANY);
+    SessionOpts sessionOpts(SessionOpts::TRAFFIC_MESSAGES, false, SessionOpts::PROXIMITY_ANY, TRANSPORT_ANY);
 
     status = m_Bus->BindSessionPort(servicePort, sessionOpts, *m_BusListener);
     if (status != ER_OK) {
