@@ -49,6 +49,7 @@ HttpControlBusObject::HttpControlBusObject(BusAttachment* bus, String const& obj
             CHECK_AND_BREAK(m_InterfaceDescription->AddProperty(AJ_PROPERTY_VERSION.c_str(), AJPARAM_UINT16.c_str(), PROP_ACCESS_READ));
             CHECK_AND_BREAK(m_InterfaceDescription->AddMethod(AJ_METHOD_GETROOTURL.c_str(), AJPARAM_EMPTY.c_str(),
                                                               AJPARAM_STR.c_str(), AJ_PROPERTY_URL.c_str()));
+            CHECK_AND_BREAK(m_InterfaceDescription->AddMemberAnnotation(AJ_METHOD_GETROOTURL.c_str(), "org.alljoyn.Bus.DocString.En", AJ_METHOD_GETROOTURL_DESC.c_str()));
             m_InterfaceDescription->Activate();
         } while (0);
     }

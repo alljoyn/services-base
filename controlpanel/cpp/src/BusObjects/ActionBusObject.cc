@@ -46,6 +46,7 @@ ActionBusObject::ActionBusObject(BusAttachment* bus, String const& objectPath, u
             CHECK_AND_BREAK(addDefaultInterfaceVariables(m_InterfaceDescription));
             CHECK_AND_BREAK(m_InterfaceDescription->AddMethod(AJ_METHOD_EXECUTE.c_str(), AJPARAM_EMPTY.c_str(),
                                                               AJPARAM_EMPTY.c_str(), AJPARAM_EMPTY.c_str()));
+            CHECK_AND_BREAK(m_InterfaceDescription->AddMemberAnnotation(AJ_METHOD_EXECUTE.c_str(), "org.alljoyn.Bus.DocString.En", AJ_METHOD_EXECUTE_DESC.c_str()));
             m_InterfaceDescription->Activate();
         } while (0);
     }

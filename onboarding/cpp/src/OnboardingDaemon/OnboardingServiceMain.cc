@@ -20,12 +20,13 @@
 #include <map>
 #include <stdint.h>
 
-#include <SrpKeyXListener.h>
+#include <alljoyn/AuthListener.h>
 #include <CommonBusListener.h>
 #include <CommonSampleUtil.h>
 #include <OptParser.h>
 #include "ConfigServiceListenerImpl.h"
 #include <AJInitializer.h>
+#include <SecurityUtil.h>
 
 #include <alljoyn/version.h>
 #include <qcc/platform.h>
@@ -56,7 +57,7 @@ using namespace services;
 /** static variables need for sample */
 static BusAttachment* msgBus = NULL;
 
-static SrpKeyXListener* keyListener = NULL;
+static DefaultECDHEAuthListener* authListener = NULL;
 
 static ConfigService* configService = NULL;
 
@@ -105,9 +106,9 @@ static void cleanup() {
         configServiceListener = NULL;
     }
 
-    if (keyListener) {
-        delete keyListener;
-        keyListener = NULL;
+    if (authListener) {
+        delete authListener;
+        authListener = NULL;
     }
 
     if (aboutIconObj) {
@@ -155,16 +156,6 @@ static void cleanup() {
     }
 }
 
-void readPassword(qcc::String& passCode) {
-
-    ajn::MsgArg*argPasscode;
-    char*tmp;
-    aboutDataStore->GetField("Passcode", argPasscode);
-    argPasscode->Get("s", &tmp);
-    passCode = tmp;
-    return;
-}
-
 /** Advertise the service name, report the result to stdout, and return the status code. */
 QStatus AdvertiseName(TransportMask mask) {
     QStatus status = ER_BUS_ESTABLISH_FAILED;
@@ -202,14 +193,14 @@ int main(int argc, char**argv, char**envArg) {
     OptParser opts(argc, argv);
     OptParser::ParseResultCode parseCode(opts.ParseResult());
     switch (parseCode) {
-    case OptParser::PR_OK:
-        break;
+        case OptParser::PR_OK:
+            break;
 
-    case OptParser::PR_EXIT_NO_ERROR:
-        return SERVICE_EXIT_OK;
+        case OptParser::PR_EXIT_NO_ERROR:
+            return SERVICE_EXIT_OK;
 
-    default:
-        return SERVICE_OPTION_ERROR;
+        default:
+            return SERVICE_OPTION_ERROR;
     }
 
     std::cout << "using port " << servicePort << std::endl;
@@ -225,12 +216,15 @@ start:
     std::cout << "Initializing application." << std::endl;
 
     /* Create message bus */
-    keyListener = new SrpKeyXListener();
+    authListener = new DefaultECDHEAuthListener();
+
+    const qcc::String password("1234");
+    authListener->SetPassword((const uint8_t *) password.c_str(), password.length()); // ECDHE_SPEKE
 
     /* Connect to the daemon */
     uint16_t retry = 0;
     do {
-        msgBus = CommonSampleUtil::prepareBusAttachment(keyListener);
+        msgBus = CommonSampleUtil::prepareBusAttachment(authListener);
         if (msgBus == NULL) {
             std::cout << "Could not initialize BusAttachment. Retrying" << std::endl;
 #ifdef _WIN32
@@ -246,6 +240,33 @@ start:
         std::cout << "Could not initialize BusAttachment." << std::endl;
         cleanup();
         return 1;
+    }
+
+    {
+        status = msgBus->GetPermissionConfigurator().SetClaimCapabilities(
+                ajn::PermissionConfigurator::CAPABLE_ECDHE_SPEKE
+        );
+        if (status != ER_OK) {
+            std::cout << "Failed to SetClaimCapabilities. error: " << QCC_StatusText(status) << std::endl;
+        }
+
+        PermissionConfigurator &pc = msgBus->GetPermissionConfigurator();
+        PermissionConfigurator::ApplicationState appState;
+        pc.GetApplicationState(appState);
+        std::cout << "application state: " << PermissionConfigurator::ToString(appState) << std::endl;
+
+        if (PermissionConfigurator::ApplicationState::CLAIMABLE != appState &&
+            PermissionConfigurator::ApplicationState::CLAIMED != appState)
+        {
+            Manifest manifest;
+            SecurityUtil::GenerateManifest(manifest);
+
+            std::vector<PermissionPolicy::Rule> rules = manifest->GetRules();
+            pc.SetPermissionManifest(&rules[0], rules.size());
+
+            pc.GetApplicationState(appState);
+            std::cout << "application state: " << PermissionConfigurator::ToString(appState) << std::endl;
+        }
     }
 
     busListener = new CommonBusListener(msgBus, daemonDisconnectCB);
@@ -338,7 +359,6 @@ start:
 
     configServiceListener = new ConfigServiceListenerImpl(*aboutDataStore, *msgBus, *busListener, *obController);
     configService = new ConfigService(*msgBus, *aboutDataStore, *configServiceListener);
-    keyListener->setGetPassCode(readPassword);
 
     status = configService->Register();
     if (status != ER_OK) {

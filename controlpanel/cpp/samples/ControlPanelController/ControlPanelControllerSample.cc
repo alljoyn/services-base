@@ -29,7 +29,7 @@
 #include <alljoyn/controlpanel/ControlPanelController.h>
 #include "ControlPanelListenerImpl.h"
 #include "ControllerNotificationReceiver.h"
-#include <SrpKeyXListener.h>
+#include <alljoyn/AuthListener.h>
 #include <CommonSampleUtil.h>
 #include <AnnounceHandlerImpl.h>
 #include <alljoyn/services_common/LogModulesNames.h>
@@ -45,7 +45,7 @@ BusAttachment* bus = 0;
 ControlPanelService* controlPanelService = 0;
 ControlPanelController* controlPanelController = 0;
 ControlPanelListenerImpl* controlPanelListener = 0;
-SrpKeyXListener* srpKeyXListener = 0;
+DefaultECDHEAuthListener* authListener = 0;
 AnnounceHandlerImpl* announceHandler = 0;
 NotificationService* conService = 0;
 ControllerNotificationReceiver* receiver = 0;
@@ -83,9 +83,9 @@ void cleanup()
         delete announceHandler;
         announceHandler = NULL;
     }
-    if (srpKeyXListener) {
-        delete srpKeyXListener;
-        srpKeyXListener = NULL;
+    if (authListener) {
+        delete authListener;
+        authListener = NULL;
     }
     if (conService) {
         conService->shutdown();
@@ -142,9 +142,11 @@ int main()
     controlPanelService = ControlPanelService::getInstance();
     QCC_SetDebugLevel(logModules::CONTROLPANEL_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
 
-    srpKeyXListener = new SrpKeyXListener();
+    authListener = new DefaultECDHEAuthListener();
+    const char *password = "000000";
+    authListener->SetPassword((const uint8_t*)password, strlen(password));
 
-    bus = CommonSampleUtil::prepareBusAttachment(srpKeyXListener);
+    bus = CommonSampleUtil::prepareBusAttachment(authListener);
     if (bus == NULL) {
         std::cout << "Could not initialize BusAttachment." << std::endl;
         cleanup();
