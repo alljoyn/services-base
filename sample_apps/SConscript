@@ -27,13 +27,11 @@ if 'java' in env['bindings']:
 if int(build_all):
     build_notification = 1
     build_cps          = 0
-    build_config       = 1
     if not 'cpp' in env['bindings']:
         build_onboarding = 1
     else:
         build_onboarding = 0
 else:
-    build_config       = int(ARGUMENTS.get('CONFIG',       0))
     build_notification = int(ARGUMENTS.get('NOTIFICATION', 0))
     build_cps          = 0
     build_onboarding   = int(ARGUMENTS.get('ONBOARDING',   0))
@@ -45,11 +43,6 @@ if not env.has_key('_ALLJOYN_ABOUT_') and os.path.exists('../../../core/alljoyn/
 
 if not env.has_key('_ALLJOYN_SERVICES_COMMON_') and os.path.exists('../services_common/SConscript'):
     env.SConscript('../services_common/SConscript')
-
-if build_config:
-    env.Append(CPPDEFINES = '_CONFIG_')
-    if not env.has_key('_ALLJOYN_CONFIG_') and os.path.exists('../config/SConscript'):
-        env.SConscript('../config/SConscript')
 
 if build_notification:
     env.Append(CPPDEFINES = '_NOTIFICATION_')

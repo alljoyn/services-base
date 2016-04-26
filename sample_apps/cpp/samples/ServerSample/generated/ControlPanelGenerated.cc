@@ -28,13 +28,18 @@ bool ControlPanelGenerated::languageSetsDone = false;
 ControlPanelControlleeUnit* ControlPanelGenerated::myDeviceUnit = 0;
 ControlPanel* ControlPanelGenerated::myDeviceRootContainerControlPanel = 0;
 Container* ControlPanelGenerated::myDeviceRootContainer = 0;
-Label* ControlPanelGenerated::myDeviceCurrentTemp = 0;
-MyDeviceHeatProperty* ControlPanelGenerated::myDeviceHeatProperty = 0;
-MyDeviceOvenAction* ControlPanelGenerated::myDeviceOvenAction = 0;
-ActionWithDialog* ControlPanelGenerated::myDeviceLightAction = 0;
-MyDeviceLightConfirm* ControlPanelGenerated::myDeviceLightConfirm = 0;
-NotificationAction* ControlPanelGenerated::myDeviceAreYouSureNotificationAction = 0;
-MyDeviceAreYouSure* ControlPanelGenerated::myDeviceAreYouSure = 0;
+Container* ControlPanelGenerated::myDeviceTempAndHumidityContainer = 0;
+MyDeviceCurrentTempStringProperty* ControlPanelGenerated::myDeviceCurrentTempStringProperty = 0;
+MyDeviceCurrentHumidityStringProperty* ControlPanelGenerated::myDeviceCurrentHumidityStringProperty = 0;
+Container* ControlPanelGenerated::myDeviceControlsContainer = 0;
+MyDeviceAc_mode* ControlPanelGenerated::myDeviceAc_mode = 0;
+MyDeviceStatusStringProperty* ControlPanelGenerated::myDeviceStatusStringProperty = 0;
+MyDeviceSet_temperature* ControlPanelGenerated::myDeviceSet_temperature = 0;
+MyDeviceFan_speed* ControlPanelGenerated::myDeviceFan_speed = 0;
+NotificationAction* ControlPanelGenerated::myDeviceTurnFanOnNotificationAction = 0;
+MyDeviceTurnFanOn* ControlPanelGenerated::myDeviceTurnFanOn = 0;
+NotificationAction* ControlPanelGenerated::myDeviceTurnFanOffNotificationAction = 0;
+MyDeviceTurnFanOff* ControlPanelGenerated::myDeviceTurnFanOff = 0;
 
 
 #define CHECK(x) if ((status = x) != ER_OK) { return status; }
@@ -47,8 +52,6 @@ void ControlPanelGenerated::PrepareLanguageSets()
 
     LanguageSet myDeviceMyLanguages("myDeviceMyLanguages");
     myDeviceMyLanguages.addLanguage("en");
-    myDeviceMyLanguages.addLanguage("de_AT");
-    myDeviceMyLanguages.addLanguage("zh_Hans_CN");
     LanguageSets::add(myDeviceMyLanguages.getLanguageSetName(), myDeviceMyLanguages);
 
     languageSetsDone = true;
@@ -79,192 +82,246 @@ QStatus ControlPanelGenerated::PrepareWidgets(ControlPanelControllee*& controlPa
 
     myDeviceRootContainer->setEnabled(true);
     myDeviceRootContainer->setIsSecured(false);
-    myDeviceRootContainer->setBgColor(0x200);
-
-    std::vector<qcc::String> myDeviceRootContainerlabelVec;
-    myDeviceRootContainerlabelVec.push_back("My Label of my container");
-    myDeviceRootContainerlabelVec.push_back("Container Etikett");
-    myDeviceRootContainerlabelVec.push_back(UNICODE_MY_LABEL_CONTAINER);
-    myDeviceRootContainer->setLabels(myDeviceRootContainerlabelVec);
+    myDeviceRootContainer->setBgColor(0x1e90ff);
 
     std::vector<uint16_t> myDeviceRootContainerHintsVec;
     myDeviceRootContainerHintsVec.push_back(VERTICAL_LINEAR);
     myDeviceRootContainerHintsVec.push_back(HORIZONTAL_LINEAR);
     myDeviceRootContainer->setHints(myDeviceRootContainerHintsVec);
 
-    myDeviceCurrentTemp = new Label("CurrentTemp", myDeviceRootContainer);
-    CHECK(myDeviceRootContainer->addChildWidget(myDeviceCurrentTemp));
+    myDeviceTempAndHumidityContainer = new Container("tempAndHumidityContainer", myDeviceRootContainer);
+    CHECK(myDeviceRootContainer->addChildWidget(myDeviceTempAndHumidityContainer));
 
-    myDeviceCurrentTemp->setEnabled(true);
-    myDeviceCurrentTemp->setBgColor(0x98765);
+    myDeviceTempAndHumidityContainer->setEnabled(true);
+    myDeviceTempAndHumidityContainer->setIsSecured(false);
+    myDeviceTempAndHumidityContainer->setBgColor(0x200);
 
-    std::vector<qcc::String> myDeviceCurrentTemplabelVec;
-    myDeviceCurrentTemplabelVec.push_back("Current Temperature:");
-    myDeviceCurrentTemplabelVec.push_back("Aktuelle Temperatur:");
-    myDeviceCurrentTemplabelVec.push_back(UNICODE_CURENT_TEMPERATURE);
-    myDeviceCurrentTemp->setLabels(myDeviceCurrentTemplabelVec);
+    std::vector<uint16_t> myDeviceTempAndHumidityContainerHintsVec;
+    myDeviceTempAndHumidityContainerHintsVec.push_back(VERTICAL_LINEAR);
+    myDeviceTempAndHumidityContainer->setHints(myDeviceTempAndHumidityContainerHintsVec);
 
-    std::vector<uint16_t> myDeviceCurrentTempHintsVec;
-    myDeviceCurrentTempHintsVec.push_back(TEXTLABEL);
-    myDeviceCurrentTemp->setHints(myDeviceCurrentTempHintsVec);
+    myDeviceCurrentTempStringProperty = new MyDeviceCurrentTempStringProperty("CurrentTempStringProperty", myDeviceTempAndHumidityContainer, STRING_PROPERTY);
+    CHECK(myDeviceTempAndHumidityContainer->addChildWidget(myDeviceCurrentTempStringProperty));
 
-    myDeviceHeatProperty = new MyDeviceHeatProperty("heatProperty", myDeviceRootContainer, UINT16_PROPERTY);
-    CHECK(myDeviceRootContainer->addChildWidget(myDeviceHeatProperty));
+    myDeviceCurrentTempStringProperty->setEnabled(true);
+    myDeviceCurrentTempStringProperty->setIsSecured(false);
+    myDeviceCurrentTempStringProperty->setWritable(false);
+    CHECK(myDeviceCurrentTempStringProperty->setGetValue(getCurrentTemperatureString));
+    myDeviceCurrentTempStringProperty->setBgColor(0x500);
 
-    myDeviceHeatProperty->setEnabled(true);
-    myDeviceHeatProperty->setIsSecured(false);
-    myDeviceHeatProperty->setWritable(true);
-    CHECK(myDeviceHeatProperty->setGetValue(getuint16Var));
-    myDeviceHeatProperty->setBgColor(0x500);
+    std::vector<qcc::String> myDeviceCurrentTempStringPropertylabelVec;
+    myDeviceCurrentTempStringPropertylabelVec.push_back("Current Temperature:");
+    myDeviceCurrentTempStringProperty->setLabels(myDeviceCurrentTempStringPropertylabelVec);
 
-    std::vector<qcc::String> myDeviceHeatPropertylabelVec;
-    myDeviceHeatPropertylabelVec.push_back("Oven Temperature");
-    myDeviceHeatPropertylabelVec.push_back("Ofentemperatur");
-    myDeviceHeatPropertylabelVec.push_back(UNICODE_OVEN_TEMPERATURE);
-    myDeviceHeatProperty->setLabels(myDeviceHeatPropertylabelVec);
+    std::vector<uint16_t> myDeviceCurrentTempStringPropertyHintsVec;
+    myDeviceCurrentTempStringPropertyHintsVec.push_back(TEXTVIEW);
+    myDeviceCurrentTempStringProperty->setHints(myDeviceCurrentTempStringPropertyHintsVec);
 
-    std::vector<uint16_t> myDeviceHeatPropertyHintsVec;
-    myDeviceHeatPropertyHintsVec.push_back(SPINNER);
-    myDeviceHeatProperty->setHints(myDeviceHeatPropertyHintsVec);
+    myDeviceCurrentHumidityStringProperty = new MyDeviceCurrentHumidityStringProperty("CurrentHumidityStringProperty", myDeviceTempAndHumidityContainer, STRING_PROPERTY);
+    CHECK(myDeviceTempAndHumidityContainer->addChildWidget(myDeviceCurrentHumidityStringProperty));
 
-    std::vector<qcc::String> myDeviceHeatPropertyunitMeasureVec;
-    myDeviceHeatPropertyunitMeasureVec.push_back("Degrees");
-    myDeviceHeatPropertyunitMeasureVec.push_back("Grad");
-    myDeviceHeatPropertyunitMeasureVec.push_back(UNICODE_DEGREES);
-    myDeviceHeatProperty->setUnitOfMeasures(myDeviceHeatPropertyunitMeasureVec);
+    myDeviceCurrentHumidityStringProperty->setEnabled(true);
+    myDeviceCurrentHumidityStringProperty->setIsSecured(false);
+    myDeviceCurrentHumidityStringProperty->setWritable(false);
+    CHECK(myDeviceCurrentHumidityStringProperty->setGetValue(getCurrentHumidityString));
+    myDeviceCurrentHumidityStringProperty->setBgColor(0x500);
 
-    std::vector<ConstraintList> myDeviceHeatPropertyConstraintListVec(3);
+    std::vector<qcc::String> myDeviceCurrentHumidityStringPropertylabelVec;
+    myDeviceCurrentHumidityStringPropertylabelVec.push_back("Current Humidity:");
+    myDeviceCurrentHumidityStringProperty->setLabels(myDeviceCurrentHumidityStringPropertylabelVec);
 
-    std::vector<qcc::String> myDeviceHeatPropertyDisplay1Vec;
-    myDeviceHeatPropertyDisplay1Vec.push_back("Regular");
-    myDeviceHeatPropertyDisplay1Vec.push_back("Normal");
-    myDeviceHeatPropertyDisplay1Vec.push_back(UNICODE_REGULAR);
-    myDeviceHeatPropertyConstraintListVec[0].setDisplays(myDeviceHeatPropertyDisplay1Vec);
-    myDeviceHeatPropertyConstraintListVec[0].setConstraintValue((uint16_t)175);
+    std::vector<uint16_t> myDeviceCurrentHumidityStringPropertyHintsVec;
+    myDeviceCurrentHumidityStringPropertyHintsVec.push_back(TEXTVIEW);
+    myDeviceCurrentHumidityStringProperty->setHints(myDeviceCurrentHumidityStringPropertyHintsVec);
 
-    std::vector<qcc::String> myDeviceHeatPropertyDisplay2Vec;
-    myDeviceHeatPropertyDisplay2Vec.push_back("Hot");
-    myDeviceHeatPropertyDisplay2Vec.push_back("Heiss");
-    myDeviceHeatPropertyDisplay2Vec.push_back(UNICODE_HOT);
-    myDeviceHeatPropertyConstraintListVec[1].setDisplays(myDeviceHeatPropertyDisplay2Vec);
-    myDeviceHeatPropertyConstraintListVec[1].setConstraintValue((uint16_t)200);
+    myDeviceControlsContainer = new Container("controlsContainer", myDeviceRootContainer);
+    CHECK(myDeviceRootContainer->addChildWidget(myDeviceControlsContainer));
 
-    std::vector<qcc::String> myDeviceHeatPropertyDisplay3Vec;
-    myDeviceHeatPropertyDisplay3Vec.push_back("Very Hot");
-    myDeviceHeatPropertyDisplay3Vec.push_back("Sehr Heiss");
-    myDeviceHeatPropertyDisplay3Vec.push_back(UNICODE_VERY_HOT);
-    myDeviceHeatPropertyConstraintListVec[2].setDisplays(myDeviceHeatPropertyDisplay3Vec);
-    myDeviceHeatPropertyConstraintListVec[2].setConstraintValue((uint16_t)225);
+    myDeviceControlsContainer->setEnabled(true);
+    myDeviceControlsContainer->setIsSecured(false);
+    myDeviceControlsContainer->setBgColor(0x200);
 
-    myDeviceHeatProperty->setConstraintList(myDeviceHeatPropertyConstraintListVec);
+    std::vector<uint16_t> myDeviceControlsContainerHintsVec;
+    myDeviceControlsContainerHintsVec.push_back(HORIZONTAL_LINEAR);
+    myDeviceControlsContainer->setHints(myDeviceControlsContainerHintsVec);
 
-    myDeviceOvenAction = new MyDeviceOvenAction("ovenAction", myDeviceRootContainer);
-    CHECK(myDeviceRootContainer->addChildWidget(myDeviceOvenAction));
+    myDeviceAc_mode = new MyDeviceAc_mode("ac_mode", myDeviceControlsContainer, UINT16_PROPERTY);
+    CHECK(myDeviceControlsContainer->addChildWidget(myDeviceAc_mode));
 
-    myDeviceOvenAction->setEnabled(true);
-    myDeviceOvenAction->setIsSecured(false);
-    myDeviceOvenAction->setBgColor(0x400);
+    myDeviceAc_mode->setEnabled(true);
+    myDeviceAc_mode->setIsSecured(false);
+    myDeviceAc_mode->setWritable(true);
+    CHECK(myDeviceAc_mode->setGetValue(getCurrentMode));
+    myDeviceAc_mode->setBgColor(0xffd700);
 
-    std::vector<qcc::String> myDeviceOvenActionlabelVec;
-    myDeviceOvenActionlabelVec.push_back("Start Oven");
-    myDeviceOvenActionlabelVec.push_back("Ofen started");
-    myDeviceOvenActionlabelVec.push_back(UNICODE_START_OVEN);
-    myDeviceOvenAction->setLabels(myDeviceOvenActionlabelVec);
+    std::vector<qcc::String> myDeviceAc_modelabelVec;
+    myDeviceAc_modelabelVec.push_back("Mode");
+    myDeviceAc_mode->setLabels(myDeviceAc_modelabelVec);
 
-    std::vector<uint16_t> myDeviceOvenActionHintsVec;
-    myDeviceOvenActionHintsVec.push_back(ACTIONBUTTON);
-    myDeviceOvenAction->setHints(myDeviceOvenActionHintsVec);
+    std::vector<uint16_t> myDeviceAc_modeHintsVec;
+    myDeviceAc_modeHintsVec.push_back(SPINNER);
+    myDeviceAc_mode->setHints(myDeviceAc_modeHintsVec);
 
-    myDeviceLightAction = new ActionWithDialog("lightAction", myDeviceRootContainer);
-    CHECK(myDeviceRootContainer->addChildWidget(myDeviceLightAction));
+    std::vector<ConstraintList> myDeviceAc_modeConstraintListVec(5);
 
-    myDeviceLightAction->setEnabled(true);
-    myDeviceLightAction->setIsSecured(false);
-    myDeviceLightAction->setBgColor(0x400);
+    std::vector<qcc::String> myDeviceAc_modeDisplay1Vec;
+    myDeviceAc_modeDisplay1Vec.push_back("Auto");
+    myDeviceAc_modeConstraintListVec[0].setDisplays(myDeviceAc_modeDisplay1Vec);
+    myDeviceAc_modeConstraintListVec[0].setConstraintValue((uint16_t)0);
 
-    std::vector<qcc::String> myDeviceLightActionlabelVec;
-    myDeviceLightActionlabelVec.push_back("Turn on oven light");
-    myDeviceLightActionlabelVec.push_back("Ofenlicht anschalten");
-    myDeviceLightActionlabelVec.push_back(UNICODE_TURN_ON_OVEN_LIGHT);
-    myDeviceLightAction->setLabels(myDeviceLightActionlabelVec);
+    std::vector<qcc::String> myDeviceAc_modeDisplay2Vec;
+    myDeviceAc_modeDisplay2Vec.push_back("Cool");
+    myDeviceAc_modeConstraintListVec[1].setDisplays(myDeviceAc_modeDisplay2Vec);
+    myDeviceAc_modeConstraintListVec[1].setConstraintValue((uint16_t)1);
 
-    std::vector<uint16_t> myDeviceLightActionHintsVec;
-    myDeviceLightActionHintsVec.push_back(ACTIONBUTTON);
-    myDeviceLightAction->setHints(myDeviceLightActionHintsVec);
+    std::vector<qcc::String> myDeviceAc_modeDisplay3Vec;
+    myDeviceAc_modeDisplay3Vec.push_back("Heat");
+    myDeviceAc_modeConstraintListVec[2].setDisplays(myDeviceAc_modeDisplay3Vec);
+    myDeviceAc_modeConstraintListVec[2].setConstraintValue((uint16_t)2);
 
-    myDeviceLightConfirm = new MyDeviceLightConfirm("LightConfirm", NULL);
-    CHECK(myDeviceLightAction->addChildDialog(myDeviceLightConfirm));
+    std::vector<qcc::String> myDeviceAc_modeDisplay4Vec;
+    myDeviceAc_modeDisplay4Vec.push_back("Fan");
+    myDeviceAc_modeConstraintListVec[3].setDisplays(myDeviceAc_modeDisplay4Vec);
+    myDeviceAc_modeConstraintListVec[3].setConstraintValue((uint16_t)3);
 
-    myDeviceLightConfirm->setEnabled(true);
-    myDeviceLightConfirm->setIsSecured(false);
+    std::vector<qcc::String> myDeviceAc_modeDisplay5Vec;
+    myDeviceAc_modeDisplay5Vec.push_back("Off");
+    myDeviceAc_modeConstraintListVec[4].setDisplays(myDeviceAc_modeDisplay5Vec);
+    myDeviceAc_modeConstraintListVec[4].setConstraintValue((uint16_t)4);
 
-    std::vector<qcc::String> myDeviceLightConfirmmessageVec;
-    myDeviceLightConfirmmessageVec.push_back("Are you sure you want to turn on the light");
-    myDeviceLightConfirmmessageVec.push_back("Are you sure you want to turn on the light");
-    myDeviceLightConfirmmessageVec.push_back(UNICODE_ARE_YOU_SURE_YOU_WANT_TO_TURN_OFF_THE_LIGHT);
-    myDeviceLightConfirm->setMessages(myDeviceLightConfirmmessageVec);
-    myDeviceLightConfirm->setNumActions(3);
-    myDeviceLightConfirm->setBgColor(0x789);
+    myDeviceAc_mode->setConstraintList(myDeviceAc_modeConstraintListVec);
 
-    std::vector<qcc::String> myDeviceLightConfirmlabelVec;
-    myDeviceLightConfirmlabelVec.push_back("Are you sure?");
-    myDeviceLightConfirmlabelVec.push_back("Sind sie sicher?");
-    myDeviceLightConfirmlabelVec.push_back(UNICODE_ARE_YOU_SURE);
-    myDeviceLightConfirm->setLabels(myDeviceLightConfirmlabelVec);
+    myDeviceStatusStringProperty = new MyDeviceStatusStringProperty("statusStringProperty", myDeviceControlsContainer, STRING_PROPERTY);
+    CHECK(myDeviceControlsContainer->addChildWidget(myDeviceStatusStringProperty));
 
-    std::vector<uint16_t> myDeviceLightConfirmHintsVec;
-    myDeviceLightConfirmHintsVec.push_back(ALERTDIALOG);
-    myDeviceLightConfirm->setHints(myDeviceLightConfirmHintsVec);
+    myDeviceStatusStringProperty->setEnabled(true);
+    myDeviceStatusStringProperty->setIsSecured(false);
+    myDeviceStatusStringProperty->setWritable(false);
+    CHECK(myDeviceStatusStringProperty->setGetValue(getStatusString));
+    myDeviceStatusStringProperty->setBgColor(0x500);
 
-    std::vector<qcc::String> myDeviceLightConfirmLabelAction1Vec;
-    myDeviceLightConfirmLabelAction1Vec.push_back("Yes");
-    myDeviceLightConfirmLabelAction1Vec.push_back("Ja");
-    myDeviceLightConfirmLabelAction1Vec.push_back(UNICODE_YES);
-    myDeviceLightConfirm->setLabelsAction1(myDeviceLightConfirmLabelAction1Vec);
+    std::vector<qcc::String> myDeviceStatusStringPropertylabelVec;
+    myDeviceStatusStringPropertylabelVec.push_back("Status:");
+    myDeviceStatusStringProperty->setLabels(myDeviceStatusStringPropertylabelVec);
 
-    std::vector<qcc::String> myDeviceLightConfirmLabelAction2Vec;
-    myDeviceLightConfirmLabelAction2Vec.push_back("No");
-    myDeviceLightConfirmLabelAction2Vec.push_back("Nein");
-    myDeviceLightConfirmLabelAction2Vec.push_back(UNICODE_NO);
-    myDeviceLightConfirm->setLabelsAction2(myDeviceLightConfirmLabelAction2Vec);
+    std::vector<uint16_t> myDeviceStatusStringPropertyHintsVec;
+    myDeviceStatusStringPropertyHintsVec.push_back(TEXTVIEW);
+    myDeviceStatusStringProperty->setHints(myDeviceStatusStringPropertyHintsVec);
 
-    std::vector<qcc::String> myDeviceLightConfirmLabelAction3Vec;
-    myDeviceLightConfirmLabelAction3Vec.push_back("Cancel");
-    myDeviceLightConfirmLabelAction3Vec.push_back("Abrechen");
-    myDeviceLightConfirmLabelAction3Vec.push_back(UNICODE_CANCEL);
-    myDeviceLightConfirm->setLabelsAction3(myDeviceLightConfirmLabelAction3Vec);
+    myDeviceSet_temperature = new MyDeviceSet_temperature("set_temperature", myDeviceRootContainer, UINT16_PROPERTY);
+    CHECK(myDeviceRootContainer->addChildWidget(myDeviceSet_temperature));
 
-    myDeviceAreYouSureNotificationAction = NotificationAction::createNotificationAction(LanguageSets::get("myDeviceMyLanguages"));
-    if (!myDeviceAreYouSureNotificationAction) {
+    myDeviceSet_temperature->setEnabled(false);
+    myDeviceSet_temperature->setIsSecured(false);
+    myDeviceSet_temperature->setWritable(true);
+    CHECK(myDeviceSet_temperature->setGetValue(getTargetTemperature));
+    myDeviceSet_temperature->setBgColor(0x008000);
+
+    std::vector<qcc::String> myDeviceSet_temperaturelabelVec;
+    myDeviceSet_temperaturelabelVec.push_back("Temperature");
+    myDeviceSet_temperature->setLabels(myDeviceSet_temperaturelabelVec);
+
+    std::vector<uint16_t> myDeviceSet_temperatureHintsVec;
+    myDeviceSet_temperatureHintsVec.push_back(SLIDER);
+    myDeviceSet_temperature->setHints(myDeviceSet_temperatureHintsVec);
+
+    std::vector<qcc::String> myDeviceSet_temperatureunitMeasureVec;
+    myDeviceSet_temperatureunitMeasureVec.push_back("Degrees");
+    myDeviceSet_temperature->setUnitOfMeasures(myDeviceSet_temperatureunitMeasureVec);
+
+    ConstraintRange* myDeviceSet_temperatureConstraintRange = new ConstraintRange();
+    myDeviceSet_temperature->setConstraintRange(myDeviceSet_temperatureConstraintRange);
+    CHECK(myDeviceSet_temperatureConstraintRange->setConstraintMin((uint16_t)50));
+    CHECK(myDeviceSet_temperatureConstraintRange->setConstraintMax((uint16_t)90));
+    CHECK(myDeviceSet_temperatureConstraintRange->setConstraintIncrement((uint16_t)1));
+
+    myDeviceFan_speed = new MyDeviceFan_speed("fan_speed", myDeviceRootContainer, UINT16_PROPERTY);
+    CHECK(myDeviceRootContainer->addChildWidget(myDeviceFan_speed));
+
+    myDeviceFan_speed->setEnabled(false);
+    myDeviceFan_speed->setIsSecured(false);
+    myDeviceFan_speed->setWritable(true);
+    CHECK(myDeviceFan_speed->setGetValue(getFanSpeed));
+    myDeviceFan_speed->setBgColor(0xff69b4);
+
+    std::vector<qcc::String> myDeviceFan_speedlabelVec;
+    myDeviceFan_speedlabelVec.push_back("Fan Speed");
+    myDeviceFan_speed->setLabels(myDeviceFan_speedlabelVec);
+
+    std::vector<uint16_t> myDeviceFan_speedHintsVec;
+    myDeviceFan_speedHintsVec.push_back(SPINNER);
+    myDeviceFan_speed->setHints(myDeviceFan_speedHintsVec);
+
+    std::vector<ConstraintList> myDeviceFan_speedConstraintListVec(3);
+
+    std::vector<qcc::String> myDeviceFan_speedDisplay1Vec;
+    myDeviceFan_speedDisplay1Vec.push_back("Low");
+    myDeviceFan_speedConstraintListVec[0].setDisplays(myDeviceFan_speedDisplay1Vec);
+    myDeviceFan_speedConstraintListVec[0].setConstraintValue((uint16_t)0);
+
+    std::vector<qcc::String> myDeviceFan_speedDisplay2Vec;
+    myDeviceFan_speedDisplay2Vec.push_back("Medium");
+    myDeviceFan_speedConstraintListVec[1].setDisplays(myDeviceFan_speedDisplay2Vec);
+    myDeviceFan_speedConstraintListVec[1].setConstraintValue((uint16_t)1);
+
+    std::vector<qcc::String> myDeviceFan_speedDisplay3Vec;
+    myDeviceFan_speedDisplay3Vec.push_back("High");
+    myDeviceFan_speedConstraintListVec[2].setDisplays(myDeviceFan_speedDisplay3Vec);
+    myDeviceFan_speedConstraintListVec[2].setConstraintValue((uint16_t)2);
+
+    myDeviceFan_speed->setConstraintList(myDeviceFan_speedConstraintListVec);
+
+    myDeviceTurnFanOnNotificationAction = NotificationAction::createNotificationAction(LanguageSets::get("myDeviceMyLanguages"));
+    if (!myDeviceTurnFanOnNotificationAction) {
         return ER_FAIL;
     }
-    CHECK(myDeviceUnit->addNotificationAction(myDeviceAreYouSureNotificationAction));
+    CHECK(myDeviceUnit->addNotificationAction(myDeviceTurnFanOnNotificationAction));
 
-    myDeviceAreYouSure = new MyDeviceAreYouSure("areYouSure", NULL);
-    CHECK(myDeviceAreYouSureNotificationAction->setRootWidget(myDeviceAreYouSure));
+    myDeviceTurnFanOn = new MyDeviceTurnFanOn("TurnFanOn", NULL);
+    CHECK(myDeviceTurnFanOnNotificationAction->setRootWidget(myDeviceTurnFanOn));
 
-    myDeviceAreYouSure->setEnabled(true);
-    myDeviceAreYouSure->setIsSecured(false);
+    myDeviceTurnFanOn->setEnabled(true);
+    myDeviceTurnFanOn->setIsSecured(false);
 
-    std::vector<qcc::String> myDeviceAreYouSuremessageVec;
-    myDeviceAreYouSuremessageVec.push_back("Are you sure?");
-    myDeviceAreYouSuremessageVec.push_back("Sind sie sicher?");
-    myDeviceAreYouSuremessageVec.push_back(UNICODE_ARE_YOU_SURE);
-    myDeviceAreYouSure->setMessages(myDeviceAreYouSuremessageVec);
-    myDeviceAreYouSure->setNumActions(1);
-    myDeviceAreYouSure->setBgColor(0x789);
+    std::vector<qcc::String> myDeviceTurnFanOnmessageVec;
+    myDeviceTurnFanOnmessageVec.push_back("Turn fan on ?");
+    myDeviceTurnFanOn->setMessages(myDeviceTurnFanOnmessageVec);
+    myDeviceTurnFanOn->setNumActions(2);
+    myDeviceTurnFanOn->setBgColor(0x789);
 
-    std::vector<qcc::String> myDeviceAreYouSurelabelVec;
-    myDeviceAreYouSurelabelVec.push_back("Are you sure?");
-    myDeviceAreYouSurelabelVec.push_back("Sind sie sicher?");
-    myDeviceAreYouSurelabelVec.push_back(UNICODE_ARE_YOU_SURE);
-    myDeviceAreYouSure->setLabels(myDeviceAreYouSurelabelVec);
+    std::vector<qcc::String> myDeviceTurnFanOnLabelAction1Vec;
+    myDeviceTurnFanOnLabelAction1Vec.push_back("Yes");
+    myDeviceTurnFanOn->setLabelsAction1(myDeviceTurnFanOnLabelAction1Vec);
 
-    std::vector<qcc::String> myDeviceAreYouSureLabelAction1Vec;
-    myDeviceAreYouSureLabelAction1Vec.push_back("Yes");
-    myDeviceAreYouSureLabelAction1Vec.push_back("Ja");
-    myDeviceAreYouSureLabelAction1Vec.push_back(UNICODE_YES);
-    myDeviceAreYouSure->setLabelsAction1(myDeviceAreYouSureLabelAction1Vec);
+    std::vector<qcc::String> myDeviceTurnFanOnLabelAction2Vec;
+    myDeviceTurnFanOnLabelAction2Vec.push_back("No");
+    myDeviceTurnFanOn->setLabelsAction2(myDeviceTurnFanOnLabelAction2Vec);
+
+    myDeviceTurnFanOffNotificationAction = NotificationAction::createNotificationAction(LanguageSets::get("myDeviceMyLanguages"));
+    if (!myDeviceTurnFanOffNotificationAction) {
+        return ER_FAIL;
+    }
+    CHECK(myDeviceUnit->addNotificationAction(myDeviceTurnFanOffNotificationAction));
+
+    myDeviceTurnFanOff = new MyDeviceTurnFanOff("TurnFanOff", NULL);
+    CHECK(myDeviceTurnFanOffNotificationAction->setRootWidget(myDeviceTurnFanOff));
+
+    myDeviceTurnFanOff->setEnabled(true);
+    myDeviceTurnFanOff->setIsSecured(false);
+
+    std::vector<qcc::String> myDeviceTurnFanOffmessageVec;
+    myDeviceTurnFanOffmessageVec.push_back("Turn fan off ?");
+    myDeviceTurnFanOff->setMessages(myDeviceTurnFanOffmessageVec);
+    myDeviceTurnFanOff->setNumActions(2);
+    myDeviceTurnFanOff->setBgColor(0x789);
+
+    std::vector<qcc::String> myDeviceTurnFanOffLabelAction1Vec;
+    myDeviceTurnFanOffLabelAction1Vec.push_back("Yes");
+    myDeviceTurnFanOff->setLabelsAction1(myDeviceTurnFanOffLabelAction1Vec);
+
+    std::vector<qcc::String> myDeviceTurnFanOffLabelAction2Vec;
+    myDeviceTurnFanOffLabelAction2Vec.push_back("No");
+    myDeviceTurnFanOff->setLabelsAction2(myDeviceTurnFanOffLabelAction2Vec);
 
     return status;
 }
@@ -283,33 +340,53 @@ void ControlPanelGenerated::Shutdown()
         delete (myDeviceRootContainer);
         myDeviceRootContainer = 0;
     }
-    if (myDeviceCurrentTemp) {
-        delete (myDeviceCurrentTemp);
-        myDeviceCurrentTemp = 0;
+    if (myDeviceTempAndHumidityContainer) {
+        delete (myDeviceTempAndHumidityContainer);
+        myDeviceTempAndHumidityContainer = 0;
     }
-    if (myDeviceHeatProperty) {
-        delete (myDeviceHeatProperty);
-        myDeviceHeatProperty = 0;
+    if (myDeviceCurrentTempStringProperty) {
+        delete (myDeviceCurrentTempStringProperty);
+        myDeviceCurrentTempStringProperty = 0;
     }
-    if (myDeviceOvenAction) {
-        delete (myDeviceOvenAction);
-        myDeviceOvenAction = 0;
+    if (myDeviceCurrentHumidityStringProperty) {
+        delete (myDeviceCurrentHumidityStringProperty);
+        myDeviceCurrentHumidityStringProperty = 0;
     }
-    if (myDeviceLightAction) {
-        delete (myDeviceLightAction);
-        myDeviceLightAction = 0;
+    if (myDeviceControlsContainer) {
+        delete (myDeviceControlsContainer);
+        myDeviceControlsContainer = 0;
     }
-    if (myDeviceLightConfirm) {
-        delete (myDeviceLightConfirm);
-        myDeviceLightConfirm = 0;
+    if (myDeviceAc_mode) {
+        delete (myDeviceAc_mode);
+        myDeviceAc_mode = 0;
     }
-    if (myDeviceAreYouSureNotificationAction) {
-        delete (myDeviceAreYouSureNotificationAction);
-        myDeviceAreYouSureNotificationAction = 0;
+    if (myDeviceStatusStringProperty) {
+        delete (myDeviceStatusStringProperty);
+        myDeviceStatusStringProperty = 0;
     }
-    if (myDeviceAreYouSure) {
-        delete (myDeviceAreYouSure);
-        myDeviceAreYouSure = 0;
+    if (myDeviceSet_temperature) {
+        delete (myDeviceSet_temperature);
+        myDeviceSet_temperature = 0;
+    }
+    if (myDeviceFan_speed) {
+        delete (myDeviceFan_speed);
+        myDeviceFan_speed = 0;
+    }
+    if (myDeviceTurnFanOnNotificationAction) {
+        delete (myDeviceTurnFanOnNotificationAction);
+        myDeviceTurnFanOnNotificationAction = 0;
+    }
+    if (myDeviceTurnFanOn) {
+        delete (myDeviceTurnFanOn);
+        myDeviceTurnFanOn = 0;
+    }
+    if (myDeviceTurnFanOffNotificationAction) {
+        delete (myDeviceTurnFanOffNotificationAction);
+        myDeviceTurnFanOffNotificationAction = 0;
+    }
+    if (myDeviceTurnFanOff) {
+        delete (myDeviceTurnFanOff);
+        myDeviceTurnFanOff = 0;
     }
 
 }

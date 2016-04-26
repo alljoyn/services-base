@@ -29,10 +29,7 @@ local_env.Append(CPPPATH = ['.'])
 local_env.Prepend(LIBS = [ 'alljoyn_about',
                            'alljoyn_services_common' ])
 
-if '_CONFIG_' in local_env["CPPDEFINES"] :  
-    local_env.Prepend(LIBS = [ 'alljoyn_config' ])
-
-if '_NOTIFICATION_' in local_env["CPPDEFINES"] :  
+if '_NOTIFICATION_' in local_env["CPPDEFINES"] :
     local_env.Prepend(LIBS = [ 'alljoyn_notification' ])
 
 if '_CONTROLPANEL_' in local_env["CPPDEFINES"] :  
@@ -54,7 +51,7 @@ cobjs = local_env.SConscript('AppCommon/SConscript', {'env': local_env})
 local_env2 = local_env.Clone()
 
 sample_dirs = [
-    'ACServerSample'
+    'ServerSample'
     ]
 
 exports = { 'env': local_env2, 'cobjs': cobjs }
