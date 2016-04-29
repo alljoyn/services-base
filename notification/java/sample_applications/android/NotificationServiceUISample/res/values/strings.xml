@@ -26,7 +26,7 @@
     <string name="cancel">Cancel</string>
     <string name="msg_type">Message Type:</string>
     <string name="ttl">TTL: </string>
-    <string name="ttl_dflt">40000</string>
+    <string name="ttl_dflt">30</string>
     <string name="colors">Color: </string>
     <string name="producer">Producer</string>
     <string name="consumer">Consumer</string>
