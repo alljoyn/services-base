@@ -58,7 +58,7 @@ QStatus ControlPanelDevice::startSessionAsync()
         return ER_OK;
     }
 
-    SessionOpts opts(SessionOpts::TRAFFIC_MESSAGES, true, SessionOpts::PROXIMITY_ANY, TRANSPORT_ANY);
+    SessionOpts opts(SessionOpts::TRAFFIC_MESSAGES, false, SessionOpts::PROXIMITY_ANY, TRANSPORT_ANY);
     QStatus status = busAttachment->JoinSessionAsync(m_DeviceBusName.c_str(), (ajn::SessionPort)CONTROLPANELSERVICE_PORT, &m_SessionHandler,
                                                      opts, &m_SessionHandler, NULL);
 
@@ -88,7 +88,7 @@ QStatus ControlPanelDevice::startSession()
         return ER_OK;
     }
 
-    SessionOpts opts(SessionOpts::TRAFFIC_MESSAGES, true, SessionOpts::PROXIMITY_ANY, TRANSPORT_ANY);
+    SessionOpts opts(SessionOpts::TRAFFIC_MESSAGES, false, SessionOpts::PROXIMITY_ANY, TRANSPORT_ANY);
     SessionId sessionId;
     ajn::SessionPort port = CONTROLPANELSERVICE_PORT;
     QStatus status = busAttachment->JoinSession(m_DeviceBusName.c_str(), port, &m_SessionHandler, sessionId, opts);
