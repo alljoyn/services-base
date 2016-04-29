@@ -302,43 +302,6 @@
       <xs:element name="hints" type="gen:LabelHints" minOccurs="0" maxOccurs="1"/>
     </xs:sequence>
   </xs:complexType>
- <!--
-================================================================================
-        LISTPROPERTY TYPE
-================================================================================
-  -->
-  <xs:complexType name="ListPropertyHints">
-    <xs:sequence>
-      <xs:element name="hint" minOccurs="1" maxOccurs="unbounded">
-        <xs:simpleType>
-          <xs:restriction base="gen:NonEmptyString">
-            <xs:enumeration value="dynamicspinner"/>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:element>
-    </xs:sequence>
-  </xs:complexType>
-  <xs:complexType name="ListPropertyType">
-    <xs:sequence>
-      <xs:element name="name" type="gen:NameString" minOccurs="1" maxOccurs="1"/>
-      <xs:element name="secured" type="xs:boolean" minOccurs="1" maxOccurs="1"/>      
-      <xs:element name="enabled" type="gen:CodeOrValueString" minOccurs="1" maxOccurs="1"/>
-      <xs:element name="label" type="gen:CodeOrValueStringWithLang" minOccurs="0" maxOccurs="unbounded"/>
-      <xs:element name="bgcolor" type="gen:CodeOrValueString" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="hints" type="gen:ListPropertyHints" minOccurs="0" maxOccurs="1"/>
-      <xs:element name="getNumRecords" type="gen:NonEmptyString" minOccurs="1" maxOccurs="1"/>      
-      <xs:element name="getRecordId" type="gen:NonEmptyString" minOccurs="1" maxOccurs="1"/>      
-      <xs:element name="getRecordName" type="gen:NonEmptyString" minOccurs="1" maxOccurs="1"/>      
-      <xs:element name="viewRecord" type="gen:NonEmptyString" minOccurs="1" maxOccurs="1"/>      
-      <xs:element name="updateRecord" type="gen:NonEmptyString" minOccurs="1" maxOccurs="1"/>      
-      <xs:element name="deleteRecord" type="gen:NonEmptyString" minOccurs="1" maxOccurs="1"/>      
-      <xs:element name="addRecord" type="gen:NonEmptyString" minOccurs="1" maxOccurs="1"/>      
-      <xs:element name="confirmRecord" type="gen:NonEmptyString" minOccurs="1" maxOccurs="1"/>      
-      <xs:element name="cancelRecord" type="gen:NonEmptyString" minOccurs="1" maxOccurs="1"/>      
-      <xs:element name="recordName" type="gen:StringPropertyType"/>
-      <xs:element name="recordContainer" type="gen:ContainerType"/>
-    </xs:sequence>
-  </xs:complexType>  
   <!--
 ================================================================================
         CONTAINER TYPES
@@ -376,7 +339,6 @@
             <xs:element name="timeProperty" type="gen:NonConstrainedPropertyType"/>
             <xs:element name="scalarProperty" type="gen:ScalarPropertyType"/>
             <xs:element name="labelProperty" type="gen:LabelPropertyType"/>
-            <!--xs:element name="listProperty" type="gen:ListPropertyType"/-->            
             <xs:element name="action" type="gen:ActionType"/>
           </xs:choice>
         </xs:complexType>

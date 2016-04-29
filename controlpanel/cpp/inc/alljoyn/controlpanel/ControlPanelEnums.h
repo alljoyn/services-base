@@ -130,13 +130,6 @@ enum LABEL_HINTS {
 };
 
 /**
- * Hints for ListProperty Widgets
- */
-enum LIST_PROPERTY_HINTS {
-    DYNAMICSPINNER = 1 //!< DYNAMICSPINNER
-};
-
-/**
  * Hints for Action Widgets
  */
 enum ACTION_HINTS {

@@ -131,6 +131,10 @@ class Property (common.Widget):
         if propertyType == "stringProperty" :
             self.varType = "const char*"
             self.propType = "STRING_PROPERTY"
+        elif propertyType == "recordName" :
+            self.signature = "s"
+            self.varType = "const char*"
+            self.propType = "SINGLE_VALUE_PROPERTY"
         elif propertyType == "booleanProperty" :
             self.varType = "bool"
             self.propType = "BOOL_PROPERTY"
@@ -142,7 +146,7 @@ class Property (common.Widget):
             self.propType = "TIME_PROPERTY"
         elif propertyType == "scalarProperty" :
             dataType = self.element.attr["dataType"]
-       	    if dataType == "INT16":
+            if dataType == "INT16":
                 self.propType = "INT16_PROPERTY"
                 self.varType = "int16_t"
             elif dataType == "UINT16":
@@ -151,7 +155,7 @@ class Property (common.Widget):
             elif dataType == "INT32":
                 self.propType = "INT32_PROPERTY"
                 self.varType = "int32_t"
-	    elif dataType == "UINT32":
+            elif dataType == "UINT32":
                 self.propType = "UINT32_PROPERTY"
                 self.varType = "uint32_t"
             elif dataType == "INT64":
@@ -160,13 +164,13 @@ class Property (common.Widget):
             elif dataType == "UINT64":
                 self.propType = "UINT64_PROPERTY"
                 self.varType = "uint64_t"
-	    elif dataType == "DOUBLE":
+            elif dataType == "DOUBLE":
                 self.propType = "DOUBLE_PROPERTY"
                 self.varType = "double"
             else :
-                print >> sys.stderr, "ERROR - dataType of property Unknown. Exiting"
+                print >> sys.stderr, "ERROR - dataType(%s) of property Unknown. Exiting" % dataType
                 sys.exit(3)
         else :
-            print >> sys.stderr, "ERROR - Element Type of property Unknown. Exiting"
+            print >> sys.stderr, "ERROR - propertyType(%s) of property Unknown. Exiting" % propertyType
             sys.exit(3)
 

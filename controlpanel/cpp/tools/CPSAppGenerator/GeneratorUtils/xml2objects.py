@@ -217,7 +217,6 @@ class ObjectBuilder(ContentHandler):
 		self.top().end_element()
 
 if __name__ == '__main__':
-	o = ObjectBuilder('SampleXMLs/testListProperty.xml')
-#o.root._dump()
+	o = ObjectBuilder('../SampleXMLs/testOneOfEachWidget.xml')
 	o.root._dump()
 
