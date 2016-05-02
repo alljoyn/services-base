@@ -15,204 +15,593 @@
  ******************************************************************************/
 
 #include "ControlPanelProvided.h"
+#include "ControlPanelGenerated.h"
 #include <qcc/String.h>
+#include <iostream>     // std::cout
+#include <sstream>      // std::stringstream
+#include <ctime>        //  std::time_t
+////////////////////////////////////////////////////////////////
 
-static bool boolVar = false;
+static uint16_t currentHumidity = 40;
+static qcc::String humidityBuff = "40 %% \0";
+static uint16_t currentTemperature = 72;
+static uint16_t previousTemperature = 72;
+static qcc::String temperatureBuff = "72 F";
+static uint16_t targetTemp = 68;
+static uint16_t prevTargetTemp = 68;
+static uint16_t currentMode = 4;
+static uint16_t previousMode = 4;
+static uint16_t fanSpeed = 1;
+static uint16_t previousFanSpeed = 1;
+static char statusText[150] = "Unit is off \0";
+static char* statusString = statusText;
+static uint16_t triggerAnUpdate = 0;
+static char notificationText[50] = "Notification text goes here";
+static char* notificationString = notificationText;
+static uint16_t sendANotification = 0;
+static uint8_t signalsToSend = 0;
+static uint8_t modeOrTargetTempChanged = 0;
+static bool offerToTurnOnTheFan = false;
+static bool offerToTurnOffTheFan = false;
+static std::time_t fanIsActiveFromSec = 0;
+static const uint16_t waitBeforeOfferToTurnOffFanSec = 15;
+static uint8_t eventsToSend = 0;
 
-static uint16_t uint16Var = 0;
-static int16_t int16Var = 0;
-
-static uint32_t uint32Var = 0;
-static int32_t int32Var = 0;
-
-static uint64_t uint64Var = 0;
-static int64_t int64Var = 0;
-
-static double doubleVar = 0;
-
-static qcc::String StringVar = "Initial String";
-
-static qcc::String sampleString = "This is a test";
-static qcc::String sampleUrlString = ""; //put your url here
-
-static ajn::services::CPSDate dateVar(13, 6, 2006);
-static ajn::services::CPSTime timeVar(18, 30, 25);
-
-bool getboolVar()
+void disableFan()
 {
-    return boolVar;
+    ControlPanelGenerated::myDeviceFan_speed->setEnabled(false);
 }
 
-void setboolVar(bool value)
+void enableFan()
 {
-    boolVar = value;
+    ControlPanelGenerated::myDeviceFan_speed->setEnabled(true);
 }
 
-double getdoubleVar()
+void disableTempSelect()
 {
-    return doubleVar;
+    ControlPanelGenerated::myDeviceSet_temperature->setEnabled(false);
 }
 
-void setdoubleVar(double value)
+void enableTempSelect()
 {
-    doubleVar = value;
+    ControlPanelGenerated::myDeviceSet_temperature->setEnabled(true);
 }
 
-const char* getStringVar()
+const char* getNotificationString()
 {
-    return StringVar.c_str();
+    sendANotification = 0;
+    return notificationString;
 }
 
-void setStringVar(const char* value)
+uint16_t isThereANotificationToSend()
 {
-    StringVar = value;
+    return sendANotification;
 }
 
-uint16_t getuint16Var()
+bool getOfferToTurnOnTheFan()
 {
-    return uint16Var;
+    return offerToTurnOnTheFan;
 }
 
-void setuint16Var(uint16_t value)
+void setOfferToTurnOnTheFan(bool turnOnTheFan)
 {
-    uint16Var = value;
+    printf("setOfferToTurnOnTheFan(%s)\n", turnOnTheFan ? "true" : "false");
+    offerToTurnOnTheFan = turnOnTheFan;
 }
 
-int16_t getint16Var()
+void resetOfferToTurnOffTheFan()
 {
-    return int16Var;
+    offerToTurnOffTheFan = false;
+    fanIsActiveFromSec = std::time(NULL);
 }
 
-void setint16Var(int16_t value)
+void checkOfferToTurnOffTheFan()
 {
-    int16Var = value;
+    if (fanIsActiveFromSec != 0) {
+        std::time_t currentTimeSec = std::time(NULL);
+        if (currentTimeSec > fanIsActiveFromSec + waitBeforeOfferToTurnOffFanSec) {
+            setOfferToTurnOffTheFan(true);
+        }
+    }
 }
 
-uint32_t getuint32Var()
+// -- for string properties -- //
+uint16_t getCurrentTargetTemp()
 {
-    return uint32Var;
+    return targetTemp;
 }
 
-void setuint32Var(uint32_t value)
+uint16_t getCurrentTemp()
 {
-    uint32Var = value;
+    return currentTemperature;
 }
 
-int32_t getint32Var()
+// -- for widgets --//
+
+char const* getCurrentTemperatureString()
 {
-    return int32Var;
+    std::stringstream sMessageId;
+    sMessageId << currentTemperature;
+    sMessageId << " F";
+    temperatureBuff = sMessageId.str().c_str();
+    return temperatureBuff.c_str();
 }
 
-void setint32Var(int32_t value)
+void setCurrentTemperatureString(char const* newTemp)
 {
-    int32Var = value;
+    QCC_UNUSED(newTemp);
+    //do nothing
 }
 
-uint64_t getuint64Var()
+char const* getCurrentHumidityString()
 {
-    return uint64Var;
+    //snprintf(humidityBuff, sizeof(humidityBuff), "%d %% \0", currentHumidity);
+    //return humidityString;
+    std::stringstream sMessageId;
+    sMessageId << currentHumidity;
+    sMessageId << " %";
+    humidityBuff = sMessageId.str().c_str();
+    return humidityBuff.c_str();
+
 }
 
-void setuint64Var(uint64_t value)
+void setCurrentHumidityString(char const* newHumidity)
 {
-    uint64Var = value;
+    QCC_UNUSED(newHumidity);
+    //do nothing
 }
 
-int64_t getint64Var()
+uint16_t getTargetTemperature()
 {
-    return int64Var;
+    return targetTemp;
+}
+void setTargetTemperature(uint16_t newTemp)
+{
+    targetTemp = newTemp;
 }
 
-void setint64Var(int64_t value)
+uint16_t getCurrentMode()
 {
-    int64Var = value;
+    return currentMode;
 }
 
-bool getEnabledFunc()
+void setCurrentMode(uint16_t newMode)
 {
-    return true;
+    currentMode = newMode;
 }
 
-bool getWriteableFunc()
+uint16_t getFanSpeed()
 {
-    return true;
+    return fanSpeed;
 }
 
-const char* getTestString(uint16_t language)
+void setFanSpeed(uint16_t newSpeed)
 {
-    QCC_UNUSED(language);
-    return sampleString.c_str();
+    fanSpeed = newSpeed;
 }
 
-const char* getUrlString()
+const char* getStatusString()
 {
-    return sampleUrlString.c_str();
+    return statusString;
 }
 
-const ajn::services::CPSDate& getDateProperty()
+void setStatusString(const char* newStatusString)
 {
-    return dateVar;
+    strncpy(statusString, newStatusString, sizeof(statusText));
+    statusString[34] = '\0';
 }
 
-void setDateProperty(const ajn::services::CPSDate& datePropertyValue)
+void checkTargetTempReached()
 {
-    dateVar.setDay(datePropertyValue.getDay());
-    dateVar.setMonth(datePropertyValue.getMonth());
-    dateVar.setYear(datePropertyValue.getYear());
+    if (currentTemperature == targetTemp) {
+        snprintf(statusString, sizeof(statusText), "Target temp reached");
+        setStatusFieldUpdate();
+        snprintf(notificationString, sizeof(notificationText), "Target temperature of %d F reached \n", targetTemp);
+        sendANotification = 1;
+        if (getCurrentMode() == 1) { //on cool mode
+            setOfferToTurnOnTheFan(true);
+        }
+    }
 }
 
-const ajn::services::CPSTime& getTimeProperty()
+void setTemperatureFieldUpdate()
 {
-    return timeVar;
+    signalsToSend |= 1 << 0;
 }
 
-void setTimeProperty(const ajn::services::CPSTime& timePropertyValue)
+void setStatusFieldUpdate()
 {
-    timeVar.setHour(timePropertyValue.getHour());
-    timeVar.setMinute(timePropertyValue.getMinute());
-    timeVar.setSecond(timePropertyValue.getSecond());
+    signalsToSend |= 1 << 1;
 }
 
-/**
- * Functions for Oven.xml
- */
-static uint16_t temperatureVar = 0;
-static uint16_t programVar = 0;
-static qcc::String programString = "Program: ";
-
-void startOven()
+void setTempSelectorFieldUpdate()
 {
-    printf("********* Starting the Oven *********\n");
+    signalsToSend |= 1 << 2;
 }
 
-void stopOven()
+void setFanSpeedSelectorFieldUpdate()
 {
-    printf("********* Stopping the Oven *********\n");
+    signalsToSend |= 1 << 3;
 }
 
-uint16_t getTemperature()
+void setModeFieldUpdate()
 {
-    return temperatureVar;
+    signalsToSend |= 1 << 4;
+}
+//Events and actions block
+void resetEventsToSend()
+{
+    eventsToSend = 0;
 }
 
-void setTemperature(uint16_t temperature)
+uint8_t getEventsToSend()
 {
-    temperatureVar = temperature;
+    return eventsToSend;
 }
 
-uint16_t getProgram()
+void set80FReachedEvent()
 {
-    return programVar;
+    printf("set80FReachedEvent()\n");
+    eventsToSend |= 1 << 0;
 }
 
-void setProgram(uint16_t program)
+void set60FReachedEvent()
 {
-    programVar = program;
+    printf("set60FReachedEvent()\n");
+    eventsToSend |= 1 << 1;
 }
 
-const char* getProgramString(uint16_t language)
+void setTurnedOffEvent() {
+    printf("setTurnedOffEvent()\n");
+    eventsToSend |= 1 << 2;
+}
+
+void setTurnedOnEvent() {
+    printf("setTurnedOnEvent()\n");
+    eventsToSend |= 1 << 3;
+}
+//Events and actions block end
+uint8_t checkForUpdatesToSend()
 {
-    QCC_UNUSED(language);
-    return programString.c_str();
+    // this needs to be the brain
+    // check for what mode we are in and what the current & target temps are
+    // figure out if we are heating, cooling, doing nothing
+
+    // mode
+    //0 == auto
+    //1 == cool
+    //2 == heat
+    //3 == fan
+    //4 == off
+
+    signalsToSend = 0;
+    // 0001 == need to update the temperature text field
+    // 0010 == need to update the status text field
+    // 0100 == need to update the state of temperature selector
+    // 1000 == need to update the state of fan speed selector
+    // 10000 == need to update the value of mode selector
+
+    modeOrTargetTempChanged = 0;
+    checkForEventsToSend();
+    previousTemperature = currentTemperature;
+
+    printf("In checkForUpdatesToSend, currentMode=%d, targetTemp=%d, currentTemperature=%d, fanSpeed=%d, triggerAnUpdate=%d \n", currentMode, targetTemp, currentTemperature, fanSpeed, triggerAnUpdate);
+    // check if the target temperature has been changed & update accordingly
+    if (targetTemp != prevTargetTemp) {
+        printf("##### targetTemp (%d) != prevTargetTemp (%d) \n", targetTemp, prevTargetTemp);
+        modeOrTargetTempChanged = 1;
+
+        prevTargetTemp = targetTemp;
+        setStatusFieldUpdate();
+
+        if (currentMode == 0) {
+            // auto mode
+            if (targetTemp > currentTemperature) {
+                //heating
+                snprintf(statusString, sizeof(statusText), "Heating to %d F", targetTemp);
+                snprintf(notificationString, sizeof(notificationText), "Target temperature changed, now heating to %d F \n", targetTemp);
+                sendANotification = 1;
+            } else if (targetTemp < currentTemperature) {
+                //cooling
+                snprintf(statusString, sizeof(statusText), "Cooling to %d F", targetTemp);
+                snprintf(notificationString, sizeof(notificationText), "Target temperature changed, now cooling to %d F \n", targetTemp);
+                sendANotification = 1;
+            } else {
+                //target temp reached
+                snprintf(statusString, sizeof(statusText), "Target temp reached");
+                snprintf(notificationString, sizeof(notificationText), "Target temperature of %d F reached \n", targetTemp);
+                sendANotification = 1;
+            }
+        } else if (currentMode == 1) {
+            // cooling mode
+            if (targetTemp < currentTemperature) {
+                //cooling
+                snprintf(statusString, sizeof(statusText), "Cooling to %d F", targetTemp);
+                snprintf(notificationString, sizeof(notificationText), "Target temperature changed, now cooling to %d F \n", targetTemp);
+                sendANotification = 1;
+            } else if (targetTemp == currentTemperature) {
+                //target temp reached
+                snprintf(statusString, sizeof(statusText), "Target temp reached");
+                snprintf(notificationString, sizeof(notificationText), "Target temperature of %d F reached \n", targetTemp);
+                sendANotification = 1;
+            } else {
+                // user set target temp higher than current temp, do nothing
+                snprintf(statusString, sizeof(statusText), "Idle");
+            }
+        } else if (currentMode == 2) {
+            // heating mode
+            if (targetTemp > currentTemperature) {
+                //heating
+                snprintf(statusString, sizeof(statusText), "Heating to %d F", targetTemp);
+                snprintf(notificationString, sizeof(notificationText), "Target temperature changed, now heating to %d F \n", targetTemp);
+                sendANotification = 1;
+            } else if (targetTemp == currentTemperature) {
+                //target temp reached
+                snprintf(statusString, sizeof(statusText), "Target temp reached");
+                snprintf(notificationString, sizeof(notificationText), "Target temperature of %d F reached \n", targetTemp);
+                sendANotification = 1;
+            } else {
+                // user set target temp lower than current temp, do nothing
+                snprintf(statusString, sizeof(statusText), "Idle");
+            }
+        } else {
+            // fan mode or off, don't do anything
+        }
+    }
+
+    //check if the mode has been changed & update accordingly
+    if (currentMode != previousMode) {
+        printf("##### currentMode (%d) != previousMode (%d) \n", currentMode, previousMode);
+        modeOrTargetTempChanged = 1;
+
+        previousMode = currentMode;
+        setStatusFieldUpdate();
+        setModeFieldUpdate();
+
+        if (currentMode == 0) {
+            // auto mode
+            if (targetTemp > currentTemperature) {
+                //heating
+                snprintf(statusString, sizeof(statusText), "Heating to %d F", targetTemp);
+                snprintf(notificationString, sizeof(notificationText), "Mode changed to Auto, now heating to %d F \n", targetTemp);
+                sendANotification = 1;
+            } else if (targetTemp < currentTemperature) {
+                //cooling
+                snprintf(statusString, sizeof(statusText), "Cooling to %d F", targetTemp);
+                snprintf(notificationString, sizeof(notificationText), "Mode changed to Auto, now cooling to %d F \n", targetTemp);
+                sendANotification = 1;
+            } else {
+                //target temp already reached
+                snprintf(statusString, sizeof(statusText), "Idle");
+                snprintf(notificationString, sizeof(notificationText), "Mode changed to Auto \n");
+                sendANotification = 1;
+            }
+
+            enableTempSelect();
+            disableFan();
+            setTempSelectorFieldUpdate();
+            setFanSpeedSelectorFieldUpdate();
+        } else if (currentMode == 1) {
+            // cooling mode
+            if (targetTemp < currentTemperature) {
+                //cooling
+                snprintf(statusString, sizeof(statusText), "Cooling to %d F", targetTemp);
+                snprintf(notificationString, sizeof(notificationText), "Mode changed to Cool, now cooling to %d F \n", targetTemp);
+                sendANotification = 1;
+            } else {
+                //target temp already reached or set higher than current temp
+                snprintf(statusString, sizeof(statusText), "Idle");
+                snprintf(notificationString, sizeof(notificationText), "Mode changed to Cool \n");
+                sendANotification = 1;
+            }
+
+            enableTempSelect();
+            disableFan();
+            setTempSelectorFieldUpdate();
+            setFanSpeedSelectorFieldUpdate();
+        } else if (currentMode == 2) {
+            // heating mode
+            if (targetTemp > currentTemperature) {
+                //heating
+                snprintf(statusString, sizeof(statusText), "Heating to %d F", targetTemp);
+                snprintf(notificationString, sizeof(notificationText), "Mode changed to Heat, now heating to %d F \n", targetTemp);
+                sendANotification = 1;
+            } else {
+                //target temp already reached or set lower than current temp
+                snprintf(statusString, sizeof(statusText), "Idle");
+                snprintf(notificationString, sizeof(notificationText), "Mode changed to Heat \n");
+                sendANotification = 1;
+            }
+
+            enableTempSelect();
+            disableFan();
+            setTempSelectorFieldUpdate();
+            setFanSpeedSelectorFieldUpdate();
+        } else if (currentMode == 3) {
+            resetOfferToTurnOffTheFan();
+            // In fan mode
+            //0==low
+            //1==medium
+            //2==high
+            if (fanSpeed == 0) {
+                snprintf(statusString, sizeof(statusText), "Fan on low");
+                snprintf(notificationString, sizeof(notificationText), "Mode changed to Fan, fan on low \n");
+                sendANotification = 1;
+            } else if (fanSpeed == 1) {
+                snprintf(statusString, sizeof(statusText), "Fan on medium");
+                snprintf(notificationString, sizeof(notificationText), "Mode changed to Fan, fan on medium \n");
+                sendANotification = 1;
+            } else {
+                snprintf(statusString, sizeof(statusText), "Fan on high");
+                snprintf(notificationString, sizeof(notificationText), "Mode changed to Fan, fan on high \n");
+                sendANotification = 1;
+            }
+
+            // if in fan mode, disable the temperature selector
+            enableFan();
+            disableTempSelect();
+            setTempSelectorFieldUpdate();
+            setFanSpeedSelectorFieldUpdate();
+        } else {
+            // Off
+            snprintf(statusString, sizeof(statusText), "Unit is off");
+            snprintf(notificationString, sizeof(notificationText), "Unit has been turned off \n");
+            sendANotification = 1;
+
+            //if unit mode == off, disable temperature selector & fan widgets
+            disableFan();
+            disableTempSelect();
+            setTempSelectorFieldUpdate();
+            setFanSpeedSelectorFieldUpdate();
+        }
+
+    }
+
+    if (currentMode == 3) {
+        checkOfferToTurnOffTheFan();
+        // In fan mode
+        //0==low
+        //1==medium
+        //2==high
+        if (fanSpeed != previousFanSpeed) {
+            setStatusFieldUpdate();
+            previousFanSpeed = fanSpeed;
+            if (fanSpeed == 0) {
+                snprintf(statusString, sizeof(statusText), "Fan on low");
+                snprintf(notificationString, sizeof(notificationText), "Fan on low \n");
+                sendANotification = 1;
+            } else if (fanSpeed == 1) {
+                snprintf(statusString, sizeof(statusText), "Fan on medium");
+                snprintf(notificationString, sizeof(notificationText), "Fan on medium \n");
+                sendANotification = 1;
+            } else {
+                snprintf(statusString, sizeof(statusText), "Fan on high");
+                snprintf(notificationString, sizeof(notificationText), "Fan on high \n");
+                sendANotification = 1;
+            }
+        }
+    }
+
+    // check if we need to simulate changing the temperature
+    if (targetTemp != currentTemperature) {
+        printf("##### target temp (%d) != current temp (%d) \n", targetTemp, currentTemperature);
+
+        if (modeOrTargetTempChanged == 1) {
+            modeOrTargetTempChanged = 0;
+        } else {
+            if (currentMode == 0) {
+                // auto mode
+                if (targetTemp > currentTemperature) {
+                    //heating
+//          previousTemperature = currentTemperature;
+                    currentTemperature++;
+                    setTemperatureFieldUpdate();
+                    checkTargetTempReached();
+                } else if (targetTemp < currentTemperature) {
+                    //cooling
+//          previousTemperature = currentTemperature;
+                    currentTemperature--;
+                    setTemperatureFieldUpdate();
+                    checkTargetTempReached();
+                }
+            } else if (currentMode == 1) {
+                if (targetTemp < currentTemperature) {
+                    //cooling
+//          previousTemperature = currentTemperature;
+                    currentTemperature--;
+                    setTemperatureFieldUpdate();
+                    checkTargetTempReached();
+                }
+            } else if (currentMode == 2) {
+                if (targetTemp > currentTemperature) {
+                    //heating
+//          previousTemperature = currentTemperature;
+                    currentTemperature++;
+                    setTemperatureFieldUpdate();
+                    checkTargetTempReached();
+                }
+            } else {
+                // mode is either fan only or off, so don't need to do anything
+            }
+        }
+
+
+    }
+
+    return signalsToSend;
+}
+
+void OnTurnFanOnButton(bool chooseYes) {
+    if (chooseYes) {
+        setCurrentMode(3); //Fan
+    }
+
+    QStatus status = ControlPanelGenerated::myDeviceTurnFanOn->SendDismissSignal();
+    if (status != ER_OK) {
+        printf("ERROR - myDeviceTurnFunOn->SendDismissSignal() failed !\n");
+    } else {
+        printf("myDeviceTurnFunOn->SendDismissSignal() sent successfully !\n");
+    }
+}
+
+void OnTurnFanOffButton(bool chooseYes)
+{
+    if (chooseYes) {
+        setCurrentMode(4); //Off
+    }
+
+    QStatus status = ControlPanelGenerated::myDeviceTurnFanOff->SendDismissSignal();
+    if (status != ER_OK) {
+        printf("ERROR - myDeviceTurnFunOff->SendDismissSignal() failed !\n");
+    } else {
+        printf("myDeviceTurnFunOff->SendDismissSignal() sent successfully !\n");
+    }
+}
+
+void setOfferToTurnOffTheFan(bool turnOffTheFan)
+{
+    printf("setOfferToTurnOffTheFan(%s)\n", turnOffTheFan ? "true" : "false");
+    offerToTurnOffTheFan = turnOffTheFan;
+    fanIsActiveFromSec = 0;
+}
+
+bool getOfferToTurnOffTheFan()
+{
+    return offerToTurnOffTheFan;
+}
+
+// mode
+//0 == auto
+//1 == cool
+//2 == heat
+//3 == fan
+//4 == off
+uint8_t checkForEventsToSend()
+{
+    // 0x01 == need to send event 80F reached
+    // 0x02 == need to send event 60F reached
+    // 0x04 == need to send event mode turned off
+    // 0x08 == need to send event mode turned on
+    if (currentTemperature != previousTemperature) {
+        printf("currentTemperature[%d] != prevTargetTemp[%d]\n", currentTemperature, prevTargetTemp);
+        if (targetTemp >= currentTemperature && currentTemperature == 80) {
+            printf("previousTemperature[%d] >= currentTemperaturep[%d] && currentTemperature == 80\n", previousTemperature, currentTemperature);
+            set80FReachedEvent();
+        }
+        if (targetTemp <= currentTemperature && currentTemperature == 60) {
+            printf("previousTemperature[%d] <= currentTemperature[%d] && currentTemperature == 60\n", previousTemperature, currentTemperature);
+            set60FReachedEvent();
+        }
+    }
+
+    if (currentMode != previousMode) {
+        if (currentMode == 4) {
+            setTurnedOffEvent();
+        } else if (previousMode == 4) {
+            setTurnedOnEvent();
+        }
+    }
+
+    return eventsToSend;
 }
 

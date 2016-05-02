@@ -21,10 +21,14 @@
 #include <alljoyn/controlpanel/Container.h>
 #include <alljoyn/controlpanel/Label.h>
 #include <alljoyn/controlpanel/ActionWithDialog.h>
-#include "../generated/MyDeviceHeatProperty.h"
-#include "../generated/MyDeviceOvenAction.h"
-#include "../generated/MyDeviceLightConfirm.h"
-#include "../generated/MyDeviceAreYouSure.h"
+#include "../generated/MyDeviceCurrentTempStringProperty.h"
+#include "../generated/MyDeviceCurrentHumidityStringProperty.h"
+#include "../generated/MyDeviceAc_mode.h"
+#include "../generated/MyDeviceStatusStringProperty.h"
+#include "../generated/MyDeviceSet_temperature.h"
+#include "../generated/MyDeviceFan_speed.h"
+#include "../generated/MyDeviceTurnFanOn.h"
+#include "../generated/MyDeviceTurnFanOff.h"
 
 
 /**
@@ -47,19 +51,29 @@ class ControlPanelGenerated {
 
     static ajn::services::Container* myDeviceRootContainer;
 
-    static ajn::services::Label* myDeviceCurrentTemp;
+    static ajn::services::Container* myDeviceTempAndHumidityContainer;
 
-    static ajn::services::MyDeviceHeatProperty* myDeviceHeatProperty;
+    static ajn::services::MyDeviceCurrentTempStringProperty* myDeviceCurrentTempStringProperty;
 
-    static ajn::services::MyDeviceOvenAction* myDeviceOvenAction;
+    static ajn::services::MyDeviceCurrentHumidityStringProperty* myDeviceCurrentHumidityStringProperty;
 
-    static ajn::services::ActionWithDialog* myDeviceLightAction;
+    static ajn::services::Container* myDeviceControlsContainer;
 
-    static ajn::services::MyDeviceLightConfirm* myDeviceLightConfirm;
+    static ajn::services::MyDeviceAc_mode* myDeviceAc_mode;
 
-    static ajn::services::NotificationAction* myDeviceAreYouSureNotificationAction;
+    static ajn::services::MyDeviceStatusStringProperty* myDeviceStatusStringProperty;
 
-    static ajn::services::MyDeviceAreYouSure* myDeviceAreYouSure;
+    static ajn::services::MyDeviceSet_temperature* myDeviceSet_temperature;
+
+    static ajn::services::MyDeviceFan_speed* myDeviceFan_speed;
+
+    static ajn::services::NotificationAction* myDeviceTurnFanOnNotificationAction;
+
+    static ajn::services::MyDeviceTurnFanOn* myDeviceTurnFanOn;
+
+    static ajn::services::NotificationAction* myDeviceTurnFanOffNotificationAction;
+
+    static ajn::services::MyDeviceTurnFanOff* myDeviceTurnFanOff;
 
 
 };
