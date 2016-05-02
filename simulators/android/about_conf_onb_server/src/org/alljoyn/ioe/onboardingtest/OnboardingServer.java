@@ -18,6 +18,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
+import java.io.ByteArrayOutputStream;
 
 import org.alljoyn.about.AboutServiceImpl;
 import org.alljoyn.bus.BusAttachment;
@@ -42,7 +43,6 @@ import org.alljoyn.services.android.storage.PropertyStoreImpl;
 import org.alljoyn.services.android.utils.AndroidLogger;
 import org.alljoyn.services.common.PropertyStore;
 import org.alljoyn.services.common.utils.GenericLogger;
-import org.apache.http.util.ByteArrayBuffer;
 
 import android.app.Service;
 import android.content.Intent;
@@ -205,9 +205,9 @@ public class OnboardingServer extends Service implements AuthPasswordHandler, Se
 
             // Pump up the daemon debug level
             /*
-			m_Bus.setDaemonDebug("ALL", 7);
-			m_Bus.setLogLevels("ALL=7");
-			m_Bus.useOSLogging(true);
+            m_Bus.setDaemonDebug("ALL", 7);
+            m_Bus.setLogLevels("ALL=7");
+            m_Bus.useOSLogging(true);
              */
 
             // initialize the PropertyStore
@@ -247,17 +247,17 @@ public class OnboardingServer extends Service implements AuthPasswordHandler, Se
                 int bufferSize = 1024*10;
                 byte[] buffer = new byte[bufferSize];
 
-                ByteArrayBuffer tempArray = new ByteArrayBuffer(bufferSize);
+                ByteArrayOutputStream tempArray = new ByteArrayOutputStream(bufferSize);
                 try {
                     while ((count = bis.read(buffer, offset, bufferSize)) != -1) {
-                        tempArray.append(buffer, offset, count);
+                        tempArray.write(buffer, offset, count);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                int size = tempArray.length();
+                int size = tempArray.size();
                 byte[] resultBytes = new byte[size];
-                System.arraycopy(tempArray.buffer(), 0, resultBytes, 0, size);
+                System.arraycopy(tempArray.toByteArray(), 0, resultBytes, 0, size);
 
                 // register the byte array as the board's icon. The AboutService will expose it
                 AboutServiceImpl.getInstance().registerIcon("image/png",
@@ -410,7 +410,7 @@ public class OnboardingServer extends Service implements AuthPasswordHandler, Se
     public void showToast(String text)
     {
         System.out.println(text);
-        //		Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+        //      Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
     }
 
     private String bindSessionPort(final short port)
