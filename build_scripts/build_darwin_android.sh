@@ -178,7 +178,7 @@ for SERVICE in ${SERVICES[@]}; do
     		exit 20
 	}
 
-	# compile 2nd Onboarding sample app
+	# compile 2nd Onboarding sample app and Onboardee server sample
 	if [ "$SERVICE" = "Onboarding" ]
 	then
 		cd ../OnboardingManagerSampleClient/
@@ -201,6 +201,27 @@ for SERVICE in ${SERVICES[@]}; do
     			echo "Building $SERVICE Android .apk failed"
     			exit 20
 		}
+
+        cd $WORKSPACE/services/base/simulators/android/about_conf_onb_server/
+        mkdir -p libs/armeabi
+        CopyAndroidJars libs/
+        CopyAndroidLib libs/armeabi/
+        CopyCommonUtils libs/
+
+        cp ../../../$SERVICE/java/OnboardingService/build/deploy/alljoyn_onboarding.jar libs/ || {
+            echo "Copy of alljoyn_onboarding.jar failed"
+            exit 10
+        }
+
+        cp $JAR_DIR/alljoyn_config.jar libs/ || {
+            echo "Copy of alljoyn_config.jar failed"
+            exit 10
+        }
+
+        ant -Dsdk.dir=$ANDROID_SDK $VARIANT || {
+            echo "Building About Conf server failed"
+            exit 20
+        }
 	fi
 
 	popd
