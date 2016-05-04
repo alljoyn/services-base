@@ -453,9 +453,15 @@ static NSString *const DEFAULT_MSG_TYPE = @"INFO";
 {
 	QStatus status;
     
+	// AppId to Hex string
+	const char* utf8AppId = [appId UTF8String];
+	NSMutableString *hex = [[NSMutableString alloc] init];
+	while(*utf8AppId) {
+		[hex appendFormat:@"%02X", *utf8AppId++ & 0x00FF];
+	}
+
 	// AppId
-	status = [self.aboutPropertyStoreImpl setAppId:appId];
-    
+	status = [self.aboutPropertyStoreImpl setAppId:[NSString stringWithString:hex]];
 	if (status != ER_OK) {
 		return status;
 	}
@@ -474,7 +480,6 @@ static NSString *const DEFAULT_MSG_TYPE = @"INFO";
     
 	// DeviceName
 	status = [self.aboutPropertyStoreImpl setDeviceName:deviceName];
-    
 	if (status != ER_OK) {
 		return status;
 	}
