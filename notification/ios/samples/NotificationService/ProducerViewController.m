@@ -33,7 +33,7 @@ static short const SERVICE_PORT= 900;
 
 static const uint16_t TTL_MIN = 30;
 static const uint16_t TTL_MAX = 43200;
-static NSString *const DEFAULT_TTL = @"40000";
+static NSString *const DEFAULT_TTL = @"30";
 static NSString *const DEFAULT_MSG_TYPE = @"INFO";
 
 
