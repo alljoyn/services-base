@@ -16,20 +16,25 @@
 
 #include <iostream>
 #include <iomanip>
-#include <signal.h>
 #include <set>
+#include <vector>
+#include <fstream>
+#include <cassert>
+#include <signal.h>
 
 #include <alljoyn/config/ConfigClient.h>
 #include <alljoyn/onboarding/OnboardingClient.h>
 
-#include <SrpKeyXListener.h>
 #include <AnnounceHandlerImpl.h>
 #include <AsyncSessionJoiner.h>
 #include <SessionListenerImpl.h>
 #include <OnboardingSignalListenerImpl.h>
 #include <alljoyn/services_common/LogModulesNames.h>
 #include <AJInitializer.h>
+#include <SecurityUtil.h>
+#include <CertificateUtil.h>
 
+#include <alljoyn/AuthListener.h>
 #include <alljoyn/AboutData.h>
 #include <alljoyn/AboutListener.h>
 #include <alljoyn/AboutObjectDescription.h>
@@ -37,7 +42,12 @@
 #include <alljoyn/BusAttachment.h>
 #include <alljoyn/AboutIconProxy.h>
 #include <alljoyn/version.h>
+#include <alljoyn/SecurityApplicationProxy.h>
 #include <qcc/Log.h>
+#include <qcc/GUID.h>
+#include <qcc/KeyInfoECC.h>
+#include "OnboardingSignalListenerImpl.h"
+
 
 using namespace ajn;
 using namespace services;
@@ -45,6 +55,24 @@ using namespace services;
 static volatile sig_atomic_t quit = false;
 static BusAttachment* busAttachment = NULL;
 static std::set<qcc::String> handledAnnouncements;
+
+static const char *AUTH_MECHANISM = "ALLJOYN_ECDHE_NULL ALLJOYN_ECDHE_SPEKE ALLJOYN_ECDHE_ECDSA";
+const qcc::String caName("Sample CA");
+
+static qcc::Crypto_ECC *caKeyPair = NULL;
+const qcc::String CA_CERT_FILENAME("caCert.pem");
+const qcc::String CA_KEY_FILENAME("caKey.pem");
+const qcc::String ADMIN_GUID_FILENAME("adminGuid");
+
+static qcc::CertificateX509& caCert() {
+    static qcc::CertificateX509 cert;
+    return cert;
+}
+
+static qcc::GUID128& adminGuid() {
+    static qcc::GUID128 guid;
+    return guid;
+}
 
 static void CDECL_CALL SigIntHandler(int sig)
 {
@@ -131,7 +159,89 @@ void printAllAboutData(AboutProxy& aboutProxy)
     }
 }
 
-void sessionJoinedCallback(qcc::String const& busName, SessionId id)
+bool claim(const qcc::String &busName, const ajn::SessionId sessionId, const qcc::KeyInfoNISTP256 &peerPubKeyInfo,
+           const qcc::String &name, const qcc::String &caCN,  const qcc::CertificateX509 &caCert,
+           const qcc::GUID128 &adminGuid,
+           const qcc::GUID128 &identityGuid)
+{
+    std::cout << "claim: " << busName << " : " << name << std::endl;
+    std::cout << "admin guid: " << adminGuid.ToString() << std::endl;
+    std::cout << "identity guid: " << identityGuid.ToString() << std::endl;
+
+    Manifest manifest;
+    SecurityUtil::GenerateManifest(manifest);
+
+    qcc::IdentityCertificate identityCertificate;
+    CertificateUtil::GenerateIdentityCertificate(*peerPubKeyInfo.GetPublicKey(), identityGuid, name, identityCertificate);
+    CertificateUtil::IssueCertificate(*caKeyPair, caCN, identityCertificate);
+
+    assert(identityCertificate.Verify(caKeyPair->GetDSAPublicKey()) == ER_OK && "invalid identity cert");
+
+    CertificateUtil::SignManifest(caKeyPair->GetDSAPrivateKey(), identityCertificate, manifest);
+    std::vector<ajn::Manifest> manifests;
+    manifests.push_back(manifest);
+
+    std::vector<qcc::CertificateX509> certChain;
+    certChain.push_back(identityCertificate); // NOTE: identity cert must be first in chain
+    certChain.push_back(caCert);
+
+    qcc::KeyInfoNISTP256 caPublicKeyInfo;
+    {
+        qcc::String aki;
+        qcc::CertificateX509::GenerateAuthorityKeyId(caKeyPair->GetDSAPublicKey(), aki);
+        caPublicKeyInfo.SetKeyId((uint8_t *) aki.data(), aki.size());
+        caPublicKeyInfo.SetPublicKey(caKeyPair->GetDSAPublicKey());
+    }
+
+    QStatus status = SecurityUtil::Claim(*busAttachment, busName, sessionId, caPublicKeyInfo, adminGuid, caPublicKeyInfo, certChain, manifests);
+    if (ER_OK != status) {
+        std::cout << "WARNING - Call to SecurityUtil::Claim failed: " << QCC_StatusText(status) << std::endl;
+        return false;
+    } else {
+        std::cout << "OnboardingClient has claimed " << busName << std::endl;
+    }
+
+    return true;
+}
+
+bool claimSelf(const qcc::String &caCN, const qcc::CertificateX509 &caCert,
+               const qcc::GUID128 &adminGuid, const qcc::GUID128 &identityGuid)
+{
+    const qcc::String busName = busAttachment->GetUniqueName().c_str();
+
+    qcc::KeyInfoNISTP256 publicKeyInfo;
+    QStatus status = busAttachment->GetPermissionConfigurator().GetSigningPublicKey(publicKeyInfo);
+    if (ER_OK != status) {
+        std::cout << "WARNING - Call to GetSigningPublicKey failed: " << QCC_StatusText(status) << std::endl;
+        return false;
+    }
+
+    SessionId sessionId = SESSION_PORT_ANY;
+    bool result = claim(busName, sessionId, publicKeyInfo, qcc::String("self"), caCN, caCert, adminGuid, identityGuid);
+    if (!result) {
+        std::cout << "WARNING - Call to claim failed" << std::endl;
+        return false;
+    }
+
+    // Add self to admin group
+    {
+        qcc::MembershipCertificate membershipCert;
+        CertificateUtil::GenerateMembershipCertificate(*publicKeyInfo.GetPublicKey(), adminGuid, membershipCert);
+
+        CertificateUtil::IssueCertificate(*caKeyPair, caCN, membershipCert);
+
+        status = SecurityUtil::InstallMembership(*busAttachment, busName, membershipCert);
+        if (ER_OK != status) {
+            return false;
+        } else {
+            std::cout << "OnboardingClient is member of admin group" << std::endl;
+        }
+    }
+
+    return result;
+}
+
+void sessionJoinedCallback(qcc::String const& busName, SessionId sessionId)
 {
     QStatus status = ER_OK;
     if (busAttachment == NULL) {
@@ -140,7 +250,47 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
 
     busAttachment->EnableConcurrentCallbacks();
 
-    AboutProxy aboutProxy(*busAttachment, busName.c_str(), id);
+    bool wasClaimed = false;
+
+    {
+        SecurityApplicationProxy peerProxy(*busAttachment, busName.c_str(), sessionId);
+
+        PermissionConfigurator::ApplicationState appState;
+        peerProxy.GetApplicationState(appState);
+        std::cout << "application state: " << PermissionConfigurator::ToString(appState) << std::endl;
+
+        if (PermissionConfigurator::ApplicationState::CLAIMABLE == appState) {
+
+            qcc::ECCPublicKey peerPubKey;
+            status = peerProxy.GetEccPublicKey(peerPubKey);
+            if (ER_OK != status) {
+                std::cout << "WARNING - GetEccPublicKey " << QCC_StatusText(status) << std::endl;
+                return;
+            } else {
+                std::cout << "peer public key: " << peerPubKey.ToString() << std::endl;
+            }
+
+            qcc::KeyInfoNISTP256 peerPubKeyInfo;
+            peerPubKeyInfo.SetPublicKey(&peerPubKey);
+
+            qcc::GUID128 identityGuid;
+            bool result = claim(busName, sessionId, peerPubKeyInfo, qcc::String("other"), caName, caCert(), adminGuid(), identityGuid);
+            if (!result) {
+                std::cout << "WARNING - OnboardingClient failed to claim " << busName << std::endl;
+            } else {
+                wasClaimed = true;
+            }
+        }
+
+        status = busAttachment->SecureConnection(busName.c_str(), wasClaimed);
+        if (ER_OK != status) {
+            std::cout << "WARNING - SecureConnection " << busName << ". error: " << QCC_StatusText(status) << std::endl;
+        } else {
+            std::cout << "SecureConnection " << busName << std::endl;
+        }
+    }
+
+    AboutProxy aboutProxy(*busAttachment, busName.c_str(), sessionId);
 
     bool isIconInterface = false;
     bool isConfigInterface = false;
@@ -150,19 +300,23 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
     std::cout << "-----------------------------------" << std::endl;
 
     MsgArg objArg;
-    aboutProxy.GetObjectDescription(objArg);
-    std::cout << "AboutProxy.GetObjectDescriptions:\n" << objArg.ToString().c_str() << "\n\n" << std::endl;
+    status = aboutProxy.GetObjectDescription(objArg);
+    if (ER_OK != status) {
+        std::cout << "WARNING - GetObjectDescription " << busName << ". error: " << QCC_StatusText(status) << std::endl;
+    } else {
+        std::cout << "AboutProxy.GetObjectDescriptions:\n" << objArg.ToString().c_str() << "\n\n" << std::endl;
+    }
 
     AboutObjectDescription objectDescription;
     objectDescription.CreateFromMsgArg(objArg);
 
     isIconInterface = false;
-    isIconInterface = objectDescription.HasInterface("/About/DeviceIcon", "org.alljoyn.Icon");
+    isIconInterface = objectDescription.HasInterface(org::alljoyn::Icon::ObjectPath, org::alljoyn::Icon::InterfaceName);
 
     if (isIconInterface) {
-        std::cout << "The given interface 'org.alljoyn.Icon' is found in a given path '/About/DeviceIcon'" << std::endl;
+        std::cout << "The given interface '" << org::alljoyn::Icon::InterfaceName << "' is found in a given path '" << org::alljoyn::Icon::ObjectPath << "'" << std::endl;
     } else {
-        std::cout << "WARNING - The given interface 'org.alljoyn.Icon' is not found in a given path '/About/DeviceIcon'" << std::endl;
+        std::cout << "WARNING - The given interface '" << org::alljoyn::Icon::InterfaceName << "' is not found in a given path '" << org::alljoyn::Icon::ObjectPath << "'" << std::endl;
     }
 
     isConfigInterface = false;
@@ -194,7 +348,7 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
     }
 
     if (isIconInterface) {
-        AboutIconProxy aiProxy(*busAttachment, busName.c_str(), id);
+        AboutIconProxy aiProxy(*busAttachment, busName.c_str(), sessionId);
         AboutIcon aboutIcon;
 
         std::cout << std::endl << busName.c_str() << " AboutIconProxy GetIcon" << std::endl;
@@ -239,7 +393,7 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
         std::cout << std::endl << busName.c_str() << " ConfigClient GetVersion" << std::endl;
         std::cout << "-----------------------------------" << std::endl;
         int version = 0;
-        if ((status = configClient->GetVersion(busName.c_str(), version, id)) == ER_OK) {
+        if ((status = configClient->GetVersion(busName.c_str(), version, sessionId)) == ER_OK) {
             std::cout << "Success GetVersion. Version=" << version << std::endl;
         } else {
             std::cout << "Call to getVersion failed: " << QCC_StatusText(status) << std::endl;
@@ -249,7 +403,7 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
         std::cout << std::endl << busName.c_str() << " ConfigClient GetConfigurations" << std::endl;
         std::cout << "-----------------------------------" << std::endl;
 
-        if ((status = configClient->GetConfigurations(busName.c_str(), "en", configurations, id)) == ER_OK) {
+        if ((status = configClient->GetConfigurations(busName.c_str(), "en", configurations, sessionId)) == ER_OK) {
 
             for (ConfigClient::Configurations::iterator it = configurations.begin(); it != configurations.end(); ++it) {
                 qcc::String key = it->first;
@@ -278,12 +432,28 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
     OnboardingSignalListenerImpl* signalListener = new OnboardingSignalListenerImpl();
 
     if (isOnboardingInterface) {
-        onboardingClient = new    OnboardingClient(*busAttachment, *signalListener);
+
+        {
+            ProxyBusObject *proxyBusObj = new ProxyBusObject(*busAttachment, busName.c_str(), "/Onboarding", sessionId);
+            if (proxyBusObj->IntrospectRemoteObject() == ER_OK) {
+                const InterfaceDescription *infdesc = proxyBusObj->GetInterface("org.alljoyn.Onboarding");
+                if (infdesc) {
+                    std::cout << "**** Onboarding interface:\n" << infdesc->Introspect() << std::endl;
+                }
+            } else {
+                std::cout << "WARNING - Failed to InstrospectRemoteObject" << std::endl;
+            }
+
+            delete proxyBusObj;
+            proxyBusObj = NULL;
+        }
+
+        onboardingClient = new OnboardingClient(*busAttachment, *signalListener);
 
         std::cout << std::endl << busName.c_str() << " OnboardingClient GetVersion" << std::endl;
         std::cout << "-----------------------------------" << std::endl;
         int version = 0;
-        if ((status = onboardingClient->GetVersion(busName.c_str(), version, id)) == ER_OK) {
+        if ((status = onboardingClient->GetVersion(busName.c_str(), version, sessionId)) == ER_OK) {
             std::cout << "Version=" << version << std::endl;
         } else {
             std::cout << "Call to GetVersion failed " << QCC_StatusText(status) << std::endl;
@@ -293,7 +463,7 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
         std::cout << std::endl << busName.c_str() << " OnboardingClient GetState" << std::endl;
         std::cout << "-----------------------------------" << std::endl;
         short int state = 0;
-        if ((status = onboardingClient->GetState(busName.c_str(), state, id)) == ER_OK) {
+        if ((status = onboardingClient->GetState(busName.c_str(), state, sessionId)) == ER_OK) {
             std::cout << "GetState=" << state << std::endl;
         } else {
             std::cout << "Call to GetState failed " << QCC_StatusText(status) << std::endl;
@@ -303,7 +473,7 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
         std::cout << "-----------------------------------" << std::endl;
 
         OBLastError lastError = { 0, "" };
-        if ((status = onboardingClient->GetLastError(busName.c_str(), lastError, id)) == ER_OK) {
+        if ((status = onboardingClient->GetLastError(busName.c_str(), lastError, sessionId)) == ER_OK) {
             std::cout << "OBLastError code=" << lastError.validationState << " message= " << lastError.message.c_str() << std::endl;
         } else {
             std::cout << "Call to GetLastError failed " << QCC_StatusText(status) << std::endl;
@@ -313,7 +483,7 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
         std::cout << "-----------------------------------" << std::endl;
         unsigned short age = 0;
         OnboardingClient::ScanInfos scanInfos;
-        if ((status = onboardingClient->GetScanInfo(busName.c_str(), age, scanInfos, id)) == ER_OK) {
+        if ((status = onboardingClient->GetScanInfo(busName.c_str(), age, scanInfos, sessionId)) == ER_OK) {
             for (OnboardingClient::ScanInfos::iterator it = scanInfos.begin(); it != scanInfos.end(); ++it) {
                 std::cout << "Network  SSID=" << it->SSID.c_str() << " authType=" << it->authType << std::endl;
             }
@@ -330,19 +500,19 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
 
         short resultStatus;
 
-        if ((status = onboardingClient->ConfigureWiFi(busName.c_str(), oBInfo, resultStatus, id)) == ER_OK) {
+        if ((status = onboardingClient->ConfigureWiFi(busName.c_str(), oBInfo, resultStatus, sessionId)) == ER_OK) {
             std::cout << "Call to ConfigureWiFi succeeded " << std::endl;
         } else {
             std::cout << "Call to ConfigureWiFi failed " << QCC_StatusText(status) << std::endl;
         }
 
-        if ((status = onboardingClient->ConnectTo(busName.c_str(), id)) == ER_OK) {
+        if ((status = onboardingClient->ConnectTo(busName.c_str(), sessionId)) == ER_OK) {
             std::cout << "Call to ConnectTo succeeded " << std::endl;
         } else {
             std::cout << "Call to ConnectTo failed " << QCC_StatusText(status) << std::endl;
         }
 
-        if ((status = onboardingClient->OffboardFrom(busName.c_str(), id)) == ER_OK) {
+        if ((status = onboardingClient->OffboardFrom(busName.c_str(), sessionId)) == ER_OK) {
             std::cout << "Call to OffboardFrom succeeded " << std::endl;
         } else {
             std::cout << "Call to OffboardFrom failed " << QCC_StatusText(status) << std::endl;
@@ -350,8 +520,15 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId id)
 
     }
 
-    status = busAttachment->LeaveSession(id);
-    std::cout << "Leaving session id = " << id << " with " << busName.c_str() << " status: " << QCC_StatusText(status) << std::endl;
+    status = busAttachment->LeaveSession(sessionId);
+    std::cout << "Leaving session id = " << sessionId << " with " << busName.c_str() << " status: " << QCC_StatusText(status) << std::endl;
+
+    if (wasClaimed) {
+        status = SecurityUtil::Reset(*busAttachment, busName);
+        if (ER_OK == status) {
+            std::cout << "Reset " << busName << std::endl;
+        }
+    }
 
     if (configClient) {
         delete configClient;
@@ -391,7 +568,35 @@ void announceHandlerCallback(qcc::String const& busName, unsigned short port)
     }
 }
 
+
+bool LoadAdminGroupId(const qcc::String &filename, qcc::GUID128 &guid) {
+    std::ifstream fs;
+    fs.open(filename, std::fstream::binary);
+    if (fs.is_open()) {
+        uint8_t buf[qcc::GUID128::SIZE];
+        fs.read((char*)buf, qcc::GUID128::SIZE);
+        fs.close();
+        guid.SetBytes(buf);
+        return true;
+    }
+    return false;
+}
+
+bool SaveAdminGroupId(const qcc::String &filename, qcc::GUID128 &guid) {
+    std::ofstream fs;
+    fs.open(filename, std::fstream::binary | std::fstream::out | std::fstream::trunc);
+    if (fs.is_open()) {
+        fs.write((const char*)guid.GetBytes(), qcc::GUID128::SIZE);
+        fs.close();
+        return true;
+    }
+    return false;
+}
+
+
 int main(int argc, char**argv, char**envArg) {
+    std::cout << "OnboardingClient - Start" << std::endl;
+
     QCC_UNUSED(argc);
     QCC_UNUSED(argv);
     QCC_UNUSED(envArg);
@@ -407,6 +612,7 @@ int main(int argc, char**argv, char**envArg) {
     QCC_SetLogLevels("ALLJOYN_ABOUT_ANNOUNCE_HANDLER=7");
     QCC_SetLogLevels("ALLJOYN_ABOUT_CLIENT=7");
     QCC_SetLogLevels("ALLJOYN_ABOUT_ICON_CLIENT=7");
+    QCC_SetLogLevels("ALLJOYN_SECURITY=3");
     QCC_SetDebugLevel(logModules::CONFIG_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
     QCC_SetDebugLevel(logModules::ONBOARDING_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
 
@@ -431,14 +637,73 @@ int main(int argc, char**argv, char**envArg) {
         return 1;
     }
 
-    SrpKeyXListener* srpKeyXListener = new SrpKeyXListener();
-    status = busAttachment->EnablePeerSecurity("ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK", srpKeyXListener, "/.alljoyn_keystore/central.ks", true);
+    DefaultECDHEAuthListener* authListener = new DefaultECDHEAuthListener();
 
+    const qcc::String password("1234");
+    authListener->SetPassword((const uint8_t*)password.c_str(), password.length()); // ECDHE_SPEKE
+
+    status = busAttachment->EnablePeerSecurity(AUTH_MECHANISM, authListener, "/.alljoyn_keystore/central.ks", true);
     if (ER_OK == status) {
         std::cout << "EnablePeerSecurity called." << std::endl;
     } else {
         std::cout << "ERROR - EnablePeerSecurity call FAILED with status " << QCC_StatusText(status) << std::endl;
         return 1;
+    }
+
+    // load CA cert and private key or generate new
+    caKeyPair = new qcc::Crypto_ECC;
+    {
+        qcc::ECCPrivateKey privateKey;
+
+        if (CertificateUtil::LoadPrivateKey(CA_KEY_FILENAME, &privateKey) &&
+            CertificateUtil::LoadCertificate(CA_CERT_FILENAME, caCert()) &&
+            LoadAdminGroupId(ADMIN_GUID_FILENAME, adminGuid()))
+        {
+            caKeyPair->SetDSAPublicKey(caCert().GetSubjectPublicKey());
+            caKeyPair->SetDSAPrivateKey(&privateKey);
+
+            std::cout << "Loaded CA certificate " << caCert().ToString() << std::endl;
+            std::cout << "Loaded CA private key " << caKeyPair->GetDSAPrivateKey()->ToString() << std::endl;
+            std::cout << "Loaded admin guid: " << adminGuid().ToString() << std::endl;
+        } else {
+            caKeyPair->GenerateDSAKeyPair();
+            CertificateUtil::GenerateCA(*caKeyPair, caName, caCert());
+
+            CertificateUtil::SaveCertificate(CA_CERT_FILENAME, caCert());
+            CertificateUtil::SavePrivateKey(CA_KEY_FILENAME, caKeyPair->GetDSAPrivateKey());
+            SaveAdminGroupId(ADMIN_GUID_FILENAME, adminGuid());
+        }
+    }
+
+    {
+        PermissionConfigurator::ApplicationState appState;
+        busAttachment->GetPermissionConfigurator().GetApplicationState(appState);
+        std::cout << "application state: " << PermissionConfigurator::ToString(appState) << std::endl;
+
+        if (PermissionConfigurator::ApplicationState::NOT_CLAIMABLE == appState) {
+            std::cout << "*** set manifest ***" << std::endl;
+
+            Manifest manifest;
+            SecurityUtil::GenerateManifest(manifest);
+            std::cout << manifest->ToString() << std::endl;
+
+            std::vector<PermissionPolicy::Rule> rules = manifest->GetRules();
+            busAttachment->GetPermissionConfigurator().SetPermissionManifest(rules.data(), rules.size());
+
+            busAttachment->GetPermissionConfigurator().GetApplicationState(appState);
+            std::cout << "application state: " << PermissionConfigurator::ToString(appState) << std::endl;
+        }
+
+        if (PermissionConfigurator::ApplicationState::CLAIMABLE == appState) {
+            std::cout << "*** claim self ***" << std::endl;
+            qcc::GUID128 identityGuid;
+            if (!claimSelf(caName, caCert(), adminGuid(), identityGuid)) {
+                return 1;
+            }
+
+            busAttachment->GetPermissionConfigurator().GetApplicationState(appState);
+            std::cout << "application state: " << PermissionConfigurator::ToString(appState) << std::endl;
+        }
     }
 
     const char* interfaces[] = { "org.alljoyn.Onboarding" };
@@ -460,13 +725,18 @@ int main(int argc, char**argv, char**envArg) {
 #endif
     }
 
+    busAttachment->EnablePeerSecurity("", NULL, NULL, false);
     busAttachment->CancelWhoImplements(interfaces, sizeof(interfaces) / sizeof(interfaces[0]));
     busAttachment->UnregisterAboutListener(*announceHandler);
 
     busAttachment->Stop();
     delete busAttachment;
-    delete srpKeyXListener;
+    delete authListener;
     delete announceHandler;
+
+    if (caKeyPair != NULL) {
+        delete caKeyPair;
+    }
 
     return 0;
 } /* main() */

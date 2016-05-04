@@ -24,6 +24,8 @@ using namespace services;
 
 #define CHECK_RETURN(x) if ((status = x) != ER_OK) { return status; }
 
+static const char *AUTH_MECHANISM = "ALLJOYN_ECDHE_NULL ALLJOYN_ECDHE_PSK ALLJOYN_ECDHE_SPEKE ALLJOYN_ECDHE_ECDSA";
+
 BusAttachment* CommonSampleUtil::prepareBusAttachment(ajn::AuthListener* authListener)
 {
     BusAttachment* bus = new BusAttachment("CommonServiceApp", true);
@@ -195,6 +197,6 @@ void CommonSampleUtil::aboutServiceDestroy(BusAttachment* bus,
 
 QStatus CommonSampleUtil::EnableSecurity(BusAttachment* bus, AuthListener* authListener)
 {
-    QStatus status = bus->EnablePeerSecurity("ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK", authListener);
+    QStatus status = bus->EnablePeerSecurity(AUTH_MECHANISM, authListener);
     return status;
 }

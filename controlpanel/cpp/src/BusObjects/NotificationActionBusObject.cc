@@ -44,6 +44,7 @@ NotificationActionBusObject::NotificationActionBusObject(BusAttachment* bus, Str
             CHECK_AND_BREAK(bus->CreateInterface(interfaceName.c_str(), m_InterfaceDescription));
             CHECK_AND_BREAK(m_InterfaceDescription->AddProperty(AJ_PROPERTY_VERSION.c_str(), AJPARAM_UINT16.c_str(), PROP_ACCESS_READ));
             CHECK_AND_BREAK(m_InterfaceDescription->AddSignal(AJ_SIGNAL_DISMISS.c_str(), AJPARAM_EMPTY.c_str(), AJPARAM_EMPTY.c_str()));
+            CHECK_AND_BREAK(m_InterfaceDescription->AddMemberAnnotation(AJ_SIGNAL_DISMISS.c_str(), "org.alljoyn.Bus.DocString.En", AJ_SIGNAL_DISMISS_DESC.c_str()));
             m_InterfaceDescription->Activate();
         } while (0);
     }

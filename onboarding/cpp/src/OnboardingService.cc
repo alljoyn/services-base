@@ -58,17 +58,34 @@ QStatus OnboardingService::Register()
         }
 
         CHECK_RETURN(intf->AddMethod("ConfigureWiFi", "ssn", "n", "SSID,passphrase,authType,status", 0));
+        CHECK_RETURN(intf->AddMemberAnnotation("ConfigureWiFi", "org.alljoyn.Bus.DocString.En", "Configure WiFi Now"));
+
         CHECK_RETURN(intf->AddMethod("Connect", NULL, NULL, NULL, 0));
         CHECK_RETURN(intf->AddMemberAnnotation("Connect", org::freedesktop::DBus::AnnotateNoReply, "true"));
+        CHECK_RETURN(intf->AddMemberAnnotation("Connect", "org.alljoyn.Bus.DocString.En", "Connect"));
+
         CHECK_RETURN(intf->AddMethod("Offboard", NULL, NULL, NULL, 0));
         CHECK_RETURN(intf->AddMemberAnnotation("Offboard", org::freedesktop::DBus::AnnotateNoReply, "true"));
+        CHECK_RETURN(intf->AddMemberAnnotation("Offboard", "org.alljoyn.Bus.DocString.En", "Offboard"));
+
         CHECK_RETURN(intf->AddMethod("GetScanInfo", NULL, "qa(sn)", "age,scanList", 0));
+        CHECK_RETURN(intf->AddMemberAnnotation("GetScanInfo", "org.alljoyn.Bus.DocString.En", "Get WiFi Scan Information"));
+
         CHECK_RETURN(intf->AddProperty("LastError", "(ns)", PROP_ACCESS_READ));
+        CHECK_RETURN(intf->AddPropertyAnnotation("LastError", "org.alljoyn.Bus.DocString.En", "Last Error"));
+
         CHECK_RETURN(intf->AddProperty("State", "n", PROP_ACCESS_READ));
+        CHECK_RETURN(intf->AddPropertyAnnotation("State", "org.alljoyn.Bus.DocString.En", "State"));
+
         CHECK_RETURN(intf->AddProperty("Version", "q", PROP_ACCESS_READ));
+        CHECK_RETURN(intf->AddPropertyAnnotation("Version", "org.alljoyn.Bus.DocString.En", "Version"));
+
         CHECK_RETURN(intf->AddSignal("ConnectionResult", "(ns)", "signalArg0", 0));
+        CHECK_RETURN(intf->AddMemberAnnotation("ConnectionResult", "org.alljoyn.Bus.DocString.En", "Connection Result"));
         intf->Activate();
     } //if (!intf)
+
+    std::cout << "**** Onboarding Interface:\n" << intf->Introspect() << std::endl;
 
     //Add the handlers
     CHECK_RETURN(AddInterface(*intf, ANNOUNCED));

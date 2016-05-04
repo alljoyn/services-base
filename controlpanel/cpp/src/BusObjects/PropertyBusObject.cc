@@ -47,6 +47,7 @@ PropertyBusObject::PropertyBusObject(BusAttachment* bus, String const& objectPat
             CHECK_AND_BREAK(addDefaultInterfaceVariables(m_InterfaceDescription));
             CHECK_AND_BREAK(m_InterfaceDescription->AddProperty(AJ_PROPERTY_VALUE.c_str(), AJPARAM_VAR.c_str(), PROP_ACCESS_RW));
             CHECK_AND_BREAK(m_InterfaceDescription->AddSignal(AJ_SIGNAL_VALUE_CHANGED.c_str(), AJPARAM_VAR.c_str(), AJ_PROPERTY_VALUE.c_str(), 0));
+            CHECK_AND_BREAK(m_InterfaceDescription->AddMemberAnnotation(AJ_SIGNAL_VALUE_CHANGED.c_str(), "org.alljoyn.Bus.DocString.En", AJ_SIGNAL_VALUE_CHANGED_DESC.c_str()));
             m_InterfaceDescription->Activate();
         } while (0);
     }

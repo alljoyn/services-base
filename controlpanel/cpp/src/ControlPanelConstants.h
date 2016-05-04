@@ -65,14 +65,19 @@ static const qcc::String AJ_PROPERTY_NUMACTIONS = "NumActions";
 static const qcc::String AJ_PROPERTY_URL = "Url";
 
 static const qcc::String AJ_SIGNAL_PROPERTIES_CHANGED = "MetadataChanged";
+static const qcc::String AJ_SIGNAL_PROPERTIES_CHANGED_DESC = "Metadata Changed";
 static const qcc::String AJ_SIGNAL_VALUE_CHANGED = "ValueChanged";
+static const qcc::String AJ_SIGNAL_VALUE_CHANGED_DESC = "Value Changed";
 static const qcc::String AJ_SIGNAL_DISMISS = "Dismiss";
+static const qcc::String AJ_SIGNAL_DISMISS_DESC = "Dismiss";
 
 static const qcc::String AJ_METHOD_EXECUTE = "Exec";
+static const qcc::String AJ_METHOD_EXECUTE_DESC = "Execute";
 static const qcc::String AJ_METHOD_ACTION1 = "Action1";
 static const qcc::String AJ_METHOD_ACTION2 = "Action2";
 static const qcc::String AJ_METHOD_ACTION3 = "Action3";
 static const qcc::String AJ_METHOD_GETROOTURL = "GetRootURL";
+static const qcc::String AJ_METHOD_GETROOTURL_DESC = "Get Root URL";
 
 static const qcc::String AJPARAM_EMPTY = "";
 static const qcc::String AJPARAM_VAR = "v";

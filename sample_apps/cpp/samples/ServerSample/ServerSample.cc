@@ -21,7 +21,7 @@
 #pragma warning(disable: 4996)
 #endif
 
-#include <SrpKeyXListener.h>
+#include <alljoyn/AuthListener.h>
 #include <CommonSampleUtil.h>
 #include <AboutDataStore.h>
 #include <alljoyn/AboutObj.h>
@@ -57,7 +57,7 @@ using namespace services;
 
 /** static variables need for sample */
 static BusAttachment* msgBus = NULL;
-static SrpKeyXListener* keyListener = NULL;
+static DefaultECDHEAuthListener* authListener = NULL;
 static CommonBusListener* busListener = NULL;
 static AboutIcon* icon = NULL;
 static AboutIconObj* aboutIconObj = NULL;
@@ -95,9 +95,9 @@ static void cleanup()
         AboutObjApi::DestroyInstance();
     }
 
-    if (keyListener) {
-        delete keyListener;
-        keyListener = NULL;
+    if (authListener) {
+        delete authListener;
+        authListener = NULL;
     }
 
     if (aboutIconObj) {
@@ -210,10 +210,13 @@ start:
     std::cout << "Initializing application." << std::endl;
 
     /* Create message bus */
-    keyListener = new SrpKeyXListener();
+    authListener = new DefaultECDHEAuthListener();
+    const char *password = "000000";
+    authListener->SetPassword((const uint8_t*)password, strlen(password));
+
     uint16_t retry = 0;
     do {
-        msgBus = CommonSampleUtil::prepareBusAttachment(keyListener);
+        msgBus = CommonSampleUtil::prepareBusAttachment(authListener);
         if (msgBus == NULL) {
             std::cout << "Could not initialize BusAttachment. Retrying" << std::endl;
 #ifdef _WIN32

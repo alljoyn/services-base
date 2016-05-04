@@ -67,7 +67,14 @@ QStatus WidgetBusObject::addDefaultInterfaceVariables(InterfaceDescription* intf
     CHECK_AND_RETURN(intf->AddProperty(AJ_PROPERTY_OPTPARAMS.c_str(), AJPARAM_ARRAY_DICT_UINT16_VAR.c_str(),
                                        PROP_ACCESS_READ));
 
-    return intf->AddSignal(AJ_SIGNAL_PROPERTIES_CHANGED.c_str(), "", "", 0);
+    status = intf->AddSignal(AJ_SIGNAL_PROPERTIES_CHANGED.c_str(), "", "", 0);
+    if (ER_OK == status) {
+        status = intf->AddMemberAnnotation(AJ_SIGNAL_PROPERTIES_CHANGED.c_str(),
+                                           "org.alljoyn.Bus.DocString.En",
+                                           AJ_SIGNAL_PROPERTIES_CHANGED_DESC.c_str());
+    }
+
+    return status;
 }
 
 QStatus WidgetBusObject::addSignalHandler(BusAttachment* bus)

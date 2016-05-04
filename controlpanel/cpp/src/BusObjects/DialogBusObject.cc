@@ -49,10 +49,13 @@ DialogBusObject::DialogBusObject(BusAttachment* bus, String const& objectPath, u
             CHECK_AND_BREAK(m_InterfaceDescription->AddProperty(AJ_PROPERTY_NUMACTIONS.c_str(), AJPARAM_UINT16.c_str(), PROP_ACCESS_READ));
             CHECK_AND_BREAK(m_InterfaceDescription->AddMethod(AJ_METHOD_ACTION1.c_str(), AJPARAM_EMPTY.c_str(),
                                                               AJPARAM_EMPTY.c_str(), AJPARAM_EMPTY.c_str()));
+            CHECK_AND_BREAK(m_InterfaceDescription->AddMemberAnnotation(AJ_METHOD_ACTION1.c_str(), "org.alljoyn.Bus.DocString.En", AJ_METHOD_ACTION1.c_str()));
             CHECK_AND_BREAK(m_InterfaceDescription->AddMethod(AJ_METHOD_ACTION2.c_str(), AJPARAM_EMPTY.c_str(),
                                                               AJPARAM_EMPTY.c_str(), AJPARAM_EMPTY.c_str()));
+            CHECK_AND_BREAK(m_InterfaceDescription->AddMemberAnnotation(AJ_METHOD_ACTION2.c_str(), "org.alljoyn.Bus.DocString.En", AJ_METHOD_ACTION2.c_str()));
             CHECK_AND_BREAK(m_InterfaceDescription->AddMethod(AJ_METHOD_ACTION3.c_str(), AJPARAM_EMPTY.c_str(),
                                                               AJPARAM_EMPTY.c_str(), AJPARAM_EMPTY.c_str()));
+            CHECK_AND_BREAK(m_InterfaceDescription->AddMemberAnnotation(AJ_METHOD_ACTION3.c_str(), "org.alljoyn.Bus.DocString.En", AJ_METHOD_ACTION3.c_str()));
 
             m_InterfaceDescription->Activate();
         } while (0);

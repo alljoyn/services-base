@@ -54,9 +54,15 @@ NotificationProducer::NotificationProducer(ajn::BusAttachment* bus, QStatus& sta
             return;
         }
 
+        status = m_InterfaceDescription->AddMemberAnnotation(AJ_DISMISS_METHOD_NAME.c_str(), "org.alljoyn.Bus.DocString.En", AJ_DISMISS_METHOD_DESCRIPTION.c_str());
+        if (status != ER_OK) {
+            QCC_LogError(status, ("AddMemberAnnotation failed."));
+            return;
+        }
+
         status = m_InterfaceDescription->AddProperty(AJ_PROPERTY_VERSION.c_str(), AJPARAM_UINT16.c_str(), (uint8_t) PROP_ACCESS_READ);
         if (status != ER_OK) {
-            QCC_LogError(status, ("AddMethod failed."));
+            QCC_LogError(status, ("AddProperty failed."));
             return;
         }
 

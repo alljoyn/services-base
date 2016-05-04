@@ -26,7 +26,7 @@
 
 #include <alljoyn/controlpanel/ControlPanelService.h>
 #include <alljoyn/controlpanel/ControlPanelControllee.h>
-#include <SrpKeyXListener.h>
+#include <alljoyn/AuthListener.h>
 #include <CommonSampleUtil.h>
 #include <ControlPanelGenerated.h>
 #include <alljoyn/services_common/LogModulesNames.h>
@@ -45,7 +45,7 @@ CommonBusListener* controlpanelBusListener = 0;
 BusAttachment* bus = 0;
 ControlPanelService* controlPanelService = 0;
 ControlPanelControllee* controlPanelControllee = 0;
-SrpKeyXListener* srpKeyXListener = 0;
+DefaultECDHEAuthListener* authListener = 0;
 
 static volatile sig_atomic_t s_interrupt = false;
 static volatile sig_atomic_t s_restart = false;
@@ -80,9 +80,9 @@ void cleanup()
         delete controlPanelService;
         controlPanelService = NULL;
     }
-    if (srpKeyXListener) {
-        delete srpKeyXListener;
-        srpKeyXListener = NULL;
+    if (authListener) {
+        delete authListener;
+        authListener = NULL;
     }
     if (aboutData) {
         delete aboutData;
@@ -128,12 +128,14 @@ start:
     controlPanelService = ControlPanelService::getInstance();
     QCC_SetDebugLevel(logModules::CONTROLPANEL_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
 
-    srpKeyXListener = new SrpKeyXListener();
+    authListener = new DefaultECDHEAuthListener();
+    const char *password = "000000";
+    authListener->SetPassword((const uint8_t*)password, strlen(password));
 
     /* Connect to the daemon */
     uint16_t retry = 0;
     do {
-        bus = CommonSampleUtil::prepareBusAttachment(srpKeyXListener);
+        bus = CommonSampleUtil::prepareBusAttachment(authListener);
         if (bus == NULL) {
             std::cout << "Could not initialize BusAttachment. Retrying" << std::endl;
 #ifdef _WIN32

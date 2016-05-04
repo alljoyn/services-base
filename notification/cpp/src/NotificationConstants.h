@@ -89,6 +89,7 @@ static const qcc::String AJ_SESSIONLESS_MATCH = "sessionless='t'";
 static const qcc::String AJ_NOTIFICATION_PRODUCER_INTERFACE = "org.alljoyn.Notification.Producer";
 static const qcc::String AJ_NOTIFICATION_PRODUCER_PATH = "/notificationProducer";
 static const qcc::String AJ_DISMISS_METHOD_NAME = "Dismiss";
+static const qcc::String AJ_DISMISS_METHOD_DESCRIPTION = "Dismiss notification";
 static const qcc::String AJ_DISMISS_METHOD_PARAMS = "i";
 static const qcc::String AJ_DISMISS_METHOD_PARAMS_NAMES = "msgId";
 
