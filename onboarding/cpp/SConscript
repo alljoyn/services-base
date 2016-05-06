@@ -37,7 +37,9 @@ if onb_env['BUILD_SERVICES_SAMPLES'] == 'on':
     onb_env.Install('$ONBOARDING_DISTDIR/bin', onb_env.SConscript('samples/SConscript', exports = ['onb_env']))
 
 # onboarding-daemon
-onb_env.Install('$ONBOARDING_DISTDIR/bin', onb_env.SConscript('src/OnboardingDaemon/SConscript', exports = ['onb_env']))
+# The onboarding daemon does not have support for darwin or android, so don't build it on those platforms
+if (onb_env['OS'] != 'darwin') and (onb_env['OS'] != 'android'):
+    onb_env.Install('$ONBOARDING_DISTDIR/bin', onb_env.SConscript('src/OnboardingDaemon/SConscript', exports = ['onb_env']))
 
 # Build docs
 installDocs = onb_env.SConscript('docs/SConscript', exports = ['onb_env'])
