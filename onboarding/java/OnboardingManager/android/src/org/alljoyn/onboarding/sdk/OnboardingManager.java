@@ -1460,6 +1460,7 @@ public class OnboardingManager implements AboutListener {
         }
         setState(State.IDLE);
         onboardingSDKWifiManager.enableAllWifiNetworks();
+        onboardingSDKWifiManager.removeWifiAP(onboardingConfiguration.getOnboardee().getSSID());
     }
 
     /**
