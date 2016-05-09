@@ -33,11 +33,6 @@ if '_CONTROLPANEL_' in local_env["CPPDEFINES"] :
     eventsAndActionsObjs = local_env.Object(eventsAndActionsSrc)
     objs.extend(eventsAndActionsObjs)
 
-if '_ONBOARDING_' in local_env["CPPDEFINES"] :
-    onboardingSrcs = 'OnboardingControllerImpl.cc'
-    onboardingObjs = local_env.Object(onboardingSrcs)
-    objs.extend(onboardingObjs)
-
 local_env.Install('$SAMPLE_APPS_DISTDIR/bin', 'Factory.conf')
 local_env.Install('$SAMPLE_APPS_DISTDIR/bin', 'Server.conf')
 prog = local_env.Program('ACServerSample', objs)

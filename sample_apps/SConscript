@@ -26,15 +26,10 @@ if 'java' in env['bindings']:
 
 if int(build_all):
     build_notification = 1
-    build_cps          = 0
-    if not 'cpp' in env['bindings']:
-        build_onboarding = 1
-    else:
-        build_onboarding = 0
+    build_cps          = 1
 else:
     build_notification = int(ARGUMENTS.get('NOTIFICATION', 0))
-    build_cps          = 0
-    build_onboarding   = int(ARGUMENTS.get('ONBOARDING',   0))
+    build_cps          = int(ARGUMENTS.get('CONTROLPANEL', 0))
 
 env.Append(CPPDEFINES = 'NEED_DATA_STORE')
 
@@ -50,11 +45,6 @@ if build_cps:
     env.Append(CPPDEFINES = '_CONTROLPANEL_')
     if not env.has_key('_ALLJOYN_CONTROLPANEL_') and os.path.exists('../controlpanel/SConscript'):
         env.SConscript('../controlpanel/SConscript')
-
-if build_onboarding:
-    env.Append(CPPDEFINES = '_ONBOARDING_')
-    if not env.has_key('_ALLJOYN_ONBOARDING_') and os.path.exists('../onboarding/SConscript'):
-        env.SConscript('../onboarding/SConscript')
 
 if 'cpp' in env['bindings'] and not env.has_key('_ALLJOYNCORE_') and not env.has_key('ALLJOYN_DISTDIR') and os.path.exists('../../../core/alljoyn/alljoyn_core/SConscript'):
     env.SConscript('../../../core/alljoyn/alljoyn_core/SConscript')
