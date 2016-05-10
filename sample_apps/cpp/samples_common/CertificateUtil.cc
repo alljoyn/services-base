@@ -20,12 +20,40 @@
 #include <fstream>
 #include <streambuf>
 #include <cassert>
-#include <qcc/Crypto.h>
+#include <qcc/time.h>
+#include <algorithm>
 
 using namespace qcc;
 using namespace ajn;
 
 const size_t SERIAL_NUMBER_LENGTH = 20; // RFC 5280 4.1.2.2
+
+/**
+ * Generate random bytes and deposit them in the provided buffer.
+ *
+ * Copied from alljoyn/alljoyn_core/samples/secure/SampleCertificateUtility.cc
+ */
+static QStatus Crypto_GetRandomBytes(uint8_t* buf, const size_t count)
+{
+    /* Getting good randomness is highly platform-dependent. To keep this sample simple,
+     * we will acquire it by generating one or more ECC keys and using the private key for
+     * the randomness. */
+    QStatus status = ER_OK;
+    Crypto_ECC ecc;
+
+    size_t i = 0;
+    while (i < count) {
+        status = ecc.GenerateDSAKeyPair();
+        if (ER_OK != status) {
+            return status;
+        }
+        const ECCPrivateKey* key = ecc.GetDSAPrivateKey();
+        memcpy(buf + i, key->GetD(), std::min(count - i, key->GetDSize()));
+        i += std::min(count - i, key->GetDSize());
+    }
+
+    return status;
+}
 
 void CertificateUtil::GenerateIdentityCertificate(const ECCPublicKey &publicKey,
                                                   const GUID128 identityGuid,
