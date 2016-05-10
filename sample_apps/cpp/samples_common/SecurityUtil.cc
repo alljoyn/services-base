@@ -18,7 +18,7 @@
 
 #include <iostream>
 #include <assert.h>
-#include <qcc/Crypto.h>
+#include <alljoyn/AllJoynStd.h>
 #include <alljoyn/PermissionPolicy.h>
 #include <alljoyn/SecurityApplicationProxy.h>
 

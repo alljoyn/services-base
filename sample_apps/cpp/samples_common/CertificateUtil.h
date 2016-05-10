@@ -19,12 +19,10 @@
 
 #include <qcc/CryptoECC.h>
 #include <qcc/CertificateECC.h>
-#include <qcc/KeyInfoECC.h>
 #include <qcc/String.h>
 #include <qcc/GUID.h>
-#include <alljoyn/AllJoynStd.h>
-#include <alljoyn/BusAttachment.h>
 #include <alljoyn/Status.h>
+#include <alljoyn/PermissionPolicy.h>
 
 class CertificateUtil {
 public:

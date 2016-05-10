@@ -22,6 +22,7 @@
 #include <cassert>
 #include <signal.h>
 
+#include <alljoyn/AllJoynStd.h>
 #include <alljoyn/config/ConfigClient.h>
 #include <alljoyn/onboarding/OnboardingClient.h>
 

@@ -19,15 +19,12 @@
 
 #include <vector>
 
-#include <qcc/CryptoECC.h>
 #include <qcc/CertificateECC.h>
 #include <qcc/KeyInfoECC.h>
 #include <qcc/String.h>
 #include <qcc/GUID.h>
-#include <alljoyn/AllJoynStd.h>
 #include <alljoyn/BusAttachment.h>
 #include <alljoyn/Status.h>
-#include <alljoyn/Init.h>
 
 class SecurityUtil {
 public:
