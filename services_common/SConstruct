@@ -14,15 +14,21 @@
 
 import os
 
-env = SConscript('../../../core/alljoyn/build_core/SConscript')
+env = SConscript('../build_core/SConscript')
 
 vars = Variables()
 vars.Add('BINDINGS', 'Bindings to build (comma separated list): cpp, java', 'cpp,java')
 vars.Add(PathVariable('ALLJOYN_DISTDIR',
                       'Directory containing a built AllJoyn Core dist directory.',
                       os.environ.get('ALLJOYN_DISTDIR')))
+
 vars.Update(env)
 Help(vars.GenerateHelpText(env))
+
+if '' == env.subst('$ALLJOYN_DISTDIR'):
+   print 'ALLJOYN_DISTDIR variable is required'
+   if not GetOption('help'):
+      Exit(1)
 
 if env.get('ALLJOYN_DISTDIR'):
     # normalize ALLJOYN_DISTDIR first
