@@ -16,6 +16,8 @@
 
 package org.alljoyn.onboarding;
 
+import java.lang.NoSuchFieldException;
+import java.lang.SecurityException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +58,8 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 import android.util.Pair;
+import android.os.Bundle;
+
 
 /**
  * Impements the Server side of OnboardingService
@@ -123,6 +127,14 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
     // the Personal AP authentication type
     public short m_authType;
 
+    // String to indicate that stopping the softAP failed
+    public static final String STOP_SOFTAP_FAILED = "org.alljoyn.onboarding.sample.STOP_SOFTAP_FAILED";
+
+    // String to indicated that enabling the wifi service failed
+    public static final String ENABLE_WIFI_FAILED = "org.alljoyn.onboarding.sample.ENABLE_WIFI_FAILED";
+
+    // String to be used as bundle key for a message indicating why a failure occurred.
+    public static final String CONNECTION_FAILURE_REASON = "org.alljoyn.onboarding.sample.CONNECTION_FAILURE_REASON";
 
     private final MODE mode = MODE.BASIC;//MODE.FAST_CHANNEL_SWITCHING;
 
@@ -226,20 +238,10 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
         loadNetworkId();
 
         // stop tethering mode, enable wifi, get scan results, than enter tethering mode and disable wifi again.
-        stopSoftAp();
+        tryStopSoftAp();
 
-        // wait... Android brings it down...
-        Log.d(TAG, "validate: waiting for 2 seconds");
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        m_wifi.setWifiEnabled(true);
-
-        // wait... Android brings it up...
-        Thread.sleep(2000);
+        // enable the wifi service
+        tryEnableWifi();
 
         // register for WiFi events
         registerWifiReceiver(m_context);
@@ -368,7 +370,7 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
     /**
      * Factory reset. Return to soft AP mode
      */
-    public void reset(){
+    public void reset() {
         setState(OnboardingState.PERSONAL_AP_NOT_CONFIGURED);
         initialize();
     }
@@ -377,31 +379,10 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
      * The board connects to personal AP for validating the personal AP credentials
      */
     public void validate() {
-
-        // Disconnect from caller here
-        stopSoftAp();
-
-        Log.d(TAG, "validate: waiting for 2 seconds");
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        // enable WiFi again
-        m_wifi.setWifiEnabled(true);
-
-        Log.d(TAG, "validate: waiting for 5 seconds");
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        tryStopSoftAp();
+        tryEnableWifi();
 
         // set the WiFi configuration
-
         AuthType authenticationType = AuthType.getAuthTypeById(m_authType);
         m_networkId = -1;
 
@@ -496,7 +477,7 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
             return;
         }
         Log.d(TAG, "connectToWifiAP calling connect");
-        connect(wifiConfiguration, m_networkId, 30*1000);
+        connect(wifiConfiguration, m_networkId, 30 * 1000);
 
     }
 
@@ -550,39 +531,147 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
         m_wifi.setWifiEnabled(true);
     }
 
+    /**
+     * Generic helper function to invoke a method name on an object if it exists.
+     * @param methodName
+     * @param obj
+     * @param args
+     * @return <T> T what invoking method "methodName" would normally return
+     */
+    private <T> T invokeMethodOnObject(String methodName, Object obj, Object... args) {
+        Method[] methods = obj.getClass().getDeclaredMethods();
+        for (Method method : methods) {
+            if (method.getName().equals(methodName)) {
+                try {
+                    return (T)method.invoke(obj, args);
+                } catch (Exception ex) {
+                    Log.e(TAG, "Exception calling method " + methodName + " on object " + obj.toString() + ": " + ex.getMessage());
+                }
+                break;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Stopping the softAP returns instantly but may not be disabled immediately,
+     * therefore this function waits and tests that the softAP has been disabled before returning.
+     */
+    private void tryStopSoftAp() {
+        int WIFI_AP_STATE_DISABLED, WIFI_AP_STATE_DISABLING;
+        int retries = 0;
+        int maxRetries = 10;
+
+        try{
+            WIFI_AP_STATE_DISABLED = m_wifi.getClass().getDeclaredField("WIFI_AP_STATE_DISABLED").getInt(null);
+            WIFI_AP_STATE_DISABLING = m_wifi.getClass().getDeclaredField("WIFI_AP_STATE_DISABLING").getInt(null);
+        } catch (Exception e) {
+            Log.e(TAG, "Unable to access the WifiManager hidden field constants: " + e.getMessage());
+            Bundle bundle = new Bundle();
+            bundle.putString(CONNECTION_FAILURE_REASON, "Unable to access Android WifiManager hidden field constants");
+            sendBroadcast(STOP_SOFTAP_FAILED, bundle);
+            return;
+        }
+
+        int wifiApState;
+        while ((wifiApState = getSoftApState()) != WIFI_AP_STATE_DISABLED) {
+            if (retries >= maxRetries) {
+                Log.i(TAG, "max retries reached for stopping softAp");
+                Bundle bundle = new Bundle();
+                bundle.putString(CONNECTION_FAILURE_REASON, "max retries reached for stopping softAp");
+                sendBroadcast(STOP_SOFTAP_FAILED, bundle);
+                return;
+            }
+
+            // Disconnect from caller here - fail safe, invoke again
+            if( wifiApState != WIFI_AP_STATE_DISABLING) {
+                stopSoftAp();
+            }
+
+            try {
+                Log.d(TAG, "waiting for 2 seconds");
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                Log.d(TAG, "sleeping thread interrupted, exception was: " + e.getMessage());
+                e.printStackTrace();
+            }
+
+            retries++;
+        }
+    }
+
+    /**
+     * Enabling wifi via setWifiEnabled always returns instantly but wifi is not enabled immediately,
+     * therefore this function waits and tests that the wifi has been enabled before returning.
+     */
+    private void tryEnableWifi() {
+        int retries = 0;
+        int maxRetries = 10;
+
+        while (!m_wifi.isWifiEnabled()) {
+            if (retries >= maxRetries) {
+                Log.i(TAG, "max retries reached for enabling wifi");
+                Bundle bundle = new Bundle();
+                bundle.putString(CONNECTION_FAILURE_REASON, "max retries reached for enabling wifi");
+                sendBroadcast(ENABLE_WIFI_FAILED, bundle);
+                return;
+            }
+
+            // enable WiFi again - fail safe, invoke again
+            if(m_wifi.getWifiState() != WifiManager.WIFI_STATE_ENABLING){
+                boolean wifiEnabled = m_wifi.setWifiEnabled(true);
+                Log.d(TAG, "wifiEnabled: " + wifiEnabled);
+                if (!wifiEnabled) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString(CONNECTION_FAILURE_REASON, "Android WifiManager setWifiEnabled method returned false");
+                    sendBroadcast(ENABLE_WIFI_FAILED, bundle);
+                    return;
+                }
+            }
+
+            try {
+                Log.d(TAG, "waiting 5 seconds for wifi to be enabled");
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                Log.d(TAG, "sleeping thread interrupted, exception was: " + e.getMessage());
+                e.printStackTrace();
+            }
+
+            retries++;
+        }
+    }
+
+    /**
+     * Helper method to send broadcasts.
+     */
+    private void sendBroadcast(String action, Bundle extras) {
+        Intent intent = new Intent(action);
+        if (extras != null && !extras.isEmpty()) {
+            intent.putExtras(extras);
+        }
+        m_context.sendBroadcast(intent);
+    }
 
     /**
      * Start the AP mode.
      */
     private void startSoftAp() {
         m_wifi.setWifiEnabled(false);
-
-        Method[] methods = m_wifi.getClass().getDeclaredMethods();
-        for (Method method : methods) {
-            if (method.getName().equals("setWifiApEnabled")) {
-                try {
-                    method.invoke(m_wifi, null, true);
-                } catch (Exception ex) {
-                }
-                break;
-            }
-        }
+        invokeMethodOnObject("setWifiApEnabled", m_wifi, null, true);
     }
 
     /**
      * Stop the AP mode.
      */
     public void stopSoftAp() {
-        Method[] methods = m_wifi.getClass().getDeclaredMethods();
-        for (Method method : methods) {
-            if (method.getName().equals("setWifiApEnabled")) {
-                try {
-                    method.invoke(m_wifi, null, false);
-                } catch (Exception ex) {
-                }
-                break;
-            }
-        }
+        invokeMethodOnObject("setWifiApEnabled", m_wifi, null, false);
+    }
+
+    /**
+     * Get the AP state.
+     */
+    public int getSoftApState() {
+        return ((Integer)invokeMethodOnObject("getWifiApState", m_wifi)).intValue();
     }
 
     /**

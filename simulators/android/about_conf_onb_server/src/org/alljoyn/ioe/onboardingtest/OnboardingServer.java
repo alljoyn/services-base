@@ -17,6 +17,7 @@ package org.alljoyn.ioe.onboardingtest;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.Override;
 import java.util.Map;
 import java.io.ByteArrayOutputStream;
 
@@ -45,13 +46,18 @@ import org.alljoyn.services.common.PropertyStore;
 import org.alljoyn.services.common.utils.GenericLogger;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.BroadcastReceiver;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * The OnboardingServer is a board simulator written for Android.
@@ -78,7 +84,10 @@ public class OnboardingServer extends Service implements AuthPasswordHandler, Se
 
     // the password for secured sessions
     private char[] m_myPass;
-    
+
+    // receive broadcasts indicating network state
+    private BroadcastReceiver m_broadcastReceiver;
+
     //Supported Authentication mechanisms
     private static final String[] AUTH_MECHANISMS = new String[]{"ALLJOYN_SRP_KEYX", "ALLJOYN_ECDHE_PSK"};
     
@@ -119,6 +128,25 @@ public class OnboardingServer extends Service implements AuthPasswordHandler, Se
 
         // initialize the state machine
         m_asyncHandler.sendEmptyMessage(AsyncHandler.CONNECT);
+
+        m_broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+                Bundle extras = intent.getExtras();
+                if (action.equals(OnboardingServiceImpl.ENABLE_WIFI_FAILED)) {
+                    showToast(extras.getString(OnboardingServiceImpl.CONNECTION_FAILURE_REASON), Toast.LENGTH_LONG);
+                }
+                else if (action.equals(OnboardingServiceImpl.STOP_SOFTAP_FAILED)) {
+                    showToast(extras.getString(OnboardingServiceImpl.CONNECTION_FAILURE_REASON), Toast.LENGTH_LONG);
+                }
+            }
+        };
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(OnboardingServiceImpl.ENABLE_WIFI_FAILED);
+        filter.addAction(OnboardingServiceImpl.STOP_SOFTAP_FAILED);
+        registerReceiver(m_broadcastReceiver, filter);
     }
 
     /* (non-Javadoc)
@@ -142,6 +170,8 @@ public class OnboardingServer extends Service implements AuthPasswordHandler, Se
         // Disconnect to prevent any resource leaks
         m_asyncHandler.shutdown();
         m_asyncHandler.getLooper().quit();
+
+        unregisterReceiver(m_broadcastReceiver);
 
         super.onDestroy();
 
@@ -410,7 +440,13 @@ public class OnboardingServer extends Service implements AuthPasswordHandler, Se
     public void showToast(String text)
     {
         System.out.println(text);
-        //      Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
+    }
+
+    public void showToast(String text, int length)
+    {
+        System.out.println(text);
+        Toast.makeText(this, text, length).show();
     }
 
     private String bindSessionPort(final short port)
