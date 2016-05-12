@@ -16,6 +16,8 @@
 
 package org.alljoyn.onboarding.test;
 
+import org.alljoyn.onboarding.sdk.OnboardingManager;
+
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -46,6 +48,7 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 
 /**
@@ -68,7 +71,8 @@ public class ScanWIFIActivity extends ListActivity {
 	private ProgressDialog m_loadingPopup;
 	// Dialog dismiss timer
 	private Timer m_timer;
-	private BroadcastReceiver m_receiver; 
+	private BroadcastReceiver m_receiver;
+	private BroadcastReceiver platformReceiver;
 	
 	//=================================================================================
     /* (non-Javadoc)
@@ -94,6 +98,7 @@ public class ScanWIFIActivity extends ListActivity {
 	@Override
 	protected void onStart(){		
 		super.onStart();
+
 		m_scanWIFIButton = (Button)findViewById(R.id.scan_wifi);		
 		m_scanWIFIButton.setOnClickListener(new OnClickListener() {			
 			@Override
@@ -127,6 +132,20 @@ public class ScanWIFIActivity extends ListActivity {
 				}, "AJ_"); 
 			}					
 		});
+
+		platformReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				if (OnboardingManager.MARSHMALLOW_SOFTAP_CONNECT.equals(intent.getAction())){
+					Log.d(TAG, "Display marshmallow softAP connect toast");
+					Toast toast = Toast.makeText(getApplicationContext(), "Android Marshmallow will not update network settings.", Toast.LENGTH_LONG);
+					toast.show();
+				}
+			}
+		};
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(OnboardingManager.MARSHMALLOW_SOFTAP_CONNECT);
+		registerReceiver(platformReceiver, filter);
 	}
 	
     //=================================================================================
