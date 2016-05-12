@@ -43,7 +43,8 @@
 #include <alljoyn/BusAttachment.h>
 #include <alljoyn/AboutIconProxy.h>
 #include <alljoyn/version.h>
-#include <alljoyn/SecurityApplicationProxy.h>
+//#include <alljoyn/SecurityApplicationProxy.h>
+#include <SecurityApplicationProxy_FIXED_CORE_HEADER.h>
 #include <qcc/Log.h>
 #include <qcc/GUID.h>
 #include <qcc/KeyInfoECC.h>

@@ -20,11 +20,18 @@
 #include <fstream>
 #include <streambuf>
 #include <cassert>
-#include <qcc/time.h>
 #include <algorithm>
 
 using namespace qcc;
 using namespace ajn;
+
+
+// HACK: qcc::GetEpochTimestamp()
+//
+// forward declared to avoid inclusion of private core header qcc/time.h
+namespace qcc {
+    extern uint64_t GetEpochTimestamp();
+}
 
 const size_t SERIAL_NUMBER_LENGTH = 20; // RFC 5280 4.1.2.2
 
