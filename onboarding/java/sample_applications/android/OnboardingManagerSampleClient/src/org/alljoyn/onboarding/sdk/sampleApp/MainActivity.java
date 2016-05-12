@@ -319,6 +319,7 @@ public class MainActivity extends Activity {
         View networkCredentialsLayout = inflater.inflate(R.layout.connect_to_network_layout, null);
         final EditText ssidEditText = (EditText) networkCredentialsLayout.findViewById(R.id.network_credentials_ssid_editText);
         final EditText passwordEditText = (EditText) networkCredentialsLayout.findViewById(R.id.network_credentials_password_editText);
+        final CheckBox networkHidden = (CheckBox) networkCredentialsLayout.findViewById(R.id.network_hidden);
         final Spinner authTypeSpinner = (Spinner) networkCredentialsLayout.findViewById(R.id.network_credentials_layout_authType_spinner);
         final EditText timeoutEditText = (EditText) networkCredentialsLayout.findViewById(R.id.network_credentials_timeout_editText);
         timeoutEditText.setText(String.valueOf(OnboardingManager.DEFAULT_WIFI_CONNECTION_TIMEOUT));
@@ -343,7 +344,7 @@ public class MainActivity extends Activity {
                 AuthType authType = AuthType.valueOf((String) authTypeSpinner.getSelectedItem());
                 int timeout = Integer.valueOf(timeoutEditText.getText().toString());
 
-                WiFiNetworkConfiguration wifi = new WiFiNetworkConfiguration(ssid, authType, password);
+                WiFiNetworkConfiguration wifi = new WiFiNetworkConfiguration(ssid, authType, password, networkHidden.isChecked());
                 try {
                     OnboardingManager.getInstance().connectToNetwork(wifi, timeout);
                 } catch (WifiDisabledException e) {
