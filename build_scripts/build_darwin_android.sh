@@ -170,6 +170,10 @@ for SERVICE in ${SERVICES[@]}; do
 				echo "Copy of alljoyn_onboarding.jar failed" 
 				exit 10
 			}
+            cp ../../../OnboardingManager/android/build/deploy/alljoyn_onboarding_manager.jar libs/ || { 
+    			echo "Copy of alljoyn_onboarding_manager.jar failed" 
+    			exit 10
+		    }
 			;;
 	esac
 

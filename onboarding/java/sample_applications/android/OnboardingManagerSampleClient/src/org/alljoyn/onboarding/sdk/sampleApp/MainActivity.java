@@ -53,6 +53,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 /**
  * Test the onboardingSDK functionality.
@@ -78,7 +79,8 @@ public class MainActivity extends Activity {
     /**
      * Listen to the two main OnboardingManager Intents. Log intents with the
      * action "OnboardingManager.STATE_CHANGE_ACTION" in a list Display alert
-     * dialog for intents with the action "OnboardingManager.ERROR".
+     * dialog for intents with the action "OnboardingManager.ERROR". Additionally, listen
+     * for intent that marshmallow network code is running and that some features will be unavailable.
      */
     private final BroadcastReceiver mainReceiver = new BroadcastReceiver() {
         @Override
@@ -107,6 +109,11 @@ public class MainActivity extends Activity {
             } else if (intent.getAction().equals(OnboardingManager.ERROR)) {
 
                 showErrorMessage(getString(R.string.error), intentString);
+            }
+            else if (intent.getAction().equals(OnboardingManager.MARSHMALLOW_SOFTAP_CONNECT)){
+                Log.d(TAG, "Display marshmallow softAP connect toast");
+                Toast toast = Toast.makeText(getApplicationContext(), "Android Marshmallow will not update network settings.", Toast.LENGTH_LONG);
+                toast.show();
             }
         }
     };
@@ -226,11 +233,11 @@ public class MainActivity extends Activity {
         logListAdapter = new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_list_item_1);
 
         // Creates new IntentFilter and add two main OnboardingManager Actions
-        // to
-        // it.
+        // to it. Also include detection for marshmallow specific flow.
         mainFilter = new IntentFilter();
         mainFilter.addAction(OnboardingManager.STATE_CHANGE_ACTION);
         mainFilter.addAction(OnboardingManager.ERROR);
+        mainFilter.addAction(OnboardingManager.MARSHMALLOW_SOFTAP_CONNECT);
     }
 
     @Override

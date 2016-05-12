@@ -130,22 +130,22 @@ public class OnboardingManager implements AboutListener {
     /**
      * Activity Action:WIFI has been connected
      */
-    static final String WIFI_CONNECTED_BY_REQUEST_ACTION = "org.alljoyn.onboardingsdk.wifi.connection_by_request";
+    public static final String WIFI_CONNECTED_BY_REQUEST_ACTION = "org.alljoyn.onboardingsdk.wifi.connection_by_request";
 
     /**
      * Activity Action:WIFI connection has timed out
      */
-    static final String WIFI_TIMEOUT_ACTION = "org.alljoyn.onboardingsdk.wifi.time_out";
+    public static final String WIFI_TIMEOUT_ACTION = "org.alljoyn.onboardingsdk.wifi.time_out";
 
     /**
      * Activity Action:WIFI authentication has occurred
      */
-    static final String WIFI_AUTHENTICATION_ERROR = "org.alljoyn.onboardingsdk.wifi.authentication_error";
+    public static final String WIFI_AUTHENTICATION_ERROR = "org.alljoyn.onboardingsdk.wifi.authentication_error";
 
     /**
      * The lookup key for WifiConfiguration details after connection request.
      */
-    static final String EXTRA_WIFI_WIFICONFIGURATION = "org.alljoyn.intent_keys.WifiConfiguration";
+    public static final String EXTRA_WIFI_WIFICONFIGURATION = "org.alljoyn.intent_keys.WifiConfiguration";
 
     /**
      * The lookup key for list of onboardee access points
@@ -217,6 +217,11 @@ public class OnboardingManager implements AboutListener {
      * Activity Action: indicates error encountered by the SDK
      */
     public static final String ERROR = "org.alljoyn.onboardingsdk.error";
+
+    /**
+     * Activity Action: indicates that the user is connecting to the softAP via android Marshmallow and some features may be unavailable.
+     */
+    public static final String MARSHMALLOW_SOFTAP_CONNECT = "org.alljoyn.onboardingsdk.marshmallow_softap_connect";
 
     /**
      * These enumeration values are used to indicate possible errors
