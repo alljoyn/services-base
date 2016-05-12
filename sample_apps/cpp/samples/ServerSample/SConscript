@@ -35,6 +35,6 @@ if '_CONTROLPANEL_' in local_env["CPPDEFINES"] :
 
 local_env.Install('$SAMPLE_APPS_DISTDIR/bin', 'Factory.conf')
 local_env.Install('$SAMPLE_APPS_DISTDIR/bin', 'Server.conf')
-prog = local_env.Program('ACServerSample', objs)
+prog = local_env.Program('ServerSample', objs)
 
 Return('prog')
