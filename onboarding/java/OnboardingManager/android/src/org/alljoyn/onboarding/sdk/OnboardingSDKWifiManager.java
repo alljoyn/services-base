@@ -445,8 +445,15 @@ class OnboardingSDKWifiManager {
      */
     void connectToWifiAP(String ssid, AuthType authType, String password, boolean isHidden,long connectionTimeout) {
         //21 = android.os.Build.VERSION_CODES.LOLLIPOP
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
+        if (android.os.Build.VERSION.SDK_INT >= 21 && android.os.Build.VERSION.SDK_INT < 23) {
             lollipop_connectToWifiAP(ssid, authType, password, isHidden, connectionTimeout);
+            return;
+        }
+        //23 = android.os.Build.VERSION_CODES.MARSHMALLOW
+        else if (android.os.Build.VERSION.SDK_INT >= 23) {
+            marshmallow_connectToWifiAP(ssid, authType, password, isHidden, connectionTimeout);
+            sendBroadcast(OnboardingManager.MARSHMALLOW_SOFTAP_CONNECT, null);
+            Log.d(TAG, "send broadcast message that the marshmallow softAP connect flow has executed");
             return;
         }
         Log.d(TAG, "connectToWifiAP SSID = " + ssid + " authtype = " + authType.toString()+ " is hidden = "+ isHidden);
@@ -609,7 +616,7 @@ class OnboardingSDKWifiManager {
         if (wifiConfig!=null){
             // 21 = android.os.Build.VERSION_CODES.LOLLIPOP
             if (android.os.Build.VERSION.SDK_INT >= 21) {
-                lillipop_connect(wifiConfig,wifiConfig.networkId,timeout);
+                lollipop_connect(wifiConfig, wifiConfig.networkId, timeout);
             } else {
                 connect(wifiConfig,wifiConfig.networkId,timeout);
             }
@@ -916,7 +923,7 @@ class OnboardingSDKWifiManager {
      *
      */
     private void lollipop_connectToWifiAP(String ssid, AuthType authType, String password, boolean isHidden,long connectionTimeout) {
-        Log.d(TAG, "lollipop_connectToWifiAP SSID = " + ssid + " authtype = " + authType.toString()+ " is hidden = "+ isHidden);
+        Log.d(TAG, "lollipop_connectToWifiAP SSID = " + ssid + " authtype = " + authType.toString() + " is hidden = " + isHidden);
 
         // if networkPass is null set it to ""
         if (password == null) {
@@ -1044,9 +1051,8 @@ class OnboardingSDKWifiManager {
             return;
         }
 
-        lillipop_connect(wifiConfiguration, wifiConfiguration.networkId, connectionTimeout);
+        lollipop_connect(wifiConfiguration, wifiConfiguration.networkId, connectionTimeout);
     }
-
 
     /**
      * Make the actual connection to the requested Wi-Fi target.
@@ -1058,8 +1064,8 @@ class OnboardingSDKWifiManager {
      * @param timeoutMsec
      *            period of time in Msec to complete Wi-Fi connection task
      */
-    private void lillipop_connect(final WifiConfiguration wifiConfig, final int networkId, final long timeoutMsec) {
-        Log.i(TAG, "lillipop_connect  SSID=" + wifiConfig.SSID + " within " + timeoutMsec);
+    private void lollipop_connect(final WifiConfiguration wifiConfig, final int networkId, final long timeoutMsec) {
+        Log.i(TAG, "lollipop_connect  SSID=" + wifiConfig.SSID + " within " + timeoutMsec);
         boolean res;
 
 
@@ -1071,7 +1077,7 @@ class OnboardingSDKWifiManager {
         wifiTimeoutTimer.schedule(new TimerTask() {
             @Override
             public void run() {
-                Log.e(TAG, "lillipop_connect Network Listener WIFI_TIMEOUT  when trying to connect to " + normalizeSSID(targetWifiConfiguration.SSID));
+                Log.e(TAG, "lollipop_connect Network Listener WIFI_TIMEOUT  when trying to connect to " + normalizeSSID(targetWifiConfiguration.SSID));
                 Bundle extras = new Bundle();
                 extras.putParcelable(OnboardingManager.EXTRA_WIFI_WIFICONFIGURATION, wifiConfig);
                 sendBroadcast(OnboardingManager.WIFI_TIMEOUT_ACTION, extras);
@@ -1079,7 +1085,7 @@ class OnboardingSDKWifiManager {
         }, timeoutMsec);
 
         res = wifi.disconnect();
-        Log.d(TAG, "lillipop_connect disconnect  status=" + res);
+        Log.d(TAG, "lollipop_connect disconnect  status=" + res);
 
         if ( !wifi.isWifiEnabled() ) {
             wifi.setWifiEnabled(true);
@@ -1093,11 +1099,150 @@ class OnboardingSDKWifiManager {
         // disabled.
         // The recovery for that is enableAllWifiNetworks method.
         res = wifi.enableNetwork(networkId, true);
-        Log.d(TAG, "lillipop_connect enableNetwork [true] status=" + res);
+        Log.d(TAG, "lollipop_connect enableNetwork [true] status=" + res);
         // Wait a few for the WiFi to do something and try again just in case
         // Android has decided that the network we configured is not "good enough"
         try{ Thread.sleep(500); } catch(Exception e) {}
         res = wifi.enableNetwork(networkId, true);
-        Log.d(TAG, "lillipop_connect enableNetwork [true] status=" + res);
+        Log.d(TAG, "lollipop_connect enableNetwork [true] status=" + res);
+    }
+
+    /**
+     * Android marshmallow is unable to update or delete existing network configurations from the WifiManager
+     * unless the app itself created the configuration. Therefore, only update the settings if we are creating
+     * a new configuration.
+     * @param ssid
+     * @param authType
+     * @param password
+     * @param isHidden
+     * @param connectionTimeout
+     */
+    private void marshmallow_connectToWifiAP(String ssid, AuthType authType, String password, boolean isHidden,long connectionTimeout) {
+        Log.d(TAG, "marshmallow_connectToWifiAP SSID = " + ssid + " authtype = " + authType.toString() + " is hidden = " + isHidden);
+
+        // if networkPass is null set it to ""
+        if (password == null) {
+            password = "";
+        }
+
+        int networkId = -1;
+
+        WifiConfiguration wifiConfiguration = findConfiguration(ssid);
+
+        if(wifiConfiguration == null) {
+            wifiConfiguration = new WifiConfiguration();
+
+            // check the AuthType of the SSID against the WifiManager
+            // if null use the one given by the API
+            // else use the result from getSSIDAuthType
+            AuthType verrifiedWifiAuthType = getSSIDAuthType(ssid);
+            if (verrifiedWifiAuthType != null) {
+                authType = verrifiedWifiAuthType;
+            }
+
+            if (isHidden) {
+                wifiConfiguration.hiddenSSID = true;
+            }
+
+            Log.i(TAG, "marshmallow_connectToWifiAP selectedAuthType = " + authType);
+
+            // set the priority to something high so that the network we are entering should be used
+            wifiConfiguration.priority = 140;
+
+            // set the WifiConfiguration parameters
+            switch (authType) {
+                case OPEN:
+                    wifiConfiguration.SSID = "\"" + ssid + "\"";
+                    wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+                    networkId = wifi.addNetwork(wifiConfiguration);
+                    Log.d(TAG, "marshmallow_connectToWifiAP [OPEN] add Network returned " + networkId);
+                    break;
+
+                case WEP:
+                    wifiConfiguration.SSID = "\"" + ssid + "\"";
+
+                    // check the validity of a WEP password
+                    Pair<Boolean, Boolean> wepCheckResult = checkWEPPassword(password);
+                    if (!wepCheckResult.first) {
+                        Log.i(TAG, "marshmallow_connectToWifiAP  auth type = WEP: password " + password + " invalid length or charecters");
+                        Bundle extras = new Bundle();
+                        extras.putParcelable(OnboardingManager.EXTRA_WIFI_WIFICONFIGURATION, wifiConfiguration);
+                        sendBroadcast(OnboardingManager.WIFI_AUTHENTICATION_ERROR, extras);
+                        return;
+                    }
+                    Log.i(TAG, "marshmallow_connectToWifiAP [WEP] using " + (!wepCheckResult.second ? "ASCII" : "HEX"));
+                    if (!wepCheckResult.second) {
+                        wifiConfiguration.wepKeys[0] = "\"" + password + "\"";
+                    } else {
+                        wifiConfiguration.wepKeys[0] = password;
+                    }
+                    wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+                    wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+                    wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+                    wifiConfiguration.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
+                    wifiConfiguration.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.SHARED);
+                    wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
+                    wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
+                    wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
+                    wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP104);
+                    wifiConfiguration.wepTxKeyIndex = 0;
+                    networkId = wifi.addNetwork(wifiConfiguration);
+                    Log.d(TAG, "marshmallow_connectToWifiAP [WEP] add Network returned " + networkId);
+                    break;
+
+                case WPA_AUTO:
+                case WPA_CCMP:
+                case WPA_TKIP:
+                case WPA2_AUTO:
+                case WPA2_CCMP:
+                case WPA2_TKIP: {
+                    wifiConfiguration.SSID = "\"" + ssid + "\"";
+                    // handle special case when WPA/WPA2 and 64 length password that can
+                    // be HEX
+                    if (password.length() == 64 && password.matches(WEP_HEX_PATTERN)) {
+                        wifiConfiguration.preSharedKey = password;
+                    } else {
+                        wifiConfiguration.preSharedKey = "\"" + password + "\"";
+                    }
+                    wifiConfiguration.status = WifiConfiguration.Status.ENABLED;
+                    wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
+                    wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
+                    wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+                    wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
+                    wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
+                    wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+                    wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+                    networkId = wifi.addNetwork(wifiConfiguration);
+                    Log.d(TAG, "marshmallow_connectToWifiAP  [WPA..WPA2] add Network returned " + networkId);
+                    break;
+                }
+                default:
+                    networkId = -1;
+                    break;
+            }
+            if (networkId < 0) {
+                Log.d(TAG, "marshmallow_connectToWifiAP networkId <0  WIFI_AUTHENTICATION_ERROR");
+                Bundle extras = new Bundle();
+                extras.putParcelable(OnboardingManager.EXTRA_WIFI_WIFICONFIGURATION, wifiConfiguration);
+                sendBroadcast(OnboardingManager.WIFI_AUTHENTICATION_ERROR, extras);
+                return;
+            }
+            Log.d(TAG, "marshmallow_connectToWifiAP calling connect");
+        }
+
+        //We will now save the configuration and then look back up the networkId
+        //saveConfiguration may cause networkId to change
+        boolean res = wifi.saveConfiguration();
+        Log.d(TAG, "marshmallow_connectToWifiAP saveConfiguration status=" + res);
+        wifiConfiguration = findConfiguration(ssid);
+        if(wifiConfiguration == null) {
+            Log.d(TAG, "marshmallow_connectToWifiAP Could not find configuration after adding");
+            Bundle extras = new Bundle();
+            extras.putParcelable(OnboardingManager.EXTRA_WIFI_WIFICONFIGURATION, wifiConfiguration);
+            sendBroadcast(OnboardingManager.WIFI_AUTHENTICATION_ERROR, extras);
+            return;
+        }
+
+        lollipop_connect(wifiConfiguration, wifiConfiguration.networkId, connectionTimeout);
     }
 }

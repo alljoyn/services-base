@@ -262,6 +262,7 @@ exit /B %OK%
     call:copyAlljoynAndroidUtilsJar
     call:copyAlljoynOnboardingJar
     call:copyAlljoynSharedObject
+    call:copyToDir %ALLJOYN_BASE_BUILD_DIR%\onboarding\java\OnboardingManager\android\build\deploy\alljoyn_onboarding_manager.jar .\libs\ "Failed to copy alljoyn_onboarding_manager.jar" %ERROR%
     ant || (
         echo "failed to build onboarding sample client"
         exit %ERROR%
