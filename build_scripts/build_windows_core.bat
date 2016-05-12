@@ -29,9 +29,8 @@ popd
 setlocal enableextensions
 rem TODO rename ALLJOYN_DIST_DIR (batch script argument) such that it isn't confused with ALLJOYN_DISTDIR (SCons argument)
 rd /s /q %ALLJOYN_DIST_DIR%
-md %ALLJOYN_DIST_DIR%\cpp\inc\qcc
+md %ALLJOYN_DIST_DIR%
 xcopy /e %ALLJOYN_SRC_DIST_DIR% %ALLJOYN_DIST_DIR%\
-xcopy /e /y %ALLJOYN_CORE_DIR%\common\inc\qcc %ALLJOYN_DIST_DIR%\cpp\inc\qcc\
 echo Core cached!!!
 endlocal 
 exit 0
