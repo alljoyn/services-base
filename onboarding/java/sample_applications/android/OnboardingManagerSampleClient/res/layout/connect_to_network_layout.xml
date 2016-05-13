@@ -26,13 +26,23 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.-->
         android:id="@+id/network_credentials_ssid_editText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="26dp"
         android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
         android:hint="@string/name_of_network_hint"
         android:imeOptions="actionDone"
         android:inputType="textNoSuggestions"
         android:contentDescription="network_credentials_ssid_editText"
         android:singleLine="true" />
+
+    <CheckBox
+        android:id="@+id/network_hidden"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="26dp"
+        android:checked="false"
+        android:text="@string/hidden_network"
+        android:textColor="#aeaeae"
+        android:textSize="15sp" />
 
     <Spinner
         android:id="@+id/network_credentials_layout_authType_spinner"
