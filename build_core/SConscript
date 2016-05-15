@@ -203,13 +203,6 @@ if env['BR'] == 'on':
 
 env.Append(CPPDEFINES = ['QCC_OS_GROUP_%s' % env['OS_GROUP'].upper()])
 
-# "Standard" C/C++ header file include paths for all projects.
-env.Append(CPPPATH = ["$DISTDIR/cpp/inc",
-                      "$DISTDIR/c/inc"])
-# "Standard" C/C++ library paths for all projects.
-env.Append(LIBPATH = ["$DISTDIR/cpp/lib",
-                      "$DISTDIR/c/lib"])
-
 # Setup additional builders
 if os.path.exists('tools/scons/doxygen.py'):
     env.Tool('doxygen', toolpath=['tools/scons'])

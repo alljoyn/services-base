@@ -46,12 +46,6 @@ if build_cps:
     if not env.has_key('_ALLJOYN_CONTROLPANEL_') and os.path.exists('../controlpanel/SConscript'):
         env.SConscript('../controlpanel/SConscript')
 
-if 'cpp' in env['bindings'] and not env.has_key('_ALLJOYNCORE_') and not env.has_key('ALLJOYN_DISTDIR') and os.path.exists('../../../core/alljoyn/alljoyn_core/SConscript'):
-    env.SConscript('../../../core/alljoyn/alljoyn_core/SConscript')
-
-if 'java' in env['bindings'] and not env.has_key('_ALLJOYN_JAVA_') and not env.has_key('ALLJOYN_DISTDIR') and os.path.exists('../../../core/alljoyn/alljoyn_java/SConscript'):
-    env.SConscript('../../../core/alljoyn/alljoyn_java/SConscript')
-
 server_sample_env = env.Clone()
 
 # ASABASE-452, ASACORE-1419

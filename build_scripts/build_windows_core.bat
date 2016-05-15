@@ -20,7 +20,7 @@ set BR=off
 set WS=off
 set CPU=%CPU%
 set VARIANT=%VARIANT%
-set ALLJOYN_DISTDIR=%ALLJOYN_SRC_DIST_DIR%
+
 cmd /c %SCONS% "-c" "--jobs=%JOBS%" "V=1" "OS=%OS%" "BINDINGS=%BINDINGS%" "VARIANT=%VARIANT%" "CPU=%CPU%" "MSVC_VERSION=%MSVC_VER%"
 cmd /c %SCONS% "--jobs=%JOBS%" "V=1" "OS=%OS%" "BINDINGS=%BINDINGS%" "VARIANT=%VARIANT%" "CPU=%CPU%" "MSVC_VERSION=%MSVC_VER%"
 echo Build completed
