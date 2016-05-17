@@ -29,14 +29,13 @@ if '' == env.subst('$ALLJOYN_DISTDIR'):
    print 'ALLJOYN_DISTDIR variable is required'
    if not GetOption('help'):
       Exit(1)
-
-if env.get('ALLJOYN_DISTDIR'):
+else:
     # normalize ALLJOYN_DISTDIR first
     env['ALLJOYN_DISTDIR'] = env.Dir('$ALLJOYN_DISTDIR')
     env.Append(CPPPATH = [ env.Dir('$ALLJOYN_DISTDIR/cpp/inc') ])
     env.Append(LIBPATH = [ env.Dir('$ALLJOYN_DISTDIR/cpp/lib') ])
 
-env['bindings'] = set([ b.strip() for b in env['BINDINGS'].split(',') ])
+    env['bindings'] = set([ b.strip() for b in env['BINDINGS'].split(',') ])
 
-env.SConscript('SConscript')
+    env.SConscript('SConscript')
 
