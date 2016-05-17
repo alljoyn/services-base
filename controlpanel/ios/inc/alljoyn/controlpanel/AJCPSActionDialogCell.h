@@ -18,8 +18,9 @@
 #import "AJCPSActionWithDialog.h"
 #import "AJCPSGetControlPanelViewController.h"
 
-@interface AJCPSActionDialogCell : UITableViewCell
+@interface AJCPSActionDialogCell : UITableViewCell <UIAlertViewDelegate>
 @property (strong, nonatomic) UIButton *cpsButton; //TOD strong
 @property (weak, nonatomic) AJCPSActionWithDialog *actionDialogWidget;
 @property (weak, nonatomic) AJCPSGetControlPanelViewController *viewController;
+@property (strong, nonatomic) NSMutableDictionary *alertActionDict;
 @end
