@@ -31,8 +31,8 @@ using namespace services;
 using namespace qcc;
 using namespace nsConsts;
 
-NotificationProducer::NotificationProducer(ajn::BusAttachment* bus, QStatus& status) :
-    BusObject(AJ_NOTIFICATION_PRODUCER_PATH.c_str()), m_InterfaceDescription(NULL), m_BusAttachment(bus)
+NotificationProducer::NotificationProducer(ajn::BusAttachment *bus, QStatus &status, qcc::String pathSuffix) :
+    BusObject((AJ_NOTIFICATION_PRODUCER_PATH + pathSuffix).c_str()), m_InterfaceDescription(NULL), m_BusAttachment(bus)
 {
     m_InterfaceDescription = const_cast<InterfaceDescription*>(m_BusAttachment->GetInterface(AJ_NOTIFICATION_PRODUCER_INTERFACE.c_str()));
     if (!m_InterfaceDescription) {

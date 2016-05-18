@@ -209,7 +209,6 @@ QStatus Transport::startSenderTransport(BusAttachment* bus)
 
     //Code handles NotificationProducerReceiver - Start
     cleanupNotificationProducerReceiverInternal();
-    cleanupNotificationProducerSenderInternal();
     m_NotificationProducerReceiver = new NotificationProducerReceiver(m_Bus, status);
     if (status != ER_OK) {
         goto exit;
@@ -241,8 +240,7 @@ QStatus Transport::startSenderTransport(BusAttachment* bus)
 
     //Handling NotificationDismisserSender - start here
     cleanupNotificationDismisserSenderInternal();
-    cleanupNotificationDismisserReceiverInternal();
-    m_NotificationDismisserSender = new NotificationDismisserSender(m_Bus, AJ_NOTIFICATION_DISMISSER_PATH, status);
+    m_NotificationDismisserSender = new NotificationDismisserSender(m_Bus, AJ_NOTIFICATION_DISMISSER_PATH + "Sender", status);
     if (status != ER_OK) {
         QCC_LogError(status, ("Could not create NotificationDismisserSender."));
         goto exit;
@@ -276,6 +274,7 @@ QStatus Transport::startReceiverTransport(BusAttachment* bus)
     }
 
     if (m_Consumer == NULL) {
+        cleanupTransportConsumer(true);
         m_Consumer = new NotificationTransportConsumer(m_Bus, AJ_CONSUMER_SERVICE_PATH, status);
         if (status != ER_OK) {
             QCC_LogError(status, ("Could not create Consumer BusObject."));
@@ -301,7 +300,6 @@ QStatus Transport::startReceiverTransport(BusAttachment* bus)
 
     //Handling NotificationProducerSender - Start
     if (m_NotificationProducerSender == NULL) {
-        cleanupNotificationProducerReceiverInternal();
         m_NotificationProducerSender = new NotificationProducerSender(m_Bus, status);
         if (status != ER_OK) {
             QCC_LogError(status, ("Could not create NotificationProducerSender BusObject."));
@@ -317,7 +315,7 @@ QStatus Transport::startReceiverTransport(BusAttachment* bus)
 
     //Handling NotificationDismisserReceiver - Start
     if (m_NotificationDismisserReceiver == NULL) {
-        cleanupNotificationDismisserSenderInternal();
+        cleanupNotificationDismisserReceiverInternal();
         m_NotificationDismisserReceiver = new NotificationDismisserReceiver(m_Bus, status);
         if (status != ER_OK) {
             QCC_LogError(status, ("Could not create NotificationDismisserReceiver BusObject."));
@@ -342,8 +340,8 @@ QStatus Transport::startReceiverTransport(BusAttachment* bus)
 
     //Handling NotificationDismisserSender - Start
     if (m_NotificationDismisserSender == NULL) {
-        cleanupNotificationDismisserReceiverInternal();
-        m_NotificationDismisserSender = new NotificationDismisserSender(m_Bus, AJ_NOTIFICATION_DISMISSER_PATH, status);
+        cleanupNotificationDismisserSenderInternal();
+        m_NotificationDismisserSender = new NotificationDismisserSender(m_Bus, AJ_NOTIFICATION_DISMISSER_PATH + "Sender", status);
         if (status != ER_OK) {
             QCC_LogError(status, ("Could not create NotificationDismisserSender."));
             goto exit;
