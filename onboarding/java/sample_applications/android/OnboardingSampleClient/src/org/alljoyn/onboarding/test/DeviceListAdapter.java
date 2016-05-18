@@ -40,7 +40,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /**
      * Creates the adapter given a context and a text view resource id.
-     * 
+     *
      * @param context
      * @param textViewResourceId
      */
@@ -62,7 +62,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.widget.ArrayAdapter#getView(int, android.view.View,
      * android.view.ViewGroup)
      */
@@ -143,7 +143,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.widget.ArrayAdapter#getCount()
      */
     @Override
@@ -156,7 +156,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.widget.ArrayAdapter#getItem(int)
      */
     @Override
@@ -169,7 +169,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.widget.ArrayAdapter#getItemId(int)
      */
     @Override
@@ -182,7 +182,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.widget.BaseAdapter#getItemViewType(int)
      */
     @Override
@@ -193,7 +193,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.widget.BaseAdapter#getViewTypeCount()
      */
     @Override
@@ -204,7 +204,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.widget.BaseAdapter#hasStableIds()
      */
     @Override
@@ -215,7 +215,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.widget.BaseAdapter#isEmpty()
      */
     @Override
@@ -226,7 +226,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.widget.BaseAdapter#registerDataSetObserver(android.database.
      * DataSetObserver)
      */
@@ -238,7 +238,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * android.widget.BaseAdapter#unregisterDataSetObserver(android.database
      * .DataSetObserver)
@@ -251,7 +251,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.widget.BaseAdapter#areAllItemsEnabled()
      */
     @Override
@@ -262,7 +262,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.widget.BaseAdapter#isEnabled(int)
      */
     @Override
@@ -273,7 +273,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.widget.ArrayAdapter#clear()
      */
     @Override

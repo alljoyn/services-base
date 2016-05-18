@@ -40,9 +40,9 @@ public class ScanWIFIAdapter extends ArrayAdapter<ScanResult> implements ListAda
 		public TextView textWifiCapabiliteis;
 		public TextView textWifiLevel;
 	}
-	
+
 	private LayoutInflater m_layoutInflater;
-	
+
 	//====================================================================
 	/**
 	 * Creates the adapter given a context and a text view resource id.
@@ -51,9 +51,9 @@ public class ScanWIFIAdapter extends ArrayAdapter<ScanResult> implements ListAda
 	 */
 	public ScanWIFIAdapter(Context context, int textViewResourceId) {
 		super(context, textViewResourceId);
-		m_layoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);  
+		m_layoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
-	
+
 	//====================================================================
 	/* (non-Javadoc)
 	 * @see android.widget.ArrayAdapter#getCount()
@@ -77,25 +77,25 @@ public class ScanWIFIAdapter extends ArrayAdapter<ScanResult> implements ListAda
 	 */
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		
-		   
+
+
 		View rowView = convertView;
-		if (rowView == null) {		    
+		if (rowView == null) {
 			rowView = m_layoutInflater.inflate(R.layout.scan_wifi_property, null);
 			ViewHolder viewHolder = new ViewHolder();
-			viewHolder.textWifiName = (TextView) rowView.findViewById(R.id.wifi_name_row_textview);				
-			viewHolder.textWifiCapabiliteis = (TextView) rowView.findViewById(R.id.wifi_capabilities);				
-			viewHolder.textWifiLevel = (TextView) rowView.findViewById(R.id.wifi_level);		      		     
+			viewHolder.textWifiName = (TextView) rowView.findViewById(R.id.wifi_name_row_textview);
+			viewHolder.textWifiCapabiliteis = (TextView) rowView.findViewById(R.id.wifi_capabilities);
+			viewHolder.textWifiLevel = (TextView) rowView.findViewById(R.id.wifi_level);
 			rowView.setTag(viewHolder);
 		}
-		
+
 		Log.i(TAG, "Get view [ "+position +" ] "+ " SSID "+getItem(position).SSID + " level " + getItem(position).level);
 		ViewHolder holder = (ViewHolder) rowView.getTag();
 		holder.textWifiName.setText(getItem(position).SSID);
 		holder.textWifiCapabiliteis.setText(getItem(position).capabilities);
 
-		holder.textWifiLevel.setText(Integer.toString(   WifiManager.calculateSignalLevel(getItem(position).level, 100)+1)+"%");		  
-		return rowView;		  			
+		holder.textWifiLevel.setText(Integer.toString(   WifiManager.calculateSignalLevel(getItem(position).level, 100)+1)+"%");
+		return rowView;
 	}
 	//====================================================================
 	/* (non-Javadoc)
@@ -111,7 +111,7 @@ public class ScanWIFIAdapter extends ArrayAdapter<ScanResult> implements ListAda
 	 */
 	@Override
 	public void registerDataSetObserver(DataSetObserver arg0) {
-		
+
 	}
 	//====================================================================
 	/* (non-Javadoc)
@@ -119,7 +119,7 @@ public class ScanWIFIAdapter extends ArrayAdapter<ScanResult> implements ListAda
 	 */
 	@Override
 	public void unregisterDataSetObserver(DataSetObserver arg0) {
-		
+
 	}
 	//====================================================================
 	/* (non-Javadoc)

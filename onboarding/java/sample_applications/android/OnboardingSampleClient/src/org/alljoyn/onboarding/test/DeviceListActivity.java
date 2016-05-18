@@ -51,7 +51,7 @@ public class DeviceListActivity extends ListActivity implements OnCreateContextM
 	private OnboardingApplication m_application;
 	//A broadcastReceiver to receive intents from the application
 	private BroadcastReceiver m_receiver;
-	//The adapter to help display the alljoyn devices list	
+	//The adapter to help display the alljoyn devices list
 	private DeviceListAdapter m_devicesAdapter;
 	//Button to connect/disconnect to/from alljoyn
 	private Button m_AJConnect;
@@ -68,39 +68,39 @@ public class DeviceListActivity extends ListActivity implements OnCreateContextM
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.devices_layout);
 		m_application = (OnboardingApplication)getApplication();
-			
+
 		//************** AllJoyn Connect/Disconnect Button ******************
 		m_AJConnect = (Button) findViewById(R.id.AllJoynConnect);
 		m_AJConnect.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
-				
+
 				if(m_AJConnect.getText().equals(getString(R.string.AllJoynConnect))){
 					allJoynConnect();
 				}
 				else if(m_AJConnect.getText().equals(getString(R.string.AllJoynDisconnect))){
 					allJoynDisconnect();
-				}	
+				}
 			}
 		});
 		//***************** Current Network *********************
 		m_currentNetwork = (TextView) findViewById(R.id.current_network_name);
 		String ssid = ((OnboardingApplication)getApplication()).getIskWifiManager().getCurrentNetworkSSID();
-		m_currentNetwork.setText(getString(R.string.current_network, ssid));		
-		
+		m_currentNetwork.setText(getString(R.string.current_network, ssid));
+
 		//************** Devices list ******************
 		m_devicesAdapter = new DeviceListAdapter(this, R.layout.devices_property);
 		m_devicesAdapter.setLayoutInflator(getLayoutInflater());
 		setListAdapter(m_devicesAdapter);
 	    registerForContextMenu(getListView());
-		
+
 		//************** Class receiver ******************
 		m_receiver = new BroadcastReceiver() {
-			
+
 			@Override
 			public void onReceive(Context context, Intent intent) {
-				
+
 				if(Keys.Actions.ACTION_DEVICE_FOUND.equals(intent.getAction())){
 
 					String appId = intent.getExtras().getString(Keys.Extras.EXTRA_DEVICE_ID);
@@ -108,7 +108,7 @@ public class DeviceListActivity extends ListActivity implements OnCreateContextM
         			m_devicesAdapter.addDevice(device);
         			setListAdapter(m_devicesAdapter);
 				}
-				
+
 				else if(Keys.Actions.ACTION_DEVICE_LOST.equals(intent.getAction())){
 
 					String busName = intent.getExtras().getString(Keys.Extras.EXTRA_BUS_NAME);
@@ -119,7 +119,7 @@ public class DeviceListActivity extends ListActivity implements OnCreateContextM
 
 					String ssid = intent.getStringExtra(Keys.Extras.EXTRA_NETWORK_SSID);
 					m_currentNetwork.setText(getString(R.string.current_network, ssid));
-					
+
 				}
 			}
 		};
@@ -128,14 +128,14 @@ public class DeviceListActivity extends ListActivity implements OnCreateContextM
 		filter.addAction(Keys.Actions.ACTION_DEVICE_LOST);
 		filter.addAction(Keys.Actions.ACTION_CONNECTED_TO_NETWORK);
 		registerReceiver(m_receiver, filter);
-		
+
 	}
-	
+
 	//======================================================================
-	
+
 	// Connect to AllJoyn.
 	private void allJoynConnect() {
-		
+
 		AlertDialog.Builder alert = new AlertDialog.Builder(DeviceListActivity.this);
 		alert.setTitle("Set realm name");
 
@@ -145,12 +145,12 @@ public class DeviceListActivity extends ListActivity implements OnCreateContextM
 
 		alert.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 		public void onClick(final DialogInterface dialog, int whichButton) {
-			
+
 			runOnUiThread(new Runnable() {
-				
+
 				@Override
 				public void run() {
-					
+
 					dialog.dismiss();
 					m_application.setRealmName(input.getText().toString());
 					m_AJConnect.setText(R.string.AllJoynDisconnect);
@@ -167,18 +167,18 @@ public class DeviceListActivity extends ListActivity implements OnCreateContextM
 		alert.show();
 	}
 	//====================================================================
-	
+
 	// Disconnect from AllJoyn.
 	private void allJoynDisconnect(){
-		
+
 		AlertDialog.Builder alert = new AlertDialog.Builder(this);
 		alert.setMessage("Are you sure you want to disconnect from AllJoyn?");
-		
+
 		alert.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 			public void onClick(final DialogInterface dialog, int whichButton) {
-				
+
 				runOnUiThread(new Runnable() {
-					
+
 					@Override
 					public void run() {
 						dialog.dismiss();
@@ -198,13 +198,13 @@ public class DeviceListActivity extends ListActivity implements OnCreateContextM
 			}
 		});
 		alert.show();
-		
+
 	}
 	//====================================================================
-	
-	// Given a device parameter, displays a dialog with the device announcement data. 
+
+	// Given a device parameter, displays a dialog with the device announcement data.
 	private void showAnnounce(SoftAPDetails device) {
-		
+
 		AlertDialog.Builder alert = new AlertDialog.Builder(DeviceListActivity.this);
 		alert.setTitle("Announcement of "+device.busName);
 		String msg = device.getAnnounce();
@@ -243,11 +243,11 @@ public class DeviceListActivity extends ListActivity implements OnCreateContextM
 	 * @see android.app.Activity#onContextItemSelected(android.view.MenuItem)
 	 */
 	@Override
-	public boolean onContextItemSelected(MenuItem item) {		
-		
+	public boolean onContextItemSelected(MenuItem item) {
+
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		SoftAPDetails device = (SoftAPDetails) getListAdapter().getItem(info.position);
-		
+
 		if(item.getItemId() == R.id.context_menu_announce){
 		    showAnnounce(device);
 		}
@@ -257,7 +257,7 @@ public class DeviceListActivity extends ListActivity implements OnCreateContextM
 			startActivity(intent);
 		}
 		return true;
-		
+
 	}
 	//====================================================================
 	/* (non-Javadoc)
@@ -265,18 +265,18 @@ public class DeviceListActivity extends ListActivity implements OnCreateContextM
 	 */
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,ContextMenuInfo menuInfo) {// :-)
-		
+
 		super.onCreateContextMenu(menu, v, menuInfo);
 		getMenuInflater().inflate(R.menu.device_context_menu, menu);
-		
+
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
 		ListAdapter adapter = getListAdapter();
 		SoftAPDetails item = (SoftAPDetails) adapter.getItem(info.position);
-		
-		if(!item.supportOnboarding)			
+
+		if(!item.supportOnboarding)
 			menu.removeItem(R.id.context_menu_onboarding);
 	}
-	
+
 	//====================================================================
 	/* (non-Javadoc)
 	 * @see android.app.ListActivity#onListItemClick(android.widget.ListView, android.view.View, int, long)

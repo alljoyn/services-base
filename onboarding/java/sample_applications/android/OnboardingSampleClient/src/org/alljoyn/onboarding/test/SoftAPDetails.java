@@ -73,7 +73,7 @@ public class SoftAPDetails
 
     /**
      * Create a device according to the following parameters.
-     * 
+     *
      * @param appId
      *            The device id
      * @param busName

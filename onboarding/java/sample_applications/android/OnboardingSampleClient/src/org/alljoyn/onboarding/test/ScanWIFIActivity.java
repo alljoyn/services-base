@@ -68,17 +68,18 @@ public class ScanWIFIActivity extends ListActivity {
 	private ProgressDialog m_loadingPopup;
 	// Dialog dismiss timer
 	private Timer m_timer;
-	private BroadcastReceiver m_receiver; 
-	
+	private BroadcastReceiver m_receiver;
+    Context mContext;
+
 	//=================================================================================
     /* (non-Javadoc)
      * @see android.app.Activity#onCreate(android.os.Bundle)
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        
+
     	super.onCreate(savedInstanceState);
-    	
+
         setContentView(R.layout.scan_wifi_layout);
         m_WifiManager = ((OnboardingApplication)getApplication()).getIskWifiManager();
         m_list = (ListView) findViewById(android.R.id.list);
@@ -86,22 +87,25 @@ public class ScanWIFIActivity extends ListActivity {
 		m_list.setAdapter(m_adapter);
 		m_loadingPopup = new ProgressDialog(this);
     }
-    
+
     //=================================================================================
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onStart()
 	 */
 	@Override
-	protected void onStart(){		
+	protected void onStart(){
 		super.onStart();
-		m_scanWIFIButton = (Button)findViewById(R.id.scan_wifi);		
-		m_scanWIFIButton.setOnClickListener(new OnClickListener() {			
+
+        mContext = getApplicationContext();
+
+		m_scanWIFIButton = (Button)findViewById(R.id.scan_wifi);
+		m_scanWIFIButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				
+
 				m_progressDialog = ProgressDialog.show(ScanWIFIActivity.this, "", getString(R.string.wifi_activity_scanning));
-				
-				m_WifiManager.scanForWifi(getApplicationContext(), new WifiManagerListener() {						
+
+				m_WifiManager.scanForWifi(getApplicationContext(), new WifiManagerListener() {
 					public void OnScanResultComplete(final List<ScanResult> results) {
 						runOnUiThread(new Runnable() {
 							public void run() {
@@ -109,83 +113,100 @@ public class ScanWIFIActivity extends ListActivity {
 								m_adapter.clear();
 								m_adapter.addAll(results);
 								m_list.setAdapter(m_adapter);
-								m_adapter.notifyDataSetChanged();	   	
+								m_adapter.notifyDataSetChanged();
 							}
 						});
 						// set a timer for the progress dialog
 						Timer timer = new Timer();
-						timer.schedule(new TimerTask() {			            	
+						timer.schedule(new TimerTask() {
 							public void run() {
 								if (m_progressDialog!=null && m_progressDialog.isShowing())
-								{								
+								{
 									m_progressDialog.dismiss();
 								};
-							}			            				            				              
+							}
 						},2000);
 					}
 					// filter out AP that don't start with "AJ_"
-				}, "AJ_"); 
-			}					
+				}, "AJ_");
+			}
 		});
 	}
-	
+
     //=================================================================================
     /* (non-Javadoc)
      * @see android.app.ListActivity#onListItemClick(android.widget.ListView, android.view.View, int, long)
      */
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-    	
+
 		final ScanResult scanItem = m_adapter.getItem(position);
 		if (scanItem != null){
-			
+
 			if(!isSsidEquals(scanItem.SSID, m_WifiManager.getCurrentNetworkSSID())){
 
 				// show a dialog for receiving password
 				AlertDialog.Builder alert = new AlertDialog.Builder(this);
-				alert.setTitle(R.string.enter_wifi_password_title); 
-				alert.setMessage(R.string.enter_wifi_password_message); 
-				
+				alert.setTitle(R.string.enter_wifi_password_title);
+				alert.setMessage(R.string.enter_wifi_password_message);
+
 				View view = getLayoutInflater().inflate(R.layout.password_type_popup, null);
 				final EditText input = (EditText)view.findViewById(R.id.passwordEditText);
 				final CheckBox showPassword = (CheckBox)view.findViewById(R.id.showPasswordCheckBox);
 				alert.setView(view);
-				
+
 				showPassword.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 					@Override
 					public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-						
+
 						if(isChecked)
 							input.setInputType(InputType.TYPE_CLASS_TEXT);
 						else
 							input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
 					}
 				});
-				
+
 				alert.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-					
+
 					public void onClick(DialogInterface dialog, int whichButton) {
-						
-						showLoadingPopup(getString(R.string.connecting_to, scanItem.SSID));						
+
+						showLoadingPopup(getString(R.string.connecting_to, scanItem.SSID));
 						String pass = input.getText().toString();
-						
-						//connect to the selected scan item. 
-						boolean succeeded = m_WifiManager.connectToAP(scanItem.SSID, pass, scanItem.capabilities);
-						if(succeeded){
-							goToDeviceListActivity(scanItem.SSID);
-						}
-						else{
-							//show an error dialog
-							dismissLoadingPopup();
-							AlertDialog.Builder alert = new AlertDialog.Builder(ScanWIFIActivity.this);
-							alert.setTitle(R.string.failed_to_connect_to_wifi_title); 
-							alert.setMessage(getString(R.string.failed_to_connect_to_wifi_message,scanItem.SSID));
-							alert.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-								public void onClick(DialogInterface dialog, int whichButton) {
-								}
-							});
-							alert.show();
-						}
+
+                        final BroadcastReceiver wifiBroadcastReceiver = new BroadcastReceiver() {
+                            @Override
+                            public void onReceive(Context context, Intent intent) {
+
+                                Log.d(TAG, "WiFi BroadcastReceiver onReceive: " + intent.getAction());
+                                if (IskWifiManager.WIFI_CONNECTED.equals(intent.getAction())) {
+                                    mContext.unregisterReceiver(this);
+                                    goToDeviceListActivity(scanItem.SSID);
+
+                                } else if (IskWifiManager.WIFI_AUTHENTICATION_ERROR.equals(intent.getAction()) || IskWifiManager.WIFI_TIMEOUT_ERROR.equals(intent.getAction())) {
+                                    mContext.unregisterReceiver(this);
+
+                                    //show an error dialog
+                                    dismissLoadingPopup();
+                                    AlertDialog.Builder alert = new AlertDialog.Builder(ScanWIFIActivity.this);
+                                    alert.setTitle(R.string.failed_to_connect_to_wifi_title);
+                                    alert.setMessage(getString(R.string.failed_to_connect_to_wifi_message,scanItem.SSID));
+                                    alert.setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int whichButton) {
+                                        }
+                                    });
+                                    alert.show();
+                                }
+                            }
+                        };
+
+                        IntentFilter filter = new IntentFilter();
+                        filter.addAction(IskWifiManager.WIFI_CONNECTED);
+                        filter.addAction(IskWifiManager.WIFI_AUTHENTICATION_ERROR);
+                        filter.addAction(IskWifiManager.WIFI_TIMEOUT_ERROR);
+                        mContext.registerReceiver(wifiBroadcastReceiver, filter);
+
+						//connect to the selected scan item.
+						m_WifiManager.connectToAP(scanItem.SSID, pass, scanItem.capabilities);
 					}
 				});
 				alert.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -201,10 +222,10 @@ public class ScanWIFIActivity extends ListActivity {
 		}
     }
     //=================================================================================
-    
+
     // Move to the next screen.
     private void goToDeviceListActivity(final String requestedSSID){
-    	
+
     	m_receiver = new BroadcastReceiver() {
 
 			@Override
@@ -231,7 +252,7 @@ public class ScanWIFIActivity extends ListActivity {
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
 		registerReceiver(m_receiver, filter);
-    	
+
     }
     //=================================================================================
     // Android SSID may include '"', which would makes equals() fail.
@@ -254,10 +275,10 @@ public class ScanWIFIActivity extends ListActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
     //=================================================================================
-    
+
     // Display a progress dialog with the given msg.
 	// If the dialog is already showing - it will update its message to the given msg.
-	// The dialog will dismiss after 5 seconds if no response has returned. 
+	// The dialog will dismiss after 5 seconds if no response has returned.
     private void showLoadingPopup(String msg)
 	{
 		if (m_loadingPopup !=null){
@@ -269,17 +290,17 @@ public class ScanWIFIActivity extends ListActivity {
 			}
 		}
 		m_timer = new Timer();
-		m_timer.schedule(new TimerTask() {                
+		m_timer.schedule(new TimerTask() {
 			public void run() {
 				if (m_loadingPopup !=null && m_loadingPopup.isShowing()){
 					m_loadingPopup.dismiss();
 				};
-			}                                
+			}
 
 		},5*1000);
 	}
 	//=================================================================================
-	
+
     // Dismiss the progress dialog (only if it is showing).
     private void dismissLoadingPopup()
 	{
@@ -293,7 +314,7 @@ public class ScanWIFIActivity extends ListActivity {
 	//=================================================================================
     @Override
     protected void onDestroy() {
-    	
+
     	super.onDestroy();
     	if(m_receiver != null){
     		try{

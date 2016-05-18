@@ -129,7 +129,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.app.Application#onCreate()
      */
     @Override
@@ -192,7 +192,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /**
      * Sets the daemon realm name.
-     * 
+     *
      * @param realmName
      *            The daemon realm name.
      */
@@ -203,7 +203,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.app.Application#onTerminate()
      */
     @Override
@@ -418,7 +418,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /**
      * Return the onboarding service fields.
-     * 
+     *
      * @return the onboarding service fields.
      */
     public Short getOnboardingVersion() {
@@ -443,7 +443,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /**
      * Return the onboarding service last error
-     * 
+     *
      * @return the onboarding service last error
      */
     public OBLastError getLastError() {
@@ -468,7 +468,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /**
      * Return the onboarding service state.
-     * 
+     *
      * @return the onboarding service state.
      */
     public Short getState() {
@@ -490,7 +490,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /**
      * Return the onboarding service scan info.
-     * 
+     *
      * @return the onboarding service scan info.
      */
     public ScanInfo getScanInfo() {
@@ -512,7 +512,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /**
      * Configure a network for the alljoyn device
-     * 
+     *
      * @param networkName
      *            The name (ssid) of the configured network
      * @param networkPassword
@@ -521,7 +521,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
      *            The auth type of the configured network (can get by
      *            AuthType.getTypeId()).
      */
-    public void configureNetwork(String networkName, String networkPassword, short networkAuthType) {
+    public void configureNetwork(String networkName, String networkPassword, AuthType networkAuthType) {
 
         Log.d(TAG, "ONBOARDING: OnboardingClientImpl for " + m_currentPeer.busName);
         try {
@@ -530,7 +530,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
                 m_onboardingClient.connect();
             }
             Log.d(TAG, "ONBOARDING: connect() succeeded. before configureWiFi()");
-            ConfigureWifiMode mode = m_onboardingClient.configureWiFi(networkName, networkPassword, AuthType.getAuthTypeById(networkAuthType));
+            ConfigureWifiMode mode = m_onboardingClient.configureWiFi(networkName, networkPassword, networkAuthType);
             System.out.println(mode);
             Log.d(TAG, "ONBOARDING: configureWiFi() succeeded. before disconnect()");
 
@@ -588,7 +588,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.alljoyn.services.android.security.AuthPasswordHandler#getPassword
      * (java.lang.String)
@@ -620,7 +620,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     /**
      * Sets a password on the client side. This password will be compared
      * against the alljoyn device password when needed.
-     * 
+     *
      * @param peerName
      *            The device bus name.
      * @param password
@@ -643,7 +643,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.alljoyn.services.android.security.AuthPasswordHandler#completed(java
      * .lang.String, java.lang.String, boolean)

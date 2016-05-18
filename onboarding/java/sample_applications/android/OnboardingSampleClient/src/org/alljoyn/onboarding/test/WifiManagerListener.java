@@ -24,7 +24,7 @@ import android.net.wifi.ScanResult;
 /**
  * Interface used to allow the creator of a IskWifiManager to run some code when a network scan is completed.
  */
-public interface WifiManagerListener 
+public interface WifiManagerListener
 {
 	/**
 	 * This method will be invoked when a network scan is completed.
