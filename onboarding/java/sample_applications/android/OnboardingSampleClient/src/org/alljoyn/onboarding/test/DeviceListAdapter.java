@@ -1,17 +1,17 @@
 /******************************************************************************
  * Copyright AllSeen Alliance. All rights reserved.
- *
- *    Permission to use, copy, modify, and/or distribute this software for any
- *    purpose with or without fee is hereby granted, provided that the above
- *    copyright notice and this permission notice appear in all copies.
- *
- *    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
- *    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
- *    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- *    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
- *    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
- *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ * <p/>
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ * <p/>
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
 package org.alljoyn.onboarding.test;
@@ -34,13 +34,14 @@ import android.widget.TextView;
  */
 public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements ListAdapter {
 
-    private LayoutInflater m_layoutInflater;
     private final List<SoftAPDetails> m_properties;
+    private LayoutInflater m_layoutInflater;
 
     // ====================================================================
+
     /**
      * Creates the adapter given a context and a text view resource id.
-     * 
+     *
      * @param context
      * @param textViewResourceId
      */
@@ -50,10 +51,10 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     }
 
     // ====================================================================
+
     /**
-     * @param layoutInflater
-     *            Set a layout inflater. Will be used to inflate the views to
-     *            display.
+     * @param layoutInflater Set a layout inflater. Will be used to inflate the views to
+     *                       display.
      */
     public void setLayoutInflator(LayoutInflater layoutInflater) {
         m_layoutInflater = layoutInflater;
@@ -62,7 +63,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.widget.ArrayAdapter#getView(int, android.view.View,
      * android.view.ViewGroup)
      */
@@ -89,9 +90,9 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     }
 
     // ====================================================================
+
     /**
-     * @param newDevice
-     *            Add device to the adapter
+     * @param newDevice Add device to the adapter
      */
     public void addDevice(SoftAPDetails newDevice) {
 
@@ -125,9 +126,9 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     }
 
     // ====================================================================
+
     /**
-     * @param busName
-     *            remove device from the adapter by its busName.
+     * @param busName remove device from the adapter by its busName.
      */
     public void removeByBusName(String busName) {
 
@@ -143,7 +144,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.widget.ArrayAdapter#getCount()
      */
     @Override
@@ -156,7 +157,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.widget.ArrayAdapter#getItem(int)
      */
     @Override
@@ -169,7 +170,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.widget.ArrayAdapter#getItemId(int)
      */
     @Override
@@ -182,7 +183,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.widget.BaseAdapter#getItemViewType(int)
      */
     @Override
@@ -193,7 +194,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.widget.BaseAdapter#getViewTypeCount()
      */
     @Override
@@ -204,7 +205,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.widget.BaseAdapter#hasStableIds()
      */
     @Override
@@ -215,7 +216,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.widget.BaseAdapter#isEmpty()
      */
     @Override
@@ -226,7 +227,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.widget.BaseAdapter#registerDataSetObserver(android.database.
      * DataSetObserver)
      */
@@ -238,7 +239,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * android.widget.BaseAdapter#unregisterDataSetObserver(android.database
      * .DataSetObserver)
@@ -251,7 +252,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.widget.BaseAdapter#areAllItemsEnabled()
      */
     @Override
@@ -262,7 +263,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.widget.BaseAdapter#isEnabled(int)
      */
     @Override
@@ -273,7 +274,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     // ====================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.widget.ArrayAdapter#clear()
      */
     @Override
