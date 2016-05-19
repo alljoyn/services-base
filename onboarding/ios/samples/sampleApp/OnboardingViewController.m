@@ -24,6 +24,7 @@
 @property (strong, nonatomic) AJOBSOnboardingClient *onboardingClient;
 @property (nonatomic) AJNSessionId sessionId;
 @property (strong, nonatomic) NSString *onboardeeBus;
+@property (strong, nonatomic) NSArray *pickerData;
 @end
 
 @implementation OnboardingViewController
@@ -43,6 +44,20 @@
     if (ER_OK != status) {
         [[[UIAlertView alloc] initWithTitle:@"Error" message:@"Failed to start onboarding client" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil] show];
     }
+    
+    self.authType = [[UIPickerView alloc]init];
+    self.authType.delegate = self;
+    self.authType.dataSource = self;
+    self.authType.showsSelectionIndicator = YES;
+    self.authType.hidden = NO;
+    
+    self.pickerData = @[@"OPEN", @"WEP", @"WPA_AUTO", @"WPA_CCMP", @"WPA_TKIP", @"WPA2_AUTO", @"WPA2_CCMP", @"WPA2_TKIP", @"WPS"];
+    
+    if ([self.authTextField.text length] <= 0){
+        self.authTextField.text = self.pickerData[0];
+    }
+    
+    self.authTextField.inputView = self.authType;
 }
 
 -(void)displayPreOnbordingElements:(CGFloat) alpha
@@ -179,9 +194,9 @@
     [self updateStatusLabel:@"Calling ConfigureWiFi"];
     
     AJOBInfo obInfo;
-   obInfo.SSID = self.ssidTextField.text;
-   obInfo.passcode = self.ssidPassTextField.text;
-   obInfo.authType = ANY;
+    obInfo.SSID = self.ssidTextField.text;
+    obInfo.passcode = self.ssidPassTextField.text;
+    obInfo.authType = [self pickerAuthStringToInt];
     
     NSLog(@"input SSID:%@ passcode:%@",obInfo.SSID,obInfo.passcode);
     
@@ -286,6 +301,51 @@
         [self.connectBtn setEnabled:YES];
         }
 	});
+}
+
+- (int)numberOfComponentsInPickerView:(UIPickerView *)pickerView
+{
+    return 1;
+}
+
+- (int)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component
+{
+    return [self.pickerData count];
+}
+
+- (NSString*)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component
+{
+    return self.pickerData[row];
+}
+
+- (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component
+{
+    self.authTextField.text = self.pickerData[row];
+    [self.authTextField resignFirstResponder];
+    NSLog(@"%d row selected: %@", row, self.authTextField.text);
+}
+
+-(NSInteger)pickerAuthStringToInt
+{
+    if([self.authTextField.text isEqualToString:@"OPEN"]) {
+        return OPEN;
+    } else if ([self.authTextField.text isEqualToString:@"WEP"]) {
+        return WEP;
+    } else if ([self.authTextField.text isEqualToString:@"WPA_AUTO"]) {
+        return WPA_AUTO;
+    } else if ([self.authTextField.text isEqualToString:@"WPA_CCMP"]) {
+        return WPA_CCMP;
+    } else if ([self.authTextField.text isEqualToString:@"WPA_TKIP"]) {
+        return WPA_TKIP;
+    } else if ([self.authTextField.text isEqualToString:@"WPA2_AUTO"]) {
+        return WPA2_AUTO;
+    } else if ([self.authTextField.text isEqualToString:@"WPA2_CCMP"]) {
+        return WPA2_CCMP;
+    } else if ([self.authTextField.text isEqualToString:@"WPA2_TKIP"]) {
+        return WPA2_TKIP;
+    } else if ([self.authTextField.text isEqualToString:@"WPS"]) {
+        return WPS;
+    }
 }
 
 @end
