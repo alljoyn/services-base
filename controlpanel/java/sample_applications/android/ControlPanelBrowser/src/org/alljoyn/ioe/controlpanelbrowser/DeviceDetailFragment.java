@@ -16,6 +16,7 @@ package org.alljoyn.ioe.controlpanelbrowser;
  ******************************************************************************/
 import java.util.Collection;
 import java.util.Locale;
+import java.util.LinkedList;
 
 import org.alljoyn.bus.Status;
 import org.alljoyn.ioe.controlpaneladapter.ContainerCreatedListener;
@@ -547,32 +548,160 @@ public class DeviceDetailFragment extends Fragment {
                 }
             }
         }
+        
+        private int getMatchingPartCount(String[] language1InParts, String[] language2InParts) {
+            // Language tag "en-US" in parts would be [ "en", "US" ] - use string.split("-").
 
-        private void onControlPanelCollectionSelection(ControlPanelCollection controlPanelCollection) {
-            Collection<DeviceControlPanel> controlPanels = controlPanelCollection.getControlPanels();
-            String language_IETF_RFC5646_java = Locale.getDefault().toString(); //"en_US", "es_SP"
-            String language_IETF_RFC5646 = language_IETF_RFC5646_java.replace('_', '-');
-            String languageISO639 = Locale.getDefault().getLanguage(); //"en", "es"
-            DeviceControlPanel previousControlPanel = deviceControlPanel;
-            boolean found = false;
-            for(DeviceControlPanel controlPanel : controlPanels) {
-                String cpLanugage = controlPanel.getLanguage();
-                Log.d(TAG, String.format("Control Panel language: %s", cpLanugage));
-                if (cpLanugage.equalsIgnoreCase(language_IETF_RFC5646)
-                        || cpLanugage.equalsIgnoreCase(languageISO639)
-                        // phone language=de_DE (de), cp language=de_AT
-                        || cpLanugage.startsWith(languageISO639))
-                {
-                    deviceControlPanel = controlPanel;
-                    found = true;
-                    Log.d(TAG, String.format("Found a control panel that matches phone languages: RFC5646=%s, ISO639=%s, Given language was: %s", language_IETF_RFC5646, languageISO639, cpLanugage));
+            int matchingPartCount = 0;
+
+            // For both provided language tags, compare how many matching sub-parts they have.
+            for (String language1Part : language1InParts) {
+                for (String language2Part : language2InParts) {
+                    if (language1Part.equalsIgnoreCase(language2Part)) {
+                        matchingPartCount++;
+                        break;
+                    }
+                }
+            }
+
+            return matchingPartCount;
+        }
+
+        /**
+         * Simple string concatenation method with separating character between parts.
+         */
+        private String concatenateStringParts(String[] stringParts, String separator) {
+            String concatenatedParts = "";
+
+            for(int i = 0; i < stringParts.length; i++) {
+                concatenatedParts += stringParts[i];
+                if(i < (stringParts.length - 1))
+                    concatenatedParts += separator;
+            }
+
+            return concatenatedParts;
+        }
+
+        private DeviceControlPanel findControlPanelByLanguage(Collection<DeviceControlPanel> controlPanelList, String language) {
+            DeviceControlPanel selectedControlPanel = null;
+
+            for (DeviceControlPanel controlPanel : controlPanelList) {
+                String controlPanelLanguage = controlPanel.getLanguage();
+                if (controlPanelLanguage.equalsIgnoreCase(language)) {
+                    selectedControlPanel = controlPanel;
                     break;
                 }
             }
-            if (!found  && !controlPanels.isEmpty())
-            {
-                Log.w(TAG, String.format("Could not find a control panel that matches phone languages: RFC5646=%s, ISO639=%s", language_IETF_RFC5646, languageISO639));
-                deviceControlPanel =  controlPanels.iterator().next();
+
+            return selectedControlPanel;
+        }
+
+        private String findClosestLanguageFromList(String[] targetLanguageList,
+                                                     String language_IETF_RFC5646,  // E.g. zh-cmn-Hans-CN
+                                                     String language_ISO639) {      // E.g. zh
+            String closestLanguage = "";
+
+            // Extract the language tags from the list which contain the specified ISO 639 language
+            // part (i.e. eliminate all languages but those related to the one being searched for).
+            LinkedList<String> relatedLanguageList = new LinkedList<String>();
+            for (String language : targetLanguageList) {
+                if (language.startsWith(language_ISO639)) {
+                    relatedLanguageList.push(language);
+                }
+            }
+
+            // Break up all test language strings into their language parts.
+            String[] languageInParts = language_IETF_RFC5646.split("-");    // E.g. "zh", "cmn", "Hans", "CN"
+
+            LinkedList<String[]> targetLanguagePartList = new LinkedList<String[]>();
+
+            for (String language : relatedLanguageList) {
+                targetLanguagePartList.push(language.split("-"));
+            }
+
+            // Perform a per-part search for an exact match, and then generalisations, of the provided language
+            // in the list - so "zh-cmn-Hans-CN", then "zh-Hans-CN", then "zh-CN" could pass (if found).
+            for (int i = languageInParts.length; i > 0; i--) {
+                boolean closestLanguageFound = false;
+
+                for (String[] targetLanguageInParts : targetLanguagePartList) {
+                    if (targetLanguageInParts.length == i) {
+                        if (getMatchingPartCount(languageInParts, targetLanguageInParts) == i) {
+                            closestLanguage = concatenateStringParts(targetLanguageInParts, "-");
+                            closestLanguageFound = true;
+                            break;
+                        }
+                    }
+                }
+
+                if(closestLanguageFound) {
+                    break;
+                }
+            }
+
+            // If that fails, a specialisation of the language needs to be chosen from the list. So
+            // choose the most generalised one.
+            if(closestLanguage.length() == 0 && targetLanguagePartList.size() > 0) {
+                int shortestTargetLanguageIndex = 0;
+
+                for (int i = 1; i < targetLanguagePartList.size(); i++) {
+                    if (targetLanguagePartList.get(i).length < targetLanguagePartList.get(shortestTargetLanguageIndex).length) {
+                        shortestTargetLanguageIndex = i;
+                    }
+                }
+
+                closestLanguage = concatenateStringParts(targetLanguagePartList.get(shortestTargetLanguageIndex), "-");
+            }
+
+            return closestLanguage;
+        }
+
+        private void onControlPanelCollectionSelection(ControlPanelCollection controlPanelCollection) {
+            Collection<DeviceControlPanel> controlPanels = controlPanelCollection.getControlPanels();
+
+            // Detect controller language - some special variations of language tag only available on Lollipop+.
+            String controllerLanguage_IETF_RFC5646;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                controllerLanguage_IETF_RFC5646 = Locale.getDefault().toLanguageTag();
+            }
+            else {
+                controllerLanguage_IETF_RFC5646 = Locale.getDefault().toString();
+            }
+            controllerLanguage_IETF_RFC5646 = controllerLanguage_IETF_RFC5646.replace('_', '-');
+            String controllerLanguage_ISO639 = Locale.getDefault().getLanguage();  // E.g. 'en' part of 'en-US'
+
+            // Trick to include specialised ISO 639 codes - since we're just doing language tag part
+            // comparison after this, just append it to the end of full language tag so it's included
+            // in the checks.
+            String controllerLanguage_ISO639_3 = Locale.getDefault().getISO3Language();
+            if (controllerLanguage_ISO639_3.length() > 0 && controllerLanguage_IETF_RFC5646.length() > 0) {
+                controllerLanguage_IETF_RFC5646 += "-" + controllerLanguage_ISO639_3;
+            }
+
+            // Obtain supported control panel languages from controllee.
+            String[] controlPanelLanguageList = new String[controlPanels.size()];
+            int i = 0;
+            for (DeviceControlPanel controlPanel : controlPanels) {
+                controlPanelLanguageList[i] = controlPanel.getLanguage();
+                i++;
+            }
+
+            // Get the control panel with the language that either matches, or is a close match to,
+            // this device's detected language.
+            String closestLanguage = findClosestLanguageFromList(controlPanelLanguageList,
+                                                                controllerLanguage_IETF_RFC5646,
+                                                                controllerLanguage_ISO639);
+            DeviceControlPanel selectedControlPanel = findControlPanelByLanguage(controlPanels, closestLanguage);
+            DeviceControlPanel previousControlPanel = deviceControlPanel;
+
+            if(selectedControlPanel != null) {
+                deviceControlPanel = selectedControlPanel;
+                Log.d(TAG, String.format("Found a control panel with closest match to phone languages: RFC5646=%s, ISO639=%s, Given language was: %s", controllerLanguage_IETF_RFC5646, controllerLanguage_ISO639, deviceControlPanel.getLanguage()));
+            }
+
+            else if (!controlPanels.isEmpty()) {
+                Log.w(TAG, String.format("Could not find a control panel that matches phone languages: RFC5646=%s, ISO639=%s", controllerLanguage_IETF_RFC5646, controllerLanguage_ISO639));
+                deviceControlPanel = controlPanels.iterator().next();
                 Log.d(TAG, String.format("Defaulting to the control panel of language: %s", deviceControlPanel.getLanguage()));
             }
 
@@ -581,7 +710,7 @@ public class DeviceDetailFragment extends Fragment {
                 previousControlPanel.release();
             }
 
-            if ( deviceControlPanel != null ) {
+            if (deviceControlPanel != null) {
                 onControlPanelSelected();
             }
             else {
