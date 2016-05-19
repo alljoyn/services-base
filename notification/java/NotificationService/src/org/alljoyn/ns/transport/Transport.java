@@ -37,7 +37,6 @@ import org.alljoyn.ns.commons.NativePlatformFactory;
 import org.alljoyn.ns.commons.NativePlatformFactoryException;
 import org.alljoyn.ns.transport.consumer.ReceiverTransport;
 import org.alljoyn.ns.transport.producer.SenderTransport;
-import org.alljoyn.services.android.storage.Property;
 import org.alljoyn.services.common.PropertyStore;
 import org.alljoyn.services.common.PropertyStore.Filter;
 import org.alljoyn.services.common.PropertyStoreException;
@@ -117,7 +116,7 @@ public class Transport {
 	public Map<String, Object> readAllProperties() throws NotificationServiceException {
    	    Map<String, Object> props = new HashMap<String, Object>(); 
    	    try {
-			propertyStore.readAll(Property.NO_LANGUAGE, Filter.READ, props);
+			propertyStore.readAll("", Filter.READ, props);
 		} catch (PropertyStoreException pse) {
 			throw new NotificationServiceException("Failed to read properties from the PropertyStore, Error: '" + pse.getMessage() + "'", pse);
 		}
