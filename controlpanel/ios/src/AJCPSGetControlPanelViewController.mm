@@ -58,6 +58,7 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
 @property (strong, nonatomic) AJCPSNotificationAction* notificationAction;
 
 @property (strong, atomic) UIAlertView *loadingAV;
+@property (strong, atomic) UIAlertController *loadingAC;
 
 @end
 
@@ -92,7 +93,7 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
     
     self.navigationItem.hidesBackButton = YES;
     [self showLoadingAlert:@"Loading..."];
-
+    
     // Add language button
     if (self.isAnnouncementMode) {
         [self addLanguageButton];
@@ -118,7 +119,6 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
         if (ER_OK != status) {
             NSLog(@"Failed to start control panel");
             [[[UIAlertView alloc] initWithTitle:@"Error" message:@"Failed to start control panel." delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
-            
             [self loadEnded];
         }
     }
@@ -486,17 +486,55 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
 
 -(void)showLoadingAlert:(NSString *)message
 {
-    self.loadingAV = [[UIAlertView alloc] initWithTitle:@"Please wait" message:message delegate:nil cancelButtonTitle:nil otherButtonTitles:nil];
-    UIActivityIndicatorView *activityIV = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(0, 0, 80, 40)];
-    activityIV.activityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
-    [activityIV startAnimating];
-    [self.loadingAV setValue:activityIV forKey:@"accessoryView"];
-    [self.loadingAV show];
+    if ([UIAlertController class]) {
+        self.loadingAC = [UIAlertController alertControllerWithTitle:nil
+                                                             message:[NSString stringWithFormat:@"%@\n\n", message]
+                                                      preferredStyle:UIAlertControllerStyleAlert];
+        UIActivityIndicatorView *activityIV = [[UIActivityIndicatorView alloc] initWithFrame:self.loadingAC.view.bounds];
+        [activityIV setTranslatesAutoresizingMaskIntoConstraints:NO];
+        activityIV.activityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
+        [self.loadingAC.view addSubview:activityIV];
+        [self.loadingAC.view addConstraint:[NSLayoutConstraint constraintWithItem:activityIV
+                                                                        attribute:NSLayoutAttributeCenterX
+                                                                        relatedBy:NSLayoutRelationEqual
+                                                                           toItem:self.loadingAC.view
+                                                                        attribute:NSLayoutAttributeCenterX
+                                                                       multiplier:1
+                                                                         constant:0]];
+        [self.loadingAC.view addConstraint:[NSLayoutConstraint constraintWithItem:activityIV
+                                                                        attribute:NSLayoutAttributeCenterY
+                                                                        relatedBy:NSLayoutRelationEqual
+                                                                           toItem:self.loadingAC.view
+                                                                        attribute:NSLayoutAttributeCenterY
+                                                                       multiplier:1
+                                                                         constant:0]];
+        [activityIV startAnimating];
+        [self presentViewController:self.loadingAC animated:NO completion:nil];
+    }
+    else {
+        self.loadingAV = [[UIAlertView alloc] initWithTitle:@"Please wait"
+                                                    message:message
+                                                   delegate:nil
+                                          cancelButtonTitle:nil
+                                          otherButtonTitles:nil];
+        UIActivityIndicatorView *activityIV = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(0, 0, 80, 40)];
+        activityIV.activityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
+        [activityIV startAnimating];
+        [self.loadingAV setValue:activityIV forKey:@"accessoryView"];
+        [self.loadingAV show];
+    }
+    NSLog(@"Showing loading alert");
 }
 
 -(void)dismissLoadingAlert
 {
-    [self.loadingAV dismissWithClickedButtonIndex:0 animated:YES];
+    if ([UIAlertController class]) {
+        [self.loadingAC dismissViewControllerAnimated:YES completion:nil];
+    }
+    else{
+        [self.loadingAV dismissWithClickedButtonIndex:0 animated:YES];
+    }
+    NSLog(@"dismissLoadingAlert called");
 }
 
 @end
