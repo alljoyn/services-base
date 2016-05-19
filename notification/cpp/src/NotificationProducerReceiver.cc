@@ -39,7 +39,7 @@ using namespace nsConsts;
 
 
 NotificationProducerReceiver::NotificationProducerReceiver(ajn::BusAttachment* bus, QStatus& status) :
-    NotificationProducer(bus, status), m_IsStopping(false)
+        NotificationProducer(bus, status, (qcc::String())), m_IsStopping(false)
 {
     /**
      * Do not add code until the status that returned from the base class is verified.

@@ -31,7 +31,7 @@ using namespace qcc;
 using namespace nsConsts;
 
 NotificationProducerSender::NotificationProducerSender(ajn::BusAttachment* bus, QStatus& status) :
-    NotificationProducer(bus, status)
+        NotificationProducer(bus, status, (qcc::String("Sender")))
 {
 
     /**
