@@ -21,7 +21,7 @@
 static NSString * const AJ_AP_PREFIX = @"AJ_";
 static NSString * const AJ_AP_SUFFIX = @"_AJ";
 
-@interface OnboardingViewController : UIViewController
+@interface OnboardingViewController : UIViewController <UIPickerViewDelegate, UIPickerViewDataSource>
 @property (strong, nonatomic) AJNBusAttachment *clientBusName;
 @property (weak, nonatomic) ClientInformation *clientInformation;
 
@@ -35,6 +35,8 @@ static NSString * const AJ_AP_SUFFIX = @"_AJ";
 @property (weak, nonatomic) IBOutlet UILabel *ssidPassLbl;
 @property (weak, nonatomic) IBOutlet UILabel *statusLbl;
 @property (weak, nonatomic) IBOutlet UILabel *instructLbl;
+@property (weak, nonatomic) IBOutlet UITextField *authTextField;
+@property (strong, nonatomic) UIPickerView *authType;
 
 - (IBAction)configureBtnDidTouchUpInside:(id)sender;
 
