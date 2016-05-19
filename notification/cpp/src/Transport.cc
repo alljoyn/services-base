@@ -42,6 +42,12 @@ using namespace services;
 using namespace nsConsts;
 using namespace qcc;
 
+static qcc::String AJ_NOTIFICATION_INTERFACE_MATCH = "type='signal',sessionless='t',interface='"
+                                                    + AJ_NOTIFICATION_INTERFACE_NAME + "'";
+
+static qcc::String AJ_DISMISSER_INTERFACE_MATCH = "type='signal',sessionless='t',interface='"
+                                                 + AJ_NOTIFICATION_DISMISSER_INTERFACE + "'";
+
 Transport* Transport::s_Instance(NULL);
 
 Transport::Transport() : m_Bus(0), m_Receiver(0), m_Consumer(0),
@@ -288,9 +294,7 @@ QStatus Transport::startReceiverTransport(BusAttachment* bus)
             goto exit;
         }
 
-        String AJ_NOTIFICATION_INTERFACE_MATCH = "type='signal',sessionless='t',interface='" + AJ_NOTIFICATION_INTERFACE_NAME + "'";
         QCC_DbgPrintf(("Match String is: %s", AJ_NOTIFICATION_INTERFACE_MATCH.c_str()));
-
         status = m_Bus->AddMatch(AJ_NOTIFICATION_INTERFACE_MATCH.c_str());
 
         if (status != ER_OK) {
@@ -329,7 +333,6 @@ QStatus Transport::startReceiverTransport(BusAttachment* bus)
             goto exit;
         }
 
-        String AJ_DISMISSER_INTERFACE_MATCH = "type='signal',sessionless='t',interface='" + AJ_NOTIFICATION_DISMISSER_INTERFACE + "'";
         QCC_DbgPrintf(("NotificationDismisserReceiver Match String is: %s", AJ_DISMISSER_INTERFACE_MATCH.c_str()));
 
         status = m_Bus->AddMatch(AJ_DISMISSER_INTERFACE_MATCH.c_str());
@@ -437,7 +440,8 @@ void Transport::cleanupNotificationDismisserSenderInternal()
     if (!m_NotificationDismisserSender) {
         return;
     }
-
+    
+    m_Bus->RemoveMatch(AJ_DISMISSER_INTERFACE_MATCH.c_str());
     m_Bus->UnregisterBusObject(*m_NotificationDismisserSender);
 }
 
@@ -488,6 +492,8 @@ void Transport::cleanupTransportConsumer(bool unregister)
     if (!m_Consumer) {
         return;
     }
+    
+    m_Bus->RemoveMatch(AJ_NOTIFICATION_INTERFACE_MATCH.c_str());
 
     if (unregister) {
         m_Consumer->unregisterHandler(m_Bus);
