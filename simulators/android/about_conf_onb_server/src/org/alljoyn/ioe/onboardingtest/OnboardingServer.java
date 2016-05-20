@@ -140,12 +140,16 @@ public class OnboardingServer extends Service implements AuthPasswordHandler, Se
                 else if (action.equals(OnboardingServiceImpl.STOP_SOFTAP_FAILED)) {
                     showToast(extras.getString(OnboardingServiceImpl.CONNECTION_FAILURE_REASON), Toast.LENGTH_LONG);
                 }
+                else if (action.equals(OnboardingServiceImpl.WIFI_CONFIG_FAILED)) {
+                    showToast(extras.getString(OnboardingServiceImpl.WIFI_CONFIG_FAILURE_REASON), Toast.LENGTH_LONG);
+                }
             }
         };
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(OnboardingServiceImpl.ENABLE_WIFI_FAILED);
         filter.addAction(OnboardingServiceImpl.STOP_SOFTAP_FAILED);
+        filter.addAction(OnboardingServiceImpl.WIFI_CONFIG_FAILED);
         registerReceiver(m_broadcastReceiver, filter);
     }
 

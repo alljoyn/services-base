@@ -1,17 +1,17 @@
 /******************************************************************************
  * Copyright AllSeen Alliance. All rights reserved.
- *
- *    Permission to use, copy, modify, and/or distribute this software for any
- *    purpose with or without fee is hereby granted, provided that the above
- *    copyright notice and this permission notice appear in all copies.
- *
- *    THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
- *    WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
- *    MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
- *    ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- *    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
- *    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
- *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ * <p/>
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ * <p/>
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
 package org.alljoyn.onboarding.test;
@@ -68,19 +68,19 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
 
     public static final String TAG = "OnboardingClient";
     public static final String TAG_PASSWORD = "OnboardingApplication_password";
-
-    private BusAttachment m_Bus;
-    private IskWifiManager m_wifiManager;
-    private HashMap<String, SoftAPDetails> m_devicesMap;
-    private SoftAPDetails m_currentPeer;
-    private String m_realmName;
-    private BroadcastReceiver m_receiver;
-
     /**
      * The daemon should advertise itself "quietly" (directly to the calling
      * port) This is to reply directly to a TC looking for a daemon
      */
     private static final String DAEMON_QUIET_PREFIX = "quiet@";
+
+    static {
+        try {
+            System.loadLibrary("alljoyn_java");
+        } catch (Exception e) {
+            System.out.println("can't load library alljoyn_java");
+        }
+    }
 
     private final GenericLogger m_logger = new GenericLogger() {
         @Override
@@ -116,20 +116,18 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
             Log.wtf(TAG, msg);
         }
     };
+    private BusAttachment m_Bus;
+    private IskWifiManager m_wifiManager;
+    private HashMap<String, SoftAPDetails> m_devicesMap;
+    private SoftAPDetails m_currentPeer;
+    private String m_realmName;
+    private BroadcastReceiver m_receiver;
     private OnboardingClientImpl m_onboardingClient;
-
-    static {
-        try {
-            System.loadLibrary("alljoyn_java");
-        } catch (Exception e) {
-            System.out.println("can't load library alljoyn_java");
-        }
-    }
 
     // ======================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.app.Application#onCreate()
      */
     @Override
@@ -181,20 +179,20 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     }
 
     // ======================================================================
+
     /**
-     * @param msg
-     *            Given a msg, create and display a toast on the screen.
+     * @param msg Given a msg, create and display a toast on the screen.
      */
     public void makeToast(String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
     }
 
     // ======================================================================
+
     /**
      * Sets the daemon realm name.
-     * 
-     * @param realmName
-     *            The daemon realm name.
+     *
+     * @param realmName The daemon realm name.
      */
     public void setRealmName(String realmName) {
         m_realmName = realmName;
@@ -203,7 +201,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see android.app.Application#onTerminate()
      */
     @Override
@@ -253,7 +251,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
         // set keyListener
         keyStoreFileName = getApplicationContext().getFileStreamPath("alljoyn_keystore").getAbsolutePath();
         if (keyStoreFileName != null && keyStoreFileName.length() > 0) {
-            SrpAnonymousKeyListener authListener = new SrpAnonymousKeyListener(OnboardingApplication.this, m_logger, new String[] { "ALLJOYN_SRP_KEYX", "ALLJOYN_ECDHE_PSK" });
+            SrpAnonymousKeyListener authListener = new SrpAnonymousKeyListener(OnboardingApplication.this, m_logger, new String[]{"ALLJOYN_SRP_KEYX", "ALLJOYN_ECDHE_PSK"});
             Status authStatus = m_Bus.registerAuthListener(authListener.getAuthMechanismsAsString(), authListener, keyStoreFileName);
             m_logger.debug(TAG, "BusAttachment.registerAuthListener status = " + authStatus);
             if (authStatus != Status.OK) {
@@ -262,7 +260,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
         }
 
         m_Bus.registerAboutListener(this);
-        m_Bus.whoImplements(new String[] { OnboardingTransport.INTERFACE_NAME });
+        m_Bus.whoImplements(new String[]{OnboardingTransport.INTERFACE_NAME});
     }
 
     @Override
@@ -281,6 +279,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     }
 
     // ======================================================================
+
     /**
      * Disconnect from Alljoyn bus and unregister bus objects.
      */
@@ -291,7 +290,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
          */
         try {
             if (m_Bus != null) {
-                m_Bus.cancelWhoImplements(new String[] { OnboardingTransport.INTERFACE_NAME });
+                m_Bus.cancelWhoImplements(new String[]{OnboardingTransport.INTERFACE_NAME});
                 m_Bus.unregisterAboutListener(this);
                 m_Bus.clearKeyStore();
                 m_logger.info(TAG_PASSWORD, "Bus attachment clear key store");
@@ -313,7 +312,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
         SoftAPDetails oldDevice = m_devicesMap.get(deviceId);
 
         if (oldDevice != null) {// device already exist. update the fields that
-                                // might have changed.
+            // might have changed.
             if (!oldDevice.busName.equals(busName)) {
                 // In case the bus name changed, the password should be reset
                 oldDevice.password = SrpAnonymousKeyListener.DEFAULT_PINCODE;
@@ -416,9 +415,10 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     }
 
     // ======================================================================
+
     /**
      * Return the onboarding service fields.
-     * 
+     *
      * @return the onboarding service fields.
      */
     public Short getOnboardingVersion() {
@@ -441,9 +441,10 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     }
 
     // ======================================================================
+
     /**
      * Return the onboarding service last error
-     * 
+     *
      * @return the onboarding service last error
      */
     public OBLastError getLastError() {
@@ -466,9 +467,10 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     }
 
     // ======================================================================
+
     /**
      * Return the onboarding service state.
-     * 
+     *
      * @return the onboarding service state.
      */
     public Short getState() {
@@ -488,9 +490,10 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     }
 
     // ======================================================================
+
     /**
      * Return the onboarding service scan info.
-     * 
+     *
      * @return the onboarding service scan info.
      */
     public ScanInfo getScanInfo() {
@@ -510,18 +513,16 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     }
 
     // ======================================================================
+
     /**
      * Configure a network for the alljoyn device
-     * 
-     * @param networkName
-     *            The name (ssid) of the configured network
-     * @param networkPassword
-     *            The password of the configured network
-     * @param networkAuthType
-     *            The auth type of the configured network (can get by
-     *            AuthType.getTypeId()).
+     *
+     * @param networkName     The name (ssid) of the configured network
+     * @param networkPassword The password of the configured network
+     * @param networkAuthType The auth type of the configured network (can get by
+     *                        AuthType.getTypeId()).
      */
-    public void configureNetwork(String networkName, String networkPassword, short networkAuthType) {
+    public void configureNetwork(String networkName, String networkPassword, AuthType networkAuthType) {
 
         Log.d(TAG, "ONBOARDING: OnboardingClientImpl for " + m_currentPeer.busName);
         try {
@@ -530,7 +531,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
                 m_onboardingClient.connect();
             }
             Log.d(TAG, "ONBOARDING: connect() succeeded. before configureWiFi()");
-            ConfigureWifiMode mode = m_onboardingClient.configureWiFi(networkName, networkPassword, AuthType.getAuthTypeById(networkAuthType));
+            ConfigureWifiMode mode = m_onboardingClient.configureWiFi(networkName, networkPassword, networkAuthType);
             System.out.println(mode);
             Log.d(TAG, "ONBOARDING: configureWiFi() succeeded. before disconnect()");
 
@@ -541,6 +542,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     }
 
     // ======================================================================
+
     /**
      * Connect the alljoyn device to its last configured network.
      */
@@ -563,6 +565,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     }
 
     // ======================================================================
+
     /**
      * Offboard the alljoyn device from its last network.
      */
@@ -588,7 +591,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.alljoyn.services.android.security.AuthPasswordHandler#getPassword
      * (java.lang.String)
@@ -602,7 +605,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
         if (peerName != null) {
             Collection<SoftAPDetails> devices = m_devicesMap.values();
             Iterator<SoftAPDetails> iterator = devices.iterator();
-            for (; iterator.hasNext();) {
+            for (; iterator.hasNext(); ) {
                 softAPDetails = iterator.next();
                 if (softAPDetails.busName.equals(peerName)) {
                     char[] password = softAPDetails.password;
@@ -617,21 +620,20 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     }
 
     // ======================================================================
+
     /**
      * Sets a password on the client side. This password will be compared
      * against the alljoyn device password when needed.
-     * 
-     * @param peerName
-     *            The device bus name.
-     * @param password
-     *            The device new password.
+     *
+     * @param peerName The device bus name.
+     * @param password The device new password.
      */
     public void setPassword(String peerName, char[] password) {
 
         m_logger.info(TAG_PASSWORD, "setPassword was called on the client side");
         Collection<SoftAPDetails> devices = m_devicesMap.values();
         Iterator<SoftAPDetails> iterator = devices.iterator();
-        for (; iterator.hasNext();) {
+        for (; iterator.hasNext(); ) {
             SoftAPDetails softAPDetails = iterator.next();
             if (softAPDetails.busName.equals(peerName)) {
                 m_logger.info(TAG_PASSWORD, "Set the password on the client side from: " + String.valueOf(softAPDetails.password) + " to: " + String.valueOf(password));
@@ -643,7 +645,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     // ======================================================================
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.alljoyn.services.android.security.AuthPasswordHandler#completed(java
      * .lang.String, java.lang.String, boolean)

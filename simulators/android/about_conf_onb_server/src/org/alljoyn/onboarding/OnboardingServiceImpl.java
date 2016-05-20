@@ -136,6 +136,12 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
     // String to be used as bundle key for a message indicating why a failure occurred.
     public static final String CONNECTION_FAILURE_REASON = "org.alljoyn.onboarding.sample.CONNECTION_FAILURE_REASON";
 
+    // String to retrieve bundle value for wifi configuration failure
+    public static final String WIFI_CONFIG_FAILURE_REASON = "org.alljoyn.onboarding.sample.CONFIG_FAILURE_REASON";
+
+    // String indicating wifi configuration failed
+    public static final String WIFI_CONFIG_FAILED = "org.alljoyn.onboarding.sample.WIFI_CONFIG_FAILED";
+
     private final MODE mode = MODE.BASIC;//MODE.FAST_CHANNEL_SWITCHING;
 
     public static enum MODE {
@@ -392,6 +398,11 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
         // delete any existing WifiConfiguration that has the same SSID as the new one
         for (WifiConfiguration w : wifiConfigs) {
             if (w.SSID != null && isSsidEquals(w.SSID, m_ssid)) {
+                // Configuration won't be updated in android marshmallow
+                if(android.os.Build.VERSION.SDK_INT >= 23) {
+                    sendBroadcastWifiConfigurationNotUpdated();
+                    break;
+                }
                 m_networkId = w.networkId;
                 Log.i(TAG, "validate found " + m_ssid + " in ConfiguredNetworks. networkId = " + m_networkId);
                 boolean res = m_wifi.removeNetwork(m_networkId);
@@ -406,7 +417,12 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
         case OPEN: {
             wifiConfiguration.SSID = "\"" + m_ssid + "\"";
             wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-            m_networkId = m_wifi.addNetwork(wifiConfiguration);
+            // Configuration won't be updated in android marshmallow
+            if(android.os.Build.VERSION.SDK_INT < 23) {
+                m_networkId = m_wifi.addNetwork(wifiConfiguration);
+            } else {
+                sendBroadcastWifiConfigurationNotUpdated();
+            }
             Log.d(TAG, "addNetwork returned " + m_networkId);
             break;
         }
@@ -434,7 +450,12 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
             wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
             wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP104);
             wifiConfiguration.wepTxKeyIndex = 0;
-            m_networkId = m_wifi.addNetwork(wifiConfiguration);
+            // Configuration won't be updated in android marshmallow
+            if(android.os.Build.VERSION.SDK_INT < 23) {
+                m_networkId = m_wifi.addNetwork(wifiConfiguration);
+            } else {
+                sendBroadcastWifiConfigurationNotUpdated();
+            }
             Log.d(TAG, "connectToWifiAP [WEP] add Network returned " + m_networkId);
             break;
         }
@@ -462,7 +483,12 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
             wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
             wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
             wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
-            m_networkId = m_wifi.addNetwork(wifiConfiguration);
+            // Configuration won't be updated in android marshmallow
+            if(android.os.Build.VERSION.SDK_INT < 23) {
+                m_networkId = m_wifi.addNetwork(wifiConfiguration);
+            } else {
+                sendBroadcastWifiConfigurationNotUpdated();
+            }
             Log.d(TAG, "connectToWifiAP  [WPA..WPA2] add Network returned " + m_networkId);
             break;
 
@@ -653,6 +679,15 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
     }
 
     /**
+     * Send a broadcast indicating that the users wifi configuration won't be overridden
+     */
+    private void sendBroadcastWifiConfigurationNotUpdated() {
+        Bundle bundle = new Bundle();
+        bundle.putString(WIFI_CONFIG_FAILURE_REASON, "Will not override network settings on android marshmallow.");
+        sendBroadcast(WIFI_CONFIG_FAILED, bundle);
+    }
+
+    /**
      * Start the AP mode.
      */
     private void startSoftAp() {
@@ -746,7 +781,7 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
          * Tell the device to connect to the Personal AP. The device is
          * recommended to use channel switching feature if it is available.
          *
-         * @return short: 1 -- current soft AP mode will be disabled. 2 – a
+         * @return short: 1 -- current soft AP mode will be disabled. 2 ï¿½ a
          *         separate channel is used to validate the Personal AP
          *         connection.
          * @throws BusException
@@ -832,10 +867,10 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
         }
 
         /**
-         * @return the state: 0 - Personal AP Not Configured 1 – Personal AP
-         *         Configured/Not Validated 2 – Personal AP
-         *         Configured/Validating 3 – Personal AP Configured/Validated 4
-         *         – Personal AP Configured/Error 5 – Personal AP
+         * @return the state: 0 - Personal AP Not Configured 1 ï¿½ Personal AP
+         *         Configured/Not Validated 2 ï¿½ Personal AP
+         *         Configured/Validating 3 ï¿½ Personal AP Configured/Validated 4
+         *         ï¿½ Personal AP Configured/Error 5 ï¿½ Personal AP
          *         Configured/Retry
          * @throws BusException
          */
@@ -866,7 +901,7 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
         }
 
         /**
-         * Scan all the WiFi access points in the device’s proximity. Some
+         * Scan all the WiFi access points in the deviceï¿½s proximity. Some
          * device may not support this feature. In such a case, the AllJoyn
          * error code org.alljoyn.Error.FeatureNotAvailable will be returned in
          * the AllJoyn response.
