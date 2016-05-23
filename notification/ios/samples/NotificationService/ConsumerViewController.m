@@ -327,7 +327,6 @@ static NSString *const CONSUMER_DEFAULT_LANG = @"en";
         return;
     }
     
-    
     for (NotificationEntry *entry in self.notificationEntries) {
         if (entry.chosen) {
             NSLog(@"Action requested.");
@@ -336,9 +335,8 @@ static NSString *const CONSUMER_DEFAULT_LANG = @"en";
             NSString *cpsObjectPath = [entry.ajnsNotification controlPanelServiceObjectPath];
             if ([cpsObjectPath length])
             {
-                AJCPSGetControlPanelViewController *controlPanelViewController = [[AJCPSGetControlPanelViewController alloc] initWithNotificationSenderBusName:[entry.ajnsNotification senderBusName] cpsObjectPath:[entry.ajnsNotification controlPanelServiceObjectPath] bus:self.busAttachment];
-                [self.navigationController setNavigationBarHidden:NO];
-                [self.navigationController pushViewController:controlPanelViewController animated:YES];
+                NSString *message = [NSString stringWithFormat:@"This notification has an action at path: %@", cpsObjectPath];
+                [[[UIAlertView alloc] initWithTitle:@"Info" message:message delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
             } else {
                 NSLog(@"%@ has no CPS object path", [entry.ajnsNotification text]);
                 [[[UIAlertView alloc] initWithTitle:@"Info" message:@"This notification doesn't have an action." delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
