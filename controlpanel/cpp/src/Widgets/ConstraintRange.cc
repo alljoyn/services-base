@@ -372,67 +372,53 @@ QStatus ConstraintRange::readConstraintArg(MsgArg* val)
     switch (minValue->typeId) {
 
     case ALLJOYN_UINT16:
-        {
-            CHECK_AND_RETURN(minValue->Get(AJPARAM_UINT16.c_str(), &m_MinValue.uint16Value))
-            CHECK_AND_RETURN(maxValue->Get(AJPARAM_UINT16.c_str(), &m_MaxValue.uint16Value))
-            CHECK_AND_RETURN(incrementValue->Get(AJPARAM_UINT16.c_str(), &m_IncrementValue.uint16Value))
-            m_PropertyType = UINT16_PROPERTY;
-            break;
-        }
+        CHECK_AND_RETURN(minValue->Get(AJPARAM_UINT16.c_str(), &m_MinValue.uint16Value))
+        CHECK_AND_RETURN(maxValue->Get(AJPARAM_UINT16.c_str(), &m_MaxValue.uint16Value))
+        CHECK_AND_RETURN(incrementValue->Get(AJPARAM_UINT16.c_str(), &m_IncrementValue.uint16Value))
+        m_PropertyType = UINT16_PROPERTY;
+        break;
 
     case ALLJOYN_INT16:
-        {
-            CHECK_AND_RETURN(minValue->Get(AJPARAM_INT16.c_str(), &m_MinValue.int16Value))
-            CHECK_AND_RETURN(maxValue->Get(AJPARAM_INT16.c_str(), &m_MaxValue.int16Value))
-            CHECK_AND_RETURN(incrementValue->Get(AJPARAM_INT16.c_str(), &m_IncrementValue.int16Value))
-            m_PropertyType = INT16_PROPERTY;
-            break;
-        }
+        CHECK_AND_RETURN(minValue->Get(AJPARAM_INT16.c_str(), &m_MinValue.int16Value))
+        CHECK_AND_RETURN(maxValue->Get(AJPARAM_INT16.c_str(), &m_MaxValue.int16Value))
+        CHECK_AND_RETURN(incrementValue->Get(AJPARAM_INT16.c_str(), &m_IncrementValue.int16Value))
+        m_PropertyType = INT16_PROPERTY;
+        break;
 
     case ALLJOYN_UINT32:
-        {
-            CHECK_AND_RETURN(minValue->Get(AJPARAM_UINT32.c_str(), &m_MinValue.uint32Value))
-            CHECK_AND_RETURN(maxValue->Get(AJPARAM_UINT32.c_str(), &m_MaxValue.uint32Value))
-            CHECK_AND_RETURN(incrementValue->Get(AJPARAM_UINT32.c_str(), &m_IncrementValue.uint32Value))
-            m_PropertyType = UINT32_PROPERTY;
-            break;
-        }
+        CHECK_AND_RETURN(minValue->Get(AJPARAM_UINT32.c_str(), &m_MinValue.uint32Value))
+        CHECK_AND_RETURN(maxValue->Get(AJPARAM_UINT32.c_str(), &m_MaxValue.uint32Value))
+        CHECK_AND_RETURN(incrementValue->Get(AJPARAM_UINT32.c_str(), &m_IncrementValue.uint32Value))
+        m_PropertyType = UINT32_PROPERTY;
+        break;
 
     case ALLJOYN_INT32:
-        {
-            CHECK_AND_RETURN(minValue->Get(AJPARAM_INT32.c_str(), &m_MinValue.int32Value))
-            CHECK_AND_RETURN(maxValue->Get(AJPARAM_INT32.c_str(), &m_MaxValue.int32Value))
-            CHECK_AND_RETURN(incrementValue->Get(AJPARAM_INT32.c_str(), &m_IncrementValue.int32Value))
-            m_PropertyType = INT32_PROPERTY;
-            break;
-        }
+        CHECK_AND_RETURN(minValue->Get(AJPARAM_INT32.c_str(), &m_MinValue.int32Value))
+        CHECK_AND_RETURN(maxValue->Get(AJPARAM_INT32.c_str(), &m_MaxValue.int32Value))
+        CHECK_AND_RETURN(incrementValue->Get(AJPARAM_INT32.c_str(), &m_IncrementValue.int32Value))
+        m_PropertyType = INT32_PROPERTY;
+        break;
 
     case ALLJOYN_UINT64:
-        {
-            CHECK_AND_RETURN(minValue->Get(AJPARAM_UINT64.c_str(), &m_MinValue.uint64Value))
-            CHECK_AND_RETURN(maxValue->Get(AJPARAM_UINT64.c_str(), &m_MaxValue.uint64Value))
-            CHECK_AND_RETURN(incrementValue->Get(AJPARAM_UINT64.c_str(), &m_IncrementValue.uint64Value))
-            m_PropertyType = UINT64_PROPERTY;
-            break;
-        }
+        CHECK_AND_RETURN(minValue->Get(AJPARAM_UINT64.c_str(), &m_MinValue.uint64Value))
+        CHECK_AND_RETURN(maxValue->Get(AJPARAM_UINT64.c_str(), &m_MaxValue.uint64Value))
+        CHECK_AND_RETURN(incrementValue->Get(AJPARAM_UINT64.c_str(), &m_IncrementValue.uint64Value))
+        m_PropertyType = UINT64_PROPERTY;
+        break;
 
     case ALLJOYN_INT64:
-        {
-            CHECK_AND_RETURN(minValue->Get(AJPARAM_INT64.c_str(), &m_MinValue.int64Value))
-            CHECK_AND_RETURN(maxValue->Get(AJPARAM_INT64.c_str(), &m_MaxValue.int64Value))
-            CHECK_AND_RETURN(incrementValue->Get(AJPARAM_INT64.c_str(), &m_IncrementValue.int64Value))
-            m_PropertyType = INT64_PROPERTY;
-            break;
-        }
+        CHECK_AND_RETURN(minValue->Get(AJPARAM_INT64.c_str(), &m_MinValue.int64Value))
+        CHECK_AND_RETURN(maxValue->Get(AJPARAM_INT64.c_str(), &m_MaxValue.int64Value))
+        CHECK_AND_RETURN(incrementValue->Get(AJPARAM_INT64.c_str(), &m_IncrementValue.int64Value))
+        m_PropertyType = INT64_PROPERTY;
+        break;
 
     case ALLJOYN_DOUBLE:
-        {
-            CHECK_AND_RETURN(minValue->Get(AJPARAM_DOUBLE.c_str(), &m_MinValue.doubleValue))
-            CHECK_AND_RETURN(maxValue->Get(AJPARAM_DOUBLE.c_str(), &m_MaxValue.doubleValue))
-            CHECK_AND_RETURN(incrementValue->Get(AJPARAM_DOUBLE.c_str(), &m_IncrementValue.doubleValue))
-            m_PropertyType = DOUBLE_PROPERTY;
-            break;
-        }
+        CHECK_AND_RETURN(minValue->Get(AJPARAM_DOUBLE.c_str(), &m_MinValue.doubleValue))
+        CHECK_AND_RETURN(maxValue->Get(AJPARAM_DOUBLE.c_str(), &m_MaxValue.doubleValue))
+        CHECK_AND_RETURN(incrementValue->Get(AJPARAM_DOUBLE.c_str(), &m_IncrementValue.doubleValue))
+        m_PropertyType = DOUBLE_PROPERTY;
+        break;
 
     default:
         status = ER_BUS_SIGNATURE_MISMATCH;

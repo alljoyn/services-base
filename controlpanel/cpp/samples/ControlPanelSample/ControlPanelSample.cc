@@ -98,7 +98,8 @@ void cleanup()
     }
 }
 
-void WaitForSigInt(void) {
+void WaitForSigInt(void)
+{
     while (s_interrupt == false && s_restart == false) {
 #ifdef _WIN32
         Sleep(100);
@@ -129,7 +130,7 @@ start:
     QCC_SetDebugLevel(logModules::CONTROLPANEL_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
 
     authListener = new DefaultECDHEAuthListener();
-    const char *password = "000000";
+    const char* password = "000000";
     authListener->SetPassword((const uint8_t*)password, strlen(password));
 
     /* Connect to the daemon */

@@ -21,7 +21,7 @@ namespace ajn {
 namespace services {
 
 #ifndef UINT32_MAX
-#define UINT32_MAX      (4294967295U)
+#define UINT32_MAX (4294967295U)
 #endif
 
 #if defined(QCC_OS_GROUP_WINDOWS)
@@ -34,9 +34,9 @@ namespace services {
 /**
  * Typedefs for functionPointers used
  */
-typedef bool (*GetBoolFptr)();
-typedef uint32_t (*GetUint32Fptr)();
-typedef const char* (*GetStringFptr)(uint16_t);
+typedef bool (* GetBoolFptr)();
+typedef uint32_t (* GetUint32Fptr)();
+typedef const char* (* GetStringFptr)(uint16_t);
 
 /**
  * Mode ControlPanel is in

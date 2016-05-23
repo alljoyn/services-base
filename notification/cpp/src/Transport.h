@@ -42,7 +42,6 @@ class NotificationTransportProducer;
 class Transport {
 
   public:
-
     /**
      * Destructor of Transport
      */

@@ -36,37 +36,37 @@ typedef union {
      * Get Value for type uint16t
      * @return value of Property
      */
-    uint16_t (*getUint16Value)();
+    uint16_t (* getUint16Value)();
     /**
      * Get Value for type int16_t
      * @return value of Property
      */
-    int16_t (*getInt16Value)();
+    int16_t (* getInt16Value)();
     /**
      * Get Value for type uint32_t
      * @return value of Property
      */
-    uint32_t (*getUint32Value)();
+    uint32_t (* getUint32Value)();
     /**
      * Get Value for type int32_t
      * @return value of Property
      */
-    int32_t (*getInt32Value)();
+    int32_t (* getInt32Value)();
     /**
      * Get Value for type uint64_t
      * @return value of Property
      */
-    uint64_t (*getUint64Value)();
+    uint64_t (* getUint64Value)();
     /**
      * Get Value for type int64_t
      * @return value of Property
      */
-    int64_t (*getInt64Value)();
+    int64_t (* getInt64Value)();
     /**
      * Get Value for type double
      * @return value of Property
      */
-    double (*getDoubleValue)();
+    double (* getDoubleValue)();
     /**
      * Get Value for type const char*
      * @return value of Property
@@ -76,7 +76,7 @@ typedef union {
      * Get Value for type bool
      * @return value of Property
      */
-    bool (*getBoolValue)();
+    bool (* getBoolValue)();
     /**
      * Get Value for type CPSDate
      * @return value of Property
@@ -264,49 +264,49 @@ class Property : public Widget {
      * @param getUint16Value - functionPointer to get a uint16 Value
      * @return status - success/failure
      */
-    QStatus setGetValue(uint16_t (*getUint16Value)());
+    QStatus setGetValue(uint16_t (* getUint16Value)());
 
     /**
      * Set the GetValue Function Pointer
      * @param getInt16Value - functionPointer to get a int16 Value
      * @return status - success/failure
      */
-    QStatus setGetValue(int16_t (*getInt16Value)());
+    QStatus setGetValue(int16_t (* getInt16Value)());
 
     /**
      * Set the GetValue Function Pointer
      * @param getUint32Value - functionPointer to get a uint32 Value
      * @return status - success/failure
      */
-    QStatus setGetValue(uint32_t (*getUint32Value)());
+    QStatus setGetValue(uint32_t (* getUint32Value)());
 
     /**
      * Set the GetValue Function Pointer
      * @param getInt32Value - functionPointer to get a int32 Value
      * @return status - success/failure
      */
-    QStatus setGetValue(int32_t (*getInt32Value)());
+    QStatus setGetValue(int32_t (* getInt32Value)());
 
     /**
      * Set the GetValue Function Pointer
      * @param getUint64Value - functionPointer to get a uint64 Value
      * @return status - success/failure
      */
-    QStatus setGetValue(uint64_t (*getUint64Value)());
+    QStatus setGetValue(uint64_t (* getUint64Value)());
 
     /**
      * Set the GetValue Function Pointer
      * @param getInt64Value - functionPointer to get a int64 Value
      * @return status - success/failure
      */
-    QStatus setGetValue(int64_t (*getInt64Value)());
+    QStatus setGetValue(int64_t (* getInt64Value)());
 
     /**
      * Set the GetValue Function Pointer
      * @param getDoubleValue - functionPointer to get a double Value
      * @return status - success/failure
      */
-    QStatus setGetValue(double (*getDoubleValue)());
+    QStatus setGetValue(double (* getDoubleValue)());
 
     /**
      * Set the GetValue Function Pointer
@@ -320,7 +320,7 @@ class Property : public Widget {
      * @param getBoolValue - functionPointer to get a bool Value
      * @return status - success/failure
      */
-    QStatus setGetValue(bool (*getBoolValue)());
+    QStatus setGetValue(bool (* getBoolValue)());
 
     /**
      * Set the GetValue Function Pointer

@@ -43,10 +43,10 @@ using namespace nsConsts;
 using namespace qcc;
 
 static qcc::String AJ_NOTIFICATION_INTERFACE_MATCH = "type='signal',sessionless='t',interface='"
-                                                    + AJ_NOTIFICATION_INTERFACE_NAME + "'";
+                                                     + AJ_NOTIFICATION_INTERFACE_NAME + "'";
 
 static qcc::String AJ_DISMISSER_INTERFACE_MATCH = "type='signal',sessionless='t',interface='"
-                                                 + AJ_NOTIFICATION_DISMISSER_INTERFACE + "'";
+                                                  + AJ_NOTIFICATION_DISMISSER_INTERFACE + "'";
 
 Transport* Transport::s_Instance(NULL);
 
@@ -57,8 +57,9 @@ Transport::Transport() : m_Bus(0), m_Receiver(0), m_Consumer(0),
 {
     Notification::m_AsyncTaskQueue.Start();
 
-    for (int32_t indx = 0; indx < MESSAGE_TYPE_CNT; indx++)
+    for (int32_t indx = 0; indx < MESSAGE_TYPE_CNT; indx++) {
         m_Producers[indx] = 0;
+    }
 }
 
 Transport::~Transport()
@@ -154,7 +155,7 @@ QStatus Transport::deleteMsg(int32_t msgId)
     QCC_DbgTrace(("Transport::deleteMsg() msgId=%d", msgId));
     QStatus ret = ER_OK;
 
-    for (size_t i  = 0; i < ajn::services::MESSAGE_TYPE_CNT; i++) {
+    for (size_t i = 0; i < ajn::services::MESSAGE_TYPE_CNT; i++) {
         if (m_Producers[i] == 0) {
             QCC_DbgHLPrintf(("Could not delete message, Sender is not initialized"));
             continue;
@@ -195,10 +196,10 @@ QStatus Transport::startSenderTransport(BusAttachment* bus)
 
         for (int32_t messageTypeIndx = 0; messageTypeIndx < MESSAGE_TYPE_CNT; messageTypeIndx++) {
             status = ER_OK;
-            
-                m_Producers[messageTypeIndx] = new NotificationTransportProducer(m_Bus,
-                                                                                 AJ_PRODUCER_SERVICE_PATH_PREFIX + MessageTypeUtil::getMessageTypeString(messageTypeIndx), status);
-           
+
+            m_Producers[messageTypeIndx] = new NotificationTransportProducer(m_Bus,
+                                                                             AJ_PRODUCER_SERVICE_PATH_PREFIX + MessageTypeUtil::getMessageTypeString(messageTypeIndx), status);
+
 
             if (status != ER_OK) {
                 QCC_LogError(status, ("Could not create BusObject."));
@@ -370,7 +371,7 @@ exit:
 void Transport::cleanupTransportProducer(int32_t messageTypeIndx, bool unregister)
 {
     QCC_DbgTrace(("Transport::cleanupTransportProducer - Start"));
-    for  (; messageTypeIndx >= 0; messageTypeIndx--) {
+    for ( ; messageTypeIndx >= 0; messageTypeIndx--) {
         if (!m_Producers[messageTypeIndx]) {
             continue;
         }
@@ -438,7 +439,7 @@ void Transport::cleanupNotificationDismisserSenderInternal()
     if (!m_NotificationDismisserSender) {
         return;
     }
-    
+
     m_Bus->RemoveMatch(AJ_DISMISSER_INTERFACE_MATCH.c_str());
     m_Bus->UnregisterBusObject(*m_NotificationDismisserSender);
 }
@@ -490,7 +491,7 @@ void Transport::cleanupTransportConsumer(bool unregister)
     if (!m_Consumer) {
         return;
     }
-    
+
     m_Bus->RemoveMatch(AJ_NOTIFICATION_INTERFACE_MATCH.c_str());
 
     if (unregister) {

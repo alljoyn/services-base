@@ -28,11 +28,10 @@ qcc::String const& MessageTypeUtil::getMessageTypeString(int32_t messageType)
 
 NotificationMessageType MessageTypeUtil::getMessageType(int32_t messageType)
 {
-    return (NotificationMessageType) messageType;
+    return (NotificationMessageType)messageType;
 }
 
 int32_t MessageTypeUtil::getNumMessageTypes()
 {
-    return (int32_t) MESSAGE_TYPE_CNT;
+    return (int32_t)MESSAGE_TYPE_CNT;
 }
-

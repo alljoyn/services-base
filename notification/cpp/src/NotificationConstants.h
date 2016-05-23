@@ -30,7 +30,7 @@
  * Common Macros
  */
 
-#define CHECK(x) if ((status = x))  { break; }
+#define CHECK(x) if ((status = x)) { break; }
 
 namespace ajn {
 namespace services {
@@ -107,4 +107,3 @@ static const qcc::String AJ_NOTIFICATION_DISMISSER_PATH = "/notificationDismisse
 
 
 #endif /* NOTIFICATIONCONSTANTS_H_ */
-

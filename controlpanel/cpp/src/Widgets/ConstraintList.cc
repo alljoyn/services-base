@@ -202,56 +202,41 @@ QStatus ConstraintList::readConstraintArg(MsgArg& val)
     switch (valueArg->typeId) {
 
     case ALLJOYN_UINT16:
-        {
-            CHECK_AND_RETURN(valueArg->Get(AJPARAM_UINT16.c_str(), &m_ConstraintValue.uint16Value))
-            m_PropertyType = UINT16_PROPERTY;
-            break;
-        }
+        CHECK_AND_RETURN(valueArg->Get(AJPARAM_UINT16.c_str(), &m_ConstraintValue.uint16Value))
+        m_PropertyType = UINT16_PROPERTY;
+        break;
 
     case ALLJOYN_INT16:
-        {
-            CHECK_AND_RETURN(valueArg->Get(AJPARAM_INT16.c_str(), &m_ConstraintValue.int16Value))
-            m_PropertyType = INT16_PROPERTY;
-            break;
-        }
+        CHECK_AND_RETURN(valueArg->Get(AJPARAM_INT16.c_str(), &m_ConstraintValue.int16Value))
+        m_PropertyType = INT16_PROPERTY;
+        break;
 
     case ALLJOYN_UINT32:
-        {
-            CHECK_AND_RETURN(valueArg->Get(AJPARAM_UINT32.c_str(), &m_ConstraintValue.uint32Value))
-            m_PropertyType = UINT32_PROPERTY;
-            break;
-        }
+        CHECK_AND_RETURN(valueArg->Get(AJPARAM_UINT32.c_str(), &m_ConstraintValue.uint32Value))
+        m_PropertyType = UINT32_PROPERTY;
+        break;
 
     case ALLJOYN_INT32:
-        {
-            CHECK_AND_RETURN(valueArg->Get(AJPARAM_INT32.c_str(), &m_ConstraintValue.int32Value))
-            m_PropertyType = INT32_PROPERTY;
-            break;
-        }
+        CHECK_AND_RETURN(valueArg->Get(AJPARAM_INT32.c_str(), &m_ConstraintValue.int32Value))
+        m_PropertyType = INT32_PROPERTY;
+        break;
 
     case ALLJOYN_UINT64:
-        {
-            CHECK_AND_RETURN(valueArg->Get(AJPARAM_UINT64.c_str(), &m_ConstraintValue.uint64Value))
-            m_PropertyType = UINT64_PROPERTY;
-            break;
-        }
+        CHECK_AND_RETURN(valueArg->Get(AJPARAM_UINT64.c_str(), &m_ConstraintValue.uint64Value))
+        m_PropertyType = UINT64_PROPERTY;
+        break;
 
     case ALLJOYN_INT64:
-        {
-            CHECK_AND_RETURN(valueArg->Get(AJPARAM_INT64.c_str(), &m_ConstraintValue.int64Value))
-            m_PropertyType = INT64_PROPERTY;
-            break;
-        }
+        CHECK_AND_RETURN(valueArg->Get(AJPARAM_INT64.c_str(), &m_ConstraintValue.int64Value))
+        m_PropertyType = INT64_PROPERTY;
+        break;
 
     case ALLJOYN_DOUBLE:
-        {
-            CHECK_AND_RETURN(valueArg->Get(AJPARAM_DOUBLE.c_str(), &m_ConstraintValue.doubleValue))
-            m_PropertyType = DOUBLE_PROPERTY;
-            break;
-        }
+        CHECK_AND_RETURN(valueArg->Get(AJPARAM_DOUBLE.c_str(), &m_ConstraintValue.doubleValue))
+        m_PropertyType = DOUBLE_PROPERTY;
+        break;
 
-    case ALLJOYN_STRING:
-        {
+    case ALLJOYN_STRING: {
             char* constraintValue;
             CHECK_AND_RETURN(valueArg->Get(AJPARAM_STR.c_str(), &constraintValue))
             m_ConstraintValueString = constraintValue;

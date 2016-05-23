@@ -58,20 +58,22 @@ static volatile sig_atomic_t quit = false;
 static BusAttachment* busAttachment = NULL;
 static std::set<qcc::String> handledAnnouncements;
 
-static const char *AUTH_MECHANISM = "ALLJOYN_ECDHE_NULL ALLJOYN_ECDHE_SPEKE ALLJOYN_ECDHE_ECDSA";
+static const char* AUTH_MECHANISM = "ALLJOYN_ECDHE_NULL ALLJOYN_ECDHE_SPEKE ALLJOYN_ECDHE_ECDSA";
 const qcc::String caName("Sample CA");
 
-static qcc::Crypto_ECC *caKeyPair = NULL;
+static qcc::Crypto_ECC* caKeyPair = NULL;
 const qcc::String CA_CERT_FILENAME("caCert.pem");
 const qcc::String CA_KEY_FILENAME("caKey.pem");
 const qcc::String ADMIN_GUID_FILENAME("adminGuid");
 
-static qcc::CertificateX509& caCert() {
+static qcc::CertificateX509& caCert()
+{
     static qcc::CertificateX509 cert;
     return cert;
 }
 
-static qcc::GUID128& adminGuid() {
+static qcc::GUID128& adminGuid()
+{
     static qcc::GUID128 guid;
     return guid;
 }
@@ -122,7 +124,7 @@ void printAboutData(AboutData& aboutData, const char* language)
         }
         std::cout << std::endl;
     }
-    delete [] fields;
+    delete[] fields;
     std::cout << std::endl;
 }
 
@@ -150,21 +152,21 @@ void printAllAboutData(AboutProxy& aboutProxy)
                     status = aboutProxy.GetAboutData(langs[i], aArg);
                     if (ER_OK == status) {
                         aboutData.CreatefromMsgArg(aArg, langs[i]);
-                        std::cout <<  "GetAboutData: (" << langs[i] << ")" << std::endl;
+                        std::cout << "GetAboutData: (" << langs[i] << ")" << std::endl;
                         printAboutData(aboutData, langs[i]);
                     }
                 }
             }
-            delete [] langs;
+            delete[] langs;
         }
         std::cout << "*********************************************************************************" << std::endl;
     }
 }
 
-bool claim(const qcc::String &busName, const ajn::SessionId sessionId, const qcc::KeyInfoNISTP256 &peerPubKeyInfo,
-           const qcc::String &name, const qcc::String &caCN,  const qcc::CertificateX509 &caCert,
-           const qcc::GUID128 &adminGuid,
-           const qcc::GUID128 &identityGuid)
+bool claim(const qcc::String& busName, const ajn::SessionId sessionId, const qcc::KeyInfoNISTP256& peerPubKeyInfo,
+           const qcc::String& name, const qcc::String& caCN, const qcc::CertificateX509& caCert,
+           const qcc::GUID128& adminGuid,
+           const qcc::GUID128& identityGuid)
 {
     std::cout << "claim: " << busName << " : " << name << std::endl;
     std::cout << "admin guid: " << adminGuid.ToString() << std::endl;
@@ -191,7 +193,7 @@ bool claim(const qcc::String &busName, const ajn::SessionId sessionId, const qcc
     {
         qcc::String aki;
         qcc::CertificateX509::GenerateAuthorityKeyId(caKeyPair->GetDSAPublicKey(), aki);
-        caPublicKeyInfo.SetKeyId((uint8_t *) aki.data(), aki.size());
+        caPublicKeyInfo.SetKeyId((uint8_t*)aki.data(), aki.size());
         caPublicKeyInfo.SetPublicKey(caKeyPair->GetDSAPublicKey());
     }
 
@@ -206,8 +208,8 @@ bool claim(const qcc::String &busName, const ajn::SessionId sessionId, const qcc
     return true;
 }
 
-bool claimSelf(const qcc::String &caCN, const qcc::CertificateX509 &caCert,
-               const qcc::GUID128 &adminGuid, const qcc::GUID128 &identityGuid)
+bool claimSelf(const qcc::String& caCN, const qcc::CertificateX509& caCert,
+               const qcc::GUID128& adminGuid, const qcc::GUID128& identityGuid)
 {
     const qcc::String busName = busAttachment->GetUniqueName().c_str();
 
@@ -436,9 +438,9 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId sessionId)
     if (isOnboardingInterface) {
 
         {
-            ProxyBusObject *proxyBusObj = new ProxyBusObject(*busAttachment, busName.c_str(), "/Onboarding", sessionId);
+            ProxyBusObject* proxyBusObj = new ProxyBusObject(*busAttachment, busName.c_str(), "/Onboarding", sessionId);
             if (proxyBusObj->IntrospectRemoteObject() == ER_OK) {
-                const InterfaceDescription *infdesc = proxyBusObj->GetInterface("org.alljoyn.Onboarding");
+                const InterfaceDescription* infdesc = proxyBusObj->GetInterface("org.alljoyn.Onboarding");
                 if (infdesc) {
                     std::cout << "**** Onboarding interface:\n" << infdesc->Introspect() << std::endl;
                 }
@@ -566,12 +568,13 @@ void announceHandlerCallback(qcc::String const& busName, unsigned short port)
             std::cout << "Unable to JoinSession with " << busName.c_str() << std::endl;
         }
     } else {
-        std::cout << busName.c_str()  << " has already been handled" << std::endl;
+        std::cout << busName.c_str() << " has already been handled" << std::endl;
     }
 }
 
 
-bool LoadAdminGroupId(const qcc::String &filename, qcc::GUID128 &guid) {
+bool LoadAdminGroupId(const qcc::String& filename, qcc::GUID128& guid)
+{
     std::ifstream fs;
     fs.open(filename, std::fstream::binary);
     if (fs.is_open()) {
@@ -584,7 +587,8 @@ bool LoadAdminGroupId(const qcc::String &filename, qcc::GUID128 &guid) {
     return false;
 }
 
-bool SaveAdminGroupId(const qcc::String &filename, qcc::GUID128 &guid) {
+bool SaveAdminGroupId(const qcc::String& filename, qcc::GUID128& guid)
+{
     std::ofstream fs;
     fs.open(filename, std::fstream::binary | std::fstream::out | std::fstream::trunc);
     if (fs.is_open()) {
@@ -596,7 +600,8 @@ bool SaveAdminGroupId(const qcc::String &filename, qcc::GUID128 &guid) {
 }
 
 
-int main(int argc, char**argv, char**envArg) {
+int main(int argc, char** argv, char** envArg)
+{
     std::cout << "OnboardingClient - Start" << std::endl;
 
     QCC_UNUSED(argc);
@@ -659,8 +664,7 @@ int main(int argc, char**argv, char**envArg) {
 
         if (CertificateUtil::LoadPrivateKey(CA_KEY_FILENAME, &privateKey) &&
             CertificateUtil::LoadCertificate(CA_CERT_FILENAME, caCert()) &&
-            LoadAdminGroupId(ADMIN_GUID_FILENAME, adminGuid()))
-        {
+            LoadAdminGroupId(ADMIN_GUID_FILENAME, adminGuid())) {
             caKeyPair->SetDSAPublicKey(caCert().GetSubjectPublicKey());
             caKeyPair->SetDSAPrivateKey(&privateKey);
 

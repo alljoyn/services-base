@@ -39,7 +39,7 @@ using namespace nsConsts;
 
 
 NotificationProducerReceiver::NotificationProducerReceiver(ajn::BusAttachment* bus, QStatus& status) :
-        NotificationProducer(bus, status, (qcc::String())), m_IsStopping(false)
+    NotificationProducer(bus, status, (qcc::String())), m_IsStopping(false)
 {
     /**
      * Do not add code until the status that returned from the base class is verified.
@@ -58,7 +58,7 @@ NotificationProducerReceiver::NotificationProducerReceiver(ajn::BusAttachment* b
 #ifdef _WIN32
     InitializeCriticalSection(&m_Lock);
     InitializeConditionVariable(&m_QueueChanged);
-    m_handle = reinterpret_cast<HANDLE>(_beginthreadex(NULL, 256 * 1024, (unsigned int (__stdcall*)(void*))ReceiverThreadWrapper, this, 0, NULL));
+    m_handle = reinterpret_cast<HANDLE>(_beginthreadex(NULL, 256 * 1024, (unsigned int(__stdcall*)(void*))ReceiverThreadWrapper, this, 0, NULL));
 #else
     pthread_mutex_init(&m_Lock, NULL);
     pthread_cond_init(&m_QueueChanged, NULL);

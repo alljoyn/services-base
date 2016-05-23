@@ -57,7 +57,7 @@ NotificationTransport::NotificationTransport(ajn::BusAttachment* bus,
         }
         intf->Activate();
     } else if (status == ER_BUS_IFACE_ALREADY_EXISTS) {
-        intf = (InterfaceDescription*) bus->GetInterface(interfaceName.c_str());
+        intf = (InterfaceDescription*)bus->GetInterface(interfaceName.c_str());
         if (!intf) {
             status = ER_BUS_UNKNOWN_INTERFACE;
             QCC_LogError(status, ("Could not get interface"));

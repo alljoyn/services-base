@@ -328,15 +328,15 @@ void ControllerUtil::printPropertyValue(PropertyValue propertyValue, PropertyTyp
     case DATE_PROPERTY:
         std::cout << indent.c_str() << "Property is a Date Property." << std::endl;
         std::cout << indent.c_str() << "Property Value: " << propertyValue.dateValue->getDay() << "/" <<
-        propertyValue.dateValue->getMonth() << "/" <<
-        propertyValue.dateValue->getYear() << std::endl;
+            propertyValue.dateValue->getMonth() << "/" <<
+            propertyValue.dateValue->getYear() << std::endl;
         break;
 
     case TIME_PROPERTY:
         std::cout << indent.c_str() << "Property is a Time Property." << std::endl;
         std::cout << indent.c_str() << "Property Value: " << propertyValue.timeValue->getHour() << ":" <<
-        propertyValue.timeValue->getMinute() << ":" <<
-        propertyValue.timeValue->getSecond() << std::endl;
+            propertyValue.timeValue->getMinute() << ":" <<
+            propertyValue.timeValue->getSecond() << std::endl;
         break;
 
     default:
@@ -358,7 +358,7 @@ void ControllerUtil::executeDialogActions(std::vector<Dialog*>& dialogsToExecute
 {
     for (size_t i = 0; i < dialogsToExecute.size(); i++) {
         std::cout << "Execute Actions for " << dialogsToExecute[i]->getWidgetName().c_str() << " which has " <<
-        dialogsToExecute[i]->getNumActions() << " actions: " << std::endl;
+            dialogsToExecute[i]->getNumActions() << " actions: " << std::endl;
         QStatus status = dialogsToExecute[i]->executeAction1();
         std::cout << "    Action 1 execution " << (status == ER_OK ? "succeeded" : "failed") << std::endl;
         status = dialogsToExecute[i]->executeAction2();
@@ -433,10 +433,9 @@ void ControllerUtil::setPropertyValues(std::vector<Property*>& propertiesToChang
                 break;
             }
 
-        case UNDEFINED: {
-                status = ER_NOT_IMPLEMENTED;
-                break;
-            }
+        case UNDEFINED:
+            status = ER_NOT_IMPLEMENTED;
+            break;
         }
         std::cout << "    Set Value " << (status == ER_OK ? "succeeded" : "failed") << std::endl;
     }

@@ -29,8 +29,8 @@
 /*
  * Common Macros
  */
-#define CHECK_AND_BREAK(x) if ((status = x))  { break; }
-#define CHECK_AND_RETURN(x) if ((status = x))  { return status; }
+#define CHECK_AND_BREAK(x) if ((status = x)) { break; }
+#define CHECK_AND_RETURN(x) if ((status = x)) { return status; }
 
 namespace ajn {
 namespace services {
@@ -121,5 +121,3 @@ enum OPT_PARAM_KEYS {
 } //namespace ajn
 
 #endif
-
-

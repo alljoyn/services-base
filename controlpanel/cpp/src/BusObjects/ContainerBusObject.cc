@@ -39,7 +39,7 @@ ContainerBusObject::ContainerBusObject(BusAttachment* bus, String const& objectP
     }
 
     String interfaceName = widget->getIsSecured() ? AJ_SECURED_CONTAINER_INTERFACE : AJ_CONTAINER_INTERFACE;
-    m_InterfaceDescription = (InterfaceDescription*) bus->GetInterface(interfaceName.c_str());
+    m_InterfaceDescription = (InterfaceDescription*)bus->GetInterface(interfaceName.c_str());
     if (!m_InterfaceDescription) {
         do {
             CHECK_AND_BREAK(bus->CreateInterface(interfaceName.c_str(), m_InterfaceDescription, widget->getIsSecured()));
@@ -67,7 +67,8 @@ ContainerBusObject::ContainerBusObject(BusAttachment* bus, String const& objectP
     QCC_DbgPrintf(("Created ContainerBusObject successfully"));
 }
 
-ContainerBusObject::~ContainerBusObject() {
+ContainerBusObject::~ContainerBusObject()
+{
 }
 
 QStatus ContainerBusObject::Introspect(std::vector<IntrospectionNode>& childNodes)
@@ -89,7 +90,7 @@ QStatus ContainerBusObject::Introspect(std::vector<IntrospectionNode>& childNode
         return ER_FAIL;
     }
 
-    ProxyBusObject** proxyBusObjectChildren = new ProxyBusObject *[numChildren];
+    ProxyBusObject** proxyBusObjectChildren = new ProxyBusObject*[numChildren];
     numChildren = m_Proxy->GetChildren(proxyBusObjectChildren, numChildren);
 
     for (size_t i = 0; i < numChildren; i++) {
@@ -110,7 +111,7 @@ QStatus ContainerBusObject::Introspect(std::vector<IntrospectionNode>& childNode
             continue;
         }
 
-        const InterfaceDescription** ifaces = new const InterfaceDescription *[numInterfaces];
+        const InterfaceDescription** ifaces = new const InterfaceDescription*[numInterfaces];
         numInterfaces = proxyBusObjectChildren[i]->GetInterfaces(ifaces, numInterfaces);
         for (size_t j = 0; j < numInterfaces; j++) {
             QCC_DbgPrintf(("InterfaceName is : %s", ifaces[j]->GetName()));
@@ -157,6 +158,3 @@ QStatus ContainerBusObject::Introspect(std::vector<IntrospectionNode>& childNode
 
 } /* namespace services */
 } /* namespace ajn */
-
-
-

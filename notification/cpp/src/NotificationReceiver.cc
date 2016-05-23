@@ -20,4 +20,3 @@
 #endif
 
 #include <alljoyn/notification/NotificationReceiver.h>
-

@@ -30,7 +30,7 @@ using namespace ajn;
 //
 // forward declared to avoid inclusion of private core header qcc/time.h
 namespace qcc {
-    extern uint64_t GetEpochTimestamp();
+extern uint64_t GetEpochTimestamp();
 }
 
 const size_t SERIAL_NUMBER_LENGTH = 20; // RFC 5280 4.1.2.2
@@ -62,12 +62,13 @@ static QStatus Crypto_GetRandomBytes(uint8_t* buf, const size_t count)
     return status;
 }
 
-void CertificateUtil::GenerateIdentityCertificate(const ECCPublicKey &publicKey,
+void CertificateUtil::GenerateIdentityCertificate(const ECCPublicKey& publicKey,
                                                   const GUID128 identityGuid,
-                                                  const String &identityName,
-                                                  IdentityCertificate &cert) {
+                                                  const String& identityName,
+                                                  IdentityCertificate& cert)
+{
     cert.SetAlias(identityGuid.ToString());
-    cert.SetSubjectOU((const uint8_t *) identityName.c_str(), identityName.length());
+    cert.SetSubjectOU((const uint8_t*)identityName.c_str(), identityName.length());
 
     String aki;
     CertificateX509::GenerateAuthorityKeyId(&publicKey, aki);
@@ -75,9 +76,10 @@ void CertificateUtil::GenerateIdentityCertificate(const ECCPublicKey &publicKey,
     GenerateCertificate(aki, &publicKey, 365 * 5, cert);
 }
 
-void CertificateUtil::GenerateMembershipCertificate(const ECCPublicKey &publicKey,
-                                                    const GUID128 &group,
-                                                    MembershipCertificate &cert) {
+void CertificateUtil::GenerateMembershipCertificate(const ECCPublicKey& publicKey,
+                                                    const GUID128& group,
+                                                    MembershipCertificate& cert)
+{
     cert.SetGuild(group);
 
     String aki;
@@ -86,19 +88,21 @@ void CertificateUtil::GenerateMembershipCertificate(const ECCPublicKey &publicKe
     GenerateCertificate(aki, &publicKey, 365 * 5, cert);
 }
 
-void CertificateUtil::IssueCertificate(const Crypto_ECC &issuerKeyPair,
-                                       const String &issuerCN,
-                                       CertificateX509 &cert) {
+void CertificateUtil::IssueCertificate(const Crypto_ECC& issuerKeyPair,
+                                       const String& issuerCN,
+                                       CertificateX509& cert)
+{
     std::cout << "IssueCertificate. issuer CN: " << issuerCN << std::endl;
 
-    cert.SetIssuerCN((const uint8_t *) issuerCN.c_str(), issuerCN.length());
+    cert.SetIssuerCN((const uint8_t*)issuerCN.c_str(), issuerCN.length());
 
     cert.SignAndGenerateAuthorityKeyId(issuerKeyPair.GetDSAPrivateKey(), issuerKeyPair.GetDSAPublicKey());
 
     std::cout << "IssueCertificate " << cert.ToString() << std::endl;
 }
 
-void CertificateUtil::GenerateCA(const Crypto_ECC &caKeyPair, const String &caCN, CertificateX509 &cert) {
+void CertificateUtil::GenerateCA(const Crypto_ECC& caKeyPair, const String& caCN, CertificateX509& cert)
+{
     std::cout << "GenerateCA. CN: " << caCN << std::endl;
     cert.SetCA(true);
 
@@ -107,14 +111,15 @@ void CertificateUtil::GenerateCA(const Crypto_ECC &caKeyPair, const String &caCN
     IssueCertificate(caKeyPair, caCN, cert);
 }
 
-void CertificateUtil::GenerateCertificate(const String &subjectCN,
-                                          const ECCPublicKey *subjectPublicKey,
+void CertificateUtil::GenerateCertificate(const String& subjectCN,
+                                          const ECCPublicKey* subjectPublicKey,
                                           uint64_t validDays,
-                                          CertificateX509 &cert) {
+                                          CertificateX509& cert)
+{
     std::cout << "GenerateCertificate. subject CN: " << subjectCN << std::endl;
     assert(subjectPublicKey != NULL && "subjectPublicKey should not be NULL");
 
-    cert.SetSubjectCN((uint8_t *) subjectCN.c_str(), subjectCN.length());
+    cert.SetSubjectCN((uint8_t*)subjectCN.c_str(), subjectCN.length());
     cert.SetSubjectPublicKey(subjectPublicKey);
 
     CertificateX509::ValidPeriod period;
@@ -128,18 +133,20 @@ void CertificateUtil::GenerateCertificate(const String &subjectCN,
     QStatus status = Crypto_GetRandomBytes(serialNumber, sizeof(serialNumber));
     if (ER_OK != status) {
         std::cout << "WARNING - Could not generate random serial number; status is " << QCC_StatusText(status) <<
-        std::endl;
+            std::endl;
     }
     serialNumber[0] &= 0x7F;
     cert.SetSerial(serialNumber, sizeof(serialNumber));
 }
 
-QStatus CertificateUtil::SignManifest(const ECCPrivateKey *issuerKey, const CertificateX509 &subjectCertificate, Manifest &manifest) {
+QStatus CertificateUtil::SignManifest(const ECCPrivateKey* issuerKey, const CertificateX509& subjectCertificate, Manifest& manifest)
+{
     return manifest->ComputeThumbprintAndSign(subjectCertificate, issuerKey);
 }
 
 
-bool CertificateUtil::SaveCertificate(const String &filename, CertificateX509 &cert) {
+bool CertificateUtil::SaveCertificate(const String& filename, CertificateX509& cert)
+{
     std::ofstream fs;
     fs.open(filename, std::fstream::out | std::fstream::trunc);
     if (fs.is_open()) {
@@ -151,7 +158,8 @@ bool CertificateUtil::SaveCertificate(const String &filename, CertificateX509 &c
     return false;
 }
 
-bool CertificateUtil::LoadCertificate(const String &filename, CertificateX509 &cert) {
+bool CertificateUtil::LoadCertificate(const String& filename, CertificateX509& cert)
+{
     std::ifstream fs(filename);
     if (fs.is_open()) {
         std::string pem((std::istreambuf_iterator<char>(fs)), (std::istreambuf_iterator<char>()));
@@ -164,7 +172,8 @@ bool CertificateUtil::LoadCertificate(const String &filename, CertificateX509 &c
     return false;
 }
 
-bool CertificateUtil::SavePrivateKey(const String &filename, const ECCPrivateKey *privateKey) {
+bool CertificateUtil::SavePrivateKey(const String& filename, const ECCPrivateKey* privateKey)
+{
     String privateKeyPem;
     QStatus status = CertificateX509::EncodePrivateKeyPEM(privateKey, privateKeyPem);
     if (ER_OK != status) {
@@ -182,7 +191,8 @@ bool CertificateUtil::SavePrivateKey(const String &filename, const ECCPrivateKey
     return false;
 }
 
-bool CertificateUtil::LoadPrivateKey(const String &filename, ECCPrivateKey *privateKey) {
+bool CertificateUtil::LoadPrivateKey(const String& filename, ECCPrivateKey* privateKey)
+{
     std::ifstream fs(filename);
     if (fs.is_open()) {
         std::string pem((std::istreambuf_iterator<char>(fs)), (std::istreambuf_iterator<char>()));

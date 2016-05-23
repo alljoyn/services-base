@@ -65,10 +65,10 @@ class PayloadAdapter {
      */
     static QStatus sendPayload(ajn::AboutData* propertyStore,
                                NotificationMessageType messageType,
-                               std::vector<NotificationText> const&  notificationText,
+                               std::vector<NotificationText> const& notificationText,
                                std::map<qcc::String, qcc::String> const& customAttributes,
                                uint16_t ttl,
-                               const char* richIconUrl, std::vector<RichAudioUrl> const&  richAudioUrl,
+                               const char* richIconUrl, std::vector<RichAudioUrl> const& richAudioUrl,
                                const char* richIconObjectPath, const char* richAudioObjectPath,
                                const char* controlPanelServiceObjectPath,
                                const char* originalSender);
@@ -90,10 +90,10 @@ class PayloadAdapter {
      */
     static QStatus sendPayload(ajn::services::PropertyStore* propertyStore,
                                NotificationMessageType messageType,
-                               std::vector<NotificationText> const&  notificationText,
+                               std::vector<NotificationText> const& notificationText,
                                std::map<qcc::String, qcc::String> const& customAttributes,
                                uint16_t ttl,
-                               const char* richIconUrl, std::vector<RichAudioUrl> const&  richAudioUrl,
+                               const char* richIconUrl, std::vector<RichAudioUrl> const& richAudioUrl,
                                const char* richIconObjectPath, const char* richAudioObjectPath,
                                const char* controlPanelServiceObjectPath,
                                const char* originalSender);
@@ -121,10 +121,10 @@ class PayloadAdapter {
     static QStatus sendPayload(const char* deviceId, const char* deviceName,
                                const uint8_t* appId, size_t appIdlen, const char* appName,
                                NotificationMessageType messageType,
-                               std::vector<NotificationText> const&  notificationText,
+                               std::vector<NotificationText> const& notificationText,
                                std::map<qcc::String, qcc::String> const& customAttributes,
                                uint16_t ttl,
-                               const char* richIconUrl, std::vector<RichAudioUrl> const&  richAudioUrl,
+                               const char* richIconUrl, std::vector<RichAudioUrl> const& richAudioUrl,
                                const char* richIconObjectPath, const char* richAudioObjectPath,
                                const char* controlPanelServiceObjectPath, const char* originalSender, int32_t messageId);
 
@@ -158,10 +158,10 @@ class PayloadAdapter {
     static QStatus sendPayload(ajn::MsgArg deviceIdArg, ajn::MsgArg deviceNameArg,
                                ajn::MsgArg appIdArg, ajn::MsgArg appNameArg,
                                NotificationMessageType messageType,
-                               std::vector<NotificationText> const&  notificationText,
+                               std::vector<NotificationText> const& notificationText,
                                std::map<qcc::String, qcc::String> const& customAttributes,
                                uint16_t ttl,
-                               const char* richIconUrl, std::vector<RichAudioUrl> const&  richAudioUrl,
+                               const char* richIconUrl, std::vector<RichAudioUrl> const& richAudioUrl,
                                const char* richIconObjectPath, const char* richAudioObjectPath,
                                const char* controlPanelServiceObjectPath, const char* originalSender, int32_t messageId);
 
@@ -174,4 +174,3 @@ class PayloadAdapter {
 } //namespace ajn
 
 #endif /* PAYLOADADAPTER_H_ */
-

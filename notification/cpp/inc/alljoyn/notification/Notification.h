@@ -96,7 +96,7 @@ class Notification {
                  const char* appId, const char* appName,
                  const char* sender, std::map<qcc::String, qcc::String> const& customAttributes,
                  std::vector<NotificationText> const& notificationText,
-                 const char* richIconUrl, std::vector<RichAudioUrl> const&  richAudioUrl,
+                 const char* richIconUrl, std::vector<RichAudioUrl> const& richAudioUrl,
                  const char* richIconObjectPath, const char* richAudioObjectPath,
                  const char* controlPanelServiceObjectPath, const char* originalSender);
 
@@ -230,15 +230,13 @@ class Notification {
      * Set the Control Panel Service Object Path of the Notification
      * @param controlPanelServiceObjectPath
      */
-    void setControlPanelServiceObjectPath(
-        const char* controlPanelServiceObjectPath);
+    void setControlPanelServiceObjectPath(const char* controlPanelServiceObjectPath);
 
     /**
      * Set the Custom Attributed of the Notification
      * @param customAttributes
      */
-    void setCustomAttributes(
-        const std::map<qcc::String, qcc::String>& customAttributes);
+    void setCustomAttributes(const std::map<qcc::String, qcc::String>& customAttributes);
 
     /**
      * Set the deviceId of the Notification
@@ -393,4 +391,3 @@ class Notification {
 } //namespace ajn
 
 #endif /* NOTIFICATION_H_ */
-

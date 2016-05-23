@@ -38,7 +38,7 @@ LabelBusObject::LabelBusObject(BusAttachment* bus, String const& objectPath, uin
         return;
     }
 
-    m_InterfaceDescription = (InterfaceDescription*) bus->GetInterface(AJ_LABEL_INTERFACE.c_str());
+    m_InterfaceDescription = (InterfaceDescription*)bus->GetInterface(AJ_LABEL_INTERFACE.c_str());
     if (!m_InterfaceDescription) {
         do {
             CHECK_AND_BREAK(bus->CreateInterface(AJ_LABEL_INTERFACE.c_str(), m_InterfaceDescription));
@@ -66,7 +66,8 @@ LabelBusObject::LabelBusObject(BusAttachment* bus, String const& objectPath, uin
     QCC_DbgPrintf(("Created LabelBusObject successfully"));
 }
 
-LabelBusObject::~LabelBusObject() {
+LabelBusObject::~LabelBusObject()
+{
 }
 
 QStatus LabelBusObject::Get(const char* interfaceName, const char* propName, MsgArg& val)
@@ -92,7 +93,3 @@ QStatus LabelBusObject::fillProperty(char* key, MsgArg* variant)
 
 } /* namespace services */
 } /* namespace ajn */
-
-
-
-

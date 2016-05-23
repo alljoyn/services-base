@@ -88,7 +88,7 @@ const char* GuidUtil::GetDeviceIdFileName()
         }
         sFileName += buf;
         size_t found = sFileName.find_last_of("/");
-        if (found !=  std::string::npos) {
+        if (found != std::string::npos) {
             sFileName.erase(found + 1);
         }
         //Add file name
@@ -101,7 +101,7 @@ const char* GuidUtil::GetDeviceIdFileName()
 bool GuidUtil::ReadGuidOfDeviceID(char* strGUID)
 {
     bool success = false;
-    std::ifstream ifs(GetDeviceIdFileName(),  std::ifstream::in);
+    std::ifstream ifs(GetDeviceIdFileName(), std::ifstream::in);
     if (ifs.is_open()) {
         ifs.getline(strGUID, GUID_STRING_MAX_LENGTH + END_OF_STRING_LENGTH);
         success = true;
@@ -167,4 +167,3 @@ void GuidUtil::GetDeviceIdString(qcc::String* deviceId)
     }
     deviceId->assign(tempstrGUID);
 }
-

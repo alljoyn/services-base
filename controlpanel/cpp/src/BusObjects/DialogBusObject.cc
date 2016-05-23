@@ -40,7 +40,7 @@ DialogBusObject::DialogBusObject(BusAttachment* bus, String const& objectPath, u
     }
 
     String interfaceName = widget->getIsSecured() ? AJ_SECURED_DIALOG_INTERFACE : AJ_DIALOG_INTERFACE;
-    m_InterfaceDescription = (InterfaceDescription*) bus->GetInterface(interfaceName.c_str());
+    m_InterfaceDescription = (InterfaceDescription*)bus->GetInterface(interfaceName.c_str());
     if (!m_InterfaceDescription) {
         do {
             CHECK_AND_BREAK(bus->CreateInterface(interfaceName.c_str(), m_InterfaceDescription, widget->getIsSecured()));
@@ -94,7 +94,8 @@ DialogBusObject::DialogBusObject(BusAttachment* bus, String const& objectPath, u
 
         status = AddMethodHandler(execMember3, static_cast<MessageReceiver::MethodHandler>(&DialogBusObject::DialogExecute));
         if (status != ER_OK) {
-            QCC_LogError(status, ("Could not register the MethodHandler"));            return;
+            QCC_LogError(status, ("Could not register the MethodHandler"));
+            return;
         }
     }
     QCC_DbgPrintf(("Created DialogBusObject successfully"));
@@ -226,6 +227,3 @@ QStatus DialogBusObject::fillProperty(char* key, MsgArg* variant)
 
 } /* namespace services */
 } /* namespace ajn */
-
-
-

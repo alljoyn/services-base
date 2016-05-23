@@ -187,4 +187,3 @@ class ControlPanel {
 } /* namespace services */
 } /* namespace ajn */
 #endif /* CONTROLPANEL_H_ */
-

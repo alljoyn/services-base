@@ -46,10 +46,10 @@ NotificationTransportConsumer::NotificationTransportConsumer(
     InitializeCriticalSection(&m_Lock);
     InitializeConditionVariable(&m_QueueChanged);
 
-    status =  bus->RegisterSignalHandler(this,
-                                         static_cast<MessageReceiver::SignalHandler>(&NotificationTransportConsumer::handleSignal),
-                                         m_SignalMethod,
-                                         NULL);
+    status = bus->RegisterSignalHandler(this,
+                                        static_cast<MessageReceiver::SignalHandler>(&NotificationTransportConsumer::handleSignal),
+                                        m_SignalMethod,
+                                        NULL);
 
     if (status != ER_OK) {
         QCC_LogError(status, ("Could not register the SignalHandler"));
@@ -57,15 +57,15 @@ NotificationTransportConsumer::NotificationTransportConsumer(
         QCC_DbgPrintf(("Registered the SignalHandler successfully"));
     }
 
-    m_handle = reinterpret_cast<HANDLE>(_beginthreadex(NULL, 256 * 1024, (unsigned int (__stdcall*)(void*))ReceiverThreadWrapper, this, 0, NULL));
+    m_handle = reinterpret_cast<HANDLE>(_beginthreadex(NULL, 256 * 1024, (unsigned int(__stdcall*)(void*))ReceiverThreadWrapper, this, 0, NULL));
 #else
     pthread_mutex_init(&m_Lock, NULL);
     pthread_cond_init(&m_QueueChanged, NULL);
 
-    status =  bus->RegisterSignalHandler(this,
-                                         static_cast<MessageReceiver::SignalHandler>(&NotificationTransportConsumer::handleSignal),
-                                         m_SignalMethod,
-                                         NULL);
+    status = bus->RegisterSignalHandler(this,
+                                        static_cast<MessageReceiver::SignalHandler>(&NotificationTransportConsumer::handleSignal),
+                                        m_SignalMethod,
+                                        NULL);
 
     if (status != ER_OK) {
         QCC_LogError(status, ("Could not register the SignalHandler"));

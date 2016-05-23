@@ -265,24 +265,21 @@ QStatus Dialog::readOptParamsArg(uint16_t key, MsgArg* val)
 {
     QStatus status = ER_BUS_NO_SUCH_PROPERTY;
     switch (key) {
-    case OPT_PARAM_KEYS::LABEL_ACTION1:
-        {
+    case OPT_PARAM_KEYS::LABEL_ACTION1: {
             char* label;
             CHECK_AND_RETURN(val->Get(AJPARAM_STR.c_str(), &label))
             m_LabelAction1 = label;
             break;
         }
 
-    case OPT_PARAM_KEYS::LABEL_ACTION2:
-        {
+    case OPT_PARAM_KEYS::LABEL_ACTION2: {
             char* label;
             CHECK_AND_RETURN(val->Get(AJPARAM_STR.c_str(), &label))
             m_LabelAction2 = label;
             break;
         }
 
-    case OPT_PARAM_KEYS::LABEL_ACTION3:
-        {
+    case OPT_PARAM_KEYS::LABEL_ACTION3: {
             char* label;
             CHECK_AND_RETURN(val->Get(AJPARAM_STR.c_str(), &label))
             m_LabelAction3 = label;

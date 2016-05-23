@@ -78,4 +78,3 @@ class MessageTypeUtil {
 } //namespace ajn
 
 #endif /* NOTIFICATIONENUMS_H_ */
-

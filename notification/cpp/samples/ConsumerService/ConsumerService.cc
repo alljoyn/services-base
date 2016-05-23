@@ -65,7 +65,8 @@ void CDECL_CALL signal_callback_handler(int32_t signum)
     s_interrupt = true;
 }
 
-void WaitForSigInt() {
+void WaitForSigInt()
+{
     while (s_interrupt == false) {
 #ifdef _WIN32
         Sleep(100);

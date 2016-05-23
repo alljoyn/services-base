@@ -50,7 +50,7 @@ BusAttachment* testBus = 0;
 AboutData* aboutData = 0;
 AboutObj* aboutObj = 0;
 CommonBusListener* notificationBusListener = 0;
-NotificationMessageType messageType =  UNSET;
+NotificationMessageType messageType = UNSET;
 std::vector<NotificationText> vecMessages;
 std::vector<RichAudioUrl> richAudioUrl;
 qcc::String richIconUrl = "";
@@ -186,7 +186,7 @@ bool send(std::map<qcc::String, qcc::String>& params)
         std::cout << "Could not send the message successfully.";
         return false;
     }
-    std::cout << "Notification Sent for message type " << messageType << " and ttl of "  << ttl << " seconds" << std::endl;
+    std::cout << "Notification Sent for message type " << messageType << " and ttl of " << ttl << " seconds" << std::endl;
     resetParams();
     return true;
 }
@@ -362,7 +362,7 @@ bool clearParams(std::map<qcc::String, qcc::String>& params)
  */
 #define NUM_OF_FUNCTIONS 19
 
-void checkNumFunctions(int32_t*i)
+void checkNumFunctions(int32_t* i)
 {
     if (*i == NUM_OF_FUNCTIONS) {
         std::cout << "Max number of functions < " << NUM_OF_FUNCTIONS << "> reached.  Exiting application due to error." << std::endl;
@@ -370,19 +370,19 @@ void checkNumFunctions(int32_t*i)
     }
 }
 
-void createListOfFunctions(TestFunction*testFunctions)
+void createListOfFunctions(TestFunction* testFunctions)
 {
     int32_t i = 0;
 
     // createService
-    testFunctions[i].functionName  = "createservice";
+    testFunctions[i].functionName = "createservice";
     testFunctions[i].usage = testFunctions[i].functionName;
     testFunctions[i].activateTest = createService;
 
     i++;
     checkNumFunctions(&i);
     // initSend
-    testFunctions[i].functionName  = "initsend";
+    testFunctions[i].functionName = "initsend";
     testFunctions[i].usage = testFunctions[i].functionName + " device_name=<name>&app_name=<app>";
     testFunctions[i].activateTest = initSend;
     testFunctions[i].requiredParams.push_back("device_name");
@@ -392,7 +392,7 @@ void createListOfFunctions(TestFunction*testFunctions)
     i++;
     checkNumFunctions(&i);
     // send
-    testFunctions[i].functionName  = "send";
+    testFunctions[i].functionName = "send";
     testFunctions[i].usage = testFunctions[i].functionName + " type=<0,1,2>&ttl=<ttl>";
     testFunctions[i].activateTest = send;
     testFunctions[i].requiredParams.push_back("type");
@@ -405,7 +405,7 @@ void createListOfFunctions(TestFunction*testFunctions)
     i++;
     checkNumFunctions(&i);
     // setMsg
-    testFunctions[i].functionName  = "setmsg";
+    testFunctions[i].functionName = "setmsg";
     testFunctions[i].usage = testFunctions[i].functionName + " text=<text>&lang=<lang>";
     testFunctions[i].activateTest = setMsg;
     testFunctions[i].requiredParams.push_back("text");
@@ -414,7 +414,7 @@ void createListOfFunctions(TestFunction*testFunctions)
     i++;
     checkNumFunctions(&i);
     // setCustomAttributes
-    testFunctions[i].functionName  = "setcustomattributes";
+    testFunctions[i].functionName = "setcustomattributes";
     testFunctions[i].usage = testFunctions[i].functionName + " key=<key>&value=<value>";
     testFunctions[i].activateTest = setCustomAttributes;
     testFunctions[i].requiredParams.push_back("key");
@@ -423,7 +423,7 @@ void createListOfFunctions(TestFunction*testFunctions)
     i++;
     checkNumFunctions(&i);
     // setLogger
-    testFunctions[i].functionName  = "setlogger";
+    testFunctions[i].functionName = "setlogger";
     testFunctions[i].usage = testFunctions[i].functionName;
     testFunctions[i].activateTest = setLogger;
     testFunctions[i].requiredSteps.push_back("Service");
@@ -431,7 +431,7 @@ void createListOfFunctions(TestFunction*testFunctions)
     i++;
     checkNumFunctions(&i);
     // initReceive
-    testFunctions[i].functionName  = "initreceive";
+    testFunctions[i].functionName = "initreceive";
     testFunctions[i].usage = testFunctions[i].functionName;
     testFunctions[i].activateTest = initReceive;
     testFunctions[i].requiredSteps.push_back("Service");
@@ -439,7 +439,7 @@ void createListOfFunctions(TestFunction*testFunctions)
     i++;
     checkNumFunctions(&i);
     // ResponseToNotification
-    testFunctions[i].functionName  = "responsetonotification";
+    testFunctions[i].functionName = "responsetonotification";
     testFunctions[i].usage = testFunctions[i].functionName + " action=<0-Nothing,1-Dismiss>";
     testFunctions[i].activateTest = ResponseToNotification;
     testFunctions[i].requiredSteps.push_back("Service");
@@ -449,7 +449,7 @@ void createListOfFunctions(TestFunction*testFunctions)
     i++;
     checkNumFunctions(&i);
     // shutdown
-    testFunctions[i].functionName  = "shutdown";
+    testFunctions[i].functionName = "shutdown";
     testFunctions[i].usage = testFunctions[i].functionName;
     testFunctions[i].activateTest = shutdown;
     testFunctions[i].requiredSteps.push_back("Service");
@@ -457,7 +457,7 @@ void createListOfFunctions(TestFunction*testFunctions)
     i++;
     checkNumFunctions(&i);
     // shutdownSender
-    testFunctions[i].functionName  = "shutdownsender";
+    testFunctions[i].functionName = "shutdownsender";
     testFunctions[i].usage = testFunctions[i].functionName;
     testFunctions[i].activateTest = shutdownSender;
     testFunctions[i].requiredSteps.push_back("Service");
@@ -465,7 +465,7 @@ void createListOfFunctions(TestFunction*testFunctions)
     i++;
     checkNumFunctions(&i);
     // shutdownReceiver
-    testFunctions[i].functionName  = "shutdownreceiver";
+    testFunctions[i].functionName = "shutdownreceiver";
     testFunctions[i].usage = testFunctions[i].functionName;
     testFunctions[i].activateTest = shutdownReceiver;
     testFunctions[i].requiredSteps.push_back("Service");
@@ -473,7 +473,7 @@ void createListOfFunctions(TestFunction*testFunctions)
     i++;
     checkNumFunctions(&i);
     // deletelastmsg
-    testFunctions[i].functionName  = "deletelastmsg";
+    testFunctions[i].functionName = "deletelastmsg";
     testFunctions[i].usage = testFunctions[i].functionName + " type=<0,1,2>";
     testFunctions[i].activateTest = deleteLastMsg;
     testFunctions[i].requiredSteps.push_back("Service");
@@ -484,14 +484,14 @@ void createListOfFunctions(TestFunction*testFunctions)
     checkNumFunctions(&i);
 
     // clearParams
-    testFunctions[i].functionName  = "clearparams";
+    testFunctions[i].functionName = "clearparams";
     testFunctions[i].usage = testFunctions[i].functionName;
     testFunctions[i].activateTest = clearParams;
 
     i++;
     checkNumFunctions(&i);
     // setRichIconUrl
-    testFunctions[i].functionName  = "setrichiconurl";
+    testFunctions[i].functionName = "setrichiconurl";
     testFunctions[i].usage = testFunctions[i].functionName + " url=<http://url>";
     testFunctions[i].requiredSteps.push_back("Service");
     testFunctions[i].requiredSteps.push_back("Sender");
@@ -501,7 +501,7 @@ void createListOfFunctions(TestFunction*testFunctions)
     i++;
     checkNumFunctions(&i);
     // setRichAudioUrl
-    testFunctions[i].functionName  = "setrichaudiourl";
+    testFunctions[i].functionName = "setrichaudiourl";
     testFunctions[i].usage = testFunctions[i].functionName + " url=<http://url>&lang=<en_US>";
     testFunctions[i].requiredSteps.push_back("Service");
     testFunctions[i].requiredSteps.push_back("Sender");
@@ -512,7 +512,7 @@ void createListOfFunctions(TestFunction*testFunctions)
     i++;
     checkNumFunctions(&i);
     // setRichIconObjectPath
-    testFunctions[i].functionName  = "setrichiconobjectpath";
+    testFunctions[i].functionName = "setrichiconobjectpath";
     testFunctions[i].usage = testFunctions[i].functionName + " path=<path>";
     testFunctions[i].requiredSteps.push_back("Service");
     testFunctions[i].requiredSteps.push_back("Sender");
@@ -522,7 +522,7 @@ void createListOfFunctions(TestFunction*testFunctions)
     i++;
     checkNumFunctions(&i);
     // setRichAudioObjectPath
-    testFunctions[i].functionName  = "setrichaudioobjectpath";
+    testFunctions[i].functionName = "setrichaudioobjectpath";
     testFunctions[i].usage = testFunctions[i].functionName + " path=<path>";
     testFunctions[i].requiredSteps.push_back("Service");
     testFunctions[i].requiredSteps.push_back("Sender");
@@ -532,7 +532,7 @@ void createListOfFunctions(TestFunction*testFunctions)
     i++;
     checkNumFunctions(&i);
     // setcontrolpanelserviceobjectpath
-    testFunctions[i].functionName  = "setcontrolpanelserviceobjectpath";
+    testFunctions[i].functionName = "setcontrolpanelserviceobjectpath";
     testFunctions[i].usage = testFunctions[i].functionName + " path=<path>";
     testFunctions[i].requiredSteps.push_back("Service");
     testFunctions[i].requiredSteps.push_back("Sender");
@@ -541,7 +541,7 @@ void createListOfFunctions(TestFunction*testFunctions)
 
 }
 
-bool functionExists(qcc::String& funcName, TestFunction*testFunctions, int32_t*functionIndex)
+bool functionExists(qcc::String& funcName, TestFunction* testFunctions, int32_t* functionIndex)
 {
     for (int32_t i = 0; i < NUM_OF_FUNCTIONS; i++) {
         if (((testFunctions[i].functionName).compare(funcName)) == 0) {
@@ -553,7 +553,7 @@ bool functionExists(qcc::String& funcName, TestFunction*testFunctions, int32_t*f
     return false;
 }
 
-void Usage(TestFunction*testFunctions, qcc::String funcName = "", int32_t*functionIndex = 0)
+void Usage(TestFunction* testFunctions, qcc::String funcName = "", int32_t* functionIndex = 0)
 {
     if (funcName.size() > 0) {
         if (functionExists(funcName, testFunctions, functionIndex)) {
@@ -569,7 +569,6 @@ void Usage(TestFunction*testFunctions, qcc::String funcName = "", int32_t*functi
     for (int32_t i = 0; i < NUM_OF_FUNCTIONS; i++) {
         std::cout << testFunctions[i].functionName.c_str() << std::endl;
     }
-    return;
 }
 
 void CDECL_CALL signal_callback_handler(int32_t signum)
@@ -578,7 +577,7 @@ void CDECL_CALL signal_callback_handler(int32_t signum)
     s_interrupt = true;
 }
 
-bool checkRequiredSteps(TestFunction& test, TestFunction*testFunctions, int32_t*functionIndex)
+bool checkRequiredSteps(TestFunction& test, TestFunction* testFunctions, int32_t* functionIndex)
 {
     std::vector<qcc::String> reqSteps = test.requiredSteps;
     for (std::vector<qcc::String>::const_iterator reqSteps_it = reqSteps.begin(); reqSteps_it != reqSteps.end(); ++reqSteps_it) {
@@ -588,14 +587,14 @@ bool checkRequiredSteps(TestFunction& test, TestFunction*testFunctions, int32_t*
         } else if ((reqSteps_it->compare("Sender") == 0) && (!didInitSend)) {
             std::cout << "Action not allowed.  Cannot run '" << test.functionName.c_str() << "' without initializing a sender." << std::endl;
             qcc::String preReqApi = "initsend";
-            if (functionExists(preReqApi, testFunctions,  functionIndex)) {
+            if (functionExists(preReqApi, testFunctions, functionIndex)) {
                 Usage(testFunctions, preReqApi, functionIndex);
             }
             return false;
         } else if ((reqSteps_it->compare("Receiver") == 0) && (!didInitReceive)) {
             std::cout << "Action not allowed.  Cannot run '" << test.functionName.c_str() << "' without initializing a receiver." << std::endl;
             qcc::String preReqApi = "initreceive";
-            if (functionExists(preReqApi, testFunctions,  functionIndex)) {
+            if (functionExists(preReqApi, testFunctions, functionIndex)) {
                 Usage(testFunctions, preReqApi, functionIndex);
             }
             return false;
@@ -631,7 +630,7 @@ void trim(qcc::String& str, const qcc::String& whitespace = " ")
     }
 }
 
-bool processInput(const qcc::String& input, qcc::String& funcName, std::map<qcc::String, qcc::String>& params, TestFunction*testFunctions, int32_t*functionIndex)
+bool processInput(const qcc::String& input, qcc::String& funcName, std::map<qcc::String, qcc::String>& params, TestFunction* testFunctions, int32_t* functionIndex)
 {
     // Check first if the user pressed enter.
     if (!input.size()) {

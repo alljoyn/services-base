@@ -81,11 +81,11 @@ ControlPanelDevice* ControlPanelController::createControllableDevice(qcc::String
                 QCC_DbgPrintf(("Adding ControlPanelUnit for objectPath: %s", key.c_str()));
                 hasControlPanel = true;
             }
-            delete [] interfaces;
+            delete[] interfaces;
         }
     }
 
-    delete [] paths;
+    delete[] paths;
 
     if (hasControlPanel) {
         QCC_DbgPrintf(("Calling startSession for device %s", sender.c_str()));

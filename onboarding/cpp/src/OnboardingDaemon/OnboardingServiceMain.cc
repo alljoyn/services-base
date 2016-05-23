@@ -50,9 +50,9 @@
 using namespace ajn;
 using namespace services;
 
-#define SERVICE_EXIT_OK       0
-#define SERVICE_OPTION_ERROR  1
-#define SERVICE_CONFIG_ERROR  2
+#define SERVICE_EXIT_OK 0
+#define SERVICE_OPTION_ERROR 1
+#define SERVICE_CONFIG_ERROR 2
 
 /** static variables need for sample */
 static BusAttachment* msgBus = NULL;
@@ -80,7 +80,8 @@ static volatile sig_atomic_t s_interrupt = false;
 
 static volatile sig_atomic_t s_restart = false;
 
-static void CDECL_CALL SigIntHandler(int sig) {
+static void CDECL_CALL SigIntHandler(int sig)
+{
     QCC_UNUSED(sig);
     s_interrupt = true;
 }
@@ -90,7 +91,8 @@ static void daemonDisconnectCB()
     s_restart = true;
 }
 
-static void cleanup() {
+static void cleanup()
+{
 
     if (AboutObjApi::getInstance()) {
         AboutObjApi::DestroyInstance();
@@ -157,7 +159,8 @@ static void cleanup() {
 }
 
 /** Advertise the service name, report the result to stdout, and return the status code. */
-QStatus AdvertiseName(TransportMask mask) {
+QStatus AdvertiseName(TransportMask mask)
+{
     QStatus status = ER_BUS_ESTABLISH_FAILED;
     if (msgBus->IsConnected() && msgBus->GetUniqueName().size() > 0) {
         status = msgBus->AdvertiseName(msgBus->GetUniqueName().c_str(), mask);
@@ -166,7 +169,8 @@ QStatus AdvertiseName(TransportMask mask) {
     return status;
 }
 
-void WaitForSigInt(void) {
+void WaitForSigInt(void)
+{
     while (s_interrupt == false && s_restart == false) {
 #ifdef _WIN32
         Sleep(100);
@@ -176,7 +180,8 @@ void WaitForSigInt(void) {
     }
 }
 
-int main(int argc, char**argv, char**envArg) {
+int main(int argc, char** argv, char** envArg)
+{
     QCC_UNUSED(envArg);
     // Initialize AllJoyn
     AJInitializer ajInit;
@@ -193,14 +198,14 @@ int main(int argc, char**argv, char**envArg) {
     OptParser opts(argc, argv);
     OptParser::ParseResultCode parseCode(opts.ParseResult());
     switch (parseCode) {
-        case OptParser::PR_OK:
-            break;
+    case OptParser::PR_OK:
+        break;
 
-        case OptParser::PR_EXIT_NO_ERROR:
-            return SERVICE_EXIT_OK;
+    case OptParser::PR_EXIT_NO_ERROR:
+        return SERVICE_EXIT_OK;
 
-        default:
-            return SERVICE_OPTION_ERROR;
+    default:
+        return SERVICE_OPTION_ERROR;
     }
 
     std::cout << "using port " << servicePort << std::endl;
@@ -219,7 +224,7 @@ start:
     authListener = new DefaultECDHEAuthListener();
 
     const qcc::String password("1234");
-    authListener->SetPassword((const uint8_t *) password.c_str(), password.length()); // ECDHE_SPEKE
+    authListener->SetPassword((const uint8_t*)password.c_str(), password.length()); // ECDHE_SPEKE
 
     /* Connect to the daemon */
     uint16_t retry = 0;
@@ -244,20 +249,19 @@ start:
 
     {
         status = msgBus->GetPermissionConfigurator().SetClaimCapabilities(
-                ajn::PermissionConfigurator::CAPABLE_ECDHE_SPEKE
-        );
+            ajn::PermissionConfigurator::CAPABLE_ECDHE_SPEKE
+            );
         if (status != ER_OK) {
             std::cout << "Failed to SetClaimCapabilities. error: " << QCC_StatusText(status) << std::endl;
         }
 
-        PermissionConfigurator &pc = msgBus->GetPermissionConfigurator();
+        PermissionConfigurator& pc = msgBus->GetPermissionConfigurator();
         PermissionConfigurator::ApplicationState appState;
         pc.GetApplicationState(appState);
         std::cout << "application state: " << PermissionConfigurator::ToString(appState) << std::endl;
 
         if (PermissionConfigurator::ApplicationState::CLAIMABLE != appState &&
-            PermissionConfigurator::ApplicationState::CLAIMED != appState)
-        {
+            PermissionConfigurator::ApplicationState::CLAIMED != appState) {
             Manifest manifest;
             SecurityUtil::GenerateManifest(manifest);
 
@@ -312,8 +316,8 @@ start:
     ////////////////////////////////////////////////////////////////////////////////////////////////////
     //OnboardingService
 
-    ajn::MsgArg*arg;
-    char*ScanFile, *StateFile, *ErrorFile, *ConfigureCmd, *ConnectCmd, *OffboardCmd, *ScanCmd;
+    ajn::MsgArg* arg;
+    char* ScanFile, * StateFile, * ErrorFile, * ConfigureCmd, * ConnectCmd, * OffboardCmd, * ScanCmd;
     aboutDataStore->GetField("scan_file", arg);
     arg->Get("s", &ScanFile);
     aboutDataStore->GetField("state_file", arg);
@@ -399,4 +403,3 @@ start:
 
     return 0;
 } /* main() */
-

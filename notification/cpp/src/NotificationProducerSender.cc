@@ -31,7 +31,7 @@ using namespace qcc;
 using namespace nsConsts;
 
 NotificationProducerSender::NotificationProducerSender(ajn::BusAttachment* bus, QStatus& status) :
-        NotificationProducer(bus, status, (qcc::String("Sender")))
+    NotificationProducer(bus, status, (qcc::String("Sender")))
 {
 
     /**
@@ -55,7 +55,7 @@ QStatus NotificationProducerSender::Dismiss(const char* busName, ajn::SessionId 
     if (!m_InterfaceDescription) {
         return ER_FAIL;
     }
-    ProxyBusObject*proxyBusObj = new ProxyBusObject(*m_BusAttachment, busName, AJ_NOTIFICATION_PRODUCER_PATH.c_str(), sessionId);
+    ProxyBusObject* proxyBusObj = new ProxyBusObject(*m_BusAttachment, busName, AJ_NOTIFICATION_PRODUCER_PATH.c_str(), sessionId);
     if (!proxyBusObj) {
         return ER_FAIL;
     }

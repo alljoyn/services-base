@@ -25,39 +25,39 @@
 #include <alljoyn/PermissionPolicy.h>
 
 class CertificateUtil {
-public:
-    static void GenerateIdentityCertificate(const qcc::ECCPublicKey &publicKey,
+  public:
+    static void GenerateIdentityCertificate(const qcc::ECCPublicKey& publicKey,
                                             const qcc::GUID128 identityGuid,
-                                            const qcc::String &identityName,
-                                            qcc::IdentityCertificate &cert);
+                                            const qcc::String& identityName,
+                                            qcc::IdentityCertificate& cert);
 
-    static void GenerateMembershipCertificate(const qcc::ECCPublicKey &publicKey,
-                                              const qcc::GUID128 &group,
-                                              qcc::MembershipCertificate &cert);
+    static void GenerateMembershipCertificate(const qcc::ECCPublicKey& publicKey,
+                                              const qcc::GUID128& group,
+                                              qcc::MembershipCertificate& cert);
 
-    static void GenerateCA(const qcc::Crypto_ECC &caKeyPair,
-                           const qcc::String &caCN,
-                           qcc::CertificateX509 &cert);
+    static void GenerateCA(const qcc::Crypto_ECC& caKeyPair,
+                           const qcc::String& caCN,
+                           qcc::CertificateX509& cert);
 
-    static void IssueCertificate(const qcc::Crypto_ECC &issuerKeyPair,
-                                 const qcc::String &issuerCN,
-                                 qcc::CertificateX509 &cert);
+    static void IssueCertificate(const qcc::Crypto_ECC& issuerKeyPair,
+                                 const qcc::String& issuerCN,
+                                 qcc::CertificateX509& cert);
 
-    static QStatus SignManifest(const qcc::ECCPrivateKey *issuerKey,
+    static QStatus SignManifest(const qcc::ECCPrivateKey* issuerKey,
                                 const qcc::CertificateX509& subjectCertificate,
-                                ajn::Manifest &manifest);
+                                ajn::Manifest& manifest);
 
-    static bool SaveCertificate(const qcc::String &filename, qcc::CertificateX509 &cert);
-    static bool LoadCertificate(const qcc::String &filename, qcc::CertificateX509 &cert);
+    static bool SaveCertificate(const qcc::String& filename, qcc::CertificateX509& cert);
+    static bool LoadCertificate(const qcc::String& filename, qcc::CertificateX509& cert);
 
-    static bool SavePrivateKey(const qcc::String &filename, const qcc::ECCPrivateKey *privateKey);
-    static bool LoadPrivateKey(const qcc::String &filename, qcc::ECCPrivateKey *privateKey);
+    static bool SavePrivateKey(const qcc::String& filename, const qcc::ECCPrivateKey* privateKey);
+    static bool LoadPrivateKey(const qcc::String& filename, qcc::ECCPrivateKey* privateKey);
 
-private:
-    static void GenerateCertificate(const qcc::String &subjectCN,
-                                    const qcc::ECCPublicKey *subjectPublicKey,
+  private:
+    static void GenerateCertificate(const qcc::String& subjectCN,
+                                    const qcc::ECCPublicKey* subjectPublicKey,
                                     uint64_t validDays,
-                                    qcc::CertificateX509 &cert);
+                                    qcc::CertificateX509& cert);
 
 };
 

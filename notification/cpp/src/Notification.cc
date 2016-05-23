@@ -68,7 +68,7 @@ Notification::Notification(int32_t messageId,
                            const char* appId, const char* appName, const char* sender,
                            std::map<qcc::String, qcc::String> const& customAttributes,
                            std::vector<NotificationText> const& notificationText,
-                           const char* richIconUrl, std::vector<RichAudioUrl> const&  richAudioUrl,
+                           const char* richIconUrl, std::vector<RichAudioUrl> const& richAudioUrl,
                            const char* richIconObjectPath, const char* richAudioObjectPath,
                            const char* controlPanelServiceObjectPath, const char* originalSender) :
     m_MessageId(messageId), m_Sender(0), m_MessageType(messageType), m_DeviceId(0),
@@ -89,9 +89,8 @@ Notification::Notification(int32_t messageId,
 }
 
 Notification::Notification(NotificationMessageType messageType, std::vector<NotificationText> const& notificationText) :
-    m_MessageId(-1), m_Sender(0),  m_MessageType(messageType), m_DeviceId(0), m_DeviceName(0), m_AppId(0), m_AppName(0), m_Text(notificationText), m_RichIconUrl(0),  m_RichIconObjectPath(0),
+    m_MessageId(-1), m_Sender(0), m_MessageType(messageType), m_DeviceId(0), m_DeviceName(0), m_AppId(0), m_AppName(0), m_Text(notificationText), m_RichIconUrl(0), m_RichIconObjectPath(0),
     m_RichAudioObjectPath(0), m_ControlPanelServiceObjectPath(0), m_OriginalSender(0)
-
 {
 }
 
@@ -269,7 +268,8 @@ const char* Notification::getOriginalSender() const
     return m_OriginalSender->c_str();
 }
 
-void Notification::setAppId(const char* appId) {
+void Notification::setAppId(const char* appId)
+{
     if (appId == NULL) {
         delete m_AppId;
         m_AppId = NULL;
@@ -283,7 +283,8 @@ void Notification::setAppId(const char* appId) {
     }
 }
 
-void Notification::setAppName(const char* appName) {
+void Notification::setAppName(const char* appName)
+{
     if (appName == NULL) {
         delete m_AppName;
         m_AppName = NULL;
@@ -297,8 +298,8 @@ void Notification::setAppName(const char* appName) {
     }
 }
 
-void Notification::setControlPanelServiceObjectPath(
-    const char* controlPanelServiceObjectPath) {
+void Notification::setControlPanelServiceObjectPath(const char* controlPanelServiceObjectPath)
+{
     if (controlPanelServiceObjectPath == NULL) {
         delete m_ControlPanelServiceObjectPath;
         m_ControlPanelServiceObjectPath = NULL;
@@ -317,12 +318,13 @@ void Notification::setControlPanelServiceObjectPath(
     }
 }
 
-void Notification::setCustomAttributes(
-    const std::map<qcc::String, qcc::String>& customAttributes) {
+void Notification::setCustomAttributes(const std::map<qcc::String, qcc::String>& customAttributes)
+{
     m_CustomAttributes = customAttributes;
 }
 
-void Notification::setDeviceId(const char* deviceId) {
+void Notification::setDeviceId(const char* deviceId)
+{
     if (deviceId == NULL) {
         delete m_DeviceId;
         m_DeviceId = NULL;
@@ -336,7 +338,8 @@ void Notification::setDeviceId(const char* deviceId) {
     }
 }
 
-void Notification::setDeviceName(const char* deviceName) {
+void Notification::setDeviceName(const char* deviceName)
+{
     if (deviceName == NULL) {
         delete m_DeviceName;
         m_DeviceName = NULL;
@@ -350,7 +353,8 @@ void Notification::setDeviceName(const char* deviceName) {
     }
 }
 
-void Notification::setOriginalSender(const char* originalSender) {
+void Notification::setOriginalSender(const char* originalSender)
+{
     if (originalSender == NULL) {
         delete m_OriginalSender;
         m_OriginalSender = NULL;
@@ -364,16 +368,18 @@ void Notification::setOriginalSender(const char* originalSender) {
     }
 }
 
-void Notification::setMessageId(int32_t messageId) {
+void Notification::setMessageId(int32_t messageId)
+{
     m_MessageId = messageId;
 }
 
-void Notification::setRichAudioUrl(
-    const std::vector<RichAudioUrl>& richAudioUrl) {
+void Notification::setRichAudioUrl(const std::vector<RichAudioUrl>& richAudioUrl)
+{
     m_RichAudioUrl = richAudioUrl;
 }
 
-void Notification::setRichIconUrl(const char* richIconUrl) {
+void Notification::setRichIconUrl(const char* richIconUrl)
+{
     if (richIconUrl == NULL) {
         delete m_RichIconUrl;
         m_RichIconUrl = NULL;
@@ -387,7 +393,8 @@ void Notification::setRichIconUrl(const char* richIconUrl) {
     }
 }
 
-void Notification::setRichIconObjectPath(const char* richIconObjectPath) {
+void Notification::setRichIconObjectPath(const char* richIconObjectPath)
+{
     if (richIconObjectPath == NULL) {
         delete m_RichIconObjectPath;
         m_RichIconObjectPath = NULL;
@@ -406,7 +413,8 @@ void Notification::setRichIconObjectPath(const char* richIconObjectPath) {
     }
 }
 
-void Notification::setRichAudioObjectPath(const char* richAudioObjectPath) {
+void Notification::setRichAudioObjectPath(const char* richAudioObjectPath)
+{
     if (richAudioObjectPath == NULL) {
         delete m_RichAudioObjectPath;
         m_RichAudioObjectPath = NULL;
@@ -425,7 +433,8 @@ void Notification::setRichAudioObjectPath(const char* richAudioObjectPath) {
     }
 }
 
-void Notification::setSender(const char* sender) {
+void Notification::setSender(const char* sender)
+{
     if (sender == NULL) {
         delete m_Sender;
         m_Sender = NULL;
@@ -448,4 +457,3 @@ QStatus Notification::dismiss()
 
     return ER_OK;
 }
-

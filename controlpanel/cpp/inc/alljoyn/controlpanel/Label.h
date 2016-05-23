@@ -115,4 +115,3 @@ class Label : public Widget {
 } //namespace ajn
 
 #endif /* LABEL_H_ */
-

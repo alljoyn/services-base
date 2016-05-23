@@ -215,4 +215,3 @@ const char* getProgramString(uint16_t language)
     QCC_UNUSED(language);
     return programString.c_str();
 }
-

@@ -48,7 +48,7 @@ QStatus NotificationTransportProducer::sendSignal(ajn::MsgArg const notification
         return ER_BUS_INTERFACE_NO_SUCH_MEMBER;
     }
 
-    uint8_t flags =  ALLJOYN_FLAG_SESSIONLESS;
+    uint8_t flags = ALLJOYN_FLAG_SESSIONLESS;
 
     Message msg(*Transport::getInstance()->getBusAttachment());
     m_MsgId = notificationArgs[1].v_int32; //grab message id from payload.

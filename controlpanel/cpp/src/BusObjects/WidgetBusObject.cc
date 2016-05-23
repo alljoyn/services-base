@@ -79,10 +79,10 @@ QStatus WidgetBusObject::addDefaultInterfaceVariables(InterfaceDescription* intf
 
 QStatus WidgetBusObject::addSignalHandler(BusAttachment* bus)
 {
-    QStatus status =  bus->RegisterSignalHandler(this,
-                                                 static_cast<MessageReceiver::SignalHandler>(&WidgetBusObject::PropertyChanged),
-                                                 m_SignalPropertyChanged,
-                                                 m_ObjectPath.c_str());
+    QStatus status = bus->RegisterSignalHandler(this,
+                                                static_cast<MessageReceiver::SignalHandler>(&WidgetBusObject::PropertyChanged),
+                                                m_SignalPropertyChanged,
+                                                m_ObjectPath.c_str());
     if (status != ER_OK) {
         QCC_LogError(status, ("Could not register the SignalHandler"));
     }
@@ -91,10 +91,10 @@ QStatus WidgetBusObject::addSignalHandler(BusAttachment* bus)
 
 QStatus WidgetBusObject::UnregisterSignalHandler(BusAttachment* bus)
 {
-    QStatus status =  bus->UnregisterSignalHandler(this,
-                                                   static_cast<MessageReceiver::SignalHandler>(&WidgetBusObject::PropertyChanged),
-                                                   m_SignalPropertyChanged,
-                                                   m_ObjectPath.c_str());
+    QStatus status = bus->UnregisterSignalHandler(this,
+                                                  static_cast<MessageReceiver::SignalHandler>(&WidgetBusObject::PropertyChanged),
+                                                  m_SignalPropertyChanged,
+                                                  m_ObjectPath.c_str());
     if (status != ER_OK) {
         QCC_LogError(status, ("Could not unregister the SignalHandler"));
     }

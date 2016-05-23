@@ -40,7 +40,7 @@ PropertyBusObject::PropertyBusObject(BusAttachment* bus, String const& objectPat
     }
 
     String interfaceName = widget->getIsSecured() ? AJ_SECURED_PROPERTY_INTERFACE : AJ_PROPERTY_INTERFACE;
-    m_InterfaceDescription = (InterfaceDescription*) bus->GetInterface(interfaceName.c_str());
+    m_InterfaceDescription = (InterfaceDescription*)bus->GetInterface(interfaceName.c_str());
     if (!m_InterfaceDescription) {
         do {
             CHECK_AND_BREAK(bus->CreateInterface(interfaceName.c_str(), m_InterfaceDescription, widget->getIsSecured()));
@@ -201,4 +201,3 @@ QStatus PropertyBusObject::fillProperty(char* key, MsgArg* variant)
 
 } /* namespace services */
 } /* namespace ajn */
-

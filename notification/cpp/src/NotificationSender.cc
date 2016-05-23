@@ -59,7 +59,7 @@ QStatus NotificationSender::send(Notification const& notification, uint16_t ttl)
     if (notification.getText().size() == 0) {
         QCC_LogError(ER_BAD_ARG_1, ("There must be at least one notification defined"));
         return ER_BAD_ARG_1;
-    } else if ((TTL_MIN > ttl) || (ttl  > TTL_MAX)) {   // ttl value is not in range
+    } else if ((TTL_MIN > ttl) || (ttl > TTL_MAX)) {   // ttl value is not in range
         QCC_LogError(ER_BAD_ARG_2, ("TTL sent is not a valid TTL value"));
         return ER_BAD_ARG_2;
     }
@@ -112,4 +112,3 @@ QStatus NotificationSender::getLastMsgId(NotificationMessageType messageType, in
     Transport* transport = Transport::getInstance();
     return transport->getLastMsgId(messageType, messageId);
 }
-

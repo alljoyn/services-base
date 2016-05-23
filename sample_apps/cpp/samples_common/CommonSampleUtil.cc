@@ -24,7 +24,7 @@ using namespace services;
 
 #define CHECK_RETURN(x) if ((status = x) != ER_OK) { return status; }
 
-static const char *AUTH_MECHANISM = "ALLJOYN_ECDHE_NULL ALLJOYN_ECDHE_PSK ALLJOYN_ECDHE_SPEKE ALLJOYN_ECDHE_ECDSA";
+static const char* AUTH_MECHANISM = "ALLJOYN_ECDHE_NULL ALLJOYN_ECDHE_PSK ALLJOYN_ECDHE_SPEKE ALLJOYN_ECDHE_ECDSA";
 
 BusAttachment* CommonSampleUtil::prepareBusAttachment(ajn::AuthListener* authListener)
 {
@@ -180,7 +180,7 @@ QStatus CommonSampleUtil::aboutServiceAnnounce()
         return ER_BUS_NOT_ALLOWED;
     }
 
-    return (aboutService->Announce());
+    return aboutService->Announce();
 }
 
 void CommonSampleUtil::aboutServiceDestroy(BusAttachment* bus,
@@ -192,7 +192,6 @@ void CommonSampleUtil::aboutServiceDestroy(BusAttachment* bus,
     }
 
     AboutObjApi::DestroyInstance();
-    return;
 }
 
 QStatus CommonSampleUtil::EnableSecurity(BusAttachment* bus, AuthListener* authListener)

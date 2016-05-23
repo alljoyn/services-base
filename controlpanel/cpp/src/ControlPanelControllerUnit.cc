@@ -251,4 +251,3 @@ HttpControl* ControlPanelControllerUnit::getHttpControl() const
 
 } /* namespace services */
 } /* namespace ajn */
-

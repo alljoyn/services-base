@@ -138,7 +138,7 @@ QStatus Property::validateValue(PropertyType propertyType)
     return ER_OK;
 }
 
-QStatus Property::setGetValue(uint16_t (*getUint16Value)())
+QStatus Property::setGetValue(uint16_t (* getUint16Value)())
 {
     if (!validateGetValue(UINT16_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;
@@ -148,7 +148,7 @@ QStatus Property::setGetValue(uint16_t (*getUint16Value)())
     return ER_OK;
 }
 
-QStatus Property::setGetValue(int16_t (*getInt16Value)())
+QStatus Property::setGetValue(int16_t (* getInt16Value)())
 {
     if (!validateGetValue(INT16_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;
@@ -158,7 +158,7 @@ QStatus Property::setGetValue(int16_t (*getInt16Value)())
     return ER_OK;
 }
 
-QStatus Property::setGetValue(uint32_t (*getUint32Value)())
+QStatus Property::setGetValue(uint32_t (* getUint32Value)())
 {
     if (!validateGetValue(UINT32_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;
@@ -168,7 +168,7 @@ QStatus Property::setGetValue(uint32_t (*getUint32Value)())
     return ER_OK;
 }
 
-QStatus Property::setGetValue(int32_t (*getInt32Value)())
+QStatus Property::setGetValue(int32_t (* getInt32Value)())
 {
     if (!validateGetValue(INT32_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;
@@ -178,7 +178,7 @@ QStatus Property::setGetValue(int32_t (*getInt32Value)())
     return ER_OK;
 }
 
-QStatus Property::setGetValue(uint64_t (*getUint64Value)())
+QStatus Property::setGetValue(uint64_t (* getUint64Value)())
 {
     if (!validateGetValue(UINT64_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;
@@ -188,7 +188,7 @@ QStatus Property::setGetValue(uint64_t (*getUint64Value)())
     return ER_OK;
 }
 
-QStatus Property::setGetValue(int64_t (*getInt64Value)())
+QStatus Property::setGetValue(int64_t (* getInt64Value)())
 {
     if (!validateGetValue(INT64_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;
@@ -198,7 +198,7 @@ QStatus Property::setGetValue(int64_t (*getInt64Value)())
     return ER_OK;
 }
 
-QStatus Property::setGetValue(double (*getDoubleValue)())
+QStatus Property::setGetValue(double (* getDoubleValue)())
 {
     if (!validateGetValue(DOUBLE_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;
@@ -218,7 +218,7 @@ QStatus Property::setGetValue(const char* (*getCharValue)())
     return ER_OK;
 }
 
-QStatus Property::setGetValue(bool (*getBoolValue)())
+QStatus Property::setGetValue(bool (* getBoolValue)())
 {
     if (!validateGetValue(BOOL_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;
@@ -415,80 +415,70 @@ QStatus Property::setPropertyValue(MsgArg& val, uint16_t languageIndx)
     QStatus status;
 
     switch (m_PropertyType) {
-    case UINT16_PROPERTY:
-        {
+    case UINT16_PROPERTY: {
             uint16_t value;
             CHECK_AND_RETURN(val.Get(AJPARAM_UINT16.c_str(), &value));
             CHECK_AND_RETURN(setValue(value));
             break;
         }
 
-    case INT16_PROPERTY:
-        {
+    case INT16_PROPERTY: {
             int16_t value;
             CHECK_AND_RETURN(val.Get(AJPARAM_INT16.c_str(), &value));
             CHECK_AND_RETURN(setValue(value));
             break;
         }
 
-    case UINT32_PROPERTY:
-        {
+    case UINT32_PROPERTY: {
             uint32_t value;
             CHECK_AND_RETURN(val.Get(AJPARAM_UINT32.c_str(), &value));
             CHECK_AND_RETURN(setValue(value));
             break;
         }
 
-    case INT32_PROPERTY:
-        {
+    case INT32_PROPERTY: {
             int32_t value;
             CHECK_AND_RETURN(val.Get(AJPARAM_INT32.c_str(), &value));
             CHECK_AND_RETURN(setValue(value));
             break;
         }
 
-    case UINT64_PROPERTY:
-        {
+    case UINT64_PROPERTY: {
             uint64_t value;
             CHECK_AND_RETURN(val.Get(AJPARAM_UINT64.c_str(), &value));
             CHECK_AND_RETURN(setValue(value));
             break;
         }
 
-    case INT64_PROPERTY:
-        {
+    case INT64_PROPERTY: {
             int64_t value;
             CHECK_AND_RETURN(val.Get(AJPARAM_INT64.c_str(), &value));
             CHECK_AND_RETURN(setValue(value));
             break;
         }
 
-    case DOUBLE_PROPERTY:
-        {
+    case DOUBLE_PROPERTY: {
             double value;
             CHECK_AND_RETURN(val.Get(AJPARAM_DOUBLE.c_str(), &value));
             CHECK_AND_RETURN(setValue(value));
             break;
         }
 
-    case STRING_PROPERTY:
-        {
+    case STRING_PROPERTY: {
             char* value;
             CHECK_AND_RETURN(val.Get(AJPARAM_STR.c_str(), &value));
             CHECK_AND_RETURN(setValue(value));
             break;
         }
 
-    case BOOL_PROPERTY:
-        {
+    case BOOL_PROPERTY: {
             bool value;
             CHECK_AND_RETURN(val.Get(AJPARAM_BOOL.c_str(), &value));
             CHECK_AND_RETURN(setValue(value));
             break;
         }
 
-    case DATE_PROPERTY:
-        {
+    case DATE_PROPERTY: {
             uint16_t type;
             uint16_t day;
             uint16_t month;
@@ -505,8 +495,7 @@ QStatus Property::setPropertyValue(MsgArg& val, uint16_t languageIndx)
             break;
         }
 
-    case TIME_PROPERTY:
-        {
+    case TIME_PROPERTY: {
             uint16_t type;
             uint16_t hour;
             uint16_t minute;
@@ -540,16 +529,14 @@ QStatus Property::readOptParamsArg(uint16_t key, MsgArg* val)
 {
     QStatus status = ER_BUS_NO_SUCH_PROPERTY;
     switch (key) {
-    case UNIT_MEASURE:
-        {
+    case UNIT_MEASURE: {
             char* unitOfMeasure;
             CHECK_AND_RETURN(val->Get(AJPARAM_STR.c_str(), &unitOfMeasure))
             m_UnitOfMeasure = unitOfMeasure;
             break;
         }
 
-    case CONSTRAINT_LIST:
-        {
+    case CONSTRAINT_LIST: {
             m_ConstraintList.clear();
             MsgArg* constraintEntries;
             size_t constraintNum;
@@ -563,14 +550,12 @@ QStatus Property::readOptParamsArg(uint16_t key, MsgArg* val)
         }
 
     case CONSTRAINT_RANGE:
-        {
-            if (!m_ConstraintRange) {
-                m_ConstraintRange = new ConstraintRange();
-            }
-
-            CHECK_AND_RETURN(m_ConstraintRange->readConstraintArg(val))
-            break;
+        if (!m_ConstraintRange) {
+            m_ConstraintRange = new ConstraintRange();
         }
+
+        CHECK_AND_RETURN(m_ConstraintRange->readConstraintArg(val))
+        break;
 
     default:
         status = Widget::readOptParamsArg(key, val);
@@ -585,56 +570,41 @@ QStatus Property::readValueArg(const MsgArg* val)
     switch (val->typeId) {
 
     case ALLJOYN_UINT16:
-        {
-            CHECK_AND_RETURN(validateValue(UINT16_PROPERTY))
-            CHECK_AND_RETURN(val->Get(AJPARAM_UINT16.c_str(), &m_Value.uint16Value))
-            break;
-        }
+        CHECK_AND_RETURN(validateValue(UINT16_PROPERTY))
+        CHECK_AND_RETURN(val->Get(AJPARAM_UINT16.c_str(), &m_Value.uint16Value))
+        break;
 
     case ALLJOYN_INT16:
-        {
-            CHECK_AND_RETURN(validateValue(INT16_PROPERTY))
-            CHECK_AND_RETURN(val->Get(AJPARAM_INT16.c_str(), &m_Value.int16Value))
-            break;
-        }
+        CHECK_AND_RETURN(validateValue(INT16_PROPERTY))
+        CHECK_AND_RETURN(val->Get(AJPARAM_INT16.c_str(), &m_Value.int16Value))
+        break;
 
     case ALLJOYN_UINT32:
-        {
-            CHECK_AND_RETURN(validateValue(UINT32_PROPERTY))
-            CHECK_AND_RETURN(val->Get(AJPARAM_UINT32.c_str(), &m_Value.uint32Value))
-            break;
-        }
+        CHECK_AND_RETURN(validateValue(UINT32_PROPERTY))
+        CHECK_AND_RETURN(val->Get(AJPARAM_UINT32.c_str(), &m_Value.uint32Value))
+        break;
 
     case ALLJOYN_INT32:
-        {
-            CHECK_AND_RETURN(validateValue(INT32_PROPERTY))
-            CHECK_AND_RETURN(val->Get(AJPARAM_INT32.c_str(), &m_Value.int32Value))
-            break;
-        }
+        CHECK_AND_RETURN(validateValue(INT32_PROPERTY))
+        CHECK_AND_RETURN(val->Get(AJPARAM_INT32.c_str(), &m_Value.int32Value))
+        break;
 
     case ALLJOYN_UINT64:
-        {
-            CHECK_AND_RETURN(validateValue(UINT64_PROPERTY))
-            CHECK_AND_RETURN(val->Get(AJPARAM_UINT64.c_str(), &m_Value.uint64Value))
-            break;
-        }
+        CHECK_AND_RETURN(validateValue(UINT64_PROPERTY))
+        CHECK_AND_RETURN(val->Get(AJPARAM_UINT64.c_str(), &m_Value.uint64Value))
+        break;
 
     case ALLJOYN_INT64:
-        {
-            CHECK_AND_RETURN(validateValue(INT64_PROPERTY))
-            CHECK_AND_RETURN(val->Get(AJPARAM_INT64.c_str(), &m_Value.int64Value))
-            break;
-        }
+        CHECK_AND_RETURN(validateValue(INT64_PROPERTY))
+        CHECK_AND_RETURN(val->Get(AJPARAM_INT64.c_str(), &m_Value.int64Value))
+        break;
 
     case ALLJOYN_DOUBLE:
-        {
-            CHECK_AND_RETURN(validateValue(DOUBLE_PROPERTY))
-            CHECK_AND_RETURN(val->Get(AJPARAM_DOUBLE.c_str(), &m_Value.doubleValue))
-            break;
-        }
+        CHECK_AND_RETURN(validateValue(DOUBLE_PROPERTY))
+        CHECK_AND_RETURN(val->Get(AJPARAM_DOUBLE.c_str(), &m_Value.doubleValue))
+        break;
 
-    case ALLJOYN_STRING:
-        {
+    case ALLJOYN_STRING: {
             char* value;
             CHECK_AND_RETURN(validateValue(STRING_PROPERTY))
             CHECK_AND_RETURN(val->Get(AJPARAM_STR.c_str(), &value))
@@ -644,14 +614,11 @@ QStatus Property::readValueArg(const MsgArg* val)
         }
 
     case ALLJOYN_BOOLEAN:
-        {
-            CHECK_AND_RETURN(validateValue(BOOL_PROPERTY))
-            CHECK_AND_RETURN(val->Get(AJPARAM_BOOL.c_str(), &m_Value.boolValue))
-            break;
-        }
+        CHECK_AND_RETURN(validateValue(BOOL_PROPERTY))
+        CHECK_AND_RETURN(val->Get(AJPARAM_BOOL.c_str(), &m_Value.boolValue))
+        break;
 
-    case ALLJOYN_STRUCT:
-        {
+    case ALLJOYN_STRUCT: {
             uint16_t dateOrTime;
             uint16_t dateOrTimeVal1;
             uint16_t dateOrTimeVal2;

@@ -162,4 +162,3 @@ QStatus ControlPanelControlleeUnit::unregisterObjects(BusAttachment* bus)
 
 } /* namespace services */
 } /* namespace ajn */
-

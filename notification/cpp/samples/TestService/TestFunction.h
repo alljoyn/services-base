@@ -82,7 +82,7 @@ class TestFunction {
      * @param params
      * @return
      */
-    bool (*activateTest)(std::map<qcc::String, qcc::String>& params);
+    bool (* activateTest)(std::map<qcc::String, qcc::String>& params);
 };
 
 #endif /* TESTFUNCTION_H_ */

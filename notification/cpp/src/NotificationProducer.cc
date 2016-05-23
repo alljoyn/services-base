@@ -31,7 +31,7 @@ using namespace services;
 using namespace qcc;
 using namespace nsConsts;
 
-NotificationProducer::NotificationProducer(ajn::BusAttachment *bus, QStatus &status, qcc::String pathSuffix) :
+NotificationProducer::NotificationProducer(ajn::BusAttachment* bus, QStatus& status, qcc::String pathSuffix) :
     BusObject((AJ_NOTIFICATION_PRODUCER_PATH + pathSuffix).c_str()), m_InterfaceDescription(NULL), m_BusAttachment(bus)
 {
     m_InterfaceDescription = const_cast<InterfaceDescription*>(m_BusAttachment->GetInterface(AJ_NOTIFICATION_PRODUCER_INTERFACE.c_str()));
@@ -60,7 +60,7 @@ NotificationProducer::NotificationProducer(ajn::BusAttachment *bus, QStatus &sta
             return;
         }
 
-        status = m_InterfaceDescription->AddProperty(AJ_PROPERTY_VERSION.c_str(), AJPARAM_UINT16.c_str(), (uint8_t) PROP_ACCESS_READ);
+        status = m_InterfaceDescription->AddProperty(AJ_PROPERTY_VERSION.c_str(), AJPARAM_UINT16.c_str(), (uint8_t)PROP_ACCESS_READ);
         if (status != ER_OK) {
             QCC_LogError(status, ("AddProperty failed."));
             return;

@@ -40,9 +40,9 @@ using namespace ajn;
 // Set application constants
 #define DEVICE_NAME "testdeviceName"
 #define APP_NAME "testappName"
-#define LANG1  "en"
+#define LANG1 "en"
 #define TEXT1 "Hello World"
-#define LANG2  "es"
+#define LANG2 "es"
 #define TEXT2 "Hola Mundo"
 #define KEY1 "On"
 #define VAL1 "Hello"
@@ -64,7 +64,7 @@ NotificationSender* Sender = 0;
 BusAttachment* bus = 0;
 AboutData* aboutData = NULL;
 AboutObj* aboutObj = NULL;
-CommonBusListener*  busListener = 0;
+CommonBusListener* busListener = 0;
 static volatile sig_atomic_t s_interrupt = false;
 
 void cleanup()
@@ -103,7 +103,8 @@ void CDECL_CALL signal_callback_handler(int32_t signum)
     s_interrupt = true;
 }
 
-void WaitForSigInt() {
+void WaitForSigInt()
+{
     while (s_interrupt == false) {
 #ifdef _WIN32
         Sleep(100);

@@ -27,23 +27,23 @@
 #include <alljoyn/Status.h>
 
 class SecurityUtil {
-public:
+  public:
 
-    static QStatus Claim(ajn::BusAttachment &bus,
-                         const qcc::String &peerBusName,
+    static QStatus Claim(ajn::BusAttachment& bus,
+                         const qcc::String& peerBusName,
                          const ajn::SessionId sessionId,
-                         const qcc::KeyInfoNISTP256 &rootPublicKeyInfo,
-                         const qcc::GUID128 &adminGuid,
-                         const qcc::KeyInfoNISTP256 &adminPubKeyInfo,
-                         const std::vector<qcc::CertificateX509> &certChain,
-                         const std::vector<ajn::Manifest> &manifests);
+                         const qcc::KeyInfoNISTP256& rootPublicKeyInfo,
+                         const qcc::GUID128& adminGuid,
+                         const qcc::KeyInfoNISTP256& adminPubKeyInfo,
+                         const std::vector<qcc::CertificateX509>& certChain,
+                         const std::vector<ajn::Manifest>& manifests);
 
-    static QStatus Reset(ajn::BusAttachment &bus,
-                         const qcc::String &peerBusName);
+    static QStatus Reset(ajn::BusAttachment& bus,
+                         const qcc::String& peerBusName);
 
-    static QStatus InstallMembership(ajn::BusAttachment &bus,
-                                     const qcc::String &peerBusName,
-                                     const qcc::MembershipCertificate &cert);
+    static QStatus InstallMembership(ajn::BusAttachment& bus,
+                                     const qcc::String& peerBusName,
+                                     const qcc::MembershipCertificate& cert);
 
     static void GenerateManifest(ajn::Manifest manifest);
 

@@ -27,7 +27,7 @@ namespace services {
 /**
  * Class that implements SessionPortListener and SessionListener
  */
-class NotificationProducerListener :  public SessionPortListener {
+class NotificationProducerListener : public SessionPortListener {
   public:
 
     /**

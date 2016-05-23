@@ -34,7 +34,6 @@ using namespace qcc;
 
 NotificationDismisserSender::NotificationDismisserSender(BusAttachment* bus, String const& objectPath, QStatus& status) :
     NotificationDismisser(bus, objectPath, status)
-
 {
     /**
      * Do not add code until the status that returned from the base class is verified.
@@ -57,7 +56,7 @@ QStatus NotificationDismisserSender::sendSignal(ajn::MsgArg const dismisserArgs[
         return ER_BUS_INTERFACE_NO_SUCH_MEMBER;
     }
 
-    uint8_t flags =  ALLJOYN_FLAG_SESSIONLESS;
+    uint8_t flags = ALLJOYN_FLAG_SESSIONLESS;
     QStatus status = Signal(NULL, 0, *m_SignalMethod, dismisserArgs, AJ_DISMISSER_NUM_PARAMS, ttl, flags);
 
     if (status != ER_OK) {

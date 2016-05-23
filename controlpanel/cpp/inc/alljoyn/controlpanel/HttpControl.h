@@ -160,14 +160,14 @@ class HttpControl {
      * Copy constructor of  HttpControl - private.  HttpControl is not copy-able
      * @param  httpControl -  HttpControl to copy
      */
-    HttpControl(const HttpControl&  httpControl);
+    HttpControl(const HttpControl& httpControl);
 
     /**
      * Assignment operator of HttpControl - private. HttpControl is not assignable
      * @param httpControl
      * @return
      */
-    HttpControl& operator=(const HttpControl&  httpControl);
+    HttpControl& operator=(const HttpControl& httpControl);
 };
 } //namespace services
 } //namespace ajn

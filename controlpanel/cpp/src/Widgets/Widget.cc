@@ -481,24 +481,21 @@ QStatus Widget::readOptParamsArg(uint16_t key, MsgArg* val)
 {
     QStatus status = ER_BUS_NO_SUCH_PROPERTY;
     switch (key) {
-    case LABEL_KEY:
-        {
+    case LABEL_KEY: {
             char* label;
             CHECK_AND_RETURN(val->Get(AJPARAM_STR.c_str(), &label))
             m_Label = label;
             break;
         }
 
-    case BGCOLOR_KEY:
-        {
+    case BGCOLOR_KEY: {
             uint32_t bgColor;
             CHECK_AND_RETURN(val->Get(AJPARAM_UINT32.c_str(), &bgColor))
             m_BgColor = bgColor;
             break;
         }
 
-    case HINT_KEY:
-        {
+    case HINT_KEY: {
             std::vector<uint16_t> hints;
             uint16_t* hintEntries;
             size_t hintNum;

@@ -37,7 +37,7 @@ class NotificationProducer : public ajn::BusObject {
      * @param bus         - BusAttachment that is used
      * @param status      - success/failure
      */
-    NotificationProducer(ajn::BusAttachment *bus, QStatus &status, qcc::String pathSuffix);
+    NotificationProducer(ajn::BusAttachment* bus, QStatus& status, qcc::String pathSuffix);
 
     /**
      * Destructor for NotificationTransport

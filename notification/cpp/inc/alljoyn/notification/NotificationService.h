@@ -66,7 +66,7 @@ class NotificationService {
      *
      * @return NotificationSender instance
      */
-    QCC_DEPRECATED(NotificationSender* initSend(ajn::BusAttachment* bus, ajn::services::PropertyStore* store));
+    QCC_DEPRECATED(NotificationSender * initSend(ajn::BusAttachment * bus, ajn::services::PropertyStore * store));
 
     /**
      * Initialize Consumer side via Transport.
@@ -98,7 +98,7 @@ class NotificationService {
      * Needs to be called before starting receiver
      * @return ER_OK
      */
-    QCC_DEPRECATED(QStatus disableSuperAgent() {return ER_OK; });
+    QCC_DEPRECATED(QStatus disableSuperAgent() { return ER_OK; });
 
     /**
      * Virtual method to get the busAttachment used in the service.

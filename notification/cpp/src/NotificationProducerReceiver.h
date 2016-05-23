@@ -71,7 +71,8 @@ class NotificationProducerReceiver : public ajn::services::NotificationProducer 
      * SetAppIdArg
      * @param application id argument
      */
-    void SetAppIdArg(MsgArg appIdArg) {
+    void SetAppIdArg(MsgArg appIdArg)
+    {
         m_AppIdArg = appIdArg;
     }
     /**

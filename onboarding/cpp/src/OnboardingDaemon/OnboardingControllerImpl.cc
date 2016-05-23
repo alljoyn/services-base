@@ -35,17 +35,18 @@
 using namespace ajn;
 using namespace services;
 
-static int execute_system(const char*op);
+static int execute_system(const char* op);
 
 typedef enum {
     CIPHER_NONE,
     CIPHER_TKIP,
     CIPHER_CCMP,
     CIPHER_BOTH
-}GroupCiphers;
+} GroupCiphers;
 
 #ifdef _OPEN_WRT_
-#define CASE(_auth) case _auth: return # _auth
+#define CASE(_auth) case _auth: \
+    return#_auth
 static const char* AuthText(short authType)
 {
     switch (authType) {
@@ -126,7 +127,7 @@ OnboardingControllerImpl::~OnboardingControllerImpl()
 #endif
     // Scan results are stored in the scan array
     if (m_ScanArray) {
-        delete [] m_ScanArray;
+        delete[] m_ScanArray;
         m_ScanArray = NULL;
     }
 
@@ -140,7 +141,8 @@ OnboardingControllerImpl::~OnboardingControllerImpl()
  * input and output arguments. This method is empty, the developer should fill
  * it with the developer's implementation of the ConfigureWiFi method handler.
  *-----------------------------------------------------------------------------*/
-void OnboardingControllerImpl::ConfigureWiFi(qcc::String SSID, qcc::String passphrase, short authType, short& status, qcc::String&  error, qcc::String& errorMessage) {
+void OnboardingControllerImpl::ConfigureWiFi(qcc::String SSID, qcc::String passphrase, short authType, short& status, qcc::String& error, qcc::String& errorMessage)
+{
     QCC_UNUSED(error);
     QCC_UNUSED(errorMessage);
     QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
@@ -172,18 +174,14 @@ void OnboardingControllerImpl::ConfigureWiFi(qcc::String SSID, qcc::String passp
                     case WPA_CCMP:
                     case WPA2_TKIP:
                     case WPA2_CCMP:
-                        {
-                            if (!isValidWPAKey(passphrase)) {
-                                continue;
-                            }
+                        if (!isValidWPAKey(passphrase)) {
+                            continue;
                         }
                         break;
 
                     case WEP:
-                        {
-                            if (!isValidWEPKey(passphrase)) {
-                                continue;
-                            }
+                        if (!isValidWEPKey(passphrase)) {
+                            continue;
                         }
                         break;
                     }
@@ -220,13 +218,14 @@ void* OnboardingControllerImpl::OBS_Connect(void* obsArg)
  * output arguments. This method is empty, the developer should fill it with the
  * developer's implementation of the Connect method handler.
  *-----------------------------------------------------------------------------*/
-void OnboardingControllerImpl::Connect() {
+void OnboardingControllerImpl::Connect()
+{
 /* Fill in method handler implementation here. */
     QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
     CancelAdvertise();
 #ifdef _WIN32
     HANDLE m_handle;
-    m_handle = reinterpret_cast<HANDLE>(_beginthreadex(NULL, 256 * 1024, (unsigned int (__stdcall*)(void*)) OnboardingControllerImpl::OBS_Connect, this, 0, NULL));
+    m_handle = reinterpret_cast<HANDLE>(_beginthreadex(NULL, 256 * 1024, (unsigned int(__stdcall*)(void*)) OnboardingControllerImpl::OBS_Connect, this, 0, NULL));
     CloseHandle(m_handle);
 #else
     pthread_t thread;
@@ -292,10 +291,12 @@ char* OnboardingControllerImpl::Trim(char* str)
         return str;
     }
 
-    char*end;
+    char* end;
 
     // Trim leading space
-    while (isspace(*str)) str++;
+    while (isspace(*str)) {
+        str++;
+    }
 
     if (*str == 0) { // All spaces?
         return str;
@@ -303,7 +304,9 @@ char* OnboardingControllerImpl::Trim(char* str)
 
     // Trim trailing space
     end = str + strlen(str) - 1;
-    while (end > str && isspace(*end)) end--;
+    while (end > str && isspace(*end)) {
+        end--;
+    }
 
     // Write new null terminator
     *(end + 1) = 0;
@@ -331,7 +334,7 @@ void OnboardingControllerImpl::ParseScanInfo()
     m_ScanList.clear();
 
     if (m_ScanArray != NULL) {
-        delete [] m_ScanArray;
+        delete[] m_ScanArray;
         m_ScanArray = NULL;
     }
     m_ScanArray = new OBScanInfo[length];
@@ -420,9 +423,9 @@ void OnboardingControllerImpl::StartScanWifiTimer()
     QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
     memset(&m_scanSignalEvent, 0, sizeof(m_scanSignalEvent));
 
-    m_scanSignalEvent.sigev_notify            = SIGEV_THREAD;
-    m_scanSignalEvent.sigev_value.sival_ptr   = (void*)this;
-    m_scanSignalEvent.sigev_notify_function   = TimerDone;
+    m_scanSignalEvent.sigev_notify = SIGEV_THREAD;
+    m_scanSignalEvent.sigev_value.sival_ptr = (void*)this;
+    m_scanSignalEvent.sigev_notify_function = TimerDone;
     m_scanSignalEvent.sigev_notify_attributes = NULL;
 
 
@@ -506,7 +509,7 @@ void OnboardingControllerImpl::GetScanInfo(unsigned short& age, OBScanInfo*& sca
     // Spawn a thread to scan the wifi and update the wifi_scan_results
     if (!m_scanWifiThreadIsRunning) {
 #ifdef _WIN32
-        m_scanWifiThread = reinterpret_cast<HANDLE>(_beginthreadex(NULL, 256 * 1024, (unsigned int (__stdcall*)(void*))ScanWifiThread, this, 0, NULL));
+        m_scanWifiThread = reinterpret_cast<HANDLE>(_beginthreadex(NULL, 256 * 1024, (unsigned int(__stdcall*)(void*))ScanWifiThread, this, 0, NULL));
         CloseHandle(m_scanWifiThread);
 #else
         StartScanWifiTimer();
@@ -541,7 +544,7 @@ void OnboardingControllerImpl::Offboard()
     QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
     CancelAdvertise();
 #ifdef _WIN32
-    m_scanWifiThread = reinterpret_cast<HANDLE>(_beginthreadex(NULL, 256 * 1024, (unsigned int (__stdcall*)(void*))ScanWifiThread, this, 0, NULL));
+    m_scanWifiThread = reinterpret_cast<HANDLE>(_beginthreadex(NULL, 256 * 1024, (unsigned int(__stdcall*)(void*))ScanWifiThread, this, 0, NULL));
     CloseHandle(m_scanWifiThread);
 #else
     pthread_t thread;
@@ -582,7 +585,8 @@ const OBLastError& OnboardingControllerImpl::GetLastError()
     return m_oBLastError;
 }
 
-int OnboardingControllerImpl::execute_configure(const char* SSID, const int authType, const char* passphrase) {
+int OnboardingControllerImpl::execute_configure(const char* SSID, const int authType, const char* passphrase)
+{
     QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
 #ifdef _OPEN_WRT_
     char cmd[CMD_SIZE] = { 0 };
@@ -609,7 +613,7 @@ void OnboardingControllerImpl::CancelAdvertise()
     }
 }
 
-static int execute_system(const char*cmd)
+static int execute_system(const char* cmd)
 {
     QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
 
@@ -630,4 +634,3 @@ static int execute_system(const char*cmd)
     return 0;
 #endif
 }
-

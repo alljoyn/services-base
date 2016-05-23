@@ -88,5 +88,3 @@ class ControlPanelListener {
 } //namespace ajn
 
 #endif /* CONTROLPANELLISTENER_H_ */
-
-

@@ -36,10 +36,10 @@
 #include <alljoyn/services_common/GuidUtil.h>
 #include <AJInitializer.h>
 
-#define DEFAULT_DEVICE_NAME     "defaultDeviceName"
-#define DEFAULT_APP_NAME        "defaultAppName"
-#define DEFAULT_TTL		30
-#define DEFAULT_SLEEP_TIME	20
+#define DEFAULT_DEVICE_NAME "defaultDeviceName"
+#define DEFAULT_APP_NAME "defaultAppName"
+#define DEFAULT_TTL 30
+#define DEFAULT_SLEEP_TIME 20
 
 #define SERVICE_PORT 900
 
@@ -150,8 +150,7 @@ bool getInput(qcc::String& device_name, qcc::String& app_name, NotificationMessa
             state = SetMsgText;
             break;
 
-        case SetMsgText:
-            {
+        case SetMsgText: {
                 tempText = input.length() ? input.c_str() : defaultText;
                 // It is possible for both the language and text to be empty
                 NotificationText textToSend(tempLang.c_str(), tempText.c_str());
@@ -219,8 +218,7 @@ bool getInput(qcc::String& device_name, qcc::String& app_name, NotificationMessa
             state = SetRichAudioUrlUrl;
             break;
 
-        case SetRichAudioUrlUrl:
-            {
+        case SetRichAudioUrlUrl: {
                 tempUrl = input.length() ? input.c_str() : defaultRichAudioUrl;
                 // It is possible for both the language and text to be empty
                 RichAudioUrl audioContent(tempLang.c_str(), tempUrl.c_str());
@@ -448,9 +446,9 @@ int main(int argc, char* argv[])
         for (int i = 0; i < count; i++) {
             if (i > 0) {
 #ifdef _WIN32
-        Sleep(sleepTime * 1000);
+                Sleep(sleepTime * 1000);
 #else
-        sleep(sleepTime);
+                sleep(sleepTime);
 #endif
             }
 
@@ -509,4 +507,3 @@ int main(int argc, char* argv[])
     cleanup();
     return 0;
 }
-

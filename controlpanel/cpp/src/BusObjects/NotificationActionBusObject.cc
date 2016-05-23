@@ -38,7 +38,7 @@ NotificationActionBusObject::NotificationActionBusObject(BusAttachment* bus, Str
     status = ER_OK;
 
     String interfaceName = AJ_NOTIFICATIONACTION_INTERFACE;
-    m_InterfaceDescription = (InterfaceDescription*) bus->GetInterface(interfaceName.c_str());
+    m_InterfaceDescription = (InterfaceDescription*)bus->GetInterface(interfaceName.c_str());
     if (!m_InterfaceDescription) {
         do {
             CHECK_AND_BREAK(bus->CreateInterface(interfaceName.c_str(), m_InterfaceDescription));
@@ -62,8 +62,8 @@ NotificationActionBusObject::NotificationActionBusObject(BusAttachment* bus, Str
     //Get the signal methods for future use
     m_SignalDismiss = m_InterfaceDescription->GetMember(AJ_SIGNAL_DISMISS.c_str());
     if (m_NotificationAction) {
-        status =  bus->RegisterSignalHandler(this, static_cast<MessageReceiver::SignalHandler>(&NotificationActionBusObject::DismissSignal),
-                                             m_SignalDismiss, m_ObjectPath.c_str());
+        status = bus->RegisterSignalHandler(this, static_cast<MessageReceiver::SignalHandler>(&NotificationActionBusObject::DismissSignal),
+                                            m_SignalDismiss, m_ObjectPath.c_str());
         if (status != ER_OK) {
             QCC_LogError(status, ("Could not register the SignalHandler"));
             return;
@@ -74,10 +74,10 @@ NotificationActionBusObject::NotificationActionBusObject(BusAttachment* bus, Str
 
 QStatus NotificationActionBusObject::UnregisterSignalHandler(BusAttachment* bus)
 {
-    QStatus status =  bus->UnregisterSignalHandler(this,
-                                                   static_cast<MessageReceiver::SignalHandler>(&NotificationActionBusObject::DismissSignal),
-                                                   m_SignalDismiss,
-                                                   m_ObjectPath.c_str());
+    QStatus status = bus->UnregisterSignalHandler(this,
+                                                  static_cast<MessageReceiver::SignalHandler>(&NotificationActionBusObject::DismissSignal),
+                                                  m_SignalDismiss,
+                                                  m_ObjectPath.c_str());
     if (status != ER_OK) {
         QCC_LogError(status, ("Could not unregister the SignalHandler"));
     }
@@ -218,7 +218,7 @@ QStatus NotificationActionBusObject::Introspect(std::vector<IntrospectionNode>& 
         return ER_OK;
     }
 
-    ProxyBusObject** proxyBusObjectChildren = new ProxyBusObject *[numChildren];
+    ProxyBusObject** proxyBusObjectChildren = new ProxyBusObject*[numChildren];
     numChildren = m_Proxy->GetChildren(proxyBusObjectChildren, numChildren);
 
     for (size_t i = 0; i < numChildren; i++) {
@@ -239,7 +239,7 @@ QStatus NotificationActionBusObject::Introspect(std::vector<IntrospectionNode>& 
             continue;
         }
 
-        const InterfaceDescription** ifaces = new const InterfaceDescription *[numInterfaces];
+        const InterfaceDescription** ifaces = new const InterfaceDescription*[numInterfaces];
         numInterfaces = proxyBusObjectChildren[i]->GetInterfaces(ifaces, numInterfaces);
         for (size_t j = 0; j < numInterfaces; j++) {
             QCC_DbgPrintf(("InterfaceName is : %s", ifaces[j]->GetName()));
@@ -267,6 +267,3 @@ QStatus NotificationActionBusObject::Introspect(std::vector<IntrospectionNode>& 
 
 } /* namespace services */
 } /* namespace ajn */
-
-
-

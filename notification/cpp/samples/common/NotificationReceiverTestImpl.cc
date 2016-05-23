@@ -35,7 +35,8 @@ using namespace services;
 using namespace qcc;
 
 NotificationReceiverTestImpl::NotificationReceiverTestImpl(bool waitForExternalNotificationAction) :
-    m_NotificationAction(ACTION_NOTHING), m_WaitForExternalNotificationAction(waitForExternalNotificationAction) {
+    m_NotificationAction(ACTION_NOTHING), m_WaitForExternalNotificationAction(waitForExternalNotificationAction)
+{
 
     if (m_WaitForExternalNotificationAction) {
 #ifdef _WIN32
@@ -48,7 +49,8 @@ NotificationReceiverTestImpl::NotificationReceiverTestImpl(bool waitForExternalN
     }
 }
 
-NotificationReceiverTestImpl::~NotificationReceiverTestImpl() {
+NotificationReceiverTestImpl::~NotificationReceiverTestImpl()
+{
 
     if (m_WaitForExternalNotificationAction) {
 #ifdef _WIN32
@@ -66,11 +68,12 @@ NotificationReceiverTestImpl::~NotificationReceiverTestImpl() {
     }
 }
 
-void NotificationReceiverTestImpl::Receive(Notification const& notification) {
+void NotificationReceiverTestImpl::Receive(Notification const& notification)
+{
 
     qcc::String appName = notification.getAppName();
     // If applications list is empty or the name exists in the filter list then print the notification
-    if ((m_Applications.size() == 0) || (find(m_Applications.begin(), m_Applications.end(), appName) !=  m_Applications.end())) {
+    if ((m_Applications.size() == 0) || (find(m_Applications.begin(), m_Applications.end(), appName) != m_Applications.end())) {
         std::cout << "******************** Begin New Message Received ********************" << std::endl;
         std::cout << "Message Id: " << notification.getMessageId() << std::endl;
         std::cout << "Device Id: " << notification.getDeviceId() << std::endl;
@@ -156,10 +159,8 @@ void NotificationReceiverTestImpl::Receive(Notification const& notification) {
             break;
 
         case ACTION_DISMISS:
-            {
-                std::cout << "going to call dismiss for message id:" << nonConstNotification.getMessageId() << std::endl;
-                nonConstNotification.dismiss();
-            }
+            std::cout << "going to call dismiss for message id:" << nonConstNotification.getMessageId() << std::endl;
+            nonConstNotification.dismiss();
             break;
 
         default:
@@ -178,7 +179,8 @@ void NotificationReceiverTestImpl::Receive(Notification const& notification) {
     std::cout << "End handling notification!!!" << std::endl;
 }
 
-void NotificationReceiverTestImpl::setApplications(qcc::String const& listOfApps) {
+void NotificationReceiverTestImpl::setApplications(qcc::String const& listOfApps)
+{
     std::istringstream iss(listOfApps.c_str());
     std::string singleAppName;
     while (std::getline(iss, singleAppName, ';')) {

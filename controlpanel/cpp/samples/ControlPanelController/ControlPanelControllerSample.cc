@@ -113,7 +113,8 @@ static void announceHandlerCallback(qcc::String const& busName, unsigned short v
     controlPanelController->createControllableDevice(busName, objectDescription);
 }
 
-void WaitForSigInt(void) {
+void WaitForSigInt(void)
+{
     while (s_interrupt == false) {
 #ifdef _WIN32
         Sleep(100);
@@ -143,7 +144,7 @@ int main()
     QCC_SetDebugLevel(logModules::CONTROLPANEL_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
 
     authListener = new DefaultECDHEAuthListener();
-    const char *password = "000000";
+    const char* password = "000000";
     authListener->SetPassword((const uint8_t*)password, strlen(password));
 
     bus = CommonSampleUtil::prepareBusAttachment(authListener);
@@ -190,5 +191,3 @@ int main()
 
     return 0;
 }
-
-

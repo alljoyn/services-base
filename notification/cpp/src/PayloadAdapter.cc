@@ -39,10 +39,10 @@ int32_t PayloadAdapter::m_MessageId(0);
 QStatus PayloadAdapter::sendPayload(const char* deviceId, const char* deviceName,
                                     const uint8_t* appId, size_t appIdlen, const char* appName,
                                     NotificationMessageType messageType,
-                                    std::vector<NotificationText> const&  notificationText,
+                                    std::vector<NotificationText> const& notificationText,
                                     std::map<qcc::String, qcc::String> const& customAttributes,
                                     uint16_t ttl,
-                                    const char* richIconUrl, std::vector<RichAudioUrl> const&  richAudioUrl,
+                                    const char* richIconUrl, std::vector<RichAudioUrl> const& richAudioUrl,
                                     const char* richIconObjectPath, const char* richAudioObjectPath,
                                     const char* controlPanelServiceObjectPath, const char* originalSender, int32_t messageId)
 {
@@ -59,7 +59,7 @@ QStatus PayloadAdapter::sendPayload(const char* deviceId, const char* deviceName
         CHECK(appIdArg.Set(AJPARAM_ARR_BYTE.c_str(), appIdlen, appId));
         CHECK(appNameArg.Set(AJPARAM_STR.c_str(), appName));
 
-        return(sendPayload(deviceIdArg, deviceNameArg, appIdArg, appNameArg, messageType, notificationText, customAttributes, ttl, richIconUrl, richAudioUrl, richIconObjectPath, richAudioObjectPath, controlPanelServiceObjectPath, originalSender, messageId));
+        return sendPayload(deviceIdArg, deviceNameArg, appIdArg, appNameArg, messageType, notificationText, customAttributes, ttl, richIconUrl, richAudioUrl, richIconObjectPath, richAudioObjectPath, controlPanelServiceObjectPath, originalSender, messageId);
     } while (0);
 
     QCC_LogError(status, ("Error occurred.  Could not marshal parameters."));
@@ -69,10 +69,10 @@ QStatus PayloadAdapter::sendPayload(const char* deviceId, const char* deviceName
 
 QStatus PayloadAdapter::sendPayload(AboutData* propertyStore,
                                     NotificationMessageType messageType,
-                                    std::vector<NotificationText> const&  notificationText,
+                                    std::vector<NotificationText> const& notificationText,
                                     std::map<qcc::String, qcc::String> const& customAttributes,
                                     uint16_t ttl,
-                                    const char* richIconUrl, std::vector<RichAudioUrl> const&  richAudioUrl,
+                                    const char* richIconUrl, std::vector<RichAudioUrl> const& richAudioUrl,
                                     const char* richIconObjectPath, const char* richAudioObjectPath,
                                     const char* controlPanelServiceObjectPath, const char* originalSender)
 {
@@ -164,15 +164,15 @@ QStatus PayloadAdapter::sendPayload(AboutData* propertyStore,
         return ER_BAD_ARG_1;
     }
 
-    return (sendPayload(deviceIdArg, deviceNameArg, appIdArg, appNameArg, messageType, notificationText, customAttributes, ttl, richIconUrl, richAudioUrl, richIconObjectPath, richAudioObjectPath, controlPanelServiceObjectPath, originalSender, ++m_MessageId));
+    return sendPayload(deviceIdArg, deviceNameArg, appIdArg, appNameArg, messageType, notificationText, customAttributes, ttl, richIconUrl, richAudioUrl, richIconObjectPath, richAudioObjectPath, controlPanelServiceObjectPath, originalSender, ++m_MessageId);
 }
 
 QStatus PayloadAdapter::sendPayload(PropertyStore* propertyStore,
                                     NotificationMessageType messageType,
-                                    std::vector<NotificationText> const&  notificationText,
+                                    std::vector<NotificationText> const& notificationText,
                                     std::map<qcc::String, qcc::String> const& customAttributes,
                                     uint16_t ttl,
-                                    const char* richIconUrl, std::vector<RichAudioUrl> const&  richAudioUrl,
+                                    const char* richIconUrl, std::vector<RichAudioUrl> const& richAudioUrl,
                                     const char* richIconObjectPath, const char* richAudioObjectPath,
                                     const char* controlPanelServiceObjectPath, const char* originalSender)
 {
@@ -264,16 +264,16 @@ QStatus PayloadAdapter::sendPayload(PropertyStore* propertyStore,
         return ER_BAD_ARG_1;
     }
 
-    return (sendPayload(deviceIdArg, deviceNameArg, appIdArg, appNameArg, messageType, notificationText, customAttributes, ttl, richIconUrl, richAudioUrl, richIconObjectPath, richAudioObjectPath, controlPanelServiceObjectPath, originalSender, ++m_MessageId));
+    return sendPayload(deviceIdArg, deviceNameArg, appIdArg, appNameArg, messageType, notificationText, customAttributes, ttl, richIconUrl, richAudioUrl, richIconObjectPath, richAudioObjectPath, controlPanelServiceObjectPath, originalSender, ++m_MessageId);
 }
 
 QStatus PayloadAdapter::sendPayload(ajn::MsgArg deviceIdArg, ajn::MsgArg deviceNameArg,
                                     ajn::MsgArg appIdArg, ajn::MsgArg appNameArg,
                                     NotificationMessageType messageType,
-                                    std::vector<NotificationText> const&  notificationText,
+                                    std::vector<NotificationText> const& notificationText,
                                     std::map<qcc::String, qcc::String> const& customAttributes,
                                     uint16_t ttl,
-                                    const char* richIconUrl, std::vector<RichAudioUrl> const&  richAudioUrl,
+                                    const char* richIconUrl, std::vector<RichAudioUrl> const& richAudioUrl,
                                     const char* richIconObjectPath, const char* richAudioObjectPath,
                                     const char* controlPanelServiceObjectPath, const char* originalSender, int32_t messageId)
 {
@@ -543,7 +543,7 @@ void PayloadAdapter::receivePayload(Message& msg)
             return;
         }
 
-        MsgArg*attribEntries;
+        MsgArg* attribEntries;
         size_t attribNum;
         char* richIconUrl = 0;
         char* richIconObjectPath = 0;
@@ -563,22 +563,19 @@ void PayloadAdapter::receivePayload(Message& msg)
 
             switch (key) {
             case RICH_CONTENT_ICON_URL_ATTRIBUTE_KEY:
-                {
-                    CHECK(variant->Get(AJPARAM_STR.c_str(), &richIconUrl));
-                    break;
-                }
+                CHECK(variant->Get(AJPARAM_STR.c_str(), &richIconUrl));
+                break;
 
-            case RICH_CONTENT_AUDIO_URL_ATTRIBUTE_KEY:
-                {
+            case RICH_CONTENT_AUDIO_URL_ATTRIBUTE_KEY: {
 
-                    MsgArg*richAudioEntries;
+                    MsgArg* richAudioEntries;
                     size_t richAudioNum;
 
                     CHECK(variant->Get(AJPARAM_ARR_STRUCT_STR_STR.c_str(), &richAudioNum, &richAudioEntries));
 
                     for (size_t i = 0; i < richAudioNum; i++) {
-                        char*key;
-                        char*StringVal;
+                        char* key;
+                        char* StringVal;
                         status = richAudioEntries[i].Get(AJPARAM_STRUCT_STR_STR.c_str(), &key, &StringVal);
                         if (status != ER_OK) {
                             QCC_LogError(status, ("Can not Unmarshal this NotificationText argument."));
@@ -590,28 +587,20 @@ void PayloadAdapter::receivePayload(Message& msg)
                 }
 
             case RICH_CONTENT_ICON_OBJECT_PATH_ATTRIBUTE_KEY:
-                {
-                    CHECK(variant->Get(AJPARAM_STR.c_str(), &richIconObjectPath));
-                    break;
-                }
+                CHECK(variant->Get(AJPARAM_STR.c_str(), &richIconObjectPath));
+                break;
 
             case RICH_CONTENT_AUDIO_OBJECT_PATH_ATTRIBUTE_KEY:
-                {
-                    CHECK(variant->Get(AJPARAM_STR.c_str(), &richAudioObjectPath));
-                    break;
-                }
+                CHECK(variant->Get(AJPARAM_STR.c_str(), &richAudioObjectPath));
+                break;
 
             case CPS_OBJECT_PATH_ATTRIBUTE_KEY:
-                {
-                    CHECK(variant->Get(AJPARAM_STR.c_str(), &controlPanelServiceObjectPath));
-                    break;
-                }
+                CHECK(variant->Get(AJPARAM_STR.c_str(), &controlPanelServiceObjectPath));
+                break;
 
             case ORIGINAL_SENDER_ATTRIBUTE_KEY:
-                {
-                    CHECK(variant->Get(AJPARAM_STR.c_str(), &originalSender));
-                    break;
-                }
+                CHECK(variant->Get(AJPARAM_STR.c_str(), &originalSender));
+                break;
 
             default:
                 QCC_DbgHLPrintf(("Can not Unmarshal this attribute argument"));
@@ -625,15 +614,15 @@ void PayloadAdapter::receivePayload(Message& msg)
             return;
         }
 
-        MsgArg*customAttributesEntries;
+        MsgArg* customAttributesEntries;
         size_t customAttributesNum;
         std::map<qcc::String, qcc::String> customAttributes;
 
         CHECK(customAttributesArg->Get(AJPARAM_ARR_DICT_STR_STR.c_str(), &customAttributesNum, &customAttributesEntries));
 
         for (size_t i = 0; i < customAttributesNum; i++) {
-            char*key;
-            char*StringVal;
+            char* key;
+            char* StringVal;
             status = customAttributesEntries[i].Get(AJPARAM_DICT_STR_STR.c_str(), &key, &StringVal);
             if (status != ER_OK) {
                 QCC_DbgHLPrintf(("Can not Unmarshal this Custom Attribute argument"));
@@ -652,14 +641,14 @@ void PayloadAdapter::receivePayload(Message& msg)
             return;
         }
 
-        MsgArg*notTextEntries;
+        MsgArg* notTextEntries;
         size_t notTextNum;
         CHECK(notificationsArg->Get(AJPARAM_ARR_STRUCT_STR_STR.c_str(), &notTextNum, &notTextEntries));
 
         std::vector<NotificationText> text;
         for (size_t i = 0; i < notTextNum; i++) {
-            char*key;
-            char*StringVal;
+            char* key;
+            char* StringVal;
             status = notTextEntries[i].Get(AJPARAM_STRUCT_STR_STR.c_str(), &key, &StringVal);
             if (status != ER_OK) {
                 QCC_DbgHLPrintf(("Can not Unmarshal this NotificationText argument"));
@@ -686,6 +675,4 @@ void PayloadAdapter::receivePayload(Message& msg)
 
     QCC_LogError(status, ("Error occurred.  Could not unmarshal parameters."));
 
-    return;
 }
-

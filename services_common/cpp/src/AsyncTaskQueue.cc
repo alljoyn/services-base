@@ -23,7 +23,8 @@
 using namespace ajn;
 using namespace services;
 
-TaskData::~TaskData() {
+TaskData::~TaskData()
+{
 
 }
 
@@ -64,7 +65,7 @@ void AsyncTaskQueue::Start()
 #ifdef _WIN32
     InitializeCriticalSection(&m_Lock);
     InitializeConditionVariable(&m_QueueChanged);
-    m_handle = reinterpret_cast<HANDLE>(_beginthreadex(NULL, 256 * 1024, (unsigned int (__stdcall*)(void*))ReceiverThreadWrapper, this, 0, NULL));
+    m_handle = reinterpret_cast<HANDLE>(_beginthreadex(NULL, 256 * 1024, (unsigned int(__stdcall*)(void*))ReceiverThreadWrapper, this, 0, NULL));
 #else
     pthread_mutex_init(&m_Lock, NULL);
     pthread_cond_init(&m_QueueChanged, NULL);
@@ -162,4 +163,3 @@ void AsyncTaskQueue::Receiver()
     pthread_mutex_unlock(&m_Lock);
 #endif
 }
-

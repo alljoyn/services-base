@@ -138,4 +138,3 @@ class ControlPanelBusObject : public BusObject {
 } /* namespace services */
 } /* namespace ajn */
 #endif /* CONTROLPANELBUSOBJECT_H_ */
-

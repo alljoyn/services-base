@@ -38,7 +38,7 @@ ControlPanelBusObject::ControlPanelBusObject(BusAttachment* bus, String const& o
     status = ER_OK;
 
     String interfaceName = AJ_CONTROLPANEL_INTERFACE;
-    m_InterfaceDescription = (InterfaceDescription*) bus->GetInterface(interfaceName.c_str());
+    m_InterfaceDescription = (InterfaceDescription*)bus->GetInterface(interfaceName.c_str());
     if (!m_InterfaceDescription) {
         do {
             CHECK_AND_BREAK(bus->CreateInterface(interfaceName.c_str(), m_InterfaceDescription));
@@ -71,7 +71,7 @@ QStatus ControlPanelBusObject::setIsNotificationAction(BusAttachment* bus)
     QStatus status = ER_OK;
     String interfaceName = AJ_NOTIFICATIONACTION_INTERFACE;
 
-    InterfaceDescription* interfaceDescription = (InterfaceDescription*) bus->GetInterface(interfaceName.c_str());
+    InterfaceDescription* interfaceDescription = (InterfaceDescription*)bus->GetInterface(interfaceName.c_str());
     if (!interfaceDescription) {
         do {
             CHECK_AND_BREAK(bus->CreateInterface(interfaceName.c_str(), interfaceDescription));
@@ -219,7 +219,7 @@ QStatus ControlPanelBusObject::Introspect(std::vector<IntrospectionNode>& childN
         return ER_OK;
     }
 
-    ProxyBusObject** proxyBusObjectChildren = new ProxyBusObject *[numChildren];
+    ProxyBusObject** proxyBusObjectChildren = new ProxyBusObject*[numChildren];
     numChildren = m_Proxy->GetChildren(proxyBusObjectChildren, numChildren);
 
     for (size_t i = 0; i < numChildren; i++) {
@@ -240,7 +240,7 @@ QStatus ControlPanelBusObject::Introspect(std::vector<IntrospectionNode>& childN
             continue;
         }
 
-        const InterfaceDescription** ifaces = new const InterfaceDescription *[numInterfaces];
+        const InterfaceDescription** ifaces = new const InterfaceDescription*[numInterfaces];
         numInterfaces = proxyBusObjectChildren[i]->GetInterfaces(ifaces, numInterfaces);
         for (size_t j = 0; j < numInterfaces; j++) {
             QCC_DbgPrintf(("InterfaceName is : %s", ifaces[j]->GetName()));
@@ -262,6 +262,3 @@ QStatus ControlPanelBusObject::Introspect(std::vector<IntrospectionNode>& childN
 
 } /* namespace services */
 } /* namespace ajn */
-
-
-

@@ -25,14 +25,15 @@
 using namespace qcc;
 using namespace ajn;
 
-QStatus SecurityUtil::Claim(BusAttachment &bus,
-                            const String &peerBusName,
+QStatus SecurityUtil::Claim(BusAttachment& bus,
+                            const String& peerBusName,
                             const SessionId sessionId,
-                            const KeyInfoNISTP256 &caPublicKeyInfo,
-                            const GUID128 &adminGuid,
-                            const KeyInfoNISTP256 &adminPubKeyInfo,
-                            const std::vector <CertificateX509> &certChain,
-                            const std::vector<Manifest> &manifests) {
+                            const KeyInfoNISTP256& caPublicKeyInfo,
+                            const GUID128& adminGuid,
+                            const KeyInfoNISTP256& adminPubKeyInfo,
+                            const std::vector<CertificateX509>& certChain,
+                            const std::vector<Manifest>& manifests)
+{
     QStatus status = ER_FAIL;
 
     SecurityApplicationProxy peerProxy(bus, peerBusName.c_str(), sessionId);
@@ -40,13 +41,14 @@ QStatus SecurityUtil::Claim(BusAttachment &bus,
                              certChain.data(), certChain.size(), manifests.data(), manifests.size());
     if (ER_OK != status) {
         std::cout << "WARNING - Failed to call Claim on peer '" << peerBusName << "' error: " <<
-        QCC_StatusText(status) << std::endl;
+            QCC_StatusText(status) << std::endl;
     }
 
     return status;
 }
 
-QStatus SecurityUtil::Reset(BusAttachment &bus, const String &peerBusName) {
+QStatus SecurityUtil::Reset(BusAttachment& bus, const String& peerBusName)
+{
     QStatus status = ER_FAIL;
 
     SessionId sessionId = 0;
@@ -56,7 +58,7 @@ QStatus SecurityUtil::Reset(BusAttachment &bus, const String &peerBusName) {
                                  opts);
         if (ER_OK != status) {
             std::cout << "WARNING - Failed to join session with '" << peerBusName << "' error: " <<
-            QCC_StatusText(status) << std::endl;
+                QCC_StatusText(status) << std::endl;
             return status;
         }
     }
@@ -65,23 +67,24 @@ QStatus SecurityUtil::Reset(BusAttachment &bus, const String &peerBusName) {
     status = peerProxy.Reset();
     if (ER_OK != status) {
         std::cout << "WARNING - Failed to call Reset on peer '" << peerBusName << "' error: " <<
-        QCC_StatusText(status) << std::endl;
+            QCC_StatusText(status) << std::endl;
     }
 
     if (sessionId != 0) {
         QStatus sessionStatus = bus.LeaveSession(sessionId);
         if (ER_OK != sessionStatus) {
             std::cout << "WARNING - Failed to leave session with '" << peerBusName << "' error: " <<
-            QCC_StatusText(sessionStatus) << std::endl;
+                QCC_StatusText(sessionStatus) << std::endl;
         }
     }
 
     return status;
 }
 
-QStatus SecurityUtil::InstallMembership(BusAttachment &bus,
-                                        const String &peerBusName,
-                                        const MembershipCertificate &cert) {
+QStatus SecurityUtil::InstallMembership(BusAttachment& bus,
+                                        const String& peerBusName,
+                                        const MembershipCertificate& cert)
+{
     QStatus status = ER_FAIL;
 
     SessionId sessionId = 0;
@@ -91,7 +94,7 @@ QStatus SecurityUtil::InstallMembership(BusAttachment &bus,
                                  opts);
         if (ER_OK != status) {
             std::cout << "WARNING - Failed to join session with '" << peerBusName << "' error: " <<
-            QCC_StatusText(status) << std::endl;
+                QCC_StatusText(status) << std::endl;
             return status;
         }
     }
@@ -100,21 +103,22 @@ QStatus SecurityUtil::InstallMembership(BusAttachment &bus,
     status = peerProxy.InstallMembership(&cert, 1);
     if (ER_OK != status) {
         std::cout << "WARNING - Failed to call InstallMembership on peer '" << peerBusName << "' error: " <<
-        QCC_StatusText(status) << std::endl;
+            QCC_StatusText(status) << std::endl;
     }
 
     if (sessionId != 0) {
         QStatus sessionStatus = bus.LeaveSession(sessionId);
         if (ER_OK != sessionStatus) {
             std::cout << "WARNING - Failed to leave session with '" << peerBusName << "' error: " <<
-            QCC_StatusText(sessionStatus) << std::endl;
+                QCC_StatusText(sessionStatus) << std::endl;
         }
     }
 
     return status;
 }
 
-void SecurityUtil::GenerateManifest(Manifest manifest) {
+void SecurityUtil::GenerateManifest(Manifest manifest)
+{
 
     const size_t rule_count = 1;
     PermissionPolicy::Rule rules[rule_count];
@@ -126,10 +130,10 @@ void SecurityUtil::GenerateManifest(Manifest manifest) {
         members[0].SetMemberName("*");
         members[0].SetMemberType(PermissionPolicy::Rule::Member::MemberType::NOT_SPECIFIED);
         members[0].SetActionMask(
-                PermissionPolicy::Rule::Member::ACTION_PROVIDE |
-                PermissionPolicy::Rule::Member::ACTION_MODIFY |
-                PermissionPolicy::Rule::Member::ACTION_OBSERVE
-        );
+            PermissionPolicy::Rule::Member::ACTION_PROVIDE |
+            PermissionPolicy::Rule::Member::ACTION_MODIFY |
+            PermissionPolicy::Rule::Member::ACTION_OBSERVE
+            );
 
         rules[0].SetMembers(1, members);
     }

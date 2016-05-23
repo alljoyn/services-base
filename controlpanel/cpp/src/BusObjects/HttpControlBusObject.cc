@@ -42,7 +42,7 @@ HttpControlBusObject::HttpControlBusObject(BusAttachment* bus, String const& obj
         return;
     }
 
-    m_InterfaceDescription = (InterfaceDescription*) bus->GetInterface(AJ_HTTPCONTROL_INTERFACE.c_str());
+    m_InterfaceDescription = (InterfaceDescription*)bus->GetInterface(AJ_HTTPCONTROL_INTERFACE.c_str());
     if (!m_InterfaceDescription) {
         do {
             CHECK_AND_BREAK(bus->CreateInterface(AJ_HTTPCONTROL_INTERFACE.c_str(), m_InterfaceDescription, false));
@@ -218,6 +218,3 @@ QStatus HttpControlBusObject::GetUrl(BusAttachment* bus)
 
 } /* namespace services */
 } /* namespace ajn */
-
-
-

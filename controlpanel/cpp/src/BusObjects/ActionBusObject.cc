@@ -39,7 +39,7 @@ ActionBusObject::ActionBusObject(BusAttachment* bus, String const& objectPath, u
     }
 
     String interfaceName = widget->getIsSecured() ? AJ_SECURED_ACTION_INTERFACE : AJ_ACTION_INTERFACE;
-    m_InterfaceDescription = (InterfaceDescription*) bus->GetInterface(interfaceName.c_str());
+    m_InterfaceDescription = (InterfaceDescription*)bus->GetInterface(interfaceName.c_str());
     if (!m_InterfaceDescription) {
         do {
             CHECK_AND_BREAK(bus->CreateInterface(interfaceName.c_str(), m_InterfaceDescription, widget->getIsSecured()));
@@ -144,7 +144,7 @@ QStatus ActionBusObject::Introspect(std::vector<IntrospectionNode>& childNodes)
         return ER_FAIL;
     }
 
-    ProxyBusObject** proxyBusObjectChildren = new ProxyBusObject *[numChildren];
+    ProxyBusObject** proxyBusObjectChildren = new ProxyBusObject*[numChildren];
     numChildren = m_Proxy->GetChildren(proxyBusObjectChildren, numChildren);
 
     for (size_t i = 0; i < numChildren; i++) {
@@ -165,7 +165,7 @@ QStatus ActionBusObject::Introspect(std::vector<IntrospectionNode>& childNodes)
             continue;
         }
 
-        const InterfaceDescription** ifaces = new const InterfaceDescription *[numInterfaces];
+        const InterfaceDescription** ifaces = new const InterfaceDescription*[numInterfaces];
         numInterfaces = proxyBusObjectChildren[i]->GetInterfaces(ifaces, numInterfaces);
         for (size_t j = 0; j < numInterfaces; j++) {
             QCC_DbgPrintf(("InterfaceName is %s", ifaces[j]->GetName()));
@@ -187,6 +187,3 @@ QStatus ActionBusObject::Introspect(std::vector<IntrospectionNode>& childNodes)
 
 } /* namespace services */
 } /* namespace ajn */
-
-
-

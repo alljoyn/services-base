@@ -52,8 +52,8 @@
 using namespace ajn;
 using namespace services;
 
-#define SERVICE_EXIT_OK       0
-#define SERVICE_OPTION_ERROR  1
+#define SERVICE_EXIT_OK 0
+#define SERVICE_OPTION_ERROR 1
 
 /** static variables need for sample */
 static BusAttachment* msgBus = NULL;
@@ -161,17 +161,18 @@ static void cleanup()
     }
 }
 
-void readPassword(qcc::String& passCode) {
+void readPassword(qcc::String& passCode)
+{
 
-    ajn::MsgArg*argPasscode;
-    char*tmp;
+    ajn::MsgArg* argPasscode;
+    char* tmp;
     aboutDataStore->GetField("Passcode", argPasscode);
     argPasscode->Get("s", &tmp);
     passCode = tmp;
-    return;
 }
 
-int main(int argc, char**argv, char**envArg) {
+int main(int argc, char** argv, char** envArg)
+{
     QCC_UNUSED(envArg);
     // Initialize AllJoyn
     AJInitializer ajInit;
@@ -211,7 +212,7 @@ start:
 
     /* Create message bus */
     authListener = new DefaultECDHEAuthListener();
-    const char *password = "000000";
+    const char* password = "000000";
     authListener->SetPassword((const uint8_t*)password, strlen(password));
 
     uint16_t retry = 0;
@@ -438,4 +439,3 @@ start:
 
     return 0;
 } /* main() */
-

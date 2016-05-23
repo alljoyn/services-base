@@ -138,7 +138,7 @@ start:
     prodService = NotificationService::getInstance();
 
     authListener = new DefaultECDHEAuthListener();
-    const char *password = "000000";
+    const char* password = "000000";
     authListener->SetPassword((const uint8_t*)password, strlen(password));
 
     /* Connect to the daemon */

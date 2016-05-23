@@ -184,5 +184,3 @@ class NotificationAction {
 } /* namespace services */
 } /* namespace ajn */
 #endif /* NOTIFICATIONACTION_H_ */
-
-

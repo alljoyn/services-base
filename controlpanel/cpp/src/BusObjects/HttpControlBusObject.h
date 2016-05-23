@@ -125,4 +125,3 @@ class HttpControlBusObject : public BusObject {
 } /* namespace services */
 } /* namespace ajn */
 #endif /* HTTPCONTROLBUSOBJECT_H_ */
-

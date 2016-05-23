@@ -50,9 +50,8 @@ void TestFunction::checkOptionalParams(std::map<qcc::String, qcc::String>& param
             if (find(requiredParams.begin(), requiredParams.end(), params_it->first) == requiredParams.end()) {
                 // Element is NOT in either vector so let the user know
                 std::cout << "Parameter " << params_it->first.c_str() << " is not a valid parameter for " <<
-                functionName.c_str() << ". Ignoring value" << std::endl;
+                    functionName.c_str() << ". Ignoring value" << std::endl;
             }
         }
     }
 }
-
