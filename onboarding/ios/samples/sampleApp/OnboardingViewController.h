@@ -35,6 +35,7 @@ static NSString * const AJ_AP_SUFFIX = @"_AJ";
 @property (weak, nonatomic) IBOutlet UILabel *ssidPassLbl;
 @property (weak, nonatomic) IBOutlet UILabel *statusLbl;
 @property (weak, nonatomic) IBOutlet UILabel *instructLbl;
+@property (weak, nonatomic) IBOutlet UILabel *authLabel;
 @property (weak, nonatomic) IBOutlet UITextField *authTextField;
 @property (strong, nonatomic) UIPickerView *authType;
 

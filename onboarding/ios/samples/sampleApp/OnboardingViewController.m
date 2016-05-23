@@ -66,6 +66,10 @@
     self.ssidTextField.alpha = alpha;
     self.ssidPassTextField.alpha = alpha;
     
+    // auth type
+    self.authLabel.alpha = alpha;
+    self.authTextField.alpha = alpha;
+    
     //buttons
     self.connectBtn.alpha = alpha;
     self.configureBtn.alpha = alpha;
