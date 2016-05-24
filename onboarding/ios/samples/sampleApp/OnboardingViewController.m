@@ -259,7 +259,7 @@
     status = [self.onboardingClient connectTo:self.onboardeeBus sessionId:self.sessionId];
     if (status == ER_OK) {
         [self updateStatusLabel:@"Call to connect succeeded"];
-        [[[UIAlertView alloc] initWithTitle:@"Onboarding succeeded" message:[NSString stringWithFormat:@"Check that your device connects to the '%@' network.\nGo to Settings -> Wi-Fi", self.ssidTextField.text] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil] show];
+        [[[UIAlertView alloc] initWithTitle:@"Onboarding succeeded" message:[NSString stringWithFormat:@"Go to Settings -> Wi-Fi to manually connect this device to the '%@' network to complete the onboarding process.", self.ssidTextField.text] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil] show];
     } else {
         [self updateStatusLabel:[NSString stringWithFormat:@"Call to connect failed: %@", [AJNStatus descriptionForStatusCode:status]]];
     }
