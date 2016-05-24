@@ -420,6 +420,7 @@
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.delegate loadEnded];
+        [self.delegate sessionLost];
     });
     
 	[NSThread sleepForTimeInterval:5];

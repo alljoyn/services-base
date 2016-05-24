@@ -20,5 +20,6 @@
 
 -(void)refreshEntries;
 -(void)loadEnded;
+-(void)sessionLost;
 
 @end
