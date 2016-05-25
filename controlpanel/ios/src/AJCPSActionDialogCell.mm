@@ -31,13 +31,6 @@ static const float NUM_ACTIONS = 3;
         [self.cpsButton addTarget:self action:@selector(touchUpInsideAction:) forControlEvents:UIControlEventTouchUpInside];
         [self.contentView addSubview:self.cpsButton];
         [self reloadInputViews];
-
-        if ([UIAlertController class]) {
-            self.alertActionDict = nil;
-        }
-        else {
-            self.alertActionDict = [NSMutableDictionary dictionaryWithCapacity:NUM_ACTIONS];
-        }
     }
     return self;
 }
@@ -54,40 +47,21 @@ static const float NUM_ACTIONS = 3;
     NSString *message = [childDialog getMessage];
     uint16_t numActions = [childDialog getNumActions];
 
-    if ([UIAlertController class]) {
-        UIAlertController* alertController = [UIAlertController alertControllerWithTitle:@"" message:message preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertController* alertController = [UIAlertController alertControllerWithTitle:@"" message:message preferredStyle:UIAlertControllerStyleAlert];
 
-        for(uint16_t i = 1; i <= numActions; ++i){
-            SEL getLabel = NSSelectorFromString([NSString stringWithFormat:@"getLabelAction%d", i]);
-            NSString *label = [childDialog performSelector:getLabel];
+    for(uint16_t i = 1; i <= numActions; ++i){
+        SEL getLabel = NSSelectorFromString([NSString stringWithFormat:@"getLabelAction%d", i]);
+        NSString *label = [childDialog performSelector:getLabel];
 
-            UIAlertAction* action = [UIAlertAction actionWithTitle:label style: UIAlertActionStyleDefault handler:^(UIAlertAction *action){
-                SEL executeAction = NSSelectorFromString([NSString stringWithFormat:@"executeAction%d", i]);
-                [childDialog performSelector:executeAction];
-            }];
+        UIAlertAction* action = [UIAlertAction actionWithTitle:label style: UIAlertActionStyleDefault handler:^(UIAlertAction *action){
+            SEL executeAction = NSSelectorFromString([NSString stringWithFormat:@"executeAction%d", i]);
+            [childDialog performSelector:executeAction];
+        }];
 
-            [alertController addAction:action];
-        }
-
-        [self.viewController presentViewController:alertController animated:YES completion:nil];
-    } else {
-        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@""
-                                                            message:message
-                                                           delegate:self
-                                                  cancelButtonTitle:nil
-                                                  otherButtonTitles:nil];
-
-        for(uint16_t i = 1; i <= numActions; ++i) {
-            SEL getLabel = NSSelectorFromString([NSString stringWithFormat:@"getLabelAction%d", i]);
-            NSString *label = [childDialog performSelector:getLabel];
-            [alertView addButtonWithTitle:label];
-
-            NSString *action = [NSString stringWithFormat:@"executeAction%d", i];
-            [self.alertActionDict setValue:action forKey:label];
-        }
-
-        [alertView show];
+        [alertController addAction:action];
     }
+
+    [self.viewController presentViewController:alertController animated:YES completion:nil];
 }
 
 -(void)setActionDialogWidget:(AJCPSActionWithDialog *)actionDialogWidget
@@ -100,21 +74,6 @@ static const float NUM_ACTIONS = 3;
 -(void)setViewController:(AJCPSGetControlPanelViewController *)viewController
 {
     _viewController = viewController;
-}
-
-- (void)alertView:(UIAlertView *)theAlert clickedButtonAtIndex:(NSInteger)buttonIndex
-{
-    NSString *buttonTitle = [theAlert buttonTitleAtIndex:buttonIndex];
-    NSLog(@"Button '%@' clicked", buttonTitle);
-
-    NSString *action = self.alertActionDict[buttonTitle];
-    NSLog(@"Action retrieved from dict is '%@'", action);
-
-    if(action) {
-        SEL executeAction = NSSelectorFromString(action);
-        AJCPSDialog* childDialog = [self.actionDialogWidget getChildDialog];
-        [childDialog performSelector:executeAction];
-    }
 }
 
 @end

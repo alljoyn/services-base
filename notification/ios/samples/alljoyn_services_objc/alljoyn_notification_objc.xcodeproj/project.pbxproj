@@ -32,6 +32,8 @@
 		9AA93AA31855CCB800378361 /* AJNSRichAudioUrl.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9AA937C11854BD1700378361 /* AJNSRichAudioUrl.h */; };
 		9AABD3F318ACFBA50026304D /* AJSCCommonBusListener.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9AABD3F218ACFBA50026304D /* AJSCCommonBusListener.mm */; };
 		9AABD3F418ACFBB80026304D /* AJSCCommonBusListener.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9AABD3F118ACFBA50026304D /* AJSCCommonBusListener.h */; };
+		B0A347B51CF5513000A38E4D /* AJSCAlertController.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = B0A347B41CF5513000A38E4D /* AJSCAlertController.h */; };
+		B0A347B71CF5516D00A38E4D /* AJSCAlertController.mm in Sources */ = {isa = PBXBuildFile; fileRef = B0A347B61CF5516D00A38E4D /* AJSCAlertController.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +71,7 @@
 			dstPath = inc/alljoyn/samples_common;
 			dstSubfolderSpec = 16;
 			files = (
+				B0A347B51CF5513000A38E4D /* AJSCAlertController.h in CopyFiles */,
 				9AABD3F418ACFBB80026304D /* AJSCCommonBusListener.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -103,6 +106,8 @@
 		9AA937FB1854BD1700378361 /* AJNSRichAudioUrl.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AJNSRichAudioUrl.mm; sourceTree = "<group>"; };
 		9AABD3F118ACFBA50026304D /* AJSCCommonBusListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AJSCCommonBusListener.h; sourceTree = "<group>"; };
 		9AABD3F218ACFBA50026304D /* AJSCCommonBusListener.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AJSCCommonBusListener.mm; sourceTree = "<group>"; };
+		B0A347B41CF5513000A38E4D /* AJSCAlertController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AJSCAlertController.h; sourceTree = "<group>"; };
+		B0A347B61CF5516D00A38E4D /* AJSCAlertController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AJSCAlertController.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -260,6 +265,8 @@
 		9AABD3F018ACFBA50026304D /* samples_common */ = {
 			isa = PBXGroup;
 			children = (
+				B0A347B61CF5516D00A38E4D /* AJSCAlertController.mm */,
+				B0A347B41CF5513000A38E4D /* AJSCAlertController.h */,
 				9AABD3F118ACFBA50026304D /* AJSCCommonBusListener.h */,
 				9AABD3F218ACFBA50026304D /* AJSCCommonBusListener.mm */,
 			);
@@ -349,6 +356,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B0A347B71CF5516D00A38E4D /* AJSCAlertController.mm in Sources */,
 				9AA939491854BD1800378361 /* AJNSNotificationReceiverAdapter.mm in Sources */,
 				9AA939511854BD1800378361 /* AJNSRichAudioUrl.mm in Sources */,
 				9AABD3F318ACFBA50026304D /* AJSCCommonBusListener.mm in Sources */,
@@ -421,7 +429,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 			};
@@ -452,7 +460,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 			};

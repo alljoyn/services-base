@@ -19,4 +19,6 @@
 
 @interface AuthenticationListenerImpl : NSObject <AJNAuthenticationListener>
 
+- (id)initWithViewController:(UIViewController*)viewController;
+
 @end
