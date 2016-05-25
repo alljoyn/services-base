@@ -15,9 +15,7 @@
  ******************************************************************************/
 
 #import <UIKit/UIKit.h>
-#import "AJNStatus.h"
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 @property (strong, nonatomic) UIWindow *window;
-+ (void)alertAndLog:(NSString *)message status:(QStatus)status;
 @end

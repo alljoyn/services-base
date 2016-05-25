@@ -378,9 +378,10 @@
 					"\"$(SRCROOT)/../../../cpp/inc\"",
 					"\"$(SRCROOT)/../../../../services_common/cpp/inc\"",
 					"\"$(SRCROOT)/../../../../services_common/ios/inc\"",
+					"\"$(SRCROOT)/../../../../sample_apps/ios\"",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/OnboardingService/OnBoardingService-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(OPENSSL_ROOT)/build/$(CONFIGURATION)-$(PLATFORM_NAME)",
@@ -446,9 +447,10 @@
 					"\"$(SRCROOT)/../../../cpp/inc\"",
 					"\"$(SRCROOT)/../../../../services_common/cpp/inc\"",
 					"\"$(SRCROOT)/../../../../services_common/ios/inc\"",
+					"\"$(SRCROOT)/../../../../sample_apps/ios\"",
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/OnboardingService/OnBoardingService-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(OPENSSL_ROOT)/build/$(CONFIGURATION)-$(PLATFORM_NAME)",

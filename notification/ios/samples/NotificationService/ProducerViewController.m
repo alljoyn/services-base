@@ -23,6 +23,7 @@
 #import "alljoyn/notification/AJNSNotificationService.h"
 #import "alljoyn/services_common/AJSVCGenericLoggerUtil.h"
 #import "NotificationUtils.h"
+#import "samples_common/AJSCAlertController.h"
 
 static NSString * const DEVICE_ID_PRODUCER= @"ProducerBasic";
 static NSString * const DEVICE_NAME_PRODUCER= @"ProducerBasic";
@@ -37,15 +38,15 @@ static NSString *const DEFAULT_TTL = @"30";
 static NSString *const DEFAULT_MSG_TYPE = @"INFO";
 
 
-@interface ProducerViewController () <UIAlertViewDelegate>
+@interface ProducerViewController ()
 
 @property (weak, nonatomic) AJNSNotificationSender *Sender;
 @property (strong, nonatomic) AJNSNotificationService *producerService;
 @property (strong, nonatomic) AJSCCommonBusListener *commonBusListener;
 @property (weak, nonatomic) AJNAboutServiceApi *aboutService;
 @property (strong, nonatomic) AJNAboutPropertyStoreImpl *aboutPropertyStoreImpl;
-@property (strong, nonatomic) UIAlertView *selectLanguage;
-@property (strong, nonatomic) UIAlertView *selectMessageType;
+@property (strong, nonatomic) AJSCAlertController *selectLanguage;
+@property (strong, nonatomic) AJSCAlertController *selectMessageType;
 @property (strong, nonatomic) AJNSNotification *notification;
 @property (strong, nonatomic) NSMutableArray *notificationTextArr;
 @property (strong, nonatomic) NSMutableDictionary *customAttributesDictionary;
@@ -292,9 +293,11 @@ static NSString *const DEFAULT_MSG_TYPE = @"INFO";
 		hasEnNotificationText = true;
 	}
 	else {
-		// Create UIAlertView alert
-		[[[UIAlertView alloc] initWithTitle:@"Error" message:@"At least one of the messages should be sent in english" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:nil] show];
-        
+        AJSCAlertController *alertController = [AJSCAlertController alertControllerWithTitle:@"Error"
+                                                                                     message:@"At least one of the messages should be sent in english"
+                                                                              viewController:self];
+        [alertController addActionWithName:@"Cancel" handler:^(UIAlertAction *action) {}];
+        [alertController show];
 		return;
 	}
     
@@ -315,8 +318,11 @@ static NSString *const DEFAULT_MSG_TYPE = @"INFO";
 	}
 	else {
 		NSString *ttlErrReport = [NSString stringWithFormat:@"ttl range is %hu - %hu. %lu is invalid", TTL_MIN, TTL_MAX, rcv_ttl];
-		[[[UIAlertView alloc] initWithTitle:@"Error" message:ttlErrReport delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:nil] show];
-		
+        AJSCAlertController *alertController = [AJSCAlertController alertControllerWithTitle:@"Error"
+                                                                                     message:ttlErrReport
+                                                                              viewController:self];
+        [alertController addActionWithName:@"Cancel" handler:^(UIAlertAction *action) {}];
+        [alertController show];
 	}
     
 	// Set English audio
@@ -587,10 +593,18 @@ static NSString *const DEFAULT_MSG_TYPE = @"INFO";
 {
 	NSArray *langArray = [[NSMutableArray alloc] initWithObjects:@"English", @"Hebrew", @"Russian", nil];
     
-	self.selectLanguage = [[UIAlertView alloc] initWithTitle:@"Select Language" message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:nil];
+    self.selectLanguage = [AJSCAlertController alertControllerWithTitle:@"Select Language"
+                                                                message:@""
+                                                         viewController:self];
     
+    [self.selectLanguage addActionWithName:@"Cancel" handler:^(UIAlertAction *action) {}];
+    
+    __weak ProducerViewController *weakSelf = self;
 	for (NSString *str in langArray) {
-		[self.selectLanguage addButtonWithTitle:str];
+		[self.selectLanguage addActionWithName:str handler:^(UIAlertAction *action) {
+            weakSelf.otherLang = [weakSelf convertToLangCode:str];
+            [weakSelf.langButton setTitle:str forState:UIControlStateNormal];
+        }];
 	}
     
 	[self.selectLanguage show];
@@ -600,30 +614,21 @@ static NSString *const DEFAULT_MSG_TYPE = @"INFO";
 {
 	NSArray *messageTypeArray = [[NSMutableArray alloc] initWithObjects:@"INFO", @"WARNING", @"EMERGENCY", nil];
     
-	self.selectMessageType = [[UIAlertView alloc] initWithTitle:@"Select Language" message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:nil];
+    self.selectMessageType = [AJSCAlertController alertControllerWithTitle:@"Select Message Type"
+                                                                   message:@""
+                                                            viewController:self];
     
+    [self.selectMessageType addActionWithName:@"Cancel" handler:^(UIAlertAction *action) {}];
+    
+    __weak ProducerViewController *weakSelf = self;
 	for (NSString *str in messageTypeArray) {
-		[self.selectMessageType addButtonWithTitle:str];
+        [self.selectMessageType addActionWithName:str handler:^(UIAlertAction *action) {
+            weakSelf.messageType = [weakSelf convertMessageType:str];
+            [weakSelf.messageTypeButton setTitle:str forState:UIControlStateNormal];
+        }];
 	}
     
 	[self.selectMessageType show];
-}
-
-#pragma mark - UIAlertView delegate function
-
-- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
-{
-	if (buttonIndex == 0) {
-		return; //Cancel was pressed
-	}
-	if (alertView == self.selectLanguage) {
-		self.otherLang = [self convertToLangCode:[alertView buttonTitleAtIndex:buttonIndex]];
-		[self.langButton setTitle:[alertView buttonTitleAtIndex:buttonIndex] forState:UIControlStateNormal];
-	}
-	else if (alertView == self.selectMessageType) {
-		self.messageType = [self convertMessageType:[alertView buttonTitleAtIndex:buttonIndex]];
-		[self.messageTypeButton setTitle:[alertView buttonTitleAtIndex:buttonIndex] forState:UIControlStateNormal];
-	}
 }
 
 #pragma mark - Application util methods

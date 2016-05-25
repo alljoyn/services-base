@@ -26,7 +26,7 @@
 #import "OnboardingViewController.h"
 #import "AuthenticationListenerImpl.h"
 #include <qcc/Log.h>
-
+#import "samples_common/AJSCAlertController.h"
 
 static bool ALLOWREMOTEMESSAGES = true; // About Client -  allow Remote Messages flag
 static NSString * const APPNAME = @"AboutClientMain"; // About Client - default application name
@@ -57,9 +57,9 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 @property (strong, nonatomic) NSString *annSubvTitleLabelDefaultTxt;
 
 // About Client alerts
-@property (strong, nonatomic) UIAlertView *disconnectAlert;
-@property (strong, nonatomic) UIAlertView *announcementOptionsAlert;
-@property (strong, nonatomic) UIAlertView *onboardingOptionsAlert;
+@property (strong, nonatomic) AJSCAlertController *disconnectAlert;
+@property (strong, nonatomic) AJSCAlertController *announcementOptionsAlert;
+@property (strong, nonatomic) AJSCAlertController *onboardingOptionsAlert;
 
 @property (strong, nonatomic) AuthenticationListenerImpl *authenticationListenerImpl;
 
@@ -119,7 +119,11 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
             self.title = title;
             if (self.isAboutClientConnected) {
                 NSLog(@"changing network to %@ trigger a restart", dict[@"SSID"]);
-                [[[UIAlertView alloc]initWithTitle:@"Wi-Fi network changed" message:@"Please reconnect to AllJoyn" delegate:Nil cancelButtonTitle:@"OK" otherButtonTitles: nil] show];
+                AJSCAlertController *alertController = [AJSCAlertController alertControllerWithTitle:@"Wi-Fi network changed"
+                                                                                             message:@"Please reconnect to AllJoyn"
+                                                                                      viewController:self];
+                [alertController addActionWithName:@"OK" handler:^(UIAlertAction *action) {}];
+                [alertController show];
                 [self.navigationController popViewControllerAnimated:YES];
                 [self stopAboutClient];
             }
@@ -133,20 +137,6 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
     }
     
     executing = NO;
-}
-
-// Get the user's input from the alert dialog
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
-{
-    if (alertView == self.announcementOptionsAlert) {
-		[self performAnnouncementAction:buttonIndex];
-	}
-	else if (alertView == self.onboardingOptionsAlert) {
-		[self performAnnouncementAction:buttonIndex];
-	}
-    else {
-		NSLog(@"[%@] [%@] alertView.tag is wrong", @"ERROR", [[self class] description]);
-	}
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue
@@ -336,8 +326,6 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 	self.realmBusName = DEFAULT_REALM_BUS_NAME;
 	self.annSubvTitleLabelDefaultTxt = @"Announcement of ";
 	// Set About Client connect button
-//	self.connectButton.backgroundColor = [UIColor darkGrayColor]; //button bg color
-//	[self.connectButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal]; //button font color
 	[self.connectButton setTitle:self.ajconnect forState:UIControlStateNormal]; //default text
     
 	[self prepareAlerts];
@@ -346,44 +334,50 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 //  Initialize alerts
 - (void)prepareAlerts
 {
-	// announcementOptionsAlert.tag = 3
-	self.announcementOptionsAlert = [[UIAlertView alloc] initWithTitle:@"Choose option:" message:@"" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Show Announce", @"About", nil];
-	self.announcementOptionsAlert.alertViewStyle = UIAlertViewStyleDefault;
-    
-	// onboardingOptionsAlert.tag = 4
-	self.onboardingOptionsAlert = [[UIAlertView alloc] initWithTitle:@"Choose option:" message:@"" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Show Announce", @"About", @"Onboarding", nil];
-	self.onboardingOptionsAlert.alertViewStyle = UIAlertViewStyleDefault;
-    
+    [self prepareAnnouncementOptionsAlert];
+    [self prepareOnboardingOptionsAlert];
 }
 
-- (void)performAnnouncementAction:(NSInteger)opt
+- (void)prepareAnnouncementOptionsAlert
 {
-	switch (opt) {
-		case 0: // "Cancel"
-			break;
-            
-		case 1: // "Show Announce"
-		{
-			[self performSegueWithIdentifier:@"AboutShowAnnounceSegue" sender:self];
-		}
-            break;
-            
-		case 2: // "About"
-		{
-			[self performSegueWithIdentifier:@"AboutClientSegue" sender:self]; // get the announcment object
-            
-		}
-            break;
-            
-		case 3: // "OnBoarding"
-		{
-            [self performSegueWithIdentifier:@"OnboardingClientSegue" sender:self]; // get the announcment object
-        }
-            break;
-            
-		default:
-			break;
-	}
+    __weak MainViewController *weakSelf = self;
+    
+    self.announcementOptionsAlert = [AJSCAlertController alertControllerWithTitle:@"Choose option:"
+                                                                          message:@""
+                                                                   viewController:self];
+    
+    [self.announcementOptionsAlert addActionWithName:@"Cancel" handler:^(UIAlertAction *action) {}];
+    
+    [self.announcementOptionsAlert addActionWithName:@"Show Announce" handler:^(UIAlertAction *action) {
+        [weakSelf performSegueWithIdentifier:@"AboutShowAnnounceSegue" sender:weakSelf];
+    }];
+    
+    [self.announcementOptionsAlert addActionWithName:@"About" handler:^(UIAlertAction *action) {
+        [weakSelf performSegueWithIdentifier:@"AboutClientSegue" sender:weakSelf];
+    }];
+}
+
+- (void)prepareOnboardingOptionsAlert
+{
+    __weak MainViewController *weakSelf = self;
+    
+    self.onboardingOptionsAlert = [AJSCAlertController alertControllerWithTitle:@""
+                                                                        message:@""
+                                                                 viewController:self];
+    
+    [self.onboardingOptionsAlert addActionWithName:@"Cancel" handler:^(UIAlertAction *action) {}];
+    
+    [self.onboardingOptionsAlert addActionWithName:@"Show Announce" handler:^(UIAlertAction *action) {
+        [weakSelf performSegueWithIdentifier:@"AboutShowAnnounceSegue" sender:weakSelf];
+    }];
+    
+    [self.onboardingOptionsAlert addActionWithName:@"About" handler:^(UIAlertAction *action) {
+        [weakSelf performSegueWithIdentifier:@"AboutClientSegue" sender:weakSelf];
+    }];
+    
+    [self.onboardingOptionsAlert addActionWithName:@"Onboarding" handler:^(UIAlertAction *action) {
+        [weakSelf performSegueWithIdentifier:@"OnboardingClientSegue" sender:weakSelf];
+    }];
 }
 
 - (void)AlertAndLog:(NSString *)level message:(NSString *)message status:(QStatus)status
@@ -391,7 +385,11 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
     NSString *alertText = [NSString stringWithFormat:@"%@ (%@)",message, [AJNStatus descriptionForStatusCode:status]];
     NSLog(@"[%@] [%@] %@", level, [[self class] description], alertText);
     
-    [[[UIAlertView alloc] initWithTitle:@"Startup Error" message:alertText delegate:nil cancelButtonTitle:@"OK" otherButtonTitles: nil] show];
+    AJSCAlertController *alertController = [AJSCAlertController alertControllerWithTitle:@"Startup Error"
+                                                                                 message:alertText
+                                                                          viewController:self];
+    [alertController addActionWithName:@"OK" handler:^(UIAlertAction *action) {}];
+    [alertController show];
 }
 
 
