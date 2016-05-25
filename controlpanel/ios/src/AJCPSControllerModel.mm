@@ -28,12 +28,12 @@
 @interface AJCPSControllerModel ()
 @property (strong, nonatomic) NSMutableArray *containerStack; // array of AJCPSContainer *
 @property (strong, nonatomic) NSArray *supportedLanguages; //array of NSStrings of languages
-
+@property (weak, nonatomic) UIViewController *viewController; // view controller reference for presenting alerts.
 @end
 
 @implementation AJCPSControllerModel
 
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+- (void)dispatchLoadEnded
 {
     NSLog(@"alert button has been clicked");
     
@@ -41,6 +41,7 @@
         [self.delegate loadEnded];
     });
 }
+
 - (id)init
 {
 	if (self = [super init]) {
@@ -50,11 +51,28 @@
 	return self;
 }
 
+- (id)initWithViewController:(UIViewController *)viewController
+{
+    if ([self init]) {
+        _viewController = viewController;
+        return self;
+    }
+    return nil;
+}
+
 - (void)hasPasscodeInput:(NSNotification *)notification
 {
 	if ([notification.name isEqualToString:@"hasPasscodeForBus"]) {
-        
-        [[[UIAlertView alloc] initWithTitle:@"Authentication failed" message:@"If you've entered a new password - please press Back to reload data." delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Authentication failed"
+                                                                                 message:@"If you've entered a new password - please press Back to reload data."
+                                                                          preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:@"OK"
+                                                                style:UIAlertActionStyleDefault
+                                                              handler:^(UIAlertAction *action){
+                                                                  [self dispatchLoadEnded];
+                                                              }];
+        [alertController addAction:defaultAction];
+        [self.viewController presentViewController:alertController animated:YES completion:nil];
 	}
 }
 
@@ -218,8 +236,17 @@
                 default:
                     break;
             }
-            
-            [[[UIAlertView alloc] initWithTitle:@"Received Dialog:" message:[NSString stringWithFormat:@"%@\n%@\n%@",dialogLabel,[dialog getMessage], actionsString] delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+
+            UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Received Dialog"
+                                                                                     message:[NSString stringWithFormat:@"%@\n%@\n%@",dialogLabel,[dialog getMessage]]
+                                                                              preferredStyle:UIAlertControllerStyleAlert];
+            UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:@"OK"
+                                                                    style:UIAlertActionStyleDefault
+                                                                  handler:^(UIAlertAction *action){
+                                                                      [self dispatchLoadEnded];
+                                                                  }];
+            [alertController addAction:defaultAction];
+            [self.viewController presentViewController:alertController animated:YES completion:nil];
         }
             break;
             
@@ -399,7 +426,16 @@
 	self.supportedLanguages = [[self.controlPanel getLanguageSet] getLanguages];
     
     if (![self.supportedLanguages count]) {
-        [[[UIAlertView alloc] initWithTitle:@"Error" message:@"There is no supported language for this Container" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Error"
+                                                                                 message:@"There is no supported language for this Container"
+                                                                          preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:@"OK"
+                                                                style:UIAlertActionStyleDefault
+                                                              handler:^(UIAlertAction *action){
+                                                                  [self dispatchLoadEnded];
+                                                              }];
+        [alertController addAction:defaultAction];
+        [self.viewController presentViewController:alertController animated:YES completion:nil];
     } else {
         NSString *lang = self.supportedLanguages[0];
         [self populateRootContainer:lang];
@@ -497,7 +533,16 @@
     
 	NSLog(@"error message:'%@'", errorMessage);
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[[UIAlertView alloc] initWithTitle:@"Error" message:[NSString stringWithFormat:@"%@" ,errorMessage] delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Error"
+                                                                                 message:[NSString stringWithFormat:@"%@" ,errorMessage]
+                                                                          preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:@"OK"
+                                                                style:UIAlertActionStyleDefault
+                                                              handler:^(UIAlertAction *action){
+                                                                  [self dispatchLoadEnded];
+                                                              }];
+        [alertController addAction:defaultAction];
+        [self.viewController presentViewController:alertController animated:YES completion:nil];
     });
     
 }

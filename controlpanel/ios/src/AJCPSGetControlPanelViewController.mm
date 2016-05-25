@@ -41,7 +41,7 @@ static NSString * const CPS_LABEL_CELL = @"CPSLabelCell";
 static NSString * const CPS_PICKER_CELL = @"CPSPickerCell";
 static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
 
-@interface AJCPSGetControlPanelViewController () <ControllerUpdateEvents,UIAlertViewDelegate>
+@interface AJCPSGetControlPanelViewController () <ControllerUpdateEvents>
 @property (strong, nonatomic) AJCPSControllerModel *controllerModel;
 @property (strong, nonatomic) AJCPSControlPanelService *controlPanelService;
 @property (strong, nonatomic) AJCPSControlPanelController *controlPanelController;
@@ -60,7 +60,6 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
 @property (nonatomic) bool isNotificationMode;
 @property (strong, nonatomic) AJCPSNotificationAction* notificationAction;
 
-@property (strong, atomic) UIAlertView *loadingAV;
 @property (strong, atomic) UIAlertController *loadingAC;
 
 @end
@@ -120,7 +119,14 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
         status = [self startService];
         if (ER_OK != status) {
             NSLog(@"Failed to start control panel");
-            [[[UIAlertView alloc] initWithTitle:@"Error" message:@"Failed to start control panel." delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+            UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Error"
+                                                                                     message:@"Failed to start control panel."
+                                                                              preferredStyle:UIAlertControllerStyleAlert];
+            UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:@"OK"
+                                                                    style:UIAlertActionStyleDefault
+                                                                  handler:^(UIAlertAction *action){}];
+            [alertController addAction:defaultAction];
+            [self presentViewController:alertController animated:YES completion:nil];
             [self loadEnded];
         }
     }
@@ -149,7 +155,7 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
         }
     }
     
-    self.controllerModel = [[AJCPSControllerModel alloc] init];
+    self.controllerModel = [[AJCPSControllerModel alloc] initWithViewController:self];
     if (!self.controllerModel) {
         NSLog(@"Could not initialize controller model.");
         return ER_FAIL;
@@ -253,15 +259,29 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
     supportedLangs = [[self.controllerModel supportedLanguages] componentsJoinedByString:@" "];
     
     NSLog(@"Supported languages: %@",supportedLangs);
-    
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Choose Language" message:supportedLangs delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"OK",nil];
 
-    alert.tag = TAG_LANGUAGE_ALERT;
-    alert.alertViewStyle = UIAlertViewStylePlainTextInput;
-    
-    self.alertChooseLanguage = [alert textFieldAtIndex:0]; //connect the UITextField with the alert
-    
-    [alert show];
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Choose Language"
+                                                                             message:supportedLangs
+                                                                      preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel"
+                                                            style:UIAlertActionStyleDefault
+                                                          handler:^(UIAlertAction *action){}];
+    [alertController addAction:cancelAction];
+
+    UIAlertAction *okAction;
+    okAction = [UIAlertAction actionWithTitle:@"OK"
+                                        style:UIAlertActionStyleDefault
+                                      handler:^(UIAlertAction *action){
+                                         [self switchLanguage];
+                                      }];
+    [alertController addAction:okAction];
+
+    [alertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+        textField.text = @"";
+        self.alertChooseLanguage = textField;
+    }];
+
+    [self presentViewController:alertController animated:YES completion:nil];
 }
 
 - (void)stopControlPanel
@@ -292,35 +312,27 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
     
 }
 
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+- (void)switchLanguage
 {
-    switch(alertView.tag) {
-        case TAG_LANGUAGE_ALERT:
-            if (buttonIndex == 1) { //user pressed OK
-                QStatus status = ER_OK;
-                if (self.isAnnouncementMode) {
-                    status = [self.controllerModel switchLanguage:self.alertChooseLanguage.text];
-                }
-
-                if (self.isNotificationMode) {
-                    status = [self.controllerModel switchLanguageForNotificationAction:[self.notificationAction getRootWidget:self.alertChooseLanguage.text]];
-                }
-
-                if (status != ER_OK) {
-                    [[[UIAlertView alloc]initWithTitle:@"Invalid Language" message:@"" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
-                }
-
-            }
-            break;
-        case TAG_SESSION_FAILED_ALERT:
-            if (buttonIndex == [alertView cancelButtonIndex]) {
-                [self handleSessionLost];
-            }
-            break;
-        default:
-            break;
+    QStatus status = ER_OK;
+    if (self.isAnnouncementMode) {
+        status = [self.controllerModel switchLanguage:self.alertChooseLanguage.text];
     }
-    
+
+    if (self.isNotificationMode) {
+        status = [self.controllerModel switchLanguageForNotificationAction:[self.notificationAction getRootWidget:self.alertChooseLanguage.text]];
+    }
+
+    if (status != ER_OK) {
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Invalid Language"
+                                                                                 message:@""
+                                                                          preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:@"OK"
+                                                               style:UIAlertActionStyleDefault
+                                                             handler:^(UIAlertAction *action){}];
+        [alertController addAction:defaultAction];
+        [self presentViewController:alertController animated:YES completion:nil];
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -372,26 +384,16 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
 
 -(void)sessionLost
 {
-    if ([UIAlertController class]) {
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Session Lost"
-                                                                       message:@"Session with control panel lost"
-                                                                preferredStyle:UIAlertControllerStyleAlert];
-        UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:@"OK"
-                                                                style:UIAlertActionStyleDefault
-                                                              handler:^(UIAlertAction *action){
-                                                                  [self handleSessionLost];
-                                                              }];
-        [alert addAction:defaultAction];
-        [self presentViewController:alert animated:YES completion:nil];
-    } else {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Session Lost"
-                                                        message:@"Session with control panel lost"
-                                                       delegate:self
-                                              cancelButtonTitle:@"OK"
-                                              otherButtonTitles:nil];
-        alert.tag = TAG_SESSION_FAILED_ALERT;
-        [alert show];
-    }
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Session Lost"
+                                                                   message:@"Session with control panel lost"
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:@"OK"
+                                                            style:UIAlertActionStyleDefault
+                                                          handler:^(UIAlertAction *action){
+                                                              [self handleSessionLost];
+                                                          }];
+    [alert addAction:defaultAction];
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 #pragma mark - Table view data source
@@ -500,7 +502,6 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
     
 }
 
-
 #pragma mark - Navigation
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
@@ -528,54 +529,35 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
 
 -(void)showLoadingAlert:(NSString *)message
 {
-    if ([UIAlertController class]) {
-        self.loadingAC = [UIAlertController alertControllerWithTitle:nil
-                                                             message:[NSString stringWithFormat:@"%@\n\n", message]
-                                                      preferredStyle:UIAlertControllerStyleAlert];
-        UIActivityIndicatorView *activityIV = [[UIActivityIndicatorView alloc] initWithFrame:self.loadingAC.view.bounds];
-        [activityIV setTranslatesAutoresizingMaskIntoConstraints:NO];
-        activityIV.activityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
-        [self.loadingAC.view addSubview:activityIV];
-        [self.loadingAC.view addConstraint:[NSLayoutConstraint constraintWithItem:activityIV
-                                                                        attribute:NSLayoutAttributeCenterX
-                                                                        relatedBy:NSLayoutRelationEqual
-                                                                           toItem:self.loadingAC.view
-                                                                        attribute:NSLayoutAttributeCenterX
-                                                                       multiplier:1
-                                                                         constant:0]];
-        [self.loadingAC.view addConstraint:[NSLayoutConstraint constraintWithItem:activityIV
-                                                                        attribute:NSLayoutAttributeCenterY
-                                                                        relatedBy:NSLayoutRelationEqual
-                                                                           toItem:self.loadingAC.view
-                                                                        attribute:NSLayoutAttributeCenterY
-                                                                       multiplier:1
-                                                                         constant:0]];
-        [activityIV startAnimating];
-        [self presentViewController:self.loadingAC animated:NO completion:nil];
-    }
-    else {
-        self.loadingAV = [[UIAlertView alloc] initWithTitle:@"Please wait"
-                                                    message:message
-                                                   delegate:nil
-                                          cancelButtonTitle:nil
-                                          otherButtonTitles:nil];
-        UIActivityIndicatorView *activityIV = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(0, 0, 80, 40)];
-        activityIV.activityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
-        [activityIV startAnimating];
-        [self.loadingAV setValue:activityIV forKey:@"accessoryView"];
-        [self.loadingAV show];
-    }
+    self.loadingAC = [UIAlertController alertControllerWithTitle:nil
+                                                         message:[NSString stringWithFormat:@"%@\n\n", message]
+                                                  preferredStyle:UIAlertControllerStyleAlert];
+    UIActivityIndicatorView *activityIV = [[UIActivityIndicatorView alloc] initWithFrame:self.loadingAC.view.bounds];
+    [activityIV setTranslatesAutoresizingMaskIntoConstraints:NO];
+    activityIV.activityIndicatorViewStyle = UIActivityIndicatorViewStyleGray;
+    [self.loadingAC.view addSubview:activityIV];
+    [self.loadingAC.view addConstraint:[NSLayoutConstraint constraintWithItem:activityIV
+                                                                    attribute:NSLayoutAttributeCenterX
+                                                                    relatedBy:NSLayoutRelationEqual
+                                                                       toItem:self.loadingAC.view
+                                                                    attribute:NSLayoutAttributeCenterX
+                                                                   multiplier:1
+                                                                     constant:0]];
+    [self.loadingAC.view addConstraint:[NSLayoutConstraint constraintWithItem:activityIV
+                                                                    attribute:NSLayoutAttributeCenterY
+                                                                    relatedBy:NSLayoutRelationEqual
+                                                                       toItem:self.loadingAC.view
+                                                                    attribute:NSLayoutAttributeCenterY
+                                                                   multiplier:1
+                                                                     constant:0]];
+    [activityIV startAnimating];
+    [self presentViewController:self.loadingAC animated:NO completion:nil];
     NSLog(@"Showing loading alert");
 }
 
 -(void)dismissLoadingAlert
 {
-    if ([UIAlertController class]) {
-        [self.loadingAC dismissViewControllerAnimated:YES completion:nil];
-    }
-    else{
-        [self.loadingAV dismissWithClickedButtonIndex:0 animated:YES];
-    }
+    [self.loadingAC dismissViewControllerAnimated:YES completion:nil];
     NSLog(@"dismissLoadingAlert called");
 }
 

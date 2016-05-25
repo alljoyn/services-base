@@ -29,6 +29,8 @@
 @property (strong, nonatomic) id<ControllerUpdateEvents> delegate;
 @property (strong, nonatomic,readonly) NSArray *supportedLanguages;
 
+- (id)initWithViewController:(UIViewController *)viewController;
+
 -(void)pushChildContainer:(AJCPSContainer *)containerToMoveTo;
 
 -(NSInteger)popChildContainer;

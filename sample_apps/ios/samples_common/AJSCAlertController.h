@@ -14,12 +14,15 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "AJCPSActionWithDialog.h"
-#import "AJCPSGetControlPanelViewController.h"
 
-@interface AJCPSActionDialogCell : UITableViewCell
-@property (strong, nonatomic) UIButton *cpsButton; //TOD strong
-@property (weak, nonatomic) AJCPSActionWithDialog *actionDialogWidget;
-@property (weak, nonatomic) AJCPSGetControlPanelViewController *viewController;
+@interface AJSCAlertController : NSObject
+
+@property (nonatomic, strong) UIAlertController *iosAlertController;
+
++ (nullable AJSCAlertController*) alertControllerWithTitle:(nonnull NSString*)title message:(nonnull NSString*)message viewController:(nonnull UIViewController*)viewController;
+- (void) addActionWithName:(nonnull NSString *)name handler:(void (^ __nullable)(UIAlertAction *action))handler;
+- (void)show;
+
 @end

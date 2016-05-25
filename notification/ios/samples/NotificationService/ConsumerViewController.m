@@ -21,6 +21,7 @@
 #import "DetailsCell.h"
 #import "NotificationEntry.h"
 #import "alljoyn/controlpanel/AJCPSGetControlPanelViewController.h"
+#import "samples_common/AJSCAlertController.h"
 
 static NSString *const DEFAULT_APP_NAME = @"DISPLAY_ALL";
 static NSString *const CONSUMER_DEFAULT_LANG = @"en";
@@ -29,7 +30,7 @@ static NSString *const CONSUMER_DEFAULT_LANG = @"en";
 
 @property (weak, nonatomic) AJNSNotificationService *consumerService;
 
-@property (strong, nonatomic) UIAlertView *selectConsumerLang;
+@property (strong, nonatomic) AJSCAlertController *selectConsumerLang;
 @property (strong, nonatomic) NSMutableArray *notificationEntries; // array of NotificationEntry objects
 
 @end
@@ -230,26 +231,21 @@ static NSString *const CONSUMER_DEFAULT_LANG = @"en";
 {
 	NSArray *langArray = [[NSMutableArray alloc] initWithObjects:@"English", @"Hebrew", @"Russian", nil];
     
-	self.selectConsumerLang = [[UIAlertView alloc] initWithTitle:@"Select Language" message:nil delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:nil];
+    self.selectConsumerLang = [AJSCAlertController alertControllerWithTitle:@"Select Language"
+                                                                    message:@""
+                                                             viewController:self];
     
+	[self.selectConsumerLang addActionWithName:@"Cancel" handler:^(UIAlertAction *action) {}];
+    
+    __weak ConsumerViewController *weakSelf = self;
 	for (NSString *str in langArray) {
-		[self.selectConsumerLang addButtonWithTitle:str];
+        [self.selectConsumerLang addActionWithName:str handler:^(UIAlertAction *action) {
+            weakSelf.consumerLang = [weakSelf convertToLangCode:str];
+            [weakSelf.consumerLangButton setTitle:str forState:UIControlStateNormal];
+        }];
 	}
     
 	[self.selectConsumerLang show];
-}
-
-#pragma mark - UIAlertView delegate function
-
-- (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
-{
-	if (buttonIndex == 0) {
-		return; // Cancel pressed
-	}
-	if (alertView == self.selectConsumerLang) {
-		self.consumerLang = [self convertToLangCode:[alertView buttonTitleAtIndex:buttonIndex]];
-		[self.consumerLangButton setTitle:[alertView buttonTitleAtIndex:buttonIndex] forState:UIControlStateNormal];
-	}
 }
 
 #pragma mark - Application util methods
@@ -323,7 +319,11 @@ static NSString *const CONSUMER_DEFAULT_LANG = @"en";
     }];
     
     if (cnt > 1) {
-        [[[UIAlertView alloc]initWithTitle:@"More than one notification chosen" message:@"select single notification to get notification with action" delegate:Nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+        AJSCAlertController *alertController = [AJSCAlertController alertControllerWithTitle:@"More than one notification chosen"
+                                                                                     message:@"select single notification to get notification with action"
+                                                                              viewController:self];
+        [alertController addActionWithName:@"OK" handler:^(UIAlertAction *action) {}];
+        [alertController show];
         return;
     }
     
@@ -336,10 +336,18 @@ static NSString *const CONSUMER_DEFAULT_LANG = @"en";
             if ([cpsObjectPath length])
             {
                 NSString *message = [NSString stringWithFormat:@"This notification has an action at path: %@", cpsObjectPath];
-                [[[UIAlertView alloc] initWithTitle:@"Info" message:message delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+                AJSCAlertController *alertController = [AJSCAlertController alertControllerWithTitle:@"Info"
+                                                                                             message:message
+                                                                                      viewController:self];
+                [alertController addActionWithName:@"OK" handler:^(UIAlertAction *action) {}];
+                [alertController show];
             } else {
                 NSLog(@"%@ has no CPS object path", [entry.ajnsNotification text]);
-                [[[UIAlertView alloc] initWithTitle:@"Info" message:@"This notification doesn't have an action." delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+                AJSCAlertController *alertController = [AJSCAlertController alertControllerWithTitle:@"Info"
+                                                                                             message:@"This notification doesn't have an action."
+                                                                                      viewController:self];
+                [alertController addActionWithName:@"OK" handler:^(UIAlertAction *action) {}];
+                [alertController show];
                 //deselect cell
                 entry.chosen = NO;
                 [self.notificationTableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:YES];
