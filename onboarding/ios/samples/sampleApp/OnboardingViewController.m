@@ -17,6 +17,7 @@
 #import "OnboardingViewController.h"
 #import "alljoyn/onboarding/AJOBSOnboardingClient.h"
 #import "SystemConfiguration/CaptiveNetwork.h"
+#import "samples_common/AJSCAlertController.h"
 
 #define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 
@@ -42,7 +43,11 @@
     [self updateStatusLabel:@"Loading Onboarding client"];
     QStatus status = [self startOnboardingClient];
     if (ER_OK != status) {
-        [[[UIAlertView alloc] initWithTitle:@"Error" message:@"Failed to start onboarding client" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil] show];
+        AJSCAlertController *alertController = [AJSCAlertController alertControllerWithTitle:@"Error"
+                                                                                     message:@"Failed to start onboarding client"
+                                                                              viewController:self];
+        [alertController addActionWithName:@"OK" handler:^(UIAlertAction *action) {}];
+        [alertController show];
     }
     
     self.authType = [[UIPickerView alloc]init];
@@ -206,7 +211,11 @@
     
     if (![obInfo.SSID length]) {
         [self updateStatusLabel:@"Error: SSID is empty"];
-        [[[UIAlertView alloc] initWithTitle:@"Error" message:@"SSID can't be empty" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil] show];
+        AJSCAlertController *alertController = [AJSCAlertController alertControllerWithTitle:@"Error"
+                                                                                     message:@"SSID can't be empty"
+                                                                              viewController:self];
+        [alertController addActionWithName:@"OK" handler:^(UIAlertAction *action) {}];
+        [alertController show];
         return;
     }
     
@@ -247,8 +256,13 @@
         }
         
     } else {
-        [[[UIAlertView alloc] initWithTitle:@"Error" message:[NSString stringWithFormat:@"Call to configureWiFi failed: %@ ", [AJNStatus descriptionForStatusCode:status]] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil] show];
-        [self updateStatusLabel:[NSString stringWithFormat:@"Call to configureWiFi failed: %@ ", [AJNStatus descriptionForStatusCode:status]]];
+        NSString *errorMessage = [NSString stringWithFormat:@"Call to configureWiFi failed: %@ ", [AJNStatus descriptionForStatusCode:status]];
+        AJSCAlertController *alertController = [AJSCAlertController alertControllerWithTitle:@"Error"
+                                                                                     message:errorMessage
+                                                                              viewController:self];
+        [alertController addActionWithName:@"OK" handler:^(UIAlertAction *action) {}];
+        [alertController show];
+        [self updateStatusLabel:errorMessage];
     }
     
     self.configureBtn.enabled = NO;
@@ -263,7 +277,12 @@
     status = [self.onboardingClient connectTo:self.onboardeeBus sessionId:self.sessionId];
     if (status == ER_OK) {
         [self updateStatusLabel:@"Call to connect succeeded"];
-        [[[UIAlertView alloc] initWithTitle:@"Onboarding succeeded" message:[NSString stringWithFormat:@"Go to Settings -> Wi-Fi to manually connect this device to the '%@' network to complete the onboarding process.", self.ssidTextField.text] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil] show];
+        NSString *message = [NSString stringWithFormat:@"Go to Settings -> Wi-Fi to manually connect this device to the '%@' network to complete the onboarding process.", self.ssidTextField.text];
+        AJSCAlertController *alertController = [AJSCAlertController alertControllerWithTitle:@"Onboarding succeeded"
+                                                                                     message:message
+                                                                              viewController:self];
+        [alertController addActionWithName:@"OK" handler:^(UIAlertAction *action) {}];
+        [alertController show];
     } else {
         [self updateStatusLabel:[NSString stringWithFormat:@"Call to connect failed: %@", [AJNStatus descriptionForStatusCode:status]]];
     }
@@ -283,11 +302,6 @@
     }
     [self.offBoardingBtn setEnabled:NO];
     [self.instructLbl setText:@"  "];
-}
-
-//  Get the user's input from the alert dialog
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-    
 }
 
 - (void)viewWillDisappear:(BOOL)animated

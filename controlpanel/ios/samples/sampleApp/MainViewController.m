@@ -26,6 +26,7 @@
 #import "AuthenticationListenerImpl.h"
 #include <qcc/Log.h>
 #import "AppDelegate.h"
+#import "samples_common/AJSCAlertController.h"
 
 
 static bool ALLOWREMOTEMESSAGES = true; // About Client -  allow Remote Messages flag
@@ -59,8 +60,8 @@ static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK";
 @property (strong, nonatomic) NSString *annSubvTitleLabelDefaultTxt;
 
 // About Client alerts
-@property (strong, nonatomic) UIAlertView *announcementOptionsAlert;
-@property (strong, nonatomic) UIAlertView *announcementOptionsAlertNoCPanel;
+@property (strong, nonatomic) AJSCAlertController *announcementOptionsAlert;
+@property (strong, nonatomic) AJSCAlertController *announcementOptionsAlertNoCPanel;
 
 @property (strong, nonatomic) AuthenticationListenerImpl *authenticationListenerImpl;
 @end
@@ -90,20 +91,6 @@ static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK";
     if (self.isAboutClientConnected){
         [self unregisterAnnouncementReceiver];
     }
-}
-
-// Get the user's input from the alert dialog
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
-{
-    if (alertView == self.announcementOptionsAlert) {
-		[self performAnnouncementAction:buttonIndex];
-	}
-	else if (alertView == self.announcementOptionsAlertNoCPanel) {
-		[self performAnnouncementAction:buttonIndex];
-	}
-    else {
-		NSLog(@"[%@] [%@] alertView.tag is wrong", @"ERROR", [[self class] description]);
-	}
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
@@ -293,43 +280,65 @@ static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK";
 //  Initialize alerts
 - (void)prepareAlerts
 {
-    // announcementOptionsAlert.tag = 3
-	self.announcementOptionsAlert = [[UIAlertView alloc] initWithTitle:@"Choose option:" message:@"" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Show Announce", @"About", @"Control Panel", nil];
-	self.announcementOptionsAlert.alertViewStyle = UIAlertViewStyleDefault;
-    
-	// announcementOptionsAlert.tag = 4
-	self.announcementOptionsAlertNoCPanel = [[UIAlertView alloc] initWithTitle:@"Choose option:" message:@"" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Show Announce", @"About", nil];
-	self.announcementOptionsAlertNoCPanel.alertViewStyle = UIAlertViewStyleDefault;
+    [self prepareAnnouncementOptionsAlert];
+    [self prepareAnnouncementOptionsAlertNoCPanel];
 }
 
-- (void)performAnnouncementAction:(NSInteger)opt
+- (void)prepareAnnouncementOptionsAlert
 {
-	switch (opt) {
-		case 0: // "Cancel"
-			break;
-            
-		case 1: // "Show Announce"
-		{
-			[self performSegueWithIdentifier:@"AboutShowAnnounceSegue" sender:self];
-		}
-            break;
-            
-		case 2: // "About"
-		{
-			[self performSegueWithIdentifier:@"AboutClientSegue" sender:self]; // get the announcment object
-		}
-            break;
-            
-		case 3: // "CPanel"
-		{
-            AJCPSGetControlPanelViewController *getCpanelView = [[AJCPSGetControlPanelViewController alloc] initWithAnnouncement:[(ClientInformation *)(self.clientInformationDict)[self.announcementButtonCurrentTitle] announcement] bus:self.clientBusAttachment];
-            [self.navigationController pushViewController:getCpanelView animated:YES];
-		}
-            break;
-            
-		default:
-			break;
-	}
+    __weak MainViewController *weakSelf = self;
+    
+    self.announcementOptionsAlert = [AJSCAlertController alertControllerWithTitle:@"Choose option:"
+                                                                          message:@""
+                                                                   viewController:self];
+    [self.announcementOptionsAlert addActionWithName:@"Show Announce"
+                                             handler:^(UIAlertAction*){
+                                                 [weakSelf performSegueWithIdentifier:@"AboutShowAnnounceSegue" sender:weakSelf];
+                                             }];
+    [self.announcementOptionsAlert addActionWithName:@"About"
+                                             handler:^(UIAlertAction*){
+                                                 [weakSelf performSegueWithIdentifier:@"AboutClientSegue" sender:weakSelf]; // get the announcment object
+                                             }];
+    
+    [self.announcementOptionsAlert addActionWithName:@"Control Panel"
+                                             handler:^(UIAlertAction*){
+                                                 AJCPSGetControlPanelViewController *getCpanelView = [[AJCPSGetControlPanelViewController alloc] initWithAnnouncement:[(ClientInformation *)(weakSelf.clientInformationDict)[weakSelf.announcementButtonCurrentTitle] announcement] bus:weakSelf.clientBusAttachment];
+                                                 [weakSelf.navigationController pushViewController:getCpanelView animated:YES];
+                                             }];
+}
+
+- (void)prepareAnnouncementOptionsAlertNoCPanel
+{
+    __weak MainViewController *weakSelf = self;
+    
+    self.announcementOptionsAlertNoCPanel = [AJSCAlertController alertControllerWithTitle:@"Choose option:"
+                                                                                  message:@""
+                                                                           viewController:self];
+    [self.announcementOptionsAlertNoCPanel addActionWithName:@"Cancel"
+                                                     handler:^(UIAlertAction *action) {
+                                                         
+                                                     }];
+    [self.announcementOptionsAlertNoCPanel addActionWithName:@"Show Announce"
+                                                     handler:^(UIAlertAction *action) {
+                                                         [weakSelf performSegueWithIdentifier:@"AboutShowAnnounceSegue" sender:weakSelf];
+                                                     }];
+    [self.announcementOptionsAlertNoCPanel addActionWithName:@"About"
+                                                     handler:^(UIAlertAction *action) {
+                                                         [weakSelf performSegueWithIdentifier:@"AboutClientSegue" sender:weakSelf]; // get the announcment object
+                                                     }];
+}
+
+- (void)alertAndLog:(NSString *)message status:(QStatus)status
+{
+    NSString *alertText = [NSString stringWithFormat:@"%@ (%@)",message, [AJNStatus descriptionForStatusCode:status]];
+    
+    NSLog(@"%@", alertText);
+    
+    AJSCAlertController *alertController = [AJSCAlertController alertControllerWithTitle:@"Startup Error"
+                                                                             message:alertText
+                                                                      viewController:self];
+    [alertController addActionWithName:@"OK" handler:^(UIAlertAction *action) {}];
+    [alertController show];
 }
 
 #pragma mark - AboutClient
@@ -350,7 +359,7 @@ static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK";
 	// Start AJNBusAttachment
 	status = [self.clientBusAttachment start];
 	if (status != ER_OK) {
-        [AppDelegate alertAndLog:@"Failed AJNBusAttachment start" status:status];
+        [self alertAndLog:@"Failed AJNBusAttachment start" status:status];
         [self stopAboutClient];
         return;
 	}
@@ -358,7 +367,7 @@ static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK";
 	// Connect AJNBusAttachment
 	status = [self.clientBusAttachment connectWithArguments:@""];
 	if (status != ER_OK) {
-        [AppDelegate alertAndLog:@"Failed AJNBusAttachment connectWithArguments" status:status];
+        [self alertAndLog:@"Failed AJNBusAttachment connectWithArguments" status:status];
         [self stopAboutClient];
         return;
 	}
@@ -379,7 +388,7 @@ static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK";
 	if (status == ER_OK) {
         status = [self.clientBusAttachment advertiseName:[NSString stringWithFormat:@"%@%@", DAEMON_QUIET_PREFIX, self.realmBusName] withTransportMask:kAJNTransportMaskAny];
 		if (status != ER_OK) {
-            [AppDelegate alertAndLog:@"Failed to advertise name" status:status];
+            [self alertAndLog:@"Failed to advertise name" status:status];
             [self stopAboutClient];
             return;
 		}
@@ -388,13 +397,13 @@ static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK";
 		}
 	}
 	else {
-        [AppDelegate alertAndLog:@"Failed to requestWellKnownName" status:status];
+        [self alertAndLog:@"Failed to requestWellKnownName" status:status];
         [self stopAboutClient];
         return;
     }
     
     // Enable Client Security
-    self.authenticationListenerImpl = [[AuthenticationListenerImpl alloc] init];
+    self.authenticationListenerImpl = [[AuthenticationListenerImpl alloc] initWithViewController:self];
     status = [self enableClientSecurity];
     if (ER_OK != status) {
         NSLog(@"Failed to enable security.");
@@ -475,7 +484,7 @@ static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK";
     const char* interfaces[] = { [CONTROLPANEL_INTERFACE_NAME UTF8String], [HTTPCONTROL_INTERFACE_NAME UTF8String] };
     status = [self.announcementReceiver registerAnnouncementReceiverForInterfaces:&interfaces[0] withNumberOfInterfaces:1];
     if (status != ER_OK) {
-        [AppDelegate alertAndLog:@"Failed to registerAnnouncementReceiver" status:status];
+        [self alertAndLog:@"Failed to registerAnnouncementReceiver" status:status];
         [self stopAboutClient];
         return;
     }
@@ -483,7 +492,7 @@ static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK";
     status = [self.announcementReceiver registerAnnouncementReceiverForInterfaces:&interfaces[1] withNumberOfInterfaces:1];
     
     if (status != ER_OK) {
-        [AppDelegate alertAndLog:@"Failed to registerAnnouncementReceiver" status:status];
+        [self alertAndLog:@"Failed to registerAnnouncementReceiver" status:status];
         [self stopAboutClient];
         return;
     }

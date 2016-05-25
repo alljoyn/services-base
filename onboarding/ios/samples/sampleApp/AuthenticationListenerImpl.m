@@ -15,15 +15,17 @@
  ******************************************************************************/
 
 #import "AuthenticationListenerImpl.h"
+#import "samples_common/AJSCAlertController.h"
 
 static NSString * const DEFAULT_PASSCODE = @"000000";
 
 @interface AuthenticationListenerImpl ()
 
-@property (strong, nonatomic) UIAlertView *setPassCodeAlert;
+@property (strong, nonatomic) AJSCAlertController *setPassCodeAlert;
 @property (strong, nonatomic) NSString *passCodeText;
 @property (strong, nonatomic) NSString *peerName;
 @property (strong, nonatomic) NSMutableDictionary *peersPasscodes; // store the peers passcodes
+@property (weak, nonatomic) UIViewController *viewController;
 
 @end
 
@@ -39,66 +41,76 @@ static NSString * const DEFAULT_PASSCODE = @"000000";
 	return self;
 }
 
+- (id)initWithViewController:(UIViewController*)viewController
+{
+    if([self init]){
+        _viewController = viewController;
+    }
+    return nil;
+}
+
 - (void)prepareAlerts
 {
-    // setPassCodeAlert.tag = 1
-    self.setPassCodeAlert = [[UIAlertView alloc] initWithTitle:@"" message:@"Enter device password" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"OK", nil];
-    self.setPassCodeAlert.alertViewStyle = UIAlertViewStylePlainTextInput;
-    self.setPassCodeAlert.tag = 1;
+    self.setPassCodeAlert = [AJSCAlertController alertControllerWithTitle:@""
+                                                                  message:@"Enter device password"
+                                                           viewController:_viewController];
+    [self.setPassCodeAlert addActionWithName:@"Cancel" handler:^(UIAlertAction *action) {
+    }];
+    
+    __weak AuthenticationListenerImpl *weakSelf = self;
+    [self.setPassCodeAlert addActionWithName:@"OK" handler:^(UIAlertAction *action) {
+        [weakSelf getInputFromAlertDialog];
+    }];
+    
+    [self.setPassCodeAlert.iosAlertController addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+        textField.text = @"";
+    }];
 }
 
 // Get the user's input from the alert dialog
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+- (void)getInputFromAlertDialog
 {
-    if (alertView == self.setPassCodeAlert) {
-        [self.setPassCodeAlert dismissWithClickedButtonIndex:buttonIndex animated:NO];
+    // get the input pass
+    self.passCodeText = [[self.setPassCodeAlert.iosAlertController textFields][0] text];
+    // [self.logger debugTag:[[self class] description] text:[NSString stringWithFormat:@"Passcode is: %@",  self.passCodeText]];
+    NSLog(@"Passcode is: %@",  self.passCodeText);
+    
+    bool foundPeer = false;
+    
+    // Check that peername is not empty
+    if ([self.peerName length]) {
+        if (![self.passCodeText length]) {
+            // set the pass to default if input is empty
+            self.passCodeText = DEFAULT_PASSCODE;
+        }
         
-        if (buttonIndex == 1) { // User pressed OK
-            // get the input pass
-            self.passCodeText = [self.setPassCodeAlert textFieldAtIndex:0].text;
-            //            [self.logger debugTag:[[self class] description] text:[NSString stringWithFormat:@"Passcode is: %@",  self.passCodeText]];
-            NSLog(@"Passcode is: %@",  self.passCodeText);
-            
-            bool foundPeer = false;
-            
-            // Check that peername is not empty
-            if ([self.peerName length]) {
-                if (![self.passCodeText length]) {
-                    // set the pass to default if input is empty
-                    self.passCodeText = DEFAULT_PASSCODE;
-                }
-                // Iterate over the dictionary and add/update
-                for (NSString *key in self.peersPasscodes.allKeys) {
-                    if ([key isEqualToString:self.peerName]) {
-                        // Update passcode for key
-                        (self.peersPasscodes)[self.peerName] = self.passCodeText;
-                        //                        [self.logger debugTag:[[self class] description] text:[NSString stringWithFormat:@"Update peer %@ with passcode %@",  self.peerName, self.passCodeText]];
-                        NSLog(@"Update peer %@ with passcode %@",  self.peerName, self.passCodeText);
-                        // Set flag
-                        foundPeer = true;
-                        break;
-                    }
-                }
-                if (!foundPeer) {
-                    // Add new set of key/value
-                    [self.peersPasscodes setValue:self.passCodeText forKey:self.peerName];
-                    //                    [self.logger debugTag:[[self class] description] text:[NSString stringWithFormat:@"add new peers %@ %@", self.peerName, self.passCodeText]];
-                    NSLog(@"add new peers %@ %@", self.peerName, self.passCodeText);
-                    
-                }
-                
-                [[NSNotificationCenter defaultCenter] postNotificationName:@"hasPasscodeForBus" object:self.peerName];
+        // Iterate over the dictionary and add/update
+        for (NSString *key in self.peersPasscodes.allKeys) {
+            if ([key isEqualToString:self.peerName]) {
+                // Update passcode for key
+                (self.peersPasscodes)[self.peerName] = self.passCodeText;
+                // [self.logger debugTag:[[self class] description] text:[NSString stringWithFormat:@"Update peer %@ with passcode %@",  self.peerName, self.passCodeText]];
+                NSLog(@"Update peer %@ with passcode %@",  self.peerName, self.passCodeText);
+                // Set flag
+                foundPeer = true;
+                break;
             }
         }
-        else {     // User pressed Cancel
+        
+        if (!foundPeer) {
+            // Add new set of key/value
+            [self.peersPasscodes setValue:self.passCodeText forKey:self.peerName];
+            // [self.logger debugTag:[[self class] description] text:[NSString stringWithFormat:@"add new peers %@ %@", self.peerName, self.passCodeText]];
+            NSLog(@"add new peers %@ %@", self.peerName, self.passCodeText);
+            
         }
         
-    } else {
-		NSLog(@"[%@] [%@] alertView.tag is wrong", @"ERROR", [[self class] description]);
-	}
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"hasPasscodeForBus" object:self.peerName];
+    }
 }
 
 #pragma mark - AJNAuthenticationListener protocol methods
+
 - (AJNSecurityCredentials *)requestSecurityCredentialsWithAuthenticationMechanism:(NSString *)authenticationMechanism peerName:(NSString *)peerName authenticationCount:(uint16_t)authenticationCount userName:(NSString *)userName credentialTypeMask:(AJNSecurityCredentialType)mask
 {
 	AJNSecurityCredentials *creds = nil;
