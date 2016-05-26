@@ -15,12 +15,13 @@
  ******************************************************************************/
 //
 
-#import "GetAboutCallViewController.h"
-#import "samples_common/AJSCAlertController.h"
+#import "AJSCGetAboutCallViewController.h"
+#import "AJSCAlertController.h"
 
 static NSString * const CLIENTDEFAULTLANG=@"";
 
-@interface GetAboutCallViewController ()
+@interface AJSCGetAboutCallViewController ()
+
 @property (weak, nonatomic) IBOutlet UILabel *lblVersion;
 @property (weak, nonatomic) IBOutlet UILabel *lblAboutLanguage;
 @property (weak, nonatomic) IBOutlet UITextView *txtViewBusObjectDesc;
@@ -36,7 +37,7 @@ static NSString * const CLIENTDEFAULTLANG=@"";
 
 @end
 
-@implementation GetAboutCallViewController
+@implementation AJSCGetAboutCallViewController
 
 - (void)prepareAlerts
 {
@@ -47,13 +48,14 @@ static NSString * const CLIENTDEFAULTLANG=@"";
 
 - (void)prepareBusNameAlert
 {
-    __weak GetAboutCallViewController *weakSelf = self;
-
-    self.alertBusName = [AJSCAlertController alertControllerWithTitle:@"Set language"
-                                                            message:@""
-                                                     viewController:self];
+    __weak AJSCGetAboutCallViewController *weakSelf = self;
     
-    [self.alertBusName addActionWithName:@"Cancel" handler:^(UIAlertAction *action) {}];
+    self.alertBusName = [AJSCAlertController alertControllerWithTitle:@"Set language"
+                                                              message:@""
+                                                       viewController:self];
+    
+    [self.alertBusName addActionWithName:@"Cancel" handler:^(UIAlertAction *action) {
+    }];
     
     [self.alertBusName addActionWithName:@"OK" handler:^(UIAlertAction *action) {
         if ([weakSelf.alertChooseLanguage.text isEqualToString:@""]) {
@@ -61,9 +63,10 @@ static NSString * const CLIENTDEFAULTLANG=@"";
         }
         if (![weakSelf isValidLanguage:weakSelf.alertChooseLanguage.text]) {
             AJSCAlertController *errorAlert = [AJSCAlertController alertControllerWithTitle:@"Error"
-                                                                                message:@"Requested language is not supported"
-                                                                         viewController:weakSelf];
-            [errorAlert addActionWithName:@"OK" handler:^(UIAlertAction *action) {}];
+                                                                                    message:@"Requested language is not supported"
+                                                                             viewController:weakSelf];
+            [errorAlert addActionWithName:@"OK" handler:^(UIAlertAction *action) {
+            }];
             [errorAlert show];
             return;
         }
@@ -81,13 +84,14 @@ static NSString * const CLIENTDEFAULTLANG=@"";
 
 - (void)prepareAnnouncementOptionsAlert
 {
-    __weak GetAboutCallViewController *weakSelf = self;
-
-    self.alertAnnouncementOptions = [AJSCAlertController alertControllerWithTitle:@"Choose option:"
-                                                                        message:@""
-                                                                 viewController:self];
+    __weak AJSCGetAboutCallViewController *weakSelf = self;
     
-    [self.alertAnnouncementOptions addActionWithName:@"Cancel" handler:^(UIAlertAction *action) {}];
+    self.alertAnnouncementOptions = [AJSCAlertController alertControllerWithTitle:@"Choose option:"
+                                                                          message:@""
+                                                                   viewController:self];
+    
+    [self.alertAnnouncementOptions addActionWithName:@"Cancel" handler:^(UIAlertAction *action) {
+    }];
     
     [self.alertAnnouncementOptions addActionWithName:@"Refresh" handler:^(UIAlertAction *action) {
         [weakSelf UpdateCallViewInformation];
@@ -102,10 +106,11 @@ static NSString * const CLIENTDEFAULTLANG=@"";
 - (void)prepareAlertNoSession
 {
     self.alertNoSession = [AJSCAlertController alertControllerWithTitle:@"Error"
-                                                              message:@"Session is not connected, check the connection and reconnect."
-                                                       viewController:self];
+                                                                message:@"Session is not connected, check the connection and reconnect."
+                                                         viewController:self];
     
-    [self.alertNoSession addActionWithName:@"OK" handler:^(UIAlertAction *action) {}];
+    [self.alertNoSession addActionWithName:@"OK" handler:^(UIAlertAction *action) {
+    }];
 }
 
 - (IBAction)TouchUpInsideRefreshandSetLanguage:(UIButton *)sender
@@ -161,8 +166,8 @@ static NSString * const CLIENTDEFAULTLANG=@"";
         
         if (qStatus != ER_OK) {
             AJSCAlertController *errorAlert = [AJSCAlertController alertControllerWithTitle:@"Error"
-                                                                                message:@"Calling the about method returned with an error"
-                                                                         viewController:self];
+                                                                                    message:@"Calling the about method returned with an error"
+                                                                             viewController:self];
             [errorAlert addActionWithName:@"OK" handler:^(UIAlertAction *action) {}];
             [errorAlert show];
         }
@@ -174,7 +179,6 @@ static NSString * const CLIENTDEFAULTLANG=@"";
             NSLog(@"[%@] [%@] objectDescriptions:  %@", @"DEBUG", [[self class] description], [AJNAboutDataConverter objectDescriptionsDictionaryToString:objDesc]);
 
             self.supportedLanguagesMsgArg = aboutData[@"SupportedLanguages"];
-            
             
             self.lblAboutLanguage.text = self.clientInformation.currLang;
             self.txtViewAboutMap.text = [AJNAboutDataConverter aboutDataDictionaryToString:aboutData];
