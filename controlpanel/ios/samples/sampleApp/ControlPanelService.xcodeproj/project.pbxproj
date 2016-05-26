@@ -16,7 +16,6 @@
 		19E2F06F17E88B030005851F /* libstdc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 19E2F06C17E88B030005851F /* libstdc++.dylib */; };
 		19E2F07417E88B120005851F /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 19E2F07117E88B120005851F /* libc++.dylib */; };
 		19E2F07517E88B120005851F /* libc++abi.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 19E2F07217E88B120005851F /* libc++abi.dylib */; };
-		49838F67189930CE0007FCC6 /* AuthenticationListenerImpl.m in Sources */ = {isa = PBXBuildFile; fileRef = 49838F66189930CE0007FCC6 /* AuthenticationListenerImpl.m */; };
 		87D309441A70B44200BD4141 /* libc++.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 19E2F07017E88B120005851F /* libc++.1.dylib */; };
 		9A0118C5187402B400975CE6 /* CommonBusListener.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A0118BF187402B400975CE6 /* CommonBusListener.m */; };
 		9A3DB0BC183A0D2A0063D6BE /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9A3DAFFD183A0D290063D6BE /* Default-568h@2x.png */; };
@@ -46,8 +45,6 @@
 		19E2F07017E88B120005851F /* libc++.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.1.dylib"; path = "usr/lib/libc++.1.dylib"; sourceTree = SDKROOT; };
 		19E2F07117E88B120005851F /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
 		19E2F07217E88B120005851F /* libc++abi.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++abi.dylib"; path = "usr/lib/libc++abi.dylib"; sourceTree = SDKROOT; };
-		49838F65189930CE0007FCC6 /* AuthenticationListenerImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthenticationListenerImpl.h; sourceTree = "<group>"; };
-		49838F66189930CE0007FCC6 /* AuthenticationListenerImpl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AuthenticationListenerImpl.m; sourceTree = "<group>"; };
 		9A0118BE187402B400975CE6 /* CommonBusListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommonBusListener.h; sourceTree = "<group>"; };
 		9A0118BF187402B400975CE6 /* CommonBusListener.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CommonBusListener.m; sourceTree = "<group>"; };
 		9A3DAFFB183A0D290063D6BE /* ControlPanelService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "ControlPanelService-Info.plist"; sourceTree = "<group>"; };
@@ -174,8 +171,6 @@
 		9AB8994218758EB400BC53DA /* Utils */ = {
 			isa = PBXGroup;
 			children = (
-				49838F65189930CE0007FCC6 /* AuthenticationListenerImpl.h */,
-				49838F66189930CE0007FCC6 /* AuthenticationListenerImpl.m */,
 				9A0118BE187402B400975CE6 /* CommonBusListener.h */,
 				9A0118BF187402B400975CE6 /* CommonBusListener.m */,
 				9A5EFF7B187044BC002833C1 /* ClientInformation.h */,
@@ -261,7 +256,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				9A3DB0C4183A0D2A0063D6BE /* MainViewController.m in Sources */,
-				49838F67189930CE0007FCC6 /* AuthenticationListenerImpl.m in Sources */,
 				9AD3D2DE187191AC00D15544 /* AnnounceTextViewController.m in Sources */,
 				9A3DB0C2183A0D2A0063D6BE /* AppDelegate.m in Sources */,
 				9A5EFF7D187044BC002833C1 /* ClientInformation.m in Sources */,

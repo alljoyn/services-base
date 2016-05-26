@@ -24,8 +24,8 @@
 #import "AnnounceTextViewController.h"
 #import "GetAboutCallViewController.h"
 #import "OnboardingViewController.h"
-#import "AuthenticationListenerImpl.h"
 #include <qcc/Log.h>
+#import "samples_common/AJSCAuthenticationListenerImpl.h"
 #import "samples_common/AJSCAlertController.h"
 
 static bool ALLOWREMOTEMESSAGES = true; // About Client -  allow Remote Messages flag
@@ -36,6 +36,7 @@ static NSString * const ONBOARDING_INTERFACE_NAME = @"org.alljoyn.Onboarding";
 static NSString * const DEFAULT_REALM_BUS_NAME = @"org.alljoyn.BusNode.onboardingClient";
 
 static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
+static NSString * const DEFAULT_AUTH_PASSCODE = @"000000";
 
 @interface MainViewController ()
 @property NSString *className;
@@ -61,7 +62,7 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 @property (strong, nonatomic) AJSCAlertController *announcementOptionsAlert;
 @property (strong, nonatomic) AJSCAlertController *onboardingOptionsAlert;
 
-@property (strong, nonatomic) AuthenticationListenerImpl *authenticationListenerImpl;
+@property (strong, nonatomic) AJSCAuthenticationListenerImpl *authenticationListenerImpl;
 
 @end
 
@@ -81,7 +82,6 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
                                    selector:@selector(updateSSIDinTitle)
                                    userInfo:nil
                                     repeats:YES];
-    
 }
 
 -(void)updateSSIDinTitle
@@ -403,8 +403,7 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
     // Create a dictionary to contain announcements using a key in the format of: "announcementUniqueName + announcementObj"
 	self.clientInformationDict = [[NSMutableDictionary alloc] init];
     
-     NSLog(@"[%@] [%@] Start About Client", @"DEBUG", [[self class] description]);
-
+    NSLog(@"[%@] [%@] Start About Client", @"DEBUG", [[self class] description]);
     
 	// Init AJNBusAttachment
 	self.clientBusAttachment = [[AJNBusAttachment alloc] initWithApplicationName:APPNAME allowRemoteMessages:ALLOWREMOTEMESSAGES];
@@ -441,8 +440,6 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
         return;
 	}
     
-
-    
     NSUUID *UUID = [NSUUID UUID];
     NSString *stringUUID = [UUID UUIDString];
     
@@ -476,7 +473,8 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 	}
     
     // Enable Client Security
-    self.authenticationListenerImpl = [[AuthenticationListenerImpl alloc] init];
+    self.authenticationListenerImpl = [[AJSCAuthenticationListenerImpl alloc] initWithViewController:self];
+    self.authenticationListenerImpl.defaultPasscode = DEFAULT_AUTH_PASSCODE;
     status = [self enableClientSecurity];
     if (ER_OK != status) {
         [self AlertAndLog:@"ERROR" message:@"Failed to enable security. Please uninstall the application and reinstall." status:status];
@@ -555,7 +553,7 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 - (void)stopAboutClient
 {
 	QStatus status;
-     NSLog(@"[%@] [%@] Stop About Client", @"DEBUG", [[self class] description]);
+    NSLog(@"[%@] [%@] Stop About Client", @"DEBUG", [[self class] description]);
     
 	// Bus attachment cleanup
 	status = [self.clientBusAttachment cancelAdvertisedName:[NSString stringWithFormat:@"%@%@", DAEMON_QUIET_PREFIX, self.realmBusName] withTransportMask:kAJNTransportMaskAny];
@@ -573,8 +571,6 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
         NSLog(@"[%@] [%@]  Failed release WellKnownName, error:%@", @"DEBUG", [[self class] description],[AJNStatus descriptionForStatusCode:status]);
         
     }
-    
-    
     
 	status = [self.clientBusAttachment removeMatchRule:@"sessionless='t',type='error'"];
 	if (status == ER_OK) {
@@ -600,7 +596,6 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
          NSLog(@"[%@] [%@] Successfully unregistered AnnouncementReceiver", @"DEBUG", [[self class] description]);
 	} else {
         NSLog(@"[%@] [%@]  Failed unregistered AnnouncementReceiver, error:%@", @"DEBUG", [[self class] description],[AJNStatus descriptionForStatusCode:status]);
-        
     }
     
 	self.announcementReceiver = nil;
@@ -611,7 +606,6 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
          NSLog(@"[%@] [%@] Successfully stopped bus", @"DEBUG", [[self class] description]);
     } else {
         NSLog(@"[%@] [%@]  Failed stopping bus, error:%@", @"DEBUG", [[self class] description],[AJNStatus descriptionForStatusCode:status]);
-        
     }
     
 	self.clientBusAttachment = nil;

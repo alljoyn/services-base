@@ -15,8 +15,13 @@
  ******************************************************************************/
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import "AJNAuthenticationListener.h"
 
-@interface AuthenticationListenerImpl : NSObject <AJNAuthenticationListener>
+@interface AJSCAuthenticationListenerImpl : NSObject <AJNAuthenticationListener>
+
+@property (nonatomic, strong) NSString *defaultPasscode;
+
+- (id)initWithViewController:(UIViewController*)viewController;
 
 @end
