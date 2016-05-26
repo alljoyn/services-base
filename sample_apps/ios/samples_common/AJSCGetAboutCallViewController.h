@@ -13,12 +13,29 @@
  *    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
+//
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+
+#import "alljoyn/about/AJNAnnouncementReceiver.h"
 #import "alljoyn/about/AJNAnnouncement.h"
-#import "AJNTransportMask.h"
+#import "alljoyn/about/AJNAboutDataConverter.h"
+#import "AJNMessageArgument.h"
+#import "alljoyn/about/AJNAboutClient.h"
 
-@interface ClientInformation : NSObject
-@property (strong, nonatomic) AJNAnnouncement *announcement;
-@property (strong, nonatomic) NSString *currLang;
+#import <SystemConfiguration/CaptiveNetwork.h>
+#import <CoreFoundation/CFDictionary.h>
+
+#import "alljoyn/about/AJNAboutServiceApi.h"
+#import "alljoyn/about/AJNAboutService.h"
+#import "AJNVersion.h"
+#import "AJNProxyBusObject.h"
+
+#import "AJSCClientInformation.h"
+
+@interface AJSCGetAboutCallViewController : UIViewController
+
+@property (weak, nonatomic) AJSCClientInformation *clientInformation;
+@property (weak, nonatomic) AJNBusAttachment *clientBusAttachment;
+
 @end
