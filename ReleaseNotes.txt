@@ -1,0 +1,69 @@
+AllJoyn Standard Base Services Version 16.04 Release Notes
+==================================================
+
+Fully Validated Platforms
+-------------------------
+1) Linux Ubuntu 14.04 LTS (64 bit)
+2) Android 4.3, Android 5.0, Android 6.0 (ARM7) (support 4.3+)
+3) iOS 8.0, iOS 9.0 (support 8.0+)
+4) OpenWRT Chaos Calmer
+5) Windows 10
+
+Focus of Version 16.04
+-------------------------------
+Platform and language support
+Base Services has been built and continually tested on every supported platform to ensure that it builds and functions correctly. The samples and documentation have also both been updated in order to improve the developer experience. Remaining prominent issues are listed in the Known Issues section below.
+ 
+Updating to Core 16.04
+Base Services has been updated to use the most recent 16.04 version of AllJoyn Core. 
+
+Updating for Security 2.0
+Security 2.0 is still developer preview however in preparation for eventual release, Base Services has been updated to include Security 2.0 support. Specifically, the onboarding sample has been updated to demonstrate claiming permissions.
+
+Features added in Version 16.04
+-------------------------------
+ASABASE-593     Allow Android SDK of any API level >=16 to satisfy build requirements
+ASABASE-575     Improvements to Onboarding for integration with Security 2.0
+ASABASE-506     Sec 2.0: Base Services support for security 2
+ASABASE-501     Remove dependency on core/alljoyn source tree
+
+Full list: https://jira.allseenalliance.org/issues/?filter=12417
+
+Issues Addressed in Version 16.04
+-------------------------------
+ASABASE-692     Android ControlPanelBrowser sample crashes when screen is rotated while   connecting to controllee
+ASABASE-688     Onboarding Client sample - Cannot connect to hidden network when running on Android 5.0+
+ASABASE-687     Onboarding Client sample - Networks with empty SSIDs can appear in scanned WiFi list
+ASABASE-684     iOS devices do not receive active notifications if 'Consumer' is turned off/on while also a producer
+ASABASE-683     Notification produced by iOS device continues to broadcast when dismissed
+ASABASE-678     ControlPanelBrowser is frequently unresponsive on iPhone 6 8.2
+ASABASE-675     iOS ControlPanelBrowser crashes on iPhone 5S 7.1
+ASABASE-674     Onboarding Manager Sample app fails to connect to the Onboardee when running on Android 6.0 device
+ASABASE-672     Android Onboardee does not handle delay or failure of wifi enabling
+ASABASE-629     IOS Notification Sample Consumer not receiving notifications
+ASABASE-628     IOS Notification Sample App TTL units misleading
+ASABASE-589     Action' function is not implemented for consumer in NotificationService android sample
+ASABASE-570     Onboarding configuration interface does not appear in OnboardingService app on iOS simulator
+ASABASE-569     ControlPanelService app can become stuck on control panel screen if controllee goes offline
+ASABASE-568     ControlPanelBrowser does not display controllee widgets on Android
+ASABASE-567     NotificationService iOS sample producer screen not showing
+ASABASE-557     Incorrect multi-language display in Control Panel
+ASABASE-408     iOS ControlPanelService does not display buttons / other widgets like Android ControlPanelBrowser
+ASABASE-301     Android Onboarding Manager not removing soft AP entry after onoboarding succeeds
+ASABASE-189     Onboarding Script Offboard method should delete key1 as well
+ASABASE-167     Wrong ScanWifi Info Was Returned Upon an WPA2 TKIP Security Configured Router
+
+Full list: https://jira.allseenalliance.org/issues/?filter=12419
+
+Known Issues added in Version 16.04
+-------------------------------
+ASABASE-711     iOS Onboarding Client sample's "Onboarding succeeded" popup box appears even when onboarding fails
+ASABASE-689     Android 5.0+ device running Onboarding Server simulator cannot be onboarded to hidden network when OPEN or WEP auth type used
+ASABASE-679     iOS Control Panel controllers do not update their values
+ASABASE-654     Onboarding Manager sample app unable to onboard Nexus 4 device running Android 6.0.1
+ASABASE-653     Onboarding Client on Android does not populate 'Scan Info' combo box
+ASABASE-624     Android N platform in SDK causes min API level check in SConscript to fail
+ASABASE-428     OpenWRT Barrier Braker onboardee doesn't remain onboarded if WEP Shared Key auth is used
+
+Full list: https://jira.allseenalliance.org/issues/?filter=12418
+
