@@ -23,9 +23,9 @@
 #import "AnnounceTextViewController.h"
 #import "GetAboutCallViewController.h"
 #import "alljoyn/controlpanel/AJCPSGetControlPanelViewController.h"
-#import "AuthenticationListenerImpl.h"
 #include <qcc/Log.h>
 #import "AppDelegate.h"
+#import "samples_common/AJSCAuthenticationListenerImpl.h"
 #import "samples_common/AJSCAlertController.h"
 
 
@@ -39,6 +39,8 @@ static NSString * const DEFAULT_REALM_BUS_NAME = @"org.alljoyn.BusNode.ControlPa
 
 static NSString * const KEYSTORE_FILE_PATH = @"Documents/alljoyn_keystore/s_central.ks";
 static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK";
+
+static NSString * const DEFAULT_AUTH_PASSWORD = @"121212";
 
 @interface MainViewController ()
 @property NSString *className;
@@ -63,7 +65,7 @@ static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK";
 @property (strong, nonatomic) AJSCAlertController *announcementOptionsAlert;
 @property (strong, nonatomic) AJSCAlertController *announcementOptionsAlertNoCPanel;
 
-@property (strong, nonatomic) AuthenticationListenerImpl *authenticationListenerImpl;
+@property (strong, nonatomic) AJSCAuthenticationListenerImpl *authenticationListenerImpl;
 @end
 
 @implementation MainViewController
@@ -403,7 +405,8 @@ static NSString * const AUTH_MECHANISM = @"ALLJOYN_SRP_KEYX ALLJOYN_ECDHE_PSK";
     }
     
     // Enable Client Security
-    self.authenticationListenerImpl = [[AuthenticationListenerImpl alloc] initWithViewController:self];
+    self.authenticationListenerImpl = [[AJSCAuthenticationListenerImpl alloc] initWithViewController:self];
+    self.authenticationListenerImpl.defaultPasscode = DEFAULT_AUTH_PASSWORD;
     status = [self enableClientSecurity];
     if (ER_OK != status) {
         NSLog(@"Failed to enable security.");
