@@ -13,31 +13,17 @@
  *    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
-//
 
-#import <UIKit/UIKit.h>
-
-#import "alljoyn/about/AJNAnnouncementReceiver.h"
-#import "alljoyn/about/AJNAnnouncement.h"
+#import "AJSCClientInformation.h"
 #import "alljoyn/about/AJNAboutDataConverter.h"
-#import "AJNMessageArgument.h"
-#import "alljoyn/about/AJNAboutClient.h"
 
-#import <SystemConfiguration/CaptiveNetwork.h>
-#import <CoreFoundation/CFDictionary.h>
+@implementation AJSCClientInformation
 
-#import "alljoyn/about/AJNAboutServiceApi.h"
-#import "alljoyn/about/AJNAboutService.h"
-#import "AJNVersion.h"
-#import "AJNProxyBusObject.h"
-
-#import "GetAboutCallViewController.h"
-#import "ClientInformation.h"
-
-@interface GetAboutCallViewController : UIViewController
-
-@property (weak, nonatomic) ClientInformation *clientInformation;
-@property (weak, nonatomic) AJNBusAttachment *clientBusAttachment;
-
+- (void)setAnnouncement:(AJNAnnouncement *)announcement
+{
+	_announcement = announcement;
+    
+	_currLang = [AJNAboutDataConverter messageArgumentToString:[_announcement aboutData][@"DefaultLanguage"]];
+}
 
 @end

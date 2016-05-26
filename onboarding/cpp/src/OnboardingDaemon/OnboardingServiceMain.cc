@@ -266,7 +266,7 @@ start:
             SecurityUtil::GenerateManifest(manifest);
 
             std::vector<PermissionPolicy::Rule> rules = manifest->GetRules();
-            pc.SetPermissionManifest(&rules[0], rules.size());
+            pc.SetPermissionManifestTemplate(&rules[0], rules.size());
 
             pc.GetApplicationState(appState);
             std::cout << "application state: " << PermissionConfigurator::ToString(appState) << std::endl;

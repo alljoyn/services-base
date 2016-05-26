@@ -15,12 +15,13 @@
  ******************************************************************************/
 //
 
-#import "GetAboutCallViewController.h"
-#import "samples_common/AJSCAlertController.h"
+#import "AJSCGetAboutCallViewController.h"
+#import "AJSCAlertController.h"
 
 static NSString * const CLIENTDEFAULTLANG=@"";
 
-@interface GetAboutCallViewController ()
+@interface AJSCGetAboutCallViewController ()
+
 @property (weak, nonatomic) IBOutlet UILabel *lblVersion;
 @property (weak, nonatomic) IBOutlet UILabel *lblAboutLanguage;
 @property (weak, nonatomic) IBOutlet UITextView *txtViewBusObjectDesc;
@@ -36,7 +37,7 @@ static NSString * const CLIENTDEFAULTLANG=@"";
 
 @end
 
-@implementation GetAboutCallViewController
+@implementation AJSCGetAboutCallViewController
 
 - (void)prepareAlerts
 {
@@ -47,7 +48,7 @@ static NSString * const CLIENTDEFAULTLANG=@"";
 
 - (void)prepareBusNameAlert
 {
-    __weak GetAboutCallViewController *weakSelf = self;
+    __weak AJSCGetAboutCallViewController *weakSelf = self;
     
     self.alertBusName = [AJSCAlertController alertControllerWithTitle:@"Set language"
                                                               message:@""
@@ -75,7 +76,7 @@ static NSString * const CLIENTDEFAULTLANG=@"";
         [weakSelf UpdateCallViewInformation];
     }];
     
-    [self.alertBusName.iosAlertController addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) {
+    [self.alertBusName.iosAlertController addTextFieldWithConfigurationHandler:^(UITextField * __nonnull textField) {
         textField.text = @"";
         weakSelf.alertChooseLanguage = textField;
     }];
@@ -83,7 +84,7 @@ static NSString * const CLIENTDEFAULTLANG=@"";
 
 - (void)prepareAnnouncementOptionsAlert
 {
-    __weak GetAboutCallViewController *weakSelf = self;
+    __weak AJSCGetAboutCallViewController *weakSelf = self;
     
     self.alertAnnouncementOptions = [AJSCAlertController alertControllerWithTitle:@"Choose option:"
                                                                           message:@""

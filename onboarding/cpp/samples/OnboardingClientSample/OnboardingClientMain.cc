@@ -694,7 +694,7 @@ int main(int argc, char** argv, char** envArg)
             std::cout << manifest->ToString() << std::endl;
 
             std::vector<PermissionPolicy::Rule> rules = manifest->GetRules();
-            busAttachment->GetPermissionConfigurator().SetPermissionManifest(rules.data(), rules.size());
+            busAttachment->GetPermissionConfigurator().SetPermissionManifestTemplate(rules.data(), rules.size());
 
             busAttachment->GetPermissionConfigurator().GetApplicationState(appState);
             std::cout << "application state: " << PermissionConfigurator::ToString(appState) << std::endl;

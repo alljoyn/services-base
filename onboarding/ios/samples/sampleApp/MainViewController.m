@@ -20,12 +20,12 @@
 #import "alljoyn/about/AJNAnnouncement.h"
 #import "alljoyn/about/AJNAnnouncementReceiver.h"
 #import "alljoyn/about/AJNAboutDataConverter.h"
-#import "ClientInformation.h"
 #import "AnnounceTextViewController.h"
-#import "GetAboutCallViewController.h"
 #import "OnboardingViewController.h"
 #import "AuthenticationListenerImpl.h"
 #include <qcc/Log.h>
+#import "samples_common/AJSCClientInformation.h"
+#import "samples_common/AJSCGetAboutCallViewController.h"
 #import "samples_common/AJSCAlertController.h"
 
 static bool ALLOWREMOTEMESSAGES = true; // About Client -  allow Remote Messages flag
@@ -142,16 +142,16 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 - (void)prepareForSegue:(UIStoryboardSegue *)segue
                  sender:(id)sender
 {
-    // GetAboutCallViewController
-	if ([segue.destinationViewController isKindOfClass:[GetAboutCallViewController class]]) {
-		GetAboutCallViewController *getAboutCallView = segue.destinationViewController;
+    // AJSCGetAboutCallViewController
+	if ([segue.destinationViewController isKindOfClass:[AJSCGetAboutCallViewController class]]) {
+		AJSCGetAboutCallViewController *getAboutCallView = segue.destinationViewController;
 		getAboutCallView.clientInformation = (self.clientInformationDict)[self.announcementButtonCurrentTitle];
 		getAboutCallView.clientBusAttachment = self.clientBusAttachment;
 	}
     // AnnounceTextViewController
 	else if ([segue.destinationViewController isKindOfClass:[AnnounceTextViewController class]]) {
 		AnnounceTextViewController *announceTextViewController = segue.destinationViewController;
-		announceTextViewController.ajnAnnouncement = [(ClientInformation *)(self.clientInformationDict)[self.announcementButtonCurrentTitle] announcement];
+		announceTextViewController.ajnAnnouncement = [(AJSCClientInformation *)(self.clientInformationDict)[self.announcementButtonCurrentTitle] announcement];
 	}
     else if ([segue.destinationViewController isKindOfClass:[OnboardingViewController class]])
     {
@@ -181,7 +181,7 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
                   aboutData:(NSMutableDictionary **)aboutData
 {
 	NSString *announcementUniqueName; // Announcement unique name in a format of <busName DeviceName>
-	ClientInformation *clientInformation = [[ClientInformation alloc] init];
+	AJSCClientInformation *clientInformation = [[AJSCClientInformation alloc] init];
     
 	// Save the announcement in a AJNAnnouncement
 	clientInformation.announcement = [[AJNAnnouncement alloc] initWithVersion:version port:port busName:busName objectDescriptions:objectDescs aboutData:aboutData];
@@ -214,7 +214,7 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
         
 	    // Iterate over the announcements dictionary
 	    for (NSString *key in self.clientInformationDict.allKeys) {
-	        ClientInformation *clientInfo = [self.clientInformationDict valueForKey:key];
+	        AJSCClientInformation *clientInfo = [self.clientInformationDict valueForKey:key];
 	        AJNAnnouncement *announcement = [clientInfo announcement];
 	        AJNMessageArgument *tmpMsgrg = [announcement aboutData][@"AppId"];
             
@@ -534,7 +534,7 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 - (bool)announcementSupportsInterface:(NSString *)announcementKey
 {
 	bool supportInterface = false;
-	AJNAnnouncement *announcement = [(ClientInformation *)[self.clientInformationDict valueForKey:announcementKey] announcement];
+	AJNAnnouncement *announcement = [(AJSCClientInformation *)[self.clientInformationDict valueForKey:announcementKey] announcement];
 	NSMutableDictionary *announcementObjDecs = [announcement objectDescriptions]; //Dictionary of ObjectDescriptions NSStrings
     
 	// iterate over the object descriptions dictionary
@@ -586,7 +586,7 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
     
 	// Cancel advertise name for each announcement bus
 	for (NSString *key in[self.clientInformationDict allKeys]) {
-		ClientInformation *clientInfo = (self.clientInformationDict)[key];
+		AJSCClientInformation *clientInfo = (self.clientInformationDict)[key];
 		status = [self.clientBusAttachment cancelFindAdvertisedName:[[clientInfo announcement] busName]];
 		if (status != ER_OK) {
              NSLog(@"[%@] [%@] failed to cancelAdvertisedName for %@. status:%@", @"ERROR", [[self class] description],key, [AJNStatus descriptionForStatusCode:status]);

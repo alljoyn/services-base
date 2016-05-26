@@ -101,7 +101,7 @@ static const qcc::String AJPARAM_STRUCT_VAR_VAR_VAR = "(vvv)";
 static const qcc::String AJPARAM_DATE_OR_TIME = "(q(qqq))";
 
 static const qcc::String AJ_ERROR_UNKNOWN = "Unknown Error";
-static const qcc::String AJ_ERROR_UNKNOWN_MESSAGE = "An Unknown Error occured";
+static const qcc::String AJ_ERROR_UNKNOWN_MESSAGE = "An Unknown Error occurred";
 
 enum OPT_PARAM_KEYS {
     LABEL_KEY = 0,
