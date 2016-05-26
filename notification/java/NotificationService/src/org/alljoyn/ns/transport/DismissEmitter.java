@@ -35,46 +35,46 @@ import org.alljoyn.ns.transport.interfaces.NotificationDismisser;
  */
 public class DismissEmitter implements NotificationDismisser {
 	private static final String TAG = "ioe" + DismissEmitter.class.getSimpleName();
-	
+
 	private static final String OBJ_PATH_PREFIX = "/notificationDismisser/";
-	
+
 	/**
 	 * Send the Dismiss signal
 	 * @param msgId The notification id
 	 * @param appId The application id
 	 */
 	public static void send(int msgId, UUID appId) {
-		
+
 		Transport transport  = Transport.getInstance();
 		BusAttachment bus    = transport.getBusAttachment();
-		
+
 		GenericLogger logger;
 		try {
 			logger = transport.getLogger();
 		} catch (NotificationServiceException nse) {
-			System.out.println(TAG + ": Unexpected error occured: " + nse.getMessage());
+			System.out.println(TAG + ": Unexpected error occurred: " + nse.getMessage());
 			return;
 		}
-		
+
 		if ( bus == null ) {
 			logger.error(TAG, "Can't call Dismiss signal, BusAttachment isn't defined, returning...");
 			return;
 		}
-		
+
 		logger.debug(TAG, "Sending the Dismiss signal notifId: '" + msgId + "', appId: '" + appId + "'");
 		DismissEmitter dismissSenderBusObj = new DismissEmitter();
-		
+
 		String objPath = buildObjPath(msgId, appId);
 		Status status  = bus.registerBusObject(dismissSenderBusObj, objPath);
 		if ( status != Status.OK ) {
 			logger.error(TAG, "Failed to register a BusObject, ObjPath: '" + objPath + "', Error: '" + status + "'");
 			return;
 		}
-		
+
 		SignalEmitter emitter = new SignalEmitter(dismissSenderBusObj, GlobalBroadcast.Off);
 		emitter.setSessionlessFlag(true);
 		emitter.setTimeToLive(NotificationSender.MESSAGE_TTL_UL);
-		
+
 		byte[] bappId = PayloadAdapter.uuidToByteArray(appId);
 		try {
 			logger.debug(TAG, "Sending the Dismiss signal from ObjPath: '" + objPath + "'");
@@ -82,10 +82,10 @@ public class DismissEmitter implements NotificationDismisser {
 		} catch (BusException be) {
 			logger.error(TAG, "Failed to send the Dismiss signal notifId: '" + msgId + "', appId: '" + appId + "', Error: '" + be.getMessage() + "'");
 		}
-		
+
 		bus.unregisterBusObject(dismissSenderBusObj);
 	}//send
-	
+
 	/**
 	 * @see org.alljoyn.ns.transport.interfaces.NotificationDismisser#dismiss(int, byte[])
 	 */
@@ -100,7 +100,7 @@ public class DismissEmitter implements NotificationDismisser {
 	public short getVersion() throws BusException {
 		return VERSION;
 	}
-	
+
 	/**
 	 * Creates the object path: OBJ_PATH_PREFIX/[APPID]/msgId
 	 * @param msgId
@@ -111,5 +111,5 @@ public class DismissEmitter implements NotificationDismisser {
 		String appIdStr = appId.toString().replace("-", "");
 		return OBJ_PATH_PREFIX + appIdStr + "/" + Math.abs(msgId);
 	}//buildObjPath
-	
+
 }

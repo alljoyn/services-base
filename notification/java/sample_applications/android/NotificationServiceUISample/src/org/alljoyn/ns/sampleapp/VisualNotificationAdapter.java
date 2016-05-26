@@ -105,6 +105,7 @@ public class VisualNotificationAdapter extends ArrayAdapter<VisualNotification> 
 		
 		if ( notificationsList != null ) {
 			notificationsList.clear();
+			VisualNotification.clearCheckedCounter();
 		}
 	}//clear
 	
