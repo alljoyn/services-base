@@ -71,7 +71,7 @@ static NSString * const DEFAULT_PASSCODE = @"121212"; // Security
 - (void)getInputFromAlertDialog
 {
     // get the input pass
-    self.passCodeText = [self.setPassCodeAlert.iosAlertController textFields][0].text;
+    self.passCodeText = [[self.setPassCodeAlert.iosAlertController textFields][0] text];
     // [self.logger debugTag:[[self class] description] text:[NSString stringWithFormat:@"Passcode is: %@",  self.passCodeText]];
     NSLog(@"Passcode is: %@",  self.passCodeText);
     
