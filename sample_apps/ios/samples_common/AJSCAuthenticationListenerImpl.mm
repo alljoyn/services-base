@@ -14,12 +14,10 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#import "AuthenticationListenerImpl.h"
-#import "samples_common/AJSCAlertController.h"
+#import "AJSCAuthenticationListenerImpl.h"
+#import "AJSCAlertController.h"
 
-static NSString * const DEFAULT_PASSCODE = @"000000";
-
-@interface AuthenticationListenerImpl ()
+@interface AJSCAuthenticationListenerImpl ()
 
 @property (strong, nonatomic) AJSCAlertController *setPassCodeAlert;
 @property (strong, nonatomic) NSString *passCodeText;
@@ -29,7 +27,7 @@ static NSString * const DEFAULT_PASSCODE = @"000000";
 
 @end
 
-@implementation AuthenticationListenerImpl
+@implementation AJSCAuthenticationListenerImpl
 
 - (id)init {
     self = [super init];
@@ -57,7 +55,7 @@ static NSString * const DEFAULT_PASSCODE = @"000000";
     [self.setPassCodeAlert addActionWithName:@"Cancel" handler:^(UIAlertAction *action) {
     }];
     
-    __weak AuthenticationListenerImpl *weakSelf = self;
+    __weak AJSCAuthenticationListenerImpl *weakSelf = self;
     [self.setPassCodeAlert addActionWithName:@"OK" handler:^(UIAlertAction *action) {
         [weakSelf getInputFromAlertDialog];
     }];
@@ -81,7 +79,7 @@ static NSString * const DEFAULT_PASSCODE = @"000000";
     if ([self.peerName length]) {
         if (![self.passCodeText length]) {
             // set the pass to default if input is empty
-            self.passCodeText = DEFAULT_PASSCODE;
+            self.passCodeText = _defaultPasscode;
         }
         
         // Iterate over the dictionary and add/update
@@ -135,8 +133,8 @@ static NSString * const DEFAULT_PASSCODE = @"000000";
 				}
 				// Use the default password
 				if (!credFound) {
-					creds.password = DEFAULT_PASSCODE;
-                    NSLog(@"Using default password %@ for peer %@", DEFAULT_PASSCODE, peerName);
+					creds.password = _defaultPasscode;
+                    NSLog(@"Using default password %@ for peer %@", _defaultPasscode, peerName);
                     
 				}
 			}
@@ -154,7 +152,7 @@ static NSString * const DEFAULT_PASSCODE = @"000000";
     
     //	[self.logger debugTag:[[self class] description] text:[NSString stringWithFormat:@"authenticationUsing:%@ forRemotePeer%@ %@", authenticationMechanism, peerName, status]];
     
-	//get the passcpde for this bus
+	//get the passcode for this bus
 	if (!success) {
 		self.peerName = peerName;
 		self.passCodeText = nil;
