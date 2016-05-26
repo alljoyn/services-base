@@ -70,9 +70,11 @@
 		9AC4E12518A8DEC7007080F6 /* AJCPSRootWidget.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9AC4E10A18A8DEC7007080F6 /* AJCPSRootWidget.mm */; };
 		9AC4E12618A8DEC7007080F6 /* AJCPSWidget.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9AC4E10B18A8DEC7007080F6 /* AJCPSWidget.mm */; };
 		B07896331CBE197C00E0BA05 /* AJCPSActionWithDialog.mm in Sources */ = {isa = PBXBuildFile; fileRef = B07896321CBE197C00E0BA05 /* AJCPSActionWithDialog.mm */; };
+		B0865B481CF6B2050083EE09 /* AJSCAuthenticationListenerImpl.h in Copy Files (2 items) */ = {isa = PBXBuildFile; fileRef = B0865B471CF6B2050083EE09 /* AJSCAuthenticationListenerImpl.h */; };
+		B0865B4A1CF6B2250083EE09 /* AJSCAuthenticationListenerImpl.mm in Sources */ = {isa = PBXBuildFile; fileRef = B0865B491CF6B2250083EE09 /* AJSCAuthenticationListenerImpl.mm */; };
 		B0987BB21CBDD35300FEAF3B /* AJCPSActionDialogCell.mm in Sources */ = {isa = PBXBuildFile; fileRef = B0987BB11CBDD35300FEAF3B /* AJCPSActionDialogCell.mm */; };
 		B0987BB41CBDD3B600FEAF3B /* AJCPSActionDialogCell.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = B0987BB31CBDD38E00FEAF3B /* AJCPSActionDialogCell.h */; };
-		B0A347B11CF5453D00A38E4D /* AJSCAlertController.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = B0A347B01CF5453D00A38E4D /* AJSCAlertController.h */; };
+		B0A347B11CF5453D00A38E4D /* AJSCAlertController.h in Copy Files (2 items) */ = {isa = PBXBuildFile; fileRef = B0A347B01CF5453D00A38E4D /* AJSCAlertController.h */; };
 		B0A347B31CF5455A00A38E4D /* AJSCAlertController.mm in Sources */ = {isa = PBXBuildFile; fileRef = B0A347B21CF5455A00A38E4D /* AJSCAlertController.mm */; };
 		B0D234B01CBB6058005AB2DC /* AJCPSLabelCell.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = B0D234AD1CBB574E005AB2DC /* AJCPSLabelCell.h */; };
 		B0D234B21CBB67EE005AB2DC /* AJCPSLabelCell.mm in Sources */ = {isa = PBXBuildFile; fileRef = B0D234B11CBB67EE005AB2DC /* AJCPSLabelCell.mm */; };
@@ -132,14 +134,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		B0A347AF1CF5450200A38E4D /* CopyFiles */ = {
+		B0A347AF1CF5450200A38E4D /* Copy Files (2 items) */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = inc/alljoyn/samples_common;
 			dstSubfolderSpec = 16;
 			files = (
-				B0A347B11CF5453D00A38E4D /* AJSCAlertController.h in CopyFiles */,
+				B0865B481CF6B2050083EE09 /* AJSCAuthenticationListenerImpl.h in Copy Files (2 items) */,
+				B0A347B11CF5453D00A38E4D /* AJSCAlertController.h in Copy Files (2 items) */,
 			);
+			name = "Copy Files (2 items)";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -211,6 +215,8 @@
 		9AC4E14418A8DF59007080F6 /* AJCPSWidget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AJCPSWidget.h; sourceTree = "<group>"; };
 		B07896311CBE197000E0BA05 /* AJCPSActionWithDialog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AJCPSActionWithDialog.h; sourceTree = "<group>"; };
 		B07896321CBE197C00E0BA05 /* AJCPSActionWithDialog.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AJCPSActionWithDialog.mm; sourceTree = "<group>"; };
+		B0865B471CF6B2050083EE09 /* AJSCAuthenticationListenerImpl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AJSCAuthenticationListenerImpl.h; path = ../../../../sample_apps/ios/samples_common/AJSCAuthenticationListenerImpl.h; sourceTree = "<group>"; };
+		B0865B491CF6B2250083EE09 /* AJSCAuthenticationListenerImpl.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = AJSCAuthenticationListenerImpl.mm; path = ../../../../sample_apps/ios/samples_common/AJSCAuthenticationListenerImpl.mm; sourceTree = "<group>"; };
 		B0987BB11CBDD35300FEAF3B /* AJCPSActionDialogCell.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AJCPSActionDialogCell.mm; sourceTree = "<group>"; };
 		B0987BB31CBDD38E00FEAF3B /* AJCPSActionDialogCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AJCPSActionDialogCell.h; sourceTree = "<group>"; };
 		B0A347B01CF5453D00A38E4D /* AJSCAlertController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AJSCAlertController.h; path = ../../../../sample_apps/ios/samples_common/AJSCAlertController.h; sourceTree = "<group>"; };
@@ -275,6 +281,8 @@
 		9AA935E01854BC2B00378361 = {
 			isa = PBXGroup;
 			children = (
+				B0865B491CF6B2250083EE09 /* AJSCAuthenticationListenerImpl.mm */,
+				B0865B471CF6B2050083EE09 /* AJSCAuthenticationListenerImpl.h */,
 				B0A347B21CF5455A00A38E4D /* AJSCAlertController.mm */,
 				B0A347B01CF5453D00A38E4D /* AJSCAlertController.h */,
 				9ACE618A187998630003645A /* controlpanel */,
@@ -447,7 +455,7 @@
 				9AA935E51854BC2B00378361 /* Sources */,
 				9AA935E61854BC2B00378361 /* Frameworks */,
 				9AA935E71854BC2B00378361 /* CopyFiles */,
-				B0A347AF1CF5450200A38E4D /* CopyFiles */,
+				B0A347AF1CF5450200A38E4D /* Copy Files (2 items) */,
 			);
 			buildRules = (
 			);
@@ -520,6 +528,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B0865B4A1CF6B2250083EE09 /* AJSCAuthenticationListenerImpl.mm in Sources */,
 				B0A347B31CF5455A00A38E4D /* AJSCAlertController.mm in Sources */,
 				9AC4E11118A8DEC7007080F6 /* AJCPSControllerModel.mm in Sources */,
 				9AC4E11018A8DEC7007080F6 /* AJCPSContainer.mm in Sources */,
