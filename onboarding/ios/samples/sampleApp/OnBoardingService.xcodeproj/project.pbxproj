@@ -18,7 +18,6 @@
 		19E2F07417E88B120005851F /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 19E2F07117E88B120005851F /* libc++.dylib */; };
 		19E2F07517E88B120005851F /* libc++abi.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 19E2F07217E88B120005851F /* libc++abi.dylib */; };
 		87B941181A76B1E200DED7C3 /* libc++.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 19E2F07017E88B120005851F /* libc++.1.dylib */; };
-		9A0118C5187402B400975CE6 /* CommonBusListener.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A0118BF187402B400975CE6 /* CommonBusListener.m */; };
 		9A3DB0BC183A0D2A0063D6BE /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9A3DAFFD183A0D290063D6BE /* Default-568h@2x.png */; };
 		9A3DB0BD183A0D2A0063D6BE /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 9A3DAFFE183A0D290063D6BE /* Default.png */; };
 		9A3DB0BE183A0D2A0063D6BE /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9A3DAFFF183A0D290063D6BE /* Default@2x.png */; };
@@ -29,8 +28,6 @@
 		9A3DB0C4183A0D2A0063D6BE /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A3DB00C183A0D290063D6BE /* MainViewController.m */; };
 		9A3DB315183A19CB0063D6BE /* libc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A3DB314183A19CB0063D6BE /* libc.dylib */; };
 		9A5CC10C183D04AA002327C0 /* alljoynicon.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 9A5CC10B183D04AA002327C0 /* alljoynicon.jpeg */; };
-		9A5CC10F183D073E002327C0 /* GetAboutCallViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A5CC10E183D073E002327C0 /* GetAboutCallViewController.m */; };
-		9A5EFF7D187044BC002833C1 /* ClientInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A5EFF7C187044BC002833C1 /* ClientInformation.m */; };
 		9AD3D2DE187191AC00D15544 /* AnnounceTextViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AD3D2DD187191AC00D15544 /* AnnounceTextViewController.m */; };
 /* End PBXBuildFile section */
 
@@ -48,8 +45,6 @@
 		19E2F07017E88B120005851F /* libc++.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.1.dylib"; path = "usr/lib/libc++.1.dylib"; sourceTree = SDKROOT; };
 		19E2F07117E88B120005851F /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
 		19E2F07217E88B120005851F /* libc++abi.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++abi.dylib"; path = "usr/lib/libc++abi.dylib"; sourceTree = SDKROOT; };
-		9A0118BE187402B400975CE6 /* CommonBusListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommonBusListener.h; sourceTree = "<group>"; };
-		9A0118BF187402B400975CE6 /* CommonBusListener.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CommonBusListener.m; sourceTree = "<group>"; };
 		9A3DAFFB183A0D290063D6BE /* OnBoardingService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "OnBoardingService-Info.plist"; sourceTree = "<group>"; };
 		9A3DAFFC183A0D290063D6BE /* OnBoardingService-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "OnBoardingService-Prefix.pch"; sourceTree = "<group>"; };
 		9A3DAFFD183A0D290063D6BE /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
@@ -64,10 +59,6 @@
 		9A3DB00C183A0D290063D6BE /* MainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainViewController.m; sourceTree = "<group>"; };
 		9A3DB314183A19CB0063D6BE /* libc.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libc.dylib; path = usr/lib/libc.dylib; sourceTree = SDKROOT; };
 		9A5CC10B183D04AA002327C0 /* alljoynicon.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = alljoynicon.jpeg; sourceTree = "<group>"; };
-		9A5CC10D183D073E002327C0 /* GetAboutCallViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GetAboutCallViewController.h; sourceTree = "<group>"; };
-		9A5CC10E183D073E002327C0 /* GetAboutCallViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GetAboutCallViewController.m; sourceTree = "<group>"; };
-		9A5EFF7B187044BC002833C1 /* ClientInformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClientInformation.h; sourceTree = "<group>"; };
-		9A5EFF7C187044BC002833C1 /* ClientInformation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClientInformation.m; sourceTree = "<group>"; };
 		9AD3D2DC187191AC00D15544 /* AnnounceTextViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnnounceTextViewController.h; sourceTree = "<group>"; };
 		9AD3D2DD187191AC00D15544 /* AnnounceTextViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnnounceTextViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -135,8 +126,6 @@
 		9A3DAFF9183A0D290063D6BE /* ViewControllers */ = {
 			isa = PBXGroup;
 			children = (
-				9A5CC10D183D073E002327C0 /* GetAboutCallViewController.h */,
-				9A5CC10E183D073E002327C0 /* GetAboutCallViewController.m */,
 				9A3DB00B183A0D290063D6BE /* MainViewController.h */,
 				9A3DB00C183A0D290063D6BE /* MainViewController.m */,
 				9AD3D2DC187191AC00D15544 /* AnnounceTextViewController.h */,
@@ -176,10 +165,6 @@
 		9AB8994218758EB400BC53DA /* Utils */ = {
 			isa = PBXGroup;
 			children = (
-				9A0118BE187402B400975CE6 /* CommonBusListener.h */,
-				9A0118BF187402B400975CE6 /* CommonBusListener.m */,
-				9A5EFF7B187044BC002833C1 /* ClientInformation.h */,
-				9A5EFF7C187044BC002833C1 /* ClientInformation.m */,
 			);
 			name = Utils;
 			sourceTree = "<group>";
@@ -264,10 +249,7 @@
 				9AD3D2DE187191AC00D15544 /* AnnounceTextViewController.m in Sources */,
 				19C40C2918B24A8100D3F62B /* OnboardingViewController.m in Sources */,
 				9A3DB0C2183A0D2A0063D6BE /* AppDelegate.m in Sources */,
-				9A5EFF7D187044BC002833C1 /* ClientInformation.m in Sources */,
 				9A3DB0C1183A0D2A0063D6BE /* main.m in Sources */,
-				9A0118C5187402B400975CE6 /* CommonBusListener.m in Sources */,
-				9A5CC10F183D073E002327C0 /* GetAboutCallViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

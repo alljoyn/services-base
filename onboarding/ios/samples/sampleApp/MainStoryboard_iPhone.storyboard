@@ -190,7 +190,7 @@
         <!--Get About Call View Controller-->
         <scene sceneID="BIQ-cZ-Q08">
             <objects>
-                <viewController id="yH8-bD-b2F" customClass="GetAboutCallViewController" sceneMemberID="viewController">
+                <viewController id="yH8-bD-b2F" customClass="AJSCGetAboutCallViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="Gdj-yo-pBM"/>
                         <viewControllerLayoutGuide type="bottom" id="DBr-LT-V7o"/>
