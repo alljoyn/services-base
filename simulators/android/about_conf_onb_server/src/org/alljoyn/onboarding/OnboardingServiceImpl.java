@@ -16,6 +16,7 @@
 
 package org.alljoyn.onboarding;
 
+import java.lang.InterruptedException;
 import java.lang.NoSuchFieldException;
 import java.lang.SecurityException;
 import java.lang.reflect.Method;
@@ -105,6 +106,7 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
     // @see org.alljoyn.onboarding.transport.OnboardingTransport#GetScanInfo()
     private final ScanInfo m_scanInfo = new ScanInfo();
     private long m_lastScanTime;
+    private boolean scanInProgress = false;
 
     // the board's last onboarding error, if the client asks.
     // @see org.alljoyn.onboarding.client.OnboardingClient#GetLastError()
@@ -263,7 +265,7 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
 
         // initialize error to none
         m_lastError.setErrorCode((short) -1);
-        m_lastError.setErrorMessage("unKnown");
+        m_lastError.setErrorMessage("unknown");
 
     }
 
@@ -337,6 +339,7 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
      */
     public void scan() {
         m_wifi.startScan();
+        scanInProgress = true;
     }
 
     /* (non-Javadoc)
@@ -398,12 +401,12 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
         // delete any existing WifiConfiguration that has the same SSID as the new one
         for (WifiConfiguration w : wifiConfigs) {
             if (w.SSID != null && isSsidEquals(w.SSID, m_ssid)) {
+                m_networkId = w.networkId;
                 // Configuration won't be updated in android marshmallow
                 if(android.os.Build.VERSION.SDK_INT >= 23) {
                     sendBroadcastWifiConfigurationNotUpdated();
                     break;
                 }
-                m_networkId = w.networkId;
                 Log.i(TAG, "validate found " + m_ssid + " in ConfiguredNetworks. networkId = " + m_networkId);
                 boolean res = m_wifi.removeNetwork(m_networkId);
                 Log.i(TAG, "validate removed networkId: " + m_networkId + "? " + res);
@@ -417,13 +420,13 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
         case OPEN: {
             wifiConfiguration.SSID = "\"" + m_ssid + "\"";
             wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-            // Configuration won't be updated in android marshmallow
-            if(android.os.Build.VERSION.SDK_INT < 23) {
+            // Configuration won't be updated in android marshmallow unless creating the wifi configuration
+            if(android.os.Build.VERSION.SDK_INT < 23 || m_networkId < 0) {
                 m_networkId = m_wifi.addNetwork(wifiConfiguration);
+                Log.d(TAG, "addNetwork returned " + m_networkId);
             } else {
                 sendBroadcastWifiConfigurationNotUpdated();
             }
-            Log.d(TAG, "addNetwork returned " + m_networkId);
             break;
         }
 
@@ -450,13 +453,13 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
             wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
             wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP104);
             wifiConfiguration.wepTxKeyIndex = 0;
-            // Configuration won't be updated in android marshmallow
-            if(android.os.Build.VERSION.SDK_INT < 23) {
+            // Configuration won't be updated in android marshmallow unless creating the wifi configuration
+            if(android.os.Build.VERSION.SDK_INT < 23 || m_networkId < 0) {
                 m_networkId = m_wifi.addNetwork(wifiConfiguration);
+                Log.d(TAG, "connectToWifiAP [WEP] add Network returned " + m_networkId);
             } else {
                 sendBroadcastWifiConfigurationNotUpdated();
             }
-            Log.d(TAG, "connectToWifiAP [WEP] add Network returned " + m_networkId);
             break;
         }
         case WPA_AUTO:
@@ -483,13 +486,13 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
             wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
             wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
             wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
-            // Configuration won't be updated in android marshmallow
-            if(android.os.Build.VERSION.SDK_INT < 23) {
+            // Configuration won't be updated in android marshmallow unless creating the wifi configuration
+            if(android.os.Build.VERSION.SDK_INT < 23 || m_networkId < 0) {
                 m_networkId = m_wifi.addNetwork(wifiConfiguration);
+                Log.d(TAG, "connectToWifiAP  [WPA..WPA2] add Network returned " + m_networkId);
             } else {
                 sendBroadcastWifiConfigurationNotUpdated();
             }
-            Log.d(TAG, "connectToWifiAP  [WPA..WPA2] add Network returned " + m_networkId);
             break;
 
         }
@@ -691,6 +694,21 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
      * Start the AP mode.
      */
     private void startSoftAp() {
+        int maxRetries = 10;
+        int retries = 0;
+
+        // Give android some time to complete the current scan before switching to AP mode
+        while ( scanInProgress && (retries < maxRetries) ) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            retries++;
+        }
+
+        scanInProgress = false;
+
         m_wifi.setWifiEnabled(false);
         invokeMethodOnObject("setWifiApEnabled", m_wifi, null, true);
     }
@@ -939,6 +957,29 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
         con.message = "OK";
         signalInterface.ConnectionResult(con);
     }
+
+    private List<ScanResult> filterScanResults(List<ScanResult> scanList) {
+        List<ScanResult> filteredList = new ArrayList<ScanResult>();
+        for (ScanResult result : scanList) {
+            if(result.SSID.equals("")) {
+                continue;
+            }
+
+            boolean alreadyExists = false;
+            for(ScanResult filteredResult : filteredList) {
+                if (filteredResult.SSID.equals(result.SSID)) {
+                    alreadyExists = true;
+                    continue;
+                }
+            }
+
+            if(!alreadyExists) {
+                filteredList.add(result);
+            }
+        }
+        return filteredList;
+    }
+
     /**
      * A receiver for Android Wi-Fi intents
      */
@@ -949,7 +990,8 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
 
             // refresh the scan results
             List<ScanResult> scans1 = m_wifi.getScanResults();
-            if (scans1 != null) {
+            scans1 = filterScanResults(scans1);
+            if (scans1 != null && !scans1.isEmpty()) {
                 MyScanResult[] finalRes = new MyScanResult[scans1.size()];
                 for (int i = 0; i < scans1.size(); ++i){
                     MyScanResult result = new MyScanResult();
@@ -995,6 +1037,7 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
                     }
                 }
             } else if (intent.getAction().equals(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
+                scanInProgress = false;
             }
         }
 

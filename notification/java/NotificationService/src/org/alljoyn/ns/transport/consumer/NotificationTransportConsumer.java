@@ -35,17 +35,17 @@ import org.alljoyn.ns.transport.interfaces.NotificationTransport;
  */
 class NotificationTransportConsumer implements NotificationTransport {
 	private static final String TAG = "ioe" + NotificationTransportConsumer.class.getSimpleName();
-	
+
 	/**
 	 * Identify object that receives signals arrived from producer
 	 */
 	public static final String FROM_PRODUCER_RECEIVER_PATH    = "/producerReceiver";
 
 	/**
-	 * The service path identifying the object 
+	 * The service path identifying the object
 	 */
 	private String servicePath;
-	
+
 	/**
 	 * The object service path
 	 * @param objServicePath
@@ -68,19 +68,19 @@ class NotificationTransportConsumer implements NotificationTransport {
 	 */
 	@Override
 	public void notify(int version, int msgId, short messageType, String deviceId, String deviceName, byte[] appId, String appName, Map<Integer, Variant> attributes, Map<String, String> customAttributes, TransportNotificationText[] text) {
-		
+
 		Transport transport         = Transport.getInstance();
 		BusAttachment busAttachment = transport.getBusAttachment();
 		busAttachment.enableConcurrentCallbacks();
-		
+
 		try {
-			
+
 			GenericLogger logger = NativePlatformFactory.getPlatformObject().getNativeLogger();
-			
+
 			try {
 				String sender = busAttachment.getMessageContext().sender;
 				logger.debug(TAG, "Received notification from: '" + sender + "' by '" + servicePath + "' object, notification id: '" + msgId + "', handling");
-				
+
 				logger.debug(TAG, "Forwarding the received notification id: '" + msgId + "' to PayloadAdapter");
 				PayloadAdapter.receivePayload(version, msgId, sender, messageType, deviceId, deviceName, appId, appName, attributes, customAttributes, text);
 			} catch (NotificationServiceException nse) {
@@ -88,7 +88,7 @@ class NotificationTransportConsumer implements NotificationTransport {
 			}
 		}
 		catch (NativePlatformFactoryException npfe) {
-			System.out.println(TAG + ": Unexpected error occured: " + npfe.getMessage());
+			System.out.println(TAG + ": Unexpected error occurred: " + npfe.getMessage());
 		}
 	}//notify
 

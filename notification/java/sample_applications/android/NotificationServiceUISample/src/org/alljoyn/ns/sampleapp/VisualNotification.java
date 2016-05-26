@@ -102,6 +102,14 @@ public class VisualNotification {
 	}//getCheckedCounter
 
 	/**
+	 * Clears the static counter which indicates the number of notifications
+	 * @return void
+	 */
+	public static void clearCheckedCounter() {
+		checkedCounter = 0;
+	}
+
+	/**
 	 * @return The language string, the user preferred to see the {@link NotificationText}
 	 */
 	public String getUserPreferredLang() {
