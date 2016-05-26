@@ -18,7 +18,7 @@
 #import "alljoyn/about/AJNAnnouncement.h"
 #import "AJNTransportMask.h"
 
-@interface ClientInformation : NSObject
+@interface AJSCClientInformation : NSObject
 @property (strong, nonatomic) AJNAnnouncement *announcement;
 @property (strong, nonatomic) NSString *currLang;
 @end
