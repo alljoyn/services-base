@@ -133,6 +133,7 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
                     <connections>
+                        <outlet property="authLabel" destination="6d0-xv-1Sh" id="a4N-QJ-Nss"/>
                         <outlet property="authTextField" destination="UfC-Oj-HjT" id="cQn-T2-sm6"/>
                         <outlet property="configureBtn" destination="7rR-yN-brR" id="ad2-G8-7aj"/>
                         <outlet property="connectBtn" destination="vTu-b8-5K6" id="Hkb-yU-lwY"/>
