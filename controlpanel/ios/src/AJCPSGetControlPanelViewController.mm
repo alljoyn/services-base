@@ -31,6 +31,9 @@ const float BUTTON_CELL_HEIGHT = 65.00;
 const float LABEL_CELL_HEIGHT = 55.00;
 const float PICKER_CELL_HEIGHT = 75.00;
 
+const NSInteger TAG_LANGUAGE_ALERT = 1;
+const NSInteger TAG_SESSION_FAILED_ALERT = 2;
+
 static NSString * const CLIENTDEFAULTLANG=@"";
 static NSString * const CPS_BUTTON_CELL = @"CPSButtonCell";
 static NSString * const CPS_GENERAL_CELL = @"CPSGeneralCell";
@@ -100,19 +103,18 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
     }
     
     CGRect tableViewFrame = self.view.bounds;
-    
 
-        self.tableView = [[UITableView alloc] initWithFrame:tableViewFrame style:UITableViewStylePlain];
-        self.tableView.delegate = self;
-        self.tableView.dataSource = self;
-    
-        [self.tableView registerClass:[AJCPSButtonCell class] forCellReuseIdentifier:CPS_BUTTON_CELL];
-        [self.tableView registerClass:[AJCPSGeneralCell class] forCellReuseIdentifier:CPS_GENERAL_CELL];
-        [self.tableView registerClass:[AJCPSLabelCell class] forCellReuseIdentifier:CPS_LABEL_CELL];
-        [self.tableView registerClass:[AJCPSPickerCell class] forCellReuseIdentifier:CPS_PICKER_CELL];
-        [self.tableView registerClass:[AJCPSActionDialogCell class] forCellReuseIdentifier:CPS_ACTION_DIALOG_CELL];
-        
-        [self.view addSubview:self.tableView];
+    self.tableView = [[UITableView alloc] initWithFrame:tableViewFrame style:UITableViewStylePlain];
+    self.tableView.delegate = self;
+    self.tableView.dataSource = self;
+
+    [self.tableView registerClass:[AJCPSButtonCell class] forCellReuseIdentifier:CPS_BUTTON_CELL];
+    [self.tableView registerClass:[AJCPSGeneralCell class] forCellReuseIdentifier:CPS_GENERAL_CELL];
+    [self.tableView registerClass:[AJCPSLabelCell class] forCellReuseIdentifier:CPS_LABEL_CELL];
+    [self.tableView registerClass:[AJCPSPickerCell class] forCellReuseIdentifier:CPS_PICKER_CELL];
+    [self.tableView registerClass:[AJCPSActionDialogCell class] forCellReuseIdentifier:CPS_ACTION_DIALOG_CELL];
+
+    [self.view addSubview:self.tableView];
     
     if (!self.controllerModel) {
         status = [self startService];
@@ -253,7 +255,8 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
     NSLog(@"Supported languages: %@",supportedLangs);
     
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Choose Language" message:supportedLangs delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"OK",nil];
-    
+
+    alert.tag = TAG_LANGUAGE_ALERT;
     alert.alertViewStyle = UIAlertViewStylePlainTextInput;
     
     self.alertChooseLanguage = [alert textFieldAtIndex:0]; //connect the UITextField with the alert
@@ -291,21 +294,31 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
 {
-    if (buttonIndex == 1) { //user pressed OK
-        
-        QStatus status = ER_OK;
-        if (self.isAnnouncementMode) {
-            status = [self.controllerModel switchLanguage:self.alertChooseLanguage.text];
-        }
-        
-        if (self.isNotificationMode) {
-            status = [self.controllerModel switchLanguageForNotificationAction:[self.notificationAction getRootWidget:self.alertChooseLanguage.text]];
-        }
-        
-        if (status != ER_OK) {
-            [[[UIAlertView alloc]initWithTitle:@"Invalid Language" message:@"" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
-        }
-        
+    switch(alertView.tag) {
+        case TAG_LANGUAGE_ALERT:
+            if (buttonIndex == 1) { //user pressed OK
+                QStatus status = ER_OK;
+                if (self.isAnnouncementMode) {
+                    status = [self.controllerModel switchLanguage:self.alertChooseLanguage.text];
+                }
+
+                if (self.isNotificationMode) {
+                    status = [self.controllerModel switchLanguageForNotificationAction:[self.notificationAction getRootWidget:self.alertChooseLanguage.text]];
+                }
+
+                if (status != ER_OK) {
+                    [[[UIAlertView alloc]initWithTitle:@"Invalid Language" message:@"" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
+                }
+
+            }
+            break;
+        case TAG_SESSION_FAILED_ALERT:
+            if (buttonIndex == [alertView cancelButtonIndex]) {
+                [self handleSessionLost];
+            }
+            break;
+        default:
+            break;
     }
     
 }
@@ -337,6 +350,10 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
     [super viewWillDisappear:animated];
 }
 
+- (void)handleSessionLost
+{
+    [self.navigationController popViewControllerAnimated:YES];
+}
 
 #pragma mark - ControllerUpdateEvents
 - (void)refreshEntries
@@ -352,6 +369,31 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
     self.navigationItem.rightBarButtonItem.enabled = YES;
     [self dismissLoadingAlert];
 }
+
+-(void)sessionLost
+{
+    if ([UIAlertController class]) {
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Session Lost"
+                                                                       message:@"Session with control panel lost"
+                                                                preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:@"OK"
+                                                                style:UIAlertActionStyleDefault
+                                                              handler:^(UIAlertAction *action){
+                                                                  [self handleSessionLost];
+                                                              }];
+        [alert addAction:defaultAction];
+        [self presentViewController:alert animated:YES completion:nil];
+    } else {
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Session Lost"
+                                                        message:@"Session with control panel lost"
+                                                       delegate:self
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+        alert.tag = TAG_SESSION_FAILED_ALERT;
+        [alert show];
+    }
+}
+
 #pragma mark - Table view data source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
