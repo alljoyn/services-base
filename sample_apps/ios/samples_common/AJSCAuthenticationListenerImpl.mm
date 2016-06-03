@@ -29,22 +29,16 @@
 
 @implementation AJSCAuthenticationListenerImpl
 
-- (id)init {
+- (id)initWithViewController:(UIViewController*)viewController
+{
     self = [super init];
-	if (self) {
+    if (self) {
+        _viewController = viewController;
         [self prepareAlerts];
         // Create NSMutableDictionary dictionary of peers passcodes
         self.peersPasscodes = [[NSMutableDictionary alloc] init];
-	}
-	return self;
-}
-
-- (id)initWithViewController:(UIViewController*)viewController
-{
-    if([self init]){
-        _viewController = viewController;
     }
-    return nil;
+    return self;
 }
 
 - (void)prepareAlerts
