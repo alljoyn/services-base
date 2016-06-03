@@ -63,6 +63,11 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 
 @property (strong, nonatomic) AuthenticationListenerImpl *authenticationListenerImpl;
 
+@property (strong, nonatomic) ClientInformation *clientInformation;
+@property (nonatomic) bool isWaitingForOnboardee;
+@property (strong, nonatomic) NSString *currentSSID;
+@property (strong, nonatomic) NSString *targetSSID;
+
 @end
 
 @implementation MainViewController
@@ -101,6 +106,7 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 //        NSLog(@"    %@:%@", interfaceName, interfaceInformation);
         NSDictionary *dict = interfaceInformation;
         NSString *title = [NSString stringWithFormat:@"Devices on: %@",dict[@"SSID"]];
+        self.currentSSID = dict[@"SSID"];
         
         // Set the instructions Label text according to the network type
         if ([dict[@"SSID"] hasPrefix:AJ_AP_PREFIX] || [dict[@"SSID"] hasSuffix:AJ_AP_SUFFIX]) {
@@ -168,6 +174,13 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
         OnboardingViewController *onboardingViewController = segue.destinationViewController;
         onboardingViewController.clientBusName = self.clientBusAttachment;
         onboardingViewController.clientInformation = (self.clientInformationDict)[self.announcementButtonCurrentTitle];
+        onboardingViewController.onboardingStartedListener = self;
+        
+        // For devices: Persistent cache of onboardee information so this information is not lost when onboarding
+        // network change occurs.
+        if (!self.isWaitingForOnboardee) {
+            self.clientInformation = (self.clientInformationDict)[self.announcementButtonCurrentTitle];
+        }
     }
 }
 
@@ -222,6 +235,33 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 	    QStatus tStatus;
 	    int res;
         
+        // ASABASE-711 - Check whether onboarding succeeded here instead of in OnboardingViewController.
+        // Devices disconnect from AllJoyn when onboarding disconnects from Wi-Fi hotspot, which in turn
+        // unregisters any callbacks set in OnboardingViewController. Note that simulators can't check the
+        // current network, so it's possible for a non-onboarded device to trigger this code.
+        if (self.isWaitingForOnboardee && ([self.currentSSID isEqualToString:self.targetSSID] || [self isSimulatorDevice])) {
+            
+            // Get the app ID of the onboardee.
+            AJNAnnouncement *clientAnnouncement = [self.clientInformation announcement];
+            AJNMessageArgument *clientAnnouncementMsgArg = [clientAnnouncement aboutData][@"AppId"];
+            
+            tStatus = [clientAnnouncementMsgArg value:@"ay", &tmpAppIdNumElements, &tmpAppIdBuffer];
+            if (tStatus != ER_OK) {
+                return;
+            }
+            
+            // Check if the announcement came from the onboardee.
+            res = 1;
+            if (appIdNumElements == tmpAppIdNumElements) {
+                res = memcmp(appIdBuffer, tmpAppIdBuffer, appIdNumElements);
+            }
+            
+            if (res == 0) {
+                [[[UIAlertView alloc] initWithTitle:@"Onboarding succeeded" message:@"" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil] performSelectorOnMainThread:@selector(show) withObject:nil waitUntilDone:YES];
+                self.isWaitingForOnboardee = false;
+            }
+        }
+        
 	    // Iterate over the announcements dictionary
 	    for (NSString *key in self.clientInformationDict.allKeys) {
 	        ClientInformation *clientInfo = [self.clientInformationDict valueForKey:key];
@@ -243,6 +283,7 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 	        // Found a matched appId - res=0
 	        if (!res) {
 	            isAppIdExists = true;
+                
 	            // Same AppId and the same announcementUniqueName
 	            if ([key isEqualToString:announcementUniqueName]) {
 	                // Update only announcements dictionary
@@ -485,9 +526,28 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
     } else {
         NSLog(@"Successfully enabled security for the bus");
     }
+    
+    // For devices: Start the onboarding successful validation timeout after manual reconnecting to AllJoyn (following
+    // the onboarding procedure).
+    // For simulator: This code won't be run because network changes cannot be detected, so there is no way to reliably
+    // begin this timeout only when the onboarder has manually switched to the target network.
+    if (self.isWaitingForOnboardee && [self.currentSSID isEqualToString:self.targetSSID]) {
+        [self startOnboardSuccessfulTimeout];
+    }
 
 	[self.connectButton setTitle:self.ajdisconnect forState:UIControlStateNormal]; //change title to "Disconnect from AllJoyn"
 	self.isAboutClientConnected = true;
+}
+
+
+- (void)startOnboardSuccessfulTimeout
+{
+    // Begin a timeout to wait for confirmation announcement from onboardee that they have onboarded successfully.
+    [NSTimer scheduledTimerWithTimeInterval:30.0
+                                     target:self
+                                   selector:@selector(checkIfOnboardingFailed)
+                                   userInfo:nil
+                                    repeats:NO];
 }
 
 
@@ -661,6 +721,45 @@ static NSString * const SSID_NOT_CONNECTED = @"SSID:not connected";
 - (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
 {
     [self announcementGetMoreInfo:indexPath.row];
+}
+
+#pragma mark - Onboarding event methods
+
+- (void)onOnboardingStarted:(NSString *)ssid
+{
+    // Start checking for announcement from onboardee to say that they have onboarded successfully.
+    self.isWaitingForOnboardee = true;
+    self.targetSSID = [NSString stringWithString:ssid];
+}
+
+- (void)checkIfOnboardingFailed
+{
+    // Assume the onboardee failed to onboard to the target network if an announcement wasn't received.
+    if (self.isWaitingForOnboardee) {
+        [[[UIAlertView alloc] initWithTitle:@"Onboarding failed" message:[NSString stringWithFormat:@"Confirmation announcement not received from onboardee."] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil] show];
+        self.isWaitingForOnboardee = false;
+    }
+}
+
+#pragma mark - Util methods
+
+// Copied from OnboardingViewController - should ideally be in util class.
+- (BOOL)isSimulatorDevice
+{
+    bool systemVersionGreaterOrEqualTo9 = ([[[UIDevice currentDevice] systemVersion] compare:@"9.0" options:NSNumericSearch] != NSOrderedAscending);
+    
+    if(systemVersionGreaterOrEqualTo9) {
+#ifdef TARGET_OS_SIMULATOR
+        return (TARGET_OS_SIMULATOR != 0);
+#endif
+#ifdef TARGET_IPHONE_SIMULATOR
+        return (TARGET_IPHONE_SIMULATOR != 0);
+#endif
+    }
+    else {
+        NSString *deviceModel = [[UIDevice currentDevice] model];
+        return ([deviceModel isEqualToString:@"iPhone Simulator"] || [deviceModel isEqualToString:@"iPad Simulator"]);
+    }
 }
 
 @end

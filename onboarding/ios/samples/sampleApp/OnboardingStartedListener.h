@@ -14,17 +14,6 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#import <UIKit/UIKit.h>
-#import "AJNBusListener.h"
-#import "OnboardingStartedListener.h"
-#import "alljoyn/about/AJNAnnouncementListener.h"
-
-@interface MainViewController : UIViewController <AJNBusListener, AJNAnnouncementListener, UITableViewDataSource, UITableViewDelegate, OnboardingStartedListener>
-
-@property (weak, nonatomic) IBOutlet UIButton *connectButton;
-@property (weak, nonatomic) IBOutlet UITableView *servicesTable;
-
-- (IBAction)connectButtonDidTouchUpInside:(id)sender;
-@property (weak, nonatomic) IBOutlet UILabel *instructionsLabel;
-
+@protocol OnboardingStartedListener <NSObject>
+- (void)onOnboardingStarted:(NSString *)ssid;
 @end

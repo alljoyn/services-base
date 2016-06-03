@@ -263,13 +263,16 @@
     status = [self.onboardingClient connectTo:self.onboardeeBus sessionId:self.sessionId];
     if (status == ER_OK) {
         [self updateStatusLabel:@"Call to connect succeeded"];
-        [[[UIAlertView alloc] initWithTitle:@"Onboarding succeeded" message:[NSString stringWithFormat:@"Go to Settings -> Wi-Fi to manually connect this device to the '%@' network to complete the onboarding process.", self.ssidTextField.text] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil] show];
+        [[[UIAlertView alloc] initWithTitle:@"Onboarding started" message:[NSString stringWithFormat:@"Go to Settings -> Wi-Fi to manually connect this device to the '%@' network to complete the onboarding process.", self.ssidTextField.text] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil] performSelectorOnMainThread:@selector(show) withObject:nil waitUntilDone:YES];
     } else {
         [self updateStatusLabel:[NSString stringWithFormat:@"Call to connect failed: %@", [AJNStatus descriptionForStatusCode:status]]];
     }
     
     [self.connectBtn setEnabled:NO];
     [self.instructLbl setText:@"  "];
+
+    // Notify listener that onboarding has started.
+    [self.onboardingStartedListener onOnboardingStarted:self.ssidTextField.text];
 }
 
 - (IBAction)offBoardingBtnDidTouchUpInside:(id)sender {

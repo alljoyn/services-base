@@ -51,6 +51,7 @@
 		19E2F07217E88B120005851F /* libc++abi.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++abi.dylib"; path = "usr/lib/libc++abi.dylib"; sourceTree = SDKROOT; };
 		49838F65189930CE0007FCC6 /* AuthenticationListenerImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthenticationListenerImpl.h; sourceTree = "<group>"; };
 		49838F66189930CE0007FCC6 /* AuthenticationListenerImpl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AuthenticationListenerImpl.m; sourceTree = "<group>"; };
+		7E259ADE1D04EAFB006128C8 /* OnboardingStartedListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OnboardingStartedListener.h; sourceTree = "<group>"; };
 		9A0118BE187402B400975CE6 /* CommonBusListener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommonBusListener.h; sourceTree = "<group>"; };
 		9A0118BF187402B400975CE6 /* CommonBusListener.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CommonBusListener.m; sourceTree = "<group>"; };
 		9A3DAFFB183A0D290063D6BE /* OnBoardingService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "OnBoardingService-Info.plist"; sourceTree = "<group>"; };
@@ -179,6 +180,7 @@
 		9AB8994218758EB400BC53DA /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				7E259ADE1D04EAFB006128C8 /* OnboardingStartedListener.h */,
 				49838F65189930CE0007FCC6 /* AuthenticationListenerImpl.h */,
 				49838F66189930CE0007FCC6 /* AuthenticationListenerImpl.m */,
 				9A0118BE187402B400975CE6 /* CommonBusListener.h */,
