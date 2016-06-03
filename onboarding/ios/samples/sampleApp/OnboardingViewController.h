@@ -16,13 +16,16 @@
 
 #import <UIKit/UIKit.h>
 #import "AJNBusAttachment.h"
+#import "OnboardingStartedListener.h"
 #import "samples_common/AJSCClientInformation.h"
 
 static NSString * const AJ_AP_PREFIX = @"AJ_";
 static NSString * const AJ_AP_SUFFIX = @"_AJ";
 
 @interface OnboardingViewController : UIViewController <UIPickerViewDelegate, UIPickerViewDataSource>
+
 @property (strong, nonatomic) AJNBusAttachment *clientBusName;
+@property (nonatomic, retain) IBOutlet id<OnboardingStartedListener> onboardingStartedListener;
 @property (weak, nonatomic) AJSCClientInformation *clientInformation;
 
 @property (weak, nonatomic) IBOutlet UITextField *ssidTextField;
