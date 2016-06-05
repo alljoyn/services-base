@@ -48,7 +48,7 @@ class DismissConsumer implements NotificationDismisser {
 			logger = transport.getLogger();
 		}
 		catch(NotificationServiceException nse) {
-			System.out.println(TAG + ": Unexpected error occured: " + nse.getMessage());
+			System.out.println(TAG + ": Unexpected error occurred: " + nse.getMessage());
 			return;
 		}
 		
