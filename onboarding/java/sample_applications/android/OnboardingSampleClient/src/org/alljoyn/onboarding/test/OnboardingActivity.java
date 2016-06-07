@@ -566,21 +566,16 @@ public class OnboardingActivity extends Activity {
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch (item.getItemId()) {
-            case R.id.menu_onboarding_refresh:
-
+        if (item.getItemId() == R.id.menu_onboarding_refresh) {
                 m_tasksToPerform = 4;
                 m_scanInfoData.setOnItemSelectedListener(new ScanInfoListener());
                 getVersion();
                 getLastError();
                 getState();
                 getScanInfo();
-                break;
-
-            case R.id.menu_offboard:
+        }
+        else if (item.getItemId() == R.id.menu_offboard) {
                 offboard();
-                break;
         }
         return true;
     }
