@@ -379,9 +379,7 @@ public class OnboardingActivity extends Activity {
                     m_scanInfoAge.setText(age + "");
 
                     for (MyScanResult scanResult : scanInfo) {
-                        if (!scanResult.m_ssid.startsWith("AJ_")) {
-                            m_scanInfoAdapter.add(new MyScanResultWrapper(scanResult));
-                        }
+                        m_scanInfoAdapter.add(new MyScanResultWrapper(scanResult));
                     }
                     if (m_scanInfoAdapter.getCount() == 0) {
                         MyScanResult sr = new MyScanResult();
