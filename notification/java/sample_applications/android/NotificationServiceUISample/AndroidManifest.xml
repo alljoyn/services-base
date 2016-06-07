@@ -14,7 +14,7 @@
      ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
      OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
     package="org.alljoyn.ns.sampleapp"
     android:versionCode="0001"
     android:versionName="00.01" >
@@ -35,7 +35,9 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme"
+        tools:replace="android:name"
+        >
         <activity
             android:name="org.alljoyn.ns.sampleapp.NotificationServiceControlsActivity"
             android:label="@string/app_name"
