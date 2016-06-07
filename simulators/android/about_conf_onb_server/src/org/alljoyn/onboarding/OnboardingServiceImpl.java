@@ -398,12 +398,12 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
         // delete any existing WifiConfiguration that has the same SSID as the new one
         for (WifiConfiguration w : wifiConfigs) {
             if (w.SSID != null && isSsidEquals(w.SSID, m_ssid)) {
+                m_networkId = w.networkId;
                 // Configuration won't be updated in android marshmallow
                 if(android.os.Build.VERSION.SDK_INT >= 23) {
                     sendBroadcastWifiConfigurationNotUpdated();
                     break;
                 }
-                m_networkId = w.networkId;
                 Log.i(TAG, "validate found " + m_ssid + " in ConfiguredNetworks. networkId = " + m_networkId);
                 boolean res = m_wifi.removeNetwork(m_networkId);
                 Log.i(TAG, "validate removed networkId: " + m_networkId + "? " + res);
@@ -417,13 +417,13 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
         case OPEN: {
             wifiConfiguration.SSID = "\"" + m_ssid + "\"";
             wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-            // Configuration won't be updated in android marshmallow
-            if(android.os.Build.VERSION.SDK_INT < 23) {
+            // Configuration won't be updated in android marshmallow unless creating the wifi configuration
+            if(android.os.Build.VERSION.SDK_INT < 23 || m_networkId < 0) {
                 m_networkId = m_wifi.addNetwork(wifiConfiguration);
+                Log.d(TAG, "addNetwork returned " + m_networkId);
             } else {
                 sendBroadcastWifiConfigurationNotUpdated();
             }
-            Log.d(TAG, "addNetwork returned " + m_networkId);
             break;
         }
 
@@ -450,13 +450,13 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
             wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
             wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP104);
             wifiConfiguration.wepTxKeyIndex = 0;
-            // Configuration won't be updated in android marshmallow
-            if(android.os.Build.VERSION.SDK_INT < 23) {
+            // Configuration won't be updated in android marshmallow unless creating the wifi configuration
+            if(android.os.Build.VERSION.SDK_INT < 23 || m_networkId < 0) {
                 m_networkId = m_wifi.addNetwork(wifiConfiguration);
+                Log.d(TAG, "connectToWifiAP [WEP] add Network returned " + m_networkId);
             } else {
                 sendBroadcastWifiConfigurationNotUpdated();
             }
-            Log.d(TAG, "connectToWifiAP [WEP] add Network returned " + m_networkId);
             break;
         }
         case WPA_AUTO:
@@ -483,13 +483,13 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
             wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
             wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
             wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
-            // Configuration won't be updated in android marshmallow
-            if(android.os.Build.VERSION.SDK_INT < 23) {
+            // Configuration won't be updated in android marshmallow unless creating the wifi configuration
+            if(android.os.Build.VERSION.SDK_INT < 23 || m_networkId < 0) {
                 m_networkId = m_wifi.addNetwork(wifiConfiguration);
+                Log.d(TAG, "connectToWifiAP  [WPA..WPA2] add Network returned " + m_networkId);
             } else {
                 sendBroadcastWifiConfigurationNotUpdated();
             }
-            Log.d(TAG, "connectToWifiAP  [WPA..WPA2] add Network returned " + m_networkId);
             break;
 
         }
