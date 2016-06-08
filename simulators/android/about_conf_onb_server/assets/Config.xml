@@ -27,10 +27,10 @@
                 <value>en</value>
         </key>
         <key name="DeviceName" writable="y"  announce="y" public="y">
-            <value language="en">Hello</value>
-            <value language="fr">Bonjour</value>
-            <value language="he">שלום</value>
-            <value language="ar">مرحبا</value>
+            <value language="en">AllJoyn_Hello</value>
+            <value language="fr">AllJoyn_Bonjour</value>
+            <value language="he">AllJoyn_שלום</value>
+            <value language="ar">AllJoyn_مرحبا</value>
         </key>
         <key name="DeviceId" writable="n"  announce="y" public="y">
             <value>4564545455454</value>
