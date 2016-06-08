@@ -71,9 +71,12 @@ public class OnboardingActivity extends Activity {
     private int m_tasksToPerform = 0;
     private ProgressDialog m_loadingPopup;
     private AlertDialog m_passwordAlertDialog;
+    private boolean m_isWaitingForOnboardee = false;
+    private Timer m_announcementTimeout = null;
 
     //Current network
     private TextView m_currentNetwork;
+    private String m_currentNetworkSSID;
 
     //Version and other properties
     private TextView m_onbaordingVersion;
@@ -219,9 +222,12 @@ public class OnboardingActivity extends Activity {
                     String error = intent.getStringExtra(Keys.Extras.EXTRA_ERROR);
                     m_application.showAlert(OnboardingActivity.this, error);
                 } else if (Keys.Actions.ACTION_CONNECTED_TO_NETWORK.equals(intent.getAction())) {
-
                     String ssid = intent.getStringExtra(Keys.Extras.EXTRA_NETWORK_SSID);
                     m_currentNetwork.setText(getString(R.string.current_network, ssid));
+                    m_currentNetworkSSID = ssid.replace("\"", "");
+                } else if (Keys.Actions.ACTION_DEVICE_FOUND.equals(intent.getAction())) {
+                    String deviceID = intent.getStringExtra(Keys.Extras.EXTRA_DEVICE_ID);
+                    onDeviceFound(deviceID);
                 }
             }
         };
@@ -229,10 +235,20 @@ public class OnboardingActivity extends Activity {
         filter.addAction(Keys.Actions.ACTION_PASSWORD_IS_INCORRECT);
         filter.addAction(Keys.Actions.ACTION_ERROR);
         filter.addAction(Keys.Actions.ACTION_CONNECTED_TO_NETWORK);
+        filter.addAction(Keys.Actions.ACTION_DEVICE_FOUND);
         registerReceiver(m_receiver, filter);
     }
-
     //====================================================================
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        // Ensure no announcement timeout spawns an alert dialog if the user leaves this activity.
+        stopAnnouncementTimeout();
+    }
+    //====================================================================
+
     private void startOnboardingSession() {
 
         final AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
@@ -484,6 +500,7 @@ public class OnboardingActivity extends Activity {
             @Override
             protected Void doInBackground(Void... params) {
                 m_application.connectNetwork();
+                startAnnouncementTimeout(25000);
                 return null;
             }
 
@@ -683,6 +700,73 @@ public class OnboardingActivity extends Activity {
                 }
             }
         }
+    }
+    //====================================================================
+
+    private void onDeviceFound(String deviceID) {
+
+        // Check whether an announcement was received from the onboardee on the target network.
+        if (deviceID.equals(m_device.appId) && m_networkName != null && m_networkName.equals(m_currentNetworkSSID)) {
+            synchronized (this) {
+                if (m_isWaitingForOnboardee) stopAnnouncementTimeout();
+                else return;
+            }
+
+            m_application.makeToast("Onboarding succeeded");
+            Log.d(TAG, "Onboarding succeeded - onboardee device found on target network.");
+        }
+    }
+    //====================================================================
+
+    private void startAnnouncementTimeout(int waitTime) {
+
+        // Ensure the announcement timeout is reset first.
+        if (m_announcementTimeout != null)
+            stopAnnouncementTimeout();
+
+        m_isWaitingForOnboardee = true;
+
+        // Start a timeout which produces an "onboarding failed" popup if a success confirmation
+        // announcement is not heard from the onboardee.
+        m_announcementTimeout = new Timer();
+        m_announcementTimeout.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                synchronized (OnboardingActivity.this) {
+                    if (m_isWaitingForOnboardee) {
+                        m_isWaitingForOnboardee = false;
+                    } else {
+                        Log.d(TAG, "Onboarding failed - announcement not received from onboardee device.");
+                        return;
+                    }
+                }
+
+                OnboardingActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        AlertDialog.Builder alert =
+                            new AlertDialog.Builder(OnboardingActivity.this)
+                                .setTitle("Onboarding failed")
+                                .setMessage("Confirmation announcement not received from onboardee device.")
+                                .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                    }
+                                });
+                        alert.show();
+                    }
+                });
+            }
+        }, waitTime);
+    }
+    //====================================================================
+
+    private void stopAnnouncementTimeout() {
+        if (m_announcementTimeout != null) {
+            m_announcementTimeout.cancel();
+            m_announcementTimeout.purge();
+            m_announcementTimeout = null;
+        }
+        m_isWaitingForOnboardee = false;
     }
     //====================================================================
 
