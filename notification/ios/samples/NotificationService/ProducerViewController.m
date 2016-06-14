@@ -91,6 +91,8 @@ static NSString *const DEFAULT_MSG_TYPE = @"INFO";
 	// Set switch to off
 	self.audioSwitch.on = false;
 	self.iconSwitch.on = false;
+    [self didChangeAudioSwitchValue:nil];
+    [self didChangeIconSwitchValue:nil];
     
 	// Initialize a AJNSNotificationService object
 	self.producerService =  [[AJNSNotificationService alloc] init];
