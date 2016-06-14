@@ -76,7 +76,7 @@ QStatus ControlPanelBusObject::setIsNotificationAction(BusAttachment* bus)
         do {
             CHECK_AND_BREAK(bus->CreateInterface(interfaceName.c_str(), interfaceDescription));
             CHECK_AND_BREAK(interfaceDescription->AddProperty(AJ_PROPERTY_VERSION.c_str(), AJPARAM_UINT16.c_str(), PROP_ACCESS_READ));
-            CHECK_AND_BREAK(interfaceDescription->AddSignal(AJ_SIGNAL_DISMISS.c_str(), AJPARAM_EMPTY.c_str(), AJPARAM_EMPTY.c_str()));
+            CHECK_AND_BREAK(interfaceDescription->AddSignal(AJ_SIGNAL_DISMISS.c_str(), AJPARAM_EMPTY.c_str(), AJPARAM_EMPTY.c_str(), 0));
             CHECK_AND_BREAK(interfaceDescription->AddMemberAnnotation(AJ_SIGNAL_DISMISS.c_str(), "org.alljoyn.Bus.DocString.En", AJ_SIGNAL_DISMISS_DESC.c_str()));
             interfaceDescription->Activate();
         } while (0);
