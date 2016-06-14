@@ -637,12 +637,14 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
 				break;
 			}
 			
-            try{
-                myApp.executeResponsePathAction(sender, respObjPath);
-            }
-            catch (NotificationServiceException nse) {
-                myApp.showToast("Failed to execute sample remote object method: " + nse.getMessage());
-            }
+			Log.d(TAG, "Opening Activity to bring control panel for ObjPath: '" + respObjPath + "'");
+			Intent intent = new Intent(this, ControlPanelActivity.class); 
+			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+			
+			intent.putExtra("OBJ_PATH", respObjPath);
+			intent.putExtra("SENDER", sender);
+			intent.putExtra("APP_ID", notif.getAppId().toString());
+			startActivity(intent);
 			break;
 		}//for :: VisualNotification
 		
