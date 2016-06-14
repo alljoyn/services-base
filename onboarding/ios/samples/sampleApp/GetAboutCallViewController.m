@@ -16,6 +16,7 @@
 //
 
 #import "GetAboutCallViewController.h"
+#import "samples_common/AJSCAlertController.h"
 
 static NSString * const CLIENTDEFAULTLANG=@"";
 
@@ -28,10 +29,10 @@ static NSString * const CLIENTDEFAULTLANG=@"";
 
 @property (strong, nonatomic) AJNMessageArgument *supportedLanguagesMsgArg;
 @property (nonatomic) AJNSessionId sessionId;
-@property (nonatomic) UIAlertView *alertBusName;
+@property (nonatomic) AJSCAlertController *alertBusName;
 @property (nonatomic) UITextField *alertChooseLanguage;
-@property (nonatomic) UIAlertView *alertAnnouncementOptions;
-@property (nonatomic) UIAlertView *alertNoSession;
+@property (nonatomic) AJSCAlertController *alertAnnouncementOptions;
+@property (nonatomic) AJSCAlertController *alertNoSession;
 
 @end
 
@@ -39,24 +40,76 @@ static NSString * const CLIENTDEFAULTLANG=@"";
 
 - (void)prepareAlerts
 {
-	//  busNameAlert.tag = 1
-	self.alertBusName = [[UIAlertView alloc] initWithTitle:@"Set language"
-	                                               message:@"" delegate:self
-	                                     cancelButtonTitle:@"Cancel"
-	                                     otherButtonTitles:@"OK", nil];
-	self.alertBusName.alertViewStyle = UIAlertViewStylePlainTextInput;
-	self.alertBusName.tag = 1;
-	self.alertChooseLanguage = [self.alertBusName textFieldAtIndex:0]; //connect the UITextField with the alert
+    [self prepareBusNameAlert];
+    [self prepareAnnouncementOptionsAlert];
+    [self prepareAlertNoSession];
+}
+
+- (void)prepareBusNameAlert
+{
+    __weak GetAboutCallViewController *weakSelf = self;
     
-	//  announcementOptionsAlert.tag = 2
-	self.alertAnnouncementOptions = [[UIAlertView alloc] initWithTitle:@"Choose option:" message:@"" delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Refresh", @"Set Language", nil];
-	self.alertAnnouncementOptions.alertViewStyle = UIAlertViewStyleDefault;
-	self.alertAnnouncementOptions.tag = 2;
+    self.alertBusName = [AJSCAlertController alertControllerWithTitle:@"Set language"
+                                                              message:@""
+                                                       viewController:self];
     
-	//  alertNoSession.tag = 3
-	self.alertNoSession = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Session is not connected, check the connection and reconnect." delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
-	self.alertNoSession.alertViewStyle = UIAlertViewStyleDefault;
-	self.alertNoSession.tag = 3;
+    [self.alertBusName addActionWithName:@"Cancel" handler:^(UIAlertAction *action) {
+    }];
+    
+    [self.alertBusName addActionWithName:@"OK" handler:^(UIAlertAction *action) {
+        if ([weakSelf.alertChooseLanguage.text isEqualToString:@""]) {
+            weakSelf.alertChooseLanguage.text = [AJNAboutDataConverter messageArgumentToString:[weakSelf.clientInformation.announcement aboutData][@"DefaultLanguage"]];
+        }
+        if (![weakSelf isValidLanguage:weakSelf.alertChooseLanguage.text]) {
+            AJSCAlertController *errorAlert = [AJSCAlertController alertControllerWithTitle:@"Error"
+                                                                                    message:@"Requested language is not supported"
+                                                                             viewController:weakSelf];
+            [errorAlert addActionWithName:@"OK" handler:^(UIAlertAction *action) {
+            }];
+            [errorAlert show];
+            return;
+        }
+        
+        weakSelf.clientInformation.currLang = weakSelf.alertChooseLanguage.text;
+        
+        [weakSelf UpdateCallViewInformation];
+    }];
+    
+    [self.alertBusName.iosAlertController addTextFieldWithConfigurationHandler:^(UITextField * __nonnull textField) {
+        textField.text = @"";
+        weakSelf.alertChooseLanguage = textField;
+    }];
+}
+
+- (void)prepareAnnouncementOptionsAlert
+{
+    __weak GetAboutCallViewController *weakSelf = self;
+    
+    self.alertAnnouncementOptions = [AJSCAlertController alertControllerWithTitle:@"Choose option:"
+                                                                          message:@""
+                                                                   viewController:self];
+    
+    [self.alertAnnouncementOptions addActionWithName:@"Cancel" handler:^(UIAlertAction *action) {
+    }];
+    
+    [self.alertAnnouncementOptions addActionWithName:@"Refresh" handler:^(UIAlertAction *action) {
+        [weakSelf UpdateCallViewInformation];
+    }];
+    
+    [self.alertAnnouncementOptions addActionWithName:@"Set Language" handler:^(UIAlertAction *action) {
+        weakSelf.alertBusName.iosAlertController.message = [NSString stringWithFormat:@"Available:%@", [AJNAboutDataConverter messageArgumentToString:weakSelf.supportedLanguagesMsgArg]];
+        [weakSelf.alertBusName show];
+    }];
+}
+
+- (void)prepareAlertNoSession
+{
+    self.alertNoSession = [AJSCAlertController alertControllerWithTitle:@"Error"
+                                                                message:@"Session is not connected, check the connection and reconnect."
+                                                         viewController:self];
+    
+    [self.alertNoSession addActionWithName:@"OK" handler:^(UIAlertAction *action) {
+    }];
 }
 
 - (IBAction)TouchUpInsideRefreshandSetLanguage:(UIButton *)sender
@@ -83,57 +136,6 @@ static NSString * const CLIENTDEFAULTLANG=@"";
 	return found;
 }
 
-//  Get the user's input from the alert dialog
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
-{
-	switch (alertView.tag) {
-		case 1: // busNameAlert
-		{
-			if (buttonIndex == 1) { //user pressed OK
-                if ([self.alertChooseLanguage.text isEqualToString:@""]) {
-                    self.alertChooseLanguage.text = [AJNAboutDataConverter messageArgumentToString:[self.clientInformation.announcement aboutData][@"DefaultLanguage"]];
-                }
-				if (![self isValidLanguage:self.alertChooseLanguage.text]) {
-					[[[UIAlertView alloc] initWithTitle:@"Error" message:@"Requested language is not supported" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil] show];
-					return;
-				}
-                
-				self.clientInformation.currLang = self.alertChooseLanguage.text;
-                
-				[self UpdateCallViewInformation];
-			}
-			else {
-				// cancel
-			}
-		}
-            break;
-            
-		case 2: //announcementOptionsAlert
-		{
-			if (buttonIndex == 1) {
-				//refresh
-                
-				[self UpdateCallViewInformation];
-			}
-			else if (buttonIndex == 2) {
-				self.alertBusName.message = [NSString stringWithFormat:@"Available:%@", [AJNAboutDataConverter messageArgumentToString:self.supportedLanguagesMsgArg]];
-				[self.alertBusName show];
-			}
-		}
-            break;
-            
-		case 3: //NoSessionAlert
-		{
-		}
-            break;
-            
-		default:
-             NSLog(@"[%@] [%@] alertView.tag is wrong", @"ERROR", [[self class] description]);
-
-			break;
-	}
-} //  alert view:clickedButtonAtIndex:
-
 - (void)UpdateCallViewInformation
 {
 	self.lblVersion.text = [NSString stringWithFormat:@"%u", [self.clientInformation.announcement version]];
@@ -157,14 +159,15 @@ static NSString * const CLIENTDEFAULTLANG=@"";
 		NSMutableDictionary *aboutData;
 		NSMutableDictionary *objDesc;
         
-        
 		AJNAboutClient *ajnAboutClient = [[AJNAboutClient alloc] initWithBus:self.clientBusAttachment];
         
         QStatus qStatus = [ajnAboutClient aboutDataWithBusName:[self.clientInformation.announcement busName] andLanguageTag:self.clientInformation.currLang andAboutData:&aboutData andSessionId:self.sessionId];
         
         if (qStatus != ER_OK) {
-            UIAlertView *errorAlert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Calling the about method returned with an error" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
-            
+            AJSCAlertController *errorAlert = [AJSCAlertController alertControllerWithTitle:@"Error"
+                                                                                    message:@"Calling the about method returned with an error"
+                                                                             viewController:self];
+            [errorAlert addActionWithName:@"OK" handler:^(UIAlertAction *action) {}];
             [errorAlert show];
         }
         else {
@@ -176,14 +179,12 @@ static NSString * const CLIENTDEFAULTLANG=@"";
 
             self.supportedLanguagesMsgArg = aboutData[@"SupportedLanguages"];
             
-            
             self.lblAboutLanguage.text = self.clientInformation.currLang;
             self.txtViewAboutMap.text = [AJNAboutDataConverter aboutDataDictionaryToString:aboutData];
             self.txtViewBusObjectDesc.text = [AJNAboutDataConverter objectDescriptionsDictionaryToString:objDesc];
         }
     }
 }
-
 
 - (void)viewDidLoad
 {
@@ -193,7 +194,6 @@ static NSString * const CLIENTDEFAULTLANG=@"";
     
 	[self UpdateCallViewInformation];
 }
-
 
 - (void)viewWillDisappear:(BOOL)animated
 {

@@ -22,6 +22,7 @@
 #import "ProducerViewController.h"
 #import "ConsumerViewController.h"
 #import "NotificationUtils.h"
+#import "samples_common/AJSCAlertController.h"
 
 static NSString * const DEFAULT_APP_NAME = @"DISPLAY_ALL";
 static NSString * const DAEMON_QUIET_PREFIX = @"quiet@"; // For tcl
@@ -94,7 +95,11 @@ static NSString * const DAEMON_NAME = @"org.alljoyn.BusNode.IoeService"; // For 
         [self.logger debugTag:[[self class] description] text:@"loadNewSession"];
         status = [self loadNewSession];
         if (ER_OK != status) {
-            [[[UIAlertView alloc] initWithTitle:@"Startup Error" message:[NSString stringWithFormat:@"%@ (%@)",@"Failed to prepare AJNBusAttachment", [AJNStatus descriptionForStatusCode:status]] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles: nil] show];
+            AJSCAlertController *alertController = [AJSCAlertController alertControllerWithTitle:@"Startup Error"
+                                                                                         message:[NSString stringWithFormat:@"%@ (%@)",@"Failed to prepare AJNBusAttachment", [AJNStatus descriptionForStatusCode:status]]
+                                                                                  viewController:self];
+            [alertController addActionWithName:@"OK" handler:^(UIAlertAction *action) {}];
+            [alertController show];
             return;
         }
     }
@@ -144,7 +149,11 @@ static NSString * const DAEMON_NAME = @"org.alljoyn.BusNode.IoeService"; // For 
                 status = [self.consumerVC startConsumer];
                 if (ER_OK != status) {
                     [self.logger debugTag:[[self class] description] text:@"Failed to startConsumer"];
-                    [[[UIAlertView alloc] initWithTitle:@"Startup Error" message:[NSString stringWithFormat:@"%@ (%@)",@"Failed to startConsumer", [AJNStatus descriptionForStatusCode:status]] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles: nil] show];
+                    AJSCAlertController *alertController = [AJSCAlertController alertControllerWithTitle:@"Startup Error"
+                                                                                                 message:[NSString stringWithFormat:@"%@ (%@)",@"Failed to startConsumer", [AJNStatus descriptionForStatusCode:status]]
+                                                                                          viewController:self];
+                    [alertController addActionWithName:@"OK" handler:^(UIAlertAction *action) {}];
+                    [alertController show];
                     [self consumerCleanup];
                 }
             } else {

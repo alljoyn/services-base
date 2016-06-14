@@ -22,6 +22,8 @@
 		9AA936011854BC2B00378361 /* liballjoyn_onboarding_objc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AA935E91854BC2B00378361 /* liballjoyn_onboarding_objc.a */; };
 		9AA936071854BC2B00378361 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9AA936051854BC2B00378361 /* InfoPlist.strings */; };
 		9AA936091854BC2B00378361 /* alljoyn_services_objcTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AA936081854BC2B00378361 /* alljoyn_services_objcTests.m */; };
+		B0A347BA1CF55F0600A38E4D /* AJSCAlertController.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = B0A347B91CF55F0600A38E4D /* AJSCAlertController.h */; };
+		B0A347BC1CF55F1F00A38E4D /* AJSCAlertController.mm in Sources */ = {isa = PBXBuildFile; fileRef = B0A347BB1CF55F1F00A38E4D /* AJSCAlertController.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,6 +60,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B0A347B81CF55ED100A38E4D /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = inc/alljoyn/samples_common;
+			dstSubfolderSpec = 16;
+			files = (
+				B0A347BA1CF55F0600A38E4D /* AJSCAlertController.h in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -78,6 +90,8 @@
 		9AA936041854BC2B00378361 /* alljoyn_onboarding_objcTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "alljoyn_onboarding_objcTests-Info.plist"; sourceTree = "<group>"; };
 		9AA936061854BC2B00378361 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		9AA936081854BC2B00378361 /* alljoyn_services_objcTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = alljoyn_services_objcTests.m; sourceTree = "<group>"; };
+		B0A347B91CF55F0600A38E4D /* AJSCAlertController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AJSCAlertController.h; path = ../../../../sample_apps/ios/samples_common/AJSCAlertController.h; sourceTree = "<group>"; };
+		B0A347BB1CF55F1F00A38E4D /* AJSCAlertController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = AJSCAlertController.mm; path = ../../../../sample_apps/ios/samples_common/AJSCAlertController.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -118,6 +132,8 @@
 		9AA935E01854BC2B00378361 = {
 			isa = PBXGroup;
 			children = (
+				B0A347BB1CF55F1F00A38E4D /* AJSCAlertController.mm */,
+				B0A347B91CF55F0600A38E4D /* AJSCAlertController.h */,
 				9AA9376B1854BD1700378361 /* onboarding */,
 				9AA935EE1854BC2B00378361 /* alljoyn_services_objc */,
 				9AA936021854BC2B00378361 /* alljoyn_services_objcTests */,
@@ -234,6 +250,7 @@
 				9AA935E61854BC2B00378361 /* Frameworks */,
 				9AA93A981855CC8E00378361 /* CopyFiles */,
 				9AA93AA91855CD0F00378361 /* CopyFiles */,
+				B0A347B81CF55ED100A38E4D /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -305,6 +322,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B0A347BC1CF55F1F00A38E4D /* AJSCAlertController.mm in Sources */,
 				19C8887118C8C3AC00B3471A /* AJOBOnboardingClientListenerAdapter.mm in Sources */,
 				195D32CD18B1083A00AC1C21 /* AJOBSOnboarding.mm in Sources */,
 				195D32CE18B1083A00AC1C21 /* AJOBSOnboardingClient.mm in Sources */,
@@ -372,7 +390,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 			};
@@ -403,7 +421,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 			};
