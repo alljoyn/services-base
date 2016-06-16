@@ -1,0 +1,52 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.1.2'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+ext.AJ_ROOT_DIR = file("$projectDir/../..")
+ext.AJ_CORE_DIR = file("${AJ_ROOT_DIR}/core/alljoyn")
+// FIXME - CORE_ARCH: allow configurable core library architecture selection
+ext.AJ_CORE_DIST_DIR = file("${AJ_CORE_DIR}/build/android/arm/debug/dist")
+ext.AJ_CORE_JAR_DIR = file("${AJ_CORE_DIST_DIR}/java/jar")
+ext.AJ_CORE_JNI_DIR = file("${AJ_CORE_DIST_DIR}/java/lib")
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+
+project(':_ajscl:core') {
+    apply plugin: 'java'
+
+    jar {
+        from zipTree("${AJ_CORE_JAR_DIR}/alljoyn.jar")
+        from fileTree("${AJ_CORE_JNI_DIR}")
+    }
+}
+
+project(':_ajscl:about') {
+    apply plugin: 'java'
+
+    jar {
+        from zipTree("${AJ_CORE_JAR_DIR}/alljoyn_about.jar")
+    }
+}
+
+project(':_ajscl:config') {
+    apply plugin: 'java'
+
+    jar {
+        from zipTree("${AJ_CORE_JAR_DIR}/alljoyn_config.jar")
+    }
+}
+

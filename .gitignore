@@ -1,10 +1,13 @@
 *.a
 *.class
-*.jar
 *.o
 *.so
 *~
+*.iml
+.DS_Store
 .cproject
+.gradle
+.idea
 .project
 .sconsign.dblite
 .settings/*
@@ -24,9 +27,7 @@ gen
 lib
 local.properties
 obj*
-.DS_Store
 xcuserdata
 xccheckout
 xcshareddata
 alljoyn-deviceId.txt
-.idea
