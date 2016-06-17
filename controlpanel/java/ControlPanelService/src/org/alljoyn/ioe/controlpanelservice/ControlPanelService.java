@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.alljoyn.about.AboutKeys;
+import org.alljoyn.bus.AboutKeys;
 import org.alljoyn.bus.AboutListener;
 import org.alljoyn.bus.AboutObjectDescription;
 import org.alljoyn.bus.BusAttachment;
@@ -254,7 +254,7 @@ public class ControlPanelService implements ConnManagerEventsListener, AboutList
             return;
         }
         if (objDescList == null || objDescList.length == 0) {
-            Log.e(TAG, "Received a bad Announcement signal, BusObjectDescription array is empty");
+            Log.e(TAG, "Received a bad Announcement signal, AboutObjectDescription array is empty");
             return;
         }
 
@@ -269,7 +269,7 @@ public class ControlPanelService implements ConnManagerEventsListener, AboutList
 
         ControllableDevice device = deviceRegistry.getDevices().get(deviceId);
 
-        // Iterate over the BusObjectDescription objects received from an
+        // Iterate over the AboutObjectDescription objects received from an
         // Announcement signal
         for (AboutObjectDescription busObjDesc : objDescList) {
             Log.v(TAG, "Found objPath: '" + busObjDesc.path + "'");
@@ -342,7 +342,7 @@ public class ControlPanelService implements ConnManagerEventsListener, AboutList
                 Log.w(TAG, "Received a broken object path: '" + objPath + "', Error: '" + cpe.getMessage() + "'");
             }
 
-        }// for :: BusObjectDescription
+        }// for :: AboutObjectDescription
 
         if (handledDevice) {
             if (newDevice) {
