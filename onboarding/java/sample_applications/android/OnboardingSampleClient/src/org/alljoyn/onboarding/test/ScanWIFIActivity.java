@@ -124,15 +124,14 @@ public class ScanWIFIActivity extends ListActivity {
                         Timer timer = new Timer();
                         timer.schedule(new TimerTask() {
                             public void run() {
-                                if (m_progressDialog!=null && m_progressDialog.isShowing())
-                                {
+                                if (m_progressDialog!=null && m_progressDialog.isShowing()) {
                                     m_progressDialog.dismiss();
-                                };
+                                }
                             }
                         },2000);
                     }
-                    // filter out AP that don't start with "AJ_"
-                }, "AJ_");
+                    // filter out AP that don't start with "AJ_" or end with "_AJ"
+                }, "AJ_", "_AJ");
             }
         });
 
@@ -143,11 +142,14 @@ public class ScanWIFIActivity extends ListActivity {
                     Log.d(TAG, "Display marshmallow softAP connect toast");
                     Toast toast = Toast.makeText(getApplicationContext(), "Android Marshmallow will not update network settings.", Toast.LENGTH_LONG);
                     toast.show();
+                } else if (IskWifiManager.OP_FAILED_WIFI_DISABLED.equals(intent.getAction())) {
+                    Toast.makeText(m_Context, "Can't perform operation, Wifi is disabled.", Toast.LENGTH_SHORT).show();
                 }
             }
         };
         IntentFilter filter = new IntentFilter();
         filter.addAction(IskWifiManager.MARSHMALLOW_SOFTAP_CONNECT);
+        filter.addAction(IskWifiManager.OP_FAILED_WIFI_DISABLED);
         registerReceiver(platformReceiver, filter);
     }
 
@@ -195,7 +197,6 @@ public class ScanWIFIActivity extends ListActivity {
                         final BroadcastReceiver wifiBroadcastReceiver = new BroadcastReceiver() {
                             @Override
                             public void onReceive(Context context, Intent intent) {
-
                                 Log.d(TAG, "WiFi BroadcastReceiver onReceive: " + intent.getAction());
                                 if (IskWifiManager.WIFI_CONNECTED.equals(intent.getAction())) {
                                     m_Context.unregisterReceiver(this);
