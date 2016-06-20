@@ -35,7 +35,7 @@ def CheckCXXFlag(context, flag):
 
 if platform.system() == 'Linux':
     default_target_os = 'linux'
-    allowed_target_oss = ('linux', 'android', 'openwrt')
+    allowed_target_oss = ('linux', 'openwrt')
 
     if platform.machine() == 'x86_64':
         default_target_cpu = 'x86_64'
@@ -50,13 +50,13 @@ if platform.system() == 'Linux':
 
 elif platform.system() == 'Windows':
     default_target_os = 'win7'
-    allowed_target_oss = ('win7', 'win10', 'android')
+    allowed_target_oss = ('win7', 'win10')
 
     if platform.machine() == 'x86_64':
         default_target_cpu = 'x86_64'
     else:
         default_target_cpu = 'x86'
-    allowed_target_cpus = ('x86', 'x86_64', 'arm')
+    allowed_target_cpus = ('x86', 'x86_64')
 
     default_msvc_version = '12.0'
 
@@ -65,11 +65,11 @@ elif platform.system() == 'Windows':
 
 elif platform.system() == 'Darwin':
     default_target_os = 'darwin'
-    allowed_target_oss = ('darwin', 'android', 'openwrt')
+    allowed_target_oss = ('darwin', 'openwrt')
 
     # Darwin maps both 32-bit and 64-bit x86 CPUs to "x86"
     default_target_cpu = 'x86'
-    allowed_target_cpus = ('x86', 'arm', 'armv7', 'armv7s', 'arm64', 'openwrt')
+    allowed_target_cpus = ('x86', 'openwrt')
 
     default_msvc_version = None
 
@@ -90,7 +90,6 @@ vars.Add(EnumVariable('DOCS', '''Output doc type. Setting the doc type to "dev" 
 vars.Add(EnumVariable('WS', 'Whitespace Policy Checker', 'off', allowed_values=('check', 'detail', 'fix', 'off')))
 vars.Add(PathVariable('GTEST_DIR', 'The path to Google Test (gTest) source code',  os.environ.get('GTEST_DIR'), PathVariable.PathIsDir))
 vars.Add(EnumVariable('NDEBUG', 'Override NDEBUG default for release variant', 'defined', allowed_values=('defined', 'undefined')))
-vars.Add(PathVariable('SQLITE_DIR', 'The path to sqlite3.c and sqlite3.h, for building the Security Manager sample app',  os.environ.get('SQLITE_DIR'), PathVariable.PathIsDir))
 vars.Add('CXX', 'C++ compiler to use')
 
 
@@ -107,8 +106,6 @@ vars.AddVariables(('OBJDIR', '', '#' + build_dir + '/obj'),
 target_os = ARGUMENTS.get('OS', default_target_os)
 target_cpu = ARGUMENTS.get('CPU', default_target_cpu)
 
-if target_os == 'android':
-    default_crypto = 'builtin'
 if target_os == 'darwin' and target_cpu in ['x86', 'x86_64']:
     default_crypto = 'builtin'
 
@@ -120,8 +117,6 @@ if target_os in ['win10', 'win7']:
         vars.Add(EnumVariable('WIN7_MSI', 'Build the .MSI installation package', 'false', allowed_values=('false', 'true')))
 
     path = []
-    if os.environ.has_key('MIKTEX_HOME'):
-        path = os.path.normpath(os.environ['MIKTEX_HOME'] + '/bin')
 
     msvc_version = ARGUMENTS.get('MSVC_VERSION')
     env = Environment(variables = vars, TARGET_ARCH=target_cpu, MSVC_VERSION=msvc_version, tools = ['default', 'jar'], ENV = {'PATH' : path})
@@ -214,10 +209,7 @@ else:
     dummyBuilder = Builder(action = dummy_action,
                            emitter = dummy_emitter);
     env.Append(BUILDERS = {'Doxygen' : dummyBuilder})
-env.Tool('genversion', toolpath=['tools/scons'])
 env.Tool('javadoc', toolpath=['tools/scons'])
-env.Tool('Csharp', toolpath=['tools/scons'])
-env.Tool('jsdoc3', toolpath=['tools/scons'])
 
 # Create the builder that generates Status.h from Status.xml
 import sys
