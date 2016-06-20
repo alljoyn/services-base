@@ -67,6 +67,8 @@ import android.os.Bundle;
  */
 public class OnboardingServiceImpl extends ServiceCommonImpl implements OnboardingService{
 
+    private static final boolean lollipop = android.os.Build.VERSION.SDK_INT >= 21;
+
     private static final String TAG = "ioe"
             + OnboardingServiceImpl.class.getSimpleName();
 
@@ -506,8 +508,12 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
             return;
         }
         Log.d(TAG, "connectToWifiAP calling connect");
-        connect(wifiConfiguration, m_networkId, 30 * 1000);
 
+        if(lollipop){
+            lollipop_connect(wifiConfiguration, m_networkId, 30 * 1000);
+        } else {
+            connect(wifiConfiguration, m_networkId, 30 * 1000);
+        }
     }
 
 
@@ -558,6 +564,58 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
         Log.d(TAG, "connect enableNetwork [true] status=" + res);
         res = m_wifi.reconnect();
         m_wifi.setWifiEnabled(true);
+    }
+
+    /**
+     * Make the actual connection to the requested Wi-Fi target.
+     *
+     * @param wifiConfig
+     *            details of the Wi-Fi access point used by the WifiManger
+     * @param networkId
+     *            id of the Wi-Fi configuration
+     * @param timeoutMsec
+     *            period of time in Msec to complete Wi-Fi connection task
+     */
+    // Taken from OnboardingSDKWifiManager.java
+    // Ideally the common functionality that is duplicated around the onboarding service should be
+    // refactored into utility classes.
+    private void lollipop_connect(final WifiConfiguration wifiConfig, final int networkId, final long timeoutMsec) {
+        Log.i(TAG, "lollipop_connect  SSID=" + wifiConfig.SSID + " within " + timeoutMsec);
+        boolean res;
+
+        synchronized (this) {
+            targetWifiConfiguration = wifiConfig;
+        }
+
+        // this is the application's Wi-Fi connection timeout
+        wifiTimeoutTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                Log.e(TAG, "lollipop_connect Network Listener WIFI_TIMEOUT  when trying to connect to " + normalizeSSID(targetWifiConfiguration.SSID));
+            }
+        }, timeoutMsec);
+
+        res = m_wifi.disconnect();
+        Log.d(TAG, "lollipop_connect disconnect  status=" + res);
+
+        if ( !m_wifi.isWifiEnabled() ) {
+            m_wifi.setWifiEnabled(true);
+        }
+
+        // enabling a network doesn't guarantee that it's the one that Android
+        // will connect to.
+        // Selecting a particular network is achieved by passing 'true' here to
+        // disable all other networks.
+        // the side effect is that all other user's Wi-Fi networks become
+        // disabled.
+        // The recovery for that is enableAllWifiNetworks method.
+        res = m_wifi.enableNetwork(networkId, true);
+        Log.d(TAG, "lollipop_connect enableNetwork [true] status=" + res);
+        // Wait a few for the WiFi to do something and try again just in case
+        // Android has decided that the network we configured is not "good enough"
+        try{ Thread.sleep(500); } catch(Exception e) {}
+        res = m_wifi.enableNetwork(networkId, true);
+        Log.d(TAG, "lollipop_connect enableNetwork [true] status=" + res);
     }
 
     /**
