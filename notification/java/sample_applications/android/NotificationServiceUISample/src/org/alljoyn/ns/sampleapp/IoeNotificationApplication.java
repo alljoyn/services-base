@@ -24,12 +24,16 @@ import java.util.UUID;
 
 import org.alljoyn.about.AboutKeys;
 import org.alljoyn.bus.AboutObj;
+import org.alljoyn.bus.AboutData;
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.Mutable.ShortValue;
 import org.alljoyn.bus.SessionOpts;
 import org.alljoyn.bus.SessionPortListener;
 import org.alljoyn.bus.Status;
+import org.alljoyn.bus.Variant;
 import org.alljoyn.bus.alljoyn.DaemonInit;
+import org.alljoyn.bus.BusException;
+import org.alljoyn.services.common.utils.TransportUtil;
 import org.alljoyn.ns.Notification;
 import org.alljoyn.ns.NotificationMessageType;
 import org.alljoyn.ns.NotificationReceiver;
@@ -38,10 +42,10 @@ import org.alljoyn.ns.NotificationService;
 import org.alljoyn.ns.NotificationServiceException;
 import org.alljoyn.ns.NotificationText;
 import org.alljoyn.ns.RichAudioUrl;
-import org.alljoyn.services.android.storage.Property;
-import org.alljoyn.services.android.storage.PropertyStoreImpl;
-import org.alljoyn.services.common.PropertyStore.Filter;
+import org.alljoyn.ns.transport.Transport;
+import org.alljoyn.services.android.storage.AboutDataImpl;
 import org.alljoyn.services.common.PropertyStoreException;
+import org.alljoyn.services.android.storage.Property;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
@@ -88,9 +92,9 @@ public class IoeNotificationApplication extends Application implements Notificat
     private static final short ANNOUNCED_PORT = 1080;
 
     /**
-     * PropertyStore
+     * AboutData object
      */
-    private PropertyStoreImpl propertyStore;
+    private AboutDataImpl aboutData;
 
     /**
      * Device Name
@@ -237,39 +241,39 @@ public class IoeNotificationApplication extends Application implements Notificat
                     return sessionPort == ANNOUNCED_PORT;
                 }
             });
+
             if (status != Status.OK) {
                 throw new NotificationServiceException("Failed to bind ANNOUNCED_PORT, Status: '" + status + "'");
             }
 
             // ////start about
-            Map<String, Object> config = new HashMap<String, Object>();
-            propertyStore = new PropertyStoreImpl(this);
-            propertyStore.readAll(Property.NO_LANGUAGE, Filter.READ, config);
+            aboutData = new AboutDataImpl(this);
+            Map<String, Object> aboutMap = TransportUtil.fromVariantMap(aboutData.getAboutData("en"));
+            String deviceName = (String) aboutMap.get(AboutKeys.ABOUT_DEVICE_NAME);
 
-            String deviceName = (String) config.get(AboutKeys.ABOUT_DEVICE_NAME);
             if (deviceName == null || deviceName.length() == 0) {
-                propertyStore.setValue(AboutKeys.ABOUT_DEVICE_NAME, DEVICE_NAME, Property.NO_LANGUAGE);
+                aboutData.setValue(AboutKeys.ABOUT_DEVICE_NAME, DEVICE_NAME, Property.NO_LANGUAGE);
             }
 
-            propertyStore.setValue(AboutKeys.ABOUT_APP_NAME, appName, Property.NO_LANGUAGE);
+            aboutData.setValue(AboutKeys.ABOUT_APP_NAME, appName, Property.NO_LANGUAGE);
 
             aboutObj = new AboutObj(bus);
             // //////end about
 
-            notificationSender = notificationService.initSend(bus, propertyStore);
-            status = aboutObj.announce(ANNOUNCED_PORT, propertyStore);
+            notificationSender = notificationService.initSend(bus, aboutData);
+            status = aboutObj.announce(ANNOUNCED_PORT, aboutData);
             if (status != Status.OK) {
                 throw new NotificationServiceException("Failed to send announcement, Status: '" + status + "'");
             }
             isSenderStarted = true;
-        } catch (PropertyStoreException pse) {
-            Log.e(TAG, "Failed on startSender - Failed to store sender settings in the PropertyStore, Error: '" + pse.getMessage() + "'");
+        } catch (NotificationServiceException nse) {
+            Log.e(TAG, "Failed on startSender - can't create a notificationSender error: " + nse.getMessage());
             showToast("Failed to start sender");
             vibrate();
             Log.d(TAG, "Set the UI as shutdown");
             myActiv.onShutdownClicked(false);
-        } catch (NotificationServiceException nse) {
-            Log.e(TAG, "Failed on startSender - can't create a notificationSender error: " + nse.getMessage());
+        } catch (BusException be){
+            Log.e(TAG, "Bus exception: " + be.getMessage());
             showToast("Failed to start sender");
             vibrate();
             Log.d(TAG, "Set the UI as shutdown");
