@@ -187,7 +187,7 @@ public class ConnectionManager implements Handler.Callback {
 	/**
 	 * Announcement receiver
 	 */
-	private AnnouncementReceiver announcementReceiver;
+	private ControlPanelServiceAboutListener controlPanelServiceAboutListener;
 	
 	/**
 	 * Events listeners
@@ -272,10 +272,10 @@ public class ConnectionManager implements Handler.Callback {
 	}
 	
 	/**
-	 * @return {@link AnnouncementReceiver} object
+	 * @return {@link ControlPanelServiceAboutListener} object
 	 */
-	public AnnouncementReceiver getAnnouncementReceiver() {
-		return announcementReceiver;
+	public ControlPanelServiceAboutListener getControlPanelServiceAboutListener() {
+		return controlPanelServiceAboutListener;
 	}
 	
 	/**
