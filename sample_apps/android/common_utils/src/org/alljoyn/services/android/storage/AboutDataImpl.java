@@ -136,7 +136,7 @@ public class AboutDataImpl extends AboutData
 
     /**
      * Set a value for a property
-     * 
+     *
      * @param key
      *            property name
      * @param value
@@ -322,8 +322,8 @@ public class AboutDataImpl extends AboutData
     }
 
     /**
-	 * 
-	 */
+     *
+     */
     private void setDefaultLanguageFromProperties()
     {
         Property defaultLanguageProperty = m_aboutConfigMap.get(AboutKeys.ABOUT_DEFAULT_LANGUAGE);

@@ -176,7 +176,7 @@ public class IoeNotificationApplication extends Application implements Notificat
     }// onCreate
 
     /**
-     * 
+     *
      * @param sampleAppActivity
      */
     public void setSampleAppActivity(NotificationServiceControlsActivity sampleAppActivity) {
@@ -199,7 +199,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 
     /**
      * Returns App Name
-     * 
+     *
      * @return
      */
     public String getAppName() {
@@ -208,7 +208,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 
     /**
      * Set the AppName
-     * 
+     *
      * @param appName
      */
     public void setAppName(String appName) {
@@ -217,9 +217,9 @@ public class IoeNotificationApplication extends Application implements Notificat
 
     /**
      * called when checking the Producer checkbox
-     * 
+     *
      * @throws Exception
-     * 
+     *
      * @throws NotificationServiceException
      */
     public void startSender() {
@@ -308,7 +308,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 
     /**
      * delete a notification by a given message type
-     * 
+     *
      * @param messageType
      */
     public void delete(String messageType) {
@@ -328,7 +328,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 
     /**
      * Sending notification
-     * 
+     *
      * @param messageType
      *            messageType
      * @param customAttributes
@@ -391,7 +391,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 
     /**
      * Called by NotificationService to receive notifications
-     * 
+     *
      * @param notification
      *            received from NotificationService
      */
@@ -422,7 +422,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 
     /**
      * Send the notification message to be presented
-     * 
+     *
      * @param notification
      */
     public void renderNotification(Notification notification) {
@@ -495,7 +495,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 
     /**
      * Show the Android toast message
-     * 
+     *
      * @param msg
      */
     public void showToast(final String msg) {
@@ -527,7 +527,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 
     /**
      * Present notification as Android notification
-     * 
+     *
      * @param msg
      *            if is NULL or empty string the default will be used
      */
@@ -581,7 +581,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 
     /**
      * Advertise the daemon so that the thin client can find it
-     * 
+     *
      * @param logger
      */
     private void advertiseDaemon() throws NotificationServiceException {

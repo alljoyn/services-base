@@ -55,7 +55,7 @@ public class Property
 
     /**
      * can it be overwritten (and hence exposed by the Config service)
-     * 
+     *
      * @return true if this property can be overwritten
      */
     public boolean isWritable()
@@ -65,7 +65,7 @@ public class Property
 
     /**
      * is it being announced by the About service
-     * 
+     *
      * @return true if being announced by the About service
      */
     public boolean isAnnounced()
@@ -75,7 +75,7 @@ public class Property
 
     /**
      * can it be read by About requests.
-     * 
+     *
      * @return true if it can be read by About requests.
      */
     public boolean isPublic()
@@ -85,7 +85,7 @@ public class Property
 
     /**
      * Property name
-     * 
+     *
      * @return
      */
     public String getName()
@@ -95,7 +95,7 @@ public class Property
 
     /**
      * Set the value for a specific language.
-     * 
+     *
      * @param language
      *            if null, NO_LANGUAGE is being used.
      * @param value
@@ -112,7 +112,7 @@ public class Property
 
     /**
      * Get the property value for a specific language
-     * 
+     *
      * @param language
      * @param defaultLanguage
      * @return
@@ -135,7 +135,7 @@ public class Property
 
     /**
      * Get the languages for which this property has a value.
-     * 
+     *
      * @return the set of languages for which this property has a value.
      */
     public Set<String> getLanguages()
@@ -145,7 +145,7 @@ public class Property
 
     /**
      * Remove a value for a specific language
-     * 
+     *
      * @param language
      */
     public void remove(String language)
