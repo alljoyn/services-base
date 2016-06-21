@@ -17,7 +17,7 @@
 #import "AJOBSOnboardingClient.h"
 #import "alljoyn/onboarding/OnboardingClient.h"
 #import "alljoyn/onboarding/Onboarding.h"
-#import "alljoyn/about/AJNConvertUtil.h"
+#import "alljoyn/services_common/AJSVCConvertUtil.h"
 #import "AJOBOnboardingClientListenerAdapter.h"
 
 
@@ -49,7 +49,7 @@
     // prepare OBInfo
     ajn::services::OBInfo obInfo;
     obInfo = [AJOBSOnboarding toOBInfo:ajOBInfo];
-    QStatus status = self.handle->ConfigureWiFi([AJNConvertUtil convertNSStringToConstChar:busName], obInfo, resultStatus, sessionId);
+    QStatus status = self.handle->ConfigureWiFi([AJSVCConvertUtil convertNSStringToConstChar:busName], obInfo, resultStatus, sessionId);
     return status;
 }
 
@@ -61,7 +61,7 @@
 
 -(QStatus)connectTo:(NSString*) busName sessionId:(AJNSessionId) sessionId
 {
-    return self.handle->ConnectTo([AJNConvertUtil convertNSStringToConstChar:busName], sessionId);
+    return self.handle->ConnectTo([AJSVCConvertUtil convertNSStringToConstChar:busName], sessionId);
 }
 
 -(QStatus)connectTo:(NSString*) busName
@@ -73,7 +73,7 @@
 
 -(QStatus)offboardFrom:(NSString*) busName sessionId:(AJNSessionId) sessionId
 {
-    return self.handle->OffboardFrom([AJNConvertUtil convertNSStringToConstChar:busName], sessionId);
+    return self.handle->OffboardFrom([AJSVCConvertUtil convertNSStringToConstChar:busName], sessionId);
 }
 
 
@@ -85,7 +85,7 @@
 
 -(QStatus)version:(NSString*) busName version:(int&) version sessionId:(AJNSessionId) sessionId
 {
-    return self.handle->GetVersion([AJNConvertUtil convertNSStringToConstChar:busName], version, sessionId);
+    return self.handle->GetVersion([AJSVCConvertUtil convertNSStringToConstChar:busName], version, sessionId);
 }
 
 -(QStatus)version:(NSString*) busName version:(int&) version
@@ -97,7 +97,7 @@
 
 -(QStatus)state:(NSString*) busName state:(short&) state sessionId:(AJNSessionId) sessionId
 {
-    return self.handle->GetState([AJNConvertUtil convertNSStringToConstChar:busName], state, sessionId);
+    return self.handle->GetState([AJSVCConvertUtil convertNSStringToConstChar:busName], state, sessionId);
 }
 
 -(QStatus)state:(NSString*) busName state:(short&) state
@@ -110,7 +110,7 @@
 -(QStatus)lastError:(NSString*) busName lastError:(AJOBLastError&) lastError sessionId:(AJNSessionId) sessionId
 {
     ajn::services::OBLastError obLastError;
-    QStatus status = self.handle->GetLastError([AJNConvertUtil convertNSStringToConstChar:busName], obLastError, sessionId);
+    QStatus status = self.handle->GetLastError([AJSVCConvertUtil convertNSStringToConstChar:busName], obLastError, sessionId);
     lastError = [AJOBSOnboarding toAJOBLastError:obLastError];
     return status;
 }

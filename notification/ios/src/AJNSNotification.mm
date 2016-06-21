@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import "AJNSNotification.h"
-#import "alljoyn/about/AJNConvertUtil.h"
+#import "alljoyn/services_common/AJSVCConvertUtil.h"
 
 @interface AJNSNotification ()
 
@@ -71,18 +71,18 @@
 	if (self) {
 		self.handle = new ajn::services::Notification::Notification(messageId,
 		                                                            [self convertAJNSNMessageType:messageType],
-		                                                            [AJNConvertUtil convertNSStringToConstChar:deviceId],
-		                                                            [AJNConvertUtil convertNSStringToConstChar:deviceName],
-		                                                            [AJNConvertUtil convertNSStringToConstChar:appId],
-		                                                            [AJNConvertUtil convertNSStringToConstChar:appName],
-		                                                            [AJNConvertUtil convertNSStringToConstChar:sender],
+		                                                            [AJSVCConvertUtil convertNSStringToConstChar:deviceId],
+		                                                            [AJSVCConvertUtil convertNSStringToConstChar:deviceName],
+		                                                            [AJSVCConvertUtil convertNSStringToConstChar:appId],
+		                                                            [AJSVCConvertUtil convertNSStringToConstChar:appName],
+		                                                            [AJSVCConvertUtil convertNSStringToConstChar:sender],
 		                                                            [self convertAJNSCustomAttributes:customAttributes],
 		                                                            [self convertAJNSNotificationText:notificationText],
-		                                                            [AJNConvertUtil convertNSStringToConstChar:richIconUrl],
+		                                                            [AJSVCConvertUtil convertNSStringToConstChar:richIconUrl],
 		                                                            [self convertAJNSRichAudioUrl:richAudioUrl],
-		                                                            [AJNConvertUtil convertNSStringToConstChar:richIconObjectPath],
-		                                                            [AJNConvertUtil convertNSStringToConstChar:richAudioObjectPath],
-		                                                            [AJNConvertUtil convertNSStringToConstChar:controlPanelServiceObjectPath], NULL);
+		                                                            [AJSVCConvertUtil convertNSStringToConstChar:richIconObjectPath],
+		                                                            [AJSVCConvertUtil convertNSStringToConstChar:richAudioObjectPath],
+		                                                            [AJSVCConvertUtil convertNSStringToConstChar:controlPanelServiceObjectPath], NULL);
 	}
 	return self;
 }
@@ -132,7 +132,7 @@
  */
 - (NSString *)deviceId
 {
-	return self.handle->getDeviceId() ? ([AJNConvertUtil convertConstCharToNSString:(self.handle->getDeviceId())]) : nil;
+	return self.handle->getDeviceId() ? ([AJSVCConvertUtil convertConstCharToNSString:(self.handle->getDeviceId())]) : nil;
 }
 
 /**
@@ -141,7 +141,7 @@
  */
 - (NSString *)deviceName
 {
-	return self.handle->getDeviceName() ? ([AJNConvertUtil convertConstCharToNSString:(self.handle->getDeviceName())]) : nil;
+	return self.handle->getDeviceName() ? ([AJSVCConvertUtil convertConstCharToNSString:(self.handle->getDeviceName())]) : nil;
 }
 
 /**
@@ -150,7 +150,7 @@
  */
 - (NSString *)appId
 {
-	return self.handle->getAppId() ? ([AJNConvertUtil convertConstCharToNSString:self.handle->getAppId()]) : nil;
+	return self.handle->getAppId() ? ([AJSVCConvertUtil convertConstCharToNSString:self.handle->getAppId()]) : nil;
 }
 
 /**
@@ -159,7 +159,7 @@
  */
 - (NSString *)appName
 {
-	return [AJNConvertUtil convertConstCharToNSString:self.handle->getAppName()];
+	return [AJSVCConvertUtil convertConstCharToNSString:self.handle->getAppName()];
 }
 
 /**
@@ -178,7 +178,7 @@
 	//translate cpp returned value to obj-c (map to dictionary)
 	for (cIt = customAttributesMap.begin(); cIt != customAttributesMap.end(); ++cIt) {
 		//insert key/value into the dictionary
-		[customAttributesDictionary setValue:[AJNConvertUtil convertQCCStringtoNSString:cIt->second] forKey:[AJNConvertUtil convertQCCStringtoNSString:cIt->first]];
+		[customAttributesDictionary setValue:[AJSVCConvertUtil convertQCCStringtoNSString:cIt->second] forKey:[AJSVCConvertUtil convertQCCStringtoNSString:cIt->first]];
 	}
 	return customAttributesDictionary;
 }
@@ -198,7 +198,7 @@
  */
 - (NSString *)senderBusName
 {
-	return self.handle->getSenderBusName() ? [AJNConvertUtil convertConstCharToNSString:self.handle->getSenderBusName()] : nil;
+	return self.handle->getSenderBusName() ? [AJSVCConvertUtil convertConstCharToNSString:self.handle->getSenderBusName()] : nil;
 }
 
 /**
@@ -225,7 +225,7 @@
  */
 - (NSString *)richIconUrl
 {
-	return self.handle->getRichIconUrl() ? [AJNConvertUtil convertConstCharToNSString:self.handle->getRichIconUrl()] : nil;
+	return self.handle->getRichIconUrl() ? [AJSVCConvertUtil convertConstCharToNSString:self.handle->getRichIconUrl()] : nil;
 }
 
 /**
@@ -234,7 +234,7 @@
  */
 - (NSString *)richIconObjectPath
 {
-	return self.handle->getRichIconUrl() ? [AJNConvertUtil convertConstCharToNSString:self.handle->getRichIconObjectPath()] : nil;
+	return self.handle->getRichIconUrl() ? [AJSVCConvertUtil convertConstCharToNSString:self.handle->getRichIconObjectPath()] : nil;
 }
 
 /**
@@ -243,7 +243,7 @@
  */
 - (NSString *)richAudioObjectPath
 {
-	return self.handle->getRichIconUrl() ? [AJNConvertUtil convertConstCharToNSString:self.handle->getRichAudioObjectPath()] : nil;
+	return self.handle->getRichIconUrl() ? [AJSVCConvertUtil convertConstCharToNSString:self.handle->getRichAudioObjectPath()] : nil;
 }
 
 /**
@@ -273,7 +273,7 @@
  */
 - (NSString *)controlPanelServiceObjectPath
 {
-	return self.handle->getControlPanelServiceObjectPath() ? [AJNConvertUtil convertConstCharToNSString:self.handle->getControlPanelServiceObjectPath()] : nil;
+	return self.handle->getControlPanelServiceObjectPath() ? [AJSVCConvertUtil convertConstCharToNSString:self.handle->getControlPanelServiceObjectPath()] : nil;
 }
 
 //Methods which set information
@@ -284,7 +284,7 @@
  */
 - (void)setAppId:(NSString *)appId
 {
-	self.handle->setAppId([AJNConvertUtil convertNSStringToConstChar:appId]);
+	self.handle->setAppId([AJSVCConvertUtil convertNSStringToConstChar:appId]);
 }
 
 /**
@@ -293,7 +293,7 @@
  */
 - (void)setAppName:(NSString *)appName
 {
-	self.handle->setAppName([AJNConvertUtil convertNSStringToConstChar:appName]);
+	self.handle->setAppName([AJSVCConvertUtil convertNSStringToConstChar:appName]);
 }
 
 /**
@@ -302,7 +302,7 @@
  */
 - (void)setControlPanelServiceObjectPath:(NSString *)controlPanelServiceObjectPath
 {
-	self.handle->setControlPanelServiceObjectPath([AJNConvertUtil convertNSStringToConstChar:controlPanelServiceObjectPath]);
+	self.handle->setControlPanelServiceObjectPath([AJSVCConvertUtil convertNSStringToConstChar:controlPanelServiceObjectPath]);
 }
 
 /**
@@ -320,7 +320,7 @@
  */
 - (void)setDeviceId:(NSString *)deviceId
 {
-	self.handle->setDeviceId([AJNConvertUtil convertNSStringToConstChar:deviceId]);
+	self.handle->setDeviceId([AJSVCConvertUtil convertNSStringToConstChar:deviceId]);
 }
 
 /**
@@ -329,7 +329,7 @@
  */
 - (void)setDeviceName:(NSString *)deviceName
 {
-	self.handle->setDeviceName([AJNConvertUtil convertNSStringToConstChar:deviceName]);
+	self.handle->setDeviceName([AJSVCConvertUtil convertNSStringToConstChar:deviceName]);
 }
 
 /**
@@ -356,7 +356,7 @@
  */
 - (void)setRichIconUrl:(NSString *)richIconUrl
 {
-	self.handle->setRichIconUrl([AJNConvertUtil convertNSStringToConstChar:richIconUrl]);
+	self.handle->setRichIconUrl([AJSVCConvertUtil convertNSStringToConstChar:richIconUrl]);
 }
 
 /**
@@ -365,7 +365,7 @@
  */
 - (void)setRichIconObjectPath:(NSString *)richIconObjectPath
 {
-	self.handle->setRichIconObjectPath([AJNConvertUtil convertNSStringToConstChar:richIconObjectPath]);
+	self.handle->setRichIconObjectPath([AJSVCConvertUtil convertNSStringToConstChar:richIconObjectPath]);
 }
 
 /**
@@ -374,7 +374,7 @@
  */
 - (void)setRichAudioObjectPath:(NSString *)richAudioObjectPath
 {
-	self.handle->setRichAudioObjectPath([AJNConvertUtil convertNSStringToConstChar:richAudioObjectPath]);
+	self.handle->setRichAudioObjectPath([AJSVCConvertUtil convertNSStringToConstChar:richAudioObjectPath]);
 }
 
 /**
@@ -383,7 +383,7 @@
  */
 - (void)setSender:(NSString *)sender
 {
-	self.handle->setSender([AJNConvertUtil convertNSStringToConstChar:sender]);
+	self.handle->setSender([AJSVCConvertUtil convertNSStringToConstChar:sender]);
 }
 
 /**
@@ -455,10 +455,10 @@
         
 		//get lang and text from the object at i
 		qcc::String cppl = ntVect.at(i).getLanguage();
-		NSString *ocl = [AJNConvertUtil convertQCCStringtoNSString:cppl];
+		NSString *ocl = [AJSVCConvertUtil convertQCCStringtoNSString:cppl];
         
 		qcc::String cppt = ntVect.at(i).getText();
-		NSString *oct = [AJNConvertUtil convertQCCStringtoNSString:cppt];
+		NSString *oct = [AJSVCConvertUtil convertQCCStringtoNSString:cppt];
         
 		AJNSNotificationText *ajnsNt = [[AJNSNotificationText alloc] initWithLang:ocl andText:oct];
         

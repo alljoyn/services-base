@@ -14,24 +14,39 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#import "AJOBOnboardingClientListenerAdapter.h"
-#import "alljoyn/services_common/AJSVCConvertUtil.h"
+#import <Foundation/Foundation.h>
+#include "qcc/String.h"
 
+/**
+ AJSVCConvertUtil class includes a string convert methods.
+ */
+@interface AJSVCConvertUtil : NSObject
 
-AJOBOnboardingClientListenerAdapter::AJOBOnboardingClientListenerAdapter(id <AJOBOnboardingClientListener> onboardingClientListener)
-{
-	 ajOnboardingClientListener = onboardingClientListener;
-}
+/**
+ Convert NSString to qcc::String.
+ @param nsstring String from type NSString.
+ @return qcc::String.
+ */
++ (qcc ::String)convertNSStringToQCCString:(NSString *)nsstring;
 
-AJOBOnboardingClientListenerAdapter::~AJOBOnboardingClientListenerAdapter()
-{
-}
+/**
+ Convert qcc::String to NSString.
+ @param qccstring String from type qcc::String.
+ @return NSString.
+ */
++ (NSString *)convertQCCStringtoNSString:(qcc ::String)qccstring;
 
-void AJOBOnboardingClientListenerAdapter::ConnectionResultSignalReceived(short connectionResultCode, const qcc::String& connectionResultMessage)
-{
-    NSString* connectionResultMessageString;
-    
-    connectionResultMessageString = [AJSVCConvertUtil convertQCCStringtoNSString:connectionResultMessage];
-    [ajOnboardingClientListener connectionResultSignalReceived: connectionResultCode connectionResultMessage: connectionResultMessageString];
-    
-}
+/**
+ Convert NSString to const char.
+ @param nsstring String from type NSString.
+ @return const char.
+ */
++ (const char *)convertNSStringToConstChar:(NSString *)nsstring;
+
+/**
+ Convert const char to NSString.
+ @param constchar const char.
+ @return NSString.
+ */
++ (NSString *)convertConstCharToNSString:(const char *)constchar;
+@end

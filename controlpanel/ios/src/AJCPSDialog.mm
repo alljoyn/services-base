@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import "AJCPSDialog.h"
-#import "alljoyn/about/AJNConvertUtil.h"
+#import "alljoyn/services_common/AJSVCConvertUtil.h"
 
 @interface AJCPSDialog ()
 
@@ -39,22 +39,22 @@
 
 - (NSString *)getMessage
 {
-	return [AJNConvertUtil convertQCCStringtoNSString:((ajn::services::Dialog *)self.handle)->getMessage()];
+	return [AJSVCConvertUtil convertQCCStringtoNSString:((ajn::services::Dialog *)self.handle)->getMessage()];
 }
 
 - (NSString *)getLabelAction1
 {
-	return [AJNConvertUtil convertQCCStringtoNSString:((ajn::services::Dialog *)self.handle)->getLabelAction1()];
+	return [AJSVCConvertUtil convertQCCStringtoNSString:((ajn::services::Dialog *)self.handle)->getLabelAction1()];
 }
 
 - (NSString *)getLabelAction2
 {
-	return [AJNConvertUtil convertQCCStringtoNSString:((ajn::services::Dialog *)self.handle)->getLabelAction2()];
+	return [AJSVCConvertUtil convertQCCStringtoNSString:((ajn::services::Dialog *)self.handle)->getLabelAction2()];
 }
 
 - (NSString *)getLabelAction3
 {
-	return [AJNConvertUtil convertQCCStringtoNSString:((ajn::services::Dialog *)self.handle)->getLabelAction3()];
+	return [AJSVCConvertUtil convertQCCStringtoNSString:((ajn::services::Dialog *)self.handle)->getLabelAction3()];
 }
 
 - (QStatus)executeAction1

@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import "AJCPSLanguageSets.h"
-#import "alljoyn/about/AJNConvertUtil.h"
+#import "alljoyn/services_common/AJSVCConvertUtil.h"
 
 
 @interface AJCPSLanguageSets ()
@@ -34,7 +34,7 @@
 
 - (AJCPSLanguageSet *)getLanguageSet:(NSString *)languageSetName
 {
-	return [[AJCPSLanguageSet alloc]initWithHandle:self.handle->LanguageSets::get([AJNConvertUtil convertNSStringToQCCString:languageSetName])];
+	return [[AJCPSLanguageSet alloc]initWithHandle:self.handle->LanguageSets::get([AJSVCConvertUtil convertNSStringToQCCString:languageSetName])];
 }
 
 @end

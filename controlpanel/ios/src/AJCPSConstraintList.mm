@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import "AJCPSConstraintList.h"
-#import "alljoyn/about/AJNConvertUtil.h"
+#import "alljoyn/services_common/AJSVCConvertUtil.h"
 
 @interface AJCPSConstraintList ()
 @property (nonatomic) ajn::services::ConstraintList *handle;
@@ -59,7 +59,7 @@
    
     const qcc::String str = self.handle->getDisplay();
 
-    return [AJNConvertUtil convertQCCStringtoNSString:str];
+    return [AJSVCConvertUtil convertQCCStringtoNSString:str];
 }
 
 - (NSString *)propertyToNSString:(AJCPSPropertyType)property withValue:(AJCPSConstraintValue) propertyValue

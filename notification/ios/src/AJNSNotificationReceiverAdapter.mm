@@ -16,7 +16,7 @@
 
 #import "AJNSNotificationReceiverAdapter.h"
 #import "AJNSNotificationReceiver.h"
-#import "alljoyn/about/AJNConvertUtil.h"
+#import "alljoyn/services_common/AJSVCConvertUtil.h"
 
 AJNSNotificationReceiverAdapter::AJNSNotificationReceiverAdapter(id <AJNSNotificationReceiver> notificationReceiverHandler)
 {
@@ -33,6 +33,6 @@ void AJNSNotificationReceiverAdapter::Receive(ajn::services::Notification const&
 
 void AJNSNotificationReceiverAdapter::Dismiss(const int32_t msgId, const qcc::String appId)
 {
-    NSLog(@"Got Dissmiss of msgId %d and appId %@",msgId, [AJNConvertUtil convertQCCStringtoNSString:appId]);
-    [ajnsNotificationReceiverHandler dismissMsgId:msgId appId:[AJNConvertUtil convertQCCStringtoNSString:appId]];
+    NSLog(@"Got Dissmiss of msgId %d and appId %@",msgId, [AJSVCConvertUtil convertQCCStringtoNSString:appId]);
+    [ajnsNotificationReceiverHandler dismissMsgId:msgId appId:[AJSVCConvertUtil convertQCCStringtoNSString:appId]];
 }

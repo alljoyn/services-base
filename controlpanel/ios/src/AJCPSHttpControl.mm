@@ -16,7 +16,7 @@
 
 #import "AJCPSHttpControl.h"
 #import "AJCPSControlPanelDevice.h"
-#import "alljoyn/about/AJNConvertUtil.h"
+#import "alljoyn/services_common/AJSVCConvertUtil.h"
 
 @interface AJCPSHttpControl ()
 @property ajn::services::HttpControl *handle;
@@ -83,7 +83,7 @@
  */
 - (NSString *)getUrl
 {
-	return [AJNConvertUtil convertQCCStringtoNSString:((ajn::services::HttpControl *)self.handle)->getUrl()];
+	return [AJSVCConvertUtil convertQCCStringtoNSString:((ajn::services::HttpControl *)self.handle)->getUrl()];
 }
 
 /**

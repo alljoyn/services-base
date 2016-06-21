@@ -15,7 +15,6 @@
  ******************************************************************************/
 
 #import "AJCPSErrorWidget.h"
-#import "alljoyn/about/AJNConvertUtil.h"
 #import "AJCPSControlPanelDevice.h"
 
 @interface AJCPSErrorWidget ()

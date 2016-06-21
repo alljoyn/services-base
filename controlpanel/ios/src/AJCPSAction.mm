@@ -16,7 +16,6 @@
 
 #import "AJCPSAction.h"
 #import "alljoyn/controlpanel/Action.h"
-#import "alljoyn/about/AJNConvertUtil.h"
 #import "AJCPSControlPanelDevice.h"
 
 @interface AJCPSAction ()

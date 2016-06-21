@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import "AJCPSControlPanelController.h"
-#import "alljoyn/about/AJNConvertUtil.h"
+#import "alljoyn/services_common/AJSVCConvertUtil.h"
 
 @interface AJCPSControlPanelController ()
 @property (nonatomic) ajn::services::ControlPanelController *handle;
@@ -50,24 +50,24 @@
 		std::vector <qcc::String> cpp_strings;
         
 		for (NSString *string in strings) {
-			cpp_strings.push_back([AJNConvertUtil convertNSStringToQCCString:string]);
+			cpp_strings.push_back([AJSVCConvertUtil convertNSStringToQCCString:string]);
 		}
         
-		cpp_ObjectDescs->insert(std::make_pair([AJNConvertUtil convertNSStringToQCCString:key], cpp_strings));
+		cpp_ObjectDescs->insert(std::make_pair([AJSVCConvertUtil convertNSStringToQCCString:key], cpp_strings));
 	}
     
     
-	return [[AJCPSControlPanelDevice alloc]initWithHandle:self.handle->createControllableDevice([AJNConvertUtil convertNSStringToQCCString:deviceBusName], *cpp_ObjectDescs)];
+	return [[AJCPSControlPanelDevice alloc]initWithHandle:self.handle->createControllableDevice([AJSVCConvertUtil convertNSStringToQCCString:deviceBusName], *cpp_ObjectDescs)];
 }
 
 - (AJCPSControlPanelDevice *)getControllableDevice:(NSString *)deviceBusName
 {
-	return [[AJCPSControlPanelDevice alloc]initWithHandle:self.handle->getControllableDevice([AJNConvertUtil convertNSStringToQCCString:deviceBusName])];
+	return [[AJCPSControlPanelDevice alloc]initWithHandle:self.handle->getControllableDevice([AJSVCConvertUtil convertNSStringToQCCString:deviceBusName])];
 }
 
 - (QStatus)deleteControllableDevice:(NSString *)deviceBusName
 {
-	return self.handle->deleteControllableDevice([AJNConvertUtil convertNSStringToQCCString:deviceBusName]);
+	return self.handle->deleteControllableDevice([AJSVCConvertUtil convertNSStringToQCCString:deviceBusName]);
 }
 
 - (QStatus)deleteAllControllableDevices
@@ -82,7 +82,7 @@
 	NSMutableDictionary *controllableDevices = [[NSMutableDictionary alloc]init];
     
 	for (std::map <qcc::String, ajn::services::ControlPanelDevice *>::const_iterator itr = cpp_ControllableDevices.begin(); itr != cpp_ControllableDevices.end(); itr++) {
-		NSString *key = [AJNConvertUtil convertQCCStringtoNSString:itr->first];
+		NSString *key = [AJSVCConvertUtil convertQCCStringtoNSString:itr->first];
 		AJCPSControlPanelDevice *value = [[AJCPSControlPanelDevice alloc] initWithHandle:itr->second];
         
 		[controllableDevices setObject:value forKey:key];
