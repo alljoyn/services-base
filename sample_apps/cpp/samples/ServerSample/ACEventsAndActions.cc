@@ -24,7 +24,6 @@
 #include <stdio.h>
 #include "ControlPanelProvided.h"
 #include <vector>
-#include <alljoyn/about/AboutServiceApi.h>
 #include <alljoyn/AllJoynStd.h>
 
 namespace ajn {
