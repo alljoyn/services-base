@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import "AJCPSControlPanel.h"
-#import "alljoyn/about/AJNConvertUtil.h"
+#import "alljoyn/services_common/AJSVCConvertUtil.h"
 
 @interface AJCPSControlPanel ()
 
@@ -39,7 +39,7 @@
 
 - (NSString *)getPanelName
 {
-	return [AJNConvertUtil convertQCCStringtoNSString:self.handle->getPanelName()];
+	return [AJSVCConvertUtil convertQCCStringtoNSString:self.handle->getPanelName()];
 }
 
 - (QStatus)registerObjects:(AJNBusAttachment *)bus
@@ -64,12 +64,12 @@
 
 - (NSString *)getObjectPath
 {
-	return [AJNConvertUtil convertQCCStringtoNSString:self.handle->getObjectPath()];
+	return [AJSVCConvertUtil convertQCCStringtoNSString:self.handle->getObjectPath()];
 }
 
 - (AJCPSContainer *)getRootWidget:(NSString *)Language
 {
-    return [[AJCPSContainer alloc]initWithHandle:self.handle->getRootWidget([AJNConvertUtil convertNSStringToQCCString:Language])];
+    return [[AJCPSContainer alloc]initWithHandle:self.handle->getRootWidget([AJSVCConvertUtil convertNSStringToQCCString:Language])];
 }
 
 @end

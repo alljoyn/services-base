@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import "AJCPSControlPanelDevice.h"
-#import "alljoyn/about/AJNConvertUtil.h"
+#import "alljoyn/services_common/AJSVCConvertUtil.h"
 #import "alljoyn/controlpanel/ControlPanelControllerUnit.h"
 #import "AJCPSControlPanelListenerAdapter.h"
 #import "AJCPSControlPanel.h"
@@ -64,7 +64,7 @@
 
 - (NSString *)getDeviceBusName
 {
-	return [AJNConvertUtil convertQCCStringtoNSString:self.handle->getDeviceBusName()];
+	return [AJSVCConvertUtil convertQCCStringtoNSString:self.handle->getDeviceBusName()];
 }
 
 - (AJNSessionId)getSessionId
@@ -81,7 +81,7 @@
 	NSMutableDictionary *deviceUnits = [[NSMutableDictionary alloc]init];
     
 	for (std::map <qcc::String, ajn::services::ControlPanelControllerUnit *>::const_iterator itr = cpp_deviceUnits.begin(); itr != cpp_deviceUnits.end(); itr++) {
-		NSString *key = [AJNConvertUtil convertQCCStringtoNSString:itr->first];
+		NSString *key = [AJSVCConvertUtil convertQCCStringtoNSString:itr->first];
 		AJCPSControlPanelControllerUnit *value = [[AJCPSControlPanelControllerUnit alloc] initWithHandle:itr->second];
         
 		[deviceUnits setObject:value forKey:key];
@@ -109,7 +109,7 @@
 
 - (AJCPSControlPanelControllerUnit *)getControlPanelUnit:(NSString *)objectPath
 {
-	return [[AJCPSControlPanelControllerUnit alloc]initWithHandle:self.handle->getControlPanelUnit([AJNConvertUtil convertNSStringToQCCString:objectPath])];
+	return [[AJCPSControlPanelControllerUnit alloc]initWithHandle:self.handle->getControlPanelUnit([AJSVCConvertUtil convertNSStringToQCCString:objectPath])];
 }
 
 - (AJCPSControlPanelControllerUnit *)addControlPanelUnit:(NSString *)objectPath interfaces:(NSArray *)interfaces
@@ -117,15 +117,15 @@
 	std::vector <qcc::String> cpp_interfaces;
     
 	for (NSString *str in interfaces) {
-		cpp_interfaces.push_back([AJNConvertUtil convertNSStringToQCCString:str]);
+		cpp_interfaces.push_back([AJSVCConvertUtil convertNSStringToQCCString:str]);
 	}
     
-	return [[AJCPSControlPanelControllerUnit alloc]initWithHandle:self.handle->addControlPanelUnit([AJNConvertUtil convertNSStringToQCCString:objectPath], cpp_interfaces)];
+	return [[AJCPSControlPanelControllerUnit alloc]initWithHandle:self.handle->addControlPanelUnit([AJSVCConvertUtil convertNSStringToQCCString:objectPath], cpp_interfaces)];
 }
 
 - (AJCPSNotificationAction *)addNotificationAction:(NSString *)objectPath
 {
-	return [[AJCPSNotificationAction alloc]initWithHandle:self.handle->addNotificationAction([AJNConvertUtil convertNSStringToQCCString:objectPath])];
+	return [[AJCPSNotificationAction alloc]initWithHandle:self.handle->addNotificationAction([AJSVCConvertUtil convertNSStringToQCCString:objectPath])];
 }
 
 - (QStatus)removeNotificationAction:(AJCPSNotificationAction *)notificationAction

@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import "AJCPSControlPanelControllerUnit.h"
-#import "alljoyn/about/AJNConvertUtil.h"
+#import "alljoyn/services_common/AJSVCConvertUtil.h"
 #import "AJCPSControlPanelDevice.h"
 #import "AJCPSNotificationAction.h"
 #import "AJCPSHttpControl.h"
@@ -43,29 +43,29 @@
 {
 	self = [super init];
 	if (self) {
-		self.handle = new ajn::services::ControlPanelControllerUnit([AJNConvertUtil convertNSStringToQCCString:unitName], [device handle]);
+		self.handle = new ajn::services::ControlPanelControllerUnit([AJSVCConvertUtil convertNSStringToQCCString:unitName], [device handle]);
 	}
 	return self;
 }
 
 - (QStatus)addHttpControl:(NSString *)objectPath
 {
-	return self.handle->addHttpControl([AJNConvertUtil convertNSStringToQCCString:objectPath]);
+	return self.handle->addHttpControl([AJSVCConvertUtil convertNSStringToQCCString:objectPath]);
 }
 
 - (QStatus)addControlPanel:(NSString *)objectPath panelName:(NSString *)panelName
 {
-	return self.handle->addControlPanel([AJNConvertUtil convertNSStringToQCCString:objectPath], [AJNConvertUtil convertNSStringToQCCString:panelName]);
+	return self.handle->addControlPanel([AJSVCConvertUtil convertNSStringToQCCString:objectPath], [AJSVCConvertUtil convertNSStringToQCCString:panelName]);
 }
 
 - (QStatus)addNotificationAction:(NSString *)objectPath actionName:(NSString *)actionName
 {
-	return self.handle->addNotificationAction([AJNConvertUtil convertNSStringToQCCString:objectPath], [AJNConvertUtil convertNSStringToQCCString:actionName]);
+	return self.handle->addNotificationAction([AJSVCConvertUtil convertNSStringToQCCString:objectPath], [AJSVCConvertUtil convertNSStringToQCCString:actionName]);
 }
 
 - (QStatus)removeNotificationAction:(NSString *)actionName
 {
-	return self.handle->removeNotificationAction([AJNConvertUtil convertNSStringToQCCString:actionName]);
+	return self.handle->removeNotificationAction([AJSVCConvertUtil convertNSStringToQCCString:actionName]);
 }
 
 - (QStatus)registerObjects
@@ -85,7 +85,7 @@
 
 - (NSString *)getUnitName
 {
-	return [AJNConvertUtil convertQCCStringtoNSString:self.handle->getUnitName()];
+	return [AJSVCConvertUtil convertQCCStringtoNSString:self.handle->getUnitName()];
 }
 
 - (NSDictionary *)getControlPanels
@@ -95,7 +95,7 @@
 	NSMutableDictionary *controlPanels = [[NSMutableDictionary alloc]init];
     
 	for (std::map <qcc::String, ajn::services::ControlPanel *>::const_iterator itr = cpp_ControlPanels.begin(); itr != cpp_ControlPanels.end(); itr++) {
-		NSString *key = [AJNConvertUtil convertQCCStringtoNSString:itr->first];
+		NSString *key = [AJSVCConvertUtil convertQCCStringtoNSString:itr->first];
 		AJCPSControlPanel *value = [[AJCPSControlPanel alloc] initWithHandle:itr->second];
         
 		[controlPanels setObject:value forKey:key];
@@ -111,7 +111,7 @@
 	NSMutableDictionary *notificationActions = [[NSMutableDictionary alloc]init];
     
 	for (std::map <qcc::String, ajn::services::NotificationAction *>::const_iterator itr = cpp_NotificationActions.begin(); itr != cpp_NotificationActions.end(); itr++) {
-		NSString *key = [AJNConvertUtil convertQCCStringtoNSString:itr->first];
+		NSString *key = [AJSVCConvertUtil convertQCCStringtoNSString:itr->first];
 		AJCPSNotificationAction *value = [[AJCPSNotificationAction alloc] initWithHandle:itr->second];
         
 		[notificationActions setObject:value forKey:key];
@@ -122,12 +122,12 @@
 
 - (AJCPSControlPanel *)getControlPanel:(NSString *)panelName
 {
-	return [[AJCPSControlPanel alloc]initWithHandle:self.handle->getControlPanel([AJNConvertUtil convertNSStringToQCCString:panelName])];
+	return [[AJCPSControlPanel alloc]initWithHandle:self.handle->getControlPanel([AJSVCConvertUtil convertNSStringToQCCString:panelName])];
 }
 
 - (AJCPSNotificationAction *)getNotificationAction:(NSString *)actionName
 {
-	return [[AJCPSNotificationAction alloc]initWithHandle:self.handle->getNotificationAction([AJNConvertUtil convertNSStringToQCCString:actionName])];
+	return [[AJCPSNotificationAction alloc]initWithHandle:self.handle->getNotificationAction([AJSVCConvertUtil convertNSStringToQCCString:actionName])];
 }
 
 - (AJCPSHttpControl *)getHttpControl

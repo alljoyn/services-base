@@ -7,13 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7E2D791A1D17D21C00770EB9 /* AJSVCConvertUtil.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E2D79191D17D21C00770EB9 /* AJSVCConvertUtil.mm */; };
+		7E2D791C1D17D25900770EB9 /* AJSVCConvertUtil.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 7E2D791B1D17D25900770EB9 /* AJSVCConvertUtil.h */; };
 		9A735202188D6CDE00717424 /* AJSVCGenericLoggerAdapter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9A7351F8188D6CDE00717424 /* AJSVCGenericLoggerAdapter.mm */; };
 		9A735203188D6CDE00717424 /* AJSVCGenericLoggerDefaultImpl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9A7351F9188D6CDE00717424 /* AJSVCGenericLoggerDefaultImpl.mm */; };
 		9A735204188D6CDE00717424 /* AJSVCGenericLoggerUtil.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9A7351FA188D6CDE00717424 /* AJSVCGenericLoggerUtil.mm */; };
-		9A735205188D6CF500717424 /* AJSVCGenericLoggerAdapter.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9A7351FE188D6CDE00717424 /* AJSVCGenericLoggerAdapter.h */; };
-		9A735206188D6CF700717424 /* AJSVCGenericLogger.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9A7351FF188D6CDE00717424 /* AJSVCGenericLogger.h */; };
-		9A735207188D6CF900717424 /* AJSVCGenericLoggerDefaultImpl.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9A735200188D6CDE00717424 /* AJSVCGenericLoggerDefaultImpl.h */; };
-		9A735208188D6CFB00717424 /* AJSVCGenericLoggerUtil.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9A735201188D6CDE00717424 /* AJSVCGenericLoggerUtil.h */; };
+		9A735205188D6CF500717424 /* AJSVCGenericLoggerAdapter.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 9A7351FE188D6CDE00717424 /* AJSVCGenericLoggerAdapter.h */; };
+		9A735206188D6CF700717424 /* AJSVCGenericLogger.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 9A7351FF188D6CDE00717424 /* AJSVCGenericLogger.h */; };
+		9A735207188D6CF900717424 /* AJSVCGenericLoggerDefaultImpl.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 9A735200188D6CDE00717424 /* AJSVCGenericLoggerDefaultImpl.h */; };
+		9A735208188D6CFB00717424 /* AJSVCGenericLoggerUtil.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 9A735201188D6CDE00717424 /* AJSVCGenericLoggerUtil.h */; };
 		9AA935ED1854BC2B00378361 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AA935EC1854BC2B00378361 /* Foundation.framework */; };
 		9AA935FB1854BC2B00378361 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AA935FA1854BC2B00378361 /* XCTest.framework */; };
 		9AA935FC1854BC2B00378361 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9AA935EC1854BC2B00378361 /* Foundation.framework */; };
@@ -34,22 +36,26 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		9AA93AA41855CCC900378361 /* CopyFiles */ = {
+		9AA93AA41855CCC900378361 /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = inc/alljoyn/services_common;
 			dstSubfolderSpec = 16;
 			files = (
-				9A735206188D6CF700717424 /* AJSVCGenericLogger.h in CopyFiles */,
-				9A735207188D6CF900717424 /* AJSVCGenericLoggerDefaultImpl.h in CopyFiles */,
-				9A735208188D6CFB00717424 /* AJSVCGenericLoggerUtil.h in CopyFiles */,
-				9A735205188D6CF500717424 /* AJSVCGenericLoggerAdapter.h in CopyFiles */,
+				7E2D791C1D17D25900770EB9 /* AJSVCConvertUtil.h in Copy Files */,
+				9A735206188D6CF700717424 /* AJSVCGenericLogger.h in Copy Files */,
+				9A735207188D6CF900717424 /* AJSVCGenericLoggerDefaultImpl.h in Copy Files */,
+				9A735208188D6CFB00717424 /* AJSVCGenericLoggerUtil.h in Copy Files */,
+				9A735205188D6CF500717424 /* AJSVCGenericLoggerAdapter.h in Copy Files */,
 			);
+			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		7E2D79191D17D21C00770EB9 /* AJSVCConvertUtil.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = AJSVCConvertUtil.mm; path = ../../src/AJSVCConvertUtil.mm; sourceTree = "<group>"; };
+		7E2D791B1D17D25900770EB9 /* AJSVCConvertUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AJSVCConvertUtil.h; path = ../../inc/alljoyn/services_common/AJSVCConvertUtil.h; sourceTree = "<group>"; };
 		9A7351F8188D6CDE00717424 /* AJSVCGenericLoggerAdapter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AJSVCGenericLoggerAdapter.mm; sourceTree = "<group>"; };
 		9A7351F9188D6CDE00717424 /* AJSVCGenericLoggerDefaultImpl.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AJSVCGenericLoggerDefaultImpl.mm; sourceTree = "<group>"; };
 		9A7351FA188D6CDE00717424 /* AJSVCGenericLoggerUtil.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AJSVCGenericLoggerUtil.mm; sourceTree = "<group>"; };
@@ -149,6 +155,8 @@
 		9AA935E01854BC2B00378361 = {
 			isa = PBXGroup;
 			children = (
+				7E2D791B1D17D25900770EB9 /* AJSVCConvertUtil.h */,
+				7E2D79191D17D21C00770EB9 /* AJSVCConvertUtil.mm */,
 				1904418C1863150700534BB5 /* services_common */,
 				9AA935EE1854BC2B00378361 /* alljoyn_services_objc */,
 				9AA936021854BC2B00378361 /* alljoyn_services_objcTests */,
@@ -219,7 +227,7 @@
 			buildPhases = (
 				9AA935E51854BC2B00378361 /* Sources */,
 				9AA935E61854BC2B00378361 /* Frameworks */,
-				9AA93AA41855CCC900378361 /* CopyFiles */,
+				9AA93AA41855CCC900378361 /* Copy Files */,
 			);
 			buildRules = (
 			);
@@ -292,6 +300,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7E2D791A1D17D21C00770EB9 /* AJSVCConvertUtil.mm in Sources */,
 				9A735202188D6CDE00717424 /* AJSVCGenericLoggerAdapter.mm in Sources */,
 				9A735203188D6CDE00717424 /* AJSVCGenericLoggerDefaultImpl.mm in Sources */,
 				9A735204188D6CDE00717424 /* AJSVCGenericLoggerUtil.mm in Sources */,

@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import "AJCPSLanguageSet.h"
-#import "alljoyn/about/AJNConvertUtil.h"
+#import "alljoyn/services_common/AJSVCConvertUtil.h"
 
 @interface AJCPSLanguageSet ()
 @property (nonatomic) ajn::services::LanguageSet *handle;
@@ -35,7 +35,7 @@
 
 - (NSString *)getLanguageSetName
 {
-	return [AJNConvertUtil convertQCCStringtoNSString:self.handle->getLanguageSetName()];
+	return [AJSVCConvertUtil convertQCCStringtoNSString:self.handle->getLanguageSetName()];
 }
 
 - (size_t)getNumLanguages
@@ -45,7 +45,7 @@
 
 - (void)addLanguage:(NSString *)language
 {
-	return self.handle->addLanguage([AJNConvertUtil convertNSStringToQCCString:language]);
+	return self.handle->addLanguage([AJSVCConvertUtil convertNSStringToQCCString:language]);
 }
 
 - (NSArray *)getLanguages
@@ -58,7 +58,7 @@
 	NSMutableArray *languages = [[NSMutableArray alloc]init];
     
 	for (int i = 0; i != cpp_languages.size(); i++) {
-		[languages addObject:[AJNConvertUtil convertQCCStringtoNSString:cpp_languages.at(i)]];
+		[languages addObject:[AJSVCConvertUtil convertQCCStringtoNSString:cpp_languages.at(i)]];
 	}
     
 	return languages;

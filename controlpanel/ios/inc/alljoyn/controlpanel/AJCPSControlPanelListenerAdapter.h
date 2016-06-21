@@ -16,7 +16,7 @@
 
 #import "alljoyn/controlpanel/ControlPanelListener.h"
 #import "AJCPSControlPanelListener.h"
-#import "alljoyn/about/AJNConvertUtil.h"
+#import "alljoyn/services_common/AJSVCConvertUtil.h"
 
 #ifndef ALLJOYN_CONTROLPANEL_OBJC_AJCPSCONTROLPANELLISTENERADAPTER_H
 #define ALLJOYN_CONTROLPANEL_OBJC_AJCPSCONTROLPANELLISTENERADAPTER_H
@@ -99,7 +99,7 @@ public:
         
         AJCPSControlPanelTransaction qcp_controlpanel_transaction = transaction;
         
-        NSString *qcp_error_message = [AJNConvertUtil convertQCCStringtoNSString:errorMessage];
+        NSString *qcp_error_message = [AJSVCConvertUtil convertQCCStringtoNSString:errorMessage];
         
         [listener errorOccured:qcp_device status:status transaction:qcp_controlpanel_transaction errorMessage:qcp_error_message];
     }

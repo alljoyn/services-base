@@ -16,7 +16,7 @@
 
 #import "alljoyn/controlpanel/Property.h"
 #import "AJCPSProperty.h"
-#import "alljoyn/about/AJNConvertUtil.h"
+#import "alljoyn/services_common/AJSVCConvertUtil.h"
 #import "AJCPSControlPanelDevice.h"
 #import "AJCPSConstraintList.h"
 
@@ -59,7 +59,7 @@
  */
 - (NSString *)getUnitOfMeasure
 {
-	return [AJNConvertUtil convertQCCStringtoNSString:((ajn::services::Property *)self.handle)->getUnitOfMeasure()];
+	return [AJSVCConvertUtil convertQCCStringtoNSString:((ajn::services::Property *)self.handle)->getUnitOfMeasure()];
 }
 
 /**

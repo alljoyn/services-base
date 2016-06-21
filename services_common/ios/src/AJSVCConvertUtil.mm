@@ -14,24 +14,33 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#import "AJOBOnboardingClientListenerAdapter.h"
-#import "alljoyn/services_common/AJSVCConvertUtil.h"
+#import "AJSVCConvertUtil.h"
 
+@implementation AJSVCConvertUtil
 
-AJOBOnboardingClientListenerAdapter::AJOBOnboardingClientListenerAdapter(id <AJOBOnboardingClientListener> onboardingClientListener)
++ (qcc::String)convertNSStringToQCCString:(NSString *)nsstring
 {
-	 ajOnboardingClientListener = onboardingClientListener;
+	return ((qcc::String)[nsstring UTF8String]);
 }
 
-AJOBOnboardingClientListenerAdapter::~AJOBOnboardingClientListenerAdapter()
++ (NSString *)convertQCCStringtoNSString:(qcc::String)qccstring
 {
+	return (@(qccstring.c_str()));
 }
 
-void AJOBOnboardingClientListenerAdapter::ConnectionResultSignalReceived(short connectionResultCode, const qcc::String& connectionResultMessage)
++ (const char *)convertNSStringToConstChar:(NSString *)nsstring
 {
-    NSString* connectionResultMessageString;
-    
-    connectionResultMessageString = [AJSVCConvertUtil convertQCCStringtoNSString:connectionResultMessage];
-    [ajOnboardingClientListener connectionResultSignalReceived: connectionResultCode connectionResultMessage: connectionResultMessageString];
-    
+	return([nsstring UTF8String]);
 }
+
++ (NSString *)convertConstCharToNSString:(const char *)constchar
+{
+	if ((constchar == NULL) || (constchar[0] == 0)) {
+		return @"";
+	}
+	else {
+		return(@(constchar));
+	}
+}
+
+@end

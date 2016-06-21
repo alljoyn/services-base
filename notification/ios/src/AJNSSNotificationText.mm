@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import "AJNSNotificationText.h"
-#import "alljoyn/about/AJNConvertUtil.h"
+#import "alljoyn/services_common/AJSVCConvertUtil.h"
 
 @interface AJNSNotificationText ()
 /** cpp notificationText Handler*/
@@ -28,7 +28,7 @@
 {
 	self = [super init];
 	if (self) {
-		self.handle = new ajn::services::NotificationText([AJNConvertUtil convertNSStringToQCCString:language], [AJNConvertUtil convertNSStringToQCCString:text]);
+		self.handle = new ajn::services::NotificationText([AJSVCConvertUtil convertNSStringToQCCString:language], [AJSVCConvertUtil convertNSStringToQCCString:text]);
 	}
 	return self;
 }
@@ -39,7 +39,7 @@
  */
 - (void)setLanguage:(NSString *)language
 {
-	self.handle->setLanguage([AJNConvertUtil convertNSStringToQCCString:language]);
+	self.handle->setLanguage([AJSVCConvertUtil convertNSStringToQCCString:language]);
 }
 
 /**
@@ -48,7 +48,7 @@
  */
 - (NSString *)getLanguage
 {
-	return [AJNConvertUtil convertQCCStringtoNSString:self.handle->getLanguage()];
+	return [AJSVCConvertUtil convertQCCStringtoNSString:self.handle->getLanguage()];
 }
 
 /**
@@ -57,7 +57,7 @@
  */
 - (void)setText:(NSString *)text
 {
-	self.handle->setText([AJNConvertUtil convertNSStringToQCCString:text]);
+	self.handle->setText([AJSVCConvertUtil convertNSStringToQCCString:text]);
 }
 
 /**
@@ -66,7 +66,7 @@
  */
 - (NSString *)getText
 {
-	return [AJNConvertUtil convertQCCStringtoNSString:(self.handle->getText())];
+	return [AJSVCConvertUtil convertQCCStringtoNSString:(self.handle->getText())];
 }
 
 @end

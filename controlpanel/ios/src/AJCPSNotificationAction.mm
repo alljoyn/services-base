@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import "AJCPSNotificationAction.h"
-#import "alljoyn/about/AJNConvertUtil.h"
+#import "alljoyn/services_common/AJSVCConvertUtil.h"
 #import "AJCPSControlPanelDevice.h"
 
 @interface AJCPSNotificationAction ()
@@ -36,7 +36,7 @@
 
 - (NSString *)getNotificationActionName
 {
-	return [AJNConvertUtil convertQCCStringtoNSString:self.handle->getNotificationActionName()];
+	return [AJSVCConvertUtil convertQCCStringtoNSString:self.handle->getNotificationActionName()];
 }
 
 /**
@@ -83,7 +83,7 @@
  */
 - (NSString *)getObjectPath
 {
-	return [AJNConvertUtil convertQCCStringtoNSString:self.handle->getObjectPath()];
+	return [AJSVCConvertUtil convertQCCStringtoNSString:self.handle->getObjectPath()];
 }
 
 /**
@@ -93,7 +93,7 @@
  */
 - (AJCPSRootWidget *)getRootWidget:(NSString *)Language
 {
-	return [[AJCPSRootWidget alloc]initWithHandle:self.handle->getRootWidget([AJNConvertUtil convertNSStringToQCCString:Language])];
+	return [[AJCPSRootWidget alloc]initWithHandle:self.handle->getRootWidget([AJSVCConvertUtil convertNSStringToQCCString:Language])];
 }
 
 @end

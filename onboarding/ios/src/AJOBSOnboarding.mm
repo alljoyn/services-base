@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import "AJOBSOnboarding.h"
-#import "alljoyn/about/AJNConvertUtil.h"
+#import "alljoyn/services_common/AJSVCConvertUtil.h"
 
 static NSString * const PASSCODE_FORMAT = @"%02X";
 
@@ -52,20 +52,20 @@ static NSString * const PASSCODE_FORMAT = @"%02X";
 +(ajn::services::OBInfo)toOBInfo:(AJOBInfo) ajOBInfo
 {
     ajn::services::OBInfo obInfo;
-    obInfo.SSID = [AJNConvertUtil convertNSStringToQCCString:ajOBInfo.SSID];
+    obInfo.SSID = [AJSVCConvertUtil convertNSStringToQCCString:ajOBInfo.SSID];
     obInfo.state = (ajn::services::OBState)ajOBInfo.state;
     obInfo.authType =  (ajn::services::OBAuthType)ajOBInfo.authType;
-    obInfo.passcode = [AJNConvertUtil convertNSStringToQCCString:ajOBInfo.passcode];
+    obInfo.passcode = [AJSVCConvertUtil convertNSStringToQCCString:ajOBInfo.passcode];
     return obInfo;
 }
 
 +(AJOBInfo)toAJOBInfo:(ajn::services::OBInfo) obInfo
 {
     AJOBInfo ajOBInfo;
-    ajOBInfo.SSID = [AJNConvertUtil convertQCCStringtoNSString:obInfo.SSID];
+    ajOBInfo.SSID = [AJSVCConvertUtil convertQCCStringtoNSString:obInfo.SSID];
     ajOBInfo.state = obInfo.state;
     ajOBInfo.authType = obInfo.authType;
-    ajOBInfo.passcode = [AJNConvertUtil convertQCCStringtoNSString:obInfo.passcode];
+    ajOBInfo.passcode = [AJSVCConvertUtil convertQCCStringtoNSString:obInfo.passcode];
     return ajOBInfo;
 }
 
@@ -73,7 +73,7 @@ static NSString * const PASSCODE_FORMAT = @"%02X";
 {
     AJOBLastError ajOBLastError;
     ajOBLastError.validationState = obLastError.validationState;
-    ajOBLastError.message = [AJNConvertUtil convertQCCStringtoNSString:obLastError.message];
+    ajOBLastError.message = [AJSVCConvertUtil convertQCCStringtoNSString:obLastError.message];
     return ajOBLastError;
 }
 

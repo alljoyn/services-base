@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import "AJNSRichAudioUrl.h"
-#import "alljoyn/about/AJNConvertUtil.h"
+#import "alljoyn/services_common/AJSVCConvertUtil.h"
 
 @implementation AJNSRichAudioUrl
 
@@ -28,7 +28,7 @@
 {
 	self = [super init];
 	if (self) {
-		self.richAudioUrlHandler = new ajn::services::RichAudioUrl([AJNConvertUtil convertNSStringToQCCString:language], [AJNConvertUtil convertNSStringToQCCString:(url)]);
+		self.richAudioUrlHandler = new ajn::services::RichAudioUrl([AJSVCConvertUtil convertNSStringToQCCString:language], [AJSVCConvertUtil convertNSStringToQCCString:(url)]);
 	}
 	return self;
 }
@@ -36,8 +36,8 @@
 - (void)setRichAudioUrlHandler:(ajn::services::RichAudioUrl *)richAudioUrlHandler
 {
 	_richAudioUrlHandler = richAudioUrlHandler;
-	_language = [AJNConvertUtil convertQCCStringtoNSString:richAudioUrlHandler->getLanguage()];
-	_url = [AJNConvertUtil convertQCCStringtoNSString:richAudioUrlHandler->getUrl()];
+	_language = [AJSVCConvertUtil convertQCCStringtoNSString:richAudioUrlHandler->getLanguage()];
+	_url = [AJSVCConvertUtil convertQCCStringtoNSString:richAudioUrlHandler->getUrl()];
 }
 
 /**
@@ -46,7 +46,7 @@
  */
 - (void)setLanguage:(NSString *)language
 {
-	self.richAudioUrlHandler->setLanguage([AJNConvertUtil convertNSStringToQCCString:language]);
+	self.richAudioUrlHandler->setLanguage([AJSVCConvertUtil convertNSStringToQCCString:language]);
 }
 
 /**
@@ -55,7 +55,7 @@
  */
 - (void)setUrl:(NSString *)url
 {
-	self.richAudioUrlHandler->setUrl([AJNConvertUtil convertNSStringToQCCString:url]);
+	self.richAudioUrlHandler->setUrl([AJSVCConvertUtil convertNSStringToQCCString:url]);
 }
 
 @end

@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import "AJCPSWidget.h"
-#import "alljoyn/about/AJNConvertUtil.h"
+#import "alljoyn/services_common/AJSVCConvertUtil.h"
 #import "AJCPSControlPanelDevice.h"
 
 @interface AJCPSWidget ()
@@ -56,7 +56,7 @@
 
 - (NSString *)getWidgetName
 {
-	return [AJNConvertUtil convertQCCStringtoNSString:self.handle->getWidgetName()];
+	return [AJSVCConvertUtil convertQCCStringtoNSString:self.handle->getWidgetName()];
 }
 
 - (AJCPSControlPanelMode)getControlPanelMode
@@ -106,7 +106,7 @@
 
 - (NSString *)getLabel
 {
-	return [AJNConvertUtil convertQCCStringtoNSString:self.handle->getLabel()];
+	return [AJSVCConvertUtil convertQCCStringtoNSString:self.handle->getLabel()];
 }
 
 - (NSArray *)getHints
@@ -126,7 +126,7 @@
 {
 	ajn::BusAttachment *cpp_bus = (ajn::BusAttachment *)[bus handle];
     
-	return self.handle->registerObjects(cpp_bus, [AJNConvertUtil convertNSStringToQCCString:objectPath]);
+	return self.handle->registerObjects(cpp_bus, [AJSVCConvertUtil convertNSStringToQCCString:objectPath]);
 }
 
 - (QStatus)refreshObjects:(AJNBusAttachment *)bus
