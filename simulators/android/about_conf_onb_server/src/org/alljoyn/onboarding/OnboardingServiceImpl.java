@@ -416,6 +416,10 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
             }
         }
         WifiConfiguration wifiConfiguration = new WifiConfiguration();
+
+        // Use SSID-specific probe request in scan to cover both hidden and non-hidden networks.
+        wifiConfiguration.hiddenSSID = true;
+        
         switch (authenticationType) {
         case OPEN: {
             wifiConfiguration.SSID = "\"" + m_ssid + "\"";
@@ -477,7 +481,6 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
             } else {
                 wifiConfiguration.preSharedKey = "\"" + m_passphrase + "\"";
             }
-            wifiConfiguration.hiddenSSID = true;
             wifiConfiguration.status = WifiConfiguration.Status.ENABLED;
             wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
             wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
