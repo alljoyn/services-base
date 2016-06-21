@@ -21,7 +21,6 @@
 
 #include <alljoyn/controlpanel/HttpControl.h>
 #include <alljoyn/controlpanel/ControlPanelService.h>
-#include <alljoyn/about/AboutServiceApi.h>
 #include "../ControlPanelConstants.h"
 #include "../BusObjects/HttpControlBusObject.h"
 #include <alljoyn/controlpanel/LogModule.h>

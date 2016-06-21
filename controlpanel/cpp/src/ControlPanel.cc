@@ -27,7 +27,6 @@
 #include "BusObjects/NotificationActionBusObject.h"
 #include "BusObjects/IntrospectionNode.h"
 #include <alljoyn/controlpanel/LogModule.h>
-#include <alljoyn/about/AboutServiceApi.h>
 
 namespace ajn {
 namespace services {
