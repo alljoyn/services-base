@@ -22,7 +22,7 @@ import org.alljoyn.ns.commons.NativePlatform;
 import org.alljoyn.ns.commons.NativePlatformFactory;
 import org.alljoyn.ns.commons.NativePlatformFactoryException;
 import org.alljoyn.ns.transport.Transport;
-import org.alljoyn.services.common.PropertyStore;
+import org.alljoyn.bus.AboutData;
 
 
 /**
@@ -68,21 +68,21 @@ public class NotificationService  {
 	 * Establishes the notification sender service to later allow sending notifications 
 	 * See {@link NotificationSender}
 	 * @param bus The {@link BusAttachment} to be used by the service
-	 * @param propertyStore Service configuration {@link PropertyStore}
+	 * @param aboutData Service configuration {@link AboutData}
 	 * @return {@link NotificationSender}
 	 * @throws NotificationServiceException Is thrown if an error occurred during the sender initialization 
 	 */
-	public NotificationSender initSend(BusAttachment bus, PropertyStore propertyStore) throws NotificationServiceException {
+	public NotificationSender initSend(BusAttachment bus, AboutData aboutData) throws NotificationServiceException {
 		init();
 		
 		GenericLogger logger = nativePlatform.getNativeLogger();
 
-		if ( propertyStore == null ) {
-			throw new NotificationServiceException("PropertyStore is NULL");
+		if ( aboutData == null ) {
+			throw new NotificationServiceException("AboutData is NULL");
 		}
 		
 		logger.debug(TAG, "Init Send invoked, calling Transport");
-		transport.startSenderTransport(bus, propertyStore);
+		transport.startSenderTransport(bus, aboutData);
 		
 		logger.debug(TAG, "Creating and returning NotificationSender");
 		return new NotificationSender();

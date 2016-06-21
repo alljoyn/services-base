@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A {@link PropertyStoreImpl} element that represents a property.
+ * A {@link AboutDataImpl} element that represents a property.
  */
 public class Property
 {

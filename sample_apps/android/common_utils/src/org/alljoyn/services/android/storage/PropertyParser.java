@@ -43,7 +43,7 @@ import org.xmlpull.v1.XmlSerializer;
 import android.util.Xml;
 
 /**
- * A utility that reads and writes a {@link PropertyStoreImpl} into an xml file
+ * A utility that reads and writes a {@link AboutDataImpl} into an xml file
  */
 public class PropertyParser 
 {

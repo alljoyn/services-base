@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.alljoyn.about.AboutKeys;
+import org.alljoyn.bus.AboutKeys;
 import org.alljoyn.ns.commons.GenericLogger;
 import org.alljoyn.ns.commons.NativePlatform;
 import org.alljoyn.ns.commons.NativePlatformFactory;
@@ -77,7 +77,7 @@ public class NotificationSender {
 		
 		Transport transport = Transport.getInstance();
 		
-		//get a map of the PropertyStore properties 
+		//get a map of the AboutData properties
    	    Map<String, Object> props = transport.readAllProperties();
    	    
    	    UUID appId = transport.getAppId(props);
@@ -85,19 +85,19 @@ public class NotificationSender {
    	    String deviceId   = (String)props.get(AboutKeys.ABOUT_DEVICE_ID);
    	    if ( deviceId == null || deviceId.length() == 0 ) {
    	    	logger.error(TAG, "The DeviceId is NULL or empty");
-   	    	throw new NotificationServiceException("The DeviceId is not set in the PropertyStore");
+   	    	throw new NotificationServiceException("The DeviceId is not set in the AboutData");
    	    }
    	    
    	    String deviceName = (String)props.get(AboutKeys.ABOUT_DEVICE_NAME);
    	    if ( deviceName == null || deviceName.length() == 0 ) {
    	    	logger.error(TAG, "The DeviceName is NULL or empty");
-   	    	throw new NotificationServiceException("The DeviceName is not set in the PropertyStore");
+   	    	throw new NotificationServiceException("The DeviceName is not set in the AboutData");
    	    }
    	    
    	    String appName    = (String)props.get(AboutKeys.ABOUT_APP_NAME); 
    	    if ( appName == null || appName.length() == 0 ) {
    	    	logger.error(TAG, "The AppName is NULL or empty");
-   	    	throw new NotificationServiceException("The AppName is not set in the PropertyStore");
+   	    	throw new NotificationServiceException("The AppName is not set in the AboutData");
    	    }
    	    
 		NotificationMessageType messageType      = notification.getMessageType();
