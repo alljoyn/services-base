@@ -14,17 +14,16 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+#import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "AJNBusListener.h"
-#import "OnboardingStartedListener.h"
-#import "alljoyn/about/AJNAnnouncementListener.h"
 
-@interface MainViewController : UIViewController <AJNBusListener, AJNAnnouncementListener, UITableViewDataSource, UITableViewDelegate, OnboardingStartedListener>
+/**
+ AJSCAlertControllerManager class - overcomes "one at a time" limitation of UIAlertController by allowing
+ AJSCAlertControllers to queue their UIAlertControllers for display, ensuring an alert doesn't disappear
+ when another alert is currently active.
+ */
+@interface AJSCAlertControllerManager : NSObject
 
-@property (weak, nonatomic) IBOutlet UIButton *connectButton;
-@property (weak, nonatomic) IBOutlet UITableView *servicesTable;
-
-- (IBAction)connectButtonDidTouchUpInside:(id)sender;
-@property (weak, nonatomic) IBOutlet UILabel *instructionsLabel;
++ (void)queueAlertWithTitle:(nonnull NSString*)title message:(nonnull NSString*)message viewController:(nonnull UIViewController*)viewController;
 
 @end

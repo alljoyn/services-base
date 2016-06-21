@@ -18,6 +18,7 @@
 #import "alljoyn/onboarding/AJOBSOnboardingClient.h"
 #import "SystemConfiguration/CaptiveNetwork.h"
 #import "samples_common/AJSCAlertController.h"
+#import "samples_common/AJSCAlertControllerManager.h"
 
 #define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 
@@ -278,17 +279,16 @@
     if (status == ER_OK) {
         [self updateStatusLabel:@"Call to connect succeeded"];
         NSString *message = [NSString stringWithFormat:@"Go to Settings -> Wi-Fi to manually connect this device to the '%@' network to complete the onboarding process.", self.ssidTextField.text];
-        AJSCAlertController *alertController = [AJSCAlertController alertControllerWithTitle:@"Onboarding succeeded"
-                                                                                     message:message
-                                                                              viewController:self];
-        [alertController addActionWithName:@"OK" handler:^(UIAlertAction *action) {}];
-        [alertController show];
+        [AJSCAlertControllerManager queueAlertWithTitle:@"Onboarding started" message:message viewController:self];
     } else {
         [self updateStatusLabel:[NSString stringWithFormat:@"Call to connect failed: %@", [AJNStatus descriptionForStatusCode:status]]];
     }
     
     [self.connectBtn setEnabled:NO];
     [self.instructLbl setText:@"  "];
+
+    // Notify listener that onboarding has started.
+    [self.onboardingStartedListener onOnboardingStarted:self.ssidTextField.text];
 }
 
 - (IBAction)offBoardingBtnDidTouchUpInside:(id)sender {
