@@ -1,6 +1,7 @@
 include ':_ajscl:core'
 include ':_ajscl:about'
 include ':_ajscl:config'
+include ':services_common:java'
 include ':sample_apps:android:common_utils'
 include ':controlpanel:java:ControlPanelAdapter'
 include ':controlpanel:java:ControlPanelService'

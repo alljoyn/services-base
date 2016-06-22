@@ -34,7 +34,7 @@ import org.alljoyn.ioe.controlpanelservice.communication.interfaces.ControlPanel
 import org.alljoyn.ioe.controlpanelservice.communication.interfaces.HTTPControl;
 import org.alljoyn.services.android.security.AuthPasswordHandler;
 import org.alljoyn.services.android.security.SrpAnonymousKeyListener;
-import org.alljoyn.services.common.utils.GenericLogger;
+import org.alljoyn.common.GenericLogger;
 import org.alljoyn.services.common.utils.TransportUtil;
 
 import android.app.Activity;
