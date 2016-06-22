@@ -1080,8 +1080,6 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
                             saveNetworkId();
                             m_OnboardingServerCallback.disconnect();
                             m_OnboardingServerCallback.connect();
-                            // AboutServiceImpl.getInstance().announce(); //
-                            // send an announcement after onboarding succeeded.
                         }
                     }
                 }
