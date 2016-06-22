@@ -22,8 +22,8 @@ import java.util.List;
 
 import org.alljoyn.bus.AuthListener;
 import org.alljoyn.bus.BusAttachment;
-import org.alljoyn.services.common.DefaultGenericLogger;
-import org.alljoyn.services.common.utils.GenericLogger;
+import org.alljoyn.common.DefaultGenericLogger;
+import org.alljoyn.common.GenericLogger;
 
 /**
  * A default implementation of alljoyn AuthListener.

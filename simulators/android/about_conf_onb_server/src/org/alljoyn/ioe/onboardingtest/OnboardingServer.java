@@ -46,7 +46,7 @@ import org.alljoyn.services.android.security.SrpAnonymousKeyListener;
 import org.alljoyn.services.android.storage.AboutDataImpl;
 import org.alljoyn.services.android.storage.ConfigDataStoreImpl;
 import org.alljoyn.services.android.utils.AndroidLogger;
-import org.alljoyn.services.common.utils.GenericLogger;
+import org.alljoyn.common.GenericLogger;
 
 import android.app.Service;
 import android.content.Context;

@@ -17,7 +17,7 @@
 package org.alljoyn.services.android.utils;
 
 
-import org.alljoyn.services.common.utils.GenericLogger;
+import org.alljoyn.common.GenericLogger;
 
 import android.util.Log;
 
@@ -27,7 +27,7 @@ import android.util.Log;
 public class AndroidLogger implements GenericLogger {
 
 	/**
-	 * @see org.alljoyn.services.common.utils.GenericLogger#debug(java.lang.String, java.lang.String)
+	 * @see GenericLogger#debug(java.lang.String, java.lang.String)
 	 */
 	@Override
 	public void debug(String TAG, String msg) {
@@ -35,7 +35,7 @@ public class AndroidLogger implements GenericLogger {
 	}
 
 	/**
-	 * @see org.alljoyn.services.common.utils.GenericLogger#info(java.lang.String, java.lang.String)
+	 * @see GenericLogger#info(java.lang.String, java.lang.String)
 	 */
 	@Override
 	public void info(String TAG, String msg) {
@@ -43,7 +43,7 @@ public class AndroidLogger implements GenericLogger {
 	}
 
 	/**
-	 * @see org.alljoyn.services.common.utils.GenericLogger#warn(java.lang.String, java.lang.String)
+	 * @see GenericLogger#warn(java.lang.String, java.lang.String)
 	 */
 	@Override
 	public void warn(String TAG, String msg) {
@@ -51,7 +51,7 @@ public class AndroidLogger implements GenericLogger {
 	}
 
 	/**
-	 * @see org.alljoyn.services.common.utils.GenericLogger#error(java.lang.String, java.lang.String)
+	 * @see GenericLogger#error(java.lang.String, java.lang.String)
 	 */
 	@Override
 	public void error(String TAG, String msg) {
@@ -59,7 +59,7 @@ public class AndroidLogger implements GenericLogger {
 	}
 
 	/**
-	 * @see org.alljoyn.services.common.utils.GenericLogger#fatal(java.lang.String, java.lang.String)
+	 * @see GenericLogger#fatal(java.lang.String, java.lang.String)
 	 */
 	@Override
 	public void fatal(String TAG, String msg) {

@@ -25,7 +25,7 @@ case $BASE_SERVICE in
 	onboarding) SERVICES=(Onboarding) ;;
 esac
 
-SERVICES=( Common_Utils ${SERVICES[@]} )
+SERVICES=( Services_Common Common_Utils ${SERVICES[@]} )
 
 VRNT=$(echo $VARIANT | tr [A-Z] [a-z])
 
@@ -53,6 +53,13 @@ CopyCommonUtils () {
 	}
 }
 
+CopyServicesCommon () {
+	cp $WORKSPACE/services/base/services_common/java/build/deploy/alljoyn_services_common.jar $1 || {
+    		echo "Copy of Common Utils failed"
+    		exit 10
+	}
+}
+
 # TODO make document more DRY: use functions with arguments for other repeated patterns
 
 for SERVICE in ${SERVICES[@]}; do
@@ -63,6 +70,9 @@ for SERVICE in ${SERVICES[@]}; do
 	if [ "$SERVICE" = "Common_Utils" ]
 	then
 		PROJ_DIR=$WORKSPACE/services/base/sample_apps/android/common_utils/
+	elif [ "$SERVICE" = "Services_Common" ]
+    then
+		PROJ_DIR=$WORKSPACE/services/base/$SRVC/java
 	elif [ "$SERVICE" = "Notification" ]
 	then
 		PROJ_DIR=$WORKSPACE/services/base/$SRVC/java/native_platform/NotificationServiceNativePlatformAndroid/
@@ -76,14 +86,16 @@ for SERVICE in ${SERVICES[@]}; do
 
     if [ "$SERVICE" = "Common_Utils" ]
     then
+        CopyServicesCommon libs/
         cp $JAR_DIR/alljoyn_config.jar libs/ || {
             echo "Copy of alljoyn_config.jar failed"
             exit 10
         }
     fi
-    
+
 	if [ "$SERVICE" = "Notification" ]
 	then
+        CopyServicesCommon libs/
 		CopyCommonUtils libs/
 	fi
 
@@ -94,6 +106,7 @@ for SERVICE in ${SERVICES[@]}; do
 	popd
 
 	case $SERVICE in
+		Services_Common)	continue ;;
 		Common_Utils)	continue ;;
 		ControlPanel)	PROJ_DIR=$WORKSPACE/services/base/$SRVC/java/${SERVICE}Adapter/ ;;
 		Onboarding)	PROJ_DIR=$WORKSPACE/services/base/$SRVC/java/${SERVICE}Manager/android/ ;;
@@ -128,6 +141,7 @@ for SERVICE in ${SERVICES[@]}; do
 		}
 		CopyAndroidJars libs/
 		CopyCommonUtils libs/
+        CopyServicesCommon libs/
 
 		ant -Dsdk.dir=$ANDROID_SDK || {
 			echo "Building $PROJ_DIR failed"
@@ -149,6 +163,7 @@ for SERVICE in ${SERVICES[@]}; do
 	CopyAndroidJars libs/
 	CopyAndroidLib libs/armeabi/
 	CopyCommonUtils libs/
+    CopyServicesCommon libs/
 
 	case $SERVICE in
 		ControlPanel|Notification)
@@ -198,6 +213,7 @@ for SERVICE in ${SERVICES[@]}; do
 		CopyAndroidJars libs/
 		CopyAndroidLib libs/armeabi/
 		CopyCommonUtils libs/
+        CopyServicesCommon libs/
 
 		cp ../../../$SERVICE_NAME/build/deploy/alljoyn_onboarding.jar libs/ || { 
 			echo "Copy of alljoyn_onboarding.jar failed" 
@@ -219,6 +235,7 @@ for SERVICE in ${SERVICES[@]}; do
         CopyAndroidJars libs/
         CopyAndroidLib libs/armeabi/
         CopyCommonUtils libs/
+        CopyServicesCommon libs/
 
         cp ../../../$SERVICE/java/OnboardingService/build/deploy/alljoyn_onboarding.jar libs/ || {
             echo "Copy of alljoyn_onboarding.jar failed"
