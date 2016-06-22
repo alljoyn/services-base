@@ -3,6 +3,7 @@ apply plugin: 'com.android.library'
 dependencies {
     compile project(':_ajscl:core')
     compile project(':_ajscl:about')
+    compile project(':_ajscl:config')
 }
 
 android {

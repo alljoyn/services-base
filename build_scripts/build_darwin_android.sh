@@ -74,6 +74,14 @@ for SERVICE in ${SERVICES[@]}; do
 	mkdir -p libs/
 	CopyAndroidJars libs/
 
+    if [ "$SERVICE" = "Common_Utils" ]
+    then
+        cp $JAR_DIR/alljoyn_config.jar libs/ || {
+            echo "Copy of alljoyn_config.jar failed"
+            exit 10
+        }
+    fi
+    
 	if [ "$SERVICE" = "Notification" ]
 	then
 		CopyCommonUtils libs/

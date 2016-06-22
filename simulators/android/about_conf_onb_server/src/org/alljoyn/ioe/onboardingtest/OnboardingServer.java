@@ -21,13 +21,16 @@ import java.lang.Override;
 import java.util.Map;
 import java.io.ByteArrayOutputStream;
 
-import org.alljoyn.about.AboutServiceImpl;
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.Mutable;
 import org.alljoyn.bus.SessionOpts;
 import org.alljoyn.bus.SessionPortListener;
 import org.alljoyn.bus.Status;
 import org.alljoyn.bus.Variant;
+import org.alljoyn.bus.AboutObj;
+import org.alljoyn.bus.AboutIcon;
+import org.alljoyn.bus.AboutIconObj;
+import org.alljoyn.bus.BusException;
 import org.alljoyn.config.ConfigServiceImpl;
 import org.alljoyn.config.server.ConfigChangeListener;
 import org.alljoyn.config.server.FactoryResetHandler;
@@ -40,9 +43,9 @@ import org.alljoyn.onboarding.OnboardingServiceImpl;
 import org.alljoyn.onboarding.transport.OnboardingTransport;
 import org.alljoyn.services.android.security.AuthPasswordHandler;
 import org.alljoyn.services.android.security.SrpAnonymousKeyListener;
-import org.alljoyn.services.android.storage.PropertyStoreImpl;
+import org.alljoyn.services.android.storage.AboutDataImpl;
+import org.alljoyn.services.android.storage.ConfigDataStoreImpl;
 import org.alljoyn.services.android.utils.AndroidLogger;
-import org.alljoyn.services.common.PropertyStore;
 import org.alljoyn.services.common.utils.GenericLogger;
 
 import android.app.Service;
@@ -74,8 +77,11 @@ public class OnboardingServer extends Service implements AuthPasswordHandler, Se
     OnboardingService m_onboardingService;
     private AsyncHandler m_asyncHandler;
 
-    // the property store used by About and Config services
-    private PropertyStore m_propertyStore;
+    // the about data used by About service
+    private AboutDataImpl m_aboutData;
+
+    // the property store Config services
+    private ConfigDataStoreImpl m_configDataStore;
 
     public String m_keyStoreFileName;
 
@@ -90,7 +96,10 @@ public class OnboardingServer extends Service implements AuthPasswordHandler, Se
 
     //Supported Authentication mechanisms
     private static final String[] AUTH_MECHANISMS = new String[]{"ALLJOYN_SRP_KEYX", "ALLJOYN_ECDHE_PSK"};
-    
+
+    // The session port to be bound
+    private static final short SESSION_PORT = 1080;
+
     // load the native alljoyn_java library.
     static {
         System.loadLibrary("alljoyn_java");
@@ -244,72 +253,10 @@ public class OnboardingServer extends Service implements AuthPasswordHandler, Se
             m_Bus.useOSLogging(true);
              */
 
-            // initialize the PropertyStore
-            m_propertyStore = new PropertyStoreImpl(getApplicationContext());
+            // this is not a TCP/IP port. It's AllJoyn specific
+            Log.d(TAG, "Binding session port");
+            bindSessionPort(SESSION_PORT);
 
-            // initialize AboutService
-            // it will expose the board's properties to clients
-            try {
-                AboutServiceImpl.getInstance().startAboutServer((short)1080, m_propertyStore, m_bus);
-            }
-            catch (Exception e)
-            {
-                m_logger.error(TAG, "AboutService failed, Error: " + e.getMessage());
-            }
-
-            // initialize ConfigService
-            // it will expose the board's configurable properties to clients
-            try{
-                ConfigServiceImpl.getInstance().startConfigServer(m_propertyStore, this, this, this, this, m_bus);
-                ConfigServiceImpl.getInstance().setSetPasswordHandler(OnboardingServer.this);
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-
-            // initialize IconService
-            // it will expose the board's icon to clients
-            try{
-
-                // serialize a png file into a byte array
-
-                InputStream ims = getAssets().open("img-alljoyn-logo.png");
-                BufferedInputStream bis = new BufferedInputStream(ims);
-                int offset = 0;
-                int count = 0;
-                int bufferSize = 1024*10;
-                byte[] buffer = new byte[bufferSize];
-
-                ByteArrayOutputStream tempArray = new ByteArrayOutputStream(bufferSize);
-                try {
-                    while ((count = bis.read(buffer, offset, bufferSize)) != -1) {
-                        tempArray.write(buffer, offset, count);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                int size = tempArray.size();
-                byte[] resultBytes = new byte[size];
-                System.arraycopy(tempArray.toByteArray(), 0, resultBytes, 0, size);
-
-                // register the byte array as the board's icon. The AboutService will expose it
-                AboutServiceImpl.getInstance().registerIcon("image/png",
-                        "https://www.alljoyn.org/sites/all/themes/at_alljoyn/images/img-alljoyn-logo.png",
-                        resultBytes);
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-
-
-            // initialize OnboardingService
-            // it will let clients onboard/offboard this board with the home
-            // network
-            // m_onboardingService = OnboardingServiceImpl.getInstance();
-            // ((OnboardingServiceImpl)
-            // m_onboardingService).initContext(OnboardingServer.this);
             try{
                 m_onboardingService.startOnboardingServer(m_bus);
             }
@@ -318,26 +265,42 @@ public class OnboardingServer extends Service implements AuthPasswordHandler, Se
                 e.printStackTrace();
             }
 
-            // register authentication listener. This is needed as Config and Onboarding services are secure
-            m_keyStoreFileName = getFileStreamPath("alljoyn_keystore").getAbsolutePath();
-            m_authListener = new SrpAnonymousKeyListener(OnboardingServer.this, m_logger, AUTH_MECHANISMS);
-            Status authStatus = m_bus.registerAuthListener(m_authListener.getAuthMechanismsAsString(), m_authListener, m_keyStoreFileName);
-            m_logger.debug(TAG, "BusAttachment.registerAuthListener status = " + authStatus);
-            if (authStatus != Status.OK)
-            {
-                m_logger.debug(TAG, "Failed to register Auth listener status = " + authStatus.toString());
+            // initialize the about data
+            m_aboutData = new AboutDataImpl(getApplicationContext());
+            AboutObj aboutObj = new AboutObj(m_bus);
+
+            // initialize ConfigService
+            // it will expose the board's configurable properties to clients
+            try {
+                m_configDataStore = new ConfigDataStoreImpl(getApplicationContext());
+                ConfigServiceImpl.getInstance().startConfigServer(m_configDataStore, this, this, this, this, m_bus);
+                ConfigServiceImpl.getInstance().setSetPasswordHandler(OnboardingServer.this);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
             }
 
-            // Add configService to About announcement.
-            AboutServiceImpl.getInstance().addObjectDescription(OnboardingTransport.OBJ_PATH, new String[] {OnboardingTransport.INTERFACE_NAME});
-            AboutServiceImpl.getInstance().addObjectDescription(ConfigTransport.OBJ_PATH, new String[] {ConfigTransport.INTERFACE_NAME});
+            // initialize AboutIcon
+            try{
+                byte[] resultBytes = getImageBytes("img-alljoyn-logo.png");
+                AboutIcon aboutIcon = new AboutIcon("image/png",
+                        "https://www.alljoyn.org/sites/all/themes/at_alljoyn/images/img-alljoyn-logo.png",
+                        resultBytes);
+                AboutIconObj aboutIconObj = new AboutIconObj(m_bus, aboutIcon);
+            }
+            catch (IOException ie) {
+                Log.e(TAG, "getImageBytes() failed to read file: " + ie.getMessage());
+                ie.printStackTrace();
+            }
+            catch (BusException be) {
+                Log.e(TAG, "failed to set icon: " + be.getMessage());
+                be.printStackTrace();
+            }
 
-            // this is not a TCP/IP port. It's AllJoyn specific
-            bindSessionPort((short)1080);
+            registerAuthenticationListener();
 
-            // send an announcement to notify clients of the existence of this board, and let them know the services that it supports
-            AboutServiceImpl.getInstance().announce();
-
+            Log.d(TAG, "Announcing service");
+            aboutObj.announce(SESSION_PORT, m_aboutData);
         }
 
         // ------------------------ Disconnect --------------------------------
@@ -352,9 +315,7 @@ public class OnboardingServer extends Service implements AuthPasswordHandler, Se
             try
             {
                 OnboardingServiceImpl.getInstance().stopOnboardingServer();
-                AboutServiceImpl.getInstance().unregisterIcon();
                 ConfigServiceImpl.getInstance().stopConfigServer();
-                AboutServiceImpl.getInstance().stopAboutServer();
             } catch (Exception e)
             {
                 m_logger.error(TAG, "disconnect failed: " + e.getMessage());
@@ -370,9 +331,7 @@ public class OnboardingServer extends Service implements AuthPasswordHandler, Se
         {
             try
             {
-                AboutServiceImpl.getInstance().stopAboutServer();
                 ConfigServiceImpl.getInstance().stopConfigServer();
-                AboutServiceImpl.getInstance().unregisterIcon();
                 m_bus.disconnect();
                 m_bus.release();
             } catch (Exception e)
@@ -411,7 +370,6 @@ public class OnboardingServer extends Service implements AuthPasswordHandler, Se
         public void onConfigChanged(Map<String, Variant> configuration, String languageTag)
         {
             showToast(TAG + ": Configuration Changed");
-            AboutServiceImpl.getInstance().announce();
         }
 
         /* (non-Javadoc)
@@ -437,7 +395,43 @@ public class OnboardingServer extends Service implements AuthPasswordHandler, Se
         @Override
         public void onResetConfiguration(String language, String[] fieldsToRemove) {
             showToast(TAG + ": onResetConfiguration was called");
-            AboutServiceImpl.getInstance().announce();
+        }
+    }
+
+    /*
+     * Serialize a png file into a byte array
+     */
+    private byte[] getImageBytes(String fileName) throws IOException {
+        InputStream ims = getAssets().open(fileName);
+        BufferedInputStream bis = new BufferedInputStream(ims);
+        int offset = 0;
+        int count = 0;
+        int bufferSize = 1024*10;
+        byte[] buffer = new byte[bufferSize];
+
+        ByteArrayOutputStream tempArray = new ByteArrayOutputStream(bufferSize);
+        try {
+            while ((count = bis.read(buffer, offset, bufferSize)) != -1) {
+                tempArray.write(buffer, offset, count);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        int size = tempArray.size();
+        byte[] resultBytes = new byte[size];
+        System.arraycopy(tempArray.toByteArray(), 0, resultBytes, 0, size);
+        return resultBytes;
+    }
+
+    private void registerAuthenticationListener() {
+        // register authentication listener. This is needed as Config and Onboarding services are secure
+        m_keyStoreFileName = getFileStreamPath("alljoyn_keystore").getAbsolutePath();
+        m_authListener = new SrpAnonymousKeyListener(OnboardingServer.this, m_logger, AUTH_MECHANISMS);
+        Status authStatus = m_bus.registerAuthListener(m_authListener.getAuthMechanismsAsString(), m_authListener, m_keyStoreFileName);
+        m_logger.debug(TAG, "BusAttachment.registerAuthListener status = " + authStatus);
+        if (authStatus != Status.OK)
+        {
+            m_logger.debug(TAG, "Failed to register Auth listener status = " + authStatus.toString());
         }
     }
 

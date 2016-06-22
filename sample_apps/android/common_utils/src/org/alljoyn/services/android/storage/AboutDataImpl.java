@@ -48,7 +48,7 @@ import android.util.Log;
  */
 public class AboutDataImpl extends AboutData
 {
-    private static final String CONFIG_XML = "Config.xml";
+    protected static final String CONFIG_XML = "Config.xml";
     public static final String TAG = AboutDataImpl.class.getName();
     private String m_defaultLanguage = "en";
     private Set<String> m_supportedLanguages = new HashSet<String>();
@@ -59,6 +59,26 @@ public class AboutDataImpl extends AboutData
     private final AssetManager m_assetMgr;
     private Context m_context;
     private Map<String, Property> m_aboutConfigMap;
+
+    public String getDefaultLanguage()
+    {
+        return m_defaultLanguage;
+    }
+
+    public Set<String> getLanguages()
+    {
+        return m_supportedLanguages;
+    }
+
+    public Context getContext()
+    {
+        return m_context;
+    }
+
+    public Map<String, Property> getAboutConfigMap()
+    {
+        return m_aboutConfigMap;
+    }
 
     public AboutDataImpl(Context context)
     {
@@ -89,7 +109,7 @@ public class AboutDataImpl extends AboutData
         storeConfiguration();
     }
 
-    private void getConfiguration(String languageTag, Map<String, Object> configuration)
+    protected void getConfiguration(String languageTag, Map<String, Object> configuration)
     {
         for (String key : m_aboutConfigMap.keySet())
         {
@@ -104,7 +124,7 @@ public class AboutDataImpl extends AboutData
         }
     }
 
-    private void getAbout(String languageTag, Map<String, Object> about)
+    protected void getAbout(String languageTag, Map<String, Object> about)
     {
         for (String key : m_aboutConfigMap.keySet())
         {
@@ -119,7 +139,7 @@ public class AboutDataImpl extends AboutData
         }
     }
 
-    private void getAnnouncement(String languageTag, Map<String, Object> announce)
+    protected void getAnnouncement(String languageTag, Map<String, Object> announce)
     {
         for (String key : m_aboutConfigMap.keySet())
         {
@@ -157,7 +177,7 @@ public class AboutDataImpl extends AboutData
 
     }
 
-    private void loadLanguages()
+    protected void loadLanguages()
     {
         Set<String> languages = new HashSet<String>(3);
         for (String key : m_aboutConfigMap.keySet())
@@ -174,7 +194,7 @@ public class AboutDataImpl extends AboutData
         m_aboutConfigMap.put(AboutKeys.ABOUT_SUPPORTED_LANGUAGES, property);
     }
 
-    private void loadFactoryDefaults()
+    protected void loadFactoryDefaults()
     {
         try
         {
@@ -198,7 +218,7 @@ public class AboutDataImpl extends AboutData
         }
     }
 
-    private void loadStoredConfiguration()
+    protected void loadStoredConfiguration()
     {
         try
         {
@@ -247,7 +267,7 @@ public class AboutDataImpl extends AboutData
         }
     }
 
-    private void storeConfiguration()
+    protected void storeConfiguration()
     {
         String localConfigFileName = CONFIG_XML;
         // Note: this one is on the app's folder, not in assets
@@ -278,7 +298,7 @@ public class AboutDataImpl extends AboutData
         }
     }
 
-    private Map<String, Property> createCannedMap()
+    protected Map<String, Property> createCannedMap()
     {
         Map<String, Property> aboutMap = new HashMap<String, Property>(10);
 
@@ -324,7 +344,7 @@ public class AboutDataImpl extends AboutData
     /**
 	 * 
 	 */
-    private void setDefaultLanguageFromProperties()
+    protected void setDefaultLanguageFromProperties()
     {
         Property defaultLanguageProperty = m_aboutConfigMap.get(AboutKeys.ABOUT_DEFAULT_LANGUAGE);
         if (defaultLanguageProperty != null)

@@ -142,6 +142,7 @@ exit /B %OK%
 :buildAndroidUtilsJar
     call:createLibsDir
     call:copyAlljoynJars
+    call:copyToDir %ALLJOYN_ANDROID_JAR_DIR%\alljoyn_config.jar .\libs\ "Failed to copy android config jars" %ERROR%
     ant || (
         echo "failed to build android utils jar"
         exit %ERROR% 
