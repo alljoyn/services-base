@@ -860,7 +860,7 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
          * Tell the device to connect to the Personal AP. The device is
          * recommended to use channel switching feature if it is available.
          *
-         * @return short: 1 -- current soft AP mode will be disabled. 2 � a
+         * @return short: 1 - current soft AP mode will be disabled. 2 - a
          *         separate channel is used to validate the Personal AP
          *         connection.
          * @throws BusException
@@ -946,10 +946,10 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
         }
 
         /**
-         * @return the state: 0 - Personal AP Not Configured 1 � Personal AP
-         *         Configured/Not Validated 2 � Personal AP
-         *         Configured/Validating 3 � Personal AP Configured/Validated 4
-         *         � Personal AP Configured/Error 5 � Personal AP
+         * @return the state: 0 - Personal AP Not Configured 1 - Personal AP
+         *         Configured/Not Validated 2 - Personal AP
+         *         Configured/Validating 3 - Personal AP Configured/Validated 4
+         *         - Personal AP Configured/Error 5 - Personal AP
          *         Configured/Retry
          * @throws BusException
          */
@@ -980,7 +980,7 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
         }
 
         /**
-         * Scan all the WiFi access points in the device�s proximity. Some
+         * Scan all the WiFi access points in the device's proximity. Some
          * device may not support this feature. In such a case, the AllJoyn
          * error code org.alljoyn.Error.FeatureNotAvailable will be returned in
          * the AllJoyn response.
