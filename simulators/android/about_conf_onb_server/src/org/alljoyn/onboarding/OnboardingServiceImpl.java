@@ -32,6 +32,7 @@ import org.alljoyn.bus.ErrorReplyBusException;
 import org.alljoyn.bus.SignalEmitter;
 import org.alljoyn.bus.Status;
 import org.alljoyn.bus.annotation.BusSignal;
+import org.alljoyn.common.ServiceAvailabilityListener;
 import org.alljoyn.ioe.onboardingtest.OnboardingServerCallback;
 import org.alljoyn.onboarding.client.OnboardingClient;
 import org.alljoyn.onboarding.client.OnboardingClientImpl;
@@ -41,7 +42,6 @@ import org.alljoyn.onboarding.transport.OBLastError;
 import org.alljoyn.onboarding.transport.OnboardingTransport;
 import org.alljoyn.onboarding.transport.ScanInfo;
 import org.alljoyn.services.common.BusObjectDescription;
-import org.alljoyn.services.common.ServiceAvailabilityListener;
 import org.alljoyn.services.common.ServiceCommonImpl;
 
 import android.content.BroadcastReceiver;

@@ -39,8 +39,7 @@ import org.alljoyn.onboarding.transport.ConnectionResult;
 import org.alljoyn.onboarding.transport.ConnectionResultListener;
 import org.alljoyn.onboarding.transport.OnboardingTransport;
 import org.alljoyn.onboarding.transport.OnboardingTransport.ConfigureWifiMode;
-import org.alljoyn.services.common.ClientBase;
-import org.alljoyn.services.common.ServiceAvailabilityListener;
+import org.alljoyn.common.ServiceAvailabilityListener;
 import org.alljoyn.services.common.utils.TransportUtil;
 
 import android.content.BroadcastReceiver;
@@ -1871,7 +1870,7 @@ public class OnboardingManager implements AboutListener {
      * @param client
      * @return status of operation.
      */
-    private DeviceResponse connectToDevice(ClientBase client) {
+    private DeviceResponse connectToDevice(OnboardingClient client) {
         if (client == null) {
             return new DeviceResponse(ResponseCode.Status_ERROR, "fail connect to device, client == null");
         }

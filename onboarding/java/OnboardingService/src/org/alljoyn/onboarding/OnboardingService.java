@@ -18,7 +18,7 @@ package org.alljoyn.onboarding;
 
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.onboarding.client.OnboardingClient;
-import org.alljoyn.services.common.ServiceAvailabilityListener;
+import org.alljoyn.common.ServiceAvailabilityListener;
 
 /**
  * An interface for both Onboarding client (onboarder) and server (onboardee). 
