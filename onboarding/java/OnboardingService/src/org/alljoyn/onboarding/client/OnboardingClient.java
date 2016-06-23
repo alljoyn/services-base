@@ -22,7 +22,7 @@ import org.alljoyn.onboarding.transport.ConnectionResultListener;
 import org.alljoyn.onboarding.transport.OBLastError;
 import org.alljoyn.onboarding.transport.OnboardingTransport.ConfigureWifiMode;
 import org.alljoyn.onboarding.transport.ScanInfo;
-import org.alljoyn.services.common.ClientBase;
+import org.alljoyn.common.ClientBase;
 /**
  * An interface for onboarding a remote IoE device (onboardee). Encapsulates the
  * OnboardingTransport BusInterface
