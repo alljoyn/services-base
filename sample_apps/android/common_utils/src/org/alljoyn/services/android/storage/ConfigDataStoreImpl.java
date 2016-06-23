@@ -26,7 +26,6 @@ import org.alljoyn.bus.ErrorReplyBusException;
 import org.alljoyn.bus.Variant;
 import org.alljoyn.services.common.PropertyStore;
 import org.alljoyn.services.common.PropertyStoreException;
-import org.alljoyn.services.common.utils.TransportUtil;
 import org.alljoyn.config.ConfigDataStore;
 
 import android.content.Context;
