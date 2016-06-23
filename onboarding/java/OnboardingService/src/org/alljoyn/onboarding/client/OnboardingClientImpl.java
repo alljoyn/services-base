@@ -23,6 +23,7 @@ import org.alljoyn.bus.ErrorReplyBusException;
 import org.alljoyn.bus.ProxyBusObject;
 import org.alljoyn.bus.Status;
 import org.alljoyn.bus.annotation.BusSignalHandler;
+import org.alljoyn.common.ServiceAvailabilityListener;
 import org.alljoyn.onboarding.OnboardingService.AuthType;
 import org.alljoyn.onboarding.transport.ConnectionResult;
 import org.alljoyn.onboarding.transport.ConnectionResult.ConnectionResponseType;
@@ -32,8 +33,7 @@ import org.alljoyn.onboarding.transport.OBLastError;
 import org.alljoyn.onboarding.transport.OnboardingTransport;
 import org.alljoyn.onboarding.transport.OnboardingTransport.ConfigureWifiMode;
 import org.alljoyn.onboarding.transport.ScanInfo;
-import org.alljoyn.services.common.ClientBaseImpl;
-import org.alljoyn.services.common.ServiceAvailabilityListener;
+import org.alljoyn.common.ClientBaseImpl;
 
 /**
  * A default implementation of the OnboardingClient interface
@@ -72,9 +72,12 @@ public class OnboardingClientImpl extends ClientBaseImpl implements OnboardingCl
         }
     }
 
-    @SuppressWarnings("deprecation")
-    public OnboardingClientImpl(String m_deviceName, BusAttachment bus, ServiceAvailabilityListener serviceAvailabilityListener, short port) {
-        super(m_deviceName, bus, serviceAvailabilityListener, OnboardingTransport.OBJ_PATH, OnboardingTransport.class, port);
+    public OnboardingClientImpl(String m_deviceName,
+                                BusAttachment bus,
+                                ServiceAvailabilityListener serviceAvailabilityListener,
+                                short port) {
+        super(m_deviceName, bus, serviceAvailabilityListener, OnboardingTransport.OBJ_PATH,
+                OnboardingTransport.class, port);
     }
 
     @Override
