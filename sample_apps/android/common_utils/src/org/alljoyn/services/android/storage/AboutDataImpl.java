@@ -35,7 +35,7 @@ import org.alljoyn.bus.AboutData;
 import org.alljoyn.bus.AboutDataListener;
 import org.alljoyn.bus.ErrorReplyBusException;
 import org.alljoyn.bus.Variant;
-import org.alljoyn.services.common.utils.TransportUtil;
+import org.alljoyn.common.TransformUtil;
 import org.xml.sax.SAXException;
 
 import android.content.Context;
@@ -365,7 +365,7 @@ public class AboutDataImpl extends AboutData
         {
             UUID defaultAppId = UUID.randomUUID();
             // String sAppId =
-            // String.valueOf(TransportUtil.uuidToByteArray(defaultAppId));
+            // String.valueOf(TransformUtil.uuidToByteArray(defaultAppId));
             // here we take the stored about map, and fill gaps by default
             // values. We don't shrink the map - other existing values will
             // remain.
@@ -402,7 +402,7 @@ public class AboutDataImpl extends AboutData
     {
         Map<String, Object> aboutData = new HashMap<String, Object>(3);
         getAbout(lang, aboutData);
-        return TransportUtil.toVariantMap(aboutData);
+        return TransformUtil.toVariantMap(aboutData);
     }
 
     @Override
@@ -410,6 +410,6 @@ public class AboutDataImpl extends AboutData
     {
         Map<String, Object> announceData = new HashMap<String, Object>(3);
         getAnnouncement(m_defaultLanguage, announceData);
-        return TransportUtil.toVariantMap(announceData);
+        return TransformUtil.toVariantMap(announceData);
     }
 }
