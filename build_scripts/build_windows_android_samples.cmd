@@ -156,6 +156,7 @@ exit /B %OK%
 
 :buildControlPanelService
     call:createLibsDir
+    call:copyAlljoynServicesCommonJar
     call:copyAlljoynJars
     ant || (
         echo "failed to build controlpanelservice"
@@ -165,6 +166,7 @@ exit /B %OK%
 
 :buildControlPanelAdapter
     call:createLibsDir
+    call:copyAlljoynServicesCommonJar
     call:copyControlPanelServiceJar
     ant || (
         echo "failed to buld controlpaneladapter"
@@ -176,8 +178,8 @@ exit /B %OK%
     call:createLibsARMDir
     call:copyAlljoynJars
     call:copyControlPanelServiceJar
-    call:copyAlljoynAndroidUtilsJar
     call:copyAlljoynServicesCommonJar
+    call:copyAlljoynAndroidUtilsJar
     call:copyAlljoynSharedObject
     call:copyControlPanelAdapterJar
     call:copyAndroidV4SupportJar

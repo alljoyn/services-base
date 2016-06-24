@@ -25,7 +25,7 @@ import org.alljoyn.bus.AboutObjectDescription;
 import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.Variant;
 import org.alljoyn.bus.VariantUtil;
-import org.alljoyn.services.common.utils.TransportUtil;
+import org.alljoyn.common.TransformUtil;
 
 import android.os.Handler;
 import android.os.Message;
@@ -61,7 +61,7 @@ public class ControlPanelServiceAboutListener implements AboutListener {
             }
 
             byte[] rawAppId = varAppId.getObject(byte[].class);
-            appId = TransportUtil.byteArrayToUUID(rawAppId);
+            appId = TransformUtil.byteArrayToUUID(rawAppId);
 
             if (appId == null) {
                 Log.e(TAG, "Failed to translate the received AppId into UUID");
