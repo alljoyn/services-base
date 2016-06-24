@@ -27,7 +27,6 @@
 #import <CoreFoundation/CFDictionary.h>
 
 #import "alljoyn/about/AJNAboutServiceApi.h"
-#import "alljoyn/about/AJNAboutService.h"
 #import "AJNVersion.h"
 #import "AJNProxyBusObject.h"
 
