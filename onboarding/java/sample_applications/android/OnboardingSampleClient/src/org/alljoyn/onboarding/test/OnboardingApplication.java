@@ -40,7 +40,7 @@ import org.alljoyn.onboarding.transport.ScanInfo;
 import org.alljoyn.services.android.security.AuthPasswordHandler;
 import org.alljoyn.services.android.security.SrpAnonymousKeyListener;
 import org.alljoyn.common.GenericLogger;
-import org.alljoyn.services.common.utils.TransportUtil;
+import org.alljoyn.common.TransformUtil;
 
 import android.app.AlertDialog;
 import android.app.Application;
@@ -267,7 +267,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     public void announced(String busName, int version, short port, AboutObjectDescription[] objectDescriptions, Map<String, Variant> aboutMap) {
         Map<String, Object> newMap = new HashMap<String, Object>();
         try {
-            newMap = TransportUtil.fromVariantMap(aboutMap);
+            newMap = TransformUtil.fromVariantMap(aboutMap);
             String deviceId = (newMap.get(AboutKeys.ABOUT_APP_ID).toString());
             String deviceFriendlyName = (String) newMap.get(AboutKeys.ABOUT_DEVICE_NAME);
             m_logger.debug(TAG, "onAnnouncement received: with parameters: busName:" + busName + ", port:" + port + ", deviceid" + deviceId + ", deviceName:" + deviceFriendlyName);
