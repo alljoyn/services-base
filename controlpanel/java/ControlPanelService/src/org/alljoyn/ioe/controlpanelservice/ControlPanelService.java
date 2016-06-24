@@ -36,7 +36,7 @@ import org.alljoyn.ioe.controlpanelservice.communication.TaskManager;
 import org.alljoyn.ioe.controlpanelservice.communication.interfaces.ControlPanel;
 import org.alljoyn.ioe.controlpanelservice.communication.interfaces.HTTPControl;
 import org.alljoyn.ioe.controlpanelservice.ui.DeviceControlPanel;
-import org.alljoyn.services.common.utils.TransportUtil;
+import org.alljoyn.common.TransformUtil;
 
 import android.os.Handler;
 import android.os.Message;
@@ -376,7 +376,7 @@ public class ControlPanelService implements ConnManagerEventsListener, AboutList
             }
 
             byte[] rawAppId = varAppId.getObject(byte[].class);
-            appId = TransportUtil.byteArrayToUUID(rawAppId);
+            appId = TransformUtil.byteArrayToUUID(rawAppId);
 
             if (appId == null) {
                 Log.e(TAG, "Failed to translate the received AppId into UUID");

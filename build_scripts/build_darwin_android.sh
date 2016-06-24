@@ -93,6 +93,11 @@ for SERVICE in ${SERVICES[@]}; do
         }
     fi
 
+	if [ "$SERVICE" = "ControlPanel" ]
+	then
+		CopyServicesCommon libs/
+	fi
+
 	if [ "$SERVICE" = "Notification" ]
 	then
         CopyServicesCommon libs/
@@ -121,10 +126,12 @@ for SERVICE in ${SERVICES[@]}; do
 	then
 		pushd $PROJ_DIR
 		mkdir -p libs/
+		CopyServicesCommon libs/
 	fi
 
 	if [ "$SERVICE" = "ControlPanel" ]
 	then
+		CopyServicesCommon libs/
 		cp ../$SERVICE_NAME/build/deploy/${SERVICE_NAME}.jar libs/ || {
 			echo "Copy of $SERVICE_NAME failed!"
 			exit 30

@@ -35,7 +35,7 @@ import org.alljoyn.ioe.controlpanelservice.communication.interfaces.HTTPControl;
 import org.alljoyn.services.android.security.AuthPasswordHandler;
 import org.alljoyn.services.android.security.SrpAnonymousKeyListener;
 import org.alljoyn.common.GenericLogger;
-import org.alljoyn.services.common.utils.TransportUtil;
+import org.alljoyn.common.TransformUtil;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -484,7 +484,7 @@ public class DeviceListFragment extends ListFragment {
                     return;
                 }
                 byte[] rawAppId = varAppId.getObject(byte[].class);
-                appId = TransportUtil.byteArrayToUUID(rawAppId);
+                appId = TransformUtil.byteArrayToUUID(rawAppId);
 
                 if (appId == null) {
                     Log.e(TAG, "Received a bad AppId, failed to convert it to the UUID");
