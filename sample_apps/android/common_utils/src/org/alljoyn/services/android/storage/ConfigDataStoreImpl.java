@@ -20,7 +20,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.alljoyn.about.AboutKeys;
+import org.alljoyn.bus.AboutKeys;
 import org.alljoyn.bus.AboutDataListener;
 import org.alljoyn.bus.ErrorReplyBusException;
 import org.alljoyn.bus.Variant;
