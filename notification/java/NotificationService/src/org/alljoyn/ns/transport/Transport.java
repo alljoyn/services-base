@@ -39,7 +39,7 @@ import org.alljoyn.ns.commons.NativePlatformFactory;
 import org.alljoyn.ns.commons.NativePlatformFactoryException;
 import org.alljoyn.ns.transport.consumer.ReceiverTransport;
 import org.alljoyn.ns.transport.producer.SenderTransport;
-import org.alljoyn.services.common.utils.TransportUtil;
+import org.alljoyn.common.TransformUtil;
 
 
 /**
@@ -117,7 +117,7 @@ public class Transport {
 	public Map<String, Object> readAllProperties() throws NotificationServiceException {
 		Map<String, Object> props;
 		try {
-			props = TransportUtil.fromVariantMap(aboutData.getAboutData(null));
+			props = TransformUtil.fromVariantMap(aboutData.getAboutData(null));
 		} catch (BusException e) {
 			throw new NotificationServiceException("Failed to read properties from the AboutData, Error: '" + e.getMessage() + "'", e);
 		}
