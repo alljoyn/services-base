@@ -18,5 +18,3 @@ scons --jobs $JOBS VARIANT=$VARIANT CPU=$CPU BINDINGS=$BINDINGS WS=$WS CRYPTO=bu
 popd
 
 export ALLJOYN_DISTDIR=$ALLJOYN_CORE_DIR/build/linux/$CPU/$VARIANT/dist
-# hack - core/alljoyn/common/SConscript isn't installing all the qcc headers into the distributable that it should
-cp -r $ALLJOYN_CORE_DIR/common/inc/qcc $ALLJOYN_DISTDIR/cpp/inc/
