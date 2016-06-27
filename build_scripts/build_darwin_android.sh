@@ -99,6 +99,12 @@ for SERVICE in ${SERVICES[@]}; do
 		CopyCommonUtils libs/
 	fi
 
+	if [ "$SERVICE" = "Onboarding" ]
+	then
+        CopyServicesCommon libs/
+		CopyCommonUtils libs/
+    fi
+
 	ant -Dsdk.dir=$ANDROID_SDK || {
 		echo "Building $SERVICE failed!"
 		exit 20

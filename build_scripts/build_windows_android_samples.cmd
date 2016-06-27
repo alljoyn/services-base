@@ -253,6 +253,8 @@ exit /B %OK%
 :buildOnboardingService
     call:createLibsDir
     call:copyAlljoynJars
+    call:copyAlljoynAndroidUtilsJar
+    call:copyAlljoynServicesCommonJar
     ant || (
         echo "failed to build onboarding service"
         exit %ERROR%
