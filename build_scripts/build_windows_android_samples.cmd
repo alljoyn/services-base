@@ -246,8 +246,6 @@ exit /B %OK%
     call:executeFuncInDir buildOnboardingAboutConfServer %ALLJOYN_BASE_BUILD_DIR%\simulators\android\about_conf_onb_server
     echo Building OnboardingSampleClient
     call:executeFuncInDir buildOnboardingSampleClient %ONBOARDING_SAMPLES_ROOT%\sample_applications\android\OnboardingSampleClient
-    echo Building OnboardingManagerSampleClient
-    call:executeFuncInDir buildOnboardingManagerSampleClient %ONBOARDING_SAMPLES_ROOT%\sample_applications\android\OnboardingManagerSampleClient
 exit /B %OK%
 
 :buildOnboardingService
@@ -301,16 +299,3 @@ exit /B %OK%
     )
 exit /B %OK%
 
-:buildOnboardingManagerSampleClient
-    call:createLibsARMDir
-    call:copyAlljoynJars
-    call:copyAlljoynAndroidUtilsJar
-    call:copyAlljoynServicesCommonJar
-    call:copyAlljoynOnboardingJar
-    call:copyAlljoynSharedObject
-    call:copyToDir %ALLJOYN_BASE_BUILD_DIR%\onboarding\java\OnboardingManager\android\build\deploy\alljoyn_onboarding_manager.jar .\libs\ "Failed to copy alljoyn_onboarding_manager.jar" %ERROR%
-    ant || (
-        echo "failed to build onboarding manager sample client"
-        exit %ERROR%
-    )
-exit /B %OK%
