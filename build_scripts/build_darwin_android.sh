@@ -214,28 +214,6 @@ for SERVICE in ${SERVICES[@]}; do
 	# compile 2nd Onboarding sample app and Onboardee server sample
 	if [ "$SERVICE" = "Onboarding" ]
 	then
-		cd ../OnboardingManagerSampleClient/
-		mkdir -p libs/armeabi
-		CopyAndroidJars libs/
-		CopyAndroidLib libs/armeabi/
-		CopyCommonUtils libs/
-        CopyServicesCommon libs/
-
-		cp ../../../$SERVICE_NAME/build/deploy/alljoyn_onboarding.jar libs/ || { 
-			echo "Copy of alljoyn_onboarding.jar failed" 
-			exit 10
-		}
-
-		cp ../../../OnboardingManager/android/build/deploy/alljoyn_onboarding_manager.jar libs/ || { 
-    			echo "Copy of alljoyn_onboarding_manager.jar failed" 
-    			exit 10
-		}
-
-		ant -Dsdk.dir=$ANDROID_SDK $VARIANT || {
-    			echo "Building $SERVICE Android .apk failed"
-    			exit 20
-		}
-
         cd $WORKSPACE/services/base/simulators/android/about_conf_onb_server/
         mkdir -p libs/armeabi
         CopyAndroidJars libs/
