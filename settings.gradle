@@ -12,6 +12,5 @@ include ':notification:java:native_platform:NotificationServiceNativePlatformAnd
 include ':notification:java:sample_applications:android:NotificationServiceUISample'
 include ':onboarding:java:OnboardingService'
 include ':onboarding:java:OnboardingManager:android'
-include ':onboarding:java:sample_applications:android:OnboardingManagerSampleClient'
 include ':onboarding:java:sample_applications:android:OnboardingSampleClient'
 include ':simulators:android:about_conf_onb_server'
