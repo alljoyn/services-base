@@ -37,6 +37,8 @@ set NOTIFICATION_SAMPLES_ROOT=%ALLJOYN_BASE_BUILD_DIR%\notification\java
 set ONBOARDING_SAMPLES_ROOT=%ALLJOYN_BASE_BUILD_DIR%\onboarding\java
 set CPU=arm
 
+echo Building Common Libraries
+call:buildCommonLibraries
 echo Building Control Panel Sample Apps
 call:buildControlPanelSamples
 echo Building Notification Sample Apps
@@ -44,7 +46,6 @@ call:buildNotificationSamples
 echo Building Onboarding Sample Apps
 call:buildOnboardingSamples
 exit %OK%
-
 
 ::::::::::::::::::::::::::::::::::::::
 :: Generic build functions
@@ -94,6 +95,10 @@ exit /B %OK%
     call:copyToDir %ALLJOYN_BASE_BUILD_DIR%\sample_apps\android\common_utils\build\deploy\alljoyn_apps_android_utils.jar .\libs\ "failed to copy alljoyn_apps_android_utils.jar" %ERROR%
 exit /B %OK%
 
+:copyAlljoynServicesCommonJar
+    call:copyToDir %ALLJOYN_BASE_BUILD_DIR%\services_common\java\build\deploy\alljoyn_services_common.jar .\libs\ "failed to copy alljoyn_services_common.jar" %ERROR%
+exit /B %OK%
+
 :copyAlljoynSharedObject
     call:copyToDir %ALLJOYN_ANDROID_LIB_DIR%\liballjoyn_java.so .\libs\armeabi\ "failed to copy liballjoyn_java.so" %ERROR%
 exit /B %OK%
@@ -106,6 +111,36 @@ exit /B %OK%
     call:copyToDir %ALLJOYN_BASE_BUILD_DIR%\controlpanel\java\ControlPanelAdapter\bin\ControlPanelAdapter.jar .\libs\ "failed to copy ControlPanelAdapter.jar" %ERROR%
 exit /B %OK%
 
+::::::::::::::::::::::::::::::::::::::::
+:: Common Library build functions
+::::::::::::::::::::::::::::::::::::::::
+:buildCommonLibraries
+    echo Building common java utils
+    call:executeFuncInDir buildServicesCommonJar %ALLJOYN_BASE_BUILD_DIR%\services_common\java
+    echo Building common android utils
+    call:executeFuncInDir buildAndroidUtilsJar %ALLJOYN_BASE_BUILD_DIR%\sample_apps\android\common_utils
+exit /B %OK%
+
+:buildServicesCommonJar
+    call:createLibsDir
+    call:copyAlljoynJars
+    call:copyToDir %ALLJOYN_ANDROID_JAR_DIR%\alljoyn_config.jar .\libs\ "Failed to copy android config jars" %ERROR%
+    ant || (
+        echo "failed to build services common jar"
+        exit %ERROR% 
+    )
+exit /B %OK%
+
+:buildAndroidUtilsJar
+    call:createLibsDir
+    call:copyAlljoynJars
+    call:copyAlljoynServicesCommonJar
+    call:copyToDir %ALLJOYN_ANDROID_JAR_DIR%\alljoyn_config.jar .\libs\ "Failed to copy android config jars" %ERROR%
+    ant || (
+        echo "failed to build android utils jar"
+        exit %ERROR% 
+    )
+exit /B %OK%
 
 ::::::::::::::::::::::::::::::::::::::::
 :: Control Panel build functions
@@ -115,8 +150,6 @@ exit /B %OK%
     call:executeFuncInDir buildControlPanelService %CONTROL_PANEL_SAMPLES_ROOT%\ControlPanelService
     echo Building ControlPanelAdapter
     call:executeFuncInDir buildControlPanelAdapter %CONTROL_PANEL_SAMPLES_ROOT%\ControlPanelAdapter
-    echo Building common android utils
-    call:executeFuncInDir buildAndroidUtilsJar %ALLJOYN_BASE_BUILD_DIR%\sample_apps\android\common_utils
     echo Building ControlPanelBrowser
     call:executeFuncInDir buildControlPanelBrowser %CONTROL_PANEL_SAMPLES_ROOT%\sample_applications\android\ControlPanelBrowser
 exit /B %OK%
@@ -139,21 +172,12 @@ exit /B %OK%
     )
 exit /B %OK%
 
-:buildAndroidUtilsJar
-    call:createLibsDir
-    call:copyAlljoynJars
-    call:copyToDir %ALLJOYN_ANDROID_JAR_DIR%\alljoyn_config.jar .\libs\ "Failed to copy android config jars" %ERROR%
-    ant || (
-        echo "failed to build android utils jar"
-        exit %ERROR% 
-    )
-exit /B %OK%
-
 :buildControlPanelBrowser
     call:createLibsARMDir
     call:copyAlljoynJars
     call:copyControlPanelServiceJar
     call:copyAlljoynAndroidUtilsJar
+    call:copyAlljoynServicesCommonJar
     call:copyAlljoynSharedObject
     call:copyControlPanelAdapterJar
     call:copyAndroidV4SupportJar
@@ -184,6 +208,7 @@ exit /B %OK%
     call:createLibsARMDir
     call:copyAlljoynJars
     call:copyAlljoynAndroidUtilsJar
+    call:copyAlljoynServicesCommonJar
     call:copyConytolPanelServiceJar
     call:copyConytolPanelAdapterJar
     call:copyAlljoynSharedObject
@@ -197,6 +222,7 @@ exit /B %OK%
     call:createLibsARMDir
     call:copyAlljoynJars
     call:copyAlljoynAndroidUtilsJar
+    call:copyAlljoynServicesCommonJar
     call:copyControlPanelServiceJar
     call:copyControlPanelAdapterJar
     call:copyAlljoynSharedObject
@@ -237,6 +263,7 @@ exit /B %OK%
     call:createLibsDir
     call:copyAlljoynJars
     call:copyAlljoynAndroidUtilsJar
+    call:copyAlljoynServicesCommonJar
     call:copyAlljoynOnboardingJar
     ant || (
         echo "failed to build onboarding manager"
@@ -248,6 +275,7 @@ exit /B %OK%
     call:createLibsARMDir
     call:copyAlljoynJars
     call:copyAlljoynAndroidUtilsJar
+    call:copyAlljoynServicesCommonJar
     call:copyAlljoynOnboardingJar
     call:copyAlljoynSharedObject
     call:copyToDir %ALLJOYN_ANDROID_JAR_DIR%\alljoyn_config.jar .\libs\ "Failed to copy android config jars" %ERROR%
@@ -261,6 +289,7 @@ exit /B %OK%
     call:createLibsARMDir
     call:copyAlljoynJars
     call:copyAlljoynAndroidUtilsJar
+    call:copyAlljoynServicesCommonJar
     call:copyAlljoynOnboardingJar
     call:copyAlljoynSharedObject
     call:copyToDir %ALLJOYN_BASE_BUILD_DIR%\onboarding\java\OnboardingManager\android\build\deploy\alljoyn_onboarding_manager.jar .\libs\ "Failed to copy alljoyn_onboarding_manager.jar" %ERROR%
@@ -274,6 +303,7 @@ exit /B %OK%
     call:createLibsARMDir
     call:copyAlljoynJars
     call:copyAlljoynAndroidUtilsJar
+    call:copyAlljoynServicesCommonJar
     call:copyAlljoynOnboardingJar
     call:copyAlljoynSharedObject
     call:copyToDir %ALLJOYN_BASE_BUILD_DIR%\onboarding\java\OnboardingManager\android\build\deploy\alljoyn_onboarding_manager.jar .\libs\ "Failed to copy alljoyn_onboarding_manager.jar" %ERROR%
