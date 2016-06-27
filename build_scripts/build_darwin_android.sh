@@ -115,7 +115,6 @@ for SERVICE in ${SERVICES[@]}; do
 		Services_Common)	continue ;;
 		Common_Utils)	continue ;;
 		ControlPanel)	PROJ_DIR=$WORKSPACE/services/base/$SRVC/java/${SERVICE}Adapter/ ;;
-		Onboarding)	PROJ_DIR=$WORKSPACE/services/base/$SRVC/java/${SERVICE}Manager/android/ ;;
 	esac
 
 	if [ "$SERVICE" != "Notification" ]
@@ -132,24 +131,6 @@ for SERVICE in ${SERVICES[@]}; do
 		}
 		
 		ant -Dsdk.dir=$ANDROID_SDK $VARIANT || {
-			echo "Building $PROJ_DIR failed"
-			exit 20
-		}
-		popd
-
-	fi
-
-	if [ "$SERVICE" = "Onboarding" ]
-	then
-		cp ../../$SERVICE_NAME/build/deploy/alljoyn_onboarding.jar libs/ || {
-			echo "Copy of $SERVICE_NAME failed!"
-			exit 30
-		}
-		CopyAndroidJars libs/
-		CopyCommonUtils libs/
-        CopyServicesCommon libs/
-
-		ant -Dsdk.dir=$ANDROID_SDK || {
 			echo "Building $PROJ_DIR failed"
 			exit 20
 		}
@@ -199,10 +180,6 @@ for SERVICE in ${SERVICES[@]}; do
 				echo "Copy of alljoyn_onboarding.jar failed" 
 				exit 10
 			}
-            cp ../../../OnboardingManager/android/build/deploy/alljoyn_onboarding_manager.jar libs/ || { 
-    			echo "Copy of alljoyn_onboarding_manager.jar failed" 
-    			exit 10
-		    }
 			;;
 	esac
 
