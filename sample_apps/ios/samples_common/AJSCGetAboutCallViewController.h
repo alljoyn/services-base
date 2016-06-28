@@ -20,7 +20,7 @@
 #import "alljoyn/about/AJNAnnouncement.h"
 #import "alljoyn/about/AJNAboutDataConverter.h"
 #import "AJNMessageArgument.h"
-#import "alljoyn/about/AJNAboutClient.h"
+#import "AJNAboutProxy.h"
 
 #import <SystemConfiguration/CaptiveNetwork.h>
 #import <CoreFoundation/CFDictionary.h>
