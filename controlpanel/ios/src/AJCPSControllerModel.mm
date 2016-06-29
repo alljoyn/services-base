@@ -23,7 +23,6 @@
 #import "AJCPSControlPanelDevice.h"
 #import "AJCPSActionWithDialog.h"
 #import "AJCPSConstraintList.h"
-#import "alljoyn/about/PropertyStore.h" //for ER codes
 
 @interface AJCPSControllerModel ()
 @property (strong, nonatomic) NSMutableArray *containerStack; // array of AJCPSContainer *
@@ -593,7 +592,7 @@
         return status;
         
     } else {
-        return ER_LANGUAGE_NOT_SUPPORTED;
+        return ER_FAIL;
     }
     
     return status;
@@ -609,7 +608,7 @@
         return status;
         
     } else {
-        return ER_LANGUAGE_NOT_SUPPORTED;
+        return ER_FAIL;
     }
     
     return status;
