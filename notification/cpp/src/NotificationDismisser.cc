@@ -45,14 +45,14 @@ NotificationDismisser::NotificationDismisser(ajn::BusAttachment* bus, qcc::Strin
             return;
         }
 
-        status = m_InterfaceDescription->AddSignal(AJ_DISMISS_SIGNAL_NAME.c_str(), AJ_DISMISS_SIGNAL_PARAMS.c_str(), AJ_DISMISS_PARAM_NAMES.c_str(), 0);
+        // Mark the signal as sessionless.
+        status = m_InterfaceDescription->AddSignal(AJ_DISMISS_SIGNAL_NAME.c_str(), AJ_DISMISS_SIGNAL_PARAMS.c_str(), AJ_DISMISS_PARAM_NAMES.c_str(), MEMBER_ANNOTATE_SESSIONLESS);
         if (status != ER_OK) {
             QCC_LogError(status, ("AddSignal failed."));
             return;
         }
 
-        // Mark the signal as sessionless.
-        status = m_InterfaceDescription->SetMemberDescription(AJ_DISMISS_SIGNAL_NAME.c_str(), AJ_DISMISS_SIGNAL_DESCRIPTION.c_str(), true);
+        status = m_InterfaceDescription->SetMemberDescription(AJ_DISMISS_SIGNAL_NAME.c_str(), AJ_DISMISS_SIGNAL_DESCRIPTION.c_str());
         if (status != ER_OK) {
             QCC_LogError(status, ("SetMemberDescription failed."));
             return;

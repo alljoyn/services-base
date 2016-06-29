@@ -37,14 +37,14 @@ NotificationTransport::NotificationTransport(ajn::BusAttachment* bus,
     status = bus->CreateInterface(interfaceName.c_str(), intf);
 
     if (status == ER_OK) {
-        status = intf->AddSignal(AJ_SIGNAL_METHOD.c_str(), AJ_NOTIFY_PARAMS.c_str(), AJ_NOTIFY_PARAM_NAMES.c_str(), 0);
+        // Mark the signal as sessionless.
+        status = intf->AddSignal(AJ_SIGNAL_METHOD.c_str(), AJ_NOTIFY_PARAMS.c_str(), AJ_NOTIFY_PARAM_NAMES.c_str(), MEMBER_ANNOTATE_SESSIONLESS);
         if (status != ER_OK) {
             QCC_LogError(status, ("AddSignal failed."));
             return;
         }
 
-        // Mark the signal as sessionless.
-        status = intf->SetMemberDescription(AJ_SIGNAL_METHOD.c_str(), AJ_NOTIFY_SIGNAL_DESCRIPTION.c_str(), true);
+        status = intf->SetMemberDescription(AJ_SIGNAL_METHOD.c_str(), AJ_NOTIFY_SIGNAL_DESCRIPTION.c_str());
         if (status != ER_OK) {
             QCC_LogError(status, ("SetMemberDescription failed."));
             return;
