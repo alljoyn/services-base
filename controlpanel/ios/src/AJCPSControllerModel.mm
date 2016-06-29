@@ -23,7 +23,6 @@
 #import "AJCPSControlPanelDevice.h"
 #import "AJCPSActionWithDialog.h"
 #import "AJCPSConstraintList.h"
-#import "alljoyn/about/PropertyStore.h" //for ER codes
 
 @interface AJCPSControllerModel ()
 @property (strong, nonatomic) NSMutableArray *containerStack; // array of AJCPSContainer *
