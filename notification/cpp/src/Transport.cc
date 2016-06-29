@@ -19,7 +19,6 @@
 #pragma warning(disable: 4996)
 #endif
 
-#include <alljoyn/about/AnnouncementRegistrar.h>
 #include <alljoyn/notification/NotificationService.h>
 #include <alljoyn/notification/NotificationReceiver.h>
 
