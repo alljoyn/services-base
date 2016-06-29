@@ -20,7 +20,6 @@
 #import "alljoyn/notification/NotificationEnums.h"
 #import "AJNSNotificationEnums.h"
 #import "AJNSNotification.h"
-#import "alljoyn/about/AJNPropertyStore.h"
 #import "alljoyn/about/AJNAboutPropertyStoreImpl.h"
 
 /**
