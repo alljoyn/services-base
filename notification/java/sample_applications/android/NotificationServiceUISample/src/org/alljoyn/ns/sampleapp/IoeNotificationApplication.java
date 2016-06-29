@@ -44,7 +44,6 @@ import org.alljoyn.ns.NotificationText;
 import org.alljoyn.ns.RichAudioUrl;
 import org.alljoyn.ns.transport.Transport;
 import org.alljoyn.services.android.storage.AboutDataImpl;
-import org.alljoyn.services.common.PropertyStoreException;
 import org.alljoyn.services.android.storage.Property;
 
 import android.annotation.SuppressLint;
