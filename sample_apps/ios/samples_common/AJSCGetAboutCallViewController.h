@@ -17,7 +17,6 @@
 
 #import <UIKit/UIKit.h>
 
-#import "alljoyn/about/AJNAnnouncementReceiver.h"
 #import "alljoyn/about/AJNAnnouncement.h"
 #import "alljoyn/about/AJNAboutDataConverter.h"
 #import "AJNMessageArgument.h"
