@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.alljoyn.bus.AboutObjectDescription;
 import org.alljoyn.bus.BusAttachment;
 import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.BusObject;
@@ -33,6 +34,7 @@ import org.alljoyn.bus.SignalEmitter;
 import org.alljoyn.bus.Status;
 import org.alljoyn.bus.annotation.BusSignal;
 import org.alljoyn.common.ServiceAvailabilityListener;
+import org.alljoyn.common.ServiceCommonImpl;
 import org.alljoyn.ioe.onboardingtest.OnboardingServerCallback;
 import org.alljoyn.onboarding.client.OnboardingClient;
 import org.alljoyn.onboarding.client.OnboardingClientImpl;
@@ -41,8 +43,6 @@ import org.alljoyn.onboarding.transport.MyScanResult;
 import org.alljoyn.onboarding.transport.OBLastError;
 import org.alljoyn.onboarding.transport.OnboardingTransport;
 import org.alljoyn.onboarding.transport.ScanInfo;
-import org.alljoyn.services.common.BusObjectDescription;
-import org.alljoyn.services.common.ServiceCommonImpl;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -208,12 +208,12 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
     // ------------------------  Client ------------------------------
 
     /* (non-Javadoc)
-     * @see org.alljoyn.onboarding.OnboardingService#createOnboardingClient(java.lang.String, org.alljoyn.services.common.ServiceAvailabilityListener, short)
+     * @see org.alljoyn.onboarding.OnboardingService#createOnboardingClient(java.lang.String, org.alljoyn.common.ServiceAvailabilityListener, short)
      */
     @Override
     public OnboardingClient createOnboardingClient(String deviceName, ServiceAvailabilityListener serviceAvailabilityListener, short port) throws Exception
     {
-        return  new OnboardingClientImpl(deviceName, getBus(), serviceAvailabilityListener, port);
+        return new OnboardingClientImpl(deviceName, getBus(), serviceAvailabilityListener, port);
     }
 
     /* (non-Javadoc)
@@ -1103,18 +1103,18 @@ public class OnboardingServiceImpl extends ServiceCommonImpl implements Onboardi
     }
 
     /* (non-Javadoc)
-     * @see org.alljoyn.services.common.ServiceCommonImpl#getBusObjectDescriptions()
+     * @see org.alljoyn.common.ServiceCommonImpl#getAboutObjectDescriptions()
      */
     @Override
-    public List<BusObjectDescription> getBusObjectDescriptions()
+    public List<AboutObjectDescription> getAboutObjectDescriptions()
     {
         // add self. announcer isn't ready yet, so no announcement will go
-        List<BusObjectDescription> addBusObjectDescriptions = new ArrayList<BusObjectDescription>(2);
-        BusObjectDescription ajAboutBusObjectDescription = new BusObjectDescription();
-        ajAboutBusObjectDescription.setPath(OnboardingTransport.OBJ_PATH);
-        ajAboutBusObjectDescription.setInterfaces(new String[]{OnboardingTransport.INTERFACE_NAME});
-        addBusObjectDescriptions.add(ajAboutBusObjectDescription);
-        return addBusObjectDescriptions;
+        List<AboutObjectDescription> addAboutObjectDescriptions = new ArrayList<AboutObjectDescription>(2);
+        AboutObjectDescription ajAboutObjectDescription = new AboutObjectDescription();
+        ajAboutObjectDescription.path = OnboardingTransport.OBJ_PATH;
+        ajAboutObjectDescription.interfaces = new String[]{OnboardingTransport.INTERFACE_NAME};
+        addAboutObjectDescriptions.add(ajAboutObjectDescription);
+        return addAboutObjectDescriptions;
     }
 
     /**
