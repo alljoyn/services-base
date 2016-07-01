@@ -33,7 +33,7 @@ import org.alljoyn.bus.Status;
 import org.alljoyn.bus.Variant;
 import org.alljoyn.bus.alljoyn.DaemonInit;
 import org.alljoyn.bus.BusException;
-import org.alljoyn.services.common.utils.TransportUtil;
+import org.alljoyn.common.TransformUtil;
 import org.alljoyn.ns.Notification;
 import org.alljoyn.ns.NotificationMessageType;
 import org.alljoyn.ns.NotificationReceiver;
@@ -247,7 +247,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 
             // ////start about
             aboutData = new AboutDataImpl(this);
-            Map<String, Object> aboutMap = TransportUtil.fromVariantMap(aboutData.getAboutData("en"));
+            Map<String, Object> aboutMap = TransformUtil.fromVariantMap(aboutData.getAboutData("en"));
             String deviceName = (String) aboutMap.get(AboutKeys.ABOUT_DEVICE_NAME);
 
             if (deviceName == null || deviceName.length() == 0) {
