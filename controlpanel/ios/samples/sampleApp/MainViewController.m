@@ -16,17 +16,17 @@
 
 #import "MainViewController.h"
 #import "AJNStatus.h"
-#import "alljoyn/about/AJNAnnouncement.h"
 #import "alljoyn/about/AJNAnnouncementReceiver.h"
-#import "AnnounceTextViewController.h"
 #import "alljoyn/controlpanel/AJCPSGetControlPanelViewController.h"
 #include <qcc/Log.h>
 #import "AppDelegate.h"
+#import "samples_common/AJSCAboutAnnouncement.h"
 #import "samples_common/AJSCAboutDataConverter.h"
 #import "samples_common/AJSCClientInformation.h"
 #import "samples_common/AJSCGetAboutCallViewController.h"
 #import "samples_common/AJSCAuthenticationListenerImpl.h"
 #import "samples_common/AJSCAlertController.h"
+#import "samples_common/AJSCAnnounceTextViewController.h"
 
 
 static bool ALLOWREMOTEMESSAGES = true; // About Client -  allow Remote Messages flag
@@ -103,10 +103,10 @@ static NSString * const DEFAULT_AUTH_PASSWORD = @"121212";
 		getAboutCallView.clientInformation = (self.clientInformationDict)[self.announcementButtonCurrentTitle];
 		getAboutCallView.clientBusAttachment = self.clientBusAttachment;
 	}
-    // AnnounceTextViewController
-	else if ([segue.destinationViewController isKindOfClass:[AnnounceTextViewController class]]) {
-		AnnounceTextViewController *announceTextViewController = segue.destinationViewController;
-		announceTextViewController.ajnAnnouncement = [(AJSCClientInformation *)(self.clientInformationDict)[self.announcementButtonCurrentTitle] announcement];
+    // AJSCAnnounceTextViewController
+	else if ([segue.destinationViewController isKindOfClass:[AJSCAnnounceTextViewController class]]) {
+		AJSCAnnounceTextViewController *announceTextViewController = segue.destinationViewController;
+		announceTextViewController.announcement = [(AJSCClientInformation *)(self.clientInformationDict)[self.announcementButtonCurrentTitle] announcement];
 	}
 }
 
@@ -132,8 +132,8 @@ static NSString * const DEFAULT_AUTH_PASSWORD = @"121212";
 	NSString *announcementUniqueName; // Announcement unique name in a format of <busName DeviceName>
 	AJSCClientInformation *clientInformation = [[AJSCClientInformation alloc] init];
     
-	// Save the announcement in a AJNAnnouncement
-	clientInformation.announcement = [[AJNAnnouncement alloc] initWithVersion:version port:port busName:busName objectDescriptions:objectDescs aboutData:aboutData];
+	// Save the announcement in a AJSCAboutAnnouncement
+	clientInformation.announcement = [[AJSCAboutAnnouncement alloc] initWithVersion:version port:port busName:busName objectDescriptions:objectDescs aboutData:aboutData];
     
 	// Generate an announcement unique name in a format of <busName DeviceName>
 	announcementUniqueName = [NSString stringWithFormat:@"%@ %@", [clientInformation.announcement busName], [AJSCAboutDataConverter messageArgumentToString:[clientInformation.announcement aboutData][@"DeviceName"]]];
@@ -163,7 +163,7 @@ static NSString * const DEFAULT_AUTH_PASSWORD = @"121212";
 	    // Iterate over the announcements dictionary
 	    for (NSString *key in self.clientInformationDict.allKeys) {
 	        AJSCClientInformation *clientInfo = [self.clientInformationDict valueForKey:key];
-	        AJNAnnouncement *announcement = [clientInfo announcement];
+	        AJSCAboutAnnouncement *announcement = [clientInfo announcement];
 	        AJNMessageArgument *tmpMsgrg = [announcement aboutData][@"AppId"];
             
 	        tStatus = [tmpMsgrg value:@"ay", &tmpAppIdNumElements, &tmpAppIdBuffer];
@@ -304,7 +304,14 @@ static NSString * const DEFAULT_AUTH_PASSWORD = @"121212";
     
     [self.announcementOptionsAlert addActionWithName:@"Control Panel"
                                              handler:^(UIAlertAction*){
-                                                 AJCPSGetControlPanelViewController *getCpanelView = [[AJCPSGetControlPanelViewController alloc] initWithAnnouncement:[(AJSCClientInformation *)(weakSelf.clientInformationDict)[weakSelf.announcementButtonCurrentTitle] announcement] bus:weakSelf.clientBusAttachment];
+                                                 // Should pass in objectDescriptionArg instead of
+                                                 // objectDescriptions when dependency on
+                                                 // AJNAnnouncementListener's announce() has been removed.
+                                                 AJSCAboutAnnouncement *announcement = [(AJSCClientInformation *)(weakSelf.clientInformationDict)[weakSelf.announcementButtonCurrentTitle] announcement];
+                                                 AJCPSGetControlPanelViewController *getCpanelView =
+                                                     [[AJCPSGetControlPanelViewController alloc] initWithBusName:announcement.busName
+                                                                                              objectDescriptions:announcement.objectDescriptions
+                                                                                                             bus:weakSelf.clientBusAttachment];
                                                  [weakSelf.navigationController pushViewController:getCpanelView animated:YES];
                                              }];
 }
@@ -463,7 +470,7 @@ static NSString * const DEFAULT_AUTH_PASSWORD = @"121212";
 - (bool)announcementHasCPanel:(NSString *)announcementKey
 {
 	bool hascPanel = false;
-	AJNAnnouncement *announcement = [(AJSCClientInformation *)[self.clientInformationDict valueForKey:announcementKey] announcement];
+	AJSCAboutAnnouncement *announcement = [(AJSCClientInformation *)[self.clientInformationDict valueForKey:announcementKey] announcement];
 	NSMutableDictionary *announcementObjDecs = [announcement objectDescriptions]; //Dictionary of ObjectDescriptions NSStrings
     
 	// iterate over the object descriptions dictionary

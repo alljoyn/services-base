@@ -19,11 +19,15 @@
 
 @implementation AJSCClientInformation
 
-- (void)setAnnouncement:(AJNAnnouncement *)announcement
+- (void)setAnnouncement:(AJSCAboutAnnouncement *)announcement
 {
 	_announcement = announcement;
-    
-	_currLang = [AJSCAboutDataConverter messageArgumentToString:[_announcement aboutData][@"DefaultLanguage"]];
+
+    if (_announcement.usesDeprecatedAnnounce) {
+        _currLang = [AJSCAboutDataConverter messageArgumentToString:[_announcement aboutData][@"DefaultLanguage"]];
+    } else {
+        // TODO: Use AJSCAboutAnnouncement.aboutDataArg to set language.
+    }
 }
 
 @end

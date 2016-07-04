@@ -59,7 +59,11 @@ static NSString * const CLIENTDEFAULTLANG=@"";
 
     [self.alertBusName addActionWithName:@"OK" handler:^(UIAlertAction *action) {
         if ([weakSelf.alertChooseLanguage.text isEqualToString:@""]) {
-            weakSelf.alertChooseLanguage.text = [AJSCAboutDataConverter messageArgumentToString:[weakSelf.clientInformation.announcement aboutData][@"DefaultLanguage"]];
+            if (weakSelf.clientInformation.announcement.usesDeprecatedAnnounce) {
+                weakSelf.alertChooseLanguage.text = [AJSCAboutDataConverter messageArgumentToString:[weakSelf.clientInformation.announcement aboutData][@"DefaultLanguage"]];
+            } else {
+                // TODO: Use AJSCAboutAnnouncement.aboutDataArg to set language text.
+            }
         }
         if (![weakSelf isValidLanguage:weakSelf.alertChooseLanguage.text]) {
             AJSCAlertController *errorAlert = [AJSCAlertController alertControllerWithTitle:@"Error"

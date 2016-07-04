@@ -15,8 +15,8 @@
  ******************************************************************************/
 
 #import <UIKit/UIKit.h>
-#import "alljoyn/about/AJNAnnouncement.h"
+#import "AJSCAboutAnnouncement.h"
 
-@interface AnnounceTextViewController : UIViewController
-@property (strong, nonatomic) AJNAnnouncement *ajnAnnouncement;
+@interface AJSCAnnounceTextViewController : UIViewController
+@property (strong, nonatomic) AJSCAboutAnnouncement *announcement;
 @end
