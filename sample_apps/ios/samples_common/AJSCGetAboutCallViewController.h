@@ -16,7 +16,6 @@
 
 #import <UIKit/UIKit.h>
 
-#import "alljoyn/about/AJNAnnouncement.h"
 #import "AJNMessageArgument.h"
 #import "alljoyn/about/AJNAboutClient.h"
 
@@ -27,6 +26,7 @@
 #import "AJNVersion.h"
 #import "AJNProxyBusObject.h"
 
+#import "AJSCAboutAnnouncement.h"
 #import "AJSCAboutDataConverter.h"
 #import "AJSCClientInformation.h"
 

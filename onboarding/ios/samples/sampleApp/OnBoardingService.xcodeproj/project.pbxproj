@@ -28,7 +28,6 @@
 		9A3DB0C4183A0D2A0063D6BE /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A3DB00C183A0D290063D6BE /* MainViewController.m */; };
 		9A3DB315183A19CB0063D6BE /* libc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A3DB314183A19CB0063D6BE /* libc.dylib */; };
 		9A5CC10C183D04AA002327C0 /* alljoynicon.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 9A5CC10B183D04AA002327C0 /* alljoynicon.jpeg */; };
-		9AD3D2DE187191AC00D15544 /* AnnounceTextViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AD3D2DD187191AC00D15544 /* AnnounceTextViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -60,8 +59,6 @@
 		9A3DB00C183A0D290063D6BE /* MainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainViewController.m; sourceTree = "<group>"; };
 		9A3DB314183A19CB0063D6BE /* libc.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libc.dylib; path = usr/lib/libc.dylib; sourceTree = SDKROOT; };
 		9A5CC10B183D04AA002327C0 /* alljoynicon.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = alljoynicon.jpeg; sourceTree = "<group>"; };
-		9AD3D2DC187191AC00D15544 /* AnnounceTextViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnnounceTextViewController.h; sourceTree = "<group>"; };
-		9AD3D2DD187191AC00D15544 /* AnnounceTextViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnnounceTextViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,8 +126,6 @@
 			children = (
 				9A3DB00B183A0D290063D6BE /* MainViewController.h */,
 				9A3DB00C183A0D290063D6BE /* MainViewController.m */,
-				9AD3D2DC187191AC00D15544 /* AnnounceTextViewController.h */,
-				9AD3D2DD187191AC00D15544 /* AnnounceTextViewController.m */,
 				19C40C2718B24A8100D3F62B /* OnboardingViewController.h */,
 				19C40C2818B24A8100D3F62B /* OnboardingViewController.m */,
 			);
@@ -248,7 +243,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				9A3DB0C4183A0D2A0063D6BE /* MainViewController.m in Sources */,
-				9AD3D2DE187191AC00D15544 /* AnnounceTextViewController.m in Sources */,
 				19C40C2918B24A8100D3F62B /* OnboardingViewController.m in Sources */,
 				9A3DB0C2183A0D2A0063D6BE /* AppDelegate.m in Sources */,
 				9A3DB0C1183A0D2A0063D6BE /* main.m in Sources */,

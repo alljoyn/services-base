@@ -15,10 +15,10 @@
  ******************************************************************************/
 
 #import <Foundation/Foundation.h>
-#import "alljoyn/about/AJNAnnouncement.h"
+#import "AJSCAboutAnnouncement.h"
 #import "AJNTransportMask.h"
 
 @interface AJSCClientInformation : NSObject
-@property (strong, nonatomic) AJNAnnouncement *announcement;
+@property (strong, nonatomic) AJSCAboutAnnouncement *announcement;
 @property (strong, nonatomic) NSString *currLang;
 @end

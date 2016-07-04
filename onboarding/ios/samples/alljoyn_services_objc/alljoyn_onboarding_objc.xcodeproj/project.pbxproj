@@ -14,6 +14,10 @@
 		19C8887118C8C3AC00B3471A /* AJOBOnboardingClientListenerAdapter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 19C8887018C8C3AC00B3471A /* AJOBOnboardingClientListenerAdapter.mm */; };
 		7E2D79161D1784BB00770EB9 /* AJSCAlertControllerManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E2D79151D1784BB00770EB9 /* AJSCAlertControllerManager.mm */; };
 		7E2D79181D17854D00770EB9 /* AJSCAlertControllerManager.h in Copy Files (2 items) */ = {isa = PBXBuildFile; fileRef = 7E2D79171D17854D00770EB9 /* AJSCAlertControllerManager.h */; };
+		7E52D16A1D26321400AA01E8 /* AJSCAboutAnnouncement.h in Copy Files (2 items) */ = {isa = PBXBuildFile; fileRef = 7E52D1691D26321400AA01E8 /* AJSCAboutAnnouncement.h */; };
+		7E52D16C1D26323900AA01E8 /* AJSCAboutAnnouncement.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E52D16B1D26323900AA01E8 /* AJSCAboutAnnouncement.mm */; };
+		7E6317E21D2A478400F1C1BE /* AJSCAnnounceTextViewController.h in Copy Files (2 items) */ = {isa = PBXBuildFile; fileRef = 7E6317E11D2A478400F1C1BE /* AJSCAnnounceTextViewController.h */; };
+		7E6317E61D2A49CF00F1C1BE /* AJSCAnnounceTextViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E6317E51D2A49CF00F1C1BE /* AJSCAnnounceTextViewController.mm */; };
 		7E6317EC1D2B2C4000F1C1BE /* AJSCAboutDataConverter.h in Copy Files (2 items) */ = {isa = PBXBuildFile; fileRef = 7E6317EB1D2B2C4000F1C1BE /* AJSCAboutDataConverter.h */; };
 		7E6317EE1D2B2C6A00F1C1BE /* AJSCAboutDataConverter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E6317ED1D2B2C6A00F1C1BE /* AJSCAboutDataConverter.mm */; };
 		9A156EB918DEDA0100B7B5BC /* AJOBOnboardingClientListenerAdapter.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 19C8886D18C8C39E00B3471A /* AJOBOnboardingClientListenerAdapter.h */; };
@@ -78,6 +82,8 @@
 			dstPath = inc/alljoyn/samples_common;
 			dstSubfolderSpec = 16;
 			files = (
+				7E6317E21D2A478400F1C1BE /* AJSCAnnounceTextViewController.h in Copy Files (2 items) */,
+				7E52D16A1D26321400AA01E8 /* AJSCAboutAnnouncement.h in Copy Files (2 items) */,
 				7E6317EC1D2B2C4000F1C1BE /* AJSCAboutDataConverter.h in Copy Files (2 items) */,
 				7E2D79181D17854D00770EB9 /* AJSCAlertControllerManager.h in Copy Files (2 items) */,
 				B07839651CF7BF62005A3BFA /* AJSCClientInformation.h in Copy Files (2 items) */,
@@ -101,6 +107,10 @@
 		19C8887018C8C3AC00B3471A /* AJOBOnboardingClientListenerAdapter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AJOBOnboardingClientListenerAdapter.mm; sourceTree = "<group>"; };
 		7E2D79151D1784BB00770EB9 /* AJSCAlertControllerManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = AJSCAlertControllerManager.mm; path = ../../../../sample_apps/ios/samples_common/AJSCAlertControllerManager.mm; sourceTree = "<group>"; };
 		7E2D79171D17854D00770EB9 /* AJSCAlertControllerManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AJSCAlertControllerManager.h; path = ../../../../sample_apps/ios/samples_common/AJSCAlertControllerManager.h; sourceTree = "<group>"; };
+		7E52D1691D26321400AA01E8 /* AJSCAboutAnnouncement.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AJSCAboutAnnouncement.h; path = ../../../../sample_apps/ios/samples_common/AJSCAboutAnnouncement.h; sourceTree = "<group>"; };
+		7E52D16B1D26323900AA01E8 /* AJSCAboutAnnouncement.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = AJSCAboutAnnouncement.mm; path = ../../../../sample_apps/ios/samples_common/AJSCAboutAnnouncement.mm; sourceTree = "<group>"; };
+		7E6317E11D2A478400F1C1BE /* AJSCAnnounceTextViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AJSCAnnounceTextViewController.h; path = ../../../../sample_apps/ios/samples_common/AJSCAnnounceTextViewController.h; sourceTree = "<group>"; };
+		7E6317E51D2A49CF00F1C1BE /* AJSCAnnounceTextViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = AJSCAnnounceTextViewController.mm; path = ../../../../sample_apps/ios/samples_common/AJSCAnnounceTextViewController.mm; sourceTree = "<group>"; };
 		7E6317EB1D2B2C4000F1C1BE /* AJSCAboutDataConverter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AJSCAboutDataConverter.h; path = ../../../../sample_apps/ios/samples_common/AJSCAboutDataConverter.h; sourceTree = "<group>"; };
 		7E6317ED1D2B2C6A00F1C1BE /* AJSCAboutDataConverter.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = AJSCAboutDataConverter.mm; path = ../../../../sample_apps/ios/samples_common/AJSCAboutDataConverter.mm; sourceTree = "<group>"; };
 		9A76170018C8BC250016BF6E /* AJOBEnums.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AJOBEnums.h; path = onboarding/AJOBEnums.h; sourceTree = "<group>"; };
@@ -163,6 +173,10 @@
 		9AA935E01854BC2B00378361 = {
 			isa = PBXGroup;
 			children = (
+				7E6317E51D2A49CF00F1C1BE /* AJSCAnnounceTextViewController.mm */,
+				7E6317E11D2A478400F1C1BE /* AJSCAnnounceTextViewController.h */,
+				7E52D16B1D26323900AA01E8 /* AJSCAboutAnnouncement.mm */,
+				7E52D1691D26321400AA01E8 /* AJSCAboutAnnouncement.h */,
 				7E6317ED1D2B2C6A00F1C1BE /* AJSCAboutDataConverter.mm */,
 				7E6317EB1D2B2C4000F1C1BE /* AJSCAboutDataConverter.h */,
 				7E2D79171D17854D00770EB9 /* AJSCAlertControllerManager.h */,
@@ -365,6 +379,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7E6317E61D2A49CF00F1C1BE /* AJSCAnnounceTextViewController.mm in Sources */,
+				7E52D16C1D26323900AA01E8 /* AJSCAboutAnnouncement.mm in Sources */,
 				7E6317EE1D2B2C6A00F1C1BE /* AJSCAboutDataConverter.mm in Sources */,
 				7E2D79161D1784BB00770EB9 /* AJSCAlertControllerManager.mm in Sources */,
 				B07839691CF7BF83005A3BFA /* AJSCClientInformation.mm in Sources */,
