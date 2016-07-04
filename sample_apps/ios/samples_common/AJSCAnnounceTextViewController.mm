@@ -14,15 +14,15 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#import "AnnounceTextViewController.h"
-#import "samples_common/AJSCAboutDataConverter.h"
+#import "AJSCAnnounceTextViewController.h"
+#import "AJSCAboutDataConverter.h"
 
-@interface AnnounceTextViewController ()
+@interface AJSCAnnounceTextViewController ()
 @property (weak, nonatomic) IBOutlet UITextView *announceInformation;
 
 @end
 
-@implementation AnnounceTextViewController
+@implementation AJSCAnnounceTextViewController
 
 - (NSString *)objectDescriptionsToString:(NSMutableDictionary *)qnsObjectDesc
 {
@@ -48,34 +48,42 @@
 {
 	[super viewDidLoad];
     
-	//  retrive AJNAnnouncement by the  announcementButtonCurrentTitle unique name
+	//  retrive AJSCAboutAnnouncement by the announcementButtonCurrentTitle unique name
 	NSString *txt = [[NSString alloc] init];
     
 	//  set title
-	NSString *title = [self.ajnAnnouncement busName];
+	NSString *title = [self.announcement busName];
     
 	txt = [txt stringByAppendingFormat:@"%@\n%@\n", title, [@"" stringByPaddingToLength :[title length] + 10 withString : @"-" startingAtIndex : 0]];
     
 	//  set body
-	txt = [txt stringByAppendingFormat:@"BusName: %@\n", [self.ajnAnnouncement busName]];
+	txt = [txt stringByAppendingFormat:@"BusName: %@\n", [self.announcement busName]];
     
-	txt = [txt stringByAppendingFormat:@"Port: %hu\n", [self.ajnAnnouncement port]];
+	txt = [txt stringByAppendingFormat:@"Port: %hu\n", [self.announcement port]];
     
-    txt = [txt stringByAppendingFormat:@"Version: %u\n", [self.ajnAnnouncement version]];
+    txt = [txt stringByAppendingFormat:@"Version: %u\n", [self.announcement version]];
     
 	txt = [txt stringByAppendingString:@"\n\n"];
     
 	//  set AboutMap info
 	txt = [txt stringByAppendingFormat:@"About map:\n"];
-    
-	txt = [txt stringByAppendingString:[AJSCAboutDataConverter aboutDataDictionaryToString:([self.ajnAnnouncement aboutData])]];
+
+    if (self.announcement.usesDeprecatedAnnounce) {
+        txt = [txt stringByAppendingString:[AJSCAboutDataConverter aboutDataDictionaryToString:([self.announcement aboutData])]];
+    } else {
+        // TODO: Use AJSCAboutAnnouncement.aboutDataArg in appended text.
+    }
     
 	txt = [txt stringByAppendingString:@"\n\n"];
     
 	//  set ObjectDesc info
 	txt = [txt stringByAppendingFormat:@"Bus Object Description:\n"];
-    
-	txt = [txt stringByAppendingString:[self objectDescriptionsToString:[self.ajnAnnouncement objectDescriptions]]];
+
+    if (self.announcement.usesDeprecatedAnnounce) {
+        txt = [txt stringByAppendingString:[self objectDescriptionsToString:[self.announcement objectDescriptions]]];
+    } else {
+        // TODO: Use AJSCAboutAnnouncement.objectDescriptionArg in appended text.
+    }
     
 	self.announceInformation.text = txt;
 }

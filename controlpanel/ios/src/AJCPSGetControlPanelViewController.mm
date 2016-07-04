@@ -54,6 +54,8 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
 @property (weak, nonatomic) AJNBusAttachment *clientBusAttachment;
 
 @property (weak, nonatomic) AJNAnnouncement *announcement;
+@property (weak, nonatomic) NSString *busName;                        // Temporary replacement for AJNAnnouncement.
+@property (weak, nonatomic) NSMutableDictionary *objectDescriptions;  // Temporary replacement for AJNAnnouncement.
 @property (nonatomic) bool isAnnouncementMode;
 @property (strong, nonatomic) NSString *notificationSenderBusName;
 @property (strong, nonatomic) NSString *notificationCPSObjectPath;
@@ -82,6 +84,18 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
 {
     if (self = [super init]) {
         self.announcement = announcement;
+        self.clientBusAttachment = bus;
+        self.isAnnouncementMode = true;
+    }
+    return self;
+}
+
+- (id)initWithBusName:(NSString*) busName objectDescriptions:(NSMutableDictionary*) objectDescriptions bus:(AJNBusAttachment*) bus
+{
+    if (self = [super init]) {
+        self.announcement = nil;
+        self.busName = busName;
+        self.objectDescriptions = objectDescriptions;
         self.clientBusAttachment = bus;
         self.isAnnouncementMode = true;
     }
@@ -178,8 +192,14 @@ static NSString * const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
     
     if (self.isAnnouncementMode) {
         // Create a controllable device using the announcement bus name - this will trigger a listener method
-        self.controlPanelDevice = [self.controlPanelController createControllableDevice:self.announcement.busName
+        if (self.announcement) {
+            self.controlPanelDevice = [self.controlPanelController createControllableDevice:self.announcement.busName
                                                                             ObjectDescs:self.announcement.objectDescriptions];
+        } else if (self.busName && self.objectDescriptions) {
+            self.controlPanelDevice = [self.controlPanelController createControllableDevice:self.busName
+                                                                            ObjectDescs:self.objectDescriptions];
+        }
+        
         if (!self.controlPanelDevice) {
             NSLog(@"Could not initialize control panel device.");
             return ER_FAIL;
