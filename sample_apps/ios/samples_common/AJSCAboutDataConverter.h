@@ -14,16 +14,29 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#import "AJSCClientInformation.h"
-#import "AJSCAboutDataConverter.h"
+#import <Foundation/Foundation.h>
+#import "AJNMessageArgument.h"
 
-@implementation AJSCClientInformation
+/**
+ * AJSCAboutDataConverter is a utility class to convert About data structures into other
+ * representations. String conversion methods will return @"" on failure.
+ */
+@interface AJSCAboutDataConverter : NSObject
 
-- (void)setAnnouncement:(AJNAnnouncement *)announcement
-{
-	_announcement = announcement;
-    
-	_currLang = [AJSCAboutDataConverter messageArgumentToString:[_announcement aboutData][@"DefaultLanguage"]];
-}
+/**
+ * Convert AJNMessageArgument to NSString.
+ */
++ (NSString *)messageArgumentToString:(AJNMessageArgument *)ajnMsgArg;
 
+/**
+ * Convert NSMutableDictionary of about data (in the format NSString/AJNMessageArgument) to
+ * NSString.
+ */
++ (NSString *)aboutDataDictionaryToString:(NSMutableDictionary *)aboutDataDict;
+
+/**
+ * Convert NSMutableDictionary of object descriptions (in the format of NSString/NSMutableArray)
+ * to NSString.
+ */
++ (NSString *)objectDescriptionsDictionaryToString:(NSMutableDictionary *)objectDescDict;
 @end

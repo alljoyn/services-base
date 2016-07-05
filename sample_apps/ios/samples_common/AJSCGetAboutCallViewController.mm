@@ -59,7 +59,7 @@ static NSString * const CLIENTDEFAULTLANG=@"";
 
     [self.alertBusName addActionWithName:@"OK" handler:^(UIAlertAction *action) {
         if ([weakSelf.alertChooseLanguage.text isEqualToString:@""]) {
-            weakSelf.alertChooseLanguage.text = [AJNAboutDataConverter messageArgumentToString:[weakSelf.clientInformation.announcement aboutData][@"DefaultLanguage"]];
+            weakSelf.alertChooseLanguage.text = [AJSCAboutDataConverter messageArgumentToString:[weakSelf.clientInformation.announcement aboutData][@"DefaultLanguage"]];
         }
         if (![weakSelf isValidLanguage:weakSelf.alertChooseLanguage.text]) {
             AJSCAlertController *errorAlert = [AJSCAlertController alertControllerWithTitle:@"Error"
@@ -98,7 +98,7 @@ static NSString * const CLIENTDEFAULTLANG=@"";
     }];
 
     [self.alertAnnouncementOptions addActionWithName:@"Set Language" handler:^(UIAlertAction *action) {
-        weakSelf.alertBusName.iosAlertController.message = [NSString stringWithFormat:@"Available:%@", [AJNAboutDataConverter messageArgumentToString:weakSelf.supportedLanguagesMsgArg]];
+        weakSelf.alertBusName.iosAlertController.message = [NSString stringWithFormat:@"Available:%@", [AJSCAboutDataConverter messageArgumentToString:weakSelf.supportedLanguagesMsgArg]];
         [weakSelf.alertBusName show];
     }];
 }
@@ -176,13 +176,12 @@ static NSString * const CLIENTDEFAULTLANG=@"";
         } else {
             AJNMessageArgument* objDesc = [[AJNMessageArgument alloc] init];
             [ajnAboutProxy getObjectDescriptionUsingMsgArg:objDesc];
-
-            NSLog(@"[%@] [%@] AboutData:  %@", @"DEBUG", [[self class] description], [AJNAboutDataConverter aboutDataDictionaryToString:aboutData]);
+            NSLog(@"[%@] [%@] AboutData:  %@", @"DEBUG", [[self class] description], [AJSCAboutDataConverter aboutDataDictionaryToString:aboutData]);
             NSLog(@"[%@] [%@] objectDescriptions:  %@", @"DEBUG", [[self class] description], [objDesc xml]);
 
             self.supportedLanguagesMsgArg = aboutData[@"SupportedLanguages"];
             self.lblAboutLanguage.text = self.clientInformation.currLang;
-            self.txtViewAboutMap.text = [AJNAboutDataConverter aboutDataDictionaryToString:aboutData];
+            self.txtViewAboutMap.text = [AJSCAboutDataConverter aboutDataDictionaryToString:aboutData];
             self.txtViewBusObjectDesc.text = [objDesc xml];
         }
     }

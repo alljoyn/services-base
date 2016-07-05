@@ -18,11 +18,11 @@
 #import "AJNStatus.h"
 #import "alljoyn/about/AJNAnnouncement.h"
 #import "alljoyn/about/AJNAnnouncementReceiver.h"
-#import "alljoyn/about/AJNAboutDataConverter.h"
 #import "AnnounceTextViewController.h"
 #import "alljoyn/controlpanel/AJCPSGetControlPanelViewController.h"
 #include <qcc/Log.h>
 #import "AppDelegate.h"
+#import "samples_common/AJSCAboutDataConverter.h"
 #import "samples_common/AJSCClientInformation.h"
 #import "samples_common/AJSCGetAboutCallViewController.h"
 #import "samples_common/AJSCAuthenticationListenerImpl.h"
@@ -136,7 +136,7 @@ static NSString * const DEFAULT_AUTH_PASSWORD = @"121212";
 	clientInformation.announcement = [[AJNAnnouncement alloc] initWithVersion:version port:port busName:busName objectDescriptions:objectDescs aboutData:aboutData];
     
 	// Generate an announcement unique name in a format of <busName DeviceName>
-	announcementUniqueName = [NSString stringWithFormat:@"%@ %@", [clientInformation.announcement busName], [AJNAboutDataConverter messageArgumentToString:[clientInformation.announcement aboutData][@"DeviceName"]]];
+	announcementUniqueName = [NSString stringWithFormat:@"%@ %@", [clientInformation.announcement busName], [AJSCAboutDataConverter messageArgumentToString:[clientInformation.announcement aboutData][@"DeviceName"]]];
     
     NSLog(@"[%@] [%@] Announcement unique name [%@]", @"DEBUG", [[self class] description], announcementUniqueName);
     
