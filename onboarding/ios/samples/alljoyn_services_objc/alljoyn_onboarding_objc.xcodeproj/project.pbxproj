@@ -14,6 +14,8 @@
 		19C8887118C8C3AC00B3471A /* AJOBOnboardingClientListenerAdapter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 19C8887018C8C3AC00B3471A /* AJOBOnboardingClientListenerAdapter.mm */; };
 		7E2D79161D1784BB00770EB9 /* AJSCAlertControllerManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E2D79151D1784BB00770EB9 /* AJSCAlertControllerManager.mm */; };
 		7E2D79181D17854D00770EB9 /* AJSCAlertControllerManager.h in Copy Files (2 items) */ = {isa = PBXBuildFile; fileRef = 7E2D79171D17854D00770EB9 /* AJSCAlertControllerManager.h */; };
+		7E6317EC1D2B2C4000F1C1BE /* AJSCAboutDataConverter.h in Copy Files (2 items) */ = {isa = PBXBuildFile; fileRef = 7E6317EB1D2B2C4000F1C1BE /* AJSCAboutDataConverter.h */; };
+		7E6317EE1D2B2C6A00F1C1BE /* AJSCAboutDataConverter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7E6317ED1D2B2C6A00F1C1BE /* AJSCAboutDataConverter.mm */; };
 		9A156EB918DEDA0100B7B5BC /* AJOBOnboardingClientListenerAdapter.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 19C8886D18C8C39E00B3471A /* AJOBOnboardingClientListenerAdapter.h */; };
 		9A156EBA18DEDA0100B7B5BC /* AJOBOnboardingClientListener.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 19C8886A18C8C38A00B3471A /* AJOBOnboardingClientListener.h */; };
 		9A156EBB18DEDA0100B7B5BC /* AJOBEnums.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9A76170018C8BC250016BF6E /* AJOBEnums.h */; };
@@ -76,6 +78,7 @@
 			dstPath = inc/alljoyn/samples_common;
 			dstSubfolderSpec = 16;
 			files = (
+				7E6317EC1D2B2C4000F1C1BE /* AJSCAboutDataConverter.h in Copy Files (2 items) */,
 				7E2D79181D17854D00770EB9 /* AJSCAlertControllerManager.h in Copy Files (2 items) */,
 				B07839651CF7BF62005A3BFA /* AJSCClientInformation.h in Copy Files (2 items) */,
 				B07839661CF7BF62005A3BFA /* AJSCCommonBusListener.h in Copy Files (2 items) */,
@@ -98,6 +101,8 @@
 		19C8887018C8C3AC00B3471A /* AJOBOnboardingClientListenerAdapter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AJOBOnboardingClientListenerAdapter.mm; sourceTree = "<group>"; };
 		7E2D79151D1784BB00770EB9 /* AJSCAlertControllerManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = AJSCAlertControllerManager.mm; path = ../../../../sample_apps/ios/samples_common/AJSCAlertControllerManager.mm; sourceTree = "<group>"; };
 		7E2D79171D17854D00770EB9 /* AJSCAlertControllerManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AJSCAlertControllerManager.h; path = ../../../../sample_apps/ios/samples_common/AJSCAlertControllerManager.h; sourceTree = "<group>"; };
+		7E6317EB1D2B2C4000F1C1BE /* AJSCAboutDataConverter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = AJSCAboutDataConverter.h; path = ../../../../sample_apps/ios/samples_common/AJSCAboutDataConverter.h; sourceTree = "<group>"; };
+		7E6317ED1D2B2C6A00F1C1BE /* AJSCAboutDataConverter.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = AJSCAboutDataConverter.mm; path = ../../../../sample_apps/ios/samples_common/AJSCAboutDataConverter.mm; sourceTree = "<group>"; };
 		9A76170018C8BC250016BF6E /* AJOBEnums.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AJOBEnums.h; path = onboarding/AJOBEnums.h; sourceTree = "<group>"; };
 		9AA935E91854BC2B00378361 /* liballjoyn_onboarding_objc.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = liballjoyn_onboarding_objc.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AA935EC1854BC2B00378361 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -158,6 +163,8 @@
 		9AA935E01854BC2B00378361 = {
 			isa = PBXGroup;
 			children = (
+				7E6317ED1D2B2C6A00F1C1BE /* AJSCAboutDataConverter.mm */,
+				7E6317EB1D2B2C4000F1C1BE /* AJSCAboutDataConverter.h */,
 				7E2D79171D17854D00770EB9 /* AJSCAlertControllerManager.h */,
 				7E2D79151D1784BB00770EB9 /* AJSCAlertControllerManager.mm */,
 				B07839671CF7BF83005A3BFA /* AJSCClientInformation.mm */,
@@ -358,6 +365,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7E6317EE1D2B2C6A00F1C1BE /* AJSCAboutDataConverter.mm in Sources */,
 				7E2D79161D1784BB00770EB9 /* AJSCAlertControllerManager.mm in Sources */,
 				B07839691CF7BF83005A3BFA /* AJSCClientInformation.mm in Sources */,
 				B078396A1CF7BF83005A3BFA /* AJSCCommonBusListener.mm in Sources */,
@@ -488,7 +496,7 @@
 					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/onboarding/cpp/inc\"",
 					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"",
 					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"",
-					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/services_common/ios/inc\"",
+					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/services_common/ios/inc\"/**",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
@@ -523,7 +531,7 @@
 					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/onboarding/cpp/inc\"",
 					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/$(CURRENT_ARCH)/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"",
 					"\"$(ALLJOYN_SDK_ROOT)/build/darwin/arm/$(PLATFORM_NAME)/$(CONFIGURATION)/dist/cpp/inc/alljoyn\"",
-					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/services_common/ios/inc\"",
+					"\"$(ALLSEEN_BASE_SERVICES_ROOT)/services_common/ios/inc\"/**",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (

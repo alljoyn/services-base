@@ -13,12 +13,10 @@
  *    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
-//
 
 #import <UIKit/UIKit.h>
 
 #import "alljoyn/about/AJNAnnouncement.h"
-#import "alljoyn/about/AJNAboutDataConverter.h"
 #import "AJNMessageArgument.h"
 #import "alljoyn/about/AJNAboutClient.h"
 
@@ -29,6 +27,7 @@
 #import "AJNVersion.h"
 #import "AJNProxyBusObject.h"
 
+#import "AJSCAboutDataConverter.h"
 #import "AJSCClientInformation.h"
 
 @interface AJSCGetAboutCallViewController : UIViewController

@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 #import "AnnounceTextViewController.h"
-#import "alljoyn/about/AJNAboutDataConverter.h"
+#import "samples_common/AJSCAboutDataConverter.h"
 
 @interface AnnounceTextViewController ()
 @property (weak, nonatomic) IBOutlet UITextView *announceInformation;
@@ -68,7 +68,7 @@
 	//  set AboutMap info
 	txt = [txt stringByAppendingFormat:@"About map:\n"];
     
-	txt = [txt stringByAppendingString:[AJNAboutDataConverter aboutDataDictionaryToString:([self.ajnAnnouncement aboutData])]];
+	txt = [txt stringByAppendingString:[AJSCAboutDataConverter aboutDataDictionaryToString:([self.ajnAnnouncement aboutData])]];
     
 	txt = [txt stringByAppendingString:@"\n\n"];
     
