@@ -1,9 +1,0 @@
-local.properties
-proguard-project.txt
-.classpath
-.project
-*.class
-*.jar
-/bin
-/gen
-/docs
