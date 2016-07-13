@@ -24,6 +24,7 @@
 #include "Transport.h"
 #include "NotificationConstants.h"
 #include <alljoyn/services_common/AsyncTaskQueue.h>
+#include <alljoyn/services_common/Common.h>
 #include <alljoyn/notification/NotificationAsyncTaskEvents.h>
 #include <qcc/Log.h>
 #include <qcc/String.h>
@@ -37,31 +38,6 @@ using namespace qcc;
 NotificationAsyncTaskEvents Notification::m_NotificationAsyncTaskEvents;
 AsyncTaskQueue Notification::m_AsyncTaskQueue(&Notification::m_NotificationAsyncTaskEvents);
 
-/*
- * Checks if a valid AllJoyn Object path has been specified in str.
- * Please note that this function is same as ajn::BusUtil::IsLegalObjectPath()
- * but since this is not exposed to external applications, this function is
- * being added here
- */
-static bool IsLegalObjectPath(const char* str)
-{
-    if (!str) {
-        return false;
-    }
-    /* Must begin with slash */
-    char c = *str++;
-    if (c != '/') {
-        return false;
-    }
-    while ((c = *str++) != 0) {
-        if ((!(qcc::IsAlphaNumeric(c))) && (c != '_')) {
-            if ((c != '/') || (*str == '/') || (*str == 0)) {
-                return false;
-            }
-        }
-    }
-    return true;
-}
 
 Notification::Notification(int32_t messageId,
                            NotificationMessageType messageType, const char* deviceId, const char* deviceName,
@@ -306,7 +282,7 @@ void Notification::setControlPanelServiceObjectPath(const char* controlPanelServ
         return;
     }
 
-    if (!IsLegalObjectPath(controlPanelServiceObjectPath)) {
+    if (!common::IsLegalObjectPath(controlPanelServiceObjectPath)) {
         QCC_LogError(ER_BUS_BAD_OBJ_PATH, ("Illegal object path \"%s\" specified", controlPanelServiceObjectPath));
         return;
     }
@@ -401,7 +377,7 @@ void Notification::setRichIconObjectPath(const char* richIconObjectPath)
         return;
     }
 
-    if (!IsLegalObjectPath(richIconObjectPath)) {
+    if (!common::IsLegalObjectPath(richIconObjectPath)) {
         QCC_LogError(ER_BUS_BAD_OBJ_PATH, ("Illegal object path \"%s\" specified", richIconObjectPath));
         return;
     }
@@ -421,7 +397,7 @@ void Notification::setRichAudioObjectPath(const char* richAudioObjectPath)
         return;
     }
 
-    if (!IsLegalObjectPath(richAudioObjectPath)) {
+    if (!common::IsLegalObjectPath(richAudioObjectPath)) {
         QCC_LogError(ER_BUS_BAD_OBJ_PATH, ("Illegal object path \"%s\" specified", richAudioObjectPath));
         return;
     }
