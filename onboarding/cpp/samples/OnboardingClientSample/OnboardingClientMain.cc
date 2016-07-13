@@ -26,7 +26,7 @@
 #include <alljoyn/config/ConfigClient.h>
 #include <alljoyn/onboarding/OnboardingClient.h>
 
-#include <AnnounceHandlerImpl.h>
+#include <AboutListenerImpl.h>
 #include <AsyncSessionJoiner.h>
 #include <SessionListenerImpl.h>
 #include <OnboardingSignalListenerImpl.h>
@@ -713,7 +713,7 @@ int main(int argc, char** argv, char** envArg)
     }
 
     const char* interfaces[] = { "org.alljoyn.Onboarding" };
-    AnnounceHandlerImpl* announceHandler = new AnnounceHandlerImpl(announceHandlerCallback);
+    AboutListenerImpl* announceHandler = new AboutListenerImpl(announceHandlerCallback);
     busAttachment->RegisterAboutListener(*announceHandler);
 
     status = busAttachment->WhoImplements(interfaces, sizeof(interfaces) / sizeof(interfaces[0]));

@@ -31,7 +31,7 @@
 #include "ControllerNotificationReceiver.h"
 #include <alljoyn/AuthListener.h>
 #include <CommonSampleUtil.h>
-#include <AnnounceHandlerImpl.h>
+#include <AboutListenerImpl.h>
 #include <alljoyn/services_common/LogModulesNames.h>
 #include <AJInitializer.h>
 
@@ -46,7 +46,7 @@ ControlPanelService* controlPanelService = 0;
 ControlPanelController* controlPanelController = 0;
 ControlPanelListenerImpl* controlPanelListener = 0;
 DefaultECDHEAuthListener* authListener = 0;
-AnnounceHandlerImpl* announceHandler = 0;
+AboutListenerImpl* announceHandler = 0;
 NotificationService* conService = 0;
 ControllerNotificationReceiver* receiver = 0;
 qcc::String ControlPanelPrefix = "/ControlPanel/";
@@ -164,7 +164,7 @@ int main()
         return 1;
     }
 
-    announceHandler = new AnnounceHandlerImpl(NULL, announceHandlerCallback);
+    announceHandler = new AboutListenerImpl(NULL, announceHandlerCallback);
     bus->RegisterAboutListener(*announceHandler);
 
     const char* interfaces[] = { "*" };

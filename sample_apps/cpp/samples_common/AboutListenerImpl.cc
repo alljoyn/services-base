@@ -14,22 +14,22 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#include "AnnounceHandlerImpl.h"
+#include "AboutListenerImpl.h"
 #include <iostream>
 
 using namespace ajn;
 
-AnnounceHandlerImpl::AnnounceHandlerImpl(BasicAnnounceHandlerCallback basicCallback, FullAnnounceHandlerCallback fullCallback) :
+AboutListenerImpl::AboutListenerImpl(BasicAboutListenerCallback basicCallback, FullAboutListenerCallback fullCallback) :
     m_BasicCallback(basicCallback), m_FullCallback(fullCallback)
 {
 
 }
 
-AnnounceHandlerImpl::~AnnounceHandlerImpl()
+AboutListenerImpl::~AboutListenerImpl()
 {
 }
 
-void AnnounceHandlerImpl::Announced(const char* busName, uint16_t version, SessionPort port, const MsgArg& objectDescriptionArg, const MsgArg& aboutDataArg)
+void AboutListenerImpl::Announced(const char* busName, uint16_t version, SessionPort port, const MsgArg& objectDescriptionArg, const MsgArg& aboutDataArg)
 {
     std::cout << "*********************************************************************************" << std::endl;
     std::cout << "Announce signal discovered" << std::endl;
@@ -40,14 +40,14 @@ void AnnounceHandlerImpl::Announced(const char* busName, uint16_t version, Sessi
     std::cout << "\tAboutData:" << std::endl << aboutDataArg.ToString().c_str() << std::endl;
     std::cout << "*********************************************************************************" << std::endl;
 
-    std::cout << "AnnounceHandlerImpl::Announced()" << std::endl;
+    std::cout << "AboutListenerImpl::Announced()" << std::endl;
     if (m_BasicCallback) {
-        std::cout << "Calling AnnounceHandler Callback" << std::endl;
+        std::cout << "Calling AboutListener Callback" << std::endl;
         m_BasicCallback(busName, port);
     }
 
     if (m_FullCallback) {
-        std::cout << "Calling AnnounceHandler Callback" << std::endl;
+        std::cout << "Calling AboutListener Callback" << std::endl;
         AboutData aboutData;
         aboutData.CreatefromMsgArg(aboutDataArg);
         AboutObjectDescription aboutObjectDescription;
