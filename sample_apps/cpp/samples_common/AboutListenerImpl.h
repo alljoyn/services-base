@@ -14,8 +14,8 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#ifndef ANNOUNCEHANDLERSAMPLE_H_
-#define ANNOUNCEHANDLERSAMPLE_H_
+#ifndef ABOUTLISTENERSAMPLE_H_
+#define ABOUTLISTENERSAMPLE_H_
 #include <alljoyn/AboutListener.h>
 #include <alljoyn/AboutData.h>
 
@@ -26,14 +26,14 @@
 #endif
 
 
-typedef void (*BasicAnnounceHandlerCallback)(qcc::String const& busName, unsigned short port);
-typedef void (*FullAnnounceHandlerCallback)(qcc::String const& busName, unsigned short version,
+typedef void (*BasicAboutListenerCallback)(qcc::String const& busName, unsigned short port);
+typedef void (*FullAboutListenerCallback)(qcc::String const& busName, unsigned short version,
                                             unsigned short port, const ajn::AboutObjectDescription& objectDescription,
                                             const ajn::AboutData& aboutData);
 /**
- * class AnnounceHandlerImpl
+ * class AboutListenerImpl
  */
-class AnnounceHandlerImpl : public ajn::AboutListener {
+class AboutListenerImpl : public ajn::AboutListener {
 
   public:
 
@@ -47,22 +47,22 @@ class AnnounceHandlerImpl : public ajn::AboutListener {
      */
     virtual void Announced(const char* busName, uint16_t version, ajn::SessionPort port, const ajn::MsgArg& objectDescriptionArg, const ajn::MsgArg& aboutDataArg);
     /**
-     * AnnounceHandlerImpl
+     * AboutListenerImpl
      * @param basicCallback
      * @param fullCallback
      */
-    AnnounceHandlerImpl(BasicAnnounceHandlerCallback basicCallback = 0, FullAnnounceHandlerCallback fullCallback = 0);
+    AboutListenerImpl(BasicAboutListenerCallback basicCallback = 0, FullAboutListenerCallback fullCallback = 0);
 
     /**
-     * ~AnnounceHandlerImpl
+     * ~AboutListenerImpl
      */
-    ~AnnounceHandlerImpl();
+    ~AboutListenerImpl();
 
   private:
 
-    BasicAnnounceHandlerCallback m_BasicCallback;
+    BasicAboutListenerCallback m_BasicCallback;
 
-    FullAnnounceHandlerCallback m_FullCallback;
+    FullAboutListenerCallback m_FullCallback;
 };
 
-#endif /* ANNOUNCEHANDLERSAMPLE_H_ */
+#endif /* ABOUTLISTENERSAMPLE_H_ */
