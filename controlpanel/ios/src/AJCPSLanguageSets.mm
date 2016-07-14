@@ -25,16 +25,16 @@
 @implementation AJCPSLanguageSets
 - (id)initWithHandle:(ajn::services::LanguageSets *)handle
 {
-	self = [super init];
-	if (self) {
-		self.handle = handle;
-	}
-	return self;
+    self = [super init];
+    if (self) {
+        self.handle = handle;
+    }
+    return self;
 }
 
 - (AJCPSLanguageSet *)getLanguageSet:(NSString *)languageSetName
 {
-	return [[AJCPSLanguageSet alloc]initWithHandle:self.handle->LanguageSets::get([AJSVCConvertUtil convertNSStringToQCCString:languageSetName])];
+    return [[AJCPSLanguageSet alloc] initWithHandle:self.handle->LanguageSets::get([AJSVCConvertUtil convertNSStringToQCCString:languageSetName])];
 }
 
 @end

@@ -41,7 +41,7 @@
  * @return ER_OK if successful.
  */
 - (QStatus)initController:(AJNBusAttachment *)bus controlPanelController:(AJCPSControlPanelController *)controlPanelController
-                                                    controlPanelListener:(id <AJCPSControlPanelListener> )controlPanelListener;
+    controlPanelListener:(id <AJCPSControlPanelListener> )controlPanelListener;
 
 /**
  * Remove locally stored controller. Allows a new call to initController to be made

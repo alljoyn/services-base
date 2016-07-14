@@ -26,13 +26,13 @@
 }
 
 
--(void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
+- (void)application:(UIApplication *)application performFetchWithCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler
 {
     do {
         NSLog(@"Listening in the background...  %f", [application backgroundTimeRemaining]);
         [NSThread sleepForTimeInterval:1.0];
     } while ([application backgroundTimeRemaining] > 1.0);
-    
+
     completionHandler(UIBackgroundFetchResultFailed);
 }
 
@@ -44,7 +44,7 @@
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
-    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
+    // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
     // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
 }
 

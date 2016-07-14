@@ -30,15 +30,14 @@
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated
 {
     [super setSelected:selected animated:animated];
-    
+
     if ([self.notificationEntry dismissed]) {
         [self setAccessoryType:UITableViewCellAccessoryNone];
         [self.notificationEntry setChosen:NO];
         return;
     }
 
-    if(selected)
-    {
+    if (selected) {
         if (self.accessoryType == UITableViewCellAccessoryNone) {
             [self setAccessoryType:UITableViewCellAccessoryCheckmark];
             [self.notificationEntry setChosen:YES];
@@ -51,21 +50,19 @@
 
 
 
--(void)setNotificationEntry:(NotificationEntry *)notificationEntry
+- (void)setNotificationEntry:(NotificationEntry *)notificationEntry
 {
     _notificationEntry = notificationEntry;
-    
+
     self.detailsLabel.text = notificationEntry.text;
-    
-    if([self.notificationEntry chosen])
-    {
+
+    if ([self.notificationEntry chosen]) {
         [self setAccessoryType:UITableViewCellAccessoryCheckmark];
     } else {
         [self setAccessoryType:UITableViewCellAccessoryNone];
     }
-    
-    if([self.notificationEntry dismissed])
-    {
+
+    if ([self.notificationEntry dismissed]) {
         [self setBackgroundColor:[UIColor yellowColor]];
     } else {
         [self setBackgroundColor:[UIColor whiteColor]];

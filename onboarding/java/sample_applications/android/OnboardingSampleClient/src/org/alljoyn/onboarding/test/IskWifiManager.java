@@ -79,15 +79,16 @@ public class IskWifiManager {
     //================================================================
     public IskWifiManager(Context context) {
         m_context = context;
-        m_wifi = (WifiManager) m_context.getSystemService(Context.WIFI_SERVICE);
+        m_wifi = (WifiManager)m_context.getSystemService(Context.WIFI_SERVICE);
     }
 
     /**
      * @return compare result of two SSID strings.
      */
     public static boolean isSsidEquals(String ssid1, String ssid2) {
-        if (ssid1 == null || ssid1.length() == 0 || ssid2 == null || ssid2.length() == 0)
+        if (ssid1 == null || ssid1.length() == 0 || ssid2 == null || ssid2.length() == 0) {
             return false;
+        }
         if (ssid1.startsWith("\"")) {
             ssid1 = ssid1.replace("\"", "");
         }
@@ -141,7 +142,7 @@ public class IskWifiManager {
     public void scanForWifi(Context ctx, WifiManagerListener listener, final String AJLookupPrefix, final String AJLookupPostfix) {
         m_listener = listener;
         m_context = ctx;
-        m_wifi = (WifiManager) m_context.getSystemService(Context.WIFI_SERVICE);
+        m_wifi = (WifiManager)m_context.getSystemService(Context.WIFI_SERVICE);
 
         // listen to Wi-Fi intents
         m_scanner = new BroadcastReceiver() {
@@ -164,7 +165,7 @@ public class IskWifiManager {
                     // keep one item per SSID, the one with the strongest signal
                     HashMap<String, ScanResult> alljoynSoftAPs = new HashMap<String, ScanResult>();
                     for (ScanResult currentScan : scans) {
-                        if(currentScan.SSID.startsWith(AJLookupPrefix) || currentScan.SSID.endsWith(AJLookupPostfix)){
+                        if (currentScan.SSID.startsWith(AJLookupPrefix) || currentScan.SSID.endsWith(AJLookupPostfix)) {
                             ScanResult l = alljoynSoftAPs.get(currentScan.SSID);
                             if (l == null) {
                                 alljoynSoftAPs.put(currentScan.SSID, currentScan);
@@ -180,12 +181,13 @@ public class IskWifiManager {
                     List<ScanResult> list = new ArrayList<ScanResult>(alljoynSoftAPs.values());
                     Collections.sort(list, new Comparator<ScanResult>() {
                         public int compare(ScanResult o1, ScanResult o2) {
-                            if (o1.level > o2.level)
+                            if (o1.level > o2.level) {
                                 return -1;
-                            else if (o1.level < o2.level)
+                            } else if (o1.level < o2.level) {
                                 return 1;
-                            else
+                            } else {
                                 return 0;
+                            }
                         }
                     });
                     // listener callback
@@ -220,8 +222,9 @@ public class IskWifiManager {
     public void unregisterWifiManager() {
         if (m_scanner != null) {
             try {
-                if (m_context != null)
+                if (m_context != null) {
                     m_context.unregisterReceiver(m_scanner);
+                }
             } catch (Exception ignored) {
             }
         }
@@ -255,10 +258,11 @@ public class IskWifiManager {
         if (capabilities.contains(AuthType.WEP.name())) {
             return AuthType.WEP;
         } else if (capabilities.contains("WPA")) {
-            if (capabilities.contains("WPA2"))
+            if (capabilities.contains("WPA2")) {
                 return AuthType.WPA2_AUTO;
-            else
+            } else {
                 return AuthType.WPA_AUTO;
+            }
         }
         return AuthType.OPEN;
 
@@ -318,27 +322,29 @@ public class IskWifiManager {
 
         int length = password.length();
         switch (length) {
-            // valid ASCII keys length
-            case 5:
-            case 13:
-            case 16:
-            case 29:
-                Log.d(TAG, "checkWEPPassword valid WEP ASCII password");
-                return new Pair<Boolean, Boolean>(true, false);
-            // valid hex keys length
-            case 10:
-            case 26:
-            case 32:
-            case 58:
-                if (password.matches(WEP_HEX_PATTERN)) {
-                    Log.d(TAG, "checkWEPPassword valid WEP password length, and HEX pattern match");
-                    return new Pair<Boolean, Boolean>(true, true);
-                }
-                Log.w(TAG, "checkWEPPassword valid WEP password length, but HEX pattern matching failed: " + WEP_HEX_PATTERN);
-                return new Pair<Boolean, Boolean>(false, false);
-            default:
-                Log.w(TAG, "checkWEPPassword invalid WEP password length: " + length);
-                return new Pair<Boolean, Boolean>(false, false);
+        // valid ASCII keys length
+        case 5:
+        case 13:
+        case 16:
+        case 29:
+            Log.d(TAG, "checkWEPPassword valid WEP ASCII password");
+            return new Pair<Boolean, Boolean>(true, false);
+
+        // valid hex keys length
+        case 10:
+        case 26:
+        case 32:
+        case 58:
+            if (password.matches(WEP_HEX_PATTERN)) {
+                Log.d(TAG, "checkWEPPassword valid WEP password length, and HEX pattern match");
+                return new Pair<Boolean, Boolean>(true, true);
+            }
+            Log.w(TAG, "checkWEPPassword valid WEP password length, but HEX pattern matching failed: " + WEP_HEX_PATTERN);
+            return new Pair<Boolean, Boolean>(false, false);
+
+        default:
+            Log.w(TAG, "checkWEPPassword invalid WEP password length: " + length);
+            return new Pair<Boolean, Boolean>(false, false);
         }
     }
     //======================================================================
@@ -460,80 +466,80 @@ public class IskWifiManager {
         int networkId = -1;
         // set the WifiConfiguration parameters
         switch (authType) {
-            case OPEN:
-                wifiConfiguration.SSID = "\"" + ssid + "\"";
-                wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-                networkId = shouldUpdate ? m_wifi.updateNetwork(wifiConfiguration) : m_wifi.addNetwork(wifiConfiguration);
-                Log.d(TAG, "connectToWifiAP [OPEN] add Network returned " + networkId);
-                break;
+        case OPEN:
+            wifiConfiguration.SSID = "\"" + ssid + "\"";
+            wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+            networkId = shouldUpdate ? m_wifi.updateNetwork(wifiConfiguration) : m_wifi.addNetwork(wifiConfiguration);
+            Log.d(TAG, "connectToWifiAP [OPEN] add Network returned " + networkId);
+            break;
 
-            case WEP:
-                wifiConfiguration.SSID = "\"" + ssid + "\"";
+        case WEP:
+            wifiConfiguration.SSID = "\"" + ssid + "\"";
 
-                // check the validity of a WEP password
-                Pair<Boolean, Boolean> wepCheckResult = checkWEPPassword(password);
-                if (!wepCheckResult.first) {
-                    Log.w(TAG, "connectToWifiAP  auth type = WEP: password '" + password + "' invalid length or characters");
-                    return null;
-                }
-                Log.i(TAG, "connectToWifiAP [WEP] using " + (!wepCheckResult.second ? "ASCII" : "HEX"));
-                if (!wepCheckResult.second) {
-                    wifiConfiguration.wepKeys[0] = "\"" + password + "\"";
-                } else {
-                    wifiConfiguration.wepKeys[0] = password;
-                }
-                if (!lollipop) {
-                    // jamesl: What is this doing here?
-                    wifiConfiguration.priority = 40;
-                }
-                wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-                wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
-                wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
-                wifiConfiguration.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
-                wifiConfiguration.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.SHARED);
-                wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
-                wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
-                wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
-                wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP104);
-                wifiConfiguration.wepTxKeyIndex = 0;
-                networkId = shouldUpdate ? m_wifi.updateNetwork(wifiConfiguration) : m_wifi.addNetwork(wifiConfiguration);
-                Log.d(TAG, "connectToWifiAP [WEP] add Network returned " + networkId);
-                break;
-
-            case WPA_AUTO:
-            case WPA_CCMP:
-            case WPA_TKIP:
-            case WPA2_AUTO:
-            case WPA2_CCMP:
-            case WPA2_TKIP: {
-                wifiConfiguration.SSID = "\"" + ssid + "\"";
-                // handle special case when WPA/WPA2 and 64 length password that can
-                // be HEX
-                if (password.length() == 64 && password.matches(WEP_HEX_PATTERN)) {
-                    wifiConfiguration.preSharedKey = password;
-                } else {
-                    wifiConfiguration.preSharedKey = "\"" + password + "\"";
-                }
-                if (!lollipop) {
-                    // jamesl: What is this doing here?
-                    // WPA(2) networks are always "hidden"?
-                    wifiConfiguration.hiddenSSID = true;
-                }
-                wifiConfiguration.status = WifiConfiguration.Status.ENABLED;
-                wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
-                wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
-                wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
-                wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
-                wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
-                wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
-                wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
-                networkId = shouldUpdate ? m_wifi.updateNetwork(wifiConfiguration) : m_wifi.addNetwork(wifiConfiguration);
-                Log.d(TAG, "connectToWifiAP  [WPA..WPA2] add Network returned " + networkId);
-                break;
+            // check the validity of a WEP password
+            Pair<Boolean, Boolean> wepCheckResult = checkWEPPassword(password);
+            if (!wepCheckResult.first) {
+                Log.w(TAG, "connectToWifiAP  auth type = WEP: password '" + password + "' invalid length or characters");
+                return null;
             }
-            default:
-                networkId = -1;
-                break;
+            Log.i(TAG, "connectToWifiAP [WEP] using " + (!wepCheckResult.second ? "ASCII" : "HEX"));
+            if (!wepCheckResult.second) {
+                wifiConfiguration.wepKeys[0] = "\"" + password + "\"";
+            } else {
+                wifiConfiguration.wepKeys[0] = password;
+            }
+            if (!lollipop) {
+                // jamesl: What is this doing here?
+                wifiConfiguration.priority = 40;
+            }
+            wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+            wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+            wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+            wifiConfiguration.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
+            wifiConfiguration.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.SHARED);
+            wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
+            wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
+            wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
+            wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP104);
+            wifiConfiguration.wepTxKeyIndex = 0;
+            networkId = shouldUpdate ? m_wifi.updateNetwork(wifiConfiguration) : m_wifi.addNetwork(wifiConfiguration);
+            Log.d(TAG, "connectToWifiAP [WEP] add Network returned " + networkId);
+            break;
+
+        case WPA_AUTO:
+        case WPA_CCMP:
+        case WPA_TKIP:
+        case WPA2_AUTO:
+        case WPA2_CCMP:
+        case WPA2_TKIP:
+            wifiConfiguration.SSID = "\"" + ssid + "\"";
+            // handle special case when WPA/WPA2 and 64 length password that can
+            // be HEX
+            if (password.length() == 64 && password.matches(WEP_HEX_PATTERN)) {
+                wifiConfiguration.preSharedKey = password;
+            } else {
+                wifiConfiguration.preSharedKey = "\"" + password + "\"";
+            }
+            if (!lollipop) {
+                // jamesl: What is this doing here?
+                // WPA(2) networks are always "hidden"?
+                wifiConfiguration.hiddenSSID = true;
+            }
+            wifiConfiguration.status = WifiConfiguration.Status.ENABLED;
+            wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
+            wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
+            wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+            wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
+            wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
+            wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+            wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+            networkId = shouldUpdate ? m_wifi.updateNetwork(wifiConfiguration) : m_wifi.addNetwork(wifiConfiguration);
+            Log.d(TAG, "connectToWifiAP  [WPA..WPA2] add Network returned " + networkId);
+            break;
+
+        default:
+            networkId = -1;
+            break;
         }
 
         if (networkId < 0) {
@@ -565,7 +571,7 @@ public class IskWifiManager {
         Log.d(TAG, "connectToAP SSID = " + ssid + " authtype = " + authType.toString());
 
         int currentWifiState = m_wifi.getWifiState();
-        if(currentWifiState != WifiManager.WIFI_STATE_ENABLED) {
+        if (currentWifiState != WifiManager.WIFI_STATE_ENABLED) {
             Log.d(TAG, "Can't connect to AP, wifi is not enabled. Current state is: " + currentWifiState);
             sendBroadcast(OP_FAILED_WIFI_DISABLED, null);
             return;
@@ -625,7 +631,7 @@ public class IskWifiManager {
                         }
                     }
                 } else if (WifiManager.SUPPLICANT_STATE_CHANGED_ACTION.equals(intent.getAction()) && intent.hasExtra(WifiManager.EXTRA_SUPPLICANT_ERROR)
-                        && intent.getIntExtra(WifiManager.EXTRA_SUPPLICANT_ERROR, 0) == WifiManager.ERROR_AUTHENTICATING) {
+                           && intent.getIntExtra(WifiManager.EXTRA_SUPPLICANT_ERROR, 0) == WifiManager.ERROR_AUTHENTICATING) {
                     // Wi-Fi authentication error
                     synchronized (this) {
                         if (mCurrentlyConnectingConfiguration == null) {

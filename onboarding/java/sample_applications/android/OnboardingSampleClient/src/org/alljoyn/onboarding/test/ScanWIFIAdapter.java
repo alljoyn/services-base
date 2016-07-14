@@ -45,7 +45,7 @@ public class ScanWIFIAdapter extends ArrayAdapter<ScanResult> implements ListAda
      */
     public ScanWIFIAdapter(Context context, int textViewResourceId) {
         super(context, textViewResourceId);
-        m_layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        m_layoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     //====================================================================
@@ -81,14 +81,14 @@ public class ScanWIFIAdapter extends ArrayAdapter<ScanResult> implements ListAda
         if (rowView == null) {
             rowView = m_layoutInflater.inflate(R.layout.scan_wifi_property, null);
             ViewHolder viewHolder = new ViewHolder();
-            viewHolder.textWifiName = (TextView) rowView.findViewById(R.id.wifi_name_row_textview);
-            viewHolder.textWifiCapabiliteis = (TextView) rowView.findViewById(R.id.wifi_capabilities);
-            viewHolder.textWifiLevel = (TextView) rowView.findViewById(R.id.wifi_level);
+            viewHolder.textWifiName = (TextView)rowView.findViewById(R.id.wifi_name_row_textview);
+            viewHolder.textWifiCapabiliteis = (TextView)rowView.findViewById(R.id.wifi_capabilities);
+            viewHolder.textWifiLevel = (TextView)rowView.findViewById(R.id.wifi_level);
             rowView.setTag(viewHolder);
         }
 
         Log.i(TAG, "Get view [ " + position + " ] " + " SSID " + getItem(position).SSID + " level " + getItem(position).level);
-        ViewHolder holder = (ViewHolder) rowView.getTag();
+        ViewHolder holder = (ViewHolder)rowView.getTag();
         holder.textWifiName.setText(getItem(position).SSID);
         holder.textWifiCapabiliteis.setText(getItem(position).capabilities);
 

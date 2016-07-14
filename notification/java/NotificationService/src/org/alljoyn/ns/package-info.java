@@ -15,7 +15,7 @@
  ******************************************************************************/
 
 /**
- * The package includes API classes of the Notification service which are used to 
+ * The package includes API classes of the Notification service which are used to
  * send and receive notification messages
  */
 package org.alljoyn.ns;

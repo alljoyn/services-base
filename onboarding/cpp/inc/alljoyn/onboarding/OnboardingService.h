@@ -87,7 +87,7 @@ class OnboardingService : public ajn::BusObject {
      * @param val
      * @return
      */
-    QStatus Get(const char*ifcName, const char*propName, MsgArg& val);
+    QStatus Get(const char* ifcName, const char* propName, MsgArg& val);
     /**
      * check if method reply is needed and print if encounter an error
      * @param Message&
@@ -104,7 +104,7 @@ class OnboardingService : public ajn::BusObject {
      */
     void Check_MethodReply(const Message& msg, QStatus status);
     /**
-     *	pointer of BusAttachment
+     *  pointer of BusAttachment
      */
     ajn::BusAttachment* m_BusAttachment;
     /**

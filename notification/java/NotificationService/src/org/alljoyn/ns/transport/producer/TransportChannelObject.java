@@ -79,7 +79,7 @@ class TransportChannelObject {
 
     /**
      * Constructor
-     * 
+     *
      * @param messageType
      * @param busAttachment
      * @throws NotificationServiceException
@@ -133,7 +133,7 @@ class TransportChannelObject {
 
     /**
      * Called when we need to send a signal
-     * 
+     *
      * @param version
      *            The version of the message signature
      * @param msgId
@@ -159,7 +159,7 @@ class TransportChannelObject {
      * @throws NotificationServiceException
      */
     public void sendNotification(int version, int msgId, short messageType, String deviceId, String deviceName, byte[] appId, String appName, Map<Integer, Variant> attributes,
-            Map<String, String> customAttributes, TransportNotificationText[] text, int ttl) throws NotificationServiceException {
+                                 Map<String, String> customAttributes, TransportNotificationText[] text, int ttl) throws NotificationServiceException {
         GenericLogger logger = nativePlatform.getNativeLogger();
         logger.debug(TAG, "Sending notification message for messageType: '" + messageType + "' message id: '" + msgId + "', ttl: '" + ttl + "'");
         emitter.setTimeToLive(ttl);

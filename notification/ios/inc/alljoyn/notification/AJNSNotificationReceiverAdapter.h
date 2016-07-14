@@ -24,19 +24,19 @@
  */
 
 class AJNSNotificationReceiverAdapter : public ajn::services::NotificationReceiver {
-public:
-	/**
+  public:
+    /**
      NotificationReceiverAdapter
      @param notificationReceiverHandler a AJNSNotificationReceiver handler
-	 */
-	AJNSNotificationReceiverAdapter(id <AJNSNotificationReceiver> notificationReceiverHandler);
-    
-	/**
+     */
+    AJNSNotificationReceiverAdapter(id <AJNSNotificationReceiver> notificationReceiverHandler);
+
+    /**
      receive a notification
      @param notification the notification will be populated inside this param
-	 */
-	void Receive(ajn::services::Notification const& notification);
-    
+     */
+    void Receive(ajn::services::Notification const &notification);
+
     /**
      Dismiss handler
      @param msgId message ID to dismiss
@@ -44,9 +44,9 @@ public:
      */
     void Dismiss(const int32_t msgId, const qcc::String appId);
 
-    
-	/**
+
+    /**
      The handler of the receiver
-	 */
-	id <AJNSNotificationReceiver> ajnsNotificationReceiverHandler;
+     */
+    id <AJNSNotificationReceiver> ajnsNotificationReceiverHandler;
 };

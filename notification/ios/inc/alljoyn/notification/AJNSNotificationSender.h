@@ -30,7 +30,7 @@
 /// @name Properties
 ///---------------------
 /** NotificationSender Handler*/
-@property (nonatomic)ajn::services::NotificationSender * senderHandle;
+@property (nonatomic) ajn::services::NotificationSender *senderHandle;
 
 
 ///---------------------
@@ -66,6 +66,6 @@
  * Get the property store in this sender
  * @return The property store
  */
-- (ajn ::services ::AboutPropertyStoreImpl *)getPropertyStore;
+- (ajn::services::AboutPropertyStoreImpl *)getPropertyStore;
 
 @end

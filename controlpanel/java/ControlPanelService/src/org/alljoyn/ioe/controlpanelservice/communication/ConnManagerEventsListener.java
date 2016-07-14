@@ -22,11 +22,11 @@ import java.util.Map;
  * Used to notify observers about the connection manager events
  */
 public interface ConnManagerEventsListener {
-	
-	/**
-	 * The method is launched when the event happened in ConnectionManager
-	 * @param eventType The type of the event
-	 * @param args
-	 */
-	public void connMgrEventOccured(ConnManagerEventType eventType, Map<String, Object> args);
-}	
+
+    /**
+     * The method is launched when the event happened in ConnectionManager
+     * @param eventType The type of the event
+     * @param args
+     */
+    public void connMgrEventOccured(ConnManagerEventType eventType, Map<String, Object> args);
+}

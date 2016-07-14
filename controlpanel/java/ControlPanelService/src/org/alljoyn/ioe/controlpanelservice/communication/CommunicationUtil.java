@@ -33,172 +33,169 @@ import org.alljoyn.ioe.controlpanelservice.communication.interfaces.PropertyCont
 import android.util.Log;
 
 /**
- * Communication utilities class 
+ * Communication utilities class
  */
 public class CommunicationUtil {
-	private static final String TAG = "cpan" + CommunicationUtil.class.getSimpleName(); 	
-	
-	/**
-	 * @return MetadataChanged reflection for container 
-	 */
-	public static Method getContainerMetadataChanged(String name) {
-		try {
-			return ContainerSuper.class.getMethod(name);
-		} catch (NoSuchMethodException nsme) {
-			Log.e(TAG, "Not found reflection of " + name + " method");
-		}
-		return null; 
-	}//getContainerMetadataChanged
+    private static final String TAG = "cpan" + CommunicationUtil.class.getSimpleName();
 
-	/**
-	 * @return MetadataChanged reflection for property metadata changed signal
-	 */
-	public static Method getPropertyMetadataChanged(String name) {
-		try {
-			return PropertyControlSuper.class.getMethod(name);
-		} catch (NoSuchMethodException nsme) {
-			Log.e(TAG, "Not found reflection of " + name + " method");
-		}
-		return null; 
-	}//getContainerMetadataChanged
+    /**
+     * @return MetadataChanged reflection for container
+     */
+    public static Method getContainerMetadataChanged(String name) {
+        try {
+            return ContainerSuper.class.getMethod(name);
+        } catch (NoSuchMethodException nsme) {
+            Log.e(TAG, "Not found reflection of " + name + " method");
+        }
+        return null;
+    }//getContainerMetadataChanged
 
-	/**
-	 * @return MetadataChanged reflection for property value changed signal
-	 */
-	public static Method getPropertyValueChanged(String name) {
-		try {
-			return PropertyControlSuper.class.getMethod(name,
-								     	     		    Variant.class
-			);
-		} catch (NoSuchMethodException nsme) {
-			Log.e(TAG, "Not found reflection of " + name + " method");
-		}
-		return null; 
-	}//getContainerMetadataChanged
-	
-	/**
-	 * @return MetadataChanged reflection for action metadata changed signal
-	 */
-	public static Method getActionMetadataChanged(String name) {
-		try {
-			return ActionControlSuper.class.getMethod(name);
-		} catch (NoSuchMethodException nsme) {
-			Log.e(TAG, "Not found reflection of " + name + " method");
-		}
-		return null; 
-	}//getContainerMetadataChanged
+    /**
+     * @return MetadataChanged reflection for property metadata changed signal
+     */
+    public static Method getPropertyMetadataChanged(String name) {
+        try {
+            return PropertyControlSuper.class.getMethod(name);
+        } catch (NoSuchMethodException nsme) {
+            Log.e(TAG, "Not found reflection of " + name + " method");
+        }
+        return null;
+    }//getContainerMetadataChanged
 
-	/**
-	 * @return reflection for alert dialog metadata changed signal
-	 */
-	public static Method getAlertDialogMetadataChanged(String name) {
-		try {
-			return AlertDialogSuper.class.getMethod(name);
-		} catch (NoSuchMethodException nsme) {
-			Log.e(TAG, "Not found reflection of " + name + " method");
-		}
-		return null; 
-	}//getAlertDialogMetadataChanged
+    /**
+     * @return MetadataChanged reflection for property value changed signal
+     */
+    public static Method getPropertyValueChanged(String name) {
+        try {
+            return PropertyControlSuper.class.getMethod(name,
+                                                        Variant.class
+                                                        );
+        } catch (NoSuchMethodException nsme) {
+            Log.e(TAG, "Not found reflection of " + name + " method");
+        }
+        return null;
+    }//getContainerMetadataChanged
 
-	/**
-	 * @return reflection for label widget metadata changed signal
-	 */
-	public static Method getLabelWidgetMetadataChanged(String name) {
-		try {
-			return Label.class.getMethod(name);
-		} catch (NoSuchMethodException nsme) {
-			Log.e(TAG, "Not found reflection of " + name + " method");
-		}
-		return null; 
-	}//getAlertDialogMetadataChanged
+    /**
+     * @return MetadataChanged reflection for action metadata changed signal
+     */
+    public static Method getActionMetadataChanged(String name) {
+        try {
+            return ActionControlSuper.class.getMethod(name);
+        } catch (NoSuchMethodException nsme) {
+            Log.e(TAG, "Not found reflection of " + name + " method");
+        }
+        return null;
+    }//getContainerMetadataChanged
+
+    /**
+     * @return reflection for alert dialog metadata changed signal
+     */
+    public static Method getAlertDialogMetadataChanged(String name) {
+        try {
+            return AlertDialogSuper.class.getMethod(name);
+        } catch (NoSuchMethodException nsme) {
+            Log.e(TAG, "Not found reflection of " + name + " method");
+        }
+        return null;
+    }//getAlertDialogMetadataChanged
+
+    /**
+     * @return reflection for label widget metadata changed signal
+     */
+    public static Method getLabelWidgetMetadataChanged(String name) {
+        try {
+            return Label.class.getMethod(name);
+        } catch (NoSuchMethodException nsme) {
+            Log.e(TAG, "Not found reflection of " + name + " method");
+        }
+        return null;
+    }//getAlertDialogMetadataChanged
 
 
-	/**
-	 * @return reflection for {@link NotificationAction} signal
-	 */
-	public static Method getNotificationActionDismissSignal(String name) {
-		try {
-			return NotificationAction.class.getMethod(name);
-		} catch (NoSuchMethodException nsme) {
-			Log.e(TAG, "Not found reflection of " + name + " method");
-		}
-		return null; 
-	}//getNotificationActionDismissSignal
-	
-	/**
+    /**
+     * @return reflection for {@link NotificationAction} signal
+     */
+    public static Method getNotificationActionDismissSignal(String name) {
+        try {
+            return NotificationAction.class.getMethod(name);
+        } catch (NoSuchMethodException nsme) {
+            Log.e(TAG, "Not found reflection of " + name + " method");
+        }
+        return null;
+    }//getNotificationActionDismissSignal
+
+    /**
      * Creates SessionOpts
      * @return SessionOpts to be used to advertise service and ot join session
      */
-	public static SessionOpts getSessionOpts(){
-		SessionOpts sessionOpts   = new SessionOpts();
-	    sessionOpts.traffic       = SessionOpts.TRAFFIC_MESSAGES;   // Use reliable message-based communication to move data between session endpoints
-	    sessionOpts.isMultipoint  = false;                          // A session is multi-point if it can be joined multiple times 
-	    sessionOpts.proximity     = SessionOpts.PROXIMITY_ANY;      // Holds the proximity for this SessionOpt
-	    sessionOpts.transports    = SessionOpts.TRANSPORT_ANY;      // Holds the allowed transports for this SessionOpt
-	    return sessionOpts;
-	}//getSessionOpts
-	
-	/**
-	 * Test the given interfaces list <br>
-	 * If an interface from the given interfaces list is a top level interface then adds it to a resultant mask
-	 * @param interfaces The interfaces to test
-	 * @return Interfaces resultant mask
-	 */
-	public static int getInterfaceMask(String... interfaces) {
-		int resMask = 0;
-		
-		if ( interfaces == null ) {
-			return  resMask;
-		}
-		
-		for (String iface : interfaces) {
-			if ( iface.equals(ControlPanel.IFNAME) ) {
-				resMask |= ControlPanel.ID_MASK;
-			}
-			else if ( iface.equals(HTTPControl.IFNAME) ) {
-				resMask |= HTTPControl.ID_MASK;
-			}
-			else if ( iface.equals(NotificationAction.IFNAME) ) {
-				resMask |= NotificationAction.ID_MASK;
-			}
-		}//for :: interfaces
-		
-		return resMask;
-	}//parseInterfaces
+    public static SessionOpts getSessionOpts() {
+        SessionOpts sessionOpts = new SessionOpts();
+        sessionOpts.traffic = SessionOpts.TRAFFIC_MESSAGES;   // Use reliable message-based communication to move data between session endpoints
+        sessionOpts.isMultipoint = false;                          // A session is multi-point if it can be joined multiple times
+        sessionOpts.proximity = SessionOpts.PROXIMITY_ANY;      // Holds the proximity for this SessionOpt
+        sessionOpts.transports = SessionOpts.TRANSPORT_ANY;      // Holds the allowed transports for this SessionOpt
+        return sessionOpts;
+    }//getSessionOpts
 
-	/**
-	 * Checks whether the given numToTest includes the mask
-	 * @param numToTest
-	 * @param mask
-	 * @return TRUE if includes
-	 */
-	public static boolean maskIncludes(int numToTest, int mask) {
-		return (numToTest & mask) == mask;
-	}//maskIncludes
-	
-	/**
-	 * Parses the objectPath of the form of: /ControlPanel/{unitId}/{panelId}
-	 * @param objPath The objPath to parse
-	 * @return Array(0 => unitId, 1 => panelId) 
-	 */
-	public static String[] parseObjPath(String objPath) throws ControlPanelException {
-		
-		String[] segments = objPath.split("/");
-		int segLength     = segments.length; 
-		if ( segLength == 0 ) {
-			throw new ControlPanelException("Received a broken object path: '" + objPath + "'");
-		}
-		
-		String panelId = segments[segLength - 1];  // The name of the control panel
-		String unitId;                             // The name of the functional unit
-		if ( (segLength - 2) >= 0 ) {
-			unitId = segments[segLength - 2];
-		}
-		else {
-			unitId = "unknown";
-		}
-		
-		return new String[]{unitId, panelId};
-	}//parseObjPath
-	
+    /**
+     * Test the given interfaces list <br>
+     * If an interface from the given interfaces list is a top level interface then adds it to a resultant mask
+     * @param interfaces The interfaces to test
+     * @return Interfaces resultant mask
+     */
+    public static int getInterfaceMask(String... interfaces) {
+        int resMask = 0;
+
+        if (interfaces == null) {
+            return resMask;
+        }
+
+        for (String iface : interfaces) {
+            if (iface.equals(ControlPanel.IFNAME)) {
+                resMask |= ControlPanel.ID_MASK;
+            } else if (iface.equals(HTTPControl.IFNAME)) {
+                resMask |= HTTPControl.ID_MASK;
+            } else if (iface.equals(NotificationAction.IFNAME)) {
+                resMask |= NotificationAction.ID_MASK;
+            }
+        }//for :: interfaces
+
+        return resMask;
+    }//parseInterfaces
+
+    /**
+     * Checks whether the given numToTest includes the mask
+     * @param numToTest
+     * @param mask
+     * @return TRUE if includes
+     */
+    public static boolean maskIncludes(int numToTest, int mask) {
+        return (numToTest & mask) == mask;
+    }//maskIncludes
+
+    /**
+     * Parses the objectPath of the form of: /ControlPanel/{unitId}/{panelId}
+     * @param objPath The objPath to parse
+     * @return Array(0 => unitId, 1 => panelId)
+     */
+    public static String[] parseObjPath(String objPath) throws ControlPanelException {
+
+        String[] segments = objPath.split("/");
+        int segLength = segments.length;
+        if (segLength == 0) {
+            throw new ControlPanelException("Received a broken object path: '" + objPath + "'");
+        }
+
+        String panelId = segments[segLength - 1];  // The name of the control panel
+        String unitId;                             // The name of the functional unit
+        if ((segLength - 2) >= 0) {
+            unitId = segments[segLength - 2];
+        } else {
+            unitId = "unknown";
+        }
+
+        return new String[] { unitId, panelId };
+    }//parseObjPath
+
 }

@@ -25,7 +25,7 @@
  */
 @interface AJCPSActionWithDialog : AJCPSWidget
 
-- (id)initWithHandle:(ajn ::services ::ActionWithDialog *)handle;
+- (id)initWithHandle:(ajn::services::ActionWithDialog *)handle;
 
 
 /**

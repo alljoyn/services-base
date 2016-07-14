@@ -24,6 +24,6 @@
  */
 @interface AJSCAlertControllerManager : NSObject
 
-+ (void)queueAlertWithTitle:(nonnull NSString*)title message:(nonnull NSString*)message viewController:(nonnull UIViewController*)viewController;
++ (void)queueAlertWithTitle:(nonnull NSString *)title message:(nonnull NSString *)message viewController:(nonnull UIViewController *)viewController;
 
 @end

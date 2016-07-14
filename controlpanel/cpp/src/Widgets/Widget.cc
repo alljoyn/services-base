@@ -361,7 +361,7 @@ QStatus Widget::unregisterObjects(BusAttachment* bus)
     }
 
     std::vector<WidgetBusObject*>::iterator it;
-    for (it = m_BusObjects.begin(); it != m_BusObjects.end();) {
+    for (it = m_BusObjects.begin(); it != m_BusObjects.end(); ) {
         if (m_ControlPanelMode == CONTROLLEE_MODE) {
             bus->UnregisterBusObject(*(*it));
         } else {

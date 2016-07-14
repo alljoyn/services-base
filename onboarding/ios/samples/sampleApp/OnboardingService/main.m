@@ -19,7 +19,8 @@
 #import "AppDelegate.h"
 #import "AJNInit.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     @autoreleasepool {
         if ([AJNInit alljoynInit] != ER_OK) {
             return 1;

@@ -74,7 +74,7 @@ public class DeviceListActivity extends FragmentActivity implements DeviceListFr
 
             // In two-pane mode, list items should be given the
             // 'activated' state when touched.
-            ((DeviceListFragment) getSupportFragmentManager().findFragmentById(R.id.appliance_list)).setActivateOnItemClick(true);
+            ((DeviceListFragment)getSupportFragmentManager().findFragmentById(R.id.appliance_list)).setActivateOnItemClick(true);
         }
     }
 
@@ -119,7 +119,7 @@ public class DeviceListActivity extends FragmentActivity implements DeviceListFr
     @Override
     public void onControlPanelStale() {
 
-        if ( fragment == null ) {
+        if (fragment == null) {
 
             Log.wtf(TAG, "onControlPanelStale was called, but Fragment is NULL, weird...");
             return;

@@ -57,7 +57,7 @@ class ControlPanelController {
      *
      * @return a ControlPanelDevice
      */
-    QCC_DEPRECATED(ControlPanelDevice * createControllableDevice(qcc::String const & deviceBusName, const AnnounceHandler::ObjectDescriptions & objectDescs));
+    QCC_DEPRECATED(ControlPanelDevice* createControllableDevice(qcc::String const& deviceBusName, const AnnounceHandler::ObjectDescriptions& objectDescs));
 
     /**
      * GetControllableDevice - get a device using the busName - creates it if it doesn't exist

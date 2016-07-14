@@ -24,8 +24,8 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self) {
         self.cpsButton = [UIButton buttonWithType:UIButtonTypeSystem];
-        
-        [self.cpsButton setFrame:CGRectMake(10,0,300,60)];
+
+        [self.cpsButton setFrame:CGRectMake(10, 0, 300, 60)];
         [self.cpsButton.titleLabel setFont:[UIFont systemFontOfSize:13]];
         [self.cpsButton addTarget:self action:@selector(touchUpInsideAction:) forControlEvents:UIControlEventTouchUpInside];
         [self.contentView addSubview:self.cpsButton];
@@ -39,23 +39,24 @@
     [super setSelected:selected animated:animated];
 }
 
-- (void)touchUpInsideAction:(id)sender {
-    
-    NSLog(@"Pressed %@",[self.cpsButton titleLabel].text);
-    
+- (void)touchUpInsideAction:(id)sender
+{
+
+    NSLog(@"Pressed %@", [self.cpsButton titleLabel].text);
+
     QStatus status = [((AJCPSAction *)self.actionWidget) executeAction];
     if (status != ER_OK) {
-        NSLog(@"execute Action returned error %d, %@",status, [AJNStatus descriptionForStatusCode:status]);
+        NSLog(@"execute Action returned error %d, %@", status, [AJNStatus descriptionForStatusCode:status]);
     }
 }
 
--(void)setActionWidget:(AJCPSAction *)actionWidget
+- (void)setActionWidget:(AJCPSAction *)actionWidget
 {
     _actionWidget = actionWidget;
     [self.cpsButton setTitle:[self.actionWidget getLabel] forState:UIControlStateNormal];
-    [self.cpsButton setEnabled:[self.actionWidget getIsEnabled]?YES:NO];
+    [self.cpsButton setEnabled:[self.actionWidget getIsEnabled] ? YES : NO];
     // We do not use [self.actionWidget getBgColor] so the iOS look and feel remain the same
-    
+
 }
 
 @end

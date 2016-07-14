@@ -22,9 +22,9 @@
  */
 @interface AJCPSTime : NSObject
 
-- (id)initWithHour:(uint16_t) hour minute:(uint16_t) minute second:(uint16_t) second;
+- (id)initWithHour:(uint16_t)hour minute:(uint16_t)minute second:(uint16_t)second;
 
-- (id)initWithHandle:(ajn ::services ::CPSTime *)handle;
+- (id)initWithHandle:(ajn::services::CPSTime *)handle;
 
 /**
  * Get the hour value of the date

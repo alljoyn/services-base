@@ -55,4 +55,3 @@ void AboutListenerImpl::Announced(const char* busName, uint16_t version, Session
         m_FullCallback(busName, version, port, aboutObjectDescription, aboutData);
     }
 }
-

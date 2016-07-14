@@ -93,11 +93,11 @@ typedef enum {
 } OBState;
 
 /**
- *	Structure to hold the WIFI details
+ *  Structure to hold the WIFI details
  */
 typedef struct {
     /**
-     *	SSID is the WIFI's SSID
+     *  SSID is the WIFI's SSID
      */
     qcc::String SSID;
     /**
@@ -120,26 +120,26 @@ typedef struct {
  */
 typedef struct {
     /**
-     *	last validated state.
+     *  last validated state.
      */
     short validationState;
     /**
      *  error message
      */
     qcc::String message;
-}OBLastError;
+} OBLastError;
 
 inline bool isValidWEPKey(qcc::String key)
 {
     size_t size = key.size();
-    return (size == 5  ||  // 40-bit ascii
-            size == 10 ||  // 40 bit hex
-            size == 13 ||  // 104 bit ascii
-            size == 26 ||  // 104 bit hex
-            size == 16 ||  // 152 bit ascii
-            size == 32 ||  // 152-bit hex
-            size == 29 ||  // 256-bit ascii
-            size == 64);   // 256-bit hex
+    return size == 5 || // 40-bit ascii
+           size == 10 ||  // 40 bit hex
+           size == 13 ||  // 104 bit ascii
+           size == 26 ||  // 104 bit hex
+           size == 16 ||  // 152 bit ascii
+           size == 32 ||  // 152-bit hex
+           size == 29 ||  // 256-bit ascii
+           size == 64;    // 256-bit hex
 }
 
 inline bool isValidWPAKey(qcc::String key)

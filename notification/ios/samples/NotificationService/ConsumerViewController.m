@@ -39,69 +39,69 @@ static NSString *const CONSUMER_DEFAULT_LANG = @"en";
 
 - (void)viewDidLoad
 {
-	[super viewDidLoad];
-	[self.view setHidden:YES];
-   
+    [super viewDidLoad];
+    [self.view setHidden:YES];
+
     [self.notificationTableView setContentOffset:self.notificationTableView.contentOffset animated:NO];
-    
+
     _notificationEntries = [[NSMutableArray alloc] init];
 }
 
-- (void) viewWillAppear:(BOOL)animated
+- (void)viewWillAppear:(BOOL)animated
 {
-     [self.navigationController setNavigationBarHidden:YES animated:NO];
+    [self.navigationController setNavigationBarHidden:YES animated:NO];
     [super viewWillAppear:animated];
 }
 
 
 - (QStatus)startConsumer
 {
-	QStatus status;
-    
+    QStatus status;
+
     // Initialize Service object and send it Notification Receiver object
-	self.consumerService = [AJNSNotificationService sharedInstance];
-    
-	/*   This is an example of using the AJNSNotificationService default Logger (QSCGenericLoggerDefaultImpl)
-     
+    self.consumerService = [AJNSNotificationService sharedInstance];
+
+    /*   This is an example of using the AJNSNotificationService default Logger (QSCGenericLoggerDefaultImpl)
+
      // Get the default logger
      [self.consumerService logger];
-     
+
      // Get the default logger log level
      [self.consumerService logLevel]
-     
+
      // Set a new logger level
      [self.consumerService setLogLevel:QLEVEL_WARN];
-     
+
      // Print the new log level
      //    NSString *newLogLevel = [NSString stringWithFormat:@"Consumer Logger has started in %@ mode", [AJSVCGenericLoggerUtil toStringQLogLevel:[self.consumerService logLevel]]];
      //    [[self.consumerService logger] debugTag:[[self class] description] text: newLogLevel];
-     
+
      // Instead, you can use a self implementation logger as shown below:
-	 */
+     */
     [self.consumerService setLogLevel:QLEVEL_DEBUG];
-    
-	if (!self.busAttachment) {
-		[self.logger fatalTag:[[self class] description] text:@"BusAttachment is nil"];
-		return ER_FAIL;
-	}
-    
-	// Call "initReceive"
-	status = [self.consumerService startReceive:self.busAttachment withReceiver:self];
-	if (status != ER_OK) {
-		[self.logger fatalTag:[[self class] description] text:@"Could not initialize receiver"];
-		return ER_FAIL;
-	}
-    
-	// Set Consumer UI
+
+    if (!self.busAttachment) {
+        [self.logger fatalTag:[[self class] description] text:@"BusAttachment is nil"];
+        return ER_FAIL;
+    }
+
+    // Call "initReceive"
+    status = [self.consumerService startReceive:self.busAttachment withReceiver:self];
+    if (status != ER_OK) {
+        [self.logger fatalTag:[[self class] description] text:@"Could not initialize receiver"];
+        return ER_FAIL;
+    }
+
+    // Set Consumer UI
     [self.logger debugTag:[[self class] description] text:@"Waiting for notifications"];
-	return ER_OK;
+    return ER_OK;
 }
 
-- (void)stopConsumer:(bool) isProducerOn
+- (void)stopConsumer:(bool)isProducerOn
 {
-	[self.logger debugTag:[[self class] description] text:@"Stop Consumer service"];
-    
-  if (self.consumerService && isProducerOn) {
+    [self.logger debugTag:[[self class] description] text:@"Stop Consumer service"];
+
+    if (self.consumerService && isProducerOn) {
         [self.consumerService shutdownReceiver];
         [self.logger debugTag:[[self class] description] text:@"calling shutdownReceiver"];
     } else {
@@ -111,7 +111,7 @@ static NSString *const CONSUMER_DEFAULT_LANG = @"en";
     self.consumerService = nil;
 
     [self.notificationEntries removeAllObjects];
-    
+
     [self.notificationTableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
 
 }
@@ -120,84 +120,84 @@ static NSString *const CONSUMER_DEFAULT_LANG = @"en";
 - (void)addToUITableView:(AJNSNotification *)ajnsNotification
 {
 
-    NotificationEntry *notificationEntry= [[NotificationEntry alloc] initWithAJNSNotification:ajnsNotification andConsumerViewController:self ];
-    
+    NotificationEntry *notificationEntry = [[NotificationEntry alloc] initWithAJNSNotification:ajnsNotification andConsumerViewController:self];
+
     notificationEntry.dismissed = NO;
-    
+
     [self.notificationEntries addObject:notificationEntry];
-    
+
     [self.notificationTableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:YES];
-    
+
     [self scrollToLastRow];
-    
+
 }
 
--(void)logNotification:(AJNSNotification *)ajnsNotification
+- (void)logNotification:(AJNSNotification *)ajnsNotification
 {
     NSMutableString *notificationContent = [[NSMutableString alloc] init];
-    
-    [notificationContent appendFormat:@"Application name: %@\n[current app name is %@]\n", [ajnsNotification appName], self.appName];
-    
-    [notificationContent appendFormat:@"Message id: '%d'\n",[ajnsNotification messageId]];
-    
-    [notificationContent appendFormat:@"MessageType: '%@'\n",[AJNSNotificationEnums AJNSMessageTypeToString:[ajnsNotification messageType]]];
-    
-    [notificationContent appendFormat:@"Device id: '%@'\n",[ajnsNotification deviceId]];
-    
-    [notificationContent appendFormat:@"Device Name: '%@'\n",[ajnsNotification deviceName]];
-    
-    [notificationContent appendFormat:@"Sender: '%@'\n",[ajnsNotification senderBusName]];
 
-    [notificationContent appendFormat:@"AppId: '%@'\n",[ajnsNotification appId]];
+    [notificationContent appendFormat:@"Application name: %@\n[current app name is %@]\n", [ajnsNotification appName], self.appName];
+
+    [notificationContent appendFormat:@"Message id: '%d'\n", [ajnsNotification messageId]];
+
+    [notificationContent appendFormat:@"MessageType: '%@'\n", [AJNSNotificationEnums AJNSMessageTypeToString:[ajnsNotification messageType]]];
+
+    [notificationContent appendFormat:@"Device id: '%@'\n", [ajnsNotification deviceId]];
+
+    [notificationContent appendFormat:@"Device Name: '%@'\n", [ajnsNotification deviceName]];
+
+    [notificationContent appendFormat:@"Sender: '%@'\n", [ajnsNotification senderBusName]];
+
+    [notificationContent appendFormat:@"AppId: '%@'\n", [ajnsNotification appId]];
 
 //    [notificationContent appendFormat:@"CustomAttributes: '%@'\n",[ajnsNotification.customAttributes description]];
-    
-    [notificationContent appendFormat:@"richIconUrl: '%@'\n",[ajnsNotification richIconUrl]];
-    
-    
-    NSMutableArray *array = [[NSMutableArray alloc]init];
+
+    [notificationContent appendFormat:@"richIconUrl: '%@'\n", [ajnsNotification richIconUrl]];
+
+
+    NSMutableArray *array = [[NSMutableArray alloc] init];
     [ajnsNotification richAudioUrl:array];
-    
+
     if ([array count]) {
         [notificationContent appendString:@"RichAudioUrl: "];
         for (AJNSRichAudioUrl *richAudioURL in array) {
-            [notificationContent appendFormat:@"'%@'",[richAudioURL url]];
+            [notificationContent appendFormat:@"'%@'", [richAudioURL url]];
         }
         [notificationContent appendString:@"\n"];
     } else {
         [notificationContent appendFormat:@"RichAudioUrl is empty\n"];
     }
 
-    [notificationContent appendFormat:@"richIconObjPath: '%@'\n",[ajnsNotification richIconObjectPath]];
-    
-    [notificationContent appendFormat:@"RichAudioObjPath: '%@'\n",[ajnsNotification richAudioObjectPath]];
-    
-    [notificationContent appendFormat:@"CPS Path: '%@'\n",[ajnsNotification controlPanelServiceObjectPath]];
-    
+    [notificationContent appendFormat:@"richIconObjPath: '%@'\n", [ajnsNotification richIconObjectPath]];
+
+    [notificationContent appendFormat:@"RichAudioObjPath: '%@'\n", [ajnsNotification richAudioObjectPath]];
+
+    [notificationContent appendFormat:@"CPS Path: '%@'\n", [ajnsNotification controlPanelServiceObjectPath]];
+
 
     AJNSNotificationText *nt = ajnsNotification.ajnsntArr[0];
-    
+
     [notificationContent appendFormat:@"First msg: '%@' [total: %lu]\n", [nt getText], (unsigned long)[ajnsNotification.ajnsntArr count]];
 
-    [notificationContent appendFormat:@"Received message Lang: '%@'\n",[nt getLanguage]];
-    
+    [notificationContent appendFormat:@"Received message Lang: '%@'\n", [nt getLanguage]];
+
     [self.logger debugTag:[[self class] description] text:[NSString stringWithFormat:@"Received new Notification:\n%@", notificationContent]];
 
 }
 
 #pragma mark - AJNSNotificationReceiver protocol methods
 
-- (void)dismissMsgId:(const int32_t)msgId appId:(NSString*) appId
+- (void)dismissMsgId:(const int32_t)msgId appId:(NSString *)appId
 {
     // find the message:
     for (NotificationEntry *entry in self.notificationEntries) {
         if ([entry.ajnsNotification messageId] == msgId && [[entry.ajnsNotification appId] isEqualToString:appId]) {
             [entry setDismissed:YES];
-            
-            [self.logger debugTag:[[self class] description] text:[NSString stringWithFormat:@"msgId:%d appId:%@ dismissed",msgId,appId]];
+
+            [self.logger debugTag:[[self class] description] text:[NSString stringWithFormat:@"msgId:%d appId:%@ dismissed", msgId, appId]];
         }
     }
-    
+
     [self.notificationTableView performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
 }
 
@@ -205,63 +205,60 @@ static NSString *const CONSUMER_DEFAULT_LANG = @"en";
 - (void)receive:(AJNSNotification *)ajnsNotification
 {
     [self logNotification:ajnsNotification];
-    
-    
-	//show notification only if (appName is DISPLAY_ALL) || (received app name matches appName)
-	if ((([self.appName isEqualToString:DEFAULT_APP_NAME]) || ([[ajnsNotification appName] isEqualToString:self.appName]))) {
-        
+
+
+    //show notification only if (appName is DISPLAY_ALL) || (received app name matches appName)
+    if ((([self.appName isEqualToString:DEFAULT_APP_NAME]) || ([[ajnsNotification appName] isEqualToString:self.appName]))) {
+
         if (self.consumerLang == nil) {
             self.consumerLang = CONSUMER_DEFAULT_LANG;
         }
-        
+
         [self addToUITableView:ajnsNotification];
-	}
-	else {
-		[self.logger debugTag:[[self class] description] text:@"The received msg app name does not match the application name"];
-		return;
-	}
+    } else {
+        [self.logger debugTag:[[self class] description] text:@"The received msg app name does not match the application name"];
+        return;
+    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
-	[super viewWillDisappear:animated];
+    [super viewWillDisappear:animated];
 }
 
 - (void)showSelectLanguageAlert
 {
-	NSArray *langArray = [[NSMutableArray alloc] initWithObjects:@"English", @"Hebrew", @"Russian", nil];
-    
+    NSArray *langArray = [[NSMutableArray alloc] initWithObjects:@"English", @"Hebrew", @"Russian", nil];
+
     self.selectConsumerLang = [AJSCAlertController alertControllerWithTitle:@"Select Language"
-                                                                    message:@""
-                                                             viewController:self];
-    
-	[self.selectConsumerLang addActionWithName:@"Cancel" handler:^(UIAlertAction *action) {}];
-    
+                               message:@""
+                               viewController:self];
+
+    [self.selectConsumerLang addActionWithName:@"Cancel" handler:^(UIAlertAction *action) { }];
+
     __weak ConsumerViewController *weakSelf = self;
-	for (NSString *str in langArray) {
+    for (NSString *str in langArray) {
         [self.selectConsumerLang addActionWithName:str handler:^(UIAlertAction *action) {
-            weakSelf.consumerLang = [weakSelf convertToLangCode:str];
-            [weakSelf.consumerLangButton setTitle:str forState:UIControlStateNormal];
-        }];
-	}
-    
-	[self.selectConsumerLang show];
+             weakSelf.consumerLang = [weakSelf convertToLangCode:str];
+             [weakSelf.consumerLangButton setTitle:str forState:UIControlStateNormal];
+         }];
+    }
+
+    [self.selectConsumerLang show];
 }
 
 #pragma mark - Application util methods
 
 - (NSString *)convertToLangCode:(NSString *)value
 {
-	if ([value isEqualToString:@"English"]) {
-		return @"en";
-	}
-	else if ([value isEqualToString:@"Hebrew"]) {
-		return @"he";
-	}
-	else if ([value isEqualToString:@"Russian"]) {
-		return @"ru";
-	}
-	return nil;
+    if ([value isEqualToString:@"English"]) {
+        return @"en";
+    } else if ([value isEqualToString:@"Hebrew"]) {
+        return @"he";
+    } else if ([value isEqualToString:@"Russian"]) {
+        return @"ru";
+    }
+    return nil;
 }
 
 #pragma mark - Table view data source
@@ -280,73 +277,74 @@ static NSString *const CONSUMER_DEFAULT_LANG = @"en";
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    
+
     DetailsCell *cell = (DetailsCell *)[tableView dequeueReusableCellWithIdentifier:@"detailsCell" forIndexPath:indexPath];
-    
+
     cell.notificationEntry = self.notificationEntries[indexPath.row];
-    
+
     // Configure the cell...
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
-        
+
     return cell;
 }
 
 #pragma mark - IBActions
 - (IBAction)consumerLangButtonPressed:(UIButton *)sender
 {
-	[self showSelectLanguageAlert];
+    [self showSelectLanguageAlert];
 }
 
-- (IBAction)dismissChosenPressed:(UIButton *)sender {
+- (IBAction)dismissChosenPressed:(UIButton *)sender
+{
     for (NotificationEntry *entry in self.notificationEntries) {
         if (entry.chosen) {
-            NSLog(@"sending dismiss to %@",[entry.ajnsNotification text]);
+            NSLog(@"sending dismiss to %@", [entry.ajnsNotification text]);
             [entry.ajnsNotification dismiss];
         }
     }
 }
 
-- (IBAction)actionOnChosenPressed:(UIButton *)sender {
-    
+- (IBAction)actionOnChosenPressed:(UIButton *)sender
+{
+
     __block NSInteger cnt = 0;
-    
+
     [self.notificationEntries enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        NotificationEntry *entry = (NotificationEntry *)obj;
-        
-        if (entry.chosen) {
-            cnt++;
-        }
-    }];
-    
+         NotificationEntry *entry = (NotificationEntry *)obj;
+
+         if (entry.chosen) {
+             cnt++;
+         }
+     }];
+
     if (cnt > 1) {
         AJSCAlertController *alertController = [AJSCAlertController alertControllerWithTitle:@"More than one notification chosen"
-                                                                                     message:@"select single notification to get notification with action"
-                                                                              viewController:self];
-        [alertController addActionWithName:@"OK" handler:^(UIAlertAction *action) {}];
+                                                message:@"select single notification to get notification with action"
+                                                viewController:self];
+        [alertController addActionWithName:@"OK" handler:^(UIAlertAction *action) { }];
         [alertController show];
         return;
     }
-    
+
     for (NotificationEntry *entry in self.notificationEntries) {
         if (entry.chosen) {
             NSLog(@"Action requested.");
             // Checking if entry has CPS objectpath
-            
+
             NSString *cpsObjectPath = [entry.ajnsNotification controlPanelServiceObjectPath];
-            if ([cpsObjectPath length])
-            {
+            if ([cpsObjectPath length]) {
                 NSString *message = [NSString stringWithFormat:@"This notification has an action at path: %@", cpsObjectPath];
                 AJSCAlertController *alertController = [AJSCAlertController alertControllerWithTitle:@"Info"
-                                                                                             message:message
-                                                                                      viewController:self];
-                [alertController addActionWithName:@"OK" handler:^(UIAlertAction *action) {}];
+                                                        message:message
+                                                        viewController:self];
+                [alertController addActionWithName:@"OK" handler:^(UIAlertAction *action) { }];
                 [alertController show];
             } else {
                 NSLog(@"%@ has no CPS object path", [entry.ajnsNotification text]);
                 AJSCAlertController *alertController = [AJSCAlertController alertControllerWithTitle:@"Info"
-                                                                                             message:@"This notification doesn't have an action."
-                                                                                      viewController:self];
-                [alertController addActionWithName:@"OK" handler:^(UIAlertAction *action) {}];
+                                                        message:@"This notification doesn't have an action."
+                                                        viewController:self];
+                [alertController addActionWithName:@"OK" handler:^(UIAlertAction *action) { }];
                 [alertController show];
                 //deselect cell
                 entry.chosen = NO;
@@ -356,11 +354,11 @@ static NSString *const CONSUMER_DEFAULT_LANG = @"en";
     }
 }
 
--(void)scrollToLastRow
+- (void)scrollToLastRow
 {
     [NSThread sleepForTimeInterval:1];
     int lastRowNumber = [self.notificationTableView numberOfRowsInSection:0] - 1;
-    NSIndexPath* ip = [NSIndexPath indexPathForRow:lastRowNumber inSection:0];
+    NSIndexPath *ip = [NSIndexPath indexPathForRow:lastRowNumber inSection:0];
     [self.notificationTableView scrollToRowAtIndexPath:ip atScrollPosition:UITableViewScrollPositionTop animated:YES];
 }
 

@@ -45,7 +45,7 @@ public class ServiceTasksExecutor {
      * Create the {@link ServiceTasksExecutor} with {@link ServiceTasksExecutor#NUM_THREADS_DEFAULT}
      * @return {@link ServiceTasksExecutor}
      */
-    public static ServiceTasksExecutor createExecutor(){
+    public static ServiceTasksExecutor createExecutor() {
 
         return createExecutor(NUM_THREADS_DEFAULT);
     }
@@ -55,7 +55,7 @@ public class ServiceTasksExecutor {
      * @param numThreads Create the executor with the given number of threads
      * @return {@link ServiceTasksExecutor}
      */
-    public static ServiceTasksExecutor createExecutor(int numThreads){
+    public static ServiceTasksExecutor createExecutor(int numThreads) {
 
         return new ServiceTasksExecutor(numThreads);
     }
@@ -89,7 +89,7 @@ public class ServiceTasksExecutor {
      */
     public Future<Object> submit(Callable<Object> task) {
 
-        if ( task == null ) {
+        if (task == null) {
 
             throw new IllegalArgumentException("task is indefined");
         }
@@ -97,4 +97,3 @@ public class ServiceTasksExecutor {
         return executor.submit(task);
     }
 }
-

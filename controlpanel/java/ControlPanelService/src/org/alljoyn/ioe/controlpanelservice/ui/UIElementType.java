@@ -17,15 +17,15 @@
 package org.alljoyn.ioe.controlpanelservice.ui;
 
 /**
- * The types of all the UI elements 
+ * The types of all the UI elements
  */
 public enum UIElementType {
-	CONTAINER,
-	PROPERTY_WIDGET,
-	LIST_PROPERTY_WIDGET,
-	ACTION_WIDGET,
-	ALERT_DIALOG,
-	LABEL_WIDGET,
-	ERROR_WIDGET
-	;
+    CONTAINER,
+    PROPERTY_WIDGET,
+    LIST_PROPERTY_WIDGET,
+    ACTION_WIDGET,
+    ALERT_DIALOG,
+    LABEL_WIDGET,
+    ERROR_WIDGET
+    ;
 }

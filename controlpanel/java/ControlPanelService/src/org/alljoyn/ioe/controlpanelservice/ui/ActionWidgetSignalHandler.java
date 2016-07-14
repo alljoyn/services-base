@@ -33,64 +33,63 @@ import android.util.Log;
  *  - MetadataChanged
  */
 public class ActionWidgetSignalHandler implements ActionControl, ActionControlSecured {
-	private static final String TAG = "cpan" + ActionWidgetSignalHandler.class.getSimpleName();
+    private static final String TAG = "cpan" + ActionWidgetSignalHandler.class.getSimpleName();
 
     /**
      * Container widget to be notified about signal receiving
      */
     private ActionWidget actionWidget;
-	
-	/**
-	 * Constructor
-	 * @param actionWidget
-	 */
-	public ActionWidgetSignalHandler(ActionWidget actionWidget) {
-		this.actionWidget = actionWidget;
-	}
 
-	/**
-	 * @see org.alljoyn.ioe.controlpanelservice.communication.interfaces.ActionControl#getVersion()
-	 */
-	@Override
-	public short getVersion() throws BusException {
-		return 0;
-	}
+    /**
+     * Constructor
+     * @param actionWidget
+     */
+    public ActionWidgetSignalHandler(ActionWidget actionWidget) {
+        this.actionWidget = actionWidget;
+    }
 
-	@Override
-	public int getStates() throws BusException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    /**
+     * @see org.alljoyn.ioe.controlpanelservice.communication.interfaces.ActionControl#getVersion()
+     */
+    @Override
+    public short getVersion() throws BusException {
+        return 0;
+    }
 
-	@Override
-	public Map<Short, Variant> getOptParams() throws BusException {
-		// TODO Auto-generated method stub
-		return null;
-	}	
-	
-	/**
-	 * @see org.alljoyn.ioe.controlpanelservice.communication.interfaces.ActionControl#Exec()
-	 */
-	@Override
-	public void Exec() {
-	}
+    @Override
+    public int getStates() throws BusException {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
-	/**
-	 * @see org.alljoyn.ioe.controlpanelservice.communication.interfaces.ActionControl#MetadataChanged()
-	 */
-	@Override
-	public void MetadataChanged() {
-       
+    @Override
+    public Map<Short, Variant> getOptParams() throws BusException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /**
+     * @see org.alljoyn.ioe.controlpanelservice.communication.interfaces.ActionControl#Exec()
+     */
+    @Override
+    public void Exec() {
+    }
+
+    /**
+     * @see org.alljoyn.ioe.controlpanelservice.communication.interfaces.ActionControl#MetadataChanged()
+     */
+    @Override
+    public void MetadataChanged() {
+
         String msg = "Device: '" + actionWidget.device.getDeviceId() +
-                "', ActionWidget: '" + actionWidget.objectPath + "', received METADATA_CHANGED signal";
-        
+                     "', ActionWidget: '" + actionWidget.objectPath + "', received METADATA_CHANGED signal";
+
         Log.d(TAG, msg);
-        
+
         final ControlPanelEventsListener eventsListener = actionWidget.controlPanel.getEventsListener();
-        try{
-        	actionWidget.refreshProperties();
-        }
-        catch(ControlPanelException cpe) {
+        try {
+            actionWidget.refreshProperties();
+        } catch (ControlPanelException cpe) {
             msg += ", but failed to refresh the ActionWidget properties";
             Log.e(TAG, msg);
             eventsListener.errorOccurred(actionWidget.controlPanel, msg);
@@ -98,12 +97,12 @@ public class ActionWidgetSignalHandler implements ActionControl, ActionControlSe
         }
 
         //Delegate to the listener on a separate thread
-        TaskManager.getInstance().execute( new Runnable() {
-			@Override
-			public void run() {
-				eventsListener.metadataChanged(actionWidget.controlPanel, actionWidget);
-			}
-		});
-	}//MetadataChanged
+        TaskManager.getInstance().execute(new Runnable() {
+            @Override
+            public void run() {
+                eventsListener.metadataChanged(actionWidget.controlPanel, actionWidget);
+            }
+        });
+    }//MetadataChanged
 
 }

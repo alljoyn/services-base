@@ -26,22 +26,22 @@
 @property (strong, nonatomic) NSString *unit;
 @property (strong, nonatomic) AJCPSControlPanel *controlPanel;
 @property (strong, atomic) NSArray *widgetsContainer;
-@property (strong, nonatomic) id<ControllerUpdateEvents> delegate;
-@property (strong, nonatomic,readonly) NSArray *supportedLanguages;
+@property (strong, nonatomic) id <ControllerUpdateEvents> delegate;
+@property (strong, nonatomic, readonly) NSArray *supportedLanguages;
 
 - (id)initWithViewController:(UIViewController *)viewController;
 
--(void)pushChildContainer:(AJCPSContainer *)containerToMoveTo;
+- (void)pushChildContainer:(AJCPSContainer *)containerToMoveTo;
 
--(NSInteger)popChildContainer;
+- (NSInteger)popChildContainer;
 
--(QStatus)switchLanguage:(NSString *)language;
+- (QStatus)switchLanguage:(NSString *)language;
 
--(QStatus)switchLanguageForNotificationAction:(AJCPSRootWidget *)rootWidget;
+- (QStatus)switchLanguageForNotificationAction:(AJCPSRootWidget *)rootWidget;
 
--(QStatus)loadRootWidget:(AJCPSRootWidget *)rootWidget;
+- (QStatus)loadRootWidget:(AJCPSRootWidget *)rootWidget;
 
--(void)setSupportedLanguagesForNotificationAction:(AJCPSNotificationAction *) notificationAction;
+- (void)setSupportedLanguagesForNotificationAction:(AJCPSNotificationAction *)notificationAction;
 
--(NSInteger)childContainerPosition;
+- (NSInteger)childContainerPosition;
 @end

@@ -54,7 +54,7 @@ typedef union {
     /**
      * Value for const char*
      */
-    const char* charValue;
+    const char *charValue;
 } AJCPSConstraintValue;
 
 /**
@@ -65,7 +65,7 @@ typedef union {
  */
 @interface AJCPSConstraintList : NSObject
 
-- (id)initWithHandle:(ajn ::services ::ConstraintList *)handle;
+- (id)initWithHandle:(ajn::services::ConstraintList *)handle;
 
 /**
  * Get the Constraint Value
@@ -88,6 +88,6 @@ typedef union {
 /**
  * Convert property value to string representation
  */
-- (NSString *)propertyToNSString:(AJCPSPropertyType)property withValue:(AJCPSConstraintValue) propertyValue;
+- (NSString *)propertyToNSString:(AJCPSPropertyType)property withValue:(AJCPSConstraintValue)propertyValue;
 
 @end

@@ -26,7 +26,7 @@
 /// @name Properties
 ///---------------------
 /** richAudioUrlHandler */
-@property (nonatomic)ajn::services::RichAudioUrl * richAudioUrlHandler;
+@property (nonatomic) ajn::services::RichAudioUrl *richAudioUrlHandler;
 @property (strong, nonatomic) NSString *url;
 @property (strong, nonatomic) NSString *language;
 

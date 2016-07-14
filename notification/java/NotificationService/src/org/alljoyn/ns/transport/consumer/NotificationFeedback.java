@@ -43,7 +43,7 @@ import org.alljoyn.ns.transport.producer.SenderSessionListener;
  * 1) dismiss - Notification Producer deletes the {@link Notification} message
  * and then sends a Dismiss session-less-signal to update Notification Consumers
  * that this {@link Notification} message has been dismissed. <br>
- * 
+ *
  * If there is a failure in reaching the Notification Producer to dismiss the
  * {@link Notification}, the dismiss session-less-signal is sent by the
  * {@link NotificationFeedback}.
@@ -103,7 +103,7 @@ public class NotificationFeedback extends OnJoinSessionListener {
 
     /**
      * Constructor
-     * 
+     *
      * @param notification
      *            The {@link Notification} to send feedback
      * @throws NotificationServiceException
@@ -133,7 +133,7 @@ public class NotificationFeedback extends OnJoinSessionListener {
                 // and the original sender
                 if (version < 2 || origSender == null) {
                     logger.debug(TAG, "The notification sender version: '" + version + "', doesn't support the NotificationProducer interface, notifId: '" + notifId
-                            + "'; appId: '" + appId + "', can't call the Dismiss method, sending the Dismiss signal");
+                                 + "'; appId: '" + appId + "', can't call the Dismiss method, sending the Dismiss signal");
                     DismissEmitter.send(notifId, appId);
                     return;
                 }
@@ -147,7 +147,7 @@ public class NotificationFeedback extends OnJoinSessionListener {
      * Calls the remote dismiss method. <br>
      * If fails, send the Dismiss signal. The signal should be sent by the
      * consumer if the producer is not reachable.
-     * 
+     *
      * @param status
      *            Session establishment status
      */
@@ -188,7 +188,7 @@ public class NotificationFeedback extends OnJoinSessionListener {
 
     /**
      * Calls to establish a session with a NotificationProducer
-     * 
+     *
      * @param bus
      *            {@link BusAttachment}
      * @param sessionId
@@ -201,7 +201,7 @@ public class NotificationFeedback extends OnJoinSessionListener {
 
     /**
      * Leave the session if the sessionId isn't NULL and not zero <br>
-     * 
+     *
      * @param bus
      *            {@link BusAttachment}
      * @param sid
@@ -227,7 +227,7 @@ public class NotificationFeedback extends OnJoinSessionListener {
 
     /**
      * Create {@link ProxyBusObject}
-     * 
+     *
      * @param bus
      *            {@link BusAttachment}
      * @return Creates and returns the {@link ProxyBusObject}, casted to the

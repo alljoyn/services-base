@@ -20,19 +20,19 @@
 
 AJNSNotificationReceiverAdapter::AJNSNotificationReceiverAdapter(id <AJNSNotificationReceiver> notificationReceiverHandler)
 {
-	ajnsNotificationReceiverHandler = notificationReceiverHandler;
+    ajnsNotificationReceiverHandler = notificationReceiverHandler;
 }
 
-void AJNSNotificationReceiverAdapter::Receive(ajn::services::Notification const& notification)
+void AJNSNotificationReceiverAdapter::Receive(ajn::services::Notification const &notification)
 {
     AJNSNotification *t_ajnsNotification = [[AJNSNotification alloc] initWithHandle:(new ajn::services::Notification(notification))];
 
-	[t_ajnsNotification createAJNSNotificationTextArray];
-	[ajnsNotificationReceiverHandler receive:t_ajnsNotification];
+    [t_ajnsNotification createAJNSNotificationTextArray];
+    [ajnsNotificationReceiverHandler receive:t_ajnsNotification];
 }
 
 void AJNSNotificationReceiverAdapter::Dismiss(const int32_t msgId, const qcc::String appId)
 {
-    NSLog(@"Got Dissmiss of msgId %d and appId %@",msgId, [AJSVCConvertUtil convertQCCStringtoNSString:appId]);
+    NSLog(@"Got Dissmiss of msgId %d and appId %@", msgId, [AJSVCConvertUtil convertQCCStringtoNSString:appId]);
     [ajnsNotificationReceiverHandler dismissMsgId:msgId appId:[AJSVCConvertUtil convertQCCStringtoNSString:appId]];
 }

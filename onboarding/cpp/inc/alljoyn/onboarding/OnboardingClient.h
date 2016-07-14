@@ -51,7 +51,7 @@ class OnboardingClient {
     ~OnboardingClient();
 
     /**
-     *	map of AboutData using qcc::String as key and ajn::MsgArg as value.
+     *  map of AboutData using qcc::String as key and ajn::MsgArg as value.
      */
     typedef std::vector<OBScanInfo> ScanInfos;
 
@@ -74,7 +74,7 @@ class OnboardingClient {
      * @param[in] sessionId the session received  after joining alljoyn session
      * @return Status.OK if successful.
      */
-    QStatus ConfigureWiFi(const char* busName, const OBInfo& oBInfo, short& resultStatus,  ajn::SessionId sessionId = 0);
+    QStatus ConfigureWiFi(const char* busName, const OBInfo& oBInfo, short& resultStatus, ajn::SessionId sessionId = 0);
 
     /**
      * Connect WiFi a specified bus name.
@@ -123,7 +123,7 @@ class OnboardingClient {
 
   private:
     /**
-     *	pointer to  BusAttachment
+     *  pointer to  BusAttachment
      */
     ajn::BusAttachment* m_BusAttachment;
 };

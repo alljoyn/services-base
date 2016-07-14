@@ -22,6 +22,6 @@
 
 @property (nonatomic, strong) NSString *defaultPasscode;
 
-- (id)initWithViewController:(UIViewController*)viewController;
+- (id)initWithViewController:(UIViewController *)viewController;
 
 @end

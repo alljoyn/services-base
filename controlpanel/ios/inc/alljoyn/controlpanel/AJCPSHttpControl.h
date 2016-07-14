@@ -26,7 +26,7 @@
  */
 @interface AJCPSHttpControl : NSObject
 
-- (id)initWithHandle:(ajn ::services ::HttpControl *)handle;
+- (id)initWithHandle:(ajn::services::HttpControl *)handle;
 
 /**
  * Get the Interface Version of the HttpControl

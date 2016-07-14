@@ -27,14 +27,14 @@
  @param nsstring String from type NSString.
  @return qcc::String.
  */
-+ (qcc ::String)convertNSStringToQCCString:(NSString *)nsstring;
++ (qcc::String)convertNSStringToQCCString:(NSString *)nsstring;
 
 /**
  Convert qcc::String to NSString.
  @param qccstring String from type qcc::String.
  @return NSString.
  */
-+ (NSString *)convertQCCStringtoNSString:(qcc ::String)qccstring;
++ (NSString *)convertQCCStringtoNSString:(qcc::String)qccstring;
 
 /**
  Convert NSString to const char.

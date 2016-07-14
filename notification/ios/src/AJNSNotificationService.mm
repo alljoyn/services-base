@@ -37,19 +37,19 @@
 
 + (id)sharedInstance
 {
-	static AJNSNotificationService *ajnsNotificationService;
-	static dispatch_once_t donce;
-	dispatch_once(&donce, ^{
-	    ajnsNotificationService = [[self alloc] init];
-	});
-	return ajnsNotificationService;
+    static AJNSNotificationService *ajnsNotificationService;
+    static dispatch_once_t donce;
+    dispatch_once(&donce, ^{
+        ajnsNotificationService = [[self alloc] init];
+    });
+    return ajnsNotificationService;
 }
 
 - (id)init
 {
-	if (self = [super init]) {
-	}
-	return self;
+    if (self = [super init]) {
+    }
+    return self;
 }
 
 /**
@@ -61,14 +61,14 @@
  */
 - (AJNSNotificationSender *)startSendWithBus:(AJNBusAttachment *)bus andPropertyStore:(AJNAboutPropertyStoreImpl *)store
 {
-	self.ajnsSender = [[AJNSNotificationSender alloc] initWithPropertyStore:store];
-    
-	//NotificationSender* NotificationService::initSend(BusAttachment* bus, PropertyStore* store)
-	if (self.ajnsSender) {
-		self.ajnsSender.senderHandle = ajn::services::NotificationService::getInstance()->initSend((ajn::BusAttachment *)bus.handle, [self.ajnsSender getPropertyStore]);
-	}
-    
-	return self.ajnsSender.senderHandle ? self.ajnsSender : nil;
+    self.ajnsSender = [[AJNSNotificationSender alloc] initWithPropertyStore:store];
+
+    //NotificationSender* NotificationService::initSend(BusAttachment* bus, PropertyStore* store)
+    if (self.ajnsSender) {
+        self.ajnsSender.senderHandle = ajn::services::NotificationService::getInstance()->initSend((ajn::BusAttachment *)bus.handle, [self.ajnsSender getPropertyStore]);
+    }
+
+    return self.ajnsSender.senderHandle ? self.ajnsSender : nil;
 }
 
 /**
@@ -80,22 +80,23 @@
  */
 - (QStatus)startReceive:(AJNBusAttachment *)bus withReceiver:(id <AJNSNotificationReceiver> )ajnsNotificationReceiver
 {
-	if (!bus) {
-		return ER_BAD_ARG_1;
-	}
-    
-	if (!ajnsNotificationReceiver) {
-		return ER_BAD_ARG_2;
-	}
-    
-	AJNSNotificationReceiverAdapter *notificationReceiverAdapter = new AJNSNotificationReceiverAdapter(ajnsNotificationReceiver);
-	if (!notificationReceiverAdapter) {
-		if (self.logger)
-			[self.logger warnTag:[NSString stringWithFormat:@"%@", [[self class] description]] text:@"Failed to create adapter."];
-		return ER_FAIL;
-	}
-    
-	return (ajn::services::NotificationService::getInstance()->initReceive((ajn::BusAttachment *)bus.handle, notificationReceiverAdapter));
+    if (!bus) {
+        return ER_BAD_ARG_1;
+    }
+
+    if (!ajnsNotificationReceiver) {
+        return ER_BAD_ARG_2;
+    }
+
+    AJNSNotificationReceiverAdapter *notificationReceiverAdapter = new AJNSNotificationReceiverAdapter(ajnsNotificationReceiver);
+    if (!notificationReceiverAdapter) {
+        if (self.logger) {
+            [self.logger warnTag:[NSString stringWithFormat:@"%@", [[self class] description]] text:@"Failed to create adapter."];
+        }
+        return ER_FAIL;
+    }
+
+    return ajn::services::NotificationService::getInstance()->initReceive((ajn::BusAttachment *)bus.handle, notificationReceiverAdapter);
 }
 
 /**
@@ -103,7 +104,7 @@
  */
 - (void)shutdownSender
 {
-	ajn::services::NotificationService::getInstance()->shutdownSender();
+    ajn::services::NotificationService::getInstance()->shutdownSender();
 }
 
 /**
@@ -111,7 +112,7 @@
  */
 - (void)shutdownReceiver
 {
-	ajn::services::NotificationService::getInstance()->shutdownReceiver();
+    ajn::services::NotificationService::getInstance()->shutdownReceiver();
 }
 
 /**
@@ -119,19 +120,19 @@
  */
 - (void)shutdown
 {
-	ajn::services::NotificationService::getInstance()->shutdown();
+    ajn::services::NotificationService::getInstance()->shutdown();
 }
 
 /** @deprecated SuperAgent was deprecated in May 2015 for 15.04
  * release
- * Disabling superagent mode. 
+ * Disabling superagent mode.
  * Needs to be called before
  * starting receiver
  * @return status
  */
 - (QStatus)disableSuperAgent
 {
-	return ER_OK;
+    return ER_OK;
 }
 
 #pragma mark *** Logger methods ***
@@ -142,7 +143,7 @@
  */
 - (id <AJSVCGenericLogger> )logger
 {
-	return self.currentLogger;
+    return self.currentLogger;
 }
 
 /**
@@ -152,7 +153,7 @@
  */
 - (void)setLogLevel:(QLogLevel)newLogLevel;
 {
-	[self.currentLogger setLogLevel:newLogLevel];
+    [self.currentLogger setLogLevel:newLogLevel];
 }
 
 /**
@@ -161,7 +162,7 @@
  */
 - (QLogLevel)logLevel;
 {
-	return [self.currentLogger logLevel];
+    return [self.currentLogger logLevel];
 }
 
 #pragma mark *** ***
@@ -170,9 +171,9 @@
  */
 - (AJNBusAttachment *)busAttachment
 {
-	AJNBusAttachment *ajnBusAttachment;
-	ajnBusAttachment = [[AJNBusAttachment alloc] initWithHandle:ajn::services::NotificationService::getInstance()->getBusAttachment()];
-	return ajnBusAttachment;
+    AJNBusAttachment *ajnBusAttachment;
+    ajnBusAttachment = [[AJNBusAttachment alloc] initWithHandle:ajn::services::NotificationService::getInstance()->getBusAttachment()];
+    return ajnBusAttachment;
 }
 
 /**
@@ -181,7 +182,7 @@
  */
 - (uint16_t)version
 {
-	return ajn::services::NotificationService::getInstance()->getVersion();
+    return ajn::services::NotificationService::getInstance()->getVersion();
 }
 
 @end

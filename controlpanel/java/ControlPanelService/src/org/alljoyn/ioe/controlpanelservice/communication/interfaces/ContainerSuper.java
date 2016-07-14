@@ -24,26 +24,26 @@ import org.alljoyn.bus.Variant;
 
 public interface ContainerSuper {
 
-	/**
-	 * @return Interface version
-	 */
-	public short getVersion() throws BusException;
+    /**
+     * @return Interface version
+     */
+    public short getVersion() throws BusException;
 
-	/**
-	 * @return States bitmask 
-	 * @throws BusException
-	 */
-	public int getStates() throws BusException; 
+    /**
+     * @return States bitmask
+     * @throws BusException
+     */
+    public int getStates() throws BusException;
 
-	/**
-	 * @return Optional parameters
-	 * @throws BusException
-	 */
-	public Map<Short,Variant> getOptParams() throws BusException;
-	
-	/**
-	 * Signal is sent when the UI container metadata changed 
-	 * @param metadata
-	 */
-	public void MetadataChanged() throws BusException;
+    /**
+     * @return Optional parameters
+     * @throws BusException
+     */
+    public Map<Short, Variant> getOptParams() throws BusException;
+
+    /**
+     * Signal is sent when the UI container metadata changed
+     * @param metadata
+     */
+    public void MetadataChanged() throws BusException;
 }

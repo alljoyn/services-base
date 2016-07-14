@@ -30,6 +30,6 @@ The user of the class need to implement it method(s)
  @param connectionResultCode connection result code
  @param connectionResultMessage connection result message
  */
--(void)connectionResultSignalReceived:(int) connectionResultCode connectionResultMessage:(NSString*) connectionResultMessage;
+- (void)connectionResultSignalReceived:(int)connectionResultCode connectionResultMessage:(NSString *)connectionResultMessage;
 
 @end

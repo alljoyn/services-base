@@ -23,65 +23,60 @@ import org.alljoyn.bus.annotation.Position;
  */
 public class OBLastError {
 
-	/** 
-	 * The error code of the last validation
-	 * 0 - Validated
-	 * 1 - Unreachable
-	 * 2 - Unsupported_protocol
-	 * 3 - Unauthorized
-	 * 4 - Error_message
-	 */
+    /**
+     * The error code of the last validation
+     * 0 - Validated
+     * 1 - Unreachable
+     * 2 - Unsupported_protocol
+     * 3 - Unauthorized
+     * 4 - Error_message
+     */
     @Position(0) public short m_errorCode;
-    
-    /** 
+
+    /**
      * The error message of the last validation
-     * Error_message is the error message received from the underlying Wifi layer. 
+     * Error_message is the error message received from the underlying Wifi layer.
      */
     @Position(1) public String m_errorMsg;
-	
-    public OBLastError()
-    {
+
+    public OBLastError() {
     }
-    
+
     /**
      * Get the last validation error code
      * @return the last error code
-	 * 0 - Validated
-	 * 1 - Unreachable
-	 * 2 - Unsupported_protocol
-	 * 3 - Unauthorized
-	 * 4 - Error_message
+     * 0 - Validated
+     * 1 - Unreachable
+     * 2 - Unsupported_protocol
+     * 3 - Unauthorized
+     * 4 - Error_message
      */
-	public short getErrorCode()
-	{
-		return m_errorCode;
-	}
+    public short getErrorCode() {
+        return m_errorCode;
+    }
 
-	/**
-	 * Set the last validation error code
-	 * @param errorCode
-	 */
-	public void setErrorCode(short errorCode)
-	{
-		m_errorCode = errorCode;
-	}
+    /**
+     * Set the last validation error code
+     * @param errorCode
+     */
+    public void setErrorCode(short errorCode) {
+        m_errorCode = errorCode;
+    }
 
-	/**
-	 * Get the last validation error message
-	 * @return the error message received from the underlying Wifi layer.
-	 */
-	public String getErrorMessage()
-	{
-		return m_errorMsg;
-	}
+    /**
+     * Get the last validation error message
+     * @return the error message received from the underlying Wifi layer.
+     */
+    public String getErrorMessage() {
+        return m_errorMsg;
+    }
 
-	/**
-	 * Set the last validation error message
-	 * @param errorMsg
-	 */
-	public void setErrorMessage(String errorMsg)
-	{
-		m_errorMsg = errorMsg;
-	}
-	
+    /**
+     * Set the last validation error message
+     * @param errorMsg
+     */
+    public void setErrorMessage(String errorMsg) {
+        m_errorMsg = errorMsg;
+    }
+
 }

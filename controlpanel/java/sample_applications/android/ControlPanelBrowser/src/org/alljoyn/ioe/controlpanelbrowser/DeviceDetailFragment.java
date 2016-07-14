@@ -128,7 +128,7 @@ public class DeviceDetailFragment extends Fragment {
                 ControllableDevice controllableDevice = ControlPanelService.getInstance().getControllableDevice(deviceContext.getDeviceId(), deviceContext.getBusName());
 
                 if (controllableDevice != null) {
-                    for (String objPath: deviceContext.getBusObjects()) {
+                    for (String objPath : deviceContext.getBusObjects()) {
                         controllableDevice.addControlPanel(objPath, deviceContext.getInterfaces(objPath));
                     }
 
@@ -146,18 +146,17 @@ public class DeviceDetailFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
 
         rootView = inflater.inflate(R.layout.fragment_device_detail,
-                container, false);
+                                    container, false);
 
         return rootView;
     }
 
 
     @Override
-    public void onDestroy()
-    {
+    public void onDestroy() {
         if (deviceController != null) {
             deviceController.stop();
         }
@@ -168,7 +167,7 @@ public class DeviceDetailFragment extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
 
-        if ( !(activity instanceof DeviceDetailCallback) ) {
+        if (!(activity instanceof DeviceDetailCallback)) {
 
             throw new IllegalStateException("The hosting Activity must implement the DeviceDetailCallback");
         }
@@ -197,7 +196,7 @@ public class DeviceDetailFragment extends Fragment {
     private void raiseControlPanelStaleEvent() {
 
         Activity activity = getActivitySafely();
-        if ( activity == null || activity.isFinishing() ) {
+        if (activity == null || activity.isFinishing()) {
 
             Log.w(TAG, "The acitivity is NULL or is finishing can't call to raiseControlPanelStaleEvent");
             return;
@@ -213,10 +212,10 @@ public class DeviceDetailFragment extends Fragment {
      */
     private void showProgressDialog(String msg) {
 
-        if ( progressDialog == null || !progressDialog.isShowing() ) {
+        if (progressDialog == null || !progressDialog.isShowing()) {
 
             Activity activity = getActivitySafely();
-            if ( activity == null || activity.isFinishing() ) {
+            if (activity == null || activity.isFinishing()) {
 
                 Log.w(TAG, "The activity is finishing, can't show the ProgressDialog");
                 return;
@@ -224,8 +223,7 @@ public class DeviceDetailFragment extends Fragment {
 
             progressDialog = ProgressDialog.show(activity, "", msg, true);
             progressDialog.setCancelable(false);
-        }
-        else if ( progressDialog.isShowing() ) {
+        } else if (progressDialog.isShowing()) {
             progressDialog.setMessage(msg);
         }
     }
@@ -235,26 +233,23 @@ public class DeviceDetailFragment extends Fragment {
      */
     private void hideProgressDialog() {
 
-        if ( progressDialog != null ) {
+        if (progressDialog != null) {
             progressDialog.dismiss();
         }
     }
 
     class DeviceController implements DeviceEventsListener, ControlPanelExceptionHandler, ControlPanelEventsListener,
-                                      ContainerCreatedListener
-    {
+        ContainerCreatedListener {
         final ControllableDevice device;
         private DeviceControlPanel deviceControlPanel;
         private ControlPanelAdapter controlPanelAdapter;
         private AlertDialog alertDialog;
 
-        DeviceController(ControllableDevice controllableDevice)
-        {
+        DeviceController(ControllableDevice controllableDevice) {
             this.device = controllableDevice;
         }
 
-        public void start() throws ControlPanelException
-        {
+        public void start() throws ControlPanelException {
             try {
                 Log.d(TAG, "Starting the session with the device");
                 if (device != null) {
@@ -272,8 +267,7 @@ public class DeviceDetailFragment extends Fragment {
             }
         }
 
-        public void stop()
-        {
+        public void stop() {
             try {
 
                 Log.d(TAG, "Closing session and releasing the device resources");
@@ -290,27 +284,26 @@ public class DeviceDetailFragment extends Fragment {
         public void sessionLost(final ControllableDevice device) {
 
             if (this.device.getDeviceId().equalsIgnoreCase(device.getDeviceId())) {
-                getActivitySafely().runOnUiThread(new Runnable(){
+                getActivitySafely().runOnUiThread(new Runnable() {
                     @Override
-                    public void run()
-                    {
+                    public void run() {
                         String text = "Received SESSION_LOST for device: '" + device.getDeviceId() + "'";
                         Log.d(TAG, text);
                         Toast.makeText(getActivitySafely(), text, Toast.LENGTH_LONG).show();
 
                         stop();
                         raiseControlPanelStaleEvent();
-                    }});
+                    }
+                });
             }
         }
 
 
         @Override
         public void sessionEstablished(final ControllableDevice device,
-                java.util.Collection<ControlPanelCollection> controlPanelContainer)
-        {
+                                       java.util.Collection<ControlPanelCollection> controlPanelContainer) {
             Log.d(TAG, "Received sessionEstablished for device: '" + device.getDeviceId() + "'");
-            getActivitySafely().runOnUiThread(new Runnable(){
+            getActivitySafely().runOnUiThread(new Runnable() {
 
                 @Override
                 public void run() {
@@ -330,7 +323,7 @@ public class DeviceDetailFragment extends Fragment {
             //The time unit depends on the given TimeUnit object
             AsyncTask<Void, Void, Object> panelLoader;
 
-            panelLoader = new AsyncTask<Void, Void, Object> () {
+            panelLoader = new AsyncTask<Void, Void, Object>() {
                 @Override
                 protected void onPreExecute() {
 
@@ -350,7 +343,7 @@ public class DeviceDetailFragment extends Fragment {
                 @Override
                 protected void onPostExecute(Object result) {
 
-                    if ( result instanceof ControlPanelException ) {
+                    if (result instanceof ControlPanelException) {
 
                         String errMsg = "Failed to retrieve the Control Panel";
                         Log.e(TAG, errMsg, (ControlPanelException)result);
@@ -378,12 +371,11 @@ public class DeviceDetailFragment extends Fragment {
             UIElementType elementType = rootContainerElement.getElementType();
             Log.d(TAG, "Found root container of type: '" + elementType + "', building");
 
-            if ( elementType == UIElementType.CONTAINER ) {
+            if (elementType == UIElementType.CONTAINER) {
 
                 showProgressDialog("Populating container");
-                controlPanelAdapter.createContainerViewAsync((ContainerWidget) rootContainerElement, this);
-            }
-            else if ( elementType == UIElementType.ALERT_DIALOG ) {
+                controlPanelAdapter.createContainerViewAsync((ContainerWidget)rootContainerElement, this);
+            } else if (elementType == UIElementType.ALERT_DIALOG) {
 
                 renderControlPanelDialog(rootContainerElement);
             }
@@ -395,13 +387,12 @@ public class DeviceDetailFragment extends Fragment {
         @Override
         public void onContainerViewCreated(final View containerLayout) {
 
-            getActivitySafely().runOnUiThread(new Runnable(){
+            getActivitySafely().runOnUiThread(new Runnable() {
                 @Override
-                public void run()
-                {
+                public void run() {
                     hideProgressDialog();
                     if (rootView != null) {
-                        LinearLayout body = (LinearLayout) rootView.findViewById(R.id.control_panel);
+                        LinearLayout body = (LinearLayout)rootView.findViewById(R.id.control_panel);
                         body.removeAllViews();
                         body.addView(containerLayout);
                     }
@@ -417,7 +408,7 @@ public class DeviceDetailFragment extends Fragment {
 
             Log.d(TAG, "Found root container of type: '" + rootContainerElement.getElementType() + "', building");
             AlertDialogWidget alertDialogWidget = ((AlertDialogWidget)rootContainerElement);
-            AlertDialog alertDialog             = controlPanelAdapter.createAlertDialog(alertDialogWidget);
+            AlertDialog alertDialog = controlPanelAdapter.createAlertDialog(alertDialogWidget);
             alertDialog.setCancelable(false);
             alertDialog.setCanceledOnTouchOutside(false);
             alertDialog.setOnDismissListener(new AlertDialog.OnDismissListener() {
@@ -442,10 +433,9 @@ public class DeviceDetailFragment extends Fragment {
             returnView.setText(msg);
             getActivitySafely().runOnUiThread(new Runnable() {
                 @Override
-                public void run()
-                {
+                public void run() {
                     if (rootView != null) {
-                        LinearLayout body = (LinearLayout) rootView.findViewById(R.id.control_panel);
+                        LinearLayout body = (LinearLayout)rootView.findViewById(R.id.control_panel);
                         body.removeAllViews();
                         body.addView(returnView);
                     }
@@ -455,14 +445,14 @@ public class DeviceDetailFragment extends Fragment {
 
         private void selectControlPanel(ControllableDevice device) {
             if (rootView != null) {
-                Spinner unitSelector = (Spinner) rootView.findViewById(R.id.unit_selector);
+                Spinner unitSelector = (Spinner)rootView.findViewById(R.id.unit_selector);
                 Collection<Unit> unitCollection = device.getUnitCollection();
                 if (unitCollection.size() == 0) {
                     Log.w(TAG, "No units found");
                     unitSelector.setEnabled(false);
                 } else {
                     final ArrayAdapter<LabelValuePair> adapter = new ArrayAdapter<LabelValuePair>(getActivitySafely(), android.R.layout.simple_spinner_item);
-                    for (Unit unit: unitCollection) {
+                    for (Unit unit : unitCollection) {
                         adapter.add(new LabelValuePair(unit.getUnitId(), unit));
                     }
                     unitSelector.setAdapter(adapter);
@@ -481,7 +471,7 @@ public class DeviceDetailFragment extends Fragment {
                                 } else {
                                     currentSelection = pos;
                                     LabelValuePair item = adapter.getItem(pos);
-                                    Unit selectedUnit = (Unit) item.value;
+                                    Unit selectedUnit = (Unit)item.value;
                                     onUnitSelection(selectedUnit);
                                 }
                             }
@@ -505,16 +495,15 @@ public class DeviceDetailFragment extends Fragment {
             selectControlPanelCollection(controlPanelContainer);
         }
 
-        private void selectControlPanelCollection(
-                Collection<ControlPanelCollection> controlPanelContainer) {
+        private void selectControlPanelCollection(Collection<ControlPanelCollection> controlPanelContainer) {
             if (rootView != null) {
-                Spinner cpCollectionSelector = (Spinner) rootView.findViewById(R.id.cp_collection_selector);
+                Spinner cpCollectionSelector = (Spinner)rootView.findViewById(R.id.cp_collection_selector);
                 if (controlPanelContainer.size() == 0) {
                     Log.w(TAG, "No control panel collections found");
                     cpCollectionSelector.setEnabled(false);
                 } else {
                     final ArrayAdapter<LabelValuePair> adapter = new ArrayAdapter<LabelValuePair>(getActivitySafely(), android.R.layout.simple_spinner_item);
-                    for (ControlPanelCollection cpCollection: controlPanelContainer) {
+                    for (ControlPanelCollection cpCollection : controlPanelContainer) {
                         adapter.add(new LabelValuePair(cpCollection.getName(), cpCollection));
                     }
                     cpCollectionSelector.setAdapter(adapter);
@@ -533,7 +522,7 @@ public class DeviceDetailFragment extends Fragment {
                                 } else {
                                     currentSelection = pos;
                                     LabelValuePair item = adapter.getItem(pos);
-                                    ControlPanelCollection cpCollection = (ControlPanelCollection) item.value;
+                                    ControlPanelCollection cpCollection = (ControlPanelCollection)item.value;
                                     onControlPanelCollectionSelection(cpCollection);
                                 }
                             }
@@ -548,7 +537,7 @@ public class DeviceDetailFragment extends Fragment {
                 }
             }
         }
-        
+
         private int getMatchingPartCount(String[] language1InParts, String[] language2InParts) {
             // Language tag "en-US" in parts would be [ "en", "US" ] - use string.split("-").
 
@@ -573,10 +562,11 @@ public class DeviceDetailFragment extends Fragment {
         private String concatenateStringParts(String[] stringParts, String separator) {
             String concatenatedParts = "";
 
-            for(int i = 0; i < stringParts.length; i++) {
+            for (int i = 0; i < stringParts.length; i++) {
                 concatenatedParts += stringParts[i];
-                if(i < (stringParts.length - 1))
+                if (i < (stringParts.length - 1)) {
                     concatenatedParts += separator;
+                }
             }
 
             return concatenatedParts;
@@ -597,8 +587,8 @@ public class DeviceDetailFragment extends Fragment {
         }
 
         private String findClosestLanguageFromList(String[] targetLanguageList,
-                                                     String language_IETF_RFC5646,  // E.g. zh-cmn-Hans-CN
-                                                     String language_ISO639) {      // E.g. zh
+                                                   String language_IETF_RFC5646,  // E.g. zh-cmn-Hans-CN
+                                                   String language_ISO639) {      // E.g. zh
             String closestLanguage = "";
 
             // Extract the language tags from the list which contain the specified ISO 639 language
@@ -634,14 +624,14 @@ public class DeviceDetailFragment extends Fragment {
                     }
                 }
 
-                if(closestLanguageFound) {
+                if (closestLanguageFound) {
                     break;
                 }
             }
 
             // If that fails, a specialisation of the language needs to be chosen from the list. So
             // choose the most generalised one.
-            if(closestLanguage.length() == 0 && targetLanguagePartList.size() > 0) {
+            if (closestLanguage.length() == 0 && targetLanguagePartList.size() > 0) {
                 int shortestTargetLanguageIndex = 0;
 
                 for (int i = 1; i < targetLanguagePartList.size(); i++) {
@@ -663,8 +653,7 @@ public class DeviceDetailFragment extends Fragment {
             String controllerLanguage_IETF_RFC5646;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
                 controllerLanguage_IETF_RFC5646 = Locale.getDefault().toLanguageTag();
-            }
-            else {
+            } else {
                 controllerLanguage_IETF_RFC5646 = Locale.getDefault().toString();
             }
             controllerLanguage_IETF_RFC5646 = controllerLanguage_IETF_RFC5646.replace('_', '-');
@@ -689,17 +678,15 @@ public class DeviceDetailFragment extends Fragment {
             // Get the control panel with the language that either matches, or is a close match to,
             // this device's detected language.
             String closestLanguage = findClosestLanguageFromList(controlPanelLanguageList,
-                                                                controllerLanguage_IETF_RFC5646,
-                                                                controllerLanguage_ISO639);
+                                                                 controllerLanguage_IETF_RFC5646,
+                                                                 controllerLanguage_ISO639);
             DeviceControlPanel selectedControlPanel = findControlPanelByLanguage(controlPanels, closestLanguage);
             DeviceControlPanel previousControlPanel = deviceControlPanel;
 
-            if(selectedControlPanel != null) {
+            if (selectedControlPanel != null) {
                 deviceControlPanel = selectedControlPanel;
                 Log.d(TAG, String.format("Found a control panel with closest match to phone languages: RFC5646=%s, ISO639=%s, Given language was: %s", controllerLanguage_IETF_RFC5646, controllerLanguage_ISO639, deviceControlPanel.getLanguage()));
-            }
-
-            else if (!controlPanels.isEmpty()) {
+            } else if (!controlPanels.isEmpty()) {
                 Log.w(TAG, String.format("Could not find a control panel that matches phone languages: RFC5646=%s, ISO639=%s", controllerLanguage_IETF_RFC5646, controllerLanguage_ISO639));
                 deviceControlPanel = controlPanels.iterator().next();
                 Log.d(TAG, String.format("Defaulting to the control panel of language: %s", deviceControlPanel.getLanguage()));
@@ -712,8 +699,7 @@ public class DeviceDetailFragment extends Fragment {
 
             if (deviceControlPanel != null) {
                 onControlPanelSelected();
-            }
-            else {
+            } else {
                 Log.w(TAG, "No DeviceControlPanel found, ControlPanelCollection size: '" + controlPanels.size() + "'");
             }
         }
@@ -733,8 +719,7 @@ public class DeviceDetailFragment extends Fragment {
         }
 
         @Override
-        public void errorOccurred(ControllableDevice device, final String reason)
-        {
+        public void errorOccurred(ControllableDevice device, final String reason) {
             final String text = "ErrorOccurred was called, Reason: '" + reason + "'";
             Log.e(TAG, text);
 
@@ -752,7 +737,7 @@ public class DeviceDetailFragment extends Fragment {
                         hideProgressDialog();
                         Toast.makeText(activity, text, Toast.LENGTH_LONG).show();
 
-                        if ( isErrorSevere(reason) ) {
+                        if (isErrorSevere(reason)) {
 
                             Log.w(TAG, "The received error: '" + reason + "' is severe, calling raiseControlPanelStaleEvent");
                             raiseControlPanelStaleEvent();
@@ -770,7 +755,7 @@ public class DeviceDetailFragment extends Fragment {
          */
         private boolean isErrorSevere(String reason) {
 
-            if ( reason == null ) {
+            if (reason == null) {
 
                 return false;
             }
@@ -778,13 +763,12 @@ public class DeviceDetailFragment extends Fragment {
             Status status;
             try {
                 status = Status.valueOf(reason);
-            }
-            catch(IllegalArgumentException ilae) {
+            } catch (IllegalArgumentException ilae) {
                 //Not an AllJoyn status
                 return false;
             }
 
-            if ( status == Status.ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED ) {
+            if (status == Status.ALLJOYN_JOINSESSION_REPLY_ALREADY_JOINED) {
 
                 return false;  //Not considered as an error
             }
@@ -797,7 +781,7 @@ public class DeviceDetailFragment extends Fragment {
 
             Activity activity = getActivitySafely();
 
-            if ( activity == null ) {
+            if (activity == null) {
 
                 Log.w(TAG, "handleControlPanelException - activity is not defined, returning");
                 return;
@@ -843,12 +827,12 @@ public class DeviceDetailFragment extends Fragment {
                             @Override
                             public void run() {
                                 controlPanelAdapter.onValueChange(uielement,
-                                        newValue);
+                                                                  newValue);
                                 String text = "Received value changed signal, ObjPath: '"
-                                        + uielement.getObjectPath()
-                                        + "', NewValue: '" + newValue + "'";
+                                              + uielement.getObjectPath()
+                                              + "', NewValue: '" + newValue + "'";
                                 Toast.makeText(activity, text,
-                                        Toast.LENGTH_SHORT).show();
+                                               Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
@@ -859,9 +843,9 @@ public class DeviceDetailFragment extends Fragment {
         @Override
         public void notificationActionDismiss(DeviceControlPanel deviceControlPanel) {
 
-            Log.d(TAG,"Received notificationActionDismiss");
+            Log.d(TAG, "Received notificationActionDismiss");
             if (alertDialog != null && alertDialog.isShowing()) {
-                Log.d(TAG,"Dismissing the dialog");
+                Log.d(TAG, "Dismissing the dialog");
                 alertDialog.dismiss();
             }
         }

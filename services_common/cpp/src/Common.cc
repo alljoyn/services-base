@@ -26,8 +26,7 @@ namespace common {
  * but since this is not exposed to external applications, this function is
  * being added here
  */
-bool
-IsLegalObjectPath(const char* str)
+bool IsLegalObjectPath(const char* str)
 {
     if (!str) {
         return false;

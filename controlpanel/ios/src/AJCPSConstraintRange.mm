@@ -24,26 +24,26 @@
 
 - (id)initWithHandle:(ajn::services::ConstraintRange *)handle
 {
-	self = [super init];
-	if (self) {
-		self.handle = handle;
-	}
-	return self;
+    self = [super init];
+    if (self) {
+        self.handle = handle;
+    }
+    return self;
 }
 
 - (uint16_t)getIncrementValue
 {
-	return self.handle->getIncrementValue().int16Value;
+    return self.handle->getIncrementValue().int16Value;
 }
 
 - (uint16_t)getMaxValue
 {
-	return self.handle->getMaxValue().int16Value;
+    return self.handle->getMaxValue().int16Value;
 }
 
 - (uint16_t)getMinValue
 {
-	return self.handle->getMinValue().int16Value;
+    return self.handle->getMinValue().int16Value;
 }
 
 @end

@@ -24,17 +24,17 @@ import org.alljoyn.ioe.controlpanelservice.ControlPanelService;
 /**
  * This interface indicates whether the object is a control panel
  */
-@BusInterface (name = ControlPanel.IFNAME)
+@BusInterface(name = ControlPanel.IFNAME)
 public interface ControlPanel {
-	public static final String IFNAME  = ControlPanelService.INTERFACE_PREFIX + ".ControlPanel"; 
-	
-	public static final int ID_MASK    = 0x01;
-	
-	public static final short  VERSION = 1;
-	
-	/**
-	 * @return Interface version
-	 */
-	@BusProperty(signature="q")
-	public short getVersion() throws BusException;
+    public static final String IFNAME = ControlPanelService.INTERFACE_PREFIX + ".ControlPanel";
+
+    public static final int ID_MASK = 0x01;
+
+    public static final short VERSION = 1;
+
+    /**
+     * @return Interface version
+     */
+    @BusProperty(signature = "q")
+    public short getVersion() throws BusException;
 }

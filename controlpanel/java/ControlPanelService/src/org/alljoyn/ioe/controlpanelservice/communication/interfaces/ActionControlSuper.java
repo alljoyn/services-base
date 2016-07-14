@@ -25,33 +25,33 @@ import org.alljoyn.bus.Variant;
  * The parent interface of the {@link ActionControl} and {@link ActionControlSecured} interfaces
  */
 public interface ActionControlSuper {
-	
-	/**
-	 * @return Interface version
-	 */
-	public short getVersion() throws BusException;
 
-	/**
-	 * @return States bitmask 
-	 * @throws BusException
-	 */
-	public int getStates() throws BusException;
-	
-	/**
-	 * @return Optional parameters
-	 * @throws BusException
-	 */
-	public Map<Short,Variant> getOptParams() throws BusException;
-	
-	/**
-	 * Called when the action is executed on the widget
-	 */
-	public void Exec() throws BusException;
-	
     /**
-	 * Signal is sent when the UI container metadata changed 
-	 * @param metadata
-	 */
-	public void MetadataChanged() throws BusException;
+     * @return Interface version
+     */
+    public short getVersion() throws BusException;
+
+    /**
+     * @return States bitmask
+     * @throws BusException
+     */
+    public int getStates() throws BusException;
+
+    /**
+     * @return Optional parameters
+     * @throws BusException
+     */
+    public Map<Short, Variant> getOptParams() throws BusException;
+
+    /**
+     * Called when the action is executed on the widget
+     */
+    public void Exec() throws BusException;
+
+    /**
+     * Signal is sent when the UI container metadata changed
+     * @param metadata
+     */
+    public void MetadataChanged() throws BusException;
 
 }

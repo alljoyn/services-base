@@ -20,21 +20,21 @@ package org.alljoyn.ioe.controlpanelservice.ui;
  * Optional parameters keys of {@link ContainerWidget}
  */
 public enum ContainerWidgetEnum {
-	LABEL((short)0),
-	BG_COLOR((short)1),
-	LAYOUT_HINTS((short)2)
-	;
-	
-	/**
-	 * The key number
-	 */
-	public final short ID;
-	
-	/**
-	 * Constructor
-	 * @param id
-	 */
-	private ContainerWidgetEnum(short id) {
-		ID = id;
-	}
+    LABEL((short)0),
+    BG_COLOR((short)1),
+    LAYOUT_HINTS((short)2)
+    ;
+
+    /**
+     * The key number
+     */
+    public final short ID;
+
+    /**
+     * Constructor
+     * @param id
+     */
+    private ContainerWidgetEnum(short id) {
+        ID = id;
+    }
 }

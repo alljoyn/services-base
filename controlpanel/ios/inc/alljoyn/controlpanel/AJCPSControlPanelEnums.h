@@ -30,11 +30,11 @@ typedef NS_ENUM (NSInteger, AJCPSControlPanelMode) {
     /***
      * CONTROLLEE_MODE
      */
-	AJCPS_CONTROLLEE_MODE,
+    AJCPS_CONTROLLEE_MODE,
     /***
      * CONTROLLER_MODE
      */
-	AJCPS_CONTROLLER_MODE
+    AJCPS_CONTROLLER_MODE
 };
 
 /**
@@ -44,27 +44,27 @@ typedef NS_ENUM (NSInteger, AJCPSWidgetType) {
     /**
      * AJCPS_CONTAINER
      */
-	AJCPS_CONTAINER = 0,
+    AJCPS_CONTAINER = 0,
     /**
      * AJCPS_ACTION
      */
-	AJCPS_ACTION = 1,
+    AJCPS_ACTION = 1,
     /**
      * AJCPS_ACTION_WITH_DIALOG
      */
-	AJCPS_ACTION_WITH_DIALOG = 2,
+    AJCPS_ACTION_WITH_DIALOG = 2,
     /**
      * AJCPS_LABEL
      */
-	AJCPS_LABEL = 3,
+    AJCPS_LABEL = 3,
     /**
      * AJCPS_PROPERTY
      */
-	AJCPS_PROPERTY = 4,
+    AJCPS_PROPERTY = 4,
     /**
      * AJCPS_DIALOG
      */
-	AJCPS_DIALOG = 5,
+    AJCPS_DIALOG = 5,
     /**
      * AJCPS_ERROR
      */
@@ -78,7 +78,7 @@ typedef NS_ENUM (NSInteger, AJCPSPropertyType) {
     /**
      * bool property
      */
-	AJCPS_BOOL_PROPERTY = 0,
+    AJCPS_BOOL_PROPERTY = 0,
     /**
      * uint16 property
      */
@@ -132,7 +132,7 @@ typedef NS_ENUM (NSInteger, AJCPSControlPanelTransaction) {
     /**
      * Session join
      */
-	AJCPS_SESSION_JOIN = 0,
+    AJCPS_SESSION_JOIN = 0,
     /**
      * Register objects
      */
@@ -155,11 +155,11 @@ typedef NS_ENUM (NSInteger, AJCPS_LAYOUT_HINTS) {
     /**
      * Vertical linear
      */
-	AJCPS_VERTICAL_LINEAR = 1,
+    AJCPS_VERTICAL_LINEAR = 1,
     /**
      * Horizontal linear
      */
-	AJCPS_HORIZONTAL_LINEAR = 2
+    AJCPS_HORIZONTAL_LINEAR = 2
 };
 
 /**
@@ -169,7 +169,7 @@ typedef NS_ENUM (NSInteger, AJCPS_DIALOG_HINTS) {
     /**
      * Alert dialog
      */
-	AJCPS_ALERTDIALOG = 1
+    AJCPS_ALERTDIALOG = 1
 };
 
 /**
@@ -179,7 +179,7 @@ typedef NS_ENUM (NSInteger, AJCPS_PROPERTY_HINTS) {
     /**
      * Switch
      */
-	AJCPS_SWITCH = 1,
+    AJCPS_SWITCH = 1,
     /**
      * Checkbox
      */
@@ -237,7 +237,7 @@ typedef NS_ENUM (NSInteger, AJCPS_LABEL_HINTS) {
     /**
      * Text label
      */
-	AJCPS_TEXTLABEL = 1
+    AJCPS_TEXTLABEL = 1
 };
 
 /**
@@ -247,5 +247,5 @@ typedef NS_ENUM (NSInteger, ACTION_HINTS) {
     /**
      * Action button
      */
-	AJCPS_ACTIONBUTTON = 1
+    AJCPS_ACTIONBUTTON = 1
 };

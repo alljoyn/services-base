@@ -17,14 +17,14 @@
 package org.alljoyn.ioe.controlpanelservice.communication;
 
 /**
- * Connection Manager events 
+ * Connection Manager events
  */
 public enum ConnManagerEventType {
-	ANNOUNCEMENT_RECEIVED,
-	SESSION_JOINED,
-	SESSION_JOIN_FAIL,
-	SESSION_LOST,
-	FOUND_DEVICE,
-	LOST_DEVICE,
-	;
+    ANNOUNCEMENT_RECEIVED,
+    SESSION_JOINED,
+    SESSION_JOIN_FAIL,
+    SESSION_LOST,
+    FOUND_DEVICE,
+    LOST_DEVICE,
+    ;
 }

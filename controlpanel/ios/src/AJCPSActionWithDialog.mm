@@ -27,20 +27,20 @@
 
 - (id)initWithHandle:(ajn::services::ActionWithDialog *)handle
 {
-	self = [super initWithHandle:handle];
-	if (self) {
-	}
-	return self;
+    self = [super initWithHandle:handle];
+    if (self) {
+    }
+    return self;
 }
 
 - (AJCPSDialog *)getChildDialog
 {
-	return [[AJCPSDialog alloc]initWithHandle:((ajn::services::ActionWithDialog *)self.handle)->getChildDialog()];
+    return [[AJCPSDialog alloc] initWithHandle:((ajn::services::ActionWithDialog *)self.handle)->getChildDialog()];
 }
 
 - (QStatus)unregisterObjects:(AJNBusAttachment *)bus
 {
-	return ((ajn::services::ActionWithDialog *)self.handle)->unregisterObjects((ajn::BusAttachment *)[bus handle]);
+    return ((ajn::services::ActionWithDialog *)self.handle)->unregisterObjects((ajn::BusAttachment *)[bus handle]);
 }
 
 @end

@@ -23,7 +23,7 @@
 
 @interface AJOBSOnboardingClient ()
 @property ajn::services::OnboardingClient *handle;
-@property (nonatomic) AJOBOnboardingClientListenerAdapter * onboardingListenerAdapter;
+@property (nonatomic) AJOBOnboardingClientListenerAdapter *onboardingListenerAdapter;
 @end
 
 @implementation AJOBSOnboardingClient
@@ -34,17 +34,17 @@
     delete self.onboardingListenerAdapter;
 }
 
--(id)initWithBus:(AJNBusAttachment*) bus listener:(id <AJOBOnboardingClientListener>) listener
+- (id)initWithBus:(AJNBusAttachment *)bus listener:(id <AJOBOnboardingClientListener> )listener
 {
     self = [super init];
     if (self) {
         self.onboardingListenerAdapter = new AJOBOnboardingClientListenerAdapter(listener);
-        self.handle = new ajn::services::OnboardingClient((ajn::BusAttachment&)(*bus.handle), *self.onboardingListenerAdapter);
+        self.handle = new ajn::services::OnboardingClient((ajn::BusAttachment &)(*bus.handle), *self.onboardingListenerAdapter);
     }
     return self;
 }
 
--(QStatus)configureWiFi:(NSString*) busName obInfo:(AJOBInfo&) ajOBInfo resultStatus:(short&) resultStatus sessionId:(AJNSessionId) sessionId
+- (QStatus)configureWiFi:(NSString *)busName obInfo:(AJOBInfo &)ajOBInfo resultStatus:(short &)resultStatus sessionId:(AJNSessionId)sessionId
 {
     // prepare OBInfo
     ajn::services::OBInfo obInfo;
@@ -53,61 +53,61 @@
     return status;
 }
 
--(QStatus)configureWiFi:(NSString*) busName obInfo:(AJOBInfo&)obInfo resultStatus:(short&) resultStatus
+- (QStatus)configureWiFi:(NSString *)busName obInfo:(AJOBInfo &)obInfo resultStatus:(short &)resultStatus
 {
     NSLog(@"No sessionId has been specified - the service will find an existing route to end point rather than access directly.");
     return [self configureWiFi:busName obInfo:obInfo resultStatus:resultStatus sessionId:0];
 }
 
--(QStatus)connectTo:(NSString*) busName sessionId:(AJNSessionId) sessionId
+- (QStatus)connectTo:(NSString *)busName sessionId:(AJNSessionId)sessionId
 {
     return self.handle->ConnectTo([AJSVCConvertUtil convertNSStringToConstChar:busName], sessionId);
 }
 
--(QStatus)connectTo:(NSString*) busName
+- (QStatus)connectTo:(NSString *)busName
 {
     NSLog(@"No sessionId has been specified - the service will find an existing route to end point rather than access directly.");
-    return[self connectTo:busName sessionId:0];
+    return [self connectTo:busName sessionId:0];
 }
 
 
--(QStatus)offboardFrom:(NSString*) busName sessionId:(AJNSessionId) sessionId
+- (QStatus)offboardFrom:(NSString *)busName sessionId:(AJNSessionId)sessionId
 {
     return self.handle->OffboardFrom([AJSVCConvertUtil convertNSStringToConstChar:busName], sessionId);
 }
 
 
--(QStatus)offboardFrom:(NSString*) busName
+- (QStatus)offboardFrom:(NSString *)busName
 {
     NSLog(@"No sessionId has been specified - the service will find an existing route to end point rather than access directly.");
     return [self offboardFrom:busName sessionId:0];
 }
 
--(QStatus)version:(NSString*) busName version:(int&) version sessionId:(AJNSessionId) sessionId
+- (QStatus)version:(NSString *)busName version:(int &)version sessionId:(AJNSessionId)sessionId
 {
     return self.handle->GetVersion([AJSVCConvertUtil convertNSStringToConstChar:busName], version, sessionId);
 }
 
--(QStatus)version:(NSString*) busName version:(int&) version
+- (QStatus)version:(NSString *)busName version:(int &)version
 {
     NSLog(@"No sessionId has been specified - the service will find an existing route to end point rather than access directly.");
     return [self version:busName version:version sessionId:0];
 }
 
 
--(QStatus)state:(NSString*) busName state:(short&) state sessionId:(AJNSessionId) sessionId
+- (QStatus)state:(NSString *)busName state:(short &)state sessionId:(AJNSessionId)sessionId
 {
     return self.handle->GetState([AJSVCConvertUtil convertNSStringToConstChar:busName], state, sessionId);
 }
 
--(QStatus)state:(NSString*) busName state:(short&) state
+- (QStatus)state:(NSString *)busName state:(short &)state
 {
     NSLog(@"No sessionId has been specified - the service will find an existing route to end point rather than access directly.");
     return [self state:busName state:state sessionId:0];
 }
 
 
--(QStatus)lastError:(NSString*) busName lastError:(AJOBLastError&) lastError sessionId:(AJNSessionId) sessionId
+- (QStatus)lastError:(NSString *)busName lastError:(AJOBLastError &)lastError sessionId:(AJNSessionId)sessionId
 {
     ajn::services::OBLastError obLastError;
     QStatus status = self.handle->GetLastError([AJSVCConvertUtil convertNSStringToConstChar:busName], obLastError, sessionId);
@@ -116,7 +116,7 @@
 }
 
 
--(QStatus)lastError:(NSString*) busName lastError:(AJOBLastError&) lastError
+- (QStatus)lastError:(NSString *)busName lastError:(AJOBLastError &)lastError
 {
     NSLog(@"No sessionId has been specified - the service will find an existing route to end point rather than access directly.");
     return [self lastError:busName lastError:lastError sessionId:0];

@@ -28,7 +28,7 @@
  */
 @interface AJCPSControlPanel : NSObject
 
-- (id)initWithHandle:(ajn ::services ::ControlPanel *)handle;
+- (id)initWithHandle:(ajn::services::ControlPanel *)handle;
 
 /**
  * Get the name of the Panel - the name of the rootWidget

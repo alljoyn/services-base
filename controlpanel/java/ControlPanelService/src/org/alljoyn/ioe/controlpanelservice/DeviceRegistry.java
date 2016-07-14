@@ -23,31 +23,31 @@ import java.util.Map;
  * and changes in their reachability state
  */
 public interface DeviceRegistry {
-	
-	/**
-	 * Called when a new controllable device was found in the control panel service proximity <br>
-	 * @param device
-	 */
-	public void foundNewDevice(ControllableDevice device);
-	
-	/**
-	 * Called when a controllable device left the control panel service proximity <br>
-	 * The method implementation should be thread safe 
-	 * @param device The controllable device
-	 * @param isReachable Whether the device is in reachable state
-	 */
-	public void reachabilityChanged(ControllableDevice device, boolean isReachable);
-	
-	/**
-	 * Remove a device from registry <br>
-	 * When a device is removed from the registry it will be inserted back after foundDevice method is called 
-	 * @param device
-	 */
-	public void removeDevice(ControllableDevice device);
-	
-	/**
-	 * @return Returns collection of controllable devices
-	 */
-	public Map<String, ControllableDevice> getDevices();
-	
+
+    /**
+     * Called when a new controllable device was found in the control panel service proximity <br>
+     * @param device
+     */
+    public void foundNewDevice(ControllableDevice device);
+
+    /**
+     * Called when a controllable device left the control panel service proximity <br>
+     * The method implementation should be thread safe
+     * @param device The controllable device
+     * @param isReachable Whether the device is in reachable state
+     */
+    public void reachabilityChanged(ControllableDevice device, boolean isReachable);
+
+    /**
+     * Remove a device from registry <br>
+     * When a device is removed from the registry it will be inserted back after foundDevice method is called
+     * @param device
+     */
+    public void removeDevice(ControllableDevice device);
+
+    /**
+     * @return Returns collection of controllable devices
+     */
+    public Map<String, ControllableDevice> getDevices();
+
 }

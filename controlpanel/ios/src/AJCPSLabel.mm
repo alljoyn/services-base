@@ -27,10 +27,10 @@
 
 - (id)initWithHandle:(ajn::services::Label *)handle
 {
-	self = [super initWithHandle:handle];
-	if (self) {
-	}
-	return self;
+    self = [super initWithHandle:handle];
+    if (self) {
+    }
+    return self;
 }
 
 @end

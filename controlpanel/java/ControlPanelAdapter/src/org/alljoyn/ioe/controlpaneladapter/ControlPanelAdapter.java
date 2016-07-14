@@ -91,14 +91,14 @@ import android.widget.TimePicker;
 public class ControlPanelAdapter {
     private final static String TAG = "cpapp" + ControlPanelAdapter.class.getSimpleName();
 
-    private static final Object PROPERTY_VALUE      = "property_value";
-    private static final Object PROPERTY_EDITOR     = "property_editor";
+    private static final Object PROPERTY_VALUE = "property_value";
+    private static final Object PROPERTY_EDITOR = "property_editor";
 
     /* a context for creating Views */
     private final Context uiContext;
 
     /* mapping of UIElements to Views that were created by this adapter */
-    private final Map<String, View> uiElementToView            = new WeakHashMap<String, View>(10);
+    private final Map<String, View> uiElementToView = new WeakHashMap<String, View>(10);
 
     /*
      * mapping of AlertDialogWidgets to AlertDialogs that were created by this
@@ -110,7 +110,7 @@ public class ControlPanelAdapter {
     private final ControlPanelExceptionHandler exceptionHandler;
 
     /*Time out value to call the ControlPanelService to retrieve a value*/
-    private long timeoutValue    = 4;
+    private long timeoutValue = 4;
 
     /*Time out measurement unit to call the ControlPanelService to retrieve a value*/
     private TimeUnit timeoutUnit = TimeUnit.SECONDS;
@@ -124,15 +124,15 @@ public class ControlPanelAdapter {
      */
     public ControlPanelAdapter(Context uiContext, ControlPanelExceptionHandler exceptionHandler) {
 
-        if ( uiContext == null || exceptionHandler == null) {
+        if (uiContext == null || exceptionHandler == null) {
             throw new IllegalArgumentException("uiContext or exceptionHandler are undefined");
         }
 
-        if ( !(uiContext instanceof Activity) ) {
+        if (!(uiContext instanceof Activity)) {
             throw new IllegalArgumentException("uiContext should be instance of Activity");
         }
 
-        this.uiContext        = uiContext;
+        this.uiContext = uiContext;
         this.exceptionHandler = exceptionHandler;
     }
 
@@ -146,19 +146,19 @@ public class ControlPanelAdapter {
     public void setTimeout(long timeoutValue, TimeUnit timeoutUnit) {
 
         this.timeoutValue = timeoutValue;
-        this.timeoutUnit  = timeoutUnit;
+        this.timeoutUnit = timeoutUnit;
     }
 
     // =====================================================================================================================
 
-   /**
-    * Creates a {@link Layout} that corresponds with the given ContainerWidget.
-    * Then for each contained widget the corresponded {@link View} is created.
-    * @param container input widget defining a container.
-    * @return a resulting Layout.
-    * @deprecated Use the {@link ControlPanelAdapter#createContainerViewAsync(ContainerWidget, ContainerCreatedListener)}
-    * instead
-    */
+    /**
+     * Creates a {@link Layout} that corresponds with the given ContainerWidget.
+     * Then for each contained widget the corresponded {@link View} is created.
+     * @param container input widget defining a container.
+     * @return a resulting Layout.
+     * @deprecated Use the {@link ControlPanelAdapter#createContainerViewAsync(ContainerWidget, ContainerCreatedListener)}
+     * instead
+     */
     @Deprecated
     public View createContainerView(ContainerWidget container) {
 
@@ -194,7 +194,7 @@ public class ControlPanelAdapter {
             public void run() {
 
                 Map<String, Object> initialData = new HashMap<String, Object>();
-                ServiceTasksExecutor exec       = ServiceTasksExecutor.createExecutor();
+                ServiceTasksExecutor exec = ServiceTasksExecutor.createExecutor();
                 traverseContainerElements(container, exec, initialData);
                 retrieveElementsValues(initialData);
                 exec.shutdown();
@@ -246,6 +246,7 @@ public class ControlPanelAdapter {
             hLinearLayoutParams.setMargins(10, 10, 10, 10);
             layoutParams = hLinearLayoutParams;
             break;
+
         case VERTICAL_LINEAR:
         default:
             scrollView = new ScrollView(uiContext);
@@ -321,12 +322,11 @@ public class ControlPanelAdapter {
             UIElementType elType = element.getElementType();
 
             //Currently only PropertyWidgets need initial data retrieved by the ControlPanelService via AllJoyn
-            if ( elType == UIElementType.PROPERTY_WIDGET ) {
+            if (elType == UIElementType.PROPERTY_WIDGET) {
 
                 Log.d(TAG, "Found a PropertyWidget objPath: '" + element.getObjectPath() + "', retrieving Future value");
                 initialData.put(element.getObjectPath(), submitGetPropertyCurrentValueTask(exec, (PropertyWidget)element));
-            }
-            else if ( elType == UIElementType.CONTAINER ) {
+            } else if (elType == UIElementType.CONTAINER) {
 
                 traverseContainerElements((ContainerWidget)element, exec, initialData);
             }
@@ -344,10 +344,10 @@ public class ControlPanelAdapter {
     private void retrieveElementsValues(Map<String, Object> initialData) {
 
         Log.d(TAG, "Retrieving initial values of the elements with timeout: '" + timeoutValue + " " + timeoutUnit + "'");
-        for ( String objPath : initialData.keySet() ) {
+        for (String objPath : initialData.keySet()) {
 
             Object fo = initialData.get(objPath);
-            if ( !(fo instanceof Future<?>) ) {
+            if (!(fo instanceof Future<?>)) {
 
                 Log.w(TAG, "The objPath: '" + objPath + "' doesn't have a Future object");
                 initialData.put(objPath, null);
@@ -355,15 +355,14 @@ public class ControlPanelAdapter {
             }
 
             @SuppressWarnings("unchecked")
-            Future<Object> futureVal = (Future<Object>) fo;
-            Object realValue         = null;
+            Future<Object> futureVal = (Future<Object>)fo;
+            Object realValue = null;
 
             try {
                 //Blocking call with the given timeout
                 realValue = futureVal.get(timeoutValue, timeoutUnit);
                 Log.d(TAG, "Found an initial value of the element: '" + objPath + "', value: '" + realValue + "'");
-            }
-            catch(Exception e) {
+            } catch (Exception e) {
                 Log.e(TAG, "Failed to retrieve the element's initial value objPath: '" + objPath + "'. Exception: ", e);
                 futureVal.cancel(true);
             }
@@ -396,11 +395,10 @@ public class ControlPanelAdapter {
 
         try {
             future = exec.submit(task);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
 
             Log.d(TAG, "Failed to submit the task to call PropertyWidget.getCurrentValue(), property: '" +
-                        property.getObjectPath() + "'", e);
+                  property.getObjectPath() + "'", e);
         }
 
         return future;
@@ -417,7 +415,7 @@ public class ControlPanelAdapter {
     private void submitCreateContainerViewTask(final ContainerWidget container, final ContainerCreatedListener contCreateListener,
                                                final Map<String, Object> initialData) {
 
-        ((Activity)uiContext).runOnUiThread( new Runnable() {
+        ((Activity)uiContext).runOnUiThread(new Runnable() {
             @Override
             public void run() {
 
@@ -461,30 +459,35 @@ public class ControlPanelAdapter {
 
         switch (elementType) {
         case ACTION_WIDGET: {
-            returnView = createActionView((ActionWidget) element);
-            break;
+                returnView = createActionView((ActionWidget)element);
+                break;
         }// ACTION_WIDGET
-        case CONTAINER: {
-            returnView = createContainerViewImpl((ContainerWidget) element, initialData);
+
+        case CONTAINER:
+            returnView = createContainerViewImpl((ContainerWidget)element, initialData);
             break;
-        }// CONTAINER
-         // case LIST_PROPERTY_WIDGET: {
-         // break;
-         // }//LIST_PROPERTY_WIDGET
-        case PROPERTY_WIDGET: {
+
+        // CONTAINER
+        // case LIST_PROPERTY_WIDGET: {
+        // break;
+        // }//LIST_PROPERTY_WIDGET
+        case PROPERTY_WIDGET:
 
             //Currently only Properties require initial data for the creation
-            returnView = createPropertyViewImpl((PropertyWidget) element, initialData);
+            returnView = createPropertyViewImpl((PropertyWidget)element, initialData);
             break;
-        }// PROPERTY_WIDGET
-        case LABEL_WIDGET: {
-            returnView = createLabelView((LabelWidget) element);
+
+        // PROPERTY_WIDGET
+        case LABEL_WIDGET:
+            returnView = createLabelView((LabelWidget)element);
             break;
-        }// PROPERTY_WIDGET
-        case ERROR_WIDGET: {
-            returnView = createErrorView((ErrorWidget) element);
+
+        // PROPERTY_WIDGET
+        case ERROR_WIDGET:
+            returnView = createErrorView((ErrorWidget)element);
             break;
-        }// ERROR_WIDGET
+
+        // ERROR_WIDGET
         default:
             break;
         }// switch :: elementType
@@ -592,7 +595,7 @@ public class ControlPanelAdapter {
             @Override
             public void onClick(View v) {
 
-                if ( !action.isEnabled() ) {
+                if (!action.isEnabled()) {
 
                     Log.i(TAG, "ActionWidget is disabled, objPath: '" + action.getObjectPath() + "', not reacting onClick");
                     return;
@@ -700,15 +703,15 @@ public class ControlPanelAdapter {
      */
     private View createPropertyViewImpl(PropertyWidget propertyWidget, Map<String, Object> initialData) {
 
-        ValueType valueType                 = propertyWidget.getValueType();
+        ValueType valueType = propertyWidget.getValueType();
         List<PropertyWidgetHintsType> hints = propertyWidget.getHints();
-        PropertyWidgetHintsType hint        = (hints == null || hints.size() == 0) ? null : hints.get(0);
+        PropertyWidgetHintsType hint = (hints == null || hints.size() == 0) ? null : hints.get(0);
 
-        Object initialValue                 = getPropertyInitialValue(propertyWidget, initialData);
+        Object initialValue = getPropertyInitialValue(propertyWidget, initialData);
 
         Log.d(TAG, "Creating a View for property '" + propertyWidget.getLabel() + "', using UI hint: ;" + hint +
-                    "', value type: '" + valueType + "' initial value: '" + initialValue + "', objPath: '" +
-                     propertyWidget.getObjectPath() + "'");
+              "', value type: '" + valueType + "' initial value: '" + initialValue + "', objPath: '" +
+              propertyWidget.getObjectPath() + "'");
 
         // default view. just in case...
         View returnView = new TextView(uiContext);
@@ -718,14 +721,17 @@ public class ControlPanelAdapter {
             // Boolean Property
             returnView = createCheckBoxView(propertyWidget, initialValue);
             break;
+
         case DATE:
             // Date Property
             returnView = createDatePickerView(propertyWidget, initialValue);
             break;
+
         case TIME:
             // Time Property
             returnView = createTimePickerView(propertyWidget, initialValue);
             break;
+
         case BYTE:
         case INT:
         case SHORT:
@@ -740,21 +746,27 @@ public class ControlPanelAdapter {
                 case SPINNER:
                     returnView = createSpinnerView(propertyWidget, initialValue);
                     break;
+
                 case RADIO_BUTTON:
                     returnView = createRadioButtonView(propertyWidget, initialValue);
                     break;
+
                 case NUMBER_PICKER:
                     returnView = createNumberPickerView(propertyWidget, initialValue);
                     break;
+
                 case NUMERIC_VIEW:
                     returnView = createNumericView(propertyWidget, initialValue);
                     break;
+
                 case SLIDER:
                     returnView = createSliderView(propertyWidget, initialValue);
                     break;
+
                 case NUMERIC_KEYPAD:
                     returnView = createNumericKeypadView(propertyWidget, initialValue);
                     break;
+
                 default:
                     Log.d(TAG, "Unsupported hint provided for property '" + propertyWidget.getLabel() + "', creating default: NumericView");
                     returnView = createNumericView(propertyWidget, initialValue);
@@ -762,6 +774,7 @@ public class ControlPanelAdapter {
                 }
             }
             break;
+
         case STRING:
             // String Property
             if (hint == null) {
@@ -772,15 +785,19 @@ public class ControlPanelAdapter {
                 case SPINNER:
                     returnView = createSpinnerView(propertyWidget, initialValue);
                     break;
+
                 case RADIO_BUTTON:
                     returnView = createRadioButtonView(propertyWidget, initialValue);
                     break;
+
                 case EDIT_TEXT:
                     returnView = createEditTextView(propertyWidget, initialValue);
                     break;
+
                 case TEXT_VIEW:
                     returnView = createTextView(propertyWidget, initialValue);
                     break;
+
                 default:
                     Log.d(TAG, "Unsupported hint provided for property '" + propertyWidget.getLabel() + "', creating default: TextView");
                     returnView = createTextView(propertyWidget, initialValue);
@@ -788,6 +805,7 @@ public class ControlPanelAdapter {
                 }
             }
             break;
+
         default:
             Log.d(TAG, "Received an unsupported ValueType: '" + valueType + "' , returning an empty view");
             return returnView;
@@ -812,16 +830,16 @@ public class ControlPanelAdapter {
         String objPath = propertyWidget.getObjectPath();
 
         Log.d(TAG, "Searching for the initial value of the property: '" + objPath + "'");
-        if ( !initialData.containsKey(objPath) ) {
+        if (!initialData.containsKey(objPath)) {
 
             //This code may be called when there is a use of the deprecated createContainerView method
             Log.w(TAG, "The object path: '" + objPath + "' is unknown, submitting PropertyWidget.getCurrentValue()");
             ServiceTasksExecutor exec = ServiceTasksExecutor.createExecutor(1);
-            Future<Object> fo         = submitGetPropertyCurrentValueTask(exec, propertyWidget);
+            Future<Object> fo = submitGetPropertyCurrentValueTask(exec, propertyWidget);
 
             try {
 
-                if ( fo == null ) {
+                if (fo == null) {
                     return null;
                 }
 
@@ -831,8 +849,7 @@ public class ControlPanelAdapter {
                 Log.e(TAG, "Failed to retrieve property's initial value objPath: '" + objPath + "'. Exception: ", e);
                 fo.cancel(true);
                 return null;
-            }
-            finally {
+            } finally {
                 exec.shutdown();
             }
         }
@@ -885,25 +902,25 @@ public class ControlPanelAdapter {
 
             ValueType valueType = propertyWidget.getValueType();
             Object minT = propertyRangeConstraint.getMin();
-            int min = ValueType.SHORT.equals(valueType) ? ((Short) minT) : ValueType.INT.equals(valueType) ? ((Integer) minT) : 0;
+            int min = ValueType.SHORT.equals(valueType) ? ((Short)minT) : ValueType.INT.equals(valueType) ? ((Integer)minT) : 0;
             Object maxT = propertyRangeConstraint.getMax();
-            int max = ValueType.SHORT.equals(valueType) ? ((Short) maxT) : ValueType.INT.equals(valueType) ? ((Integer) maxT) : 0;
+            int max = ValueType.SHORT.equals(valueType) ? ((Short)maxT) : ValueType.INT.equals(valueType) ? ((Integer)maxT) : 0;
             Object incrementT = propertyRangeConstraint.getIncrement();
-            int increment = ValueType.SHORT.equals(valueType) ? ((Short) incrementT) : ValueType.INT.equals(valueType) ? ((Integer) incrementT) : 0;
+            int increment = ValueType.SHORT.equals(valueType) ? ((Short)incrementT) : ValueType.INT.equals(valueType) ? ((Integer)incrementT) : 0;
             int position = 0;
             for (int i = min; i <= max; i += increment) {
                 boolean isDefault = false;
                 switch (valueType) {
-                    case SHORT:
-                        short shortI = (short) i;
-                        adapter.add(new LabelValuePair(String.valueOf(i), shortI));
-                        isDefault = Short.valueOf(shortI).equals(initialValue);
-                        break;
-                    case INT:
-                    default: {
-                        adapter.add(new LabelValuePair(String.valueOf(i), i));
-                        isDefault = Integer.valueOf(i).equals(initialValue);
-                    }
+                case SHORT:
+                    short shortI = (short)i;
+                    adapter.add(new LabelValuePair(String.valueOf(i), shortI));
+                    isDefault = Short.valueOf(shortI).equals(initialValue);
+                    break;
+
+                case INT:
+                default:
+                    adapter.add(new LabelValuePair(String.valueOf(i), i));
+                    isDefault = Integer.valueOf(i).equals(initialValue);
                 }
                 Log.d(TAG, "Added spinner item, Value: " + i + (isDefault ? " (default)" : ""));
                 if (isDefault) {
@@ -1099,7 +1116,7 @@ public class ControlPanelAdapter {
 
         // initialize data
         if (initialValue instanceof Boolean) {
-            checkbox.setChecked((Boolean) initialValue);
+            checkbox.setChecked((Boolean)initialValue);
         }
         checkbox.setText(propertyWidget.getLabel());
 
@@ -1152,7 +1169,7 @@ public class ControlPanelAdapter {
 
     private View createTextView(final PropertyWidget propertyWidget, Object initialValue) {
 
-        String label    = propertyWidget.getLabel();
+        String label = propertyWidget.getLabel();
         Integer bgColor = propertyWidget.getBgColor();
         Log.d(TAG, "Creating TextView: \"" + label + "\" BGColor: " + bgColor);
 
@@ -1280,9 +1297,9 @@ public class ControlPanelAdapter {
         Log.d(TAG, "Property isWritable? " + propertyWidget.isWritable() + ", isEnabled? " + propertyWidget.isEnabled());
         enableViewGroup(layout, propertyWidget.isEnabled() && propertyWidget.isWritable());
 
-        final ValueType valueType    = propertyWidget.getValueType();
+        final ValueType valueType = propertyWidget.getValueType();
         final Number initialValueNum = (initialValue == null ? 0 : ValueType.SHORT.equals(valueType) ?
-                                       ((Short) initialValue) : ValueType.INT.equals(valueType) ? ((Integer) initialValue) : 0);
+                                        ((Short)initialValue) : ValueType.INT.equals(valueType) ? ((Integer)initialValue) : 0);
 
         valueEditText.setText(String.valueOf(initialValue));
 
@@ -1403,8 +1420,8 @@ public class ControlPanelAdapter {
         enableViewGroup(layout, propertyWidget.isEnabled() && propertyWidget.isWritable());
 
         // set the current value
-         if (initialValue != null && (ValueType.TIME.equals(propertyWidget.getValueType()))) {
-            PropertyWidget.Time time = (PropertyWidget.Time) initialValue;
+        if (initialValue != null && (ValueType.TIME.equals(propertyWidget.getValueType()))) {
+            PropertyWidget.Time time = (PropertyWidget.Time)initialValue;
             valueButton.setText(formatTime(time.getHour(), time.getMinute()));
         } else {
             Log.e(TAG, "TimePicker property.getValueType() is not TIME, initializing property without current value");
@@ -1416,9 +1433,9 @@ public class ControlPanelAdapter {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                 PropertyWidget.Time time = new PropertyWidget.Time();
-                time.setHour((short) hourOfDay);
-                time.setMinute((short) minute);
-                time.setSecond((short) 0);
+                time.setHour((short)hourOfDay);
+                time.setMinute((short)minute);
+                time.setSecond((short)0);
 
                 // set the property in a background task
                 SetPropertyAsyncTask asyncTask = new SetPropertyAsyncTask() {
@@ -1450,14 +1467,14 @@ public class ControlPanelAdapter {
             public void onClick(View v) {
 
                 // set the current value
-                ServiceTasksExecutor exec   = ServiceTasksExecutor.createExecutor(1);
+                ServiceTasksExecutor exec = ServiceTasksExecutor.createExecutor(1);
                 Future<Object> futCurrValue = submitGetPropertyCurrentValueTask(exec, propertyWidget);
 
                 Object currentValue = null;
                 PropertyWidget.Time time;
                 try {
 
-                    if ( futCurrValue != null ) {
+                    if (futCurrValue != null) {
 
                         currentValue = futCurrValue.get(timeoutValue, timeoutUnit);
                     }
@@ -1468,7 +1485,7 @@ public class ControlPanelAdapter {
                 }
 
                 if (currentValue != null && (ValueType.TIME.equals(propertyWidget.getValueType()))) {
-                    time = (PropertyWidget.Time) currentValue;
+                    time = (PropertyWidget.Time)currentValue;
                 } else {
                     Log.e(TAG, "TimePickerView property.getValueType() is not TIME, initializing picker without current value");
                     time = new PropertyWidget.Time();
@@ -1514,7 +1531,7 @@ public class ControlPanelAdapter {
         enableViewGroup(layout, propertyWidget.isEnabled() && propertyWidget.isWritable());
 
         if (initialValue != null && (ValueType.DATE.equals(propertyWidget.getValueType()))) {
-            PropertyWidget.Date date = (PropertyWidget.Date) initialValue;
+            PropertyWidget.Date date = (PropertyWidget.Date)initialValue;
             valueButton.setText(formatDate(date.getDay(), date.getMonth(), date.getYear()));
         } else {
             Log.e(TAG, "DatePicker property.getValueType() is not DATE, initializing property without current value");
@@ -1530,9 +1547,9 @@ public class ControlPanelAdapter {
                 // DatePicker enums months from 0..11 :(
                 month++;
 
-                date.setDay((short) day);
-                date.setMonth((short) month);
-                date.setYear((short) year);
+                date.setDay((short)day);
+                date.setMonth((short)month);
+                date.setYear((short)year);
 
                 // set the property in a background task
                 SetPropertyAsyncTask asyncTask = new SetPropertyAsyncTask() {
@@ -1564,14 +1581,14 @@ public class ControlPanelAdapter {
             public void onClick(View v) {
 
                 // set the current value
-                ServiceTasksExecutor exec   = ServiceTasksExecutor.createExecutor(1);
+                ServiceTasksExecutor exec = ServiceTasksExecutor.createExecutor(1);
                 Future<Object> futCurrValue = submitGetPropertyCurrentValueTask(exec, propertyWidget);
 
                 Object currentValue = null;
                 PropertyWidget.Date date;
                 try {
 
-                    if ( futCurrValue != null) {
+                    if (futCurrValue != null) {
 
                         currentValue = futCurrValue.get(timeoutValue, timeoutUnit);
                     }
@@ -1580,13 +1597,12 @@ public class ControlPanelAdapter {
                     Log.e(TAG, "DatePickerView property.getCurrentValue() failed, initializing picker without current value", e);
                     futCurrValue.cancel(true);
                     date = new PropertyWidget.Date();
-                }
-                finally {
+                } finally {
                     exec.shutdown();
                 }
 
                 if (currentValue != null && (ValueType.DATE.equals(propertyWidget.getValueType()))) {
-                    date = (PropertyWidget.Date) currentValue;
+                    date = (PropertyWidget.Date)currentValue;
                 } else {
                     Log.e(TAG, "property.getValueType() is not DATE, initializing picker without current value");
                     date = new PropertyWidget.Date();
@@ -1634,9 +1650,9 @@ public class ControlPanelAdapter {
         LinearLayout.LayoutParams vLinearLayoutParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         layout.addView(innerLayout, vLinearLayoutParams);
 
-        ValueType valueType       = propertyWidget.getValueType();
+        ValueType valueType = propertyWidget.getValueType();
         final int initialValueNum = (initialValue == null ? 0 : ValueType.SHORT.equals(valueType) ?
-        		((Short) initialValue) : ValueType.INT.equals(valueType) ? ((Integer) initialValue) : 0);
+                                     ((Short)initialValue) : ValueType.INT.equals(valueType) ? ((Integer)initialValue) : 0);
 
         Log.d(TAG, "number picker initial value is: " + initialValueNum);
 
@@ -1648,46 +1664,45 @@ public class ControlPanelAdapter {
 
         RangeConstraint<?> propertyRangeConstraint = propertyWidget.getPropertyRangeConstraint();
         if (propertyRangeConstraint == null) {
-        	Log.e(TAG, "Found null property-range. Disabling Number Picker. Returning a plain label.");
-        	valueTextView.setEnabled(false);
-        	return layout;
+            Log.e(TAG, "Found null property-range. Disabling Number Picker. Returning a plain label.");
+            valueTextView.setEnabled(false);
+            return layout;
         }
 
         Log.d(TAG, "Property isWritable? " + propertyWidget.isWritable() + ", isEnabled? " + propertyWidget.isEnabled());
         enableViewGroup(layout, propertyWidget.isEnabled() && propertyWidget.isWritable());
 
         // Number picker only works for Honeycomb(API 11) and above
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) 
-        {
-        	final NumberPicker picker = new NumberPicker(uiContext);
-        	picker.setTag(PROPERTY_EDITOR);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
+            final NumberPicker picker = new NumberPicker(uiContext);
+            picker.setTag(PROPERTY_EDITOR);
 
-        	layout.addView(picker, vLinearLayoutParams);
+            layout.addView(picker, vLinearLayoutParams);
 
-        	Object minT = propertyRangeConstraint.getMin();
-        	Log.d(TAG, "number picker min value is: " + minT.toString());
-        	final int min = ValueType.SHORT.equals(valueType) ? ((Short) minT) : ValueType.INT.equals(valueType) ? ((Integer) minT) : 0;
+            Object minT = propertyRangeConstraint.getMin();
+            Log.d(TAG, "number picker min value is: " + minT.toString());
+            final int min = ValueType.SHORT.equals(valueType) ? ((Short)minT) : ValueType.INT.equals(valueType) ? ((Integer)minT) : 0;
 
-        	Object maxT = propertyRangeConstraint.getMax();
-        	Log.d(TAG, "number picker max value is: " + maxT.toString());
-        	int max = ValueType.SHORT.equals(valueType) ? ((Short) maxT) : ValueType.INT.equals(valueType) ? ((Integer) maxT) : 0;
+            Object maxT = propertyRangeConstraint.getMax();
+            Log.d(TAG, "number picker max value is: " + maxT.toString());
+            int max = ValueType.SHORT.equals(valueType) ? ((Short)maxT) : ValueType.INT.equals(valueType) ? ((Integer)maxT) : 0;
 
-        	picker.setValue(initialValueNum);
+            picker.setValue(initialValueNum);
 
-        	picker.setMinValue(min);
+            picker.setMinValue(min);
 
-        	picker.setMaxValue(max);
+            picker.setMaxValue(max);
 
-        	picker.setWrapSelectorWheel(true);
+            picker.setWrapSelectorWheel(true);
 
-        	picker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            picker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
 
-        		public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
 
-        			Log.d(TAG, "New value is: " + newVal);
-        			valueTextView.setText(String.valueOf(newVal));
-        		}
-        	});
+                    Log.d(TAG, "New value is: " + newVal);
+                    valueTextView.setText(String.valueOf(newVal));
+                }
+            });
 
         }
 
@@ -1772,19 +1787,19 @@ public class ControlPanelAdapter {
         }
 
         // set the current value
-        ValueType valueType       = propertyWidget.getValueType();
+        ValueType valueType = propertyWidget.getValueType();
         final int initialValueNum = (initialValue == null ? 0 : ValueType.SHORT.equals(valueType) ?
-                                    ((Short) initialValue) : ValueType.INT.equals(valueType) ? ((Integer) initialValue) : 0);
+                                     ((Short)initialValue) : ValueType.INT.equals(valueType) ? ((Integer)initialValue) : 0);
 
         // !!! Android sliders always start from 0 !!!
         Object minT = propertyRangeConstraint.getMin();
-        final int min = ValueType.SHORT.equals(valueType) ? ((Short) minT) : ValueType.INT.equals(valueType) ? ((Integer) minT) : 0;
+        final int min = ValueType.SHORT.equals(valueType) ? ((Short)minT) : ValueType.INT.equals(valueType) ? ((Integer)minT) : 0;
 
         Object maxT = propertyRangeConstraint.getMax();
-        int max = ValueType.SHORT.equals(valueType) ? ((Short) maxT) : ValueType.INT.equals(valueType) ? ((Integer) maxT) : 0;
+        int max = ValueType.SHORT.equals(valueType) ? ((Short)maxT) : ValueType.INT.equals(valueType) ? ((Integer)maxT) : 0;
 
         Object incrementT = propertyRangeConstraint.getIncrement();
-        final int increment = ValueType.SHORT.equals(valueType) ? ((Short) incrementT) : ValueType.INT.equals(valueType) ? ((Integer) incrementT) : 0;
+        final int increment = ValueType.SHORT.equals(valueType) ? ((Short)incrementT) : ValueType.INT.equals(valueType) ? ((Integer)incrementT) : 0;
 
         // because the minimum value in android always starts from 0, we move
         // the max value to persist the min,max range
@@ -1862,25 +1877,29 @@ public class ControlPanelAdapter {
 
         switch (elementType) {
         case ACTION_WIDGET: {
-            onActionMetaDataChange((ActionWidget) element);
-            break;
+                onActionMetaDataChange((ActionWidget)element);
+                break;
         }// ACTION_WIDGET
+
         case CONTAINER: {
-            onContainerMetaDataChange((ContainerWidget) element);
-            break;
+                onContainerMetaDataChange((ContainerWidget)element);
+                break;
         }// CONTAINER
-         // case LIST_PROPERTY_WIDGET: {
-         // break;
-         // }//LIST_PROPERTY_WIDGET
+
+        // case LIST_PROPERTY_WIDGET: {
+        // break;
+        // }//LIST_PROPERTY_WIDGET
         case PROPERTY_WIDGET: {
-            onPropertyMetaDataChange((PropertyWidget) element);
-            break;
+                onPropertyMetaDataChange((PropertyWidget)element);
+                break;
         }// PROPERTY_WIDGET
+
         case ALERT_DIALOG: {
-            onAlertDialogMetaDataChange((AlertDialogWidget) element);
-            break;
+                onAlertDialogMetaDataChange((AlertDialogWidget)element);
+                break;
         }// PROPERTY_WIDGET
-        default:
+
+        default :
             break;
         }// switch :: elementType
     }
@@ -1895,7 +1914,7 @@ public class ControlPanelAdapter {
         }
 
         // get a handle to the corresponding view
-        ViewGroup containerLayout = (ViewGroup) uiElementToView.get(container.getObjectPath());
+        ViewGroup containerLayout = (ViewGroup)uiElementToView.get(container.getObjectPath());
         if (containerLayout == null) {
             Log.d(TAG, "ViewGroup not found for widget " + container.getObjectPath());
             return;
@@ -1919,7 +1938,7 @@ public class ControlPanelAdapter {
     private void onActionMetaDataChange(final ActionWidget actionWidget) {
 
         // get a handle to the corresponding view
-        Button actionButton = (Button) uiElementToView.get(actionWidget.getObjectPath());
+        Button actionButton = (Button)uiElementToView.get(actionWidget.getObjectPath());
         if (actionButton == null) {
             Log.d(TAG, "Button not found for widget " + actionWidget.getObjectPath());
             return;
@@ -1996,7 +2015,7 @@ public class ControlPanelAdapter {
             return;
         }
 
-        ViewGroup viewGroup = (ViewGroup) propertyView;
+        ViewGroup viewGroup = (ViewGroup)propertyView;
         for (int i = 0; i < viewGroup.getChildCount(); ++i) {
 
             View element = viewGroup.getChildAt(i);
@@ -2025,20 +2044,23 @@ public class ControlPanelAdapter {
 
         switch (elementType) {
         case PROPERTY_WIDGET: {
-            onPropertyValueChange((PropertyWidget) element, newValue);
-            break;
+                onPropertyValueChange((PropertyWidget)element, newValue);
+                break;
         }// PROPERTY_WIDGET
-        case ACTION_WIDGET: {
+
+        case ACTION_WIDGET:
             Log.d(TAG, "Ignoring change of value for action : '" + element.getObjectPath() + "'");
             break;
-        }// ACTION_WIDGET
-        case CONTAINER: {
+
+        // ACTION_WIDGET
+        case CONTAINER:
             Log.d(TAG, "Ignoring change of value for container : '" + element.getObjectPath() + "'");
             break;
-        }// CONTAINER
-         // case LIST_PROPERTY_WIDGET: {
-         // break;
-         // }//LIST_PROPERTY_WIDGET
+
+        // CONTAINER
+        // case LIST_PROPERTY_WIDGET: {
+        // break;
+        // }//LIST_PROPERTY_WIDGET
         default:
             break;
         }// switch :: elementType
@@ -2072,21 +2094,24 @@ public class ControlPanelAdapter {
         PropertyWidgetHintsType hint = (hints == null || hints.size() == 0) ? null : hints.get(0);
 
         Log.d(TAG, "Refreshing the View for property '" + propertyWidget.getLabel() + "' , using UI hint: " + hint + ", value type: '" + valueType + "', objPath: '" + propertyWidget.getObjectPath()
-                + "'" + "', newValue: '" + newValue);
+              + "'" + "', newValue: '" + newValue);
 
         switch (valueType) {
         case BOOLEAN:
             // Boolean Property
             onCheckBoxValueChange(propertyView, propertyWidget, newValue);
             break;
+
         case DATE:
             // Date Property
             onDateValueChange(propertyView, propertyWidget, newValue);
             break;
+
         case TIME:
             // Time Property
             onTimeValueChange(propertyView, propertyWidget, newValue);
             break;
+
         case BYTE:
         case INT:
         case SHORT:
@@ -2100,27 +2125,34 @@ public class ControlPanelAdapter {
                 case SPINNER:
                     onSpinnerValueChange(propertyView, propertyWidget, newValue);
                     break;
+
                 case RADIO_BUTTON:
                     onRadioButtonValueChange(propertyView, propertyWidget, newValue);
                     break;
+
                 case NUMBER_PICKER:
                     onNumberPickerValueChange(propertyView, propertyWidget, newValue);
                     break;
+
                 case NUMERIC_VIEW:
                     onNumericViewValueChange(propertyView, propertyWidget, newValue);
                     break;
+
                 case SLIDER:
                     onSliderValueChange(propertyView, propertyWidget, newValue);
                     break;
+
                 case NUMERIC_KEYPAD:
                     onNumericKeypadValueChange(propertyView, propertyWidget, newValue);
                     break;
+
                 default:
                     onNumericViewValueChange(propertyView, propertyWidget, newValue);
                     break;
                 }
             }
             break;
+
         case STRING:
             // String Property
             if (hint == null) {
@@ -2131,21 +2163,26 @@ public class ControlPanelAdapter {
                 case SPINNER:
                     onSpinnerValueChange(propertyView, propertyWidget, newValue);
                     break;
+
                 case RADIO_BUTTON:
                     onRadioButtonValueChange(propertyView, propertyWidget, newValue);
                     break;
+
                 case EDIT_TEXT:
                     onEditTextValueChange(propertyView, propertyWidget, newValue);
                     break;
+
                 case TEXT_VIEW:
                     onTextViewValueChange(propertyView, propertyWidget, newValue);
                     break;
+
                 default:
                     onTextViewValueChange(propertyView, propertyWidget, newValue);
                     break;
                 }
             }
             break;
+
         default:
             Log.d(TAG, "Received an unsupported ValueType: '" + valueType + "' , not refreshing any view");
             break;
@@ -2155,9 +2192,9 @@ public class ControlPanelAdapter {
     // =====================================================================================================================
 
     private void onSliderValueChange(View propertyView, PropertyWidget propertyWidget, Object newValue2) {
-        ViewGroup layout = (ViewGroup) propertyView;
-        final TextView valueTextView = (TextView) layout.findViewWithTag(PROPERTY_VALUE);
-        final SeekBar slider = (SeekBar) layout.findViewWithTag(PROPERTY_EDITOR);
+        ViewGroup layout = (ViewGroup)propertyView;
+        final TextView valueTextView = (TextView)layout.findViewWithTag(PROPERTY_VALUE);
+        final SeekBar slider = (SeekBar)layout.findViewWithTag(PROPERTY_EDITOR);
         Log.d(TAG, "Refreshing the value of property " + propertyWidget.getLabel());
 
         // set the current value
@@ -2165,11 +2202,13 @@ public class ControlPanelAdapter {
         int newValue = -1;
         switch (valueType) {
         case SHORT:
-            newValue = (Short) newValue2;
+            newValue = (Short)newValue2;
             break;
+
         case INT:
-            newValue = (Integer) newValue2;
+            newValue = (Integer)newValue2;
             break;
+
         default:
             Log.e(TAG, "property.getValueType() has unexpected value type: " + valueType);
             // ====
@@ -2184,7 +2223,7 @@ public class ControlPanelAdapter {
         }
 
         Object minT = rangeCons.getMin();
-        final int min = ValueType.SHORT.equals(valueType) ? ((Short) minT) : ValueType.INT.equals(valueType) ? ((Integer) minT) : 0;
+        final int min = ValueType.SHORT.equals(valueType) ? ((Short)minT) : ValueType.INT.equals(valueType) ? ((Integer)minT) : 0;
 
         valueTextView.setText(String.valueOf(newValue));
         slider.setProgress(newValue - min);
@@ -2195,12 +2234,12 @@ public class ControlPanelAdapter {
     private void onCheckBoxValueChange(View propertyView, PropertyWidget propertyWidget, Object newValue) {
         Log.d(TAG, "Refreshing the CheckBox of property " + propertyWidget.getLabel());
 
-        CheckBox checkbox = (CheckBox) propertyView;
+        CheckBox checkbox = (CheckBox)propertyView;
         ValueType valueType = propertyWidget.getValueType();
 
         // set checked
         if (ValueType.BOOLEAN.equals(valueType)) {
-            checkbox.setChecked((Boolean) newValue);
+            checkbox.setChecked((Boolean)newValue);
         } else {
             Log.e(TAG, "property.getCurrentValue() failed, cannot update property with value: " + newValue);
         }
@@ -2213,8 +2252,8 @@ public class ControlPanelAdapter {
         Log.d(TAG, "Refreshing the TextView of property '" + label + "'");
 
         // extract the text view
-        final ViewGroup layout = (ViewGroup) propertyView;
-        final TextView valueTextView = (TextView) layout.findViewWithTag(PROPERTY_VALUE);
+        final ViewGroup layout = (ViewGroup)propertyView;
+        final TextView valueTextView = (TextView)layout.findViewWithTag(PROPERTY_VALUE);
 
         // set the current value
         String newValueStr = newValue.toString();
@@ -2228,22 +2267,22 @@ public class ControlPanelAdapter {
         Log.d(TAG, "Refreshing the NumericView of property " + propertyWidget.getLabel());
 
         // extract the text view
-        final ViewGroup layout = (ViewGroup) propertyView;
-        final TextView valueTextView = (TextView) layout.findViewWithTag(PROPERTY_VALUE);
+        final ViewGroup layout = (ViewGroup)propertyView;
+        final TextView valueTextView = (TextView)layout.findViewWithTag(PROPERTY_VALUE);
 
         // set the current value
         Log.d(TAG, "Setting property value to: " + newValue.toString());
         valueTextView.setText(newValue.toString());
 
     }
- // =====================================================================================================================
+    // =====================================================================================================================
 
     private void onNumberPickerValueChange(View propertyView, PropertyWidget propertyWidget, Object newValue) {
         Log.d(TAG, "Refreshing the NumericPicker of property " + propertyWidget.getLabel());
 
         // extract the text view
-        final ViewGroup layout = (ViewGroup) propertyView;
-        final TextView valueTextView = (TextView) layout.findViewWithTag(PROPERTY_VALUE);
+        final ViewGroup layout = (ViewGroup)propertyView;
+        final TextView valueTextView = (TextView)layout.findViewWithTag(PROPERTY_VALUE);
 
         // set the current value
         Log.d(TAG, "Setting property value to: " + newValue.toString());
@@ -2256,8 +2295,8 @@ public class ControlPanelAdapter {
         Log.d(TAG, "Refreshing the NumericKeypad View of property " + propertyWidget.getLabel());
 
         // extract the text view
-        final ViewGroup layout = (ViewGroup) propertyView;
-        final EditText valueEditText = (EditText) layout.findViewWithTag(PROPERTY_EDITOR);
+        final ViewGroup layout = (ViewGroup)propertyView;
+        final EditText valueEditText = (EditText)layout.findViewWithTag(PROPERTY_EDITOR);
 
         // set the current value
         Log.d(TAG, "Setting property value to: " + newValue.toString());
@@ -2270,12 +2309,12 @@ public class ControlPanelAdapter {
         Log.d(TAG, "Refreshing the Time View of property " + propertyWidget.getLabel());
 
         // extract the text view
-        final ViewGroup layout = (ViewGroup) propertyView;
-        final Button valueButton = (Button) layout.findViewWithTag(PROPERTY_VALUE);
+        final ViewGroup layout = (ViewGroup)propertyView;
+        final Button valueButton = (Button)layout.findViewWithTag(PROPERTY_VALUE);
 
         // set the current value
         if (ValueType.TIME.equals(propertyWidget.getValueType())) {
-            PropertyWidget.Time time = (PropertyWidget.Time) newValue;
+            PropertyWidget.Time time = (PropertyWidget.Time)newValue;
             String formattedTime = formatTime(time.getHour(), time.getMinute());
             Log.d(TAG, "Setting property value to: " + formattedTime);
             valueButton.setText(formattedTime);
@@ -2290,12 +2329,12 @@ public class ControlPanelAdapter {
         Log.d(TAG, "Refreshing the Date View of property " + propertyWidget.getLabel());
 
         // extract the text view
-        final ViewGroup layout = (ViewGroup) propertyView;
-        final Button valueButton = (Button) layout.findViewWithTag(PROPERTY_VALUE);
+        final ViewGroup layout = (ViewGroup)propertyView;
+        final Button valueButton = (Button)layout.findViewWithTag(PROPERTY_VALUE);
 
         // set the current value
         if (ValueType.DATE.equals(propertyWidget.getValueType())) {
-            PropertyWidget.Date date = (PropertyWidget.Date) newValue;
+            PropertyWidget.Date date = (PropertyWidget.Date)newValue;
             String formattedDate = formatDate(date.getDay(), date.getMonth(), date.getYear());
             Log.d(TAG, "Setting property value to: " + formattedDate);
             valueButton.setText(formattedDate);
@@ -2310,8 +2349,8 @@ public class ControlPanelAdapter {
         Log.d(TAG, "Refreshing the EditText View of property " + propertyWidget.getLabel());
 
         // extract the text view
-        final ViewGroup layout = (ViewGroup) propertyView;
-        final EditText valueEditText = (EditText) layout.findViewWithTag(PROPERTY_EDITOR);
+        final ViewGroup layout = (ViewGroup)propertyView;
+        final EditText valueEditText = (EditText)layout.findViewWithTag(PROPERTY_EDITOR);
 
         // set the current value
         Log.d(TAG, "Setting property value to: " + newValue.toString());
@@ -2322,14 +2361,14 @@ public class ControlPanelAdapter {
 
     private void onSpinnerValueChange(View propertyView, PropertyWidget propertyWidget, Object newValue) {
         // extract the text view
-        final ViewGroup layout = (ViewGroup) propertyView;
-        final Spinner spinner = (Spinner) layout.findViewWithTag(PROPERTY_VALUE);
+        final ViewGroup layout = (ViewGroup)propertyView;
+        final Spinner spinner = (Spinner)layout.findViewWithTag(PROPERTY_VALUE);
         Log.d(TAG, "Refreshing the spinner of property " + propertyWidget.getLabel());
 
         // set the selected item
         int selection = 0;
         @SuppressWarnings("unchecked")
-        final ArrayAdapter<LabelValuePair> adapter = (ArrayAdapter<LabelValuePair>) spinner.getAdapter();
+        final ArrayAdapter<LabelValuePair> adapter = (ArrayAdapter<LabelValuePair>)spinner.getAdapter();
         for (int i = 0; i < adapter.getCount(); i++) {
             LabelValuePair item = adapter.getItem(i);
             if (item != null && item.value.equals(newValue)) {
@@ -2346,8 +2385,8 @@ public class ControlPanelAdapter {
     private void onRadioButtonValueChange(View propertyView, PropertyWidget propertyWidget, Object newValue) {
         Log.d(TAG, "Refreshing the RadioButton of property '" + propertyWidget.getLabel() + "', new value: " + newValue);
 
-        final ViewGroup layout = (ViewGroup) propertyView;
-        final RadioGroup radioGroup = (RadioGroup) layout.findViewWithTag(PROPERTY_VALUE);
+        final ViewGroup layout = (ViewGroup)propertyView;
+        final RadioGroup radioGroup = (RadioGroup)layout.findViewWithTag(PROPERTY_VALUE);
 
         // set the selected item
         int selection = 0;
@@ -2359,7 +2398,7 @@ public class ControlPanelAdapter {
                 // check the default value
                 if (selectThis) {
                     Log.d(TAG, "Selecting radio button, Label: " + valueCons.getLabel() + " Value: " + valueCons.getValue());
-                    RadioButton radioButton = (RadioButton) radioGroup.getChildAt(selection);
+                    RadioButton radioButton = (RadioButton)radioGroup.getChildAt(selection);
                     if (!radioButton.isChecked()) {
                         radioButton.setChecked(true);
                     }

@@ -19,34 +19,34 @@
 #import "AJCPSControlPanelEnums.h"
 
 typedef union {
-	/**
-	 * Value of type uint16_t
-	 */
-	uint16_t uint16Value;
-	/**
-	 * Value of type int16_t
-	 */
-	int16_t int16Value;
-	/**
-	 * Value of type uint32_t
-	 */
-	uint32_t uint32Value;
-	/**
-	 * Value of type int32_t
-	 */
-	int32_t int32Value;
-	/**
-	 * Value of type uint64_t
-	 */
-	uint64_t uint64Value;
-	/**
-	 * Value of type int64_t
-	 */
-	int64_t int64Value;
-	/**
-	 * Value of type double
-	 */
-	double doubleValue;
+    /**
+     * Value of type uint16_t
+     */
+    uint16_t uint16Value;
+    /**
+     * Value of type int16_t
+     */
+    int16_t int16Value;
+    /**
+     * Value of type uint32_t
+     */
+    uint32_t uint32Value;
+    /**
+     * Value of type int32_t
+     */
+    int32_t int32Value;
+    /**
+     * Value of type uint64_t
+     */
+    uint64_t uint64Value;
+    /**
+     * Value of type int64_t
+     */
+    int64_t int64Value;
+    /**
+     * Value of type double
+     */
+    double doubleValue;
 } AJCPSConstraintRangeVal;
 
 /**
@@ -57,7 +57,7 @@ typedef union {
  */
 @interface AJCPSConstraintRange : NSObject
 
-- (id)initWithHandle:(ajn ::services ::ConstraintRange *)handle;
+- (id)initWithHandle:(ajn::services::ConstraintRange *)handle;
 
 /**
  * get the IncrementValue of the Constraint Range

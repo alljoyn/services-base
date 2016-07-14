@@ -22,10 +22,10 @@
  */
 @interface AJCPSDate : NSObject
 
-- (id)initWithDay:(uint16_t) day month:(uint16_t) month year:(uint16_t) year;
+- (id)initWithDay:(uint16_t)day month:(uint16_t)month year:(uint16_t)year;
 
 
-- (id)initWithHandle:(ajn ::services ::CPSDate *)handle;
+- (id)initWithHandle:(ajn::services::CPSDate *)handle;
 
 /**
  * Get the day value of the date
@@ -63,6 +63,6 @@
  */
 - (void)setYear:(uint16_t)year;
 
-@property (nonatomic, readonly)ajn::services::CPSDate * handle;
+@property (nonatomic, readonly) ajn::services::CPSDate *handle;
 
 @end

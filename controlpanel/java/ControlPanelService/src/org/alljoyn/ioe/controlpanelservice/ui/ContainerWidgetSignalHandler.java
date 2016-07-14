@@ -33,71 +33,71 @@ import android.util.Log;
  *  - MetadataChanged
  */
 public class ContainerWidgetSignalHandler implements Container, ContainerSecured {
-	private static final String TAG = "cpan" + ContainerWidgetSignalHandler.class.getSimpleName();
-	
-	
-	/**
-	 * Container widget to be notified about signal receiving
-	 */
-	private ContainerWidget containerWidget;
-	
-	/**
-	 * Constructor
-	 * @param containerWidget
-	 */
-	public ContainerWidgetSignalHandler(ContainerWidget containerWidget) {
-		this.containerWidget = containerWidget;
-	}
+    private static final String TAG = "cpan" + ContainerWidgetSignalHandler.class.getSimpleName();
 
-	/**
-	 * @see org.alljoyn.ioe.controlpanelservice.communication.interfaces.Container#getVersion()
-	 */
-	@Override
-	public short getVersion() throws BusException {
-		return 0;
-	}
 
-	@Override
-	public int getStates() throws BusException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    /**
+     * Container widget to be notified about signal receiving
+     */
+    private ContainerWidget containerWidget;
 
-	@Override
-	public Map<Short, Variant> getOptParams() throws BusException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    /**
+     * Constructor
+     * @param containerWidget
+     */
+    public ContainerWidgetSignalHandler(ContainerWidget containerWidget) {
+        this.containerWidget = containerWidget;
+    }
 
-	/**
-	 * Signal handler
-	 * @see org.alljoyn.ioe.controlpanelservice.communication.interfaces.Container#MetadataChanged()
-	 */
-	@Override
-	public void MetadataChanged() throws BusException {
-		
-		String msg = "Device: '" + containerWidget.device.getDeviceId() + 
-                "', ContainerWidget: '" + containerWidget.objectPath + "', received METADATA_CHANGED signal";
-		
-		Log.d(TAG, msg);
-		
-		final ControlPanelEventsListener eventsListener = containerWidget.controlPanel.getEventsListener();
-		try {
-			containerWidget.refreshProperties();
-		} catch (ControlPanelException cpe) {
-			msg += ", but failed to refresh the Container properties";
-			Log.e(TAG, msg);
-			eventsListener.errorOccurred(containerWidget.controlPanel, msg);
-			return;
-		}
-		
-		//Delegate to the listener on a separate thread
-		TaskManager.getInstance().execute( new Runnable() {
-			@Override
-			public void run() {
-				eventsListener.metadataChanged(containerWidget.controlPanel, containerWidget);
-			}
-		});
-	}//MetadataChanged
+    /**
+     * @see org.alljoyn.ioe.controlpanelservice.communication.interfaces.Container#getVersion()
+     */
+    @Override
+    public short getVersion() throws BusException {
+        return 0;
+    }
+
+    @Override
+    public int getStates() throws BusException {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public Map<Short, Variant> getOptParams() throws BusException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /**
+     * Signal handler
+     * @see org.alljoyn.ioe.controlpanelservice.communication.interfaces.Container#MetadataChanged()
+     */
+    @Override
+    public void MetadataChanged() throws BusException {
+
+        String msg = "Device: '" + containerWidget.device.getDeviceId() +
+                     "', ContainerWidget: '" + containerWidget.objectPath + "', received METADATA_CHANGED signal";
+
+        Log.d(TAG, msg);
+
+        final ControlPanelEventsListener eventsListener = containerWidget.controlPanel.getEventsListener();
+        try {
+            containerWidget.refreshProperties();
+        } catch (ControlPanelException cpe) {
+            msg += ", but failed to refresh the Container properties";
+            Log.e(TAG, msg);
+            eventsListener.errorOccurred(containerWidget.controlPanel, msg);
+            return;
+        }
+
+        //Delegate to the listener on a separate thread
+        TaskManager.getInstance().execute(new Runnable() {
+            @Override
+            public void run() {
+                eventsListener.metadataChanged(containerWidget.controlPanel, containerWidget);
+            }
+        });
+    }//MetadataChanged
 
 }

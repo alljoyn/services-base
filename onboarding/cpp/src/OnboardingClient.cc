@@ -88,7 +88,7 @@ QStatus OnboardingClient::GetScanInfo(const char* busName, unsigned short& age, 
         return ER_FAIL;
     }
 
-    ProxyBusObject*proxyBusObj = new ProxyBusObject(*m_BusAttachment, busName, ONBOARDING_OBJECT_PATH, sessionId);
+    ProxyBusObject* proxyBusObj = new ProxyBusObject(*m_BusAttachment, busName, ONBOARDING_OBJECT_PATH, sessionId);
     if (!proxyBusObj) {
         return ER_FAIL;
     }
@@ -130,7 +130,7 @@ QStatus OnboardingClient::GetScanInfo(const char* busName, unsigned short& age, 
                     break;
                 }
                 OBScanInfo info;
-                info.authType = (OBAuthType) authType;
+                info.authType = (OBAuthType)authType;
                 info.SSID.assign(SSID);
                 scanInfos.push_back(info);
             }            //end of for
@@ -155,7 +155,7 @@ QStatus OnboardingClient::ConfigureWiFi(const char* busName, const OBInfo& oBInf
         return ER_FAIL;
     }
 
-    ProxyBusObject*proxyBusObj = new ProxyBusObject(*m_BusAttachment, busName, ONBOARDING_OBJECT_PATH, sessionId);
+    ProxyBusObject* proxyBusObj = new ProxyBusObject(*m_BusAttachment, busName, ONBOARDING_OBJECT_PATH, sessionId);
     if (!proxyBusObj) {
         return ER_FAIL;
     }
@@ -211,7 +211,7 @@ QStatus OnboardingClient::ConnectTo(const char* busName, ajn::SessionId sessionI
         return ER_FAIL;
     }
 
-    ProxyBusObject*proxyBusObj = new ProxyBusObject(*m_BusAttachment, busName, ONBOARDING_OBJECT_PATH, sessionId);
+    ProxyBusObject* proxyBusObj = new ProxyBusObject(*m_BusAttachment, busName, ONBOARDING_OBJECT_PATH, sessionId);
     if (!proxyBusObj) {
         return ER_FAIL;
     }
@@ -235,7 +235,7 @@ QStatus OnboardingClient::OffboardFrom(const char* busName, ajn::SessionId sessi
         return ER_FAIL;
     }
 
-    ProxyBusObject*proxyBusObj = new ProxyBusObject(*m_BusAttachment, busName, ONBOARDING_OBJECT_PATH, sessionId);
+    ProxyBusObject* proxyBusObj = new ProxyBusObject(*m_BusAttachment, busName, ONBOARDING_OBJECT_PATH, sessionId);
     if (!proxyBusObj) {
         return ER_FAIL;
     }
@@ -260,7 +260,7 @@ QStatus OnboardingClient::GetVersion(const char* busName, int& version, ajn::Ses
         return ER_FAIL;
     }
 
-    ProxyBusObject*proxyBusObj = new ProxyBusObject(*m_BusAttachment, busName, ONBOARDING_OBJECT_PATH, sessionId);
+    ProxyBusObject* proxyBusObj = new ProxyBusObject(*m_BusAttachment, busName, ONBOARDING_OBJECT_PATH, sessionId);
     if (!proxyBusObj) {
         return ER_FAIL;
     }
@@ -287,7 +287,7 @@ QStatus OnboardingClient::GetState(const char* busName, short& state, ajn::Sessi
         return ER_FAIL;
     }
 
-    ProxyBusObject*proxyBusObj = new ProxyBusObject(*m_BusAttachment, busName, ONBOARDING_OBJECT_PATH, sessionId);
+    ProxyBusObject* proxyBusObj = new ProxyBusObject(*m_BusAttachment, busName, ONBOARDING_OBJECT_PATH, sessionId);
     if (!proxyBusObj) {
         return ER_FAIL;
     }
@@ -313,7 +313,7 @@ QStatus OnboardingClient::GetLastError(const char* busName, OBLastError& lastErr
         return ER_FAIL;
     }
 
-    ProxyBusObject*proxyBusObj = new ProxyBusObject(*m_BusAttachment, busName, ONBOARDING_OBJECT_PATH, sessionId);
+    ProxyBusObject* proxyBusObj = new ProxyBusObject(*m_BusAttachment, busName, ONBOARDING_OBJECT_PATH, sessionId);
     if (!proxyBusObj) {
         return ER_FAIL;
     }

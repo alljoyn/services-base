@@ -23,18 +23,18 @@ import java.util.UUID;
  */
 public interface NotificationReceiver {
 
-	/**
-	 * Receive a {@link Notification}
-	 * @param notification
-	 */
-	public void receive(Notification notification);
+    /**
+     * Receive a {@link Notification}
+     * @param notification
+     */
+    public void receive(Notification notification);
 
-	/**
-	 * The appId with the msgId uniquely identifies the {@link Notification} that should be dismissed, since
-	 * the msgId alone identifies the {@link Notification} only in the scope of the Notification sender service
-	 * @param msgId The message id of the {@link Notification} that should be dismissed
-	 * @param appId The appId of the Notification sender service
-	 */
-	public void dismiss(int msgId, UUID appId);
-	
+    /**
+     * The appId with the msgId uniquely identifies the {@link Notification} that should be dismissed, since
+     * the msgId alone identifies the {@link Notification} only in the scope of the Notification sender service
+     * @param msgId The message id of the {@link Notification} that should be dismissed
+     * @param appId The appId of the Notification sender service
+     */
+    public void dismiss(int msgId, UUID appId);
+
 }//NotificationReceiver

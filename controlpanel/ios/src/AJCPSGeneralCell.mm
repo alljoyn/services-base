@@ -28,20 +28,20 @@
     if (self) {
         // Widget Name
         self.widgetNameLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, 310, 20)];
-        
+
         // Hint
         self.hintLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 20, 310, 20)];
         self.hintLabel.textColor = [UIColor colorWithRed:0.4 green:0 blue:0.4 alpha:1];
-        
+
         // Label Details
         self.widgetDetailsLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 20, 270, 110)];
         [self.widgetDetailsLabel setFont:[UIFont systemFontOfSize:11]];
         self.widgetDetailsLabel.lineBreakMode = NSLineBreakByWordWrapping;
         self.widgetDetailsLabel.numberOfLines = 0;
 
-        
-    
-       // Add UI objects to subview
+
+
+        // Add UI objects to subview
         [self.contentView addSubview:self.widgetNameLabel];
         [self.contentView addSubview:self.widgetDetailsLabel];
         [self.contentView addSubview:self.hintLabel];
@@ -56,226 +56,224 @@
 
 - (NSString *)widgetHints
 {
-    NSMutableString *str = [[NSMutableString alloc]init];
-    NSArray *propertyHintsStrings = [[NSArray alloc] initWithObjects: @"", @"SWITCH", @"CHECKBOX", @"SPINNER", @"RADIOBUTTON", @"SLIDER",
+    NSMutableString *str = [[NSMutableString alloc] init];
+    NSArray *propertyHintsStrings = [[NSArray alloc] initWithObjects:@"", @"SWITCH", @"CHECKBOX", @"SPINNER", @"RADIOBUTTON", @"SLIDER",
                                      @"TIMEPICKER", @"DATEPICKER", @"NUMBERPICKER", @"KEYPAD", @"ROTARYKNOB",
                                      @"TEXTVIEW", @"NUMERICVIEW", @"EDITTEXT", nil];
-    
+
     [self setAccessoryType:UITableViewCellAccessoryNone];
-    
+
     NSArray *hints = [self.widget getHints];
     if ([hints count]) {
-        
-        for (NSInteger i = 0 ; i < [hints count]; i++) {
+
+        for (NSInteger i = 0; i < [hints count]; i++) {
             NSInteger hint = [hints[i] integerValue];
-            
+
             switch ([self.widget getWidgetType]) {
-                case AJCPS_ACTION:
-                case AJCPS_ACTION_WITH_DIALOG:
-                    if (hint == AJCPS_ACTIONBUTTON)
-                        self.hintLabel.text=@"ACTIONBUTTON";
-                    else
-                        self.hintLabel.text=@"UNKNOWN";
-                    break;
-                    
-                case AJCPS_LABEL:
-                    if (hint == AJCPS_TEXTLABEL)
-                        self.hintLabel.text=@"TEXTLABEL";
-                    else
-                        self.hintLabel.text=@"UNKNOWN";
-                    break;
+            case AJCPS_ACTION:
+            case AJCPS_ACTION_WITH_DIALOG:
+                if (hint == AJCPS_ACTIONBUTTON) {
+                    self.hintLabel.text = @"ACTIONBUTTON";
+                } else {
+                    self.hintLabel.text = @"UNKNOWN";
+                }
+                break;
 
-                case AJCPS_PROPERTY:
-                {
+            case AJCPS_LABEL:
+                if (hint == AJCPS_TEXTLABEL) {
+                    self.hintLabel.text = @"TEXTLABEL";
+                } else {
+                    self.hintLabel.text = @"UNKNOWN";
+                }
+                break;
+
+            case AJCPS_PROPERTY: {
                     AJCPSPropertyValue propertyValue;
-                    [(AJCPSProperty *)self.widget getPropertyValue:propertyValue];
-                    
-                    switch ([(AJCPSProperty *)self.widget getPropertyType]) {
-                        case 	AJCPS_BOOL_PROPERTY :
-                            [str appendFormat:@"bool property, value:%d",propertyValue.boolValue];
-                            
-                            break;
-                        case 	AJCPS_UINT16_PROPERTY :
-                            [str appendFormat:@"uint16 property, value:%d",propertyValue.uint16Value];
+                    [(AJCPSProperty *) self.widget getPropertyValue:propertyValue];
 
-                            break;
-                        case 	AJCPS_INT16_PROPERTY :
-                            [str appendFormat:@"int16 property, value:%d",propertyValue.int16Value];
+                    switch ([(AJCPSProperty *) self.widget getPropertyType]) {
+                    case AJCPS_BOOL_PROPERTY:
+                        [str appendFormat:@"bool property, value:%d", propertyValue.boolValue];
 
-                            break;
-                        case 	AJCPS_UINT32_PROPERTY :
-                            [str appendFormat:@"uint32 property, value:%d",propertyValue.uint32Value];
+                        break;
 
-                            break;
-                        case 	AJCPS_INT32_PROPERTY :
-                            [str appendFormat:@"int32 property, value:%d",propertyValue.int32Value];
+                    case AJCPS_UINT16_PROPERTY:
+                        [str appendFormat:@"uint16 property, value:%d", propertyValue.uint16Value];
 
-                            break;
-                        case 	AJCPS_UINT64_PROPERTY :
-                            [str appendFormat:@"uint64 property, value:%llu",propertyValue.uint64Value];
+                        break;
 
-                            break;
-                        case 	AJCPS_INT64_PROPERTY :
-                            [str appendFormat:@"int64 property, value:%lld",propertyValue.int64Value];
+                    case AJCPS_INT16_PROPERTY:
+                        [str appendFormat:@"int16 property, value:%d", propertyValue.int16Value];
 
-                            break;
-                        case 	AJCPS_DOUBLE_PROPERTY :
-                            [str appendFormat:@"double property, value:%f",propertyValue.doubleValue];
+                        break;
 
-                            break;
-                        case 	AJCPS_STRING_PROPERTY :
-                            [str appendFormat:@"string property, value:'%s'",propertyValue.charValue];
+                    case AJCPS_UINT32_PROPERTY:
+                        [str appendFormat:@"uint32 property, value:%d", propertyValue.uint32Value];
 
-                            break;
-                        case 	AJCPS_DATE_PROPERTY :
-                            [str appendFormat:@"date property"]; //TODO support date
+                        break;
 
-                            break;
-                        case 	AJCPS_TIME_PROPERTY :
-                            [str appendFormat:@"time property"]; //TODO support time
+                    case AJCPS_INT32_PROPERTY:
+                        [str appendFormat:@"int32 property, value:%d", propertyValue.int32Value];
 
-                            break;
-                        default:
-                            [str appendFormat:@"unknown property"];
-                            break;
+                        break;
+
+                    case AJCPS_UINT64_PROPERTY:
+                        [str appendFormat:@"uint64 property, value:%llu", propertyValue.uint64Value];
+
+                        break;
+
+                    case AJCPS_INT64_PROPERTY:
+                        [str appendFormat:@"int64 property, value:%lld", propertyValue.int64Value];
+
+                        break;
+
+                    case AJCPS_DOUBLE_PROPERTY:
+                        [str appendFormat:@"double property, value:%f", propertyValue.doubleValue];
+
+                        break;
+
+                    case AJCPS_STRING_PROPERTY:
+                        [str appendFormat:@"string property, value:'%s'", propertyValue.charValue];
+
+                        break;
+
+                    case AJCPS_DATE_PROPERTY:
+                        [str appendFormat:@"date property"]; //TODO support date
+
+                        break;
+
+                    case AJCPS_TIME_PROPERTY:
+                        [str appendFormat:@"time property"]; //TODO support time
+
+                        break;
+
+                    default:
+                        [str appendFormat:@"unknown property"];
+                        break;
                     }
-   
-                    if (hint > 0 && hint < [propertyHintsStrings count]){
-                        self.hintLabel.text=[NSString stringWithFormat:@"%@", propertyHintsStrings[hint]];
+
+                    if (hint > 0 && hint < [propertyHintsStrings count]) {
+                        self.hintLabel.text = [NSString stringWithFormat:@"%@", propertyHintsStrings[hint]];
+                    } else {
+                        self.hintLabel.text = @"UNKNOWN";
                     }
-                    else
-                        self.hintLabel.text=@"UNKNOWN";
-                    
-                    if(![[((AJCPSProperty *)self.widget) getUnitOfMeasure] isEqualToString:@""]) {
+
+                    if (![[((AJCPSProperty *)self.widget) getUnitOfMeasure] isEqualToString:@""]) {
                         [str appendFormat:@",unitOfMeasure:%@", [((AJCPSProperty *)self.widget) getUnitOfMeasure]];
                     }
 
                     [str appendString:@"\n"];
-                    
+
                     AJCPSConstraintRange *constraintRange = [((AJCPSProperty *)self.widget) getConstraintRange];
-                    
+
                     if (constraintRange) {
-                        [str appendFormat:@"min:%d,max:%d,inc:%d",[constraintRange getMinValue],[constraintRange getMaxValue],[constraintRange getIncrementValue]];
+                        [str appendFormat:@"min:%d,max:%d,inc:%d", [constraintRange getMinValue], [constraintRange getMaxValue], [constraintRange getIncrementValue]];
                     }
-                    
+
                     NSArray *list = [((AJCPSProperty *)self.widget) getConstraintList];
-                    
+
                     if ([list count]) {
                         [str appendString:@"list:"];
                     }
-                    
+
                     for (AJCPSConstraintList *constraintList in list) {
-                        [str appendFormat:@"%@",[constraintList getDisplay]];
-                        
+                        [str appendFormat:@"%@", [constraintList getDisplay]];
+
                         AJCPSConstraintValue propertyValue = [constraintList getConstraintValue];
                         AJCPSPropertyType propertyType = [constraintList getPropertyType];
                         NSString *propertyValueStr = [constraintList propertyToNSString:propertyType withValue:propertyValue];
-                        
+
                         [str appendFormat:@"%@", propertyValueStr];
                     }
                 }
-                    break;
-                    
-                case AJCPS_CONTAINER:
-                    if (hint == AJCPS_VERTICAL_LINEAR)
-                        self.hintLabel.text=@"VERTICAL_LINEAR";
-                    else if (hint == AJCPS_HORIZONTAL_LINEAR)
-                        self.hintLabel.text=@"HORIZONTAL_LINEAR";
-                    else
-                        self.hintLabel.text=@"UNKNOWN";
-                    
-                    [self setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];//TODO
+                break;
 
-                    break;
-                    
-                case AJCPS_DIALOG:
-                    if (hint == AJCPS_ALERTDIALOG)
-                        self.hintLabel.text=@"ALERTDIALOG";
-                    else
-                        self.hintLabel.text=@"UNKNOWN";
-                    break;
+            case AJCPS_CONTAINER:
+                if (hint == AJCPS_VERTICAL_LINEAR) {
+                    self.hintLabel.text = @"VERTICAL_LINEAR";
+                } else if (hint == AJCPS_HORIZONTAL_LINEAR) {
+                    self.hintLabel.text = @"HORIZONTAL_LINEAR";
+                } else {
+                    self.hintLabel.text = @"UNKNOWN";
+                }
+
+                [self setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];//TODO
+
+                break;
+
+            case AJCPS_DIALOG:
+                if (hint == AJCPS_ALERTDIALOG) {
+                    self.hintLabel.text = @"ALERTDIALOG";
+                } else {
+                    self.hintLabel.text = @"UNKNOWN";
+                }
+                break;
             }
-            [str appendFormat:@"%@",(i == ([hints count] - 1)) ? @"\n" : @", "];
+            [str appendFormat:@"%@", (i == ([hints count] - 1)) ? @"\n" : @", "];
         }
     } else {
         [str appendString:@"No hints for this widget"];
     }
-    
+
     return str;
 }
 
 - (NSString *)widgetType
 {
-    
+
     switch ([self.widget getWidgetType]) {
-        case AJCPS_CONTAINER:
-        {
-            return @"Container";
-            
-        }
-            break;
-            
-        case AJCPS_ACTION:
-        {
-            return @"Action";
-            
-        }
-            
-            break;
-            
-        case AJCPS_ACTION_WITH_DIALOG:
-        {
-            return @"Action & Dialog";
-        }
-            break;
-            
-        case AJCPS_LABEL:
-        {
-            return @"Label";
-            
-        }
-            break;
-            
-        case AJCPS_PROPERTY:
-        {
-            return @"Property";
-        }
-            break;
-            
-        case AJCPS_DIALOG:
-        {
-            return @"Dialog";
-        }
-            break;
-            
-        case AJCPS_ERROR:
-        {
-            return @"Error Widget";
-        }
-            break;
-            
-        default:
-        {
-            return @"Unsupported AJCPSWidgetType";
-            
-        }
-            break;
+    case AJCPS_CONTAINER:
+        return @"Container";
+
+        break;
+
+    case AJCPS_ACTION:
+        return @"Action";
+
+        break;
+
+    case AJCPS_ACTION_WITH_DIALOG:
+        return @"Action & Dialog";
+        break;
+
+    case AJCPS_LABEL:
+        return @"Label";
+
+        break;
+
+    case AJCPS_PROPERTY:
+        return @"Property";
+        break;
+
+    case AJCPS_DIALOG:
+        return @"Dialog";
+        break;
+
+    case AJCPS_ERROR:
+        return @"Error Widget";
+        break;
+
+    default:
+        return @"Unsupported AJCPSWidgetType";
+
+        break;
     }
-    
+
     return nil;
 }
 
--(void)setWidget:(AJCPSWidget *)widget
+- (void)setWidget:(AJCPSWidget *)widget
 {
     _widget = widget;
-    self.widgetNameLabel.text  = [NSString stringWithFormat:@"%@,%@",[self.widget getLabel],[self widgetType]];
+    self.widgetNameLabel.text = [NSString stringWithFormat:@"%@,%@", [self.widget getLabel], [self widgetType]];
 
     NSString *widgetLabel;
-    
-    if ([[widget getLabel] length])
+
+    if ([[widget getLabel] length]) {
         widgetLabel = [widget getLabel];
-    
-    
+    }
+
+
     NSString *detailedText = [NSString stringWithFormat:@"label:'%@'\n%@,%@,%@\nbg:0x%x\n%@",
                               widgetLabel,
                               [widget getIsSecured] ? @"secured" : @"not secured",
@@ -283,20 +281,20 @@
                               [widget getIsWritable] ? @"writable" : @"not writable",
                               [widget getBgColor],
                               [self widgetHints]];
-    
+
     if ([widget getWidgetType] == AJCPS_ERROR) {
-        AJCPSWidget *originalWidget = [(AJCPSErrorWidget *)self.widget getOriginalWidget];
-        
-        self.hintLabel.text = [NSString stringWithFormat:@"Original Widget name:%@",[originalWidget getWidgetName]];
+        AJCPSWidget *originalWidget = [(AJCPSErrorWidget *) self.widget getOriginalWidget];
+
+        self.hintLabel.text = [NSString stringWithFormat:@"Original Widget name:%@", [originalWidget getWidgetName]];
     }
-    
-    
-    
+
+
+
     //[self printHints:widget widgetType:widgetType indent:indent];
-    
+
     NSLog(@" widgetName:%@ widgetLabel:%@", [self.widget getLabel], widgetLabel);
-    
-	self.widgetDetailsLabel.text = detailedText;
+
+    self.widgetDetailsLabel.text = detailedText;
 
 }
 

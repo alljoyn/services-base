@@ -76,7 +76,7 @@
  * starting receiver
  * @return status
  */
-- (QStatus)disableSuperAgent  DEPRECATED_ATTRIBUTE;
+- (QStatus)disableSuperAgent DEPRECATED_ATTRIBUTE;
 
 /**
  * Get the currently-configured logger implementation

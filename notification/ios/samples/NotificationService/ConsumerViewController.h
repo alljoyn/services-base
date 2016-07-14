@@ -44,6 +44,6 @@
 
 - (QStatus)startConsumer;
 
-- (void)stopConsumer:(bool) isProducerOn;
+- (void)stopConsumer:(bool)isProducerOn;
 
 @end

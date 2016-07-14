@@ -26,16 +26,16 @@
 
 - (id)initWithHandle:(ajn::services::ErrorWidget *)handle
 {
-	self = [super initWithHandle:handle];
-	if (self) {
-	}
-	return self;
+    self = [super initWithHandle:handle];
+    if (self) {
+    }
+    return self;
 }
 
 
-- (AJCPSWidget*)getOriginalWidget
+- (AJCPSWidget *)getOriginalWidget
 {
-    return [[AJCPSWidget alloc]initWithHandle:((ajn::services::ErrorWidget *)self.handle)->getOriginalWidget()];
+    return [[AJCPSWidget alloc] initWithHandle:((ajn::services::ErrorWidget *)self.handle)->getOriginalWidget()];
 }
 
 @end

@@ -22,7 +22,7 @@
  * AJCPSLanguageSets is used to store the LanguageSets defined.
  */
 @interface AJCPSLanguageSets : NSObject
-- (id)initWithHandle:(ajn ::services ::LanguageSets *)handle;
+- (id)initWithHandle:(ajn::services::LanguageSets *)handle;
 
 /**
  * Get a LanguageSet

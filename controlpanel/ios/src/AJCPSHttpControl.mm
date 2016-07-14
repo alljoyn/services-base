@@ -26,11 +26,11 @@
 
 - (id)initWithHandle:(ajn::services::HttpControl *)handle
 {
-	self = [super init];
-	if (self) {
-		self.handle = handle;
-	}
-	return self;
+    self = [super init];
+    if (self) {
+        self.handle = handle;
+    }
+    return self;
 }
 
 - (uint16_t)getInterfaceVersion
@@ -45,7 +45,7 @@
  */
 - (QStatus)registerObjects:(AJNBusAttachment *)bus
 {
-	return ((ajn::services::HttpControl *)self.handle)->registerObjects((ajn::BusAttachment *)[bus handle]);
+    return ((ajn::services::HttpControl *)self.handle)->registerObjects((ajn::BusAttachment *)[bus handle]);
 }
 
 /**
@@ -55,7 +55,7 @@
  */
 - (QStatus)refreshObjects:(AJNBusAttachment *)bus
 {
-	return ((ajn::services::HttpControl *)self.handle)->refreshObjects((ajn::BusAttachment *)[bus handle]);
+    return ((ajn::services::HttpControl *)self.handle)->refreshObjects((ajn::BusAttachment *)[bus handle]);
 }
 
 /**
@@ -65,7 +65,7 @@
  */
 - (QStatus)unregisterObjects:(AJNBusAttachment *)bus
 {
-	return ((ajn::services::HttpControl *)self.handle)->unregisterObjects((ajn::BusAttachment *)[bus handle]);
+    return ((ajn::services::HttpControl *)self.handle)->unregisterObjects((ajn::BusAttachment *)[bus handle]);
 }
 
 /**
@@ -74,7 +74,7 @@
  */
 - (AJCPSControlPanelDevice *)getDevice
 {
-	return [[AJCPSControlPanelDevice alloc]initWithHandle:((ajn::services::HttpControl *)self.handle)->getDevice()];
+    return [[AJCPSControlPanelDevice alloc] initWithHandle:((ajn::services::HttpControl *)self.handle)->getDevice()];
 }
 
 /**
@@ -83,7 +83,7 @@
  */
 - (NSString *)getUrl
 {
-	return [AJSVCConvertUtil convertQCCStringtoNSString:((ajn::services::HttpControl *)self.handle)->getUrl()];
+    return [AJSVCConvertUtil convertQCCStringtoNSString:((ajn::services::HttpControl *)self.handle)->getUrl()];
 }
 
 /**
@@ -92,7 +92,7 @@
  */
 - (AJCPSControlPanelMode)getControlPanelMode
 {
-	return ((ajn::services::HttpControl *)self.handle)->getControlPanelMode();
+    return ((ajn::services::HttpControl *)self.handle)->getControlPanelMode();
 }
 
 @end

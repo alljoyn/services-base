@@ -29,7 +29,7 @@
  */
 @interface AJCPSWidget : NSObject
 
-- (id)initWithHandle:(ajn ::services ::Widget *)handle;
+- (id)initWithHandle:(ajn::services::Widget *)handle;
 
 /**
  * Get the widgetType of the Widget
@@ -132,6 +132,6 @@
  */
 - (QStatus)unregisterObjects:(AJNBusAttachment *)bus;
 
-@property (nonatomic, readonly)ajn::services::Widget * handle;
+@property (nonatomic, readonly) ajn::services::Widget *handle;
 
 @end

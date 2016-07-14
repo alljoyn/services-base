@@ -22,7 +22,7 @@
  */
 @interface AJCPSLanguageSet : NSObject
 
-- (id)initWithHandle:(ajn ::services ::LanguageSet *)handle;
+- (id)initWithHandle:(ajn::services::LanguageSet *)handle;
 
 
 /**

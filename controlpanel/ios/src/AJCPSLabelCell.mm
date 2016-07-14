@@ -33,10 +33,10 @@
     [super setSelected:selected animated:animated];
 }
 
--(void)setWidget:(AJCPSWidget *)widget
+- (void)setWidget:(AJCPSWidget *)widget
 {
     _widget = widget;
-    self.widgetNameLabel.text  = [NSString stringWithFormat:@"%@",[self.widget getLabel]];
+    self.widgetNameLabel.text = [NSString stringWithFormat:@"%@", [self.widget getLabel]];
 }
 
 @end

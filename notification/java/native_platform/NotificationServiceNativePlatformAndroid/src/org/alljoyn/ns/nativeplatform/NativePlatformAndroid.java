@@ -23,20 +23,20 @@ import org.alljoyn.ns.commons.NativePlatformAbstrImpl;
  * Android implementation of the {@link NativePlatform} interface
  */
 public class NativePlatformAndroid extends NativePlatformAbstrImpl {
-	
-	/**
-	 * Constructor
-	 */
-	public NativePlatformAndroid() {
-		super();
-	}
 
-	/**
-	 * @see org.alljoyn.ns.commons.NativePlatformAbstrImpl#createLogger()
-	 */
-	@Override
-	protected void createLogger() {
-		logger = new AndroidLogger();
-	}//createLogger
-	
+    /**
+     * Constructor
+     */
+    public NativePlatformAndroid() {
+        super();
+    }
+
+    /**
+     * @see org.alljoyn.ns.commons.NativePlatformAbstrImpl#createLogger()
+     */
+    @Override
+    protected void createLogger() {
+        logger = new AndroidLogger();
+    }//createLogger
+
 }

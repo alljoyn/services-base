@@ -14,10 +14,10 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 /**
- * The package includes classes that allow to start the control panel service {@link org.alljoyn.ioe.controlpanelservice.ControlPanelService}, 
+ * The package includes classes that allow to start the control panel service {@link org.alljoyn.ioe.controlpanelservice.ControlPanelService},
  * and manage the list of controllable devices {@link org.alljoyn.ioe.controlpanelservice.ControllableDevice}. <br>
  * The list of controllable devices is managed by the {@link org.alljoyn.ioe.controlpanelservice.DeviceRegistry} interface
- * and its default implementation {@link org.alljoyn.ioe.controlpanelservice.DefaultDeviceRegistry} <br>  
+ * and its default implementation {@link org.alljoyn.ioe.controlpanelservice.DefaultDeviceRegistry} <br>
  * For each controllable device there is a list of the device control panels {@link org.alljoyn.ioe.controlpanelservice.ui.DeviceControlPanel}
  * that is passed to the user when {@link org.alljoyn.ioe.controlpanelservice.ControllableDevice#startSession(DeviceEventsListener)}
  * is called. By using the {@link org.alljoyn.ioe.controlpanelservice.ui.DeviceControlPanel} a user may call

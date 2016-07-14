@@ -30,70 +30,70 @@ import org.alljoyn.ioe.controlpanelservice.ControlPanelService;
 /**
  * Secured dialog interface
  */
-@BusInterface (name = AlertDialogSecured.IFNAME)
+@BusInterface(name = AlertDialogSecured.IFNAME)
 @Secure
 public interface AlertDialogSecured extends AlertDialogSuper {
-	public static final String IFNAME = ControlPanelService.INTERFACE_PREFIX + ".SecuredDialog";
-	
-	public static final short VERSION = 1;
-	
-	/**
-	 * @return Interface version
-	 */
-	@BusProperty(signature="q")
-	public short getVersion() throws BusException;
+    public static final String IFNAME = ControlPanelService.INTERFACE_PREFIX + ".SecuredDialog";
 
-	/**
-	 * @return States bitmask 
-	 * @throws BusException
-	 */
-	@BusProperty(signature="u")
-	public int getStates() throws BusException; 
+    public static final short VERSION = 1;
 
-	/**
-	 * @return Optional parameters
-	 * @throws BusException
-	 */
-	@BusProperty(signature="a{qv}")
-	public Map<Short,Variant> getOptParams() throws BusException;
-    
-	/**
-	 * @return Returns the dialog message
-	 * @throws BusException
-	 */
-	@BusProperty(signature="s")
-	public String getMessage() throws BusException;
-	
-	/**
-	 * @return Returns the number of the dialog buttons
-	 * @throws BusException
-	 */
-	@BusProperty(signature="q")
-	public short getNumActions() throws BusException;
-	
-	/**
-	 * Call the method if is relevant
-	 */
-	@BusMethod
-	public void Action1() throws BusException;
-	
-	/**
-	 * Call the method if is relevant
-	 */
-	@BusMethod
-	public void Action2() throws BusException;
+    /**
+     * @return Interface version
+     */
+    @BusProperty(signature = "q")
+    public short getVersion() throws BusException;
 
-	/**
-	 * Call the method if is relevant
-	 */
-	@BusMethod
-	public void Action3() throws BusException;
+    /**
+     * @return States bitmask
+     * @throws BusException
+     */
+    @BusProperty(signature = "u")
+    public int getStates() throws BusException;
 
-	/**
-	 * Signal is sent when the UI container metadata changed 
-	 * @param metadata
-	 */
-	@BusSignal
-	public void MetadataChanged() throws BusException;
-	
+    /**
+     * @return Optional parameters
+     * @throws BusException
+     */
+    @BusProperty(signature = "a{qv}")
+    public Map<Short, Variant> getOptParams() throws BusException;
+
+    /**
+     * @return Returns the dialog message
+     * @throws BusException
+     */
+    @BusProperty(signature = "s")
+    public String getMessage() throws BusException;
+
+    /**
+     * @return Returns the number of the dialog buttons
+     * @throws BusException
+     */
+    @BusProperty(signature = "q")
+    public short getNumActions() throws BusException;
+
+    /**
+     * Call the method if is relevant
+     */
+    @BusMethod
+    public void Action1() throws BusException;
+
+    /**
+     * Call the method if is relevant
+     */
+    @BusMethod
+    public void Action2() throws BusException;
+
+    /**
+     * Call the method if is relevant
+     */
+    @BusMethod
+    public void Action3() throws BusException;
+
+    /**
+     * Signal is sent when the UI container metadata changed
+     * @param metadata
+     */
+    @BusSignal
+    public void MetadataChanged() throws BusException;
+
 }

@@ -24,7 +24,7 @@
  */
 @interface AJCPSNotificationAction : NSObject
 
-- (id)initWithHandle:(ajn ::services ::NotificationAction *)handle;
+- (id)initWithHandle:(ajn::services::NotificationAction *)handle;
 
 
 /**
@@ -73,6 +73,6 @@
 - (AJCPSRootWidget *)getRootWidget:(NSString *)Language;
 
 
-@property (nonatomic, readonly)ajn::services::NotificationAction * handle;
+@property (nonatomic, readonly) ajn::services::NotificationAction *handle;
 
 @end

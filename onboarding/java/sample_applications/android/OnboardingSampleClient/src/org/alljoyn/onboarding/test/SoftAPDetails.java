@@ -108,8 +108,9 @@ public class SoftAPDetails {
                 String[] supportedInterfaces = temp.interfaces;
                 for (int j = 0; j < supportedInterfaces.length; ++j) {
                     String interface1 = supportedInterfaces[j];
-                    if (interface1.startsWith("org.alljoyn.Onboarding"))
+                    if (interface1.startsWith("org.alljoyn.Onboarding")) {
                         this.supportOnboarding = true;
+                    }
                 }
             }
         }
@@ -147,8 +148,9 @@ public class SoftAPDetails {
         sb.append("Bus Object Description:\n");
         for (int i = 0; i < objectDescriptions.length; i++) {
             sb.append(busObjectDescriptionString(objectDescriptions[i]));
-            if (i != objectDescriptions.length - 1)
+            if (i != objectDescriptions.length - 1) {
                 sb.append("\n");
+            }
         }
         return sb.toString();
     }
@@ -162,10 +164,11 @@ public class SoftAPDetails {
         String[] tmp = bus.interfaces;
         for (int i = 0; i < tmp.length; i++) {
             s += tmp[i];
-            if (i != tmp.length - 1)
+            if (i != tmp.length - 1) {
                 s += ",";
-            else
+            } else {
                 s += "\n";
+            }
         }
         return s;
     }

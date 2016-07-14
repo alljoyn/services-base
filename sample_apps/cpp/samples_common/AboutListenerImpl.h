@@ -28,8 +28,8 @@
 
 typedef void (*BasicAboutListenerCallback)(qcc::String const& busName, unsigned short port);
 typedef void (*FullAboutListenerCallback)(qcc::String const& busName, unsigned short version,
-                                            unsigned short port, const ajn::AboutObjectDescription& objectDescription,
-                                            const ajn::AboutData& aboutData);
+                                           unsigned short port, const ajn::AboutObjectDescription& objectDescription,
+                                           const ajn::AboutData& aboutData);
 /**
  * class AboutListenerImpl
  */

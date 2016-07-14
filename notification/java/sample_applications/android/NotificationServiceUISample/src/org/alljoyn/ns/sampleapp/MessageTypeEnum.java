@@ -17,36 +17,36 @@
 package org.alljoyn.ns.sampleapp;
 
 public enum MessageTypeEnum {
-	Emergency("EMERGENCY"),
-	Warning("WARNING"),
+    Emergency("EMERGENCY"),
+    Warning("WARNING"),
     Info("INFO");
-	
-	/**
-	 * Internal name representation
-	 */
-	public final String INT_NAME;
-	
-	/**
-	 * Constructor
-	 * @param name
-	 */
-	private MessageTypeEnum(String name) {
-		INT_NAME = name;
-	}	
 
-	/**
-	 * Returns string representation of the enum
-	 * @return
-	 */
-	public static String[] stringValues() {
-		MessageTypeEnum[] enumValues = MessageTypeEnum.values();
-		String[] arr = new String [ enumValues.length ];
-		int i = 0;
-		for (MessageTypeEnum te : enumValues ) {
-			arr[i] = te.toString();
-			++i;
-		}
-		return  arr;
-	}//stringValues
+    /**
+     * Internal name representation
+     */
+    public final String INT_NAME;
+
+    /**
+     * Constructor
+     * @param name
+     */
+    private MessageTypeEnum(String name) {
+        INT_NAME = name;
+    }
+
+    /**
+     * Returns string representation of the enum
+     * @return
+     */
+    public static String[] stringValues() {
+        MessageTypeEnum[] enumValues = MessageTypeEnum.values();
+        String[] arr = new String[enumValues.length];
+        int i = 0;
+        for (MessageTypeEnum te : enumValues) {
+            arr[i] = te.toString();
+            ++i;
+        }
+        return arr;
+    }//stringValues
 
 }
