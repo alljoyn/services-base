@@ -15,6 +15,6 @@
  ******************************************************************************/
 
 /**
- * The package includes generic classes that are used by other packages of the Notification service 
+ * The package includes generic classes that are used by other packages of the Notification service
  */
 package org.alljoyn.ns.commons;

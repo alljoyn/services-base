@@ -29,16 +29,16 @@
  @enum QLogLevel
  */
 typedef NS_ENUM (NSInteger, QLogLevel) {
-	/** Fatal Error */
-	QLEVEL_FATAL = 1,
-	/** Error */
-	QLEVEL_ERROR = 2,
-	/** Warning */
-	QLEVEL_WARN  = 3,
-	/** Information */
-	QLEVEL_INFO  = 4,
-	/** Debug */
-	QLEVEL_DEBUG = 5,
+    /** Fatal Error */
+    QLEVEL_FATAL = 1,
+    /** Error */
+    QLEVEL_ERROR = 2,
+    /** Warning */
+    QLEVEL_WARN = 3,
+    /** Information */
+    QLEVEL_INFO = 4,
+    /** Debug */
+    QLEVEL_DEBUG = 5,
 };
 
 /**

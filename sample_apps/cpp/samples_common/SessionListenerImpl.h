@@ -56,5 +56,3 @@ class SessionListenerImpl : public ajn::SessionListener {
 };
 
 #endif /* SESSIONLISTENERIMPL_H_ */
-
-

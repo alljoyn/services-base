@@ -27,16 +27,16 @@
 /**
  * AJOBSOnboarding class
  */
-@interface AJOBSOnboarding: NSObject
+@interface AJOBSOnboarding : NSObject
 
 
 
 /**
- *	Structure to hold the WIFI details
+ *  Structure to hold the WIFI details
  */
-typedef struct {
+    typedef struct {
     /**
-     *	SSID is the WIFI's SSID
+     *  SSID is the WIFI's SSID
      */
     NSString *SSID;
     /**
@@ -58,55 +58,55 @@ typedef struct {
  */
 typedef struct {
     /**
-     *	last validated state.
+     *  last validated state.
      */
     short validationState;
     /**
      *  error message
      */
     NSString *message;
-}AJOBLastError;
+} AJOBLastError;
 
 /**
  * Convert passcode to Hex format.
  * @param passcode passcode to be covert.
  * @return Passcode in Hex format
  */
-+(NSString*)passcodeToHex:(NSString*) passcode;
++ (NSString *)passcodeToHex:(NSString *)passcode;
 
 /**
  * Passcode validation for WEP authentication
  * @param key The passcode key
  * @return bool
  */
-+(bool)isValidWEPKey:(NSString *) key;
++ (bool)isValidWEPKey:(NSString *)key;
 
 /**
  * Passcode validation for WPA authentication
  * @param key The passcoce key
  * @return bool
  */
-+(bool)isValidWPAKey:(NSString *) key;
++ (bool)isValidWPAKey:(NSString *)key;
 
 /**
  * Convert AJOBInfo object to OBInfo object.
  * @param ajOBInfo The AJOBInfo object.
  * @return OBInfo object.
  */
-+(ajn::services::OBInfo)toOBInfo:(AJOBInfo) ajOBInfo;
++ (ajn::services::OBInfo)toOBInfo:(AJOBInfo)ajOBInfo;
 
 /**
  * Convert OBInfo object to AJOBInfo object.
  * @param obInfo The OBInfo object.
  * @return AJOBInfo object.
  */
-+(AJOBInfo)toAJOBInfo:(ajn::services::OBInfo) obInfo;
++ (AJOBInfo)toAJOBInfo:(ajn::services::OBInfo)obInfo;
 
 /**
  * Convert OBLastError object to AJOBLastError object.
  * @param obLastError The OBLastError object.
  * @return AJOBLastError object.
  */
-+(AJOBLastError)toAJOBLastError:(ajn::services::OBLastError) obLastError;
++ (AJOBLastError)toAJOBLastError:(ajn::services::OBLastError)obLastError;
 
 @end

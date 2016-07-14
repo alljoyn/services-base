@@ -18,8 +18,8 @@
 
 @protocol ControllerUpdateEvents <NSObject>
 
--(void)refreshEntries;
--(void)loadEnded;
--(void)sessionLost;
+- (void)refreshEntries;
+- (void)loadEnded;
+- (void)sessionLost;
 
 @end

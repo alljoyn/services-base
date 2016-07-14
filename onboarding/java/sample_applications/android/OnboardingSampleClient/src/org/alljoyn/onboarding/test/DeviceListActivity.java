@@ -67,10 +67,10 @@ public class DeviceListActivity extends ListActivity implements OnCreateContextM
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.devices_layout);
-        m_application = (OnboardingApplication) getApplication();
+        m_application = (OnboardingApplication)getApplication();
 
         //************** AllJoyn Connect/Disconnect Button ******************
-        m_AJConnect = (Button) findViewById(R.id.AllJoynConnect);
+        m_AJConnect = (Button)findViewById(R.id.AllJoynConnect);
         m_AJConnect.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -84,8 +84,8 @@ public class DeviceListActivity extends ListActivity implements OnCreateContextM
             }
         });
         //***************** Current Network *********************
-        m_currentNetwork = (TextView) findViewById(R.id.current_network_name);
-        String ssid = ((OnboardingApplication) getApplication()).getIskWifiManager().getCurrentNetworkSSID();
+        m_currentNetwork = (TextView)findViewById(R.id.current_network_name);
+        String ssid = ((OnboardingApplication)getApplication()).getIskWifiManager().getCurrentNetworkSSID();
         m_currentNetwork.setText(getString(R.string.current_network, ssid));
 
         //************** Devices list ******************
@@ -244,8 +244,8 @@ public class DeviceListActivity extends ListActivity implements OnCreateContextM
     @Override
     public boolean onContextItemSelected(MenuItem item) {
 
-        AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-        SoftAPDetails device = (SoftAPDetails) getListAdapter().getItem(info.position);
+        AdapterContextMenuInfo info = (AdapterContextMenuInfo)item.getMenuInfo();
+        SoftAPDetails device = (SoftAPDetails)getListAdapter().getItem(info.position);
 
         if (item.getItemId() == R.id.context_menu_announce) {
             showAnnounce(device);
@@ -268,12 +268,13 @@ public class DeviceListActivity extends ListActivity implements OnCreateContextM
         super.onCreateContextMenu(menu, v, menuInfo);
         getMenuInflater().inflate(R.menu.device_context_menu, menu);
 
-        AdapterContextMenuInfo info = (AdapterContextMenuInfo) menuInfo;
+        AdapterContextMenuInfo info = (AdapterContextMenuInfo)menuInfo;
         ListAdapter adapter = getListAdapter();
-        SoftAPDetails item = (SoftAPDetails) adapter.getItem(info.position);
+        SoftAPDetails item = (SoftAPDetails)adapter.getItem(info.position);
 
-        if (!item.supportOnboarding)
+        if (!item.supportOnboarding) {
             menu.removeItem(R.id.context_menu_onboarding);
+        }
     }
 
     //====================================================================
@@ -287,4 +288,3 @@ public class DeviceListActivity extends ListActivity implements OnCreateContextM
     }
     //====================================================================
 }
-

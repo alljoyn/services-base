@@ -27,15 +27,15 @@
 
 - (id)initWithHandle:(ajn::services::Action *)handle
 {
-	self = [super initWithHandle:handle];
-	if (self) {
-	}
-	return self;
+    self = [super initWithHandle:handle];
+    if (self) {
+    }
+    return self;
 }
 
 - (QStatus)executeAction
 {
-	return ((ajn::services::Action *)self.handle)->executeAction();
+    return ((ajn::services::Action *)self.handle)->executeAction();
 }
 
 @end

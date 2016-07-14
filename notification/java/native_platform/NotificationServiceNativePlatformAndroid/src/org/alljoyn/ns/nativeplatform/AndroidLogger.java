@@ -25,43 +25,43 @@ import android.util.Log;
  */
 public class AndroidLogger implements GenericLogger {
 
-	/**
-	 * @see org.alljoyn.ns.commons.GenericLogger#debug(java.lang.String, java.lang.String)
-	 */
-	@Override
-	public void debug(String TAG, String msg) {
-		Log.d(TAG, msg);
-	}
+    /**
+     * @see org.alljoyn.ns.commons.GenericLogger#debug(java.lang.String, java.lang.String)
+     */
+    @Override
+    public void debug(String TAG, String msg) {
+        Log.d(TAG, msg);
+    }
 
-	/**
-	 * @see org.alljoyn.ns.commons.GenericLogger#info(java.lang.String, java.lang.String)
-	 */
-	@Override
-	public void info(String TAG, String msg) {
-		Log.i(TAG, msg);
-	}
+    /**
+     * @see org.alljoyn.ns.commons.GenericLogger#info(java.lang.String, java.lang.String)
+     */
+    @Override
+    public void info(String TAG, String msg) {
+        Log.i(TAG, msg);
+    }
 
-	/**
-	 * @see org.alljoyn.ns.commons.GenericLogger#warn(java.lang.String, java.lang.String)
-	 */
-	@Override
-	public void warn(String TAG, String msg) {
-		Log.w(TAG, msg);
-	}
+    /**
+     * @see org.alljoyn.ns.commons.GenericLogger#warn(java.lang.String, java.lang.String)
+     */
+    @Override
+    public void warn(String TAG, String msg) {
+        Log.w(TAG, msg);
+    }
 
-	/**
-	 * @see org.alljoyn.ns.commons.GenericLogger#error(java.lang.String, java.lang.String)
-	 */
-	@Override
-	public void error(String TAG, String msg) {
-		Log.e(TAG, msg);
-	}
+    /**
+     * @see org.alljoyn.ns.commons.GenericLogger#error(java.lang.String, java.lang.String)
+     */
+    @Override
+    public void error(String TAG, String msg) {
+        Log.e(TAG, msg);
+    }
 
-	/**
-	 * @see org.alljoyn.ns.commons.GenericLogger#fatal(java.lang.String, java.lang.String)
-	 */
-	@Override
-	public void fatal(String TAG, String msg) {
-		Log.wtf(TAG, msg);
-	}
+    /**
+     * @see org.alljoyn.ns.commons.GenericLogger#fatal(java.lang.String, java.lang.String)
+     */
+    @Override
+    public void fatal(String TAG, String msg) {
+        Log.wtf(TAG, msg);
+    }
 }

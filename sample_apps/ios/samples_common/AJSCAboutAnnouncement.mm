@@ -29,10 +29,10 @@
 
 
 - (id)initWithBusName:(NSString *)busName
-              version:(uint16_t)version
-          sessionPort:(AJNSessionPort)port
- objectDescriptionArg:(AJNMessageArgument *)objectDescriptionArg
-         aboutDataArg:(AJNMessageArgument *)aboutDataArg
+    version:(uint16_t)version
+    sessionPort:(AJNSessionPort)port
+    objectDescriptionArg:(AJNMessageArgument *)objectDescriptionArg
+    aboutDataArg:(AJNMessageArgument *)aboutDataArg
 {
     self = [super init];
     if (self) {
@@ -41,7 +41,7 @@
         self.port = port;
         self.objectDescriptionArg = objectDescriptionArg;
         self.aboutDataArg = aboutDataArg;
-        
+
         // Deprecated.
         self.objectDescriptions = nil;
         self.aboutData = nil;
@@ -51,10 +51,10 @@
 }
 
 - (id)initWithVersion:(uint16_t)version
-                 port:(uint16_t)port
-              busName:(NSString *)busName
-   objectDescriptions:(NSMutableDictionary *)objectDescs
-            aboutData:(NSMutableDictionary **)aboutData
+    port:(uint16_t)port
+    busName:(NSString *)busName
+    objectDescriptions:(NSMutableDictionary *)objectDescs
+    aboutData:(NSMutableDictionary **)aboutData
 {
     self = [super init];
     if (self) {
@@ -63,7 +63,7 @@
         self.port = port;  // AJNSessionPort is type-defined as uint16_t.
         self.objectDescriptionArg = nil;
         self.aboutDataArg = nil;
-        
+
         // Deprecated.
         self.objectDescriptions = objectDescs;
         self.aboutData = *aboutData;

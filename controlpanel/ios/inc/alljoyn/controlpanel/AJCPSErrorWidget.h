@@ -26,8 +26,8 @@
  * Constructor for AJCPSErrorWidget class
  * @param handle handle to the c++ instance
  */
-- (id)initWithHandle:(ajn ::services ::ErrorWidget *)handle;
+- (id)initWithHandle:(ajn::services::ErrorWidget *)handle;
 
-- (AJCPSWidget*)getOriginalWidget;
+- (AJCPSWidget *)getOriginalWidget;
 
 @end

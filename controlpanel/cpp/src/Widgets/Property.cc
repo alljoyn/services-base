@@ -138,7 +138,7 @@ QStatus Property::validateValue(PropertyType propertyType)
     return ER_OK;
 }
 
-QStatus Property::setGetValue(uint16_t (* getUint16Value)())
+QStatus Property::setGetValue(uint16_t (*getUint16Value)())
 {
     if (!validateGetValue(UINT16_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;
@@ -148,7 +148,7 @@ QStatus Property::setGetValue(uint16_t (* getUint16Value)())
     return ER_OK;
 }
 
-QStatus Property::setGetValue(int16_t (* getInt16Value)())
+QStatus Property::setGetValue(int16_t (*getInt16Value)())
 {
     if (!validateGetValue(INT16_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;
@@ -158,7 +158,7 @@ QStatus Property::setGetValue(int16_t (* getInt16Value)())
     return ER_OK;
 }
 
-QStatus Property::setGetValue(uint32_t (* getUint32Value)())
+QStatus Property::setGetValue(uint32_t (*getUint32Value)())
 {
     if (!validateGetValue(UINT32_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;
@@ -168,7 +168,7 @@ QStatus Property::setGetValue(uint32_t (* getUint32Value)())
     return ER_OK;
 }
 
-QStatus Property::setGetValue(int32_t (* getInt32Value)())
+QStatus Property::setGetValue(int32_t (*getInt32Value)())
 {
     if (!validateGetValue(INT32_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;
@@ -178,7 +178,7 @@ QStatus Property::setGetValue(int32_t (* getInt32Value)())
     return ER_OK;
 }
 
-QStatus Property::setGetValue(uint64_t (* getUint64Value)())
+QStatus Property::setGetValue(uint64_t (*getUint64Value)())
 {
     if (!validateGetValue(UINT64_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;
@@ -188,7 +188,7 @@ QStatus Property::setGetValue(uint64_t (* getUint64Value)())
     return ER_OK;
 }
 
-QStatus Property::setGetValue(int64_t (* getInt64Value)())
+QStatus Property::setGetValue(int64_t (*getInt64Value)())
 {
     if (!validateGetValue(INT64_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;
@@ -198,7 +198,7 @@ QStatus Property::setGetValue(int64_t (* getInt64Value)())
     return ER_OK;
 }
 
-QStatus Property::setGetValue(double (* getDoubleValue)())
+QStatus Property::setGetValue(double (*getDoubleValue)())
 {
     if (!validateGetValue(DOUBLE_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;
@@ -218,7 +218,7 @@ QStatus Property::setGetValue(const char* (*getCharValue)())
     return ER_OK;
 }
 
-QStatus Property::setGetValue(bool (* getBoolValue)())
+QStatus Property::setGetValue(bool (*getBoolValue)())
 {
     if (!validateGetValue(BOOL_PROPERTY)) {
         return ER_BUS_SET_WRONG_SIGNATURE;

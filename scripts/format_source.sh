@@ -39,13 +39,15 @@ WORK_DIR=$(pwd)
 I_NAME=$(basename ${FILE})
 O_NAME=${I_NAME}.uncrustify
 
-echo " · Formatting ${FILE}"
+printf " · Formatting ${I_NAME}… "
 ${UNCRUSTIFY} -q -c ${CONF} ${UC_LANG_OVERRIDE} ${I_NAME}
 if [ -f ${O_NAME} ]; then
     DIFF=$(diff ${I_NAME} ${O_NAME})
     if [ ! -z "${DIFF}" ]; then
+        printf "\b - FIXED\n"
         mv -f ${O_NAME} ${I_NAME}
     else
+        printf "\b - NO CHANGE\n"
         rm ${O_NAME}
     fi
 fi

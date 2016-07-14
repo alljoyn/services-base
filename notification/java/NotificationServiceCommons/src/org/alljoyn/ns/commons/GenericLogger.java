@@ -20,38 +20,38 @@ package org.alljoyn.ns.commons;
  * Implement this interface to provide logging functionality for the Notification service
  */
 public interface GenericLogger {
-	/**
-	 * Debug level message
-	 * @param TAG Tag to be added to the message, i.e. class that writes the message 
-	 * @param msg 
-	 */
-	public void debug(String TAG, String msg);
-	
-	/**
-	 * Info level message
-	 * @param TAG Tag to be added to the message, i.e. class that writes the message 
-	 * @param msg 
-	 */
-	public void info(String TAG, String msg);
+    /**
+     * Debug level message
+     * @param TAG Tag to be added to the message, i.e. class that writes the message
+     * @param msg
+     */
+    public void debug(String TAG, String msg);
 
-	/**
-	 * Warn level message
-	 * @param TAG Tag to be added to the message, i.e. class that writes the message 
-	 * @param msg 
-	 */
-	public void warn(String TAG, String msg);
+    /**
+     * Info level message
+     * @param TAG Tag to be added to the message, i.e. class that writes the message
+     * @param msg
+     */
+    public void info(String TAG, String msg);
 
-	/**
-	 * Error level message
-	 * @param TAG Tag to be added to the message, i.e. class that writes the message 
-	 * @param msg 
-	 */
-	public void error(String TAG, String msg);
-	
-	/**
-	 * Fatal level message
-	 * @param TAG Tag to be added to the message, i.e. class that writes the message 
-	 * @param msg 
-	 */
-	public void fatal(String TAG, String msg);
+    /**
+     * Warn level message
+     * @param TAG Tag to be added to the message, i.e. class that writes the message
+     * @param msg
+     */
+    public void warn(String TAG, String msg);
+
+    /**
+     * Error level message
+     * @param TAG Tag to be added to the message, i.e. class that writes the message
+     * @param msg
+     */
+    public void error(String TAG, String msg);
+
+    /**
+     * Fatal level message
+     * @param TAG Tag to be added to the message, i.e. class that writes the message
+     * @param msg
+     */
+    public void fatal(String TAG, String msg);
 }

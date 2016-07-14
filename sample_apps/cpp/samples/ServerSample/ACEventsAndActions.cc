@@ -292,7 +292,8 @@ void ACEventsAndActions::ActionSetModeToOff(const ajn::InterfaceDescription::Mem
     Check_MethodReply(msg, ER_OK);
 }
 
-ACEventsAndActions::~ACEventsAndActions() {
+ACEventsAndActions::~ACEventsAndActions()
+{
 
 }
 
@@ -328,7 +329,7 @@ QStatus ACEventsAndActions::SendEvent(const InterfaceDescription::Member* actual
         return ER_BUS_INTERFACE_NO_SUCH_MEMBER;
     }
 
-    uint8_t flags =  ALLJOYN_FLAG_SESSIONLESS;
+    uint8_t flags = ALLJOYN_FLAG_SESSIONLESS;
     QStatus status = Signal(NULL, 0, *actualEvent, NULL, 0, 0, flags);
     if (status != ER_OK) {
         printf("Could not send signal.\n");

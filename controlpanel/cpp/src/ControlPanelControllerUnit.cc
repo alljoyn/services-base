@@ -177,7 +177,7 @@ QStatus ControlPanelControllerUnit::shutdownUnit()
 
     std::map<qcc::String, ControlPanel*>::iterator cpIter;
     std::map<qcc::String, ControlPanel*>::iterator cpDeliter;
-    for (cpIter = m_ControlPanels.begin(); cpIter != m_ControlPanels.end();) {
+    for (cpIter = m_ControlPanels.begin(); cpIter != m_ControlPanels.end(); ) {
         ControlPanel* controlpanel = cpIter->second;
         cpDeliter = cpIter++;
 
@@ -188,7 +188,7 @@ QStatus ControlPanelControllerUnit::shutdownUnit()
 
     std::map<qcc::String, NotificationAction*>::iterator naIter;
     std::map<qcc::String, NotificationAction*>::iterator naDeliter;
-    for (naIter = m_NotificationActions.begin(); naIter != m_NotificationActions.end();) {
+    for (naIter = m_NotificationActions.begin(); naIter != m_NotificationActions.end(); ) {
         NotificationAction* notificationAction = naIter->second;
         naDeliter = naIter++;
 

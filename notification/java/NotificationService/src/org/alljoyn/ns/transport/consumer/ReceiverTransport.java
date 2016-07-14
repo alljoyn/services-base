@@ -102,7 +102,7 @@ public class ReceiverTransport {
 
     /**
      * Constructor
-     * 
+     *
      * @param nativePlatform
      *            The reference to the platform dependent object
      */
@@ -113,7 +113,7 @@ public class ReceiverTransport {
 
     /**
      * Starts the service in the Notification Receiver mode
-     * 
+     *
      * @throws NotificationServiceException
      *             Is thrown if failed to start the SenderTransport
      */
@@ -188,7 +188,7 @@ public class ReceiverTransport {
     /**
      * Received notification, call the notification receiver callback to pass
      * the notification
-     * 
+     *
      * @param notification
      */
     public void onReceivedNotification(final Notification notification) {
@@ -207,7 +207,7 @@ public class ReceiverTransport {
                     notificationReceiver.receive(notification);
                 }
             }// runnable
-                    );
+                                              );
         } catch (RejectedExecutionException ree) {
             logger.error(TAG, "Failed to return a received notification, id: '" + notification.getMessageId() + "', Error: '" + ree.getMessage() + "'");
         }
@@ -216,7 +216,7 @@ public class ReceiverTransport {
 
     /**
      * Handle the received Dismiss signal
-     * 
+     *
      * @param msgId
      *            The message id of the {@link Notification} that should be
      *            dismissed
@@ -234,7 +234,7 @@ public class ReceiverTransport {
                     notificationReceiver.dismiss(msgId, appId);
                 }
             }// runnable
-                    );
+                                              );
         } catch (RejectedExecutionException ree) {
             logger.error(TAG, "Failed to deliver the Dismiss event of the notifId: '" + msgId + "', from the appId:'" + appId + "', Error: '" + ree.getMessage() + "'");
         }
@@ -244,7 +244,7 @@ public class ReceiverTransport {
     /**
      * Register receiving {@link Notification} messages directly from
      * Notification producers Additionally calls AddMatch(NOTIF_SLS_BASIC_RULE)
-     * 
+     *
      * @throws NotificationServiceException
      */
     private void registerReceivingProducerNotifications() throws NotificationServiceException {
@@ -266,7 +266,7 @@ public class ReceiverTransport {
 
     /**
      * Register channel object to receive Notification signals
-     * 
+     *
      * @param receiverChannel
      *            Receiver channel object
      * @param receiverChannelServicePath
@@ -300,7 +300,7 @@ public class ReceiverTransport {
 
     /**
      * Registers Dismiss signal receiver
-     * 
+     *
      * @param dismissConsumer
      * @return TRUE on success or FALSE on fail
      */
@@ -329,7 +329,7 @@ public class ReceiverTransport {
     /**
      * Call the method {@link BusAttachment#addMatch(String)} with the given
      * rule
-     * 
+     *
      * @param rule
      *            The rule to add
      * @throws NotificationServiceException
@@ -354,7 +354,7 @@ public class ReceiverTransport {
     /**
      * Call the method {@link BusAttachment#removeMatch(String)} with the given
      * rule
-     * 
+     *
      * @param rule
      *            The rule to add
      * @return The result status
@@ -370,22 +370,22 @@ public class ReceiverTransport {
      * Returns reflection of {@link NotificationTransport#notify} method Used to
      * register signal handler dynamically (without signal annotation on the
      * method)
-     * 
+     *
      * @return Method object or NULL if failed to retrieve
      */
     private Method getNotificationConsumerSignalMethod() {
         Method retMethod;
         try {
             retMethod = NotificationTransport.class.getMethod(NOTIF_SIGNAL_NAME, Integer.TYPE, // version
-                    Integer.TYPE, // msgId,
-                    Short.TYPE, // messageType,
-                    String.class, // deviceId,
-                    String.class, // deviceName,
-                    byte[].class, // appId,
-                    String.class, // appName,
-                    Map.class, // attributes
-                    Map.class, // customAttributes
-                    TransportNotificationText[].class); // text
+                                                              Integer.TYPE, // msgId,
+                                                              Short.TYPE, // messageType,
+                                                              String.class, // deviceId,
+                                                              String.class, // deviceName,
+                                                              byte[].class, // appId,
+                                                              String.class, // appName,
+                                                              Map.class, // attributes
+                                                              Map.class, // customAttributes
+                                                              TransportNotificationText[].class); // text
 
         } catch (Exception ex) {
             nativePlatform.getNativeLogger().error(TAG, "Failed to get a reflection of the signal method: '" + NOTIF_SIGNAL_NAME + "', Error: " + ex.getMessage());
@@ -397,7 +397,7 @@ public class ReceiverTransport {
 
     /**
      * Returns reflection of the {@link DismissConsumer#dismiss(int, byte[])}
-     * 
+     *
      * @return Method object or NULL if failed to retrieve
      */
     private Method getDismissSignalMethod() {

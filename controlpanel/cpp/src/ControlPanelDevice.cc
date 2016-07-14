@@ -132,7 +132,7 @@ QStatus ControlPanelDevice::shutdownDevice()
 
     std::map<qcc::String, ControlPanelControllerUnit*>::iterator iter;
     std::map<qcc::String, ControlPanelControllerUnit*>::iterator deliter;
-    for (iter = m_DeviceUnits.begin(); iter != m_DeviceUnits.end();) {
+    for (iter = m_DeviceUnits.begin(); iter != m_DeviceUnits.end(); ) {
         ControlPanelControllerUnit* unit = iter->second;
         deliter = iter++;
 

@@ -20,7 +20,7 @@
 
 AJSVCGenericLoggerAdapter::AJSVCGenericLoggerAdapter(id <AJSVCGenericLogger> qscGenericLogger)
 {
-	kAJSVCGenericLogger = qscGenericLogger;
+    kAJSVCGenericLogger = qscGenericLogger;
 }
 
 AJSVCGenericLoggerAdapter::~AJSVCGenericLoggerAdapter()
@@ -29,27 +29,25 @@ AJSVCGenericLoggerAdapter::~AJSVCGenericLoggerAdapter()
 
 void AJSVCGenericLoggerAdapter::debug(const char *Tag, const char *logText)
 {
-	[kAJSVCGenericLogger debugTag:[AJSVCConvertUtil convertConstCharToNSString:Tag] text:[AJSVCConvertUtil convertConstCharToNSString:logText]];
+    [kAJSVCGenericLogger debugTag:[AJSVCConvertUtil convertConstCharToNSString:Tag] text:[AJSVCConvertUtil convertConstCharToNSString:logText]];
 }
 
 void AJSVCGenericLoggerAdapter::info(const char *Tag, const char *logText)
 {
-	[kAJSVCGenericLogger infoTag:[AJSVCConvertUtil convertConstCharToNSString:Tag] text:[AJSVCConvertUtil convertConstCharToNSString:logText]];
+    [kAJSVCGenericLogger infoTag:[AJSVCConvertUtil convertConstCharToNSString:Tag] text:[AJSVCConvertUtil convertConstCharToNSString:logText]];
 }
 
 void AJSVCGenericLoggerAdapter::warn(const char *Tag, const char *logText)
 {
-	[kAJSVCGenericLogger warnTag:[AJSVCConvertUtil convertConstCharToNSString:Tag] text:[AJSVCConvertUtil convertConstCharToNSString:logText]];
+    [kAJSVCGenericLogger warnTag:[AJSVCConvertUtil convertConstCharToNSString:Tag] text:[AJSVCConvertUtil convertConstCharToNSString:logText]];
 }
 
 void AJSVCGenericLoggerAdapter::error(const char *Tag, const char *logText)
 {
-	[kAJSVCGenericLogger errorTag:[AJSVCConvertUtil convertConstCharToNSString:Tag] text:[AJSVCConvertUtil convertConstCharToNSString:logText]];
+    [kAJSVCGenericLogger errorTag:[AJSVCConvertUtil convertConstCharToNSString:Tag] text:[AJSVCConvertUtil convertConstCharToNSString:logText]];
 }
 
 void AJSVCGenericLoggerAdapter::fatal(const char *Tag, const char *logText)
 {
-	[kAJSVCGenericLogger fatalTag:[AJSVCConvertUtil convertConstCharToNSString:Tag] text:[AJSVCConvertUtil convertConstCharToNSString:logText]];
+    [kAJSVCGenericLogger fatalTag:[AJSVCConvertUtil convertConstCharToNSString:Tag] text:[AJSVCConvertUtil convertConstCharToNSString:logText]];
 }
-
-

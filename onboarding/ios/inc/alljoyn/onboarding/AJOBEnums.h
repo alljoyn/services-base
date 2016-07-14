@@ -17,7 +17,7 @@
 /**
  * Enumerator for validation error: VALIDATED = 0, UNREACHABLE, UNSUPPORTEDPROTOCOL, UNAUTHORIZED, ERRORMESSAGE
  */
-typedef NS_ENUM (NSInteger, AJOBValidationState){
+typedef NS_ENUM (NSInteger, AJOBValidationState) {
     /***
      * WIFI configuration was successful
      */
@@ -136,4 +136,4 @@ typedef NS_ENUM (NSInteger, AJOBState) {
      * CONFIGURED_RETRY configuration has been set and there was an error in retry mode.
      */
     CONFIGURED_RETRY,
-} ;
+};

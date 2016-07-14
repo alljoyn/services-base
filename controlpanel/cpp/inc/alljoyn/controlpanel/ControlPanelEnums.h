@@ -34,9 +34,9 @@ namespace services {
 /**
  * Typedefs for functionPointers used
  */
-typedef bool (* GetBoolFptr)();
-typedef uint32_t (* GetUint32Fptr)();
-typedef const char* (* GetStringFptr)(uint16_t);
+typedef bool (*GetBoolFptr)();
+typedef uint32_t (*GetUint32Fptr)();
+typedef const char* (*GetStringFptr)(uint16_t);
 
 /**
  * Mode ControlPanel is in

@@ -64,7 +64,7 @@ public class SenderTransport {
 
     /**
      * Constructor
-     * 
+     *
      * @param nativePlatform
      *            The reference to the platform dependent object
      */
@@ -74,7 +74,7 @@ public class SenderTransport {
 
     /**
      * Starts the service in the Notification Sender mode
-     * 
+     *
      * @throws NotificationServiceException
      *             Is thrown if failed to start the SenderTransport
      */
@@ -147,7 +147,7 @@ public class SenderTransport {
 
     /**
      * Called when we need to send a signal
-     * 
+     *
      * @param version
      *            The version of the message signature
      * @param msgId
@@ -173,7 +173,7 @@ public class SenderTransport {
      * @throws NotificationServiceException
      */
     public void sendNotification(int version, int msgId, NotificationMessageType messageType, String deviceId, String deviceName, byte[] appId, String appName, Map<Integer, Variant> attributes,
-            Map<String, String> customAttributes, TransportNotificationText[] text, int ttl) throws NotificationServiceException {
+                                 Map<String, String> customAttributes, TransportNotificationText[] text, int ttl) throws NotificationServiceException {
 
         GenericLogger logger = nativePlatform.getNativeLogger();
 
@@ -193,7 +193,7 @@ public class SenderTransport {
 
     /**
      * Cancel the last message sent for the given messageType
-     * 
+     *
      * @param messageType
      * @throws NotificationServiceException
      */
@@ -211,7 +211,7 @@ public class SenderTransport {
     /**
      * Try to find and delete the notification by the given notifId, and then
      * send dismiss session-less-signal
-     * 
+     *
      * @param notifId
      */
     public void dismiss(int notifId) {

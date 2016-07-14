@@ -29,7 +29,7 @@
  * @param bus is a reference to BusAttachment
  * @param listener Onboarding connevtion signal listener
  */
--(id)initWithBus:(AJNBusAttachment*) bus listener:(id <AJOBOnboardingClientListener>) listener;
+- (id)initWithBus:(AJNBusAttachment *)bus listener:(id <AJOBOnboardingClientListener> )listener;
 
 /**
  * Configure WiFi a specified bus name.
@@ -39,7 +39,7 @@
  * @param sessionId the session received  after joining alljoyn session
  * @return ER_OK if successful.
  */
--(QStatus)configureWiFi:(NSString*) busName obInfo:(AJOBInfo&) ajOBInfo resultStatus:(short&) resultStatus sessionId:(AJNSessionId) sessionId;
+- (QStatus)configureWiFi:(NSString *)busName obInfo:(AJOBInfo &)ajOBInfo resultStatus:(short &)resultStatus sessionId:(AJNSessionId)sessionId;
 
 /**
  * Configure WiFi a specified bus name.
@@ -49,7 +49,7 @@
  * @param resultStatus the status of the request [out]
  * @return ER_OK if successful.
  */
--(QStatus)configureWiFi:(NSString*) busName obInfo:(AJOBInfo&) ajOBInfo resultStatus:(short&) resultStatus;
+- (QStatus)configureWiFi:(NSString *)busName obInfo:(AJOBInfo &)ajOBInfo resultStatus:(short &)resultStatus;
 
 /**
  * Connect WiFi a specified bus name.
@@ -57,7 +57,7 @@
  * @param sessionId the session received  after joining alljoyn session
  * @return ER_OK if successful.
  */
--(QStatus)connectTo:(NSString*) busName  sessionId:(AJNSessionId) sessionId;
+- (QStatus)connectTo:(NSString *)busName sessionId:(AJNSessionId)sessionId;
 
 /**
  * Connect WiFi a specified bus name.
@@ -65,7 +65,7 @@
  * @param busName Unique or well-known name of AllJoyn node to retrieve Onboarding data from.
  * @return ER_OK if successful.
  */
--(QStatus)connectTo:(NSString*) busName ;
+- (QStatus)connectTo:(NSString *)busName;
 
 /**
  * Offboard WiFi a specified bus name.
@@ -73,7 +73,7 @@
  * @param sessionId the session received  after joining alljoyn session
  * @return ER_OK if successful.
  */
--(QStatus)offboardFrom:(NSString*) busName  sessionId:(AJNSessionId) sessionId;
+- (QStatus)offboardFrom:(NSString *)busName sessionId:(AJNSessionId)sessionId;
 
 
 /**
@@ -82,7 +82,7 @@
  * @param busName Unique or well-known name of AllJoyn node to retrieve Onboarding data from.
  * @return ER_OK if successful.
  */
--(QStatus)offboardFrom:(NSString*) busName ;
+- (QStatus)offboardFrom:(NSString *)busName;
 
 /**
  * GetVersion retrieves the Onboarding version
@@ -91,7 +91,7 @@
  * @param sessionId the session received  after joining alljoyn session
  * @return ER_OK if successful.
  */
--(QStatus)version:(NSString*) busName  version:(int&) version sessionId:(AJNSessionId) sessionId;
+- (QStatus)version:(NSString *)busName version:(int &)version sessionId:(AJNSessionId)sessionId;
 
 /**
  * GetVersion retrieves the Onboarding version
@@ -100,7 +100,7 @@
  * @param version [out].
  * @return ER_OK if successful.
  */
--(QStatus)version:(NSString*) busName  version:(int&) version;
+- (QStatus)version:(NSString *)busName version:(int &)version;
 
 /**
  * GetState retrieves  the last state of the WIFI connection attempt
@@ -109,7 +109,7 @@
  * @param sessionId the session received  after joining alljoyn session
  * @return ER_OK if successful.
  */
--(QStatus)state:(NSString*) busName  state:(short&) state sessionId:(AJNSessionId) sessionId;
+- (QStatus)state:(NSString *)busName state:(short &)state sessionId:(AJNSessionId)sessionId;
 
 /**
  * GetState retrieves  the last state of the WIFI connection attempt
@@ -118,7 +118,7 @@
  * @param state [out]
  * @return ER_OK if successful.
  */
--(QStatus)state:(NSString*) busName  state:(short&) state;
+- (QStatus)state:(NSString *)busName state:(short &)state;
 
 /**
  * GetLastError retrieves the last error of WIFI connection attempt
@@ -127,7 +127,7 @@
  * @param sessionId the session received  after joining alljoyn session
  * @return ER_OK if successful.
  */
--(QStatus)lastError:(NSString*) busName lastError:(AJOBLastError&) lastError sessionId:(AJNSessionId) sessionId;
+- (QStatus)lastError:(NSString *)busName lastError:(AJOBLastError &)lastError sessionId:(AJNSessionId)sessionId;
 
 /**
  * GetLastError retrieves the last error of WIFI connection attempt
@@ -136,6 +136,6 @@
  * @param lastError [out].
  * @return ER_OK if successful.
  */
--(QStatus)lastError:(NSString*) busName lastError:(AJOBLastError&) lastError;
+- (QStatus)lastError:(NSString *)busName lastError:(AJOBLastError &)lastError;
 
 @end

@@ -36,9 +36,9 @@
  * WRITE is for data that is marked as write
  */
 typedef NS_ENUM (NSInteger, AJNSFilter) {
-	ANNOUNCE, /** ANNOUNCE Property that has  ANNOUNCE  enabled */
-	READ,    /** READ     Property that has READ  enabled */
-	WRITE,   /* WRITE    Property that has  WRITE  enabled */
+    ANNOUNCE, /** ANNOUNCE Property that has  ANNOUNCE  enabled */
+    READ,    /** READ     Property that has READ  enabled */
+    WRITE,   /* WRITE    Property that has  WRITE  enabled */
 };
 
 #pragma mark – Protocol methods
@@ -56,7 +56,7 @@ typedef NS_ENUM (NSInteger, AJNSFilter) {
  @param all all reference to MsgArg
  @return status
  */
-- (QStatus)ReadAllWithLanguageTag:(NSString *)languageTag andFilter:(AJNSFilter)filter andAllMsgArg:(ajn ::MsgArg &)all;
+- (QStatus)ReadAllWithLanguageTag:(NSString *)languageTag andFilter:(AJNSFilter)filter andAllMsgArg:(ajn::MsgArg &)all;
 
 
 /**
@@ -66,7 +66,7 @@ typedef NS_ENUM (NSInteger, AJNSFilter) {
  @param value value is a pointer to the data to change.
  @return status
  */
-- (QStatus)UpdatePropertyName:(NSString *)name andLanguageTag:(NSString *)languageTag andValue:(ajn ::MsgArg *)value;
+- (QStatus)UpdatePropertyName:(NSString *)name andLanguageTag:(NSString *)languageTag andValue:(ajn::MsgArg *)value;
 
 /**
  Delete property method

@@ -28,8 +28,7 @@ import org.alljoyn.ns.transport.TransportNotificationText;
  * The interface used to send and receive "session less" notification signals
  */
 @BusInterface(name = NotificationTransport.IF_NAME, announced = "true")
-public interface NotificationTransport extends BusObject
-{
+public interface NotificationTransport extends BusObject {
 
     /**
      * AllJoyn interface name
@@ -43,7 +42,7 @@ public interface NotificationTransport extends BusObject
 
     /**
      * Use the method to send or receive AJ session less signal
-     * 
+     *
      * @param version
      *            The version of the message signature
      * @param msgId
@@ -67,5 +66,5 @@ public interface NotificationTransport extends BusObject
      */
     @BusSignal(signature = "qiqssaysa{iv}a{ss}ar")
     public void notify(int version, int msgId, short messageType, String deviceId, String deviceName, byte[] appId, String appName, Map<Integer, Variant> attributes,
-            Map<String, String> customAttributes, TransportNotificationText[] text);
+                       Map<String, String> customAttributes, TransportNotificationText[] text);
 }

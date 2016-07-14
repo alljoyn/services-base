@@ -28,30 +28,30 @@ import org.alljoyn.bus.annotation.BusSignal;
  */
 @BusInterface(name = NotificationDismisser.IF_NAME)
 public interface NotificationDismisser extends BusObject {
-	
-	/**
-	 * The AllJoyn interface name
-	 */
-	public static final String IF_NAME   = "org.alljoyn.Notification.Dismisser";
-	
-	/**
-	 * The interface version
-	 */
-	public static final short  VERSION   = 1;
-	
-	/**
-	 * The Dismiss signal to be sent 
-	 * @param msgId The notification id the Dismiss signal belongs
-	 * @param appId The application id of the Notification Sender
-	 */
-	@BusSignal(signature="iay", name="Dismiss")
-	public void dismiss(int msgId, byte[] appId) throws BusException;
-	
-	
-	/**
-	 * @return The interface version
-	 * @throws BusException
-	 */
-	@BusProperty(signature="q")
-	public short getVersion() throws BusException;
+
+    /**
+     * The AllJoyn interface name
+     */
+    public static final String IF_NAME = "org.alljoyn.Notification.Dismisser";
+
+    /**
+     * The interface version
+     */
+    public static final short VERSION = 1;
+
+    /**
+     * The Dismiss signal to be sent
+     * @param msgId The notification id the Dismiss signal belongs
+     * @param appId The application id of the Notification Sender
+     */
+    @BusSignal(signature = "iay", name = "Dismiss")
+    public void dismiss(int msgId, byte[] appId) throws BusException;
+
+
+    /**
+     * @return The interface version
+     * @throws BusException
+     */
+    @BusProperty(signature = "q")
+    public short getVersion() throws BusException;
 }

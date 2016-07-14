@@ -78,7 +78,7 @@ public class WidgetFactory {
      */
     private boolean isTopLevelObj;
 
-    private static void init () {
+    private static void init() {
         try {
             ifaceLookup.put(ActionControl.IFNAME, new WidgetFactory(ActionControl.IFNAME, ActionControl.class, getConstructorReflection(ActionWidget.class), UIElementType.ACTION_WIDGET, false));
             ifaceLookup.put(ActionControlSecured.IFNAME, new WidgetFactory(ActionControlSecured.IFNAME, ActionControlSecured.class, getConstructorReflection(ActionWidget.class), UIElementType.ACTION_WIDGET, false));
@@ -95,8 +95,7 @@ public class WidgetFactory {
             ifaceLookup.put(Label.IFNAME, new WidgetFactory(Label.IFNAME, Label.class, getConstructorReflection(LabelWidget.class), UIElementType.LABEL_WIDGET, false));
 
             isInitialized = true;
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             Log.e(TAG, "Failed to initialize widget factory, Error: '" + e.getMessage() + "'");
             isInitialized = false;
         }
@@ -115,7 +114,7 @@ public class WidgetFactory {
      * otherwise returns NULL
      */
     public static WidgetFactory getWidgetFactory(String ifName) {
-        if ( !isInitialized ) {
+        if (!isInitialized) {
             return null;
         }
 
@@ -132,11 +131,11 @@ public class WidgetFactory {
      * @param isTopLevelObj Whether the built element is a top level object
      */
     private WidgetFactory(String iface, Class<?> ifaceClass, Constructor<?> constructor, UIElementType elementType, boolean isTopLevelObj) {
-        this.iface 			= iface;
-        this.ifaceClass     = ifaceClass;
-        this.constructor	= constructor;
-        this.elementType 	= elementType;
-        this.isTopLevelObj  = isTopLevelObj;
+        this.iface = iface;
+        this.ifaceClass = ifaceClass;
+        this.constructor = constructor;
+        this.elementType = elementType;
+        this.isTopLevelObj = isTopLevelObj;
     }
 
     /**
@@ -146,11 +145,11 @@ public class WidgetFactory {
      */
     private static Constructor<?> getConstructorReflection(Class<?> widgClass) throws NoSuchMethodException {
         return widgClass.getConstructor(
-                String.class,
-                String.class,
-                DeviceControlPanel.class,
-                List.class
-        );
+            String.class,
+            String.class,
+            DeviceControlPanel.class,
+            List.class
+            );
     }//getConstructorReflection
 
     public String getIface() {
@@ -181,14 +180,12 @@ public class WidgetFactory {
         Log.i(TAG, "Create element: '" + elementType + "' objPath: '" + objectPath + "'");
         UIElement retValue;
         try {
-            retValue = (UIElement) constructor.newInstance(iface, objectPath, controlPanel, children);
-        }
-        catch (InvocationTargetException ite) {
+            retValue = (UIElement)constructor.newInstance(iface, objectPath, controlPanel, children);
+        } catch (InvocationTargetException ite) {
             String invokeError = ite.getTargetException().getMessage();
             Log.e(TAG, "Error happened when invoking the constructor of  '" + elementType + "', Error: '" + invokeError + "'");
             throw new ControlPanelException(invokeError);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             Log.e(TAG, "Unexpected error happened, failed to create the UIElement: '" + elementType + "'");
             throw new ControlPanelException(e);
         }

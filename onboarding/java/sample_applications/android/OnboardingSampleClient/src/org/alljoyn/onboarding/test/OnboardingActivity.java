@@ -114,7 +114,7 @@ public class OnboardingActivity extends Activity {
         //General
         setContentView(R.layout.onboarding_layout);
         String deviceId = getIntent().getStringExtra(Keys.Extras.EXTRA_DEVICE_ID);
-        m_application = (OnboardingApplication) getApplication();
+        m_application = (OnboardingApplication)getApplication();
         m_device = m_application.getDevice(deviceId);
         if (m_device == null) {
             closeScreen();
@@ -126,26 +126,26 @@ public class OnboardingActivity extends Activity {
         m_loadingPopup = new ProgressDialog(this);
 
         //Current Network
-        m_currentNetwork = (TextView) findViewById(R.id.current_network_name);
+        m_currentNetwork = (TextView)findViewById(R.id.current_network_name);
         String ssid = m_application.getIskWifiManager().getCurrentNetworkSSID();
         m_currentNetwork.setText(getString(R.string.current_network, ssid));
 
         //Version and other properties
-        m_onbaordingVersion = (TextView) findViewById(R.id.onboarding_version_value);
-        m_lastErrorCodeValue = (TextView) findViewById(R.id.last_error_code_value);
-        m_lastErrorMsgValue = (TextView) findViewById(R.id.last_error_msg_value);
-        m_stateValue = (TextView) findViewById(R.id.state_value);
+        m_onbaordingVersion = (TextView)findViewById(R.id.onboarding_version_value);
+        m_lastErrorCodeValue = (TextView)findViewById(R.id.last_error_code_value);
+        m_lastErrorMsgValue = (TextView)findViewById(R.id.last_error_msg_value);
+        m_stateValue = (TextView)findViewById(R.id.state_value);
 
         //Scan info
         m_scanInfoAdapter = new ArrayAdapter<MyScanResult>(OnboardingActivity.this, android.R.layout.simple_spinner_item);
         m_scanInfoAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        m_scanInfoData = (Spinner) findViewById(R.id.scan_info_data_value);
-        m_scanInfoAge = (TextView) findViewById(R.id.scan_info_age_value);
+        m_scanInfoData = (Spinner)findViewById(R.id.scan_info_data_value);
+        m_scanInfoAge = (TextView)findViewById(R.id.scan_info_age_value);
 
         //Network elements
-        m_networkNameEditText = (EditText) findViewById(R.id.network_name);
-        m_networkPasswordEditText = (EditText) findViewById(R.id.network_password);
-        m_authTypeSpinner = (Spinner) findViewById(R.id.auth_type);
+        m_networkNameEditText = (EditText)findViewById(R.id.network_name);
+        m_networkPasswordEditText = (EditText)findViewById(R.id.network_password);
+        m_authTypeSpinner = (Spinner)findViewById(R.id.auth_type);
 
         TextWatcher textWatcher = new TextWatcher() {
 
@@ -159,16 +159,17 @@ public class OnboardingActivity extends Activity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (m_networkNameEditText.getText().length() == 0)
+                if (m_networkNameEditText.getText().length() == 0) {
                     m_configureButton.setEnabled(false);
-                else
+                } else {
                     m_configureButton.setEnabled(true);
+                }
             }
         };
         m_networkNameEditText.addTextChangedListener(textWatcher);
 
-        m_configureButton = (Button) findViewById(R.id.configure_button);
-        m_connectButton = (Button) findViewById(R.id.connect_button);
+        m_configureButton = (Button)findViewById(R.id.configure_button);
+        m_connectButton = (Button)findViewById(R.id.connect_button);
         m_connectButton.setEnabled(false);
 
         initPasswordAlertDialog();
@@ -216,8 +217,9 @@ public class OnboardingActivity extends Activity {
             public void onReceive(Context context, Intent intent) {
 
                 if (Keys.Actions.ACTION_PASSWORD_IS_INCORRECT.equals(intent.getAction())) {
-                    if (m_passwordAlertDialog != null && !m_passwordAlertDialog.isShowing())
+                    if (m_passwordAlertDialog != null && !m_passwordAlertDialog.isShowing()) {
                         m_passwordAlertDialog.show();
+                    }
                 } else if (Keys.Actions.ACTION_ERROR.equals(intent.getAction())) {
                     String error = intent.getStringExtra(Keys.Extras.EXTRA_ERROR);
                     m_application.showAlert(OnboardingActivity.this, error);
@@ -437,7 +439,7 @@ public class OnboardingActivity extends Activity {
                 //Take the user parameters from the UI:
                 m_networkName = m_networkNameEditText.getText().toString();
                 m_networkPassword = m_networkPasswordEditText.getText().toString();
-                AuthType selectedAuthType = (AuthType) m_authTypeSpinner.getSelectedItem();
+                AuthType selectedAuthType = (AuthType)m_authTypeSpinner.getSelectedItem();
                 m_networkAuthType = selectedAuthType;
 
                 //In case password is WEP and its format is HEX - leave it in HEX format.
@@ -585,19 +587,19 @@ public class OnboardingActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
 
         switch (item.getItemId()) {
-            case R.id.menu_onboarding_refresh:
+        case R.id.menu_onboarding_refresh:
 
-                m_tasksToPerform = 4;
-                m_scanInfoData.setOnItemSelectedListener(new ScanInfoListener());
-                getVersion();
-                getLastError();
-                getState();
-                getScanInfo();
-                break;
+            m_tasksToPerform = 4;
+            m_scanInfoData.setOnItemSelectedListener(new ScanInfoListener());
+            getVersion();
+            getLastError();
+            getState();
+            getScanInfo();
+            break;
 
-            case R.id.menu_offboard:
-                offboard();
-                break;
+        case R.id.menu_offboard:
+            offboard();
+            break;
         }
         return true;
     }
@@ -706,8 +708,7 @@ public class OnboardingActivity extends Activity {
         // Check whether an announcement was received from the onboardee on the target network.
         if (deviceID.equals(m_device.appId) && m_networkName != null && m_networkName.equals(m_currentNetworkSSID)) {
             synchronized (this) {
-                if (m_isWaitingForOnboardee) stopAnnouncementTimeout();
-                else return;
+                if (m_isWaitingForOnboardee) { stopAnnouncementTimeout(); } else { return; }
             }
 
             m_application.makeToast("Onboarding succeeded");
@@ -719,8 +720,9 @@ public class OnboardingActivity extends Activity {
     private void startAnnouncementTimeout(int waitTime) {
 
         // Ensure the announcement timeout is reset first.
-        if (m_announcementTimeout != null)
+        if (m_announcementTimeout != null) {
             stopAnnouncementTimeout();
+        }
 
         m_isWaitingForOnboardee = true;
 
@@ -744,12 +746,12 @@ public class OnboardingActivity extends Activity {
                     public void run() {
                         AlertDialog.Builder alert =
                             new AlertDialog.Builder(OnboardingActivity.this)
-                                .setTitle("Onboarding failed")
-                                .setMessage("Confirmation announcement not received from onboardee device.")
-                                .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-                                    }
-                                });
+                            .setTitle("Onboarding failed")
+                            .setMessage("Confirmation announcement not received from onboardee device.")
+                            .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                            }
+                        });
                         alert.show();
                     }
                 });
@@ -775,7 +777,7 @@ public class OnboardingActivity extends Activity {
         public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
 
             //Set the selected ssid to be the network name
-            MyScanResult item = (MyScanResult) m_scanInfoData.getSelectedItem();
+            MyScanResult item = (MyScanResult)m_scanInfoData.getSelectedItem();
             m_networkNameEditText.setText(item.m_ssid);
 
             //Set the selected authType (given from the selected scan result)

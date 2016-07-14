@@ -58,6 +58,6 @@
  */
 - (NSString *)getText;
 
-@property (nonatomic, readonly)ajn::services::NotificationText * handle;
+@property (nonatomic, readonly) ajn::services::NotificationText *handle;
 
 @end

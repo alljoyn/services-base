@@ -21,8 +21,8 @@
 
 @property (nonatomic, strong) UIAlertController *iosAlertController;
 
-+ (nullable AJSCAlertController*) alertControllerWithTitle:(nonnull NSString*)title message:(nonnull NSString*)message viewController:(nonnull UIViewController*)viewController;
-- (void) addActionWithName:(nonnull NSString *)name handler:(void (^ __nullable)(UIAlertAction *action))handler;
++ (nullable AJSCAlertController *)alertControllerWithTitle:(nonnull NSString *)title message:(nonnull NSString *)message viewController:(nonnull UIViewController *)viewController;
+- (void)addActionWithName:(nonnull NSString *)name handler:(void(^ __nullable)(UIAlertAction * action))handler;
 - (void)show;
 
 @end

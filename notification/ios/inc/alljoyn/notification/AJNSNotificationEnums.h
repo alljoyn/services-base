@@ -26,16 +26,16 @@
  @enum AJNSNotificationMessageType enum
  @abstract AJNSNotificationMessageType DBus request status return values.
  */
-typedef NS_ENUM (NSInteger, AJNSNotificationMessageType) {
-	/** EMERGENCY - Urgent Message */
-	EMERGENCY = 0,
-	/** WARNING  - Warning Message */
-	WARNING = 1,
-	/** INFO - Informational Message */
-	INFO = 2,
-	/** MESSAGE_TYPE_CNT  - Number of Message Types Defined */
-	MESSAGE_TYPE_CNT = 3,
-	UNSET = 4
+    typedef NS_ENUM (NSInteger, AJNSNotificationMessageType) {
+    /** EMERGENCY - Urgent Message */
+    EMERGENCY = 0,
+    /** WARNING  - Warning Message */
+    WARNING = 1,
+    /** INFO - Informational Message */
+    INFO = 2,
+    /** MESSAGE_TYPE_CNT  - Number of Message Types Defined */
+    MESSAGE_TYPE_CNT = 3,
+    UNSET = 4
 };
 
 /**

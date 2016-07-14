@@ -38,7 +38,7 @@
  * @param msgId message ID to dismiss
  * @param appId app ID to use
  */
-- (void)dismissMsgId:(const int32_t)msgId appId:(NSString*) appId;
+- (void)dismissMsgId:(const int32_t)msgId appId:(NSString *)appId;
 
 @end
 #endif

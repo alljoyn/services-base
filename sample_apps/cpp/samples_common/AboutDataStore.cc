@@ -168,7 +168,7 @@ QStatus AboutDataStore::ReadAll(const char* languageTag, DataPermission::Filter 
 
 QStatus AboutDataStore::Update(const char* name, const char* languageTag, const ajn::MsgArg* value)
 {
-    std::cout << "AboutDataStore::Update" << " name:" << name << " languageTag:" <<  languageTag << " value:" << value << std::endl;
+    std::cout << "AboutDataStore::Update" << " name:" << name << " languageTag:" << languageTag << " value:" << value << std::endl;
 
     QStatus status = ER_INVALID_VALUE;
     if (strcmp(name, AboutData::APP_ID) == 0) {
@@ -496,7 +496,7 @@ qcc::String AboutDataStore::ToXml(AboutData* aboutData)
     }
     res += "</AboutData>";
 
-    delete [] langs;
+    delete[] langs;
     return res;
 }
 
@@ -523,7 +523,7 @@ QStatus AboutDataStore::IsLanguageSupported(const char* languageTag)
                 break;
             }
         }
-        delete [] langs;
+        delete[] langs;
     }
 
     std::cout << "Returning " << QCC_StatusText(status) << std::endl;

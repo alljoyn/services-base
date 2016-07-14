@@ -29,7 +29,7 @@
 //validate a string (not empty or nil)
 + (bool)textFieldIsValid:(NSString *)txt
 {
-	return (!([txt isEqualToString:(@"")]) && txt != nil);
+    return !([txt isEqualToString:(@"")]) && txt != nil;
 }
 
 

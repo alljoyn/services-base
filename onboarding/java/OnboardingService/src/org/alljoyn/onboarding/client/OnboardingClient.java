@@ -71,7 +71,7 @@ public interface OnboardingClient extends ClientBase {
      *             If authType parameter is invalid then the AllJoyn error code
      *             org.alljoyn.Error.OutOfRange will be returned
      */
-    public ConfigureWifiMode configureWiFi(String ssid, String passphrase, AuthType  authType) throws BusException;
+    public ConfigureWifiMode configureWiFi(String ssid, String passphrase, AuthType authType) throws BusException;
 
     /**
      * Tell the onboardee to connect to the Personal AP. The onboardee is

@@ -17,24 +17,24 @@
 package org.alljoyn.ns;
 
 /**
- * The exception is thrown if a {@link NotificationService} failure has occurred 
+ * The exception is thrown if a {@link NotificationService} failure has occurred
  */
 public class NotificationServiceException extends Exception {
-	private static final long serialVersionUID = -4596126694105018269L;
+    private static final long serialVersionUID = -4596126694105018269L;
 
-	public NotificationServiceException() {
-		super();
-	}
+    public NotificationServiceException() {
+        super();
+    }
 
-	public NotificationServiceException(String message, Throwable throwable) {
-		super(message, throwable);
-	}
+    public NotificationServiceException(String message, Throwable throwable) {
+        super(message, throwable);
+    }
 
-	public NotificationServiceException(String message) {
-		super(message);
-	}
+    public NotificationServiceException(String message) {
+        super(message);
+    }
 
-	public NotificationServiceException(Throwable throwable) {
-		super(throwable);
-	}
+    public NotificationServiceException(Throwable throwable) {
+        super(throwable);
+    }
 }

@@ -251,7 +251,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
         // set keyListener
         keyStoreFileName = getApplicationContext().getFileStreamPath("alljoyn_keystore").getAbsolutePath();
         if (keyStoreFileName != null && keyStoreFileName.length() > 0) {
-            SrpAnonymousKeyListener authListener = new SrpAnonymousKeyListener(OnboardingApplication.this, m_logger, new String[]{"ALLJOYN_SRP_KEYX", "ALLJOYN_ECDHE_PSK"});
+            SrpAnonymousKeyListener authListener = new SrpAnonymousKeyListener(OnboardingApplication.this, m_logger, new String[] { "ALLJOYN_SRP_KEYX", "ALLJOYN_ECDHE_PSK" });
             Status authStatus = m_Bus.registerAuthListener(authListener.getAuthMechanismsAsString(), authListener, keyStoreFileName);
             m_logger.debug(TAG, "BusAttachment.registerAuthListener status = " + authStatus);
             if (authStatus != Status.OK) {
@@ -260,7 +260,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
         }
 
         m_Bus.registerAboutListener(this);
-        m_Bus.whoImplements(new String[]{OnboardingTransport.INTERFACE_NAME});
+        m_Bus.whoImplements(new String[] { OnboardingTransport.INTERFACE_NAME });
     }
 
     @Override
@@ -269,7 +269,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
         try {
             newMap = TransformUtil.fromVariantMap(aboutMap);
             String deviceId = (newMap.get(AboutKeys.ABOUT_APP_ID).toString());
-            String deviceFriendlyName = (String) newMap.get(AboutKeys.ABOUT_DEVICE_NAME);
+            String deviceFriendlyName = (String)newMap.get(AboutKeys.ABOUT_DEVICE_NAME);
             m_logger.debug(TAG, "onAnnouncement received: with parameters: busName:" + busName + ", port:" + port + ", deviceid" + deviceId + ", deviceName:" + deviceFriendlyName);
             addDevice(deviceId, busName, port, deviceFriendlyName, objectDescriptions, newMap);
 
@@ -290,7 +290,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
          */
         try {
             if (m_Bus != null) {
-                m_Bus.cancelWhoImplements(new String[]{OnboardingTransport.INTERFACE_NAME});
+                m_Bus.cancelWhoImplements(new String[] { OnboardingTransport.INTERFACE_NAME });
                 m_Bus.unregisterAboutListener(this);
                 m_Bus.clearKeyStore();
                 m_logger.info(TAG_PASSWORD, "Bus attachment clear key store");
@@ -348,7 +348,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
         Collection<SoftAPDetails> devices = m_devicesMap.values();
         Object[] array = devices.toArray();
         for (int i = 0; i < array.length; i++) {
-            SoftAPDetails d = (SoftAPDetails) array[i];
+            SoftAPDetails d = (SoftAPDetails)array[i];
             if (d.busName.equals(busName)) {
                 m_devicesMap.remove(d.appId);
             }
@@ -450,7 +450,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
     public OBLastError getLastError() {
 
         OBLastError m_lastError = new OBLastError();
-        m_lastError.setErrorCode((short) -1);
+        m_lastError.setErrorCode((short)-1);
         m_lastError.setErrorMessage("unKnown");
 
         try {
@@ -605,13 +605,14 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
         if (peerName != null) {
             Collection<SoftAPDetails> devices = m_devicesMap.values();
             Iterator<SoftAPDetails> iterator = devices.iterator();
-            for (; iterator.hasNext(); ) {
+            for ( ; iterator.hasNext();) {
                 softAPDetails = iterator.next();
                 if (softAPDetails.busName.equals(peerName)) {
                     char[] password = softAPDetails.password;
                     m_logger.info(TAG_PASSWORD, "Client password = " + String.valueOf(password) + " for peerName " + peerName + ", Name=" + softAPDetails.deviceFriendlyName);
-                    if (password != null)
+                    if (password != null) {
                         return password;
+                    }
                 }
             }
         }
@@ -633,7 +634,7 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
         m_logger.info(TAG_PASSWORD, "setPassword was called on the client side");
         Collection<SoftAPDetails> devices = m_devicesMap.values();
         Iterator<SoftAPDetails> iterator = devices.iterator();
-        for (; iterator.hasNext(); ) {
+        for ( ; iterator.hasNext();) {
             SoftAPDetails softAPDetails = iterator.next();
             if (softAPDetails.busName.equals(peerName)) {
                 m_logger.info(TAG_PASSWORD, "Set the password on the client side from: " + String.valueOf(softAPDetails.password) + " to: " + String.valueOf(password));
@@ -656,8 +657,9 @@ public class OnboardingApplication extends Application implements AuthPasswordHa
             m_logger.info(TAG_PASSWORD, " ** " + authPeer + " failed to authenticate");
             Intent intent = new Intent(Keys.Actions.ACTION_PASSWORD_IS_INCORRECT);
             sendBroadcast(intent);
-        } else
+        } else {
             m_logger.info(TAG_PASSWORD, " ** " + authPeer + " successfully authenticated");
+        }
     }
     // ======================================================================
 }

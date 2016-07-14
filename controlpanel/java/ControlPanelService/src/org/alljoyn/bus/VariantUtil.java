@@ -20,10 +20,10 @@ import org.alljoyn.bus.BusException;
 import org.alljoyn.bus.Variant;
 
 /**
- * The temporary utility class to retrieve {@link Variant) signature 
+ * The temporary utility class to retrieve {@link Variant) signature
  */
 public class VariantUtil {
-	public static String getSignature(Variant aVariant) throws BusException {
-		return MsgArg.getSignature( new long [] {aVariant.getMsgArg()} );
-	}
+    public static String getSignature(Variant aVariant) throws BusException {
+        return MsgArg.getSignature(new long[] { aVariant.getMsgArg() });
+    }
 }

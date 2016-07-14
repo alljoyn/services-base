@@ -175,7 +175,7 @@ public class IoeNotificationApplication extends Application implements Notificat
     }// onCreate
 
     /**
-     * 
+     *
      * @param sampleAppActivity
      */
     public void setSampleAppActivity(NotificationServiceControlsActivity sampleAppActivity) {
@@ -198,7 +198,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 
     /**
      * Returns App Name
-     * 
+     *
      * @return
      */
     public String getAppName() {
@@ -207,7 +207,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 
     /**
      * Set the AppName
-     * 
+     *
      * @param appName
      */
     public void setAppName(String appName) {
@@ -216,9 +216,9 @@ public class IoeNotificationApplication extends Application implements Notificat
 
     /**
      * called when checking the Producer checkbox
-     * 
+     *
      * @throws Exception
-     * 
+     *
      * @throws NotificationServiceException
      */
     public void startSender() {
@@ -248,7 +248,7 @@ public class IoeNotificationApplication extends Application implements Notificat
             // ////start about
             aboutData = new AboutDataImpl(this);
             Map<String, Object> aboutMap = TransformUtil.fromVariantMap(aboutData.getAboutData("en"));
-            String deviceName = (String) aboutMap.get(AboutKeys.ABOUT_DEVICE_NAME);
+            String deviceName = (String)aboutMap.get(AboutKeys.ABOUT_DEVICE_NAME);
 
             if (deviceName == null || deviceName.length() == 0) {
                 aboutData.setValue(AboutKeys.ABOUT_DEVICE_NAME, DEVICE_NAME, Property.NO_LANGUAGE);
@@ -271,7 +271,7 @@ public class IoeNotificationApplication extends Application implements Notificat
             vibrate();
             Log.d(TAG, "Set the UI as shutdown");
             myActiv.onShutdownClicked(false);
-        } catch (BusException be){
+        } catch (BusException be) {
             Log.e(TAG, "Bus exception: " + be.getMessage());
             showToast("Failed to start sender");
             vibrate();
@@ -307,7 +307,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 
     /**
      * delete a notification by a given message type
-     * 
+     *
      * @param messageType
      */
     public void delete(String messageType) {
@@ -327,7 +327,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 
     /**
      * Sending notification
-     * 
+     *
      * @param messageType
      *            messageType
      * @param customAttributes
@@ -390,7 +390,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 
     /**
      * Called by NotificationService to receive notifications
-     * 
+     *
      * @param notification
      *            received from NotificationService
      */
@@ -421,7 +421,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 
     /**
      * Send the notification message to be presented
-     * 
+     *
      * @param notification
      */
     public void renderNotification(Notification notification) {
@@ -494,7 +494,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 
     /**
      * Show the Android toast message
-     * 
+     *
      * @param msg
      */
     public void showToast(final String msg) {
@@ -520,20 +520,20 @@ public class IoeNotificationApplication extends Application implements Notificat
      * Vibrate notification
      */
     public void vibrate() {
-        Vibrator v = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+        Vibrator v = (Vibrator)getSystemService(VIBRATOR_SERVICE);
         v.vibrate(VIBRATION_DURATION); // Vibrate time in milli seconds
     }// vibrate
 
     /**
      * Present notification as Android notification
-     * 
+     *
      * @param msg
      *            if is NULL or empty string the default will be used
      */
     @SuppressLint("NewApi")
     private void showNotification(String msg) {
         long[] VIBRATION_PATTERN = { 1L, 250L, 100L, 250L, 100L, 250L };
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 
         final String deflMsg = "New notification received";
 
@@ -545,9 +545,9 @@ public class IoeNotificationApplication extends Application implements Notificat
         notifyIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         android.app.Notification notification = new android.app.Notification.Builder(this).setContentTitle(deflMsg).setContentText(msg).setSmallIcon(R.drawable.ic_launcher)
-                .setVibrate(VIBRATION_PATTERN).setAutoCancel(true).setTicker(msg).setWhen(System.currentTimeMillis())
-                .setSound(RingtoneManager.getActualDefaultRingtoneUri(this, RingtoneManager.TYPE_NOTIFICATION))
-                .setContentIntent(PendingIntent.getActivity(this, 2, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT)).build();
+                                                .setVibrate(VIBRATION_PATTERN).setAutoCancel(true).setTicker(msg).setWhen(System.currentTimeMillis())
+                                                .setSound(RingtoneManager.getActualDefaultRingtoneUri(this, RingtoneManager.TYPE_NOTIFICATION))
+                                                .setContentIntent(PendingIntent.getActivity(this, 2, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT)).build();
         notificationManager.notify(1, notification);
     }// showNotification
 
@@ -580,7 +580,7 @@ public class IoeNotificationApplication extends Application implements Notificat
 
     /**
      * Advertise the daemon so that the thin client can find it
-     * 
+     *
      * @param logger
      */
     private void advertiseDaemon() throws NotificationServiceException {

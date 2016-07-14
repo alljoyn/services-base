@@ -66,7 +66,7 @@ class NotificationService {
      *
      * @return NotificationSender instance
      */
-    QCC_DEPRECATED(NotificationSender * initSend(ajn::BusAttachment * bus, ajn::services::PropertyStore * store));
+    QCC_DEPRECATED(NotificationSender* initSend(ajn::BusAttachment* bus, ajn::services::PropertyStore* store));
 
     /**
      * Initialize Consumer side via Transport.

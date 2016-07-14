@@ -26,38 +26,38 @@ import org.alljoyn.bus.annotation.BusSignal;
 import org.alljoyn.ioe.controlpanelservice.ControlPanelService;
 
 /**
- * UIContainer interface 
+ * UIContainer interface
  */
-@BusInterface (name = Container.IFNAME)
+@BusInterface(name = Container.IFNAME)
 public interface Container extends ContainerSuper {
-	public static final String IFNAME = ControlPanelService.INTERFACE_PREFIX + ".Container"; 
-	
-	public static final short VERSION = 1;
-	
-	/**
-	 * @return Interface version
-	 */
-	@BusProperty(signature="q")
-	public short getVersion() throws BusException;
+    public static final String IFNAME = ControlPanelService.INTERFACE_PREFIX + ".Container";
 
-	/**
-	 * @return States bitmask 
-	 * @throws BusException
-	 */
-	@BusProperty(signature="u")
-	public int getStates() throws BusException; 
+    public static final short VERSION = 1;
 
-	/**
-	 * @return Optional parameters
-	 * @throws BusException
-	 */
-	@BusProperty(signature="a{qv}")
-	public Map<Short,Variant> getOptParams() throws BusException;
-	
-	/**
-	 * Signal is sent when the UI container metadata changed 
-	 * @param metadata
-	 */
-	@BusSignal
-	public void MetadataChanged() throws BusException;
+    /**
+     * @return Interface version
+     */
+    @BusProperty(signature = "q")
+    public short getVersion() throws BusException;
+
+    /**
+     * @return States bitmask
+     * @throws BusException
+     */
+    @BusProperty(signature = "u")
+    public int getStates() throws BusException;
+
+    /**
+     * @return Optional parameters
+     * @throws BusException
+     */
+    @BusProperty(signature = "a{qv}")
+    public Map<Short, Variant> getOptParams() throws BusException;
+
+    /**
+     * Signal is sent when the UI container metadata changed
+     * @param metadata
+     */
+    @BusSignal
+    public void MetadataChanged() throws BusException;
 }

@@ -24,11 +24,11 @@
 @implementation AJCPSConstraintList
 - (id)initWithHandle:(ajn::services::ConstraintList *)handle
 {
-	self = [super init];
-	if (self) {
-		self.handle = handle;
-	}
-	return self;
+    self = [super init];
+    if (self) {
+        self.handle = handle;
+    }
+    return self;
 }
 
 /**
@@ -37,7 +37,7 @@
  */
 - (AJCPSConstraintValue)getConstraintValue
 {
-	return [self convertToAJCPSConstraintValue:self.handle->getConstraintValue()];
+    return [self convertToAJCPSConstraintValue:self.handle->getConstraintValue()];
 }
 
 
@@ -47,7 +47,7 @@
  */
 - (AJCPSPropertyType)getPropertyType
 {
-	return self.handle->getPropertyType();
+    return self.handle->getPropertyType();
 }
 
 /**
@@ -56,105 +56,123 @@
  */
 - (NSString *)getDisplay
 {
-   
+
     const qcc::String str = self.handle->getDisplay();
 
     return [AJSVCConvertUtil convertQCCStringtoNSString:str];
 }
 
-- (NSString *)propertyToNSString:(AJCPSPropertyType)property withValue:(AJCPSConstraintValue) propertyValue
+- (NSString *)propertyToNSString:(AJCPSPropertyType)property withValue:(AJCPSConstraintValue)propertyValue
 {
     NSMutableString *propertyStr = [[NSMutableString alloc] init];
-    
+
     switch (property) {
-            
-        case 	AJCPS_UINT16_PROPERTY :
-            [propertyStr appendFormat:@"(%d)",propertyValue.uint16Value];
-            
-            break;
-        case 	AJCPS_INT16_PROPERTY :
-            [propertyStr appendFormat:@"(%d)",propertyValue.int16Value];
-            
-            break;
-        case 	AJCPS_UINT32_PROPERTY :
-            [propertyStr appendFormat:@"(%d)",propertyValue.uint32Value];
-            
-            break;
-        case 	AJCPS_INT32_PROPERTY :
-            [propertyStr appendFormat:@"(%d)",propertyValue.int32Value];
-            
-            break;
-        case 	AJCPS_UINT64_PROPERTY :
-            [propertyStr appendFormat:@"(%llu)",propertyValue.uint64Value];
-            
-            break;
-        case 	AJCPS_INT64_PROPERTY :
-            [propertyStr appendFormat:@"(%lld)",propertyValue.int64Value];
-            
-            break;
-        case 	AJCPS_DOUBLE_PROPERTY :
-            [propertyStr appendFormat:@"(%f)",propertyValue.doubleValue];
-            
-            break;
-        case 	AJCPS_STRING_PROPERTY :
-            [propertyStr appendFormat:@"('%s')",propertyValue.charValue];
-            
-            break;
-        default:
-            NSLog(@"unknown property");
-            break;
+
+    case AJCPS_UINT16_PROPERTY:
+        [propertyStr appendFormat:@"(%d)", propertyValue.uint16Value];
+
+        break;
+
+    case AJCPS_INT16_PROPERTY:
+        [propertyStr appendFormat:@"(%d)", propertyValue.int16Value];
+
+        break;
+
+    case AJCPS_UINT32_PROPERTY:
+        [propertyStr appendFormat:@"(%d)", propertyValue.uint32Value];
+
+        break;
+
+    case AJCPS_INT32_PROPERTY:
+        [propertyStr appendFormat:@"(%d)", propertyValue.int32Value];
+
+        break;
+
+    case AJCPS_UINT64_PROPERTY:
+        [propertyStr appendFormat:@"(%llu)", propertyValue.uint64Value];
+
+        break;
+
+    case AJCPS_INT64_PROPERTY:
+        [propertyStr appendFormat:@"(%lld)", propertyValue.int64Value];
+
+        break;
+
+    case AJCPS_DOUBLE_PROPERTY:
+        [propertyStr appendFormat:@"(%f)", propertyValue.doubleValue];
+
+        break;
+
+    case AJCPS_STRING_PROPERTY:
+        [propertyStr appendFormat:@"('%s')", propertyValue.charValue];
+
+        break;
+
+    default:
+        NSLog(@"unknown property");
+        break;
     }
-    
+
     return [NSString stringWithString:propertyStr];
 }
 
-- (AJCPSConstraintValue)convertToAJCPSConstraintValue:(ajn::services::ConstraintValue) constraintValue
+- (AJCPSConstraintValue)convertToAJCPSConstraintValue:(ajn::services::ConstraintValue)constraintValue
 {
     AJCPSConstraintValue tConstraintValue;
-    
+
     switch ([self getPropertyType]) {
-        case 	AJCPS_UINT16_PROPERTY :
-            tConstraintValue.uint16Value = constraintValue.uint16Value;
-            
-            break;
-        case 	AJCPS_INT16_PROPERTY :
-            tConstraintValue.int16Value = constraintValue.int16Value;
-            
-            break;
-        case 	AJCPS_UINT32_PROPERTY :
-            tConstraintValue.uint32Value = constraintValue.uint32Value;
-            
-            break;
-        case 	AJCPS_INT32_PROPERTY :
-            tConstraintValue.int32Value = constraintValue.int32Value;
-            
-            break;
-        case 	AJCPS_UINT64_PROPERTY :
-            tConstraintValue.uint64Value = constraintValue.uint64Value;
-            
-            break;
-        case 	AJCPS_INT64_PROPERTY :
-            tConstraintValue.int64Value  = constraintValue.int64Value;
-            
-            break;
-        case 	AJCPS_DOUBLE_PROPERTY :
-            tConstraintValue.doubleValue = constraintValue.doubleValue;
-            
-            break;
-        case 	AJCPS_STRING_PROPERTY :
-            tConstraintValue.charValue = constraintValue.charValue;
-            
-            break;
-        case 	AJCPS_DATE_PROPERTY : //TODO
-            
-            break;
-        case 	AJCPS_TIME_PROPERTY : //TODO
-            
-            break;
-        default:
-            break;
+    case AJCPS_UINT16_PROPERTY:
+        tConstraintValue.uint16Value = constraintValue.uint16Value;
+
+        break;
+
+    case AJCPS_INT16_PROPERTY:
+        tConstraintValue.int16Value = constraintValue.int16Value;
+
+        break;
+
+    case AJCPS_UINT32_PROPERTY:
+        tConstraintValue.uint32Value = constraintValue.uint32Value;
+
+        break;
+
+    case AJCPS_INT32_PROPERTY:
+        tConstraintValue.int32Value = constraintValue.int32Value;
+
+        break;
+
+    case AJCPS_UINT64_PROPERTY:
+        tConstraintValue.uint64Value = constraintValue.uint64Value;
+
+        break;
+
+    case AJCPS_INT64_PROPERTY:
+        tConstraintValue.int64Value = constraintValue.int64Value;
+
+        break;
+
+    case AJCPS_DOUBLE_PROPERTY:
+        tConstraintValue.doubleValue = constraintValue.doubleValue;
+
+        break;
+
+    case AJCPS_STRING_PROPERTY:
+        tConstraintValue.charValue = constraintValue.charValue;
+
+        break;
+
+    case AJCPS_DATE_PROPERTY: //TODO
+
+        break;
+
+    case AJCPS_TIME_PROPERTY: //TODO
+
+        break;
+
+    default:
+        break;
     }
-    
+
     return tConstraintValue;
 }
 @end

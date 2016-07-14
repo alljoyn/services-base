@@ -24,7 +24,7 @@
 @implementation AJSCCommonBusListener
 
 
-- (id)initWithServicePort:(AJNSessionPort) servicePort
+- (id)initWithServicePort:(AJNSessionPort)servicePort
 {
     self = [super init];
     if (self) {
@@ -33,7 +33,7 @@
     return self;
 }
 
-- (void)setSessionPort:(AJNSessionPort) sessionPort
+- (void)setSessionPort:(AJNSessionPort)sessionPort
 {
     self.servicePort = sessionPort;
 }
@@ -46,13 +46,12 @@
 /* protocol method */
 - (BOOL)shouldAcceptSessionJoinerNamed:(NSString *)joiner onSessionPort:(AJNSessionPort)sessionPort withSessionOptions:(AJNSessionOptions *)options
 {
-    if (sessionPort != self.servicePort)
-    {
+    if (sessionPort != self.servicePort) {
         NSLog(@"Rejecting join attempt on unexpected session port %hu.", sessionPort);
         return false;
     } else {
-    NSLog(@"Accepting join session request from %@ (proximity=%c, traffic=%u, transports=%hu).\n", joiner, options.proximity, options.trafficType, options.transports);
-    return true;
+        NSLog(@"Accepting join session request from %@ (proximity=%c, traffic=%u, transports=%hu).\n", joiner, options.proximity, options.trafficType, options.transports);
+        return true;
     }
 }
 

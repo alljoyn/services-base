@@ -29,7 +29,7 @@
  */
 @interface AJCPSControlPanelControllerUnit : NSObject
 
-- (id)initWithHandle:(ajn ::services ::ControlPanelControllerUnit *)handle;
+- (id)initWithHandle:(ajn::services::ControlPanelControllerUnit *)handle;
 
 /**
  * ControlPanelUnit
@@ -126,6 +126,6 @@
  */
 - (AJCPSHttpControl *)getHttpControl;
 
-@property (nonatomic, readonly)ajn::services::ControlPanelControllerUnit * handle;
+@property (nonatomic, readonly) ajn::services::ControlPanelControllerUnit *handle;
 
 @end

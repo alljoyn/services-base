@@ -27,46 +27,46 @@ import org.alljoyn.bus.annotation.Secure;
 import org.alljoyn.ioe.controlpanelservice.ControlPanelService;
 
 /**
- * Action control secured interface 
+ * Action control secured interface
  */
-@BusInterface (name = ActionControlSecured.IFNAME)
+@BusInterface(name = ActionControlSecured.IFNAME)
 @Secure
 public interface ActionControlSecured extends ActionControlSuper {
-	public static final String IFNAME = ControlPanelService.INTERFACE_PREFIX + ".SecuredAction"; 
-	
-	public static final short VERSION = 1;
-	
-	/**
-	 * @return Interface version
-	 */
-	@BusProperty(signature="q")
-	public short getVersion() throws BusException;
+    public static final String IFNAME = ControlPanelService.INTERFACE_PREFIX + ".SecuredAction";
 
-	/**
-	 * @return States bitmask 
-	 * @throws BusException
-	 */
-	@BusProperty(signature="u")
-	public int getStates() throws BusException;
-	
-	/**
-	 * @return Optional parameters
-	 * @throws BusException
-	 */
-	@BusProperty(signature="a{qv}")
-	public Map<Short,Variant> getOptParams() throws BusException;
-	
-	/**
-	 * Called when the action is executed on the widget
-	 */
-	@BusMethod
-	public void Exec() throws BusException;
-	
+    public static final short VERSION = 1;
+
     /**
-	 * Signal is sent when the UI container metadata changed 
-	 * @param metadata
-	 */
-	@BusSignal
-	public void MetadataChanged() throws BusException;
+     * @return Interface version
+     */
+    @BusProperty(signature = "q")
+    public short getVersion() throws BusException;
+
+    /**
+     * @return States bitmask
+     * @throws BusException
+     */
+    @BusProperty(signature = "u")
+    public int getStates() throws BusException;
+
+    /**
+     * @return Optional parameters
+     * @throws BusException
+     */
+    @BusProperty(signature = "a{qv}")
+    public Map<Short, Variant> getOptParams() throws BusException;
+
+    /**
+     * Called when the action is executed on the widget
+     */
+    @BusMethod
+    public void Exec() throws BusException;
+
+    /**
+     * Signal is sent when the UI container metadata changed
+     * @param metadata
+     */
+    @BusSignal
+    public void MetadataChanged() throws BusException;
 
 }

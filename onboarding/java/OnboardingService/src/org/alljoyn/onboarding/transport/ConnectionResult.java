@@ -41,27 +41,27 @@ public class ConnectionResult {
         /**
          * Wi-Fi validated
          */
-        VALIDATED((short) 0),
+        VALIDATED((short)0),
 
         /**
          * Wi-Fi unreachable
          */
-        UNREACHABLE((short) 1),
+        UNREACHABLE((short)1),
 
         /**
          * Wi-Fi AP doesn't support the authentication received
          */
-        UNSUPPORTED_PROTOCOL((short) 2),
+        UNSUPPORTED_PROTOCOL((short)2),
 
         /**
          * Wi-Fi authentication error
          */
-        UNAUTHORIZED((short) 3),
+        UNAUTHORIZED((short)3),
 
         /**
          * Misc error
          */
-        ERROR_MESSAGE((short) 4);
+        ERROR_MESSAGE((short)4);
 
         private short value;
 
@@ -92,9 +92,7 @@ public class ConnectionResult {
             }
             return ret;
         }
-    }
-
-    public ConnectionResult(ConnectionResponseType connectionResponseType, String message) {
+    } public ConnectionResult(ConnectionResponseType connectionResponseType, String message) {
         this.message = message;
         this.connectionResponseType = connectionResponseType;
     }

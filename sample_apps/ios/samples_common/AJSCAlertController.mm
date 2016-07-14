@@ -16,7 +16,7 @@
 
 #import "AJSCAlertController.h"
 
-@interface AJSCAlertController()
+@interface AJSCAlertController ()
 
 @property (nonatomic, weak) UIViewController *viewController;
 
@@ -35,10 +35,10 @@
     return self;
 }
 
-+ (AJSCAlertController *) alertControllerWithTitle:(NSString*)title message:(NSString*)message viewController:(UIViewController*)viewController
++ (AJSCAlertController *)alertControllerWithTitle:(NSString *)title message:(NSString *)message viewController:(UIViewController *)viewController
 {
     AJSCAlertController *alertController = [[AJSCAlertController alloc] init];
-    if(alertController){
+    if (alertController) {
         alertController.iosAlertController = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
         alertController.viewController = viewController;
         return alertController;
@@ -46,11 +46,11 @@
     return nil;
 }
 
-- (void) addActionWithName:(NSString *)name handler:(void (^)(UIAlertAction *action))handler
+- (void)addActionWithName:(NSString *)name handler:(void (^)(UIAlertAction *action))handler
 {
     UIAlertAction *action = [UIAlertAction actionWithTitle:name
-                                                     style:UIAlertActionStyleDefault
-                                                   handler:handler];
+                             style:UIAlertActionStyleDefault
+                             handler:handler];
     [_iosAlertController addAction:action];
 }
 

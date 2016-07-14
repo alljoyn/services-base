@@ -59,7 +59,7 @@ class OnboardingControllerAPI {
     virtual void ConfigureWiFi(qcc::String SSID, qcc::String passphrase, short authType, short& status, qcc::String& error, qcc::String& errorMessage) = 0;
 
     /**
-     *	Connect to the WIFI using the ConfigureWiFi details supplied before
+     *  Connect to the WIFI using the ConfigureWiFi details supplied before
      */
     virtual void Connect() = 0;
 
@@ -72,7 +72,7 @@ class OnboardingControllerAPI {
     virtual void GetScanInfo(unsigned short& age, OBScanInfo*& scanInfoList, size_t& scanListNumElements) = 0;
 
     /**
-     *	Offboard disconnect from the WIFI
+     *  Offboard disconnect from the WIFI
      */
     virtual void Offboard() = 0;
 

@@ -21,30 +21,30 @@ import android.util.Log;
 
 
 public class MyLogger implements GenericLogger {
-	@Override
-	public void debug(String TAG, String msg) {
-		Log.d(TAG, msg);
-	}
+    @Override
+    public void debug(String TAG, String msg) {
+        Log.d(TAG, msg);
+    }
 
-	@Override
-	public void info(String TAG, String msg) {
-		Log.i(TAG, msg);
-	}
+    @Override
+    public void info(String TAG, String msg) {
+        Log.i(TAG, msg);
+    }
 
-	@Override
-	public void warn(String TAG, String msg) {
-		Log.w(TAG, msg);
-	}
+    @Override
+    public void warn(String TAG, String msg) {
+        Log.w(TAG, msg);
+    }
 
-	@Override
-	public void error(String TAG, String msg) {
-		Log.e(TAG, msg);
-	}
+    @Override
+    public void error(String TAG, String msg) {
+        Log.e(TAG, msg);
+    }
 
-	@Override
-	public void fatal(String TAG, String msg) {
-		Log.wtf(TAG, msg);
-	}
+    @Override
+    public void fatal(String TAG, String msg) {
+        Log.wtf(TAG, msg);
+    }
 
 }
 */

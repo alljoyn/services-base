@@ -44,12 +44,12 @@ public interface OnboardingTransport extends BusObject {
         /**
          * Wi-Fi standard mode
          */
-        REGULAR((short) 1),
+        REGULAR((short)1),
 
         /**
          * Wi-Fi fast channel switching mode
          */
-        FAST_CHANNEL_SWITCHING((short) 2);
+        FAST_CHANNEL_SWITCHING((short)2);
 
         private final short value;
 
@@ -72,7 +72,6 @@ public interface OnboardingTransport extends BusObject {
             return retState;
         }
     }
-
     /**
      * @return the interface version
      * @throws BusException
@@ -101,7 +100,7 @@ public interface OnboardingTransport extends BusObject {
     /**
      * Tell the onboardee to connect to the Personal AP. The onboardee is
      * recommended to use channel switching feature if it is available.
-     * 
+     *
      * @throws BusException
      */
     @BusMethod()
@@ -113,7 +112,7 @@ public interface OnboardingTransport extends BusObject {
      * "any", the onboardee needs to try out all the possible authentication
      * types it supports to connect to the AP. If authType parameter is invalid
      * then the AllJoyn error code org.alljoyn.Error.OutOfRange will be returned
-     * 
+     *
      * @param ssid
      * @param passphrase
      * @param authType
@@ -136,7 +135,7 @@ public interface OnboardingTransport extends BusObject {
     /**
      * Scan all the WiFi access points in the onboardee's proximity. Some device
      * may not support this feature.
-     * 
+     *
      * @throws BusException
      *             if feature is unsupported, AllJoyn error code
      *             org.alljoyn.Error.FeatureNotAvailable will be returned in the
@@ -147,7 +146,7 @@ public interface OnboardingTransport extends BusObject {
 
     /**
      * Signal received after ConfigureWiFi status is 2
-     * 
+     *
      * @param connectionResultAJ
      */
     @BusSignal(signature = "(ns)")

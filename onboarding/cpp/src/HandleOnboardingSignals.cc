@@ -100,14 +100,14 @@ void HandleOnboardingSignals::OnEmptyQueue()
 void HandleOnboardingSignals::OnTask(TaskData const* taskdata)
 {
     SignalMesssage const* wrappedMessage = static_cast<SignalMesssage const*>(taskdata);
-    ajn::Message* message = (ajn::Message*) &wrappedMessage->m_signalMessage;
+    ajn::Message* message = (ajn::Message*)&wrappedMessage->m_signalMessage;
 
     const ajn::MsgArg* args = 0;
     size_t numArgs = 0;
     QStatus status;
 
     short connectionResultCode;
-    char*  connectionResultMessage;
+    char* connectionResultMessage;
 
     message->unwrap()->GetArgs(numArgs, args);
 
@@ -125,4 +125,3 @@ void HandleOnboardingSignals::OnTask(TaskData const* taskdata)
     qcc::String resultMessage(connectionResultMessage);
     m_userListener->ConnectionResultSignalReceived(connectionResultCode, resultMessage);
 }
-

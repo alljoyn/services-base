@@ -251,12 +251,14 @@ void set60FReachedEvent()
     eventsToSend |= 1 << 1;
 }
 
-void setTurnedOffEvent() {
+void setTurnedOffEvent()
+{
     printf("setTurnedOffEvent()\n");
     eventsToSend |= 1 << 2;
 }
 
-void setTurnedOnEvent() {
+void setTurnedOnEvent()
+{
     printf("setTurnedOnEvent()\n");
     eventsToSend |= 1 << 3;
 }
@@ -531,7 +533,8 @@ uint8_t checkForUpdatesToSend()
     return signalsToSend;
 }
 
-void OnTurnFanOnButton(bool chooseYes) {
+void OnTurnFanOnButton(bool chooseYes)
+{
     if (chooseYes) {
         setCurrentMode(3); //Fan
     }
@@ -604,4 +607,3 @@ uint8_t checkForEventsToSend()
 
     return eventsToSend;
 }
-

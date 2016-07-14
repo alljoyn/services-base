@@ -26,38 +26,38 @@ import android.os.AsyncTask;
  */
 public class RootElementRequest extends AsyncTask<DeviceControlPanel, Void, Object> {
 
-	/**
-	 * Control Panel manager
-	 */
-	private final ControlPanelManager manager;
+    /**
+     * Control Panel manager
+     */
+    private final ControlPanelManager manager;
 
-	/**
-	 * Constructor
-	 */
-	public RootElementRequest(ControlPanelManager manager) {
-		super();
-		this.manager = manager;
-	}
+    /**
+     * Constructor
+     */
+    public RootElementRequest(ControlPanelManager manager) {
+        super();
+        this.manager = manager;
+    }
 
-	/**
-	 * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
-	 */
-	@Override
-	protected Object doInBackground(DeviceControlPanel... controlPanel) {
-		
-		try {
-			return controlPanel[0].getRootElement(manager);
-		} catch (ControlPanelException cpe) {
-			return cpe;
-		}
-	}//doInBackground
+    /**
+     * @see android.os.AsyncTask#doInBackground(java.lang.Object[])
+     */
+    @Override
+    protected Object doInBackground(DeviceControlPanel... controlPanel) {
 
-	/**
-	 * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
-	 */
-	@Override
-	protected void onPostExecute(Object result) {
-		manager.onReadyRootElementRequest(result);
-	}//onPostExecute
-	
+        try {
+            return controlPanel[0].getRootElement(manager);
+        } catch (ControlPanelException cpe) {
+            return cpe;
+        }
+    }//doInBackground
+
+    /**
+     * @see android.os.AsyncTask#onPostExecute(java.lang.Object)
+     */
+    @Override
+    protected void onPostExecute(Object result) {
+        manager.onReadyRootElementRequest(result);
+    }//onPostExecute
+
 }

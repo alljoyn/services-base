@@ -20,36 +20,36 @@ package org.alljoyn.ioe.controlpanelservice.ui;
  * The hint types of the {@link AlertDialogWidget}
  */
 public enum AlertDialogHintsType {
-	ALERT_DIALOG((short)1)
-	;
-	
-    /** 
+    ALERT_DIALOG((short)1)
+    ;
+
+    /**
      * The key number
-     */  
-    public final short ID; 
-        
-    /** 
+     */
+    public final short ID;
+
+    /**
      * Constructor
      * @param id
      */
     private AlertDialogHintsType(short id) {
-        ID = id; 
-    }   
-        
-    /** 
+        ID = id;
+    }
+
+    /**
      * Search for the enum by the given id
      * If not found returns NULL
-     * @param id  
+     * @param id
      * @return Enum type by the given id
      */
     public static AlertDialogHintsType getEnumById(short id) {
-    	AlertDialogHintsType retType = null;
+        AlertDialogHintsType retType = null;
         for (AlertDialogHintsType type : AlertDialogHintsType.values()) {
-            if ( id == type.ID ) { 
+            if (id == type.ID) {
                 retType = type;
                 break;
-            }   
-        }   
+            }
+        }
         return retType;
     }//getEnumById
 }
