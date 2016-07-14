@@ -61,6 +61,6 @@
  */
 - (NSDictionary *)getControllableDevices;
 
-@property (nonatomic, readonly)ajn::services::ControlPanelController * handle;
+@property (nonatomic, readonly) ajn::services::ControlPanelController *handle;
 
 @end

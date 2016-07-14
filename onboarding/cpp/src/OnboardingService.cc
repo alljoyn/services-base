@@ -156,7 +156,7 @@ void OnboardingService::ConfigureWiFiHandler(const ajn::InterfaceDescription::Me
         }
 
         char* SSID;
-        char*passphrase;
+        char* passphrase;
         short authType;
         CHECK_BREAK(args[0].Get("s", &SSID));
         CHECK_BREAK(args[1].Get("s", &passphrase));
@@ -270,7 +270,7 @@ void OnboardingService::ConnectHandler(const ajn::InterfaceDescription::Member* 
         if (numArgs != 0) {
             break;
         }
-        MsgArg*args = NULL;
+        MsgArg* args = NULL;
         Check_MethodReply(msg, args, 0);
         m_OnboardingController.Connect();
         return;
@@ -290,7 +290,7 @@ void OnboardingService::OffboardHandler(const ajn::InterfaceDescription::Member*
         if (numArgs != 0) {
             break;
         }
-        MsgArg*args = NULL;
+        MsgArg* args = NULL;
         Check_MethodReply(msg, args, 0);
         m_OnboardingController.Offboard();
         return;

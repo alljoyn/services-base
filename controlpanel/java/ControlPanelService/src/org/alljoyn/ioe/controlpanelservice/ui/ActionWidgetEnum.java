@@ -20,21 +20,21 @@ package org.alljoyn.ioe.controlpanelservice.ui;
  * Optional parameters keys of {@link ActionWidget}
  */
 public enum ActionWidgetEnum {
-	LABEL((short)0),
-	BG_COLOR((short)1),
-	HINTS((short)2)
-	;
-	
-	/**
-	 * The key number
-	 */
-	public final short ID;
-	
-	/**
-	 * Constructor
-	 * @param id
-	 */
-	private ActionWidgetEnum(short id) {
-		ID = id;
-	}
+    LABEL((short)0),
+    BG_COLOR((short)1),
+    HINTS((short)2)
+    ;
+
+    /**
+     * The key number
+     */
+    public final short ID;
+
+    /**
+     * Constructor
+     * @param id
+     */
+    private ActionWidgetEnum(short id) {
+        ID = id;
+    }
 }

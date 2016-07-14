@@ -99,8 +99,8 @@ public class LabelWidget extends UIElement {
     @Override
     protected void setRemoteController() throws ControlPanelException {
         WidgetFactory widgetFactory = WidgetFactory.getWidgetFactory(ifName);
-        
-        if ( widgetFactory == null ) {
+
+        if (widgetFactory == null) {
             String msg = "Received an unrecognized interface name: '" + ifName + "'";
             Log.e(TAG, msg);
             throw new ControlPanelException(msg);
@@ -109,16 +109,16 @@ public class LabelWidget extends UIElement {
         Class<?> ifClass = widgetFactory.getIfaceClass();
 
         ProxyBusObject proxyObj = ConnectionManager.getInstance().getProxyObject(
-                device.getSender(),
-                objectPath,
-                sessionId,
-                new Class[]{ ifClass, Properties.class }
-        );
+            device.getSender(),
+            objectPath,
+            sessionId,
+            new Class[] { ifClass, Properties.class }
+            );
 
         Log.d(TAG, "Setting remote control LabelWidget, objPath: '" + objectPath + "'");
-        properties    = proxyObj.getInterface(Properties.class);
-        remoteControl = (Label) proxyObj.getInterface(ifClass);
-        
+        properties = proxyObj.getInterface(Properties.class);
+        remoteControl = (Label)proxyObj.getInterface(ifClass);
+
         try {
             this.version = remoteControl.getVersion();
         } catch (BusException e) {
@@ -126,7 +126,7 @@ public class LabelWidget extends UIElement {
             Log.e(TAG, msg);
             throw new ControlPanelException(msg);
         }
-        
+
     }//setRemoteController
 
     /**
@@ -135,7 +135,7 @@ public class LabelWidget extends UIElement {
     @Override
     protected void registerSignalHandler() throws ControlPanelException {
         Method labelMetadataChanged = CommunicationUtil.getLabelWidgetMetadataChanged("MetadataChanged");
-        if ( labelMetadataChanged == null ) {
+        if (labelMetadataChanged == null) {
             String msg = "LabelWidget, MetadataChanged method isn't defined";
             Log.e(TAG, msg);
             throw new ControlPanelException(msg);
@@ -143,8 +143,7 @@ public class LabelWidget extends UIElement {
 
         try {
             registerSignalHander(new LabelWidgetSignalHandler(this), labelMetadataChanged);
-        }
-        catch(ControlPanelException cpe) {
+        } catch (ControlPanelException cpe) {
             String msg = "Device: '" + device.getDeviceId() +
                          "', LabelWidget, failed to register signal handler, Error: '" + cpe.getMessage() + "'";
             Log.e(TAG, msg);
@@ -158,20 +157,17 @@ public class LabelWidget extends UIElement {
      */
     @Override
     protected void setProperty(String propName, Variant propValue) throws ControlPanelException {
-        try{
-            if ( "States".equals(propName) ) {
+        try {
+            if ("States".equals(propName)) {
                 int states = propValue.getObject(int.class);
-                enabled    =  (states & ENABLED_MASK) == ENABLED_MASK;
-            }
-            else if ( "Label".equals(propName) ) {
+                enabled = (states & ENABLED_MASK) == ENABLED_MASK;
+            } else if ("Label".equals(propName)) {
                 label = propValue.getObject(String.class);
-            }
-            else if ( "OptParams".equals(propName) ) {
-                Map<Short, Variant> optParams = propValue.getObject(new VariantTypeReference<HashMap<Short, Variant>>() {});
+            } else if ("OptParams".equals(propName)) {
+                Map<Short, Variant> optParams = propValue.getObject(new VariantTypeReference<HashMap<Short, Variant>>() { });
                 fillOptionalParams(optParams);
             }
-        }
-        catch(BusException be) {
+        } catch (BusException be) {
             throw new ControlPanelException("Failed to unmarshal the property: '" + propName + "', Error: '" + be.getMessage() + "'");
         }
     }//setProperty
@@ -184,7 +180,7 @@ public class LabelWidget extends UIElement {
     protected void createChildWidgets() throws ControlPanelException {
         int size = children.size();
         Log.d(TAG, "Test LabelWidget validity - LabelWidget can't has child nodes. #ChildNodes: '" + size + "'");
-        if ( size > 0 ) {
+        if (size > 0) {
             throw new ControlPanelException("The LabelWidget objPath: '" + objectPath + "' is not valid, found '" + size + "' child nodes");
         }
     }//createChildWidgets
@@ -192,7 +188,7 @@ public class LabelWidget extends UIElement {
     /**
      * Fill LabelWidget optional parameters
      * @param optParams
-     * @throws ControlPanelException if failed to read optional parameters 
+     * @throws ControlPanelException if failed to read optional parameters
      */
     private void fillOptionalParams(Map<Short, Variant> optParams) throws ControlPanelException {
         // Add optional parameters
@@ -202,7 +198,7 @@ public class LabelWidget extends UIElement {
 
             Variant optParam = optParams.get(optKeyEnum.ID);
 
-            if ( optParam == null ) {
+            if (optParam == null) {
                 Log.v(TAG, "OptionalParameter: '" + optKeyEnum + "', is not found");
                 continue;
             }
@@ -211,18 +207,17 @@ public class LabelWidget extends UIElement {
 
             try {
                 switch (optKeyEnum) {
-                    case BG_COLOR: {
-                        bgColor = optParam.getObject(int.class);
-                        break;
-                    }
-                    case HINTS: {
+                case BG_COLOR:
+                    bgColor = optParam.getObject(int.class);
+                    break;
+
+                case HINTS: {
                         short[] labelHints = optParam.getObject(short[].class);
                         fillLabelHints(labelHints);
                         break;
                     }
                 }//switch
-            }
-            catch(BusException be) {
+            } catch (BusException be) {
                 throw new ControlPanelException("Failed to unmarshal optional parameters, Error: '" + be.getMessage() + "'");
             }
         }//for
@@ -233,21 +228,20 @@ public class LabelWidget extends UIElement {
      * @param hIds
      */
     private void fillLabelHints(short[] hIds) {
-         hints = new ArrayList<LabelWidgetHintsType>( hIds.length );
- 
-         Log.v(TAG, "Searching for LabelWidget hints");
+        hints = new ArrayList<LabelWidgetHintsType>(hIds.length);
 
-         //Fill layout hints
-         for (short hintId : hIds) {
-             LabelWidgetHintsType hintType = LabelWidgetHintsType.getEnumById(hintId);
-             if ( hintType != null ) {
-                 Log.v(TAG, "Found LabelWidget hint: '" + hintType + "', adding");
-                 hints.add(hintType);
-             }
-             else {
-                 Log.w(TAG, "LabelWidget hint id: '" + hintId + "' is unknown");
-             }
-         }//hints
+        Log.v(TAG, "Searching for LabelWidget hints");
+
+        //Fill layout hints
+        for (short hintId : hIds) {
+            LabelWidgetHintsType hintType = LabelWidgetHintsType.getEnumById(hintId);
+            if (hintType != null) {
+                Log.v(TAG, "Found LabelWidget hint: '" + hintType + "', adding");
+                hints.add(hintType);
+            } else {
+                Log.w(TAG, "LabelWidget hint id: '" + hintId + "' is unknown");
+            }
+        }//hints
     }//fillLabelHints
 
 }

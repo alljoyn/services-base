@@ -19,49 +19,49 @@ package org.alljoyn.ns.transport;
 import org.alljoyn.bus.annotation.Position;
 import org.alljoyn.ns.NotificationText;
 
-/* 
- * The utility class used to wrap NotificationText object into format of TransportNotificationText that 
+/*
+ * The utility class used to wrap NotificationText object into format of TransportNotificationText that
  * is sent over AJ network
  */
 public class TransportNotificationText {
-	
-	/**
-	 * Text language
-	 */
-	@Position(0)
-	public String language;
-	
-	/**
-	 * Message text
-	 */
-	@Position(1)
-	public String text;
 
-	/**
-	 * Constructor
-	 */
-	public TransportNotificationText() {}
-	
-	/**
-	 * Constructor
-	 * @param language
-	 * @param text
-	 */
-	public TransportNotificationText(String language, String text) {
-		this.language = language;
-		this.text     = text;
-	}
+    /**
+     * Text language
+     */
+    @Position(0)
+    public String language;
 
-	/**
-	 * Creates object of TransportNotificationText from NotificationText object
-	 * @param notifText reference to NotificationText object
-	 * @return TransportNotificationText
-	 */
-	public static TransportNotificationText buildInstance(NotificationText notifText) {
-		TransportNotificationText trNotTxt = new TransportNotificationText(notifText.getLanguage(),
-		     															   notifText.getText()
-		);
-		return trNotTxt;
-	}//buildInstance
+    /**
+     * Message text
+     */
+    @Position(1)
+    public String text;
+
+    /**
+     * Constructor
+     */
+    public TransportNotificationText() { }
+
+    /**
+     * Constructor
+     * @param language
+     * @param text
+     */
+    public TransportNotificationText(String language, String text) {
+        this.language = language;
+        this.text = text;
+    }
+
+    /**
+     * Creates object of TransportNotificationText from NotificationText object
+     * @param notifText reference to NotificationText object
+     * @return TransportNotificationText
+     */
+    public static TransportNotificationText buildInstance(NotificationText notifText) {
+        TransportNotificationText trNotTxt = new TransportNotificationText(notifText.getLanguage(),
+                                                                           notifText.getText()
+                                                                           );
+        return trNotTxt;
+    }//buildInstance
 
 }

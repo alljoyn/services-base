@@ -21,25 +21,25 @@ static NSString * const PASSCODE_FORMAT = @"%02X";
 
 @implementation AJOBSOnboarding
 
-+(bool)isValidWEPKey:(NSString *) key
++ (bool)isValidWEPKey:(NSString *)key
 {
     size_t size = [key length];
-    return (size == 5  ||  // 40-bit ascii
-            size == 10 ||  // 40 bit hex
-            size == 13 ||  // 104 bit ascii
-            size == 26 ||  // 104 bit hex
-            size == 16 ||  // 152 bit ascii
-            size == 32 ||  // 152-bit hex
-            size == 29 ||  // 256-bit ascii
-            size == 64);   // 256-bit hex
+    return size == 5 || // 40-bit ascii
+           size == 10 ||  // 40 bit hex
+           size == 13 ||  // 104 bit ascii
+           size == 26 ||  // 104 bit hex
+           size == 16 ||  // 152 bit ascii
+           size == 32 ||  // 152-bit hex
+           size == 29 ||  // 256-bit ascii
+           size == 64;    // 256-bit hex
 }
 
-+(bool)isValidWPAKey:(NSString *) key
++ (bool)isValidWPAKey:(NSString *)key
 {
     return [key length] >= MIN_PSK_SIZE && [key length] <= MAX_PSK_SIZE;
 }
 
-+(NSString*)passcodeToHex:(NSString*) passcode
++ (NSString *)passcodeToHex:(NSString *)passcode
 {
     const char *pass = [passcode UTF8String];
     NSMutableString *passcodeHex = [NSMutableString string];
@@ -49,17 +49,17 @@ static NSString * const PASSCODE_FORMAT = @"%02X";
     return passcodeHex;
 }
 
-+(ajn::services::OBInfo)toOBInfo:(AJOBInfo) ajOBInfo
++ (ajn::services::OBInfo)toOBInfo:(AJOBInfo)ajOBInfo
 {
     ajn::services::OBInfo obInfo;
     obInfo.SSID = [AJSVCConvertUtil convertNSStringToQCCString:ajOBInfo.SSID];
     obInfo.state = (ajn::services::OBState)ajOBInfo.state;
-    obInfo.authType =  (ajn::services::OBAuthType)ajOBInfo.authType;
+    obInfo.authType = (ajn::services::OBAuthType)ajOBInfo.authType;
     obInfo.passcode = [AJSVCConvertUtil convertNSStringToQCCString:ajOBInfo.passcode];
     return obInfo;
 }
 
-+(AJOBInfo)toAJOBInfo:(ajn::services::OBInfo) obInfo
++ (AJOBInfo)toAJOBInfo:(ajn::services::OBInfo)obInfo
 {
     AJOBInfo ajOBInfo;
     ajOBInfo.SSID = [AJSVCConvertUtil convertQCCStringtoNSString:obInfo.SSID];
@@ -69,7 +69,7 @@ static NSString * const PASSCODE_FORMAT = @"%02X";
     return ajOBInfo;
 }
 
-+(AJOBLastError)toAJOBLastError:(ajn::services::OBLastError) obLastError
++ (AJOBLastError)toAJOBLastError:(ajn::services::OBLastError)obLastError
 {
     AJOBLastError ajOBLastError;
     ajOBLastError.validationState = obLastError.validationState;

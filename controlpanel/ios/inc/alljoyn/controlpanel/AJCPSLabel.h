@@ -26,6 +26,6 @@
  * Constructor for AJCPSLabel class
  * @param handle handle to the c++ instance
  */
-- (id)initWithHandle:(ajn ::services ::Label *)handle;
+- (id)initWithHandle:(ajn::services::Label *)handle;
 
 @end

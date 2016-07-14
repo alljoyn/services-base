@@ -27,16 +27,16 @@
 
 - (id)initWithHandle:(ajn::services::NotificationAction *)handle
 {
-	self = [super init];
-	if (self) {
-		self.handle = handle;
-	}
-	return self;
+    self = [super init];
+    if (self) {
+        self.handle = handle;
+    }
+    return self;
 }
 
 - (NSString *)getNotificationActionName
 {
-	return [AJSVCConvertUtil convertQCCStringtoNSString:self.handle->getNotificationActionName()];
+    return [AJSVCConvertUtil convertQCCStringtoNSString:self.handle->getNotificationActionName()];
 }
 
 /**
@@ -46,7 +46,7 @@
  */
 - (QStatus)registerObjects:(AJNBusAttachment *)bus
 {
-	return self.handle->registerObjects((ajn::BusAttachment *)[bus handle]);
+    return self.handle->registerObjects((ajn::BusAttachment *)[bus handle]);
 }
 
 /**
@@ -56,7 +56,7 @@
  */
 - (QStatus)unregisterObjects:(AJNBusAttachment *)bus
 {
-	return self.handle->unregisterObjects((ajn::BusAttachment *)[bus handle]);
+    return self.handle->unregisterObjects((ajn::BusAttachment *)[bus handle]);
 }
 
 /**
@@ -65,7 +65,7 @@
  */
 - (AJCPSLanguageSet *)getLanguageSet
 {
-	return [[AJCPSLanguageSet alloc] initWithHandle:(ajn::services::LanguageSet *)&self.handle->getLanguageSet()];
+    return [[AJCPSLanguageSet alloc] initWithHandle:(ajn::services::LanguageSet *)&self.handle->getLanguageSet()];
 }
 
 /**
@@ -74,7 +74,7 @@
  */
 - (AJCPSControlPanelDevice *)getDevice
 {
-	return [[AJCPSControlPanelDevice alloc]initWithHandle:self.handle->getDevice()];
+    return [[AJCPSControlPanelDevice alloc] initWithHandle:self.handle->getDevice()];
 }
 
 /**
@@ -83,7 +83,7 @@
  */
 - (NSString *)getObjectPath
 {
-	return [AJSVCConvertUtil convertQCCStringtoNSString:self.handle->getObjectPath()];
+    return [AJSVCConvertUtil convertQCCStringtoNSString:self.handle->getObjectPath()];
 }
 
 /**
@@ -93,7 +93,7 @@
  */
 - (AJCPSRootWidget *)getRootWidget:(NSString *)Language
 {
-	return [[AJCPSRootWidget alloc]initWithHandle:self.handle->getRootWidget([AJSVCConvertUtil convertNSStringToQCCString:Language])];
+    return [[AJCPSRootWidget alloc] initWithHandle:self.handle->getRootWidget([AJSVCConvertUtil convertNSStringToQCCString:Language])];
 }
 
 @end

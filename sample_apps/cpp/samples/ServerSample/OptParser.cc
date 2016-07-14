@@ -25,43 +25,49 @@ using namespace ajn;
 using namespace services;
 
 OptParser::OptParser(int argc, char** argv) :
-    argc(argc), argv(argv) {
+    argc(argc), argv(argv)
+{
     //GuidUtil::GetInstance()->GetDeviceIdString(&deviceId);
     //GuidUtil::GetInstance()->GenerateGUID(&appGUID);
     factoryConfigFile.assign("Factory.conf");
     configFile.assign("Server.conf");
 }
 
-qcc::String const& OptParser::GetAppId() const {
+qcc::String const& OptParser::GetAppId() const
+{
     return appGUID;
 }
 
-qcc::String const& OptParser::GetFactoryConfigFile() const {
+qcc::String const& OptParser::GetFactoryConfigFile() const
+{
     return factoryConfigFile;
 }
 
-qcc::String const& OptParser::GetConfigFile() const {
+qcc::String const& OptParser::GetConfigFile() const
+{
     return configFile;
 }
 
-void OptParser::PrintUsage() {
+void OptParser::PrintUsage()
+{
     qcc::String cmd = argv[0];
     cmd = cmd.substr(cmd.find_last_of_std('/') + 1);
 
     std::cerr << cmd.c_str() << " [--factory-config-file=FILE | --config-file=FILE |  --appId=APPID"
-        "]\n"
+                                "]\n"
 
-        "    --factory-config-file=FILE\n"
-        "        Configuration file with factory settings.\n\n"
-        "    --config-file=FILE\n"
-        "        Active configuration file that persists user's updates\n\n"
-        "    --appId=\n"
-        "        Use the specified it is HexString of 16 bytes (32 chars) \n\n"
-        "    --version\n"
-        "        Print the version and copyright string, and exit." << std::endl;
+                                "    --factory-config-file=FILE\n"
+                                "        Configuration file with factory settings.\n\n"
+                                "    --config-file=FILE\n"
+                                "        Active configuration file that persists user's updates\n\n"
+                                "    --appId=\n"
+                                "        Use the specified it is HexString of 16 bytes (32 chars) \n\n"
+                                "    --version\n"
+                                "        Print the version and copyright string, and exit." << std::endl;
 }
 
-bool OptParser::IsAllHex(const char* data) {
+bool OptParser::IsAllHex(const char* data)
+{
 
     for (size_t index = 0; index < strlen(data); ++index) {
         if (!isxdigit(data[index])) {
@@ -73,7 +79,8 @@ bool OptParser::IsAllHex(const char* data) {
 
 }
 
-OptParser::ParseResultCode OptParser::ParseResult() {
+OptParser::ParseResultCode OptParser::ParseResult()
+{
     ParseResultCode result = PR_OK;
 
     if (argc == 1) {

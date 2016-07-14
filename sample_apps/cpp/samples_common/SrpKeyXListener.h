@@ -82,5 +82,3 @@ class SrpKeyXListener : public ajn::AuthListener {
 };
 
 #endif /* SRPKEYLISTENER_H_ */
-
-

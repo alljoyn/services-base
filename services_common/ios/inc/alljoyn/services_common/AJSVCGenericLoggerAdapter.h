@@ -22,55 +22,55 @@
  AJSVCGenericLoggerAdapter enable bind the C++ GenericLogger API with an objective-c generic logger handle.
  */
 class AJSVCGenericLoggerAdapter {
-public:
-	/**
+  public:
+    /**
      Constructor
-	 */
-	AJSVCGenericLoggerAdapter(id <AJSVCGenericLogger> qscGenericLogger);
-    
-	/**
+     */
+    AJSVCGenericLoggerAdapter(id <AJSVCGenericLogger> qscGenericLogger);
+
+    /**
      Destructor
-	 */
-	~AJSVCGenericLoggerAdapter();
-    
-	/**
+     */
+    ~AJSVCGenericLoggerAdapter();
+
+    /**
      Log in Debug Level.
      @param Tag Identifies area of code.
      @param logText Text to be logged.
-	 */
-	void debug(const char *Tag, const char *logText);
-    
-	/**
+     */
+    void debug(const char *Tag, const char *logText);
+
+    /**
      Log in Info Level.
      @param Tag Identifies area of code.
      @param logText Text to be logged.
-	 */
-	void info(const char *Tag, const char *logText);
-    
-	/**
+     */
+    void info(const char *Tag, const char *logText);
+
+    /**
      Log in Warn Level.
      @param Tag Identifies area of code.
      @param logText Text to be logged.
-	 */
-	void warn(const char *Tag, const char *logText);
-    
-	/**
+     */
+    void warn(const char *Tag, const char *logText);
+
+    /**
      Log in Error Level.
      @param Tag Identifies area of code.
      @param logText Text to be logged.
-	 */
-	void error(const char *Tag, const char *logText);
-    
-	/**
+     */
+    void error(const char *Tag, const char *logText);
+
+    /**
      Log in Fatal Level.
      @param Tag Identifies area of code.
      @param logText Text to be logged.
-	 */
-	void fatal(const char *Tag, const char *logText);
-    
-private:
-	// Objective-c generic logger handle.
-	id <AJSVCGenericLogger> kAJSVCGenericLogger;
+     */
+    void fatal(const char *Tag, const char *logText);
+
+  private:
+    // Objective-c generic logger handle.
+    id <AJSVCGenericLogger> kAJSVCGenericLogger;
 };
 
 

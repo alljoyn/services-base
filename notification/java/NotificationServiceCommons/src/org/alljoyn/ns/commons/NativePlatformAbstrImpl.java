@@ -17,40 +17,40 @@
 package org.alljoyn.ns.commons;
 
 /**
- * The abstract parent class for all the classes implementing platform dependent logic 
+ * The abstract parent class for all the classes implementing platform dependent logic
  */
 public abstract class NativePlatformAbstrImpl implements NativePlatform {
-	
-	/**
-	 * Reference to logger
-	 */
-	protected GenericLogger logger; 
-	
-	/**
-	 * Constructor
-	 */
-	public NativePlatformAbstrImpl() {
-		createLogger();
-	}
 
-	/**
-	 * Creates and set logger object
-	 */
-	protected abstract void createLogger();
-	
-	/**
-	 * @see org.alljoyn.ns.commons.NativePlatform#getNativeLogger()
-	 */
-	@Override
-	public GenericLogger getNativeLogger() {
-		return logger;
-	}
+    /**
+     * Reference to logger
+     */
+    protected GenericLogger logger;
 
-	/**
-	 * @see org.alljoyn.ns.commons.NativePlatform#setNativeLogger(org.alljoyn.ns.commons.GenericLogger)
-	 */
-	@Override
-	public void setNativeLogger(GenericLogger logger) {
-		this.logger = logger;
-	}
+    /**
+     * Constructor
+     */
+    public NativePlatformAbstrImpl() {
+        createLogger();
+    }
+
+    /**
+     * Creates and set logger object
+     */
+    protected abstract void createLogger();
+
+    /**
+     * @see org.alljoyn.ns.commons.NativePlatform#getNativeLogger()
+     */
+    @Override
+    public GenericLogger getNativeLogger() {
+        return logger;
+    }
+
+    /**
+     * @see org.alljoyn.ns.commons.NativePlatform#setNativeLogger(org.alljoyn.ns.commons.GenericLogger)
+     */
+    @Override
+    public void setNativeLogger(GenericLogger logger) {
+        this.logger = logger;
+    }
 }

@@ -27,21 +27,21 @@
 
 - (id)init
 {
-	return Nil; // This is an abstract class. Do Not Instantiate.
+    return Nil; // This is an abstract class. Do Not Instantiate.
 }
 
 - (id)initWithHandle:(ajn::services::Widget *)handle
 {
-	self = [super init];
-	if (self) {
-		self.handle = handle;
-        
-		if (!self.handle) {
-			NSLog(@"Failed getting a pointer to a Widget subclass");
-			return Nil;
-		}
-	}
-	return self;
+    self = [super init];
+    if (self) {
+        self.handle = handle;
+
+        if (!self.handle) {
+            NSLog(@"Failed getting a pointer to a Widget subclass");
+            return Nil;
+        }
+    }
+    return self;
 }
 
 - (void)dealloc
@@ -51,96 +51,96 @@
 
 - (AJCPSWidgetType)getWidgetType
 {
-	return self.handle->getWidgetType();
+    return self.handle->getWidgetType();
 }
 
 - (NSString *)getWidgetName
 {
-	return [AJSVCConvertUtil convertQCCStringtoNSString:self.handle->getWidgetName()];
+    return [AJSVCConvertUtil convertQCCStringtoNSString:self.handle->getWidgetName()];
 }
 
 - (AJCPSControlPanelMode)getControlPanelMode
 {
-	return (AJCPSControlPanelMode)self.handle->getControlPanelMode();
+    return (AJCPSControlPanelMode)self.handle->getControlPanelMode();
 }
 
 - (const AJCPSWidget *)getRootWidget
 {
-	return [[AJCPSWidget alloc]initWithHandle:self.handle->getRootWidget()];
+    return [[AJCPSWidget alloc] initWithHandle:self.handle->getRootWidget()];
 }
 
 - (const AJCPSControlPanelDevice *)getDevice
 {
-	return [[AJCPSControlPanelDevice alloc] initWithHandle:self.handle->getDevice()];
+    return [[AJCPSControlPanelDevice alloc] initWithHandle:self.handle->getDevice()];
 }
 
 - (const uint16_t)getInterfaceVersion
 {
-	return self.handle->getInterfaceVersion();
+    return self.handle->getInterfaceVersion();
 }
 
 - (bool)getIsSecured
 {
-	return self.handle->getIsSecured();
+    return self.handle->getIsSecured();
 }
 
 - (bool)getIsEnabled
 {
-	return self.handle->getIsEnabled();
+    return self.handle->getIsEnabled();
 }
 
 - (bool)getIsWritable
 {
-	return self.handle->getIsWritable();
+    return self.handle->getIsWritable();
 }
 
 - (uint32_t)getStates
 {
-	return self.handle->getStates();
+    return self.handle->getStates();
 }
 
 - (uint32_t)getBgColor
 {
-	return self.handle->getBgColor();
+    return self.handle->getBgColor();
 }
 
 - (NSString *)getLabel
 {
-	return [AJSVCConvertUtil convertQCCStringtoNSString:self.handle->getLabel()];
+    return [AJSVCConvertUtil convertQCCStringtoNSString:self.handle->getLabel()];
 }
 
 - (NSArray *)getHints
 {
-	const std::vector <uint16_t> cpp_hints = self.handle->getHints();
-	NSMutableArray *hints = [[NSMutableArray alloc]init];
-    
+    const std::vector <uint16_t> cpp_hints = self.handle->getHints();
+    NSMutableArray *hints = [[NSMutableArray alloc] init];
+
     if (cpp_hints.size()) {
         for (int i = 0; i != cpp_hints.size(); i++) {
             [hints addObject:[NSNumber numberWithShort:cpp_hints.at(i)]];
         }
     }
-	return hints;
+    return hints;
 }
 
 - (QStatus)registerObjects:(AJNBusAttachment *)bus atObjectPath:(NSString *)objectPath
 {
-	ajn::BusAttachment *cpp_bus = (ajn::BusAttachment *)[bus handle];
-    
-	return self.handle->registerObjects(cpp_bus, [AJSVCConvertUtil convertNSStringToQCCString:objectPath]);
+    ajn::BusAttachment *cpp_bus = (ajn::BusAttachment *)[bus handle];
+
+    return self.handle->registerObjects(cpp_bus, [AJSVCConvertUtil convertNSStringToQCCString:objectPath]);
 }
 
 - (QStatus)refreshObjects:(AJNBusAttachment *)bus
 {
-	ajn::BusAttachment *cpp_bus = (ajn::BusAttachment *)[bus handle];
-    
-	return self.handle->refreshObjects(cpp_bus);
+    ajn::BusAttachment *cpp_bus = (ajn::BusAttachment *)[bus handle];
+
+    return self.handle->refreshObjects(cpp_bus);
 }
 
 - (QStatus)unregisterObjects:(AJNBusAttachment *)bus
 {
-	ajn::BusAttachment *cpp_bus = (ajn::BusAttachment *)[bus handle];
-    
-	return self.handle->unregisterObjects(cpp_bus);
+    ajn::BusAttachment *cpp_bus = (ajn::BusAttachment *)[bus handle];
+
+    return self.handle->unregisterObjects(cpp_bus);
 }
 
 @end

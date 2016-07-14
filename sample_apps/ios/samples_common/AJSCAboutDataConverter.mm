@@ -26,18 +26,17 @@ static NSString *ERRORSTRING = @"";
 {
     AJNMessageArgument *ajnMsgArgContent;
     NSMutableString *qnsAboutDataContent = [[NSMutableString alloc] init];
-    
+
     // Iterate over dictionary in the format of NSString/AJNMessageArgument
     for (NSString *key in aboutDataDict) {
         // Add the dictionary key
         [qnsAboutDataContent appendString:([NSString stringWithFormat:@"%@: ", key])];
         // Get the dictionary value
         ajnMsgArgContent = aboutDataDict[key];
-        
+
         if (ajnMsgArgContent != nil) {
             [qnsAboutDataContent appendString:([NSString stringWithFormat:@"%@ ", [self messageArgumentToString:(ajnMsgArgContent)]])];
-        }
-        else {
+        } else {
             //  AJNMessageArgument is invalid
             [qnsAboutDataContent appendString:([NSString stringWithString:ERRORSTRING])];
         }
@@ -54,14 +53,14 @@ static NSString *ERRORSTRING = @"";
     QStatus status;
     const char *ajnMsgArgContent_id;
     uint16_t short_number;
-    
+
     // AJNMessageArgument is a string
     if ([ajnMsgArgSignature isEqualToString:(@"s")]) {
         status = [ajnMsgArg value:ajnMsgArgSignature, &ajnMsgArgContent_id];
         return (status == ER_OK) ? ([AJSVCConvertUtil convertConstCharToNSString:ajnMsgArgContent_id]) : ERRORSTRING;
     } else if ([ajnMsgArgSignature isEqualToString:(@"q")]) {
         status = [ajnMsgArg value:ajnMsgArgSignature, &short_number];
-        return (status == ER_OK) ? ([NSString stringWithFormat:@"%d",short_number]): ERRORSTRING;
+        return (status == ER_OK) ? ([NSString stringWithFormat:@"%d", short_number]) : ERRORSTRING;
     }
     // AJNMessageArgument is an array of bytes (AppId)
     else if ([ajnMsgArgSignature isEqualToString:(@"ay")]) {
@@ -84,8 +83,7 @@ static NSString *ERRORSTRING = @"";
                 [ajnMsgArgArrContent appendString:([NSString stringWithFormat:@"%s ", tempString])];
             }
             return ajnMsgArgArrContent;
-        }
-        else {
+        } else {
             return ERRORSTRING;
         }
     }
@@ -97,7 +95,7 @@ static NSString *ERRORSTRING = @"";
 + (NSString *)objectDescriptionsDictionaryToString:(NSMutableDictionary *)objectDescDict
 {
     NSMutableString *qnsObjectDescContent = [[NSMutableString alloc] init];
-    
+
     for (NSString *key in objectDescDict.allKeys) {
         //  Iterate over the NSMutableDictionary
         [qnsObjectDescContent appendString:([NSString stringWithFormat:@"path: %@ \n", key])];
@@ -108,7 +106,7 @@ static NSString *ERRORSTRING = @"";
         }
         [qnsObjectDescContent appendString:([NSString stringWithFormat:@"\n\n"])];
     }
-    return (qnsObjectDescContent);
+    return qnsObjectDescContent;
 }
 
 @end

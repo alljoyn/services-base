@@ -22,7 +22,7 @@
 @property (strong, nonatomic) NSString *text;
 @property (nonatomic) BOOL dismissed;
 @property (nonatomic) BOOL chosen;
-@property (strong, nonatomic,readonly) AJNSNotification *ajnsNotification;
+@property (strong, nonatomic, readonly) AJNSNotification *ajnsNotification;
 
-- (id)initWithAJNSNotification:(AJNSNotification *) ajnsNotification andConsumerViewController:(ConsumerViewController *)consumerViewController;
+- (id)initWithAJNSNotification:(AJNSNotification *)ajnsNotification andConsumerViewController:(ConsumerViewController *)consumerViewController;
 @end

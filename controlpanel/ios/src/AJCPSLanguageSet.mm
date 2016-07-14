@@ -26,42 +26,43 @@
 
 - (id)initWithHandle:(ajn::services::LanguageSet *)handle
 {
-	self = [super init];
-	if (self) {
-		self.handle = handle;
-	}
-	return self;
+    self = [super init];
+    if (self) {
+        self.handle = handle;
+    }
+    return self;
 }
 
 - (NSString *)getLanguageSetName
 {
-	return [AJSVCConvertUtil convertQCCStringtoNSString:self.handle->getLanguageSetName()];
+    return [AJSVCConvertUtil convertQCCStringtoNSString:self.handle->getLanguageSetName()];
 }
 
 - (size_t)getNumLanguages
 {
-	return self.handle->getNumLanguages();
+    return self.handle->getNumLanguages();
 }
 
 - (void)addLanguage:(NSString *)language
 {
-	return self.handle->addLanguage([AJSVCConvertUtil convertNSStringToQCCString:language]);
+    return self.handle->addLanguage([AJSVCConvertUtil convertNSStringToQCCString:language]);
 }
 
 - (NSArray *)getLanguages
 {
-    if (!self.handle)
+    if (!self.handle) {
         return nil;
-    
-	const std::vector <qcc::String> cpp_languages = self.handle->getLanguages();
-    
-	NSMutableArray *languages = [[NSMutableArray alloc]init];
-    
-	for (int i = 0; i != cpp_languages.size(); i++) {
-		[languages addObject:[AJSVCConvertUtil convertQCCStringtoNSString:cpp_languages.at(i)]];
-	}
-    
-	return languages;
+    }
+
+    const std::vector <qcc::String> cpp_languages = self.handle->getLanguages();
+
+    NSMutableArray *languages = [[NSMutableArray alloc] init];
+
+    for (int i = 0; i != cpp_languages.size(); i++) {
+        [languages addObject:[AJSVCConvertUtil convertQCCStringtoNSString:cpp_languages.at(i)]];
+    }
+
+    return languages;
 }
 
 @end

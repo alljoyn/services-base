@@ -23,7 +23,7 @@
  */
 @interface AJCPSAction : AJCPSWidget
 
-- (id)initWithHandle:(ajn ::services ::Action *)handle;
+- (id)initWithHandle:(ajn::services::Action *)handle;
 
 /**
  * Call to execute this Action remotely

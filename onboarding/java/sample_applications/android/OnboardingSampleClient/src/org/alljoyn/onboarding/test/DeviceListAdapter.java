@@ -71,19 +71,20 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     public View getView(int position, View convertView, ViewGroup parent) {
         View row;
 
-        if (convertView == null)
+        if (convertView == null) {
             row = m_layoutInflater.inflate(R.layout.devices_property, parent, false);
-        else
+        } else {
             row = convertView;
+        }
 
         final SoftAPDetails property = m_properties.get(position);
         if (property != null) {
             // Property name
-            TextView propertyName = (TextView) row.findViewById(R.id.propertyName);
+            TextView propertyName = (TextView)row.findViewById(R.id.propertyName);
             propertyName.setText(property.busName);
 
             // Property value
-            TextView propertyValue = (TextView) row.findViewById(R.id.propertyValue);
+            TextView propertyValue = (TextView)row.findViewById(R.id.propertyValue);
             propertyValue.setText(property.deviceFriendlyName);
         }
         return row;
@@ -100,8 +101,9 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
         SoftAPDetails oldDevice = null;
         for (int i = 0; i < m_properties.size(); i++) {
             oldDevice = m_properties.get(i);
-            if (oldDevice == null || newDevice == null)
+            if (oldDevice == null || newDevice == null) {
                 return;
+            }
 
             if (oldDevice.appId.equals(newDevice.appId)) {
 
@@ -149,8 +151,9 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
      */
     @Override
     public int getCount() {
-        if (isEmpty())
+        if (isEmpty()) {
             return 0;
+        }
         return m_properties.size();
     }
 
@@ -162,8 +165,9 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
      */
     @Override
     public SoftAPDetails getItem(int position) {
-        if (isEmpty())
+        if (isEmpty()) {
             return null;
+        }
         return m_properties.get(position);
     }
 
@@ -175,8 +179,9 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
      */
     @Override
     public long getItemId(int position) {
-        if (isEmpty())
+        if (isEmpty()) {
             return -1;
+        }
         return m_properties.get(position).hashCode();
     }
 
@@ -221,7 +226,7 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
      */
     @Override
     public boolean isEmpty() {
-        return (m_properties == null || m_properties.size() == 0);
+        return m_properties == null || m_properties.size() == 0;
     }
 
     // ====================================================================
@@ -280,8 +285,9 @@ public class DeviceListAdapter extends ArrayAdapter<SoftAPDetails> implements Li
     @Override
     public void clear() {
         super.clear();
-        if (m_properties != null)
+        if (m_properties != null) {
             m_properties.clear();
+        }
     }
     // ====================================================================
 }

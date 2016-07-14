@@ -19,5 +19,5 @@ import org.alljoyn.ioe.controlpanelservice.ControlPanelException;
 
 public interface ControlPanelExceptionHandler {
 
-	public void handleControlPanelException(ControlPanelException e);
+    public void handleControlPanelException(ControlPanelException e);
 }

@@ -37,13 +37,13 @@ import org.alljoyn.ioe.controlpanelservice.communication.interfaces.ActionContro
 import android.util.Log;
 
 /**
- * Action widget 
+ * Action widget
  */
 public class ActionWidget extends UIElement {
     private static final String TAG = "cpan" + ActionWidget.class.getSimpleName();
 
     private static final int ENABLED_MASK = 0x01;
-    
+
     /**
      * The remote action object
      */
@@ -66,7 +66,7 @@ public class ActionWidget extends UIElement {
      * Not required to be sets
      */
     private boolean enabled;
-    
+
     /**
      * The widget rendering hints <br>
      * Not required to be sets
@@ -116,7 +116,7 @@ public class ActionWidget extends UIElement {
      * @throws ControlPanelException
      */
     public void exec() throws ControlPanelException {
-        if ( alertDialog != null ) {
+        if (alertDialog != null) {
             throw new ControlPanelException("ActionWidget objPath: '" + objectPath + "', alertDialog is defined, can't call exec");
         }
 
@@ -124,11 +124,10 @@ public class ActionWidget extends UIElement {
 
         try {
             remoteControl.Exec();
-        }
-        catch(BusException be) {
-             String msg = "Failed to call Exec,  objPath: '" + objectPath + "', Error: '" + be.getMessage() + "'";
-             Log.e(TAG, msg);
-             throw new ControlPanelException(msg);
+        } catch (BusException be) {
+            String msg = "Failed to call Exec,  objPath: '" + objectPath + "', Error: '" + be.getMessage() + "'";
+            Log.e(TAG, msg);
+            throw new ControlPanelException(msg);
         }
     }//exec
 
@@ -138,8 +137,8 @@ public class ActionWidget extends UIElement {
     @Override
     protected void setRemoteController() throws ControlPanelException {
         WidgetFactory widgetFactory = WidgetFactory.getWidgetFactory(ifName);
-        
-        if ( widgetFactory == null ) {
+
+        if (widgetFactory == null) {
             String msg = "Received an unrecognized interface name: '" + ifName + "'";
             Log.e(TAG, msg);
             throw new ControlPanelException(msg);
@@ -148,16 +147,16 @@ public class ActionWidget extends UIElement {
         Class<?> ifClass = widgetFactory.getIfaceClass();
 
         ProxyBusObject proxyObj = ConnectionManager.getInstance().getProxyObject(
-                 device.getSender(),
-                 objectPath,
-                 sessionId,
-                 new Class[]{ ifClass, Properties.class }
-        );
- 
+            device.getSender(),
+            objectPath,
+            sessionId,
+            new Class[] { ifClass, Properties.class }
+            );
+
         Log.d(TAG, "Setting remote control ActionWidget, objPath: '" + objectPath + "'");
-        properties    = proxyObj.getInterface(Properties.class);
-        remoteControl = (ActionControlSuper) proxyObj.getInterface(ifClass);
-        
+        properties = proxyObj.getInterface(Properties.class);
+        remoteControl = (ActionControlSuper)proxyObj.getInterface(ifClass);
+
         try {
             this.version = remoteControl.getVersion();
         } catch (BusException e) {
@@ -174,19 +173,18 @@ public class ActionWidget extends UIElement {
     protected void registerSignalHandler() {
         Method metaDataChangedMethod = CommunicationUtil.getActionMetadataChanged("MetadataChanged");
 
-        if ( metaDataChangedMethod == null ) {
+        if (metaDataChangedMethod == null) {
             Log.e(TAG, "ActionWidget, MetadataChanged method is not defined");
             return;
         }
 
         try {
             registerSignalHander(new ActionWidgetSignalHandler(this), metaDataChangedMethod);
-        }
-        catch(ControlPanelException cpe) {
-             String msg = "Device: '" + device.getDeviceId() +
-                          "', ActionWidget, failed to register signal handler, Error: '" + cpe.getMessage() + "'";
-             Log.e(TAG, msg);
-             controlPanel.getEventsListener().errorOccurred(controlPanel, msg);
+        } catch (ControlPanelException cpe) {
+            String msg = "Device: '" + device.getDeviceId() +
+                         "', ActionWidget, failed to register signal handler, Error: '" + cpe.getMessage() + "'";
+            Log.e(TAG, msg);
+            controlPanel.getEventsListener().errorOccurred(controlPanel, msg);
         }
     }//registerSignalHandler
 
@@ -197,16 +195,14 @@ public class ActionWidget extends UIElement {
     @Override
     protected void setProperty(String propName, Variant propValue) throws ControlPanelException {
         try {
-            if ( "States".equals(propName) ) {
+            if ("States".equals(propName)) {
                 int states = propValue.getObject(int.class);
-                enabled    =  (states & ENABLED_MASK) == ENABLED_MASK;
-            }
-            else if ( "OptParams".equals(propName) ) {
-                Map<Short, Variant> optParams = propValue.getObject(new VariantTypeReference<HashMap<Short, Variant>>() {});
+                enabled = (states & ENABLED_MASK) == ENABLED_MASK;
+            } else if ("OptParams".equals(propName)) {
+                Map<Short, Variant> optParams = propValue.getObject(new VariantTypeReference<HashMap<Short, Variant>>() { });
                 fillOptionalParams(optParams);
             }
-        }
-        catch(BusException be) {
+        } catch (BusException be) {
             throw new ControlPanelException("Failed to unmarshal the property: '" + propName + "', Error: '" + be.getMessage() + "'");
         }
     }//setProperty
@@ -218,51 +214,51 @@ public class ActionWidget extends UIElement {
     @Override
     protected void createChildWidgets() throws ControlPanelException {
         int size = children.size();
-        if ( size == 0 ) {
+        if (size == 0) {
             Log.d(TAG, "ActionWidget objPath: '" + objectPath + "', doesn't have any child nodes");
             return;
         }
 
         //ActionWidget may has only AlertDialog widget as a child node
-        if ( size > 1) {
+        if (size > 1) {
             throw new ControlPanelException("ActionWidget objPath: '" + objectPath + "' has more than one child nodes: '" + size + "'");
         }
 
         IntrospectionNode childNode = children.get(0);
-        String path                 = childNode.getPath();
-        List<String> interfaces     = childNode.getInterfaces();
-        
+        String path = childNode.getPath();
+        List<String> interfaces = childNode.getInterfaces();
+
         //Search for existence of the AlertDialog interface
         for (String ifName : interfaces) {
-            if ( !ifName.startsWith(ControlPanelService.INTERFACE_PREFIX + ".") ) {
-                 Log.v(TAG, "Found not a ControlPanel interface: '" + ifName + "'");
-                 continue;
+            if (!ifName.startsWith(ControlPanelService.INTERFACE_PREFIX + ".")) {
+                Log.v(TAG, "Found not a ControlPanel interface: '" + ifName + "'");
+                continue;
             }
-             
+
             //Check the ControlPanel interface
             WidgetFactory widgFactory = WidgetFactory.getWidgetFactory(ifName);
-            if ( widgFactory == null ) {
+            if (widgFactory == null) {
                 String msg = "Received an unknown ControlPanel interface: '" + ifName + "'";
                 Log.e(TAG, msg);
                 throw new ControlPanelException(msg);
             }
-            
+
             //Found a known interface, check whether it's an AlertDialog
-            if ( widgFactory.getElementType() == UIElementType.ALERT_DIALOG ) {
+            if (widgFactory.getElementType() == UIElementType.ALERT_DIALOG) {
                 Log.i(TAG, "ActionWidget objPath: '" + objectPath + "', has AlertDialog objPath: '" + path + "', creating...");
                 alertDialog = new AlertDialogWidget(ifName, path, controlPanel, childNode.getChidren());
                 alertDialog.init();
                 return;
-            }  
+            }
         }//for :: interfaces
-        
+
         throw new ControlPanelException("ActionWidget objPath: '" + objectPath + "', not found the AlertDialog interface");
     }//createChildWidgets
 
-   /**
-    * Fill the actionWidget optional parameters
-    * @throws ControlPanelException if failed to read optional parameters
-    */
+    /**
+     * Fill the actionWidget optional parameters
+     * @throws ControlPanelException if failed to read optional parameters
+     */
     private void fillOptionalParams(Map<Short, Variant> optParams) throws ControlPanelException {
         // Add optional parameters
         Log.d(TAG, "ActionWidget - scanning optional parameters");
@@ -271,7 +267,7 @@ public class ActionWidget extends UIElement {
 
             Variant optParam = optParams.get(optKeyEnum.ID);
 
-            if ( optParam == null ) {
+            if (optParam == null) {
                 Log.v(TAG, "OptionalParameter: '" + optKeyEnum + "', is not found");
                 continue;
             }
@@ -280,27 +276,26 @@ public class ActionWidget extends UIElement {
 
             try {
                 switch (optKeyEnum) {
-                     case LABEL: {
-                         label = optParam.getObject(String.class);
-                         break;
-                     }
-                     case BG_COLOR: {
-                         bgColor = optParam.getObject(int.class);
-                         break;
-                     }
-                     case HINTS: {
-                         short[] actHints = optParam.getObject(short[].class);
-                         setListOfActionWidgetHints(actHints);
+                case LABEL:
+                    label = optParam.getObject(String.class);
+                    break;
+
+                case BG_COLOR:
+                    bgColor = optParam.getObject(int.class);
+                    break;
+
+                case HINTS: {
+                        short[] actHints = optParam.getObject(short[].class);
+                        setListOfActionWidgetHints(actHints);
                         break;
-                     }
+                    }
                 }//switch
-            }
-            catch(BusException be) {
+            } catch (BusException be) {
                 throw new ControlPanelException("Failed to unmarshal optional parameters, Error: '" + be.getMessage() + "'");
             }
         }//for
     }//fillOptionalParams
-    
+
     /**
      * Fill the list of ActionWidgetHint types
      * @param hIds
@@ -308,7 +303,7 @@ public class ActionWidget extends UIElement {
      */
     private void setListOfActionWidgetHints(short[] hIds) {
         Log.v(TAG, "Scanning ActionWidgetHints");
-        hints = new ArrayList<ActionWidgetHintsType>( hIds.length );
+        hints = new ArrayList<ActionWidgetHintsType>(hIds.length);
 
         for (short hintId : hIds) {
             ActionWidgetHintsType hintType = ActionWidgetHintsType.getEnumById(hintId);

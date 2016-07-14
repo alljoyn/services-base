@@ -29,10 +29,10 @@
 
 - (id)initWithHandle:(ajn::services::Property *)handle
 {
-	self = [super initWithHandle:handle];
-	if (self) {
-	}
-	return self;
+    self = [super initWithHandle:handle];
+    if (self) {
+    }
+    return self;
 }
 
 /**
@@ -41,7 +41,7 @@
  */
 - (AJCPSPropertyType)getPropertyType
 {
-	return ((ajn::services::Property *)self.handle)->getPropertyType();
+    return ((ajn::services::Property *)self.handle)->getPropertyType();
 }
 
 /**
@@ -50,7 +50,7 @@
  */
 - (void)getPropertyValue:(AJCPSPropertyValue &)propertyValue
 {
-	[self convertToAJCPSPropertyValue:((ajn::services::Property *)self.handle)->getPropertyValue() to:&propertyValue];
+    [self convertToAJCPSPropertyValue:((ajn::services::Property *)self.handle)->getPropertyValue() to:&propertyValue];
 }
 
 /**
@@ -59,7 +59,7 @@
  */
 - (NSString *)getUnitOfMeasure
 {
-	return [AJSVCConvertUtil convertQCCStringtoNSString:((ajn::services::Property *)self.handle)->getUnitOfMeasure()];
+    return [AJSVCConvertUtil convertQCCStringtoNSString:((ajn::services::Property *)self.handle)->getUnitOfMeasure()];
 }
 
 /**
@@ -70,14 +70,14 @@
 - (NSArray *)getConstraintList
 {
     // TODO: the list gets erased when we leave this loop
-    
-	NSMutableArray *constraintList = [[NSMutableArray alloc]init];
-    
-	for (int i = 0; i != ((ajn::services::Property *)self.handle)->getConstraintList().size(); i++) {
-		[constraintList addObject:[[AJCPSConstraintList alloc] initWithHandle:(ajn::services::ConstraintList *)&((ajn::services::Property *)self.handle)->getConstraintList().at(i)]];
-	}
-    
-	return constraintList;
+
+    NSMutableArray *constraintList = [[NSMutableArray alloc] init];
+
+    for (int i = 0; i != ((ajn::services::Property *)self.handle)->getConstraintList().size(); i++) {
+        [constraintList addObject:[[AJCPSConstraintList alloc] initWithHandle:(ajn::services::ConstraintList *)&((ajn::services::Property *)self.handle)->getConstraintList().at(i)]];
+    }
+
+    return constraintList;
 }
 
 - (AJCPSConstraintRange *)getConstraintRange
@@ -85,113 +85,124 @@
     ajn::services::ConstraintRange *constraintRange = ((ajn::services::Property *)self.handle)->getConstraintRange();
     if (constraintRange) {
         return [[AJCPSConstraintRange alloc] initWithHandle:constraintRange];
-    }
-    else
+    } else {
         return nil;
+    }
 }
 
 - (QStatus)setValueFromBool:(bool)value
 {
-	return ((ajn::services::Property *)self.handle)->setValue(value);
+    return ((ajn::services::Property *)self.handle)->setValue(value);
 }
 
 - (QStatus)setValueFromUnsignedShort:(uint16_t)value
 {
-	return ((ajn::services::Property *)self.handle)->setValue(value);
+    return ((ajn::services::Property *)self.handle)->setValue(value);
 }
 
 - (QStatus)setValueFromShort:(int16_t)value
 {
-	return ((ajn::services::Property *)self.handle)->setValue(value);
+    return ((ajn::services::Property *)self.handle)->setValue(value);
 }
 
 - (QStatus)setValueFromUnsignedLong:(uint32_t)value
 {
-	return ((ajn::services::Property *)self.handle)->setValue(value);
+    return ((ajn::services::Property *)self.handle)->setValue(value);
 }
 
 - (QStatus)setValueFromLong:(int32_t)value
 {
-	return ((ajn::services::Property *)self.handle)->setValue(value);
+    return ((ajn::services::Property *)self.handle)->setValue(value);
 }
 
 - (QStatus)setValueFromUnsignedLongLong:(uint64_t)value
 {
-	return ((ajn::services::Property *)self.handle)->setValue(value);
+    return ((ajn::services::Property *)self.handle)->setValue(value);
 }
 
 - (QStatus)setValueFromLongLong:(int64_t)value
 {
-	return ((ajn::services::Property *)self.handle)->setValue(value);
+    return ((ajn::services::Property *)self.handle)->setValue(value);
 }
 
 - (QStatus)setValueFromDouble:(double)value
 {
-	return ((ajn::services::Property *)self.handle)->setValue(value);
+    return ((ajn::services::Property *)self.handle)->setValue(value);
 }
 
 - (QStatus)setValueFromCString:(const char *)value
 {
-	return ((ajn::services::Property *)self.handle)->setValue(value);
+    return ((ajn::services::Property *)self.handle)->setValue(value);
 }
 
 - (QStatus)setValueFromDate:(AJCPSDate *)value
 {
-	return ((ajn::services::Property *)self.handle)->setValue(*[value handle]);
+    return ((ajn::services::Property *)self.handle)->setValue(*[value handle]);
 }
 
 - (QStatus)setValueFromTime:(AJCPSTime *)value
 {
-	return ((ajn::services::Property *)self.handle)->setValue(value);
+    return ((ajn::services::Property *)self.handle)->setValue(value);
 }
 
-- (void)convertToAJCPSPropertyValue:(ajn::services::PropertyValue) constraintValue to:(AJCPSPropertyValue *)tConstraintValue
+- (void)convertToAJCPSPropertyValue:(ajn::services::PropertyValue)constraintValue to:(AJCPSPropertyValue *)tConstraintValue
 {
     switch ([self getPropertyType]) {
-        case 	AJCPS_BOOL_PROPERTY :
-            tConstraintValue->boolValue = constraintValue.boolValue;
-            
-            break;
-        case 	AJCPS_UINT16_PROPERTY :
-            tConstraintValue->uint16Value = constraintValue.uint16Value;
-            
-            break;
-        case 	AJCPS_INT16_PROPERTY :
-            tConstraintValue->int16Value = constraintValue.int16Value;
-            
-            break;
-        case 	AJCPS_UINT32_PROPERTY :
-            tConstraintValue->uint32Value = constraintValue.uint32Value;
-            
-            break;
-        case 	AJCPS_INT32_PROPERTY :
-            tConstraintValue->int32Value = constraintValue.int32Value;
-            
-            break;
-        case 	AJCPS_UINT64_PROPERTY :
-            tConstraintValue->uint64Value = constraintValue.uint64Value;
-            
-            break;
-        case 	AJCPS_INT64_PROPERTY :
-            tConstraintValue->int64Value  = constraintValue.int64Value;
-            
-            break;
-        case 	AJCPS_DOUBLE_PROPERTY :
-            tConstraintValue->doubleValue = constraintValue.doubleValue;
-            
-            break;
-        case 	AJCPS_STRING_PROPERTY :
-            tConstraintValue->charValue = constraintValue.charValue;
-            
-            break;
-        case 	AJCPS_DATE_PROPERTY : //TODO
-            
-            break;
-        case 	AJCPS_TIME_PROPERTY : //TODO
-            
-            break;
-        default:
-            break;
+    case AJCPS_BOOL_PROPERTY:
+        tConstraintValue->boolValue = constraintValue.boolValue;
+
+        break;
+
+    case AJCPS_UINT16_PROPERTY:
+        tConstraintValue->uint16Value = constraintValue.uint16Value;
+
+        break;
+
+    case AJCPS_INT16_PROPERTY:
+        tConstraintValue->int16Value = constraintValue.int16Value;
+
+        break;
+
+    case AJCPS_UINT32_PROPERTY:
+        tConstraintValue->uint32Value = constraintValue.uint32Value;
+
+        break;
+
+    case AJCPS_INT32_PROPERTY:
+        tConstraintValue->int32Value = constraintValue.int32Value;
+
+        break;
+
+    case AJCPS_UINT64_PROPERTY:
+        tConstraintValue->uint64Value = constraintValue.uint64Value;
+
+        break;
+
+    case AJCPS_INT64_PROPERTY:
+        tConstraintValue->int64Value = constraintValue.int64Value;
+
+        break;
+
+    case AJCPS_DOUBLE_PROPERTY:
+        tConstraintValue->doubleValue = constraintValue.doubleValue;
+
+        break;
+
+    case AJCPS_STRING_PROPERTY:
+        tConstraintValue->charValue = constraintValue.charValue;
+
+        break;
+
+    case AJCPS_DATE_PROPERTY: //TODO
+
+        break;
+
+    case AJCPS_TIME_PROPERTY: //TODO
+
+        break;
+
+    default:
+        break;
     }
 }
 

@@ -26,50 +26,50 @@
 
 - (id)initWithHandle:(ajn::services::Dialog *)handle
 {
-	self = [super initWithHandle:handle];
-	if (self) {
-	}
-	return self;
+    self = [super initWithHandle:handle];
+    if (self) {
+    }
+    return self;
 }
 
 - (uint16_t)getNumActions
 {
-	return ((ajn::services::Dialog *)self.handle)->getNumActions();
+    return ((ajn::services::Dialog *)self.handle)->getNumActions();
 }
 
 - (NSString *)getMessage
 {
-	return [AJSVCConvertUtil convertQCCStringtoNSString:((ajn::services::Dialog *)self.handle)->getMessage()];
+    return [AJSVCConvertUtil convertQCCStringtoNSString:((ajn::services::Dialog *)self.handle)->getMessage()];
 }
 
 - (NSString *)getLabelAction1
 {
-	return [AJSVCConvertUtil convertQCCStringtoNSString:((ajn::services::Dialog *)self.handle)->getLabelAction1()];
+    return [AJSVCConvertUtil convertQCCStringtoNSString:((ajn::services::Dialog *)self.handle)->getLabelAction1()];
 }
 
 - (NSString *)getLabelAction2
 {
-	return [AJSVCConvertUtil convertQCCStringtoNSString:((ajn::services::Dialog *)self.handle)->getLabelAction2()];
+    return [AJSVCConvertUtil convertQCCStringtoNSString:((ajn::services::Dialog *)self.handle)->getLabelAction2()];
 }
 
 - (NSString *)getLabelAction3
 {
-	return [AJSVCConvertUtil convertQCCStringtoNSString:((ajn::services::Dialog *)self.handle)->getLabelAction3()];
+    return [AJSVCConvertUtil convertQCCStringtoNSString:((ajn::services::Dialog *)self.handle)->getLabelAction3()];
 }
 
 - (QStatus)executeAction1
 {
-	return ((ajn::services::Dialog *)self.handle)->executeAction1();
+    return ((ajn::services::Dialog *)self.handle)->executeAction1();
 }
 
 - (QStatus)executeAction2
 {
-	return ((ajn::services::Dialog *)self.handle)->executeAction2();
+    return ((ajn::services::Dialog *)self.handle)->executeAction2();
 }
 
 - (QStatus)executeAction3
 {
-	return ((ajn::services::Dialog *)self.handle)->executeAction3();
+    return ((ajn::services::Dialog *)self.handle)->executeAction3();
 }
 
 @end

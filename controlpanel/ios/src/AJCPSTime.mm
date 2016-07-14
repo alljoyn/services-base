@@ -22,22 +22,22 @@
 
 @implementation AJCPSTime
 
-- (id)initWithHour:(uint16_t) hour minute:(uint16_t) minute second:(uint16_t) second
+- (id)initWithHour:(uint16_t)hour minute:(uint16_t)minute second:(uint16_t)second
 {
     self = [super init];
-	if (self) {
-		self.handle = new  ajn::services::CPSTime(hour, minute, second);
-	}
-	return self;
+    if (self) {
+        self.handle = new ajn::services::CPSTime(hour, minute, second);
+    }
+    return self;
 }
 
 - (id)initWithHandle:(ajn::services::CPSTime *)handle
 {
-	self = [super init];
-	if (self) {
-		self.handle = handle;
-	}
-	return self;
+    self = [super init];
+    if (self) {
+        self.handle = handle;
+    }
+    return self;
 }
 
 /**
@@ -46,7 +46,7 @@
  */
 - (uint16_t)getHour
 {
-	return self.handle->getHour();
+    return self.handle->getHour();
 }
 
 /**
@@ -55,7 +55,7 @@
  */
 - (void)setHour:(uint16_t)hour
 {
-	self.handle->setHour(hour);
+    self.handle->setHour(hour);
 }
 
 /**
@@ -64,7 +64,7 @@
  */
 - (uint16_t)getMinute
 {
-	return self.handle->getMinute();
+    return self.handle->getMinute();
 }
 
 /**
@@ -73,7 +73,7 @@
  */
 - (void)setMinute:(uint16_t)minute
 {
-	return self.handle->setMinute(minute);
+    return self.handle->setMinute(minute);
 }
 
 /**
@@ -82,7 +82,7 @@
  */
 - (uint16_t)getSecond
 {
-	return self.handle->getSecond();
+    return self.handle->getSecond();
 }
 
 /**
@@ -91,7 +91,7 @@
  */
 - (void)setSecond:(uint16_t)second
 {
-	return self.handle->setSecond(second);
+    return self.handle->setSecond(second);
 }
 
 @end

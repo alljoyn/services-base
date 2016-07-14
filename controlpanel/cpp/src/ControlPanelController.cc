@@ -182,7 +182,7 @@ QStatus ControlPanelController::deleteAllControllableDevices()
     QStatus returnStatus = ER_OK;
     std::map<qcc::String, ControlPanelDevice*>::iterator iter;
     std::map<qcc::String, ControlPanelDevice*>::iterator deliter;
-    for (iter = m_ControllableDevices.begin(); iter != m_ControllableDevices.end();) {
+    for (iter = m_ControllableDevices.begin(); iter != m_ControllableDevices.end(); ) {
 
         ControlPanelDevice* device = iter->second;
         deliter = iter++;

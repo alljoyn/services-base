@@ -18,7 +18,7 @@
 #import "AJSCGetAboutCallViewController.h"
 #import "AJSCAlertController.h"
 
-static NSString * const CLIENTDEFAULTLANG=@"";
+static NSString * const CLIENTDEFAULTLANG = @"";
 
 @interface AJSCGetAboutCallViewController ()
 
@@ -51,39 +51,39 @@ static NSString * const CLIENTDEFAULTLANG=@"";
     __weak AJSCGetAboutCallViewController *weakSelf = self;
 
     self.alertBusName = [AJSCAlertController alertControllerWithTitle:@"Set language"
-                                                              message:@""
-                                                       viewController:self];
+                         message:@""
+                         viewController:self];
 
     [self.alertBusName addActionWithName:@"Cancel" handler:^(UIAlertAction *action) {
-    }];
+     }];
 
     [self.alertBusName addActionWithName:@"OK" handler:^(UIAlertAction *action) {
-        if ([weakSelf.alertChooseLanguage.text isEqualToString:@""]) {
-            if (weakSelf.clientInformation.announcement.usesDeprecatedAnnounce) {
-                weakSelf.alertChooseLanguage.text = [AJSCAboutDataConverter messageArgumentToString:[weakSelf.clientInformation.announcement aboutData][@"DefaultLanguage"]];
-            } else {
-                // TODO: Use AJSCAboutAnnouncement.aboutDataArg to set language text.
-            }
-        }
-        if (![weakSelf isValidLanguage:weakSelf.alertChooseLanguage.text]) {
-            AJSCAlertController *errorAlert = [AJSCAlertController alertControllerWithTitle:@"Error"
-                                                                                    message:@"Requested language is not supported"
-                                                                             viewController:weakSelf];
-            [errorAlert addActionWithName:@"OK" handler:^(UIAlertAction *action) {
-            }];
-            [errorAlert show];
-            return;
-        }
+         if ([weakSelf.alertChooseLanguage.text isEqualToString:@""]) {
+             if (weakSelf.clientInformation.announcement.usesDeprecatedAnnounce) {
+                 weakSelf.alertChooseLanguage.text = [AJSCAboutDataConverter messageArgumentToString:[weakSelf.clientInformation.announcement aboutData][@"DefaultLanguage"]];
+             } else {
+                 // TODO: Use AJSCAboutAnnouncement.aboutDataArg to set language text.
+             }
+         }
+         if (![weakSelf isValidLanguage:weakSelf.alertChooseLanguage.text]) {
+             AJSCAlertController *errorAlert = [AJSCAlertController alertControllerWithTitle:@"Error"
+                                                message:@"Requested language is not supported"
+                                                viewController:weakSelf];
+             [errorAlert addActionWithName:@"OK" handler:^(UIAlertAction *action) {
+              }];
+             [errorAlert show];
+             return;
+         }
 
-        weakSelf.clientInformation.currLang = weakSelf.alertChooseLanguage.text;
+         weakSelf.clientInformation.currLang = weakSelf.alertChooseLanguage.text;
 
-        [weakSelf UpdateCallViewInformation];
-    }];
+         [weakSelf UpdateCallViewInformation];
+     }];
 
-    [self.alertBusName.iosAlertController addTextFieldWithConfigurationHandler:^(UITextField * __nonnull textField) {
-        textField.text = @"";
-        weakSelf.alertChooseLanguage = textField;
-    }];
+    [self.alertBusName.iosAlertController addTextFieldWithConfigurationHandler:^(UITextField *__nonnull textField) {
+         textField.text = @"";
+         weakSelf.alertChooseLanguage = textField;
+     }];
 }
 
 - (void)prepareAnnouncementOptionsAlert
@@ -91,94 +91,94 @@ static NSString * const CLIENTDEFAULTLANG=@"";
     __weak AJSCGetAboutCallViewController *weakSelf = self;
 
     self.alertAnnouncementOptions = [AJSCAlertController alertControllerWithTitle:@"Choose option:"
-                                                                          message:@""
-                                                                   viewController:self];
+                                     message:@""
+                                     viewController:self];
 
     [self.alertAnnouncementOptions addActionWithName:@"Cancel" handler:^(UIAlertAction *action) {
-    }];
+     }];
 
     [self.alertAnnouncementOptions addActionWithName:@"Refresh" handler:^(UIAlertAction *action) {
-        [weakSelf UpdateCallViewInformation];
-    }];
+         [weakSelf UpdateCallViewInformation];
+     }];
 
     [self.alertAnnouncementOptions addActionWithName:@"Set Language" handler:^(UIAlertAction *action) {
-        weakSelf.alertBusName.iosAlertController.message = [NSString stringWithFormat:@"Available:%@", [AJSCAboutDataConverter messageArgumentToString:weakSelf.supportedLanguagesMsgArg]];
-        [weakSelf.alertBusName show];
-    }];
+         weakSelf.alertBusName.iosAlertController.message = [NSString stringWithFormat:@"Available:%@", [AJSCAboutDataConverter messageArgumentToString:weakSelf.supportedLanguagesMsgArg]];
+         [weakSelf.alertBusName show];
+     }];
 }
 
 - (void)prepareAlertNoSession
 {
     self.alertNoSession = [AJSCAlertController alertControllerWithTitle:@"Error"
-                                                                message:@"Session is not connected, check the connection and reconnect."
-                                                         viewController:self];
+                           message:@"Session is not connected, check the connection and reconnect."
+                           viewController:self];
 
     [self.alertNoSession addActionWithName:@"OK" handler:^(UIAlertAction *action) {
-    }];
+     }];
 }
 
 - (IBAction)TouchUpInsideRefreshandSetLanguage:(UIButton *)sender
 {
-	[self.alertAnnouncementOptions show];
+    [self.alertAnnouncementOptions show];
 }
 
 - (bool)isValidLanguage:(NSString *)inputLanguage
 {
-	bool found = false;
-	const ajn::MsgArg *stringArray;
-	size_t fieldListNumElements;
-	QStatus status = [self.supportedLanguagesMsgArg value:@"as", &fieldListNumElements, &stringArray];
-	if (status == ER_OK) {
-		for (size_t i = 0; i < fieldListNumElements; i++) {
-			char *tempString;
-			stringArray[i].Get("s", &tempString);
-			if ([inputLanguage isEqualToString:@(tempString)]) {
-				found = true;
-				break;
-			}
-		}
-	}
-	return found;
+    bool found = false;
+    const ajn::MsgArg *stringArray;
+    size_t fieldListNumElements;
+    QStatus status = [self.supportedLanguagesMsgArg value:@"as", &fieldListNumElements, &stringArray];
+    if (status == ER_OK) {
+        for (size_t i = 0; i < fieldListNumElements; i++) {
+            char *tempString;
+            stringArray[i].Get("s", &tempString);
+            if ([inputLanguage isEqualToString:@(tempString)]) {
+                found = true;
+                break;
+            }
+        }
+    }
+    return found;
 }
 
 - (void)UpdateCallViewInformation
 {
     uint16_t version = [self.clientInformation.announcement version];
     uint16_t port = [self.clientInformation.announcement port];
-    NSString* busName = [self.clientInformation.announcement busName];
-	self.lblVersion.text = [NSString stringWithFormat:@"%u", version];
+    NSString *busName = [self.clientInformation.announcement busName];
+    self.lblVersion.text = [NSString stringWithFormat:@"%u", version];
 
-	if (!self.sessionId) {
-		//create sessionOptions
-		AJNSessionOptions *opt = [[AJNSessionOptions alloc] initWithTrafficType:kAJNTrafficMessages
-                                                             supportsMultipoint:false
-                                                                      proximity:kAJNProximityAny
-                                                                  transportMask:kAJNTransportMaskAny];
-		//call joinSession
-		self.sessionId = [self.clientBusAttachment joinSessionWithName:busName onPort:port withDelegate:(nil)
-                                                               options:opt];
-	}
+    if (!self.sessionId) {
+        //create sessionOptions
+        AJNSessionOptions *opt = [[AJNSessionOptions alloc] initWithTrafficType:kAJNTrafficMessages
+                                  supportsMultipoint:false
+                                  proximity:kAJNProximityAny
+                                  transportMask:kAJNTransportMaskAny];
+        //call joinSession
+        self.sessionId = [self.clientBusAttachment joinSessionWithName:busName onPort:port withDelegate:(nil)
+                          options:opt];
+    }
 
-	if (self.sessionId == 0 || self.sessionId == -1) {
-         NSLog(@"[%@] [%@] Failed to join session. sid=%u", @"DEBUG", [[self class] description],self.sessionId);
+    if (self.sessionId == 0 || self.sessionId == -1) {
+        NSLog(@"[%@] [%@] Failed to join session. sid=%u", @"DEBUG", [[self class] description], self.sessionId);
 
-		[self.alertNoSession show];
-	} else {
-		NSMutableDictionary *aboutData;
+        [self.alertNoSession show];
+    } else {
+        NSMutableDictionary *aboutData;
         AJNAboutProxy *ajnAboutProxy = [[AJNAboutProxy alloc] initWithBusAttachment:self.clientBusAttachment
-                                                                            busName:busName
-                                                                          sessionId:self.sessionId];
+                                        busName:busName
+                                        sessionId:self.sessionId];
         QStatus qStatus = [ajnAboutProxy getAboutDataForLanguage:self.clientInformation.currLang
-                                                 usingDictionary:&aboutData];
+                           usingDictionary:&aboutData];
 
         if (qStatus != ER_OK) {
             AJSCAlertController *errorAlert = [AJSCAlertController alertControllerWithTitle:@"Error"
-                                                                                    message:@"Calling the about method returned with an error"
-                                                                             viewController:self];
-            [errorAlert addActionWithName:@"OK" handler:^(UIAlertAction *action) {}];
+                                               message:@"Calling the about method returned with an error"
+                                               viewController:self];
+            [errorAlert addActionWithName:@"OK" handler:^(UIAlertAction *action) { }];
             [errorAlert show];
         } else {
-            AJNMessageArgument* objDesc = [[AJNMessageArgument alloc] init];
+            AJNMessageArgument *objDesc = [[AJNMessageArgument alloc] init];
             [ajnAboutProxy getObjectDescriptionUsingMsgArg:objDesc];
             NSLog(@"[%@] [%@] AboutData:  %@", @"DEBUG", [[self class] description], [AJSCAboutDataConverter aboutDataDictionaryToString:aboutData]);
             NSLog(@"[%@] [%@] objectDescriptions:  %@", @"DEBUG", [[self class] description], [objDesc xml]);
@@ -193,18 +193,18 @@ static NSString * const CLIENTDEFAULTLANG=@"";
 
 - (void)viewDidLoad
 {
-	[super viewDidLoad];
+    [super viewDidLoad];
 
-	[self prepareAlerts];
+    [self prepareAlerts];
 
-	[self UpdateCallViewInformation];
+    [self UpdateCallViewInformation];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
-	[self.clientBusAttachment leaveSession:self.sessionId];
+    [self.clientBusAttachment leaveSession:self.sessionId];
 
-	[super viewWillDisappear:animated];
+    [super viewWillDisappear:animated];
 }
 
 @end

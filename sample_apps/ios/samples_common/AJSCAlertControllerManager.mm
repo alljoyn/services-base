@@ -22,17 +22,17 @@
 
 static NSMutableArray *alertControllerList = [[NSMutableArray alloc] init];
 
-+ (void)queueAlertWithTitle:(nonnull NSString*)title message:(nonnull NSString*)message viewController:(nonnull UIViewController*)viewController
++ (void)queueAlertWithTitle:(nonnull NSString *)title message:(nonnull NSString *)message viewController:(nonnull UIViewController *)viewController
 {
     AJSCAlertController *alertController = [AJSCAlertController alertControllerWithTitle:title
-                                                                                 message:message
-                                                                          viewController:viewController];
+                                            message:message
+                                            viewController:viewController];
     if (alertController) {
         [alertController addActionWithName:@"OK"
-                                   handler:^(UIAlertAction *action) {
-                                       [alertControllerList removeObjectAtIndex:0];
-                                       [AJSCAlertControllerManager showNextAlert];
-                                   }];
+         handler:^(UIAlertAction *action) {
+             [alertControllerList removeObjectAtIndex:0];
+             [AJSCAlertControllerManager showNextAlert];
+         }];
         [alertControllerList addObject:alertController];
 
         if (alertControllerList.count == 1) {

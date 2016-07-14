@@ -25,15 +25,15 @@
 
 - (AJNSNotificationSender *)initWithPropertyStore:(AJNAboutPropertyStoreImpl *)propertyStore
 {
-	self = [super init];
-	if (self) {
-		self.propertyStore = [propertyStore getHandle];
-		if (self.propertyStore) {
-			self.senderHandle = new ajn::services::NotificationSender(self.propertyStore);
-			return self;
-		}
-	}
-	return nil;
+    self = [super init];
+    if (self) {
+        self.propertyStore = [propertyStore getHandle];
+        if (self.propertyStore) {
+            self.senderHandle = new ajn::services::NotificationSender(self.propertyStore);
+            return self;
+        }
+    }
+    return nil;
 }
 
 /**
@@ -44,7 +44,7 @@
  */
 - (QStatus)send:(AJNSNotification *)ajnsNotification ttl:(uint16_t)ttl
 {
-	return (self.senderHandle->send(*ajnsNotification.handle, ttl));
+    return self.senderHandle->send(*ajnsNotification.handle, ttl);
 }
 
 /**
@@ -54,12 +54,12 @@
  */
 - (QStatus)deleteLastMsg:(AJNSNotificationMessageType)messageType
 {
-	return(self.senderHandle->deleteLastMsg((ajn::services::NotificationMessageType)messageType));
+    return self.senderHandle->deleteLastMsg((ajn::services::NotificationMessageType)messageType);
 }
 
 - (ajn::services::AboutPropertyStoreImpl *)getPropertyStore
 {
-	return self.propertyStore;
+    return self.propertyStore;
 }
 
 @end

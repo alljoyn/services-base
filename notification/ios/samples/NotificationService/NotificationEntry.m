@@ -21,13 +21,13 @@
 
 @interface NotificationEntry ()
 @property (strong, nonatomic) AJNSNotification *ajnsNotification;
-@property (weak,nonatomic) ConsumerViewController *consumerViewController;
+@property (weak, nonatomic) ConsumerViewController *consumerViewController;
 
 @end
 
 @implementation NotificationEntry
 
-- (id)initWithAJNSNotification:(AJNSNotification *) ajnsNotification andConsumerViewController:(ConsumerViewController *)consumerViewController
+- (id)initWithAJNSNotification:(AJNSNotification *)ajnsNotification andConsumerViewController:(ConsumerViewController *)consumerViewController
 {
     self = [super init];
     if (self) {
@@ -38,19 +38,19 @@
 }
 
 
--(void)setAjnsNotification:(AJNSNotification *)ajnsNotification
+- (void)setAjnsNotification:(AJNSNotification *)ajnsNotification
 {
-  
+
     _ajnsNotification = ajnsNotification;
-  
+
     //show AJNSNotification on self.notificationTextView
     NSString *nstr = @"";
     NSString *lang;
     bool matchLangFlag = false;
-    
+
     nstr = [nstr stringByAppendingString:[AJNSNotificationEnums AJNSMessageTypeToString:[ajnsNotification messageType]]];
     nstr = [nstr stringByAppendingFormat:@" "];
-    
+
     // get the msg NotificationText
 
     for (AJNSNotificationText *nt in ajnsNotification.ajnsntArr) {
@@ -63,23 +63,23 @@
             matchLangFlag = true;
         }
     } //for
-    
+
     if (!matchLangFlag) {
-        nstr = [nstr stringByAppendingString:[NSString stringWithFormat:@"\nUnknown language(s) in notification,\n the last one was '%@'",lang]];
+        nstr = [nstr stringByAppendingString:[NSString stringWithFormat:@"\nUnknown language(s) in notification,\n the last one was '%@'", lang]];
         self.text = nstr;
         [self.consumerViewController.logger debugTag:[[self class] description] text:@"The received message lang does not match the consumer lang settings"];
         return;
     }
-    
+
     // get the msg NotificationText
     NSString *richIconUrl = [ajnsNotification richIconUrl];
     if ([NotificationUtils textFieldIsValid:richIconUrl]) {
         nstr = [nstr stringByAppendingFormat:@"\nicon: %@", richIconUrl];
     }
-    
+
     // get the msg richAudioUrl
     __strong NSMutableArray *richAudioUrlArray = [[NSMutableArray alloc] init];
-    
+
     [ajnsNotification richAudioUrl:richAudioUrlArray];
     int i = 0;
     for (int x = 0; x != [richAudioUrlArray count]; x++) {
@@ -93,10 +93,10 @@
             nstr = [nstr stringByAppendingFormat:@"\naudio: %@", audiourl];
         }
     } //for
-    
+
     [self.consumerViewController.logger debugTag:[[self class] description] text:([NSString stringWithFormat:@"Adding notification to view:\n %@", nstr])];
-    
-    
+
+
     self.text = nstr;
 }
 

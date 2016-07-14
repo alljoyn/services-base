@@ -20,34 +20,34 @@ package org.alljoyn.ioe.controlpanelservice.ui;
  * Possible types of Action UI hints
  */
 public enum ActionWidgetHintsType {
-	
-	ACTION_BUTTON ((short)1)
-	;
 
-	/**
-	 * The key number
-	 */
-	public final short ID; 
-	
-	private ActionWidgetHintsType(short id) {
-		ID = id;
-	}
-	
-    /** 
+    ACTION_BUTTON((short)1)
+    ;
+
+    /**
+     * The key number
+     */
+    public final short ID;
+
+    private ActionWidgetHintsType(short id) {
+        ID = id;
+    }
+
+    /**
      * Search for the enum by the given id
      * If not found returns NULL
-     * @param id  
+     * @param id
      * @return Enum type by the given id
      */
     public static ActionWidgetHintsType getEnumById(short id) {
-    	ActionWidgetHintsType retType = null;
+        ActionWidgetHintsType retType = null;
         for (ActionWidgetHintsType type : ActionWidgetHintsType.values()) {
-            if ( id == type.ID ) { 
+            if (id == type.ID) {
                 retType = type;
                 break;
-            }   
-        }   
+            }
+        }
         return retType;
     }//getEnumById
-	
+
 }

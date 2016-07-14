@@ -23,126 +23,125 @@ import org.alljoyn.ns.NotificationText;
  * Handled the received {@link Notification} object
  */
 public class VisualNotification {
-	
-	/**
-	 * The received {@link Notification} 
-	 */
-	private Notification notification;
-	
-	/**
-	 * Marker whether the {@link Notification} has been selected
-	 */
-	private boolean isChecked;
-	
-	/**
-	 * The counter is incremented when a {@link VisualNotification} object gets isChecked state
-	 * as TRUE and it's decremented when it's FALSE
-	 */
-	private static int checkedCounter;
-	
-	/**
-	 * The language the user preferred to view the {@link NotificationText}
-	 */
-	private String userPreferredLang;
-	
-	/**
-	 * The text to be presented to the user in the userPreferredLang
-	 */
-	private String userPreferredText;
-	
-	/**
-	 * Gets TRUE when the {@link VisualNotification} is dismissed
-	 */
-	private volatile boolean isDismissed;
-	
-	/**
-	 * Constructor
-	 * @param notification The received notification
-	 */
-	public VisualNotification(Notification notification, String userPreferredLang) {
-		this.notification      = notification;
-		this.userPreferredLang = userPreferredLang;
-	}
 
-	/**
-	 * @return {@link Notification}
-	 */
-	public Notification getNotification() {
-		return notification;
-	}//getNotification
+    /**
+     * The received {@link Notification}
+     */
+    private Notification notification;
 
-	/**
-	 * @return Marker whether the {@link Notification} has been checked
-	 */
-	public boolean isChecked() {
-		return isChecked;
-	}
+    /**
+     * Marker whether the {@link Notification} has been selected
+     */
+    private boolean isChecked;
 
-	/**
-	 * @param isChecked Sets the {@link VisualNotification} checked state <br>
-	 * The state of the isChecked influences the static checkedCounter variable. <br>
-	 * If isChecked is TRUE the checkedCounter is incremented by one otherwise it's decremented
-	 */
-	public void setChecked(boolean isChecked) {
-		this.isChecked = isChecked;
-		
-		if ( isChecked ) {
-			++checkedCounter;
-		}
-		else if ( checkedCounter > 0 ){
-			--checkedCounter;
-		}
-	}//setChecked
+    /**
+     * The counter is incremented when a {@link VisualNotification} object gets isChecked state
+     * as TRUE and it's decremented when it's FALSE
+     */
+    private static int checkedCounter;
 
-	/**
-	 * @return The current checkedCounter value
-	 */
-	public static int getCheckedCounter() {
-		return checkedCounter;
-	}//getCheckedCounter
+    /**
+     * The language the user preferred to view the {@link NotificationText}
+     */
+    private String userPreferredLang;
 
-	/**
-	 * Clears the static counter which indicates the number of notifications
-	 * @return void
-	 */
-	public static void clearCheckedCounter() {
-		checkedCounter = 0;
-	}
+    /**
+     * The text to be presented to the user in the userPreferredLang
+     */
+    private String userPreferredText;
 
-	/**
-	 * @return The language string, the user preferred to see the {@link NotificationText}
-	 */
-	public String getUserPreferredLang() {
-		return userPreferredLang;
-	}
+    /**
+     * Gets TRUE when the {@link VisualNotification} is dismissed
+     */
+    private volatile boolean isDismissed;
 
-	/**
-	 * @return The text to be presented to the user, when this {@link VisualNotification} is rendered
-	 */
-	public String getUserPreferredText() {
-		return userPreferredText;
-	}
+    /**
+     * Constructor
+     * @param notification The received notification
+     */
+    public VisualNotification(Notification notification, String userPreferredLang) {
+        this.notification = notification;
+        this.userPreferredLang = userPreferredLang;
+    }
 
-	/**
-	 * @param userPreferredText The text to be presented to the user, when this {@link VisualNotification} is rendered
-	 */
-	public void setUserPreferredText(String userPreferredText) {
-		this.userPreferredText = userPreferredText;
-	}
-	
-	/**
-	 * @return Whether the Notification is dismissed
-	 */
-	public boolean isDismissed() {
-		return isDismissed;
-	}
+    /**
+     * @return {@link Notification}
+     */
+    public Notification getNotification() {
+        return notification;
+    }//getNotification
 
-	/**
-	 * @param isDismissed Whether the Notification is dismissed
-	 */
-	public void setDismissed(boolean isDismissed) {
-		this.isDismissed = isDismissed;
-	}
-	
-		
+    /**
+     * @return Marker whether the {@link Notification} has been checked
+     */
+    public boolean isChecked() {
+        return isChecked;
+    }
+
+    /**
+     * @param isChecked Sets the {@link VisualNotification} checked state <br>
+     * The state of the isChecked influences the static checkedCounter variable. <br>
+     * If isChecked is TRUE the checkedCounter is incremented by one otherwise it's decremented
+     */
+    public void setChecked(boolean isChecked) {
+        this.isChecked = isChecked;
+
+        if (isChecked) {
+            ++checkedCounter;
+        } else if (checkedCounter > 0) {
+            --checkedCounter;
+        }
+    }//setChecked
+
+    /**
+     * @return The current checkedCounter value
+     */
+    public static int getCheckedCounter() {
+        return checkedCounter;
+    }//getCheckedCounter
+
+    /**
+     * Clears the static counter which indicates the number of notifications
+     * @return void
+     */
+    public static void clearCheckedCounter() {
+        checkedCounter = 0;
+    }
+
+    /**
+     * @return The language string, the user preferred to see the {@link NotificationText}
+     */
+    public String getUserPreferredLang() {
+        return userPreferredLang;
+    }
+
+    /**
+     * @return The text to be presented to the user, when this {@link VisualNotification} is rendered
+     */
+    public String getUserPreferredText() {
+        return userPreferredText;
+    }
+
+    /**
+     * @param userPreferredText The text to be presented to the user, when this {@link VisualNotification} is rendered
+     */
+    public void setUserPreferredText(String userPreferredText) {
+        this.userPreferredText = userPreferredText;
+    }
+
+    /**
+     * @return Whether the Notification is dismissed
+     */
+    public boolean isDismissed() {
+        return isDismissed;
+    }
+
+    /**
+     * @param isDismissed Whether the Notification is dismissed
+     */
+    public void setDismissed(boolean isDismissed) {
+        this.isDismissed = isDismissed;
+    }
+
+
 }

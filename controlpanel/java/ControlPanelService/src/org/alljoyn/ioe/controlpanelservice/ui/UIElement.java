@@ -31,7 +31,7 @@ import org.alljoyn.ioe.controlpanelservice.communication.UIWidgetSignalHandler;
 import android.util.Log;
 
 /**
- * The parent class for another UI elements  
+ * The parent class for another UI elements
  */
 public abstract class UIElement {
     private static final String TAG = "cpan" + UIElement.class.getSimpleName();
@@ -88,16 +88,16 @@ public abstract class UIElement {
      * @throws ControlPanelException if failed to build the element
      */
     public UIElement(UIElementType elementType, String ifName, String objectPath, DeviceControlPanel controlPanel, List<IntrospectionNode> children)
-                                                throws ControlPanelException {
-        this.elementType 	= elementType;
-        this.ifName 		= ifName;
-        this.objectPath  	= objectPath;
-        this.children 		= children;
-        this.controlPanel   = controlPanel;
-        this.device  	 	= controlPanel.getDevice();
-        this.sessionId      = device.getSessionId();
+    throws ControlPanelException {
+        this.elementType = elementType;
+        this.ifName = ifName;
+        this.objectPath = objectPath;
+        this.children = children;
+        this.controlPanel = controlPanel;
+        this.device = controlPanel.getDevice();
+        this.sessionId = device.getSessionId();
 
-        if ( this.sessionId == null ) {
+        if (this.sessionId == null) {
             throw new ControlPanelException("Failed to create widget: '" + elementType + "', objPath: '" + objectPath + "', session not established");
         }
     }//Constructor
@@ -134,12 +134,11 @@ public abstract class UIElement {
             props = properties.GetAll(ifName);
         } catch (BusException be) {
             throw new ControlPanelException("Failed to retreive properties for ifName: '" + ifName + "', Error: '" + be.getMessage() + "'");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ControlPanelException("Unexpected error happened on retrieving properties for ifName: '" + ifName + "', Error: '" + e.getMessage() + "'");
         }
 
-        for(String propName : props.keySet() ) {
+        for (String propName : props.keySet()) {
             Log.v(TAG, "Set property: '" + propName + "', object path: '" + objectPath + "'");
             setProperty(propName, props.get(propName));
         }
@@ -162,7 +161,7 @@ public abstract class UIElement {
         WidgetFactory widgFactory = WidgetFactory.getWidgetFactory(ifName);
 
         //Check the ControlPanel interface
-        if ( widgFactory == null ) {
+        if (widgFactory == null) {
             String msg = "Received an unknown ControlPanel interface: '" + ifName + "'";
             Log.e(TAG, msg);
             throw new ControlPanelException(msg);
@@ -174,9 +173,9 @@ public abstract class UIElement {
             short myVersion = ifaceClass.getDeclaredField("VERSION").getShort(short.class);
 
             Log.d(TAG, "Version check for interface: '" + ifName + "' my version is: '" + myVersion + "'" +
-                    " the remote device version is: '" + this.version + "'");
+                  " the remote device version is: '" + this.version + "'");
 
-            if ( this.version > myVersion ) {
+            if (this.version > myVersion) {
                 throw new ControlPanelException("Incompatible interface version: '" + ifName + "', my interface version is: '" + myVersion + "'" +
                                                 " the remote device interface version is: '" + this.version + "'");
             }

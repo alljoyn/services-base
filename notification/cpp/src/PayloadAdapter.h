@@ -88,15 +88,15 @@ class PayloadAdapter {
      * @param originalSender
      * @return status - success/failure
      */
-    QCC_DEPRECATED(static QStatus sendPayload(ajn::services::PropertyStore* propertyStore,
-                               NotificationMessageType messageType,
-                               std::vector<NotificationText> const& notificationText,
-                               std::map<qcc::String, qcc::String> const& customAttributes,
-                               uint16_t ttl,
-                               const char* richIconUrl, std::vector<RichAudioUrl> const& richAudioUrl,
-                               const char* richIconObjectPath, const char* richAudioObjectPath,
-                               const char* controlPanelServiceObjectPath,
-                               const char* originalSender));
+    QCC_DEPRECATED(static QStatus sendPayload(ajn::services::PropertyStore * propertyStore,
+                                              NotificationMessageType messageType,
+                                              std::vector<NotificationText> const & notificationText,
+                                              std::map<qcc::String, qcc::String> const & customAttributes,
+                                              uint16_t ttl,
+                                              const char* richIconUrl, std::vector<RichAudioUrl> const & richAudioUrl,
+                                              const char* richIconObjectPath, const char* richAudioObjectPath,
+                                              const char* controlPanelServiceObjectPath,
+                                              const char* originalSender));
 
     /**
      * SendPayload Marshals the Arguments to be sent

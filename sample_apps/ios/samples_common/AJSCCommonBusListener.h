@@ -20,20 +20,20 @@
 
 /** Implementation of the Bus listener. Called by AllJoyn to inform apps of bus related events.
  */
-@interface AJSCCommonBusListener : NSObject  <AJNBusListener, AJNSessionPortListener>
+@interface AJSCCommonBusListener : NSObject <AJNBusListener, AJNSessionPortListener>
 
 /**
  Init the Value of the SessionPort associated with this SessionPortListener
  @param sessionPort The port of the session
  @return Object ID
  */
-- (id)initWithServicePort:(AJNSessionPort) servicePort;
+- (id)initWithServicePort:(AJNSessionPort)servicePort;
 
 /**
  Set the Value of the SessionPort associated with this SessionPortListener
  @param sessionPort The port of the session
  */
-- (void)setSessionPort:(AJNSessionPort) sessionPort;
+- (void)setSessionPort:(AJNSessionPort)sessionPort;
 
 /**
  Get the SessionPort of the listener

@@ -67,8 +67,8 @@ typedef union {
      * Get Value for type const char*
      * @return value of Property
      */
-    const char* charValue;
-    
+    const char *charValue;
+
     /**
      * Get Value for type bool
      * @return value of Property
@@ -84,18 +84,18 @@ typedef union {
      * @return value of Property
      */
     // CPSTime* timeValue; TODO: arc forbids objc objects here
-    
+
     /**
      * Get Value for type CPSDate
      * @return value of Property
      */
-    ajn::services::CPSDate* dateValue;
+    ajn::services::CPSDate *dateValue;
     /**
      * Get Value for type CPSTime
      * @return value of Property
      */
-    ajn::services::CPSTime* timeValue;
-    
+    ajn::services::CPSTime *timeValue;
+
 } AJCPSPropertyValue;
 
 /**
@@ -103,7 +103,7 @@ typedef union {
  */
 @interface AJCPSProperty : AJCPSWidget
 
-- (id)initWithHandle:(ajn ::services ::Property *)handle;
+- (id)initWithHandle:(ajn::services::Property *)handle;
 
 /**
  * Get the PropertyType

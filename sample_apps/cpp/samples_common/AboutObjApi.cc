@@ -27,13 +27,16 @@ AboutData* AboutObjApi::m_AboutData = NULL;
 AboutObj* AboutObjApi::m_AboutObj = NULL;
 SessionPort AboutObjApi::m_sessionPort = 0;
 
-AboutObjApi::AboutObjApi() {
+AboutObjApi::AboutObjApi()
+{
 }
 
-AboutObjApi::~AboutObjApi() {
+AboutObjApi::~AboutObjApi()
+{
 }
 
-AboutObjApi* AboutObjApi::getInstance() {
+AboutObjApi* AboutObjApi::getInstance()
+{
 
     if (!m_instance) {
         m_instance = new AboutObjApi();
@@ -41,24 +44,28 @@ AboutObjApi* AboutObjApi::getInstance() {
     return m_instance;
 }
 
-void AboutObjApi::Init(ajn::BusAttachment* bus, AboutData* aboutData, AboutObj* aboutObj) {
+void AboutObjApi::Init(ajn::BusAttachment* bus, AboutData* aboutData, AboutObj* aboutObj)
+{
     m_BusAttachment = bus;
     m_AboutData = aboutData;
     m_AboutObj = aboutObj;
 }
 
-void AboutObjApi::DestroyInstance() {
+void AboutObjApi::DestroyInstance()
+{
     if (m_instance) {
         delete m_instance;
         m_instance = NULL;
     }
 }
 
-void AboutObjApi::SetPort(SessionPort sessionPort) {
+void AboutObjApi::SetPort(SessionPort sessionPort)
+{
     m_sessionPort = sessionPort;
 }
 
-QStatus AboutObjApi::Announce() {
+QStatus AboutObjApi::Announce()
+{
     if (m_AboutObj == NULL) {
         return ER_FAIL;
     }

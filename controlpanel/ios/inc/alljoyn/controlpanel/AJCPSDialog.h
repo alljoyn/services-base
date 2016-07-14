@@ -23,7 +23,7 @@
  */
 @interface AJCPSDialog : AJCPSRootWidget
 
-- (id)initWithHandle:(ajn ::services ::Dialog *)handle;
+- (id)initWithHandle:(ajn::services::Dialog *)handle;
 
 
 /**

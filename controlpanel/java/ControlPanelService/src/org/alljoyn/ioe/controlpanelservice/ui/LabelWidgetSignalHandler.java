@@ -28,7 +28,7 @@ import android.util.Log;
 
 public class LabelWidgetSignalHandler implements Label {
     private static final String TAG = "cpan" + LabelWidgetSignalHandler.class.getSimpleName();
-    
+
     /**
      * Container widget to be notified about signal receiving
      */
@@ -42,38 +42,38 @@ public class LabelWidgetSignalHandler implements Label {
         this.labelWidget = labelWidget;
     }
 
-	@Override
-	public short getVersion() throws BusException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public short getVersion() throws BusException {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
-	@Override
-	public int getStates() throws BusException {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public int getStates() throws BusException {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
-	@Override
-	public Map<Short, Variant> getOptParams() throws BusException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	@Override
-	public String getLabel() throws BusException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	/**
-	 * @see org.alljoyn.ioe.controlpanelservice.communication.interfaces.Label#MetadataChanged()
-	 */
-	@Override
-	public void MetadataChanged() throws BusException {
-        
+    @Override
+    public Map<Short, Variant> getOptParams() throws BusException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String getLabel() throws BusException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /**
+     * @see org.alljoyn.ioe.controlpanelservice.communication.interfaces.Label#MetadataChanged()
+     */
+    @Override
+    public void MetadataChanged() throws BusException {
+
         String msg = "Device: '" + labelWidget.device.getDeviceId() +
-                "', labelWidget: '" + labelWidget.objectPath + "', received METADATA_CHANGED signal";
+                     "', labelWidget: '" + labelWidget.objectPath + "', received METADATA_CHANGED signal";
 
         Log.d(TAG, msg);
 
@@ -88,12 +88,12 @@ public class LabelWidgetSignalHandler implements Label {
         }
 
         //Delegate to the listener on a separate thread
-        TaskManager.getInstance().execute( new Runnable() {
-			@Override
-			public void run() {
-				eventsListener.metadataChanged(labelWidget.controlPanel, labelWidget);
-			}
-		});
-	}//MetadataChanged
+        TaskManager.getInstance().execute(new Runnable() {
+            @Override
+            public void run() {
+                eventsListener.metadataChanged(labelWidget.controlPanel, labelWidget);
+            }
+        });
+    }//MetadataChanged
 
 }

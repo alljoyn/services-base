@@ -45,7 +45,7 @@ class NotificationProducerImpl implements NotificationProducer {
 
     /**
      * Constructor
-     * 
+     *
      * @param senderTransport
      *            The Sender transport
      * @param nativePlatform
@@ -60,7 +60,7 @@ class NotificationProducerImpl implements NotificationProducer {
      * Initializes the object <br>
      * Register {@link BusObject}, if failed to register the
      * {@link NotificationServiceException} is thrown
-     * 
+     *
      * @throws NotificationServiceException
      */
     public void init() throws NotificationServiceException {

@@ -32,14 +32,14 @@
 /** Array which holds incoming AJNSNotificationText objects */
 @property (strong, nonatomic) NSMutableArray *ajnsntArr;
 
-- (id)initWithHandle:(const ajn ::services ::Notification *)handle;
+- (id)initWithHandle:(const ajn::services::Notification *)handle;
 
 ///---------------------
 /// @name Initialization
 ///---------------------
 /**
  Designated initializer
- 
+
  @param messageId            The message id
  @param messageType          The message type
  @param deviceId             The device id
@@ -57,18 +57,18 @@
  @return a `AJNSNotification` object
  */
 - (AJNSNotification *)initWithMessageId:(int32_t)messageId
-                           messageType:(AJNSNotificationMessageType)messageType
-                              deviceId:(NSString *)deviceId
-                            deviceName:(NSString *)deviceName
-                                 appId:(NSString *)appId
-                               appName:(NSString *)appName sender:(NSString *)sender
-                      customAttributes:(NSMutableDictionary *)customAttributes
-                      notificationText:(NSMutableArray *)notificationText
-                           richIconUrl:(NSString *)richIconUrl
-                          richAudioUrl:(NSMutableArray *)richAudioUrl
-                    richIconObjectPath:(NSString *)richIconObjectPath
-                   richAudioObjectPath:(NSString *)richAudioObjectPath
-         controlPanelServiceObjectPath:(NSString *)controlPanelServiceObjectPath;
+    messageType:(AJNSNotificationMessageType)messageType
+    deviceId:(NSString *)deviceId
+    deviceName:(NSString *)deviceName
+    appId:(NSString *)appId
+    appName:(NSString *)appName sender:(NSString *)sender
+    customAttributes:(NSMutableDictionary *)customAttributes
+    notificationText:(NSMutableArray *)notificationText
+    richIconUrl:(NSString *)richIconUrl
+    richAudioUrl:(NSMutableArray *)richAudioUrl
+    richIconObjectPath:(NSString *)richIconObjectPath
+    richAudioObjectPath:(NSString *)richAudioObjectPath
+    controlPanelServiceObjectPath:(NSString *)controlPanelServiceObjectPath;
 
 /**
  AJNSNotification initializer
@@ -249,7 +249,7 @@
  */
 - (void)setSender:(NSString *)sender;
 
-- (QStatus) dismiss;
+- (QStatus)dismiss;
 
 /**
  * Populate a temporary array to hold incoming AJNSNotificationText objects
@@ -257,7 +257,6 @@
  */
 - (void)createAJNSNotificationTextArray;
 
-@property (nonatomic, readonly)ajn::services::Notification * handle;
+@property (nonatomic, readonly) ajn::services::Notification *handle;
 
 @end
-

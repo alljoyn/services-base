@@ -20,27 +20,26 @@
 
 + (qcc::String)convertNSStringToQCCString:(NSString *)nsstring
 {
-	return ((qcc::String)[nsstring UTF8String]);
+    return (qcc::String)[nsstring UTF8String];
 }
 
 + (NSString *)convertQCCStringtoNSString:(qcc::String)qccstring
 {
-	return (@(qccstring.c_str()));
+    return @(qccstring.c_str());
 }
 
 + (const char *)convertNSStringToConstChar:(NSString *)nsstring
 {
-	return([nsstring UTF8String]);
+    return [nsstring UTF8String];
 }
 
 + (NSString *)convertConstCharToNSString:(const char *)constchar
 {
-	if ((constchar == NULL) || (constchar[0] == 0)) {
-		return @"";
-	}
-	else {
-		return(@(constchar));
-	}
+    if ((constchar == NULL) || (constchar[0] == 0)) {
+        return @"";
+    } else {
+        return @(constchar);
+    }
 }
 
 @end

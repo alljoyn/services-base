@@ -66,7 +66,7 @@ public class ControlPanelService implements ConnManagerEventsListener, AboutList
 
     /**
      * Creates instance of the control panel service
-     * 
+     *
      * @return {@link ControlPanelService}
      */
     public static ControlPanelService getInstance() {
@@ -86,7 +86,7 @@ public class ControlPanelService implements ConnManagerEventsListener, AboutList
      * The ControlPanelService user is informed about the devices in proximity
      * via the {@link DeviceRegistry} interface. <br>
      * The discovery mechanism is implemented by receiving Announcement signals. <br>
-     * 
+     *
      * @param bus
      *            BusAttachment that the service should use
      * @param deviceRegistry
@@ -119,7 +119,7 @@ public class ControlPanelService implements ConnManagerEventsListener, AboutList
     /**
      * Starts {@link ControlPanelService} without discovering new devices in
      * proximity
-     * 
+     *
      * @param bus
      */
     public void init(BusAttachment bus) throws ControlPanelException {
@@ -138,7 +138,7 @@ public class ControlPanelService implements ConnManagerEventsListener, AboutList
      * Creates object of controllable device. <br>
      * The controllable device allows to join session with the remote device and
      * to receive its {@link DeviceControlPanel}
-     * 
+     *
      * @param sender
      *            The unique name of the remote device
      * @return Created ControllableDevice
@@ -153,7 +153,7 @@ public class ControlPanelService implements ConnManagerEventsListener, AboutList
      * Creates object of controllable device. <br>
      * The controllable device allows to join session with the remote device and
      * to receive its {@link DeviceControlPanel}
-     * 
+     *
      * @param deviceId
      *            The device unique identifier
      * @param sender
@@ -201,7 +201,7 @@ public class ControlPanelService implements ConnManagerEventsListener, AboutList
 
     /**
      * Stops activities of the passed {@link ControllableDevice}
-     * 
+     *
      * @param device
      *            {@link ControllableDevice} to be stopped
      */
@@ -212,7 +212,7 @@ public class ControlPanelService implements ConnManagerEventsListener, AboutList
 
     /**
      * Called when received a connection manager event
-     * 
+     *
      * @see org.alljoyn.ioe.controlpanelservice.communication.ConnManagerEventsListener#connMgrEventOccured(org.alljoyn.ioe.controlpanelservice.communication.ConnManagerEventType,
      *      java.util.Map)
      */
@@ -220,10 +220,11 @@ public class ControlPanelService implements ConnManagerEventsListener, AboutList
     public void connMgrEventOccured(ConnManagerEventType eventType, Map<String, Object> args) {
         Log.d(TAG, "Received event from connection manager, type: '" + eventType + "'");
         switch (eventType) {
-        case ANNOUNCEMENT_RECEIVED: {
+        case ANNOUNCEMENT_RECEIVED:
             handleAnnouncement(args);
             break;
-        }// announcement
+
+        // announcement
         default:
             break;
         }// switch
@@ -234,16 +235,16 @@ public class ControlPanelService implements ConnManagerEventsListener, AboutList
     /**
      * Checks whether the received announcement has ControlPanel interface <br>
      * If has creates ControllableObject and save it in the registry
-     * 
+     *
      * @param args
      */
     private void handleAnnouncement(Map<String, Object> args) {
 
-        String deviceId = (String) args.get("DEVICE_ID");
-        String appId = (String) args.get("APP_ID");
-        String sender = (String) args.get("SENDER");
+        String deviceId = (String)args.get("DEVICE_ID");
+        String appId = (String)args.get("APP_ID");
+        String sender = (String)args.get("SENDER");
 
-        AboutObjectDescription[] objDescList = (AboutObjectDescription[]) args.get("OBJ_DESC");
+        AboutObjectDescription[] objDescList = (AboutObjectDescription[])args.get("OBJ_DESC");
 
         if (deviceId == null || deviceId.length() == 0) {
             Log.e(TAG, "Received a bad Announcement signal, deviceId can't be NULL or empty");

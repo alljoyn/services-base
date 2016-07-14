@@ -51,10 +51,10 @@ public class DeviceList {
     public void onDeviceOffline(String busName) {
 
         Iterator<DeviceContext> iter = contexts.iterator();
-        while ( iter.hasNext() ) {
+        while (iter.hasNext()) {
 
             DeviceContext context = iter.next();
-            if ( context.getBusName().equals(busName) ) {
+            if (context.getBusName().equals(busName)) {
 
                 Log.d(TAG, "Found the busName to be removed from the list: '" + busName + "'");
                 iter.remove();
@@ -73,10 +73,10 @@ public class DeviceList {
     private DeviceContext removeExistingDevice(String deviceId, UUID appId) {
 
         Iterator<DeviceContext> iter = contexts.iterator();
-        while ( iter.hasNext() ) {
+        while (iter.hasNext()) {
 
             DeviceContext context = iter.next();
-            if ( context.getDeviceId().equals(deviceId) && context.getAppId().equals(appId) ) {
+            if (context.getDeviceId().equals(deviceId) && context.getAppId().equals(appId)) {
 
                 Log.d(TAG, "The Device with the deviceId: '" + deviceId + "', appId: '" + appId + "' already exists, removing");
                 iter.remove();
@@ -110,11 +110,11 @@ public class DeviceList {
         public DeviceContext(String deviceId, String busName, String deviceName, UUID appId) {
 
             Log.d("DeviceList", String.format("Adding a new device. id='%s', busName='%s', name='%s' appId='%s;",
-                                               deviceId, busName, deviceName, appId));
+                                              deviceId, busName, deviceName, appId));
 
             this.deviceId = deviceId;
-            this.busName  = busName;
-            this.appId    = appId;
+            this.busName = busName;
+            this.appId = appId;
             this.object2Interfaces = new HashMap<String, String[]>(5);
             label = deviceName + '(' + busName + ')';
         }
@@ -177,10 +177,10 @@ public class DeviceList {
             String[] fields = new String[4];
 
             in.readStringArray(fields);
-            this.deviceId   = fields[0];
-            this.busName    = fields[1];
-            this.label      = fields[2];
-            this.appId      = UUID.fromString(fields[3]);
+            this.deviceId = fields[0];
+            this.busName = fields[1];
+            this.label = fields[2];
+            this.appId = UUID.fromString(fields[3]);
 
             this.object2Interfaces = new HashMap<String, String[]>(5);
             in.readMap(object2Interfaces, getClass().getClassLoader());

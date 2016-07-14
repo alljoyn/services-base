@@ -29,18 +29,18 @@ const CGFloat COMPONENT_HEIGHT = 40;
     if (self) {
         self.label = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, 310, 20)];
         [self.contentView addSubview:self.label];
-        
+
         self.pickerTextField = [[UITextField alloc] initWithFrame:CGRectMake(10, 20, 300, 40)];
-        
+
         self.picker = [[UIPickerView alloc] init];
         self.picker.delegate = self;
         self.picker.dataSource = self;
         self.picker.showsSelectionIndicator = YES;
         self.picker.hidden = NO;
-        
+
         self.pickerTextField.inputView = self.picker;
         self.pickerTextField.borderStyle = UITextBorderStyleRoundedRect;
-        
+
         [self.contentView addSubview:self.pickerTextField];
     }
     return self;
@@ -54,16 +54,16 @@ const CGFloat COMPONENT_HEIGHT = 40;
 - (void)setWidget:(AJCPSWidget *)widget
 {
     _widget = widget;
-    self.label.text  = [NSString stringWithFormat:@"%@",[self.widget getLabel]];
-    
+    self.label.text = [NSString stringWithFormat:@"%@", [self.widget getLabel]];
+
     NSLog(@"widget is: %@", self.widget);
-    NSArray *list = [((AJCPSProperty *)self.widget) getConstraintList];
-    
+    NSArray *list = [((AJCPSProperty *)self.widget)getConstraintList];
+
     self.pickerOptions = [self buildPickerOptions:list];
     NSLog(@"widget constraint list is: %@", self.pickerOptions);
-    
-    if ([self.pickerTextField.text length] <= 0){
-         self.pickerTextField.text = self.pickerOptions[0];
+
+    if ([self.pickerTextField.text length] <= 0) {
+        self.pickerTextField.text = self.pickerOptions[0];
     }
 }
 
@@ -75,26 +75,26 @@ const CGFloat COMPONENT_HEIGHT = 40;
 
 - (NSMutableArray *)buildPickerOptions:(NSArray *)list
 {
-    NSMutableArray *options = [[NSMutableArray alloc]init];
-    
+    NSMutableArray *options = [[NSMutableArray alloc] init];
+
     if ([list count] <= 0) {
         NSLog(@"Building picker options failed due to empty list: %@", list);
         return nil;
     }
-    
+
     NSLog(@"Building picker options for list: %@", list);
     for (AJCPSConstraintList *constraintList in list) {
         NSMutableString *str = [[NSMutableString alloc] init];
-        [str appendFormat:@"%@",[constraintList getDisplay]];
-        
+        [str appendFormat:@"%@", [constraintList getDisplay]];
+
         AJCPSConstraintValue propertyValue = [constraintList getConstraintValue];
         AJCPSPropertyType propertyType = [constraintList getPropertyType];
         [str appendFormat:@"%@", [constraintList propertyToNSString:propertyType withValue:propertyValue]];
-        
+
         NSLog(@"'%@' added to options list", str);
         [options addObject:str];
     }
-    
+
     NSLog(@"picker options built: %@", options);
     return options;
 }
@@ -109,7 +109,7 @@ const CGFloat COMPONENT_HEIGHT = 40;
     return [self.pickerOptions count];
 }
 
-- (NSString*)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component
+- (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component
 {
     if ([self.pickerOptions count] > 0) {
         return self.pickerOptions[row];
@@ -119,17 +119,17 @@ const CGFloat COMPONENT_HEIGHT = 40;
 
 - (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component
 {
-    NSArray *list = [((AJCPSProperty *)self.widget) getConstraintList];
+    NSArray *list = [((AJCPSProperty *)self.widget)getConstraintList];
     for (AJCPSConstraintList *constraintList in list) {
         NSMutableString *str = [[NSMutableString alloc] init];
-        [str appendFormat:@"%@",[constraintList getDisplay]];
-        
+        [str appendFormat:@"%@", [constraintList getDisplay]];
+
         AJCPSConstraintValue propertyValue = [constraintList getConstraintValue];
         AJCPSPropertyType propertyType = [constraintList getPropertyType];
         [str appendFormat:@"%@", [constraintList propertyToNSString:propertyType withValue:propertyValue]];
-        
+
         NSString *pickerName = self.pickerOptions[row];
-        if ([pickerName isEqualToString:str]){
+        if ([pickerName isEqualToString:str]) {
             AJCPSProperty *property = (AJCPSProperty *)self.widget;
             [property setValueFromUnsignedShort:propertyValue.uint16Value];
             break;
@@ -140,12 +140,12 @@ const CGFloat COMPONENT_HEIGHT = 40;
     [self.pickerTextField resignFirstResponder];
 }
 
--(CGFloat)pickerView:(UIPickerView *)pickerView widthForComponent:(NSInteger)component
+- (CGFloat)pickerView:(UIPickerView *)pickerView widthForComponent:(NSInteger)component
 {
     return COMPONENT_WIDTH;
 }
 
--(CGFloat)pickerView:(UIPickerView *)pickerView rowHeightForComponent:(NSInteger)component
+- (CGFloat)pickerView:(UIPickerView *)pickerView rowHeightForComponent:(NSInteger)component
 {
     return COMPONENT_HEIGHT;
 }

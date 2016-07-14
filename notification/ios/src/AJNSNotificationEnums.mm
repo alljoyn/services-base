@@ -20,23 +20,23 @@
 
 + (NSString *)AJNSMessageTypeToString:(AJNSNotificationMessageType)msgType
 {
-	switch (msgType) {
-		case 0:
-			return @"EMERGENCY";
-			break;
-            
-		case 1:
-			return @"WARNING";
-			break;
-            
-		case 2:
-			return @"INFO";
-			break;
-            
-		default:
-			return @"UNSET";
-			break;
-	}
+    switch (msgType) {
+    case 0:
+        return @"EMERGENCY";
+        break;
+
+    case 1:
+        return @"WARNING";
+        break;
+
+    case 2:
+        return @"INFO";
+        break;
+
+    default:
+        return @"UNSET";
+        break;
+    }
 }
 
 @end

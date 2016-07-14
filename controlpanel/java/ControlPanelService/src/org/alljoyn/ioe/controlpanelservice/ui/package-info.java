@@ -18,10 +18,10 @@
  * The UI widget classes are used to receive the initial values that were set by the remotely controllable device. <br>
  * In addition these classes used to perform the remote control of the device.
  * For example: <br>
- * {@link org.alljoyn.ioe.controlpanelservice.ui.ActionWidget#exec()} is used to invoke an action 
+ * {@link org.alljoyn.ioe.controlpanelservice.ui.ActionWidget#exec()} is used to invoke an action
  * on the remote device <br>
  * {@link org.alljoyn.ioe.controlpanelservice.ui.PropertyWidget#setCurrentValue(Object)} is used to set a
- * new property value on the remote device <br>  
+ * new property value on the remote device <br>
  * {@link org.alljoyn.ioe.controlpanelservice.ui.PropertyWidget#getCurrentValue()} is used to receive the current
  * property value <br>
  * Each UI widget has its signal handler to be notified about the state changes in the remote device.
@@ -29,6 +29,6 @@
  * The signal {@link org.alljoyn.ioe.controlpanelservice.ui.ControlPanelEventsListener#metadataChanged(DeviceControlPanel, UIElement)}
  * notifies about a possible change in a widget UI state. <br>
  * The method refreshProperties, i.e: {@link org.alljoyn.ioe.controlpanelservice.ui.PropertyWidget#refreshProperties()}
- * is used to receive the updated state of a Property 
+ * is used to receive the updated state of a Property
  */
 package org.alljoyn.ioe.controlpanelservice.ui;

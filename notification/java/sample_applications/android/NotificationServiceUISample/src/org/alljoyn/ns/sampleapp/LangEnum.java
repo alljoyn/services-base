@@ -17,35 +17,35 @@
 package org.alljoyn.ns.sampleapp;
 
 public enum LangEnum {
-	English("en"),
-	Hebrew("he"),
-	Russian("ru");
-	
-	/**
-	 * Internal name representation
-	 */
-	public final String INT_NAME; 
-	
-	/**
-	 * Constructor
-	 * @param name
-	 */
-	private LangEnum(String name) {
-		INT_NAME = name;
-	}
-	
-	/**
-	 * Returns string representation of the enum
-	 * @return
-	 */
-	public static String[] stringValues() {
-		LangEnum[] enumValues = LangEnum.values();
-		String[] arr = new String [ enumValues.length ];
-		int i = 0;
-		for (LangEnum le : enumValues ) {
-			arr[i] = le.toString();
-			++i;
-		}
-		return  arr;
-	}//stringValues
+    English("en"),
+    Hebrew("he"),
+    Russian("ru");
+
+    /**
+     * Internal name representation
+     */
+    public final String INT_NAME;
+
+    /**
+     * Constructor
+     * @param name
+     */
+    private LangEnum(String name) {
+        INT_NAME = name;
+    }
+
+    /**
+     * Returns string representation of the enum
+     * @return
+     */
+    public static String[] stringValues() {
+        LangEnum[] enumValues = LangEnum.values();
+        String[] arr = new String[enumValues.length];
+        int i = 0;
+        for (LangEnum le : enumValues) {
+            arr[i] = le.toString();
+            ++i;
+        }
+        return arr;
+    }//stringValues
 }

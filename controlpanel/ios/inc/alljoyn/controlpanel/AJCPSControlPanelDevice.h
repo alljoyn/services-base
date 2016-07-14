@@ -30,7 +30,7 @@
  * Constructor for ControlPanelDevice
  * @param handle handle to the instance
  */
-- (id)initWithHandle:(ajn ::services ::ControlPanelDevice *)handle;
+- (id)initWithHandle:(ajn::services::ControlPanelDevice *)handle;
 
 /**
  * startSessionAsync - start a session with Device Asynchronously
@@ -125,6 +125,6 @@
  */
 - (QStatus)setListener:(id <AJCPSControlPanelListener> )listener;
 
-@property (nonatomic, readonly)ajn::services::ControlPanelDevice * handle;
+@property (nonatomic, readonly) ajn::services::ControlPanelDevice *handle;
 
 @end

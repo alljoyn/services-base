@@ -19,29 +19,29 @@ package org.alljoyn.ioe.controlpanelservice.ui.ajstruct;
 import org.alljoyn.bus.annotation.Position;
 
 public class PropertyWidgetThreeShortAJ {
-	
-	/**
-	 * The type of the received structure, either Date or Time
-	 */
-	@Position(0)
-	public short dataType;
-	
-	/**
-	 * Either Hour or Day
-	 */
-	@Position(1)
-	public ThreeShortAJ data;
-	
-		
-	public static class ThreeShortAJ {
-		@Position(0)
-		public short var1;
-		
-		@Position(1)
-		public short var2;
-		
-		@Position(2)
-		public short var3;
 
-	}
+    /**
+     * The type of the received structure, either Date or Time
+     */
+    @Position(0)
+    public short dataType;
+
+    /**
+     * Either Hour or Day
+     */
+    @Position(1)
+    public ThreeShortAJ data;
+
+
+    public static class ThreeShortAJ {
+        @Position(0)
+        public short var1;
+
+        @Position(1)
+        public short var2;
+
+        @Position(2)
+        public short var3;
+
+    }
 }

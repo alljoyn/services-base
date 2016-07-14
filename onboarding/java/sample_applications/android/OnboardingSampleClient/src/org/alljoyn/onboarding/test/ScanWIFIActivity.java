@@ -84,8 +84,8 @@ public class ScanWIFIActivity extends ListActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.scan_wifi_layout);
-        m_WifiManager = ((OnboardingApplication) getApplication()).getIskWifiManager();
-        m_list = (ListView) findViewById(android.R.id.list);
+        m_WifiManager = ((OnboardingApplication)getApplication()).getIskWifiManager();
+        m_list = (ListView)findViewById(android.R.id.list);
         m_adapter = new ScanWIFIAdapter(ScanWIFIActivity.this, R.id.wifi_name_row_textview);
         m_list.setAdapter(m_adapter);
         m_loadingPopup = new ProgressDialog(this);
@@ -97,7 +97,7 @@ public class ScanWIFIActivity extends ListActivity {
      * @see android.app.Activity#onStart()
      */
     @Override
-    protected void onStart(){
+    protected void onStart() {
         super.onStart();
 
         m_Context = getApplicationContext();
@@ -124,11 +124,11 @@ public class ScanWIFIActivity extends ListActivity {
                         Timer timer = new Timer();
                         timer.schedule(new TimerTask() {
                             public void run() {
-                                if (m_progressDialog!=null && m_progressDialog.isShowing()) {
+                                if (m_progressDialog != null && m_progressDialog.isShowing()) {
                                     m_progressDialog.dismiss();
                                 }
                             }
-                        },2000);
+                        }, 2000);
                     }
                     // filter out AP that don't start with "AJ_" or end with "_AJ"
                 }, "AJ_", "_AJ");
@@ -138,7 +138,7 @@ public class ScanWIFIActivity extends ListActivity {
         platformReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (IskWifiManager.MARSHMALLOW_SOFTAP_CONNECT.equals(intent.getAction())){
+                if (IskWifiManager.MARSHMALLOW_SOFTAP_CONNECT.equals(intent.getAction())) {
                     Log.d(TAG, "Display marshmallow softAP connect toast");
                     Toast toast = Toast.makeText(getApplicationContext(), "Android Marshmallow will not update network settings.", Toast.LENGTH_LONG);
                     toast.show();
@@ -172,18 +172,19 @@ public class ScanWIFIActivity extends ListActivity {
                 alert.setMessage(R.string.enter_wifi_password_message);
 
                 View view = getLayoutInflater().inflate(R.layout.password_type_popup, null);
-                final EditText input = (EditText) view.findViewById(R.id.passwordEditText);
-                final CheckBox showPassword = (CheckBox) view.findViewById(R.id.showPasswordCheckBox);
+                final EditText input = (EditText)view.findViewById(R.id.passwordEditText);
+                final CheckBox showPassword = (CheckBox)view.findViewById(R.id.showPasswordCheckBox);
                 alert.setView(view);
 
                 showPassword.setOnCheckedChangeListener(new OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 
-                        if (isChecked)
+                        if (isChecked) {
                             input.setInputType(InputType.TYPE_CLASS_TEXT);
-                        else
+                        } else {
                             input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                        }
                     }
                 });
 
@@ -351,4 +352,3 @@ public class ScanWIFIActivity extends ListActivity {
     }
     //=================================================================================
 }
-

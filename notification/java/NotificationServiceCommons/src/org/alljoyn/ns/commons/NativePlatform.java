@@ -20,15 +20,15 @@ package org.alljoyn.ns.commons;
  * Implement this interface to provide platform dependent functionality for the Notification service
  */
 public interface NativePlatform {
-	
-	/**
-	 * Returns reference to GenericLogger object
-	 */
-	public GenericLogger getNativeLogger();
-	
-	/**
-	 * Set a GenericLogger object
-	 * @param logger
-	 */
-	public void setNativeLogger(GenericLogger logger);
+
+    /**
+     * Returns reference to GenericLogger object
+     */
+    public GenericLogger getNativeLogger();
+
+    /**
+     * Set a GenericLogger object
+     * @param logger
+     */
+    public void setNativeLogger(GenericLogger logger);
 }

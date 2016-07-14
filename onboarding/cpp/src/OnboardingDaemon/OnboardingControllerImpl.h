@@ -71,7 +71,7 @@ class OnboardingControllerImpl : public ajn::services::OnboardingControllerAPI {
     virtual void ConfigureWiFi(qcc::String SSID, qcc::String passphrase, short authType, short& status, qcc::String& error, qcc::String& errorMessage);
 
     /**
-     *	Connect to the WIFI using the ConfigureWiFi details supplied before
+     *  Connect to the WIFI using the ConfigureWiFi details supplied before
      */
     virtual void Connect();
 
@@ -84,7 +84,7 @@ class OnboardingControllerImpl : public ajn::services::OnboardingControllerAPI {
     virtual void GetScanInfo(unsigned short& age, ajn::services::OBScanInfo*& scanInfoList, size_t& scanListNumElements);
 
     /**
-     *	Offboard disconnect from the WIFI
+     *  Offboard disconnect from the WIFI
      */
     virtual void Offboard();
 
@@ -151,7 +151,7 @@ class OnboardingControllerImpl : public ajn::services::OnboardingControllerAPI {
     /**
      * execute configure cmd
      */
-    int execute_configure(const char*SSID, const int authText, const char*passphrase);
+    int execute_configure(const char* SSID, const int authText, const char* passphrase);
 
     /**
      * trim leading and trailing spaces

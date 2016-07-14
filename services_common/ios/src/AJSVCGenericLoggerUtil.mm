@@ -21,34 +21,24 @@
 
 + (NSString *)toStringQLogLevel:(QLogLevel)logLevel
 {
-	switch (logLevel) {
-		case QLEVEL_FATAL:
-		{
-			return @"FATAL";
-		}
-            
-		case QLEVEL_ERROR:
-		{
-			return @"ERROR";
-		}
-            
-		case QLEVEL_WARN:
-		{
-			return @"WARN";
-		}
-            
-		case QLEVEL_INFO:
-		{
-			return @"INFO";
-		}
-            
-		case QLEVEL_DEBUG:
-		{
-			return @"DEBUG";
-		}
-	}
-    
-	return @"UNKNOWN";
+    switch (logLevel) {
+    case QLEVEL_FATAL:
+        return @"FATAL";
+
+    case QLEVEL_ERROR:
+        return @"ERROR";
+
+    case QLEVEL_WARN:
+        return @"WARN";
+
+    case QLEVEL_INFO:
+        return @"INFO";
+
+    case QLEVEL_DEBUG:
+        return @"DEBUG";
+    }
+
+    return @"UNKNOWN";
 }
 
 @end

@@ -116,7 +116,7 @@ public class ControlPanelApplication extends Application implements AuthPassword
 
     /**
      * Advertise the daemon so that the thin client can find it
-     * 
+     *
      * @param logger
      */
     private void advertiseDaemon() {

@@ -23,69 +23,80 @@
 
 using namespace ajn::services;
 
-class AJCPSControlPanelListenerAdapter : public ajn::services::ControlPanelListener
-{
-public:
-    id<AJCPSControlPanelListener> listener;
+class AJCPSControlPanelListenerAdapter : public ajn::services::ControlPanelListener {
+  public:
+    id <AJCPSControlPanelListener> listener;
 
-    
-    AJCPSControlPanelListenerAdapter(id<AJCPSControlPanelListener> listener) { this->listener = listener;}
-    
-    id<AJCPSControlPanelListener> getListener() {return this->listener;}
-    
+
+    AJCPSControlPanelListenerAdapter(id <AJCPSControlPanelListener> listener)
+    {
+        this->listener = listener;
+    }
+
+    id <AJCPSControlPanelListener> getListener()
+    {
+        return this->listener;
+    }
+
     /**
      * sessionEstablished - callback when a session is established with a device
      * @param device - the device that the session was established with
      */
-    virtual void sessionEstablished(ControlPanelDevice* device) { [listener sessionEstablished:[[AJCPSControlPanelDevice alloc]initWithHandle:device]];}
-    
+    virtual void sessionEstablished(ControlPanelDevice *device)
+    {
+        [listener sessionEstablished :[[AJCPSControlPanelDevice alloc] initWithHandle:device]];
+    }
+
     /**
      * sessionLost - callback when a session is lost with a device
      * @param device - device that the session was lost with
      */
-    virtual void sessionLost(ControlPanelDevice* device) { [listener sessionLost:[[AJCPSControlPanelDevice alloc]initWithHandle:device]];}
-    
+    virtual void sessionLost(ControlPanelDevice *device)
+    {
+        [listener sessionLost :[[AJCPSControlPanelDevice alloc] initWithHandle:device]];
+    }
+
     /**
      * signalPropertiesChanged - callback when a property Changed signal is received
      * @param device - device signal was received from
      * @param widget - widget signal was received for
      */
-    virtual void signalPropertiesChanged(ControlPanelDevice* device, Widget* widget) {
+    virtual void signalPropertiesChanged(ControlPanelDevice *device, Widget *widget)
+    {
 
-        AJCPSWidget *new_widget = [[AJCPSWidget alloc]initWithHandle:widget];
-        
-        [listener signalPropertiesChanged:[[AJCPSControlPanelDevice alloc]initWithHandle:device]
-                        widget:new_widget];
+        AJCPSWidget *new_widget = [[AJCPSWidget alloc] initWithHandle:widget];
+
+        [listener signalPropertiesChanged :[[AJCPSControlPanelDevice alloc] initWithHandle:device] widget:new_widget];
     }
-    
+
     /**
      * signalPropertyValueChanged - callback when a property Value Changed signal is received
      * @param device - device signal was received from
      * @param property - Property signal was received for
      */
-    virtual void signalPropertyValueChanged(ControlPanelDevice* device, Property* property)
+    virtual void signalPropertyValueChanged(ControlPanelDevice *device, Property *property)
     {
-        AJCPSControlPanelDevice *qcp_device = [[AJCPSControlPanelDevice alloc]initWithHandle:device];
-        
-        AJCPSProperty *qcp_property = [[AJCPSProperty alloc]initWithHandle:property];
-        
+        AJCPSControlPanelDevice *qcp_device = [[AJCPSControlPanelDevice alloc] initWithHandle:device];
+
+        AJCPSProperty *qcp_property = [[AJCPSProperty alloc] initWithHandle:property];
+
         [listener signalPropertyValueChanged:qcp_device property:qcp_property];
     }
-    
+
     /**
      * signalDismiss - callback when a Dismiss signal is received
      * @param device - device signal was received from
      * @param notificationAction - notificationAction signal was received for
      */
-    virtual void signalDismiss(ControlPanelDevice* device, NotificationAction* notificationAction)
+    virtual void signalDismiss(ControlPanelDevice *device, NotificationAction *notificationAction)
     {
-        AJCPSControlPanelDevice *qcp_device = [[AJCPSControlPanelDevice alloc]initWithHandle:device];
-        
-        AJCPSNotificationAction *qcp_notification_action = [[AJCPSNotificationAction alloc]initWithHandle:notificationAction];
-        
+        AJCPSControlPanelDevice *qcp_device = [[AJCPSControlPanelDevice alloc] initWithHandle:device];
+
+        AJCPSNotificationAction *qcp_notification_action = [[AJCPSNotificationAction alloc] initWithHandle:notificationAction];
+
         [listener signalDismiss:qcp_device notificationAction:qcp_notification_action];
     }
-    
+
     /**
      * ErrorOccured - callback to tell application when something goes wrong
      * @param device - device  that had the error
@@ -93,21 +104,23 @@ public:
      * @param transaction - the type of transaction that resulted in the error
      * @param errorMessage - a log-able error Message
      */
-    virtual void errorOccured(ControlPanelDevice* device, QStatus status, ControlPanelTransaction transaction, qcc::String const& errorMessage)
+    virtual void errorOccured(ControlPanelDevice *device, QStatus status, ControlPanelTransaction transaction, qcc::String const &errorMessage)
     {
-        AJCPSControlPanelDevice *qcp_device = [[AJCPSControlPanelDevice alloc]initWithHandle:device];
-        
+        AJCPSControlPanelDevice *qcp_device = [[AJCPSControlPanelDevice alloc] initWithHandle:device];
+
         AJCPSControlPanelTransaction qcp_controlpanel_transaction = transaction;
-        
+
         NSString *qcp_error_message = [AJSVCConvertUtil convertQCCStringtoNSString:errorMessage];
-        
+
         [listener errorOccured:qcp_device status:status transaction:qcp_controlpanel_transaction errorMessage:qcp_error_message];
     }
 
-    virtual ~AJCPSControlPanelListenerAdapter() { };
-    
-    private:
-        
+    virtual ~AJCPSControlPanelListenerAdapter()
+    {
+    };
+
+  private:
+
 };
 
 

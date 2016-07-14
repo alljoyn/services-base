@@ -26,37 +26,37 @@ import org.alljoyn.bus.annotation.BusSignal;
 import org.alljoyn.bus.annotation.Secure;
 import org.alljoyn.ioe.controlpanelservice.ControlPanelService;
 
-@BusInterface (name = ContainerSecured.IFNAME)
+@BusInterface(name = ContainerSecured.IFNAME)
 @Secure
 public interface ContainerSecured extends ContainerSuper {
-	public static final String IFNAME = ControlPanelService.INTERFACE_PREFIX + ".SecuredContainer"; 
-	
-	public static final short VERSION = 1;
-	
-	/**
-	 * @return Interface version
-	 */
-	@BusProperty(signature="q")
-	public short getVersion() throws BusException;
+    public static final String IFNAME = ControlPanelService.INTERFACE_PREFIX + ".SecuredContainer";
 
-	/**
-	 * @return States bitmask 
-	 * @throws BusException
-	 */
-	@BusProperty(signature="u")
-	public int getStates() throws BusException; 
+    public static final short VERSION = 1;
 
-	/**
-	 * @return Optional parameters
-	 * @throws BusException
-	 */
-	@BusProperty(signature="a{qv}")
-	public Map<Short,Variant> getOptParams() throws BusException;
-	
-	/**
-	 * Signal is sent when the UI container metadata changed 
-	 * @param metadata
-	 */
-	@BusSignal
-	public void MetadataChanged() throws BusException;
+    /**
+     * @return Interface version
+     */
+    @BusProperty(signature = "q")
+    public short getVersion() throws BusException;
+
+    /**
+     * @return States bitmask
+     * @throws BusException
+     */
+    @BusProperty(signature = "u")
+    public int getStates() throws BusException;
+
+    /**
+     * @return Optional parameters
+     * @throws BusException
+     */
+    @BusProperty(signature = "a{qv}")
+    public Map<Short, Variant> getOptParams() throws BusException;
+
+    /**
+     * Signal is sent when the UI container metadata changed
+     * @param metadata
+     */
+    @BusSignal
+    public void MetadataChanged() throws BusException;
 }

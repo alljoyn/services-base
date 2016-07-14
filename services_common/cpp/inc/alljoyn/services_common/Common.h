@@ -28,7 +28,7 @@ namespace common {
 /**
  * Checks if a valid AllJoyn Object path has been specified in str.
  */
-extern bool     IsLegalObjectPath(const char* str);
+extern bool IsLegalObjectPath(const char* str);
 
 }         //namespace common
 }     //namespace services
@@ -36,4 +36,3 @@ extern bool     IsLegalObjectPath(const char* str);
 
 
 #endif /* SERVICES_COMMON_COMMON_H_ */
-

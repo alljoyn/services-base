@@ -48,4 +48,3 @@ static const qcc::String AJPARAM_DOUBLE = "d";
 
 
 #endif /* SERVICES_COMMON_CONSTANTS_H_ */
-

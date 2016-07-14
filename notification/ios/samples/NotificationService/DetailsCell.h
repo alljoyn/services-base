@@ -20,6 +20,6 @@
 
 @interface DetailsCell : UITableViewCell
 @property (weak, nonatomic) IBOutlet UILabel *detailsLabel;
-@property (weak,nonatomic) NotificationEntry *notificationEntry;
+@property (weak, nonatomic) NotificationEntry *notificationEntry;
 
 @end

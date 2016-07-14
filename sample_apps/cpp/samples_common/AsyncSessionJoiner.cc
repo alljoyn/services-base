@@ -46,7 +46,7 @@ void AsyncSessionJoiner::JoinSessionCB(QStatus status, SessionId id, const Sessi
         std::cout << "JoinSessionCB(" << m_Busname.c_str() << ") failed with status: " << QCC_StatusText(status) << std::endl;
     }
 
-    SessionListenerImpl* listener = (SessionListenerImpl*) context;
+    SessionListenerImpl* listener = (SessionListenerImpl*)context;
     delete listener;
     delete this;
 }

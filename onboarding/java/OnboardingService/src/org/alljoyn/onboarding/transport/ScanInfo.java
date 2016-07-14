@@ -21,57 +21,50 @@ import org.alljoyn.bus.annotation.Position;
 /**
  * A class that represents a WiFi scan: an array of SSID and authType, with an age
  */
-public class ScanInfo
-{
-	/**
-	 * age reflects how long ago was the scan procedure performed by the device. The units are in minutes.
-	 */
+public class ScanInfo {
+    /**
+     * age reflects how long ago was the scan procedure performed by the device. The units are in minutes.
+     */
     @Position(0) public short m_age;
-    
+
     /**
      * An array of {@link MyScanResult}. Each one represents a potential personal AP: SSID and authType.
      */
     @Position(1) public MyScanResult[] m_scanResults;
-	
-    public ScanInfo()
-    {
+
+    public ScanInfo() {
     }
-    
+
     /**
      * Get the age of the scan
      * @return age in minutes
      */
-	public short getAge()
-	{
-		return m_age;
-	}
+    public short getAge() {
+        return m_age;
+    }
 
-	/**
-	 * set the age of the scan
-	 * @param age in minutes
-	 */
-	public void setAge(short age)
-	{
-		m_age = age;
-	}
+    /**
+     * set the age of the scan
+     * @param age in minutes
+     */
+    public void setAge(short age) {
+        m_age = age;
+    }
 
-	/**
-	 * Get the Scan Result
-	 * @return an array of SSID,AuthType pairs
-	 */
-	public MyScanResult[] getScanResults()
-	{
-		return m_scanResults;
-	}
+    /**
+     * Get the Scan Result
+     * @return an array of SSID,AuthType pairs
+     */
+    public MyScanResult[] getScanResults() {
+        return m_scanResults;
+    }
 
-	/**
-	 * Set the scan result
-	 * @param result
-	 */
-	public void setScanResult(MyScanResult[] result)
-	{
-		m_scanResults = result;
-	}
+    /**
+     * Set the scan result
+     * @param result
+     */
+    public void setScanResult(MyScanResult[] result) {
+        m_scanResults = result;
+    }
 
 }
-

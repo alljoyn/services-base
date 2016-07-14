@@ -20,18 +20,18 @@
 
 AJOBOnboardingClientListenerAdapter::AJOBOnboardingClientListenerAdapter(id <AJOBOnboardingClientListener> onboardingClientListener)
 {
-	 ajOnboardingClientListener = onboardingClientListener;
+    ajOnboardingClientListener = onboardingClientListener;
 }
 
 AJOBOnboardingClientListenerAdapter::~AJOBOnboardingClientListenerAdapter()
 {
 }
 
-void AJOBOnboardingClientListenerAdapter::ConnectionResultSignalReceived(short connectionResultCode, const qcc::String& connectionResultMessage)
+void AJOBOnboardingClientListenerAdapter::ConnectionResultSignalReceived(short connectionResultCode, const qcc::String &connectionResultMessage)
 {
-    NSString* connectionResultMessageString;
-    
+    NSString *connectionResultMessageString;
+
     connectionResultMessageString = [AJSVCConvertUtil convertQCCStringtoNSString:connectionResultMessage];
-    [ajOnboardingClientListener connectionResultSignalReceived: connectionResultCode connectionResultMessage: connectionResultMessageString];
-    
+    [ajOnboardingClientListener connectionResultSignalReceived:connectionResultCode connectionResultMessage:connectionResultMessageString];
+
 }

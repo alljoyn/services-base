@@ -245,7 +245,7 @@ public class DeviceListFragment extends ListFragment {
             throw new IllegalStateException("Activity must implement fragment's callbacks.");
         }
 
-        mCallbacks = (DeviceListCallback) activity;
+        mCallbacks = (DeviceListCallback)activity;
     }
 
     @Override
@@ -329,16 +329,14 @@ public class DeviceListFragment extends ListFragment {
             switch (msg.what) {
 
             /* Connect to the bus and start our service. */
-            case CONNECT: {
+            case CONNECT:
                 connect();
                 break;
-            }
 
             /* Release all resources acquired in connect. */
-            case DISCONNECT: {
+            case DISCONNECT:
                 disconnect();
                 break;
-            }
 
             }
         }
@@ -442,7 +440,7 @@ public class DeviceListFragment extends ListFragment {
         /*
          * A callback where About service notifies listeners about a new
          * announcement.
-         * 
+         *
          * @see
          * org.alljoyn.services.common.AnnouncementHandler#onAnnouncement(java
          * .lang.String, short,
@@ -542,7 +540,7 @@ public class DeviceListFragment extends ListFragment {
                 @Override
                 public void run() {
                     ArrayAdapter<DeviceContext> arrayAdapter = new ArrayAdapter<DeviceList.DeviceContext>(getActivity(), android.R.layout.simple_list_item_activated_1, android.R.id.text1,
-                            deviceRegistry.getContexts());
+                                                                                                          deviceRegistry.getContexts());
                     setListAdapter(arrayAdapter);
                     arrayAdapter.notifyDataSetChanged();
                 }
@@ -572,19 +570,20 @@ public class DeviceListFragment extends ListFragment {
                 Log.w(TAG, "The peer: '" + authPeer + "', WAS NOT authenticated for authMechanism: '" + authMechanism + "'");
             }
 
-            if (getActivity() != null)
+            if (getActivity() != null) {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         Toast.makeText(getActivity(), "Authenticated: " + authenticated, Toast.LENGTH_SHORT).show();
                     }
                 });
+            }
         }
 
         /**
          * Persistent authentication and encryption data is stored at this
          * location.
-         * 
+         *
          * This uses the private file area associated with the application
          * package.
          */
@@ -600,9 +599,9 @@ public class DeviceListFragment extends ListFragment {
         alert.setCancelable(false);
 
         View view = getActivity().getLayoutInflater().inflate(R.layout.enter_password_popup, null);
-        final EditText input = (EditText) view.findViewById(R.id.passwordEditText);
+        final EditText input = (EditText)view.findViewById(R.id.passwordEditText);
         input.setText(srpPassword);
-        final CheckBox showPassword = (CheckBox) view.findViewById(R.id.showPasswordCheckBox);
+        final CheckBox showPassword = (CheckBox)view.findViewById(R.id.showPasswordCheckBox);
         alert.setView(view);
 
         showPassword.setOnCheckedChangeListener(new OnCheckedChangeListener() {
