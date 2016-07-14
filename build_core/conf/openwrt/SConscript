@@ -69,7 +69,9 @@ env.Replace(RANLIB = env['TARGET_RANLIB'])
 env['ENV']['PATH'] = env['TARGET_PATH']
 env['ENV']['STAGING_DIR'] = env['STAGING_DIR']
 
-config = Configure(env, custom_tests = { 'CheckCXXFlag' : CheckCXXFlag })
+sconf_dir = env['BUILDDIR'] + '/sconf'
+sconf_log = sconf_dir + '/sconf.log'
+config = Configure(env, conf_dir = sconf_dir, log_file = sconf_log, custom_tests = { 'CheckCXXFlag' : CheckCXXFlag })
 if not config.CheckCXXFlag('-std=c++11'):
    if not config.CheckCXXFlag('-std=c++0x'):
       print '*** Compiler too old to build AllJoyn.  Aborting.'
