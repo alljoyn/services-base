@@ -62,62 +62,96 @@ static QStatus Crypto_GetRandomBytes(uint8_t* buf, const size_t count)
     return status;
 }
 
-void CertificateUtil::GenerateIdentityCertificate(const ECCPublicKey& publicKey,
-                                                  const GUID128 identityGuid,
-                                                  const String& identityName,
-                                                  IdentityCertificate& cert)
+
+
+QStatus CertificateUtil::GenerateIdentityCertificate(const ECCPublicKey& publicKey,
+                                             const GUID128 identityGuid,
+                                             const String& identityName,
+                                             IdentityCertificate& cert)
 {
     cert.SetAlias(identityGuid.ToString());
     cert.SetSubjectOU((const uint8_t*)identityName.c_str(), identityName.length());
 
     String aki;
-    CertificateX509::GenerateAuthorityKeyId(&publicKey, aki);
+    QStatus status = CertificateX509::GenerateAuthorityKeyId(&publicKey, aki);
 
-    GenerateCertificate(aki, &publicKey, 365 * 5, cert);
+    if (ER_OK == status) {
+        status = GenerateCertificate(aki, &publicKey, 365 * 5, cert);
+    }
+
+    return status;
 }
 
-void CertificateUtil::GenerateMembershipCertificate(const ECCPublicKey& publicKey,
-                                                    const GUID128& group,
-                                                    MembershipCertificate& cert)
+
+
+QStatus CertificateUtil::GenerateMembershipCertificate(const ECCPublicKey& publicKey,
+                                               const GUID128& group,
+                                               MembershipCertificate& cert)
 {
     cert.SetGuild(group);
 
     String aki;
-    CertificateX509::GenerateAuthorityKeyId(&publicKey, aki);
+    QStatus status = CertificateX509::GenerateAuthorityKeyId(&publicKey, aki);
 
-    GenerateCertificate(aki, &publicKey, 365 * 5, cert);
+    if (ER_OK == status) {
+        status = GenerateCertificate(aki, &publicKey, 365 * 5, cert);
+    }
+
+    return status;
 }
 
-void CertificateUtil::IssueCertificate(const Crypto_ECC& issuerKeyPair,
-                                       const String& issuerCN,
-                                       CertificateX509& cert)
+
+
+QStatus CertificateUtil::IssueCertificate(const Crypto_ECC& issuerKeyPair,
+                                  const String& issuerCN,
+                                  CertificateX509& cert)
 {
     std::cout << "IssueCertificate. issuer CN: " << issuerCN << std::endl;
 
     cert.SetIssuerCN((const uint8_t*)issuerCN.c_str(), issuerCN.length());
 
-    cert.SignAndGenerateAuthorityKeyId(issuerKeyPair.GetDSAPrivateKey(), issuerKeyPair.GetDSAPublicKey());
+    QStatus status = cert.SignAndGenerateAuthorityKeyId(issuerKeyPair.GetDSAPrivateKey(), issuerKeyPair.GetDSAPublicKey());
 
-    std::cout << "IssueCertificate " << cert.ToString() << std::endl;
+    if (ER_OK == status) {
+        std::cout << "IssueCertificate " << cert.ToString() << std::endl;
+    }
+
+    return status;
 }
 
-void CertificateUtil::GenerateCA(const Crypto_ECC& caKeyPair, const String& caCN, CertificateX509& cert)
+
+
+QStatus CertificateUtil::GenerateCA(const Crypto_ECC& caKeyPair, const String& caCN, CertificateX509& cert)
 {
     std::cout << "GenerateCA. CN: " << caCN << std::endl;
     cert.SetCA(true);
 
-    GenerateCertificate(caCN, caKeyPair.GetDSAPublicKey(), 365 * 10, cert);
+    QStatus status = GenerateCertificate(caCN, caKeyPair.GetDSAPublicKey(), 365 * 10, cert);
 
-    IssueCertificate(caKeyPair, caCN, cert);
+    if (ER_OK == status) {
+        status = IssueCertificate(caKeyPair, caCN, cert);
+    }
+
+    if (ER_OK != status) {
+        std::cout << "WARNING - Failed to generate a CA: status is " << QCC_StatusText(status) << std::endl;
+    }
+
+    return status;
 }
 
-void CertificateUtil::GenerateCertificate(const String& subjectCN,
-                                          const ECCPublicKey* subjectPublicKey,
-                                          uint64_t validDays,
-                                          CertificateX509& cert)
+
+
+QStatus CertificateUtil::GenerateCertificate(const String& subjectCN,
+                                     const ECCPublicKey* subjectPublicKey,
+                                     uint64_t validDays,
+                                     CertificateX509& cert)
 {
+    QStatus status = ER_OK;
     std::cout << "GenerateCertificate. subject CN: " << subjectCN << std::endl;
-    assert(subjectPublicKey != NULL && "subjectPublicKey should not be NULL");
+
+    if (!subjectPublicKey) {
+        return ER_BAD_ARG_2;
+    }
 
     cert.SetSubjectCN((uint8_t*)subjectCN.c_str(), subjectCN.length());
     cert.SetSubjectPublicKey(subjectPublicKey);
@@ -130,13 +164,15 @@ void CertificateUtil::GenerateCertificate(const String& subjectCN,
     cert.SetValidity(&period);
 
     uint8_t serialNumber[SERIAL_NUMBER_LENGTH];
-    QStatus status = Crypto_GetRandomBytes(serialNumber, sizeof(serialNumber));
-    if (ER_OK != status) {
-        std::cout << "WARNING - Could not generate random serial number; status is " << QCC_StatusText(status) <<
-            std::endl;
+    status = Crypto_GetRandomBytes(serialNumber, sizeof(serialNumber));
+    if (ER_OK == status) {
+        serialNumber[0] &= 0x7F;
+        cert.SetSerial(serialNumber, sizeof(serialNumber));
+    } else {
+        std::cout << "WARNING - Could not generate random serial number; status is " << QCC_StatusText(status) << std::endl;
     }
-    serialNumber[0] &= 0x7F;
-    cert.SetSerial(serialNumber, sizeof(serialNumber));
+
+    return status;
 }
 
 QStatus CertificateUtil::SignManifest(const ECCPrivateKey* issuerKey, const CertificateX509& subjectCertificate, Manifest& manifest)
@@ -165,7 +201,7 @@ bool CertificateUtil::LoadCertificate(const String& filename, CertificateX509& c
         std::string pem((std::istreambuf_iterator<char>(fs)), (std::istreambuf_iterator<char>()));
         fs.close();
 
-        QStatus status = cert.LoadPEM(String(pem.c_str()));
+        QStatus status = cert.LoadPEM(String(pem));
         return ER_OK == status;
     }
 
@@ -175,17 +211,15 @@ bool CertificateUtil::LoadCertificate(const String& filename, CertificateX509& c
 bool CertificateUtil::SavePrivateKey(const String& filename, const ECCPrivateKey* privateKey)
 {
     String privateKeyPem;
-    QStatus status = CertificateX509::EncodePrivateKeyPEM(privateKey, privateKeyPem);
-    if (ER_OK != status) {
-        return status;
-    }
 
-    std::ofstream fs;
-    fs.open(filename, std::fstream::out | std::fstream::trunc);
-    if (fs.is_open()) {
-        fs << privateKeyPem;
-        fs.close();
-        return true;
+    if (ER_OK == CertificateX509::EncodePrivateKeyPEM(privateKey, privateKeyPem)) {
+        std::ofstream fs;
+        fs.open(filename, std::fstream::out | std::fstream::trunc);
+        if (fs.is_open()) {
+            fs << privateKeyPem;
+            fs.close();
+            return true;
+        }
     }
 
     return false;
@@ -198,7 +232,7 @@ bool CertificateUtil::LoadPrivateKey(const String& filename, ECCPrivateKey* priv
         std::string pem((std::istreambuf_iterator<char>(fs)), (std::istreambuf_iterator<char>()));
         fs.close();
 
-        QStatus status = CertificateX509::DecodePrivateKeyPEM(String(pem.c_str()), privateKey);
+        QStatus status = CertificateX509::DecodePrivateKeyPEM(String(pem), privateKey);
         return ER_OK == status;
     }
 

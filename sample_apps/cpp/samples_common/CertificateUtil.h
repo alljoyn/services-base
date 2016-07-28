@@ -26,22 +26,22 @@
 
 class CertificateUtil {
   public:
-    static void GenerateIdentityCertificate(const qcc::ECCPublicKey& publicKey,
-                                            const qcc::GUID128 identityGuid,
-                                            const qcc::String& identityName,
-                                            qcc::IdentityCertificate& cert);
+    static QStatus GenerateIdentityCertificate(const qcc::ECCPublicKey& publicKey,
+                                               const qcc::GUID128 identityGuid,
+                                               const qcc::String& identityName,
+                                               qcc::IdentityCertificate& cert);
 
-    static void GenerateMembershipCertificate(const qcc::ECCPublicKey& publicKey,
-                                              const qcc::GUID128& group,
-                                              qcc::MembershipCertificate& cert);
+    static QStatus GenerateMembershipCertificate(const qcc::ECCPublicKey& publicKey,
+                                                 const qcc::GUID128& group,
+                                                 qcc::MembershipCertificate& cert);
 
-    static void GenerateCA(const qcc::Crypto_ECC& caKeyPair,
-                           const qcc::String& caCN,
-                           qcc::CertificateX509& cert);
+    static QStatus GenerateCA(const qcc::Crypto_ECC& caKeyPair,
+                              const qcc::String& caCN,
+                              qcc::CertificateX509& cert);
 
-    static void IssueCertificate(const qcc::Crypto_ECC& issuerKeyPair,
-                                 const qcc::String& issuerCN,
-                                 qcc::CertificateX509& cert);
+    static QStatus IssueCertificate(const qcc::Crypto_ECC& issuerKeyPair,
+                                    const qcc::String& issuerCN,
+                                    qcc::CertificateX509& cert);
 
     static QStatus SignManifest(const qcc::ECCPrivateKey* issuerKey,
                                 const qcc::CertificateX509& subjectCertificate,
@@ -54,11 +54,11 @@ class CertificateUtil {
     static bool LoadPrivateKey(const qcc::String& filename, qcc::ECCPrivateKey* privateKey);
 
   private:
-    static void GenerateCertificate(const qcc::String& subjectCN,
-                                    const qcc::ECCPublicKey* subjectPublicKey,
-                                    uint64_t validDays,
-                                    qcc::CertificateX509& cert);
-
+    static QStatus GenerateCertificate(const qcc::String& subjectCN,
+                                       const qcc::ECCPublicKey* subjectPublicKey,
+                                       uint64_t validDays,
+                                       qcc::CertificateX509& cert);
+   
 };
 
 
