@@ -168,6 +168,8 @@ bool claim(const qcc::String& busName, const ajn::SessionId sessionId, const qcc
            const qcc::GUID128& adminGuid,
            const qcc::GUID128& identityGuid)
 {
+    QStatus status;
+
     std::cout << "claim: " << busName << " : " << name << std::endl;
     std::cout << "admin guid: " << adminGuid.ToString() << std::endl;
     std::cout << "identity guid: " << identityGuid.ToString() << std::endl;
@@ -176,12 +178,25 @@ bool claim(const qcc::String& busName, const ajn::SessionId sessionId, const qcc
     SecurityUtil::GenerateManifest(manifest);
 
     qcc::IdentityCertificate identityCertificate;
-    CertificateUtil::GenerateIdentityCertificate(*peerPubKeyInfo.GetPublicKey(), identityGuid, name, identityCertificate);
-    CertificateUtil::IssueCertificate(*caKeyPair, caCN, identityCertificate);
+    status = CertificateUtil::GenerateIdentityCertificate(*peerPubKeyInfo.GetPublicKey(), identityGuid, name, identityCertificate);
 
-    assert(identityCertificate.Verify(caKeyPair->GetDSAPublicKey()) == ER_OK && "invalid identity cert");
+    if (ER_OK == status) {
+        status = CertificateUtil::IssueCertificate(*caKeyPair, caCN, identityCertificate);
+    }
 
-    CertificateUtil::SignManifest(caKeyPair->GetDSAPrivateKey(), identityCertificate, manifest);
+    if (ER_OK == status) {
+        QCC_ASSERT(identityCertificate.Verify(caKeyPair->GetDSAPublicKey()) == ER_OK && "invalid identity cert");
+    }
+
+    if (ER_OK == status) {
+        status = CertificateUtil::SignManifest(caKeyPair->GetDSAPrivateKey(), identityCertificate, manifest);
+    }
+
+    if (ER_OK != status) {
+        std::cout << "WARNING - Failed to generate a manifest: " << QCC_StatusText(status) << std::endl;
+        return false;
+    }
+
     std::vector<ajn::Manifest> manifests;
     manifests.push_back(manifest);
 
@@ -192,29 +207,33 @@ bool claim(const qcc::String& busName, const ajn::SessionId sessionId, const qcc
     qcc::KeyInfoNISTP256 caPublicKeyInfo;
     {
         qcc::String aki;
-        qcc::CertificateX509::GenerateAuthorityKeyId(caKeyPair->GetDSAPublicKey(), aki);
+        status = qcc::CertificateX509::GenerateAuthorityKeyId(caKeyPair->GetDSAPublicKey(), aki);
+        if (ER_OK != status) {
+            std::cout << "WARNING - Call to CertificateX509::GenerateAuthorityKeyId failed: " << QCC_StatusText(status) << std::endl;
+            return false;
+        }
         caPublicKeyInfo.SetKeyId((uint8_t*)aki.data(), aki.size());
         caPublicKeyInfo.SetPublicKey(caKeyPair->GetDSAPublicKey());
     }
 
-    QStatus status = SecurityUtil::Claim(*busAttachment, busName, sessionId, caPublicKeyInfo, adminGuid, caPublicKeyInfo, certChain, manifests);
+    status = SecurityUtil::Claim(*busAttachment, busName, sessionId, caPublicKeyInfo, adminGuid, caPublicKeyInfo, certChain, manifests);
     if (ER_OK != status) {
         std::cout << "WARNING - Call to SecurityUtil::Claim failed: " << QCC_StatusText(status) << std::endl;
         return false;
-    } else {
-        std::cout << "OnboardingClient has claimed " << busName << std::endl;
     }
 
+    std::cout << "OnboardingClient has claimed " << busName << std::endl;
     return true;
 }
 
 bool claimSelf(const qcc::String& caCN, const qcc::CertificateX509& caCert,
                const qcc::GUID128& adminGuid, const qcc::GUID128& identityGuid)
 {
+    QStatus status;
     const qcc::String busName = busAttachment->GetUniqueName().c_str();
 
     qcc::KeyInfoNISTP256 publicKeyInfo;
-    QStatus status = busAttachment->GetPermissionConfigurator().GetSigningPublicKey(publicKeyInfo);
+    status = busAttachment->GetPermissionConfigurator().GetSigningPublicKey(publicKeyInfo);
     if (ER_OK != status) {
         std::cout << "WARNING - Call to GetSigningPublicKey failed: " << QCC_StatusText(status) << std::endl;
         return false;
@@ -230,16 +249,21 @@ bool claimSelf(const qcc::String& caCN, const qcc::CertificateX509& caCert,
     // Add self to admin group
     {
         qcc::MembershipCertificate membershipCert;
-        CertificateUtil::GenerateMembershipCertificate(*publicKeyInfo.GetPublicKey(), adminGuid, membershipCert);
+        status = CertificateUtil::GenerateMembershipCertificate(*publicKeyInfo.GetPublicKey(), adminGuid, membershipCert);
 
-        CertificateUtil::IssueCertificate(*caKeyPair, caCN, membershipCert);
+        if (ER_OK == status) {
+            status = CertificateUtil::IssueCertificate(*caKeyPair, caCN, membershipCert);
+        }
 
-        status = SecurityUtil::InstallMembership(*busAttachment, busName, membershipCert);
+        if (ER_OK == status) {
+            status = SecurityUtil::InstallMembership(*busAttachment, busName, membershipCert);
+        }
+
         if (ER_OK != status) {
             return false;
-        } else {
-            std::cout << "OnboardingClient is member of admin group" << std::endl;
-        }
+        } 
+
+        std::cout << "OnboardingClient is member of admin group" << std::endl;
     }
 
     return result;
@@ -314,7 +338,6 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId sessionId)
     AboutObjectDescription objectDescription;
     objectDescription.CreateFromMsgArg(objArg);
 
-    isIconInterface = false;
     isIconInterface = objectDescription.HasInterface(org::alljoyn::Icon::ObjectPath, org::alljoyn::Icon::InterfaceName);
 
     if (isIconInterface) {
@@ -669,15 +692,24 @@ int main(int argc, char** argv, char** envArg)
             caKeyPair->SetDSAPrivateKey(&privateKey);
 
             std::cout << "Loaded CA certificate " << caCert().ToString() << std::endl;
-            std::cout << "Loaded CA private key " << caKeyPair->GetDSAPrivateKey()->ToString() << std::endl;
             std::cout << "Loaded admin guid: " << adminGuid().ToString() << std::endl;
         } else {
             caKeyPair->GenerateDSAKeyPair();
-            CertificateUtil::GenerateCA(*caKeyPair, caName, caCert());
 
-            CertificateUtil::SaveCertificate(CA_CERT_FILENAME, caCert());
-            CertificateUtil::SavePrivateKey(CA_KEY_FILENAME, caKeyPair->GetDSAPrivateKey());
-            SaveAdminGroupId(ADMIN_GUID_FILENAME, adminGuid());
+            status = CertificateUtil::GenerateCA(*caKeyPair, caName, caCert());
+
+            if (ER_OK == status) {
+                if (! (CertificateUtil::SaveCertificate(CA_CERT_FILENAME, caCert()) &&
+                       CertificateUtil::SavePrivateKey(CA_KEY_FILENAME, caKeyPair->GetDSAPrivateKey()) &&
+                       SaveAdminGroupId(ADMIN_GUID_FILENAME, adminGuid()))) {
+                    status = ER_FAIL;
+                }
+            }
+
+            if (ER_OK != status) {
+                std::cout << "ERROR - Failed to generate and save the certificate: status " << QCC_StatusText(status) << std::endl;
+                return 1;
+            }
         }
     }
 
