@@ -11,7 +11,7 @@
 #    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 #    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 #    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-# 
+#
 
 Import('env', 'CheckCXXFlag')
 import os
@@ -19,7 +19,9 @@ import os
 # Darwin specific flags
 env.Append(CPPDEFINES=['QCC_OS_DARWIN'])
 
-config = Configure(env, custom_tests = { 'CheckCXXFlag' : CheckCXXFlag })
+sconf_dir = env['BUILDDIR'] + '/sconf'
+sconf_log = sconf_dir + '/sconf.log'
+config = Configure(env, conf_dir = sconf_dir, log_file = sconf_log, custom_tests = { 'CheckCXXFlag' : CheckCXXFlag })
 if not config.CheckCXXFlag('-std=c++11'):
    if not config.CheckCXXFlag('-std=c++0x'):
       print '*** Compiler too old to build AllJoyn.  Aborting.'

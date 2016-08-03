@@ -11,7 +11,7 @@
 #    WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 #    ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 #    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-# 
+#
 
 import os
 import platform
@@ -84,7 +84,7 @@ vars.Add(EnumVariable('OS', 'Target OS', default_target_os, allowed_values = all
 vars.Add(EnumVariable('CPU', 'Target CPU', default_target_cpu, allowed_values = allowed_target_cpus))
 vars.Add(EnumVariable('VARIANT', 'Build variant', 'debug', allowed_values=('debug', 'release'), ignorecase=2))
 vars.Add(EnumVariable('BR', 'Have bundled router built-in for C++ test samples', 'on', allowed_values=('on', 'off')))
-vars.Add(EnumVariable('DOCS', '''Output doc type. Setting the doc type to "dev" will produce HTML 
+vars.Add(EnumVariable('DOCS', '''Output doc type. Setting the doc type to "dev" will produce HTML
     output that includes all developer files not just the public API.
     ''', 'none', allowed_values=('none', 'pdf', 'html', 'dev', 'chm', 'sandcastle')))
 vars.Add(EnumVariable('WS', 'Whitespace Policy Checker', 'off', allowed_values=('check', 'detail', 'fix', 'off')))
@@ -99,7 +99,8 @@ if default_msvc_version:
 
 # Standard variant directories
 build_dir = 'build/${OS}/${CPU}/${VARIANT}'
-vars.AddVariables(('OBJDIR', '', '#' + build_dir + '/obj'),
+vars.AddVariables(('BUILDDIR', '', '#' + build_dir),
+                  ('OBJDIR', '', '#' + build_dir + '/obj'),
                   ('DISTDIR', '', '#' + build_dir + '/dist'),
                   ('TESTDIR', '', '#' + build_dir + '/test'))
 
