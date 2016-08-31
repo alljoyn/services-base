@@ -14,6 +14,13 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+#ifdef _MSC_VER
+#if _MSC_VER < 1900
+/* Less secure _snprintf required for VS2013 and below */
+#define snprintf _snprintf
+#endif
+#endif
+
 #include "ControlPanelProvided.h"
 #include "ControlPanelGenerated.h"
 #include <qcc/String.h>
