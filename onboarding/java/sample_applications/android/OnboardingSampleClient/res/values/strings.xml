@@ -25,7 +25,7 @@
     
     <!-- Scan Wifi Activity -->
 	<string name="Scan_WIFI_networks">Scan WIFI networks</string>
-	<string name="scan_wifi_text">Choose network to connect</string>
+	<string name="scan_wifi_text">Choose device to connect to</string>
 	<string name="enter_wifi_password_title">Enter password</string>
     <string name="enter_wifi_password_message">Enter password if needed. If your WIFI is free, leave this field empty</string>
     <string name="connecting_to">"Connecting to %s"</string>
