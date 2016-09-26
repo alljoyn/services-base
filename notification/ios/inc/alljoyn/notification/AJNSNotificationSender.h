@@ -21,6 +21,7 @@
 #import "AJNSNotificationEnums.h"
 #import "AJNSNotification.h"
 #import "alljoyn/about/AJNAboutPropertyStoreImpl.h"
+#import "AJNAboutData.h"
 
 /**
  AJNSNotificationSender class
@@ -38,10 +39,17 @@
 ///---------------------
 
 /**
+ * @deprecated initWithPropertyStore was deprecated in September 2016 for 16.10
  * Designated initializer
  * @param propertyStore property store
  */
-- (AJNSNotificationSender *)initWithPropertyStore:(AJNAboutPropertyStoreImpl *)propertyStore;
+- (AJNSNotificationSender *)initWithPropertyStore:(AJNAboutPropertyStoreImpl *)propertyStore __deprecated;
+
+/**
+ * Designated initializer
+ * @param aboutData about data
+ */
+- (AJNSNotificationSender *)initWithAboutData:(AJNAboutData *)aboutData;
 
 ///---------------------
 /// @name Instance methods
@@ -63,9 +71,16 @@
 - (QStatus)deleteLastMsg:(AJNSNotificationMessageType)messageType;
 
 /**
+ * @deprecated getPropertyStore was deprecated in September 2016 for 16.10
  * Get the property store in this sender
  * @return The property store
  */
-- (ajn::services::AboutPropertyStoreImpl *)getPropertyStore;
+- (ajn::services::AboutPropertyStoreImpl *)getPropertyStore __deprecated;
+
+/**
+ * Get the about data in this sender
+ * @return The about data
+ */
+- (ajn::AboutData *)getAboutData;
 
 @end

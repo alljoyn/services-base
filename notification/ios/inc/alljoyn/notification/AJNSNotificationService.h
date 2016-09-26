@@ -20,6 +20,7 @@
 #import "AJNSNotificationReceiver.h"
 #import "AJNSNotificationSender.h"
 #import "AJNBusAttachment.h"
+#import "AJNAboutData.h"
 #import "alljoyn/services_common/AJSVCGenericLoggerAdapter.h"
 
 /**
@@ -38,14 +39,24 @@
 + (id)sharedInstance;
 
 /**
+ *  @deprecated startSendWithBus:andPropertyStore: was deprecated in September 2016 for 16.10
  *  Initialize Producer side via Transport. Create and
  *  return NotificationSender.
  *  @param bus ajn bus
  *  @param store property store
  *  @return NotificationSender instance
  */
+- (AJNSNotificationSender *)startSendWithBus:(AJNBusAttachment *)bus andPropertyStore:(AJNAboutPropertyStoreImpl *)store __deprecated;
 
-- (AJNSNotificationSender *)startSendWithBus:(AJNBusAttachment *)bus andPropertyStore:(AJNAboutPropertyStoreImpl *)store;
+/**
+ *  Initialize Producer side via Transport. Create and
+ *  return NotificationSender.
+ *  @param bus ajn bus
+ *  @param ajn about data object
+ *  @return NotificationSender instance
+ */
+- (AJNSNotificationSender *)startSendWithBus:(AJNBusAttachment *)bus andAboutData:(AJNAboutData *)aboutData;
+
 /**
  * Initialize Consumer side via Transport.
  * Set NotificationReceiver to given receiver
@@ -83,8 +94,6 @@
  * @return logger Implementation of GenericLogger
  */
 - (id <AJSVCGenericLogger> )logger;
-
-
 
 /**
  * Set log level filter for subsequent logging messages
