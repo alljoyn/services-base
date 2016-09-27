@@ -22,7 +22,9 @@
 
 /**
  AJNSPropertyStore protocol overview
+ @deprecated AJNSPropertyStore was deprecated in September 2016 for 16.10
  */
+__deprecated
 @protocol AJNSPropertyStore <NSObject>
 
 #pragma mark – Protocol enum
@@ -45,36 +47,39 @@ typedef NS_ENUM (NSInteger, AJNSFilter) {
 
 /**
  Calls Reset() implemented only for  ConfigService
+ @deprecated Reset was deprecated in September 2016 for 16.10
  @return status
  */
-- (QStatus)Reset;
+- (QStatus)Reset __deprecated;
 
 /**
  Reads all properties method
+ @deprecated ReadAllWithLanguageTag:andFilter:andAllMsgArg: was deprecated in September 2016 for 16.10
  @param languageTag is the language to use for the action can be NULL meaning default.
  @param filter filter describe which properties to read.
  @param all all reference to MsgArg
  @return status
  */
-- (QStatus)ReadAllWithLanguageTag:(NSString *)languageTag andFilter:(AJNSFilter)filter andAllMsgArg:(ajn::MsgArg &)all;
-
+- (QStatus)ReadAllWithLanguageTag:(NSString *)languageTag andFilter:(AJNSFilter)filter andAllMsgArg:(ajn::MsgArg &)all __deprecated;
 
 /**
  Update properties method
+ @deprecated UpdatePropertyName:andLanguageTag:andValue was deprecated in September 2016 for 16.10
  @param name name of the property
  @param languageTag languageTag is the language to use for the action can be NULL meaning default.
  @param value value is a pointer to the data to change.
  @return status
  */
-- (QStatus)UpdatePropertyName:(NSString *)name andLanguageTag:(NSString *)languageTag andValue:(ajn::MsgArg *)value;
+- (QStatus)UpdatePropertyName:(NSString *)name andLanguageTag:(NSString *)languageTag andValue:(ajn::MsgArg *)value __deprecated;
 
 /**
  Delete property method
+ @deprecated DeletePropertyName:andLanguageTag: was deprecated in September 2016 for 16.10
  @param name name of the property
  @param languageTag languageTag is the language to use for the action can't be NULL.
  @return status
  */
-- (QStatus)DeletePropertyName:(NSString *)name andLanguageTag:(NSString *)languageTag;
+- (QStatus)DeletePropertyName:(NSString *)name andLanguageTag:(NSString *)languageTag __deprecated;
 
 
 @end
