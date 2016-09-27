@@ -19,7 +19,10 @@
 #include <set>
 #include <vector>
 #include <fstream>
+#include <sstream>
+#include <string>
 #include <cassert>
+#include <cstring>
 #include <signal.h>
 
 #include <alljoyn/AllJoynStd.h>
@@ -48,6 +51,8 @@
 #include <qcc/Log.h>
 #include <qcc/GUID.h>
 #include <qcc/KeyInfoECC.h>
+#include <qcc/StringUtil.h>
+#include "OnboardingAuthListener.h"
 #include "OnboardingSignalListenerImpl.h"
 
 
@@ -58,13 +63,123 @@ static volatile sig_atomic_t quit = false;
 static BusAttachment* busAttachment = NULL;
 static std::set<qcc::String> handledAnnouncements;
 
-static const char* AUTH_MECHANISM = "ALLJOYN_ECDHE_NULL ALLJOYN_ECDHE_SPEKE ALLJOYN_ECDHE_ECDSA";
+static const char* AUTH_MECHANISM = "ALLJOYN_ECDHE_NULL ALLJOYN_ECDHE_PSK ALLJOYN_ECDHE_SPEKE ALLJOYN_ECDHE_ECDSA";
 const qcc::String caName("Sample CA");
 
 static qcc::Crypto_ECC* caKeyPair = NULL;
 const qcc::String CA_CERT_FILENAME("caCert.pem");
 const qcc::String CA_KEY_FILENAME("caKey.pem");
 const qcc::String ADMIN_GUID_FILENAME("adminGuid");
+
+static qcc::String pskPassword;
+static qcc::String authPassword("000000");
+static qcc::String authMechanism(AUTH_MECHANISM);
+static qcc::String wifiNetwork;
+static std::string dummy;
+
+static OBInfo oBInfo;
+
+static void usage()
+{
+    std::cout << "OnboardingClient [-keyx 000000] [-speke 000000] [-psk deadbeefcafebabeff] [-auth NULL|PSK...] [-wifi NETWORK] [-wifi_tkip|-wifi_ccmp]";
+}
+
+
+static void cmdLine(int argc, char** argv)
+{
+    qcc::String wifiPassword;
+    OBAuthType wifiAuthType = WPA2_CCMP;
+
+    for (int i = 1; i < argc; ++i) {
+        if (strcmp(argv[i], "-psk") == 0) {
+            if (i + 1 < argc) {
+                pskPassword = argv[++i];
+                authMechanism = "ALLJOYN_ECDHE_PSK";
+            } else {
+                usage();
+            }
+        } else
+        if (strcmp(argv[i], "-speke") == 0) {
+            if (i + 1 < argc) {
+                authPassword = argv[++i];
+                authMechanism = "ALLJOYN_ECDHE_SPEKE";
+            } else {
+                usage();
+            }
+        } else
+        if (strcmp(argv[i], "-keyx") == 0) {
+            if (i + 1 < argc) {
+                authPassword = argv[++i];
+                authMechanism = "ALLJOYN_SRP_KEYX";
+            } else {
+                usage();
+            }
+        } else
+        if (strcmp(argv[i], "-auth") == 0) {
+            if (i + 1 < argc) {
+                authMechanism = argv[++i];
+
+                if (authMechanism == "NULL") {
+                    authMechanism = "ALLJOYN_ECDHE_NULL";
+                } else
+                if (authMechanism == "PSK") {
+                    authMechanism = "ALLJOYN_ECDHE_PSK";
+                } else
+                if (authMechanism == "SPEKE") {
+                    authMechanism = "ALLJOYN_ECDHE_SPEKE";
+                } else {
+                    std::cerr << "Unrecognised auth mechanism " << authMechanism.c_str() << "\n";
+                    exit(1);
+                }
+            } else {
+                usage();
+            }
+        } else
+        if (strcmp(argv[i], "-wifi") == 0) {
+            if (i + 1 < argc) {
+                wifiNetwork = argv[++i];
+            } else {
+                usage();
+            }
+        } else
+        if (strcmp(argv[i], "-wifi_tkip") == 0) {
+            wifiAuthType = WPA2_TKIP;
+        } else
+        if (strcmp(argv[i], "-wifi_ccmp") == 0) {
+            wifiAuthType = WPA2_CCMP;
+        }
+    }
+
+    if (wifiNetwork.empty()) {
+        std::cout << "The wifi network name is required\n";
+        usage();
+        exit(1);
+    }
+
+    std::cout << "Will authenticate with " << authMechanism.c_str() << "\n";
+
+    // Get the wifi password more securely
+    std::cout << "Wifi password: ";
+    std::getline(std::cin, dummy);
+    wifiPassword = qcc::Trim(dummy.c_str());
+
+    // The password must be 2 digit ascii hex.
+    std::ostringstream passwordstream;
+    passwordstream << std::hex << std::setw(2) << std::setfill('0') << std::uppercase;
+
+    const char* pptr = wifiPassword.c_str();
+
+    while (*pptr) {
+        passwordstream << int(*pptr++);
+    }
+
+    std::string s = passwordstream.str();
+
+    oBInfo.SSID.assign(wifiNetwork.c_str());
+    oBInfo.passcode.assign(s.c_str());
+    oBInfo.authType = wifiAuthType;
+}
+
 
 static qcc::CertificateX509& caCert()
 {
@@ -261,7 +376,7 @@ bool claimSelf(const qcc::String& caCN, const qcc::CertificateX509& caCert,
 
         if (ER_OK != status) {
             return false;
-        } 
+        }
 
         std::cout << "OnboardingClient is member of admin group" << std::endl;
     }
@@ -520,10 +635,6 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId sessionId)
 
         std::cout << std::endl << busName.c_str() << " OnboardingClient ConfigureWiFi" << std::endl;
         std::cout << "-----------------------------------" << std::endl;
-        OBInfo oBInfo;
-        oBInfo.SSID.assign("MyWifi");
-        oBInfo.passcode.assign("41424344454647484950");
-        oBInfo.authType = WPA2_TKIP;
 
         short resultStatus;
 
@@ -538,13 +649,16 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId sessionId)
         } else {
             std::cout << "Call to ConnectTo failed " << QCC_StatusText(status) << std::endl;
         }
-
+#if 0
+        // This resets the device.  Why would you do that?
         if ((status = onboardingClient->OffboardFrom(busName.c_str(), sessionId)) == ER_OK) {
             std::cout << "Call to OffboardFrom succeeded " << std::endl;
         } else {
             std::cout << "Call to OffboardFrom failed " << QCC_StatusText(status) << std::endl;
         }
-
+#endif
+        std::cout << "Change to " << wifiNetwork.c_str() << " and hit Enter\n";
+        std::getline(std::cin, dummy);
     }
 
     status = busAttachment->LeaveSession(sessionId);
@@ -627,9 +741,13 @@ int main(int argc, char** argv, char** envArg)
 {
     std::cout << "OnboardingClient - Start" << std::endl;
 
-    QCC_UNUSED(argc);
-    QCC_UNUSED(argv);
     QCC_UNUSED(envArg);
+
+    cmdLine(argc, argv);
+
+    std::cout << "Change to the onboardee's wifi network and hit Enter\n";
+    std::getline(std::cin, dummy);
+
     // Initialize AllJoyn
     AJInitializer ajInit;
     if (ajInit.Initialize() != ER_OK) {
@@ -667,12 +785,12 @@ int main(int argc, char** argv, char** envArg)
         return 1;
     }
 
-    DefaultECDHEAuthListener* authListener = new DefaultECDHEAuthListener();
+    OnboardingAuthListener* authListener = new OnboardingAuthListener();
 
-    const qcc::String password("1234");
-    authListener->SetPassword((const uint8_t*)password.c_str(), password.length()); // ECDHE_SPEKE
+    authListener->SetPSK(pskPassword); // ECDHE_PSK
+    authListener->SetPassword(authPassword);
 
-    status = busAttachment->EnablePeerSecurity(AUTH_MECHANISM, authListener, "/.alljoyn_keystore/central.ks", true);
+    status = busAttachment->EnablePeerSecurity(authMechanism.c_str(), authListener, "/.alljoyn_keystore/central.ks", true);
     if (ER_OK == status) {
         std::cout << "EnablePeerSecurity called." << std::endl;
     } else {
@@ -699,9 +817,9 @@ int main(int argc, char** argv, char** envArg)
             status = CertificateUtil::GenerateCA(*caKeyPair, caName, caCert());
 
             if (ER_OK == status) {
-                if (! (CertificateUtil::SaveCertificate(CA_CERT_FILENAME, caCert()) &&
-                       CertificateUtil::SavePrivateKey(CA_KEY_FILENAME, caKeyPair->GetDSAPrivateKey()) &&
-                       SaveAdminGroupId(ADMIN_GUID_FILENAME, adminGuid()))) {
+                if (!(CertificateUtil::SaveCertificate(CA_CERT_FILENAME, caCert()) &&
+                      CertificateUtil::SavePrivateKey(CA_KEY_FILENAME, caKeyPair->GetDSAPrivateKey()) &&
+                      SaveAdminGroupId(ADMIN_GUID_FILENAME, adminGuid()))) {
                     status = ER_FAIL;
                 }
             }
