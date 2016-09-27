@@ -68,8 +68,8 @@ elif platform.system() == 'Darwin':
     allowed_target_oss = ('darwin', 'openwrt')
 
     # Darwin maps both 32-bit and 64-bit x86 CPUs to "x86"
-    default_target_cpu = 'x86'
-    allowed_target_cpus = ('x86', 'openwrt')
+    default_target_cpu = 'x86_64'
+    allowed_target_cpus = ('x86', 'x86_64', 'openwrt')
 
     default_msvc_version = None
 
@@ -114,13 +114,12 @@ vars.Add(EnumVariable('CRYPTO', 'Crypto implementation', default_crypto, allowed
 
 if target_os in ['win10', 'win7']:
     # The Win7/Win10 MSI installation package takes a long time to build. Let it be optional.
-    if target_os in ['win10', 'win7']:
-        vars.Add(EnumVariable('WIN7_MSI', 'Build the .MSI installation package', 'false', allowed_values=('false', 'true')))
+    vars.Add(EnumVariable('WIN7_MSI', 'Build the .MSI installation package', 'false', allowed_values=('false', 'true')))
 
     path = []
 
     msvc_version = ARGUMENTS.get('MSVC_VERSION')
-    env = Environment(variables = vars, TARGET_ARCH=target_cpu, MSVC_VERSION=msvc_version, tools = ['default', 'jar'], ENV = {'PATH' : path})
+    env = Environment(variables = vars, TARGET_ARCH=target_cpu, MSVC_VERSION=msvc_version, tools = ['default', 'jar', 'javah'], ENV = {'PATH' : path})
 
 else:
     env = Environment(variables = vars, tools = ['gnulink', 'gcc', 'g++', 'ar', 'as', 'javac', 'javah', 'jar', 'pdf', 'pdflatex'])
