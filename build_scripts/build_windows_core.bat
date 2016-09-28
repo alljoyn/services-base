@@ -21,7 +21,6 @@ set WS=off
 set CPU=%CPU%
 set VARIANT=%VARIANT%
 
-cmd /c %SCONS% "-c" "--jobs=%JOBS%" "V=1" "OS=%OS%" "BINDINGS=%BINDINGS%" "VARIANT=%VARIANT%" "CPU=%CPU%" "MSVC_VERSION=%MSVC_VER%"
 cmd /c %SCONS% "--jobs=%JOBS%" "V=1" "OS=%OS%" "BINDINGS=%BINDINGS%" "VARIANT=%VARIANT%" "CPU=%CPU%" "MSVC_VERSION=%MSVC_VER%"
 echo Build completed
 IF %ERRORLEVEL% GTR 0 exit %ERRORLEVEL%
