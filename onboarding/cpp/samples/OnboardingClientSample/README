@@ -1,0 +1,17 @@
+
+Onboarding a LIFX White 800
+===========================
+
+run
+    OnboardingClient -wifi "TwoBulls 2.4" -psk 000000
+
+The -wifi option provides the wifi network that the lamp is to be
+onboarded to.  There will be a password prompt.
+
+At the prompt switch to the LFX _AJ wireless network.  The lamp
+will be configured and then there will be a prompt to switch to the
+above wifi network.  There should be another announcement in the
+new network.
+
+In the log there will be a GetState call which would return 0 for
+not configured and then later 3 for CONFIGURED_VALIDATED.
