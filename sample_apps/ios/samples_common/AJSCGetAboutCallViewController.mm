@@ -62,7 +62,7 @@ static NSString *const CLIENTDEFAULTLANG = @"";
              if (weakSelf.clientInformation.announcement.usesDeprecatedAnnounce) {
                  weakSelf.alertChooseLanguage.text = [AJSCAboutDataConverter messageArgumentToString:[weakSelf.clientInformation.announcement aboutData][@"DefaultLanguage"]];
              } else {
-                 // TODO: Use AJSCAboutAnnouncement.aboutDataArg to set language text.
+                 weakSelf.alertChooseLanguage.text = [AJSCAboutDataConverter aboutDataArgToDict:[weakSelf.clientInformation.announcement aboutDataArg]][@"DefaultLanguage"];
              }
          }
          if (![weakSelf isValidLanguage:weakSelf.alertChooseLanguage.text]) {

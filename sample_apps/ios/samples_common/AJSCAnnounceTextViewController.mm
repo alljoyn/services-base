@@ -71,7 +71,7 @@
     if (self.announcement.usesDeprecatedAnnounce) {
         txt = [txt stringByAppendingString:[AJSCAboutDataConverter aboutDataDictionaryToString:([self.announcement aboutData])]];
     } else {
-        // TODO: Use AJSCAboutAnnouncement.aboutDataArg in appended text.
+        txt = [txt stringByAppendingString:[AJSCAboutDataConverter aboutDataArgString:([self.announcement aboutDataArg])]];
     }
 
     txt = [txt stringByAppendingString:@"\n\n"];
@@ -82,7 +82,7 @@
     if (self.announcement.usesDeprecatedAnnounce) {
         txt = [txt stringByAppendingString:[self objectDescriptionsToString:[self.announcement objectDescriptions]]];
     } else {
-        // TODO: Use AJSCAboutAnnouncement.objectDescriptionArg in appended text.
+        txt = [txt stringByAppendingString:[AJSCAboutDataConverter objectDescriptionArgString:([self.announcement objectDescriptionArg])]];
     }
 
     self.announceInformation.text = txt;
