@@ -21,6 +21,12 @@
 @property (nonatomic) ajn::services::ControlPanelController *handle;
 @end
 
+// This exposes the private AboutObjectDescription C++ handle in AJNAboutObjectDescription, limiting
+// its scope to this implementation file. This follows the pattern in the core ios bindings.
+@interface AJNAboutObjectDescription(Private)
+@property (nonatomic, readonly) ajn::AboutObjectDescription *aboutObjectDescription;
+@end
+
 @implementation AJCPSControlPanelController
 
 - (id)init
@@ -57,8 +63,12 @@
         cpp_ObjectDescs->insert(std::make_pair([AJSVCConvertUtil convertNSStringToQCCString:key], cpp_strings));
     }
 
-
     return [[AJCPSControlPanelDevice alloc] initWithHandle:self.handle->createControllableDevice([AJSVCConvertUtil convertNSStringToQCCString:deviceBusName], *cpp_ObjectDescs)];
+}
+
+- (AJCPSControlPanelDevice *)createControllableDevice:(NSString *)deviceBusName withObjectDesc:(AJNAboutObjectDescription *)objectDesc
+{
+    return [[AJCPSControlPanelDevice alloc] initWithHandle:self.handle->createControllableDevice([AJSVCConvertUtil convertNSStringToQCCString:deviceBusName], *(objectDesc.aboutObjectDescription))];
 }
 
 - (AJCPSControlPanelDevice *)getControllableDevice:(NSString *)deviceBusName

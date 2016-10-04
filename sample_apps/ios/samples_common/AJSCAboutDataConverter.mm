@@ -200,7 +200,7 @@ static NSString *ERRORSTRING = @"";
     return qnsAboutDataContent;
 }
 
-+ (NSString *)objectDescriptionArgString:(AJNMessageArgument *)objectDescriptionsArg
++ (NSMutableDictionary *)objectDescriptionArgToDict:(AJNMessageArgument *)objectDescriptionsArg
 {
     size_t numObjectPaths;
     ajn::MsgArg *msgArg;
@@ -231,6 +231,13 @@ static NSString *ERRORSTRING = @"";
             [objectDescriptions setObject:interfaceArray forKey:[NSString stringWithCString:objPath encoding:NSUTF8StringEncoding]];
         }
     }
+
+    return objectDescriptions;
+}
+
++ (NSString *)objectDescriptionArgString:(AJNMessageArgument *)objectDescriptionsArg
+{
+    NSMutableDictionary *objectDescriptions = [AJSCAboutDataConverter objectDescriptionArgToDict:objectDescriptionsArg];
     
     NSMutableString *qnsObjectDescContent = [[NSMutableString alloc] init];
 

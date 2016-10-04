@@ -49,6 +49,11 @@
 + (NSMutableDictionary *)aboutDataArgToDict:(AJNMessageArgument *)aboutDataArg;
 
 /**
+ * Convert AJNMessageArgument containing the object descriptions to a NSMutableDictionary
+ */
++ (NSMutableDictionary *)objectDescriptionArgToDict:(AJNMessageArgument *)objectDescriptionsArg;
+
+/**
  * Convert AJNMessageArgument containing the announced About Data to a String 
  */
 + (NSString *)aboutDataArgString:(AJNMessageArgument *)aboutDataArg;

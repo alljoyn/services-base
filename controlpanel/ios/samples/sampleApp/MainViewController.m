@@ -16,7 +16,6 @@
 
 #import "MainViewController.h"
 #import "AJNStatus.h"
-#import "alljoyn/about/AJNAnnouncementReceiver.h"
 #import "alljoyn/controlpanel/AJCPSGetControlPanelViewController.h"
 #include <qcc/Log.h>
 #import "AppDelegate.h"
@@ -27,6 +26,7 @@
 #import "samples_common/AJSCAuthenticationListenerImpl.h"
 #import "samples_common/AJSCAlertController.h"
 #import "samples_common/AJSCAnnounceTextViewController.h"
+#import "AJNAboutObjectDescription.h"
 
 
 static bool ALLOWREMOTEMESSAGES = true; // About Client -  allow Remote Messages flag
@@ -47,7 +47,6 @@ static NSString *const DEFAULT_AUTH_PASSWORD = @"121212";
 
 // About Client properties
 @property (strong, nonatomic) AJNBusAttachment *clientBusAttachment;
-@property (strong, nonatomic) AJNAnnouncementReceiver *announcementReceiver;
 @property (strong, nonatomic) NSString *realmBusName;
 @property (nonatomic) bool isAboutClientConnected;
 @property (strong, nonatomic) NSMutableDictionary *clientInformationDict; // Store the client related information
@@ -80,19 +79,21 @@ static NSString *const DEFAULT_AUTH_PASSWORD = @"121212";
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    if (self.isAboutClientConnected) {
-        [self.clientInformationDict removeAllObjects];
-        [self.servicesTable performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
-        [self registerAnnouncementReceiver];
-    }
+// This currently does not work due to issues in AJNBusAttachment but can be uncommented once ASACORE-3323 is resolved.
+//    if (self.isAboutClientConnected) {
+//        [self.clientInformationDict removeAllObjects];
+//        [self.servicesTable performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
+//        [self registerAboutListener];
+//    }
 }
 
 - (void)viewDidDisappear:(BOOL)animated
 {
     [super viewDidDisappear:animated];
-    if (self.isAboutClientConnected) {
-        [self unregisterAnnouncementReceiver];
-    }
+// This currently does not work due to issues in AJNBusAttachment but can be uncommented once ASACORE-3323 is resolved.
+//    if (self.isAboutClientConnected) {
+//        [self unregisterAboutListener];
+//    }
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
@@ -121,33 +122,31 @@ static NSString *const DEFAULT_AUTH_PASSWORD = @"121212";
     }
 }
 
-#pragma mark - AJNAnnouncementListener protocol method
+#pragma mark - AJNAboutListener protocol method
 // Here we receive an announcement from AJN and add it to the client's list of services avaialble
-- (void)announceWithVersion:(uint16_t)version
-    port:(uint16_t)port
-    busName:(NSString *)busName
-    objectDescriptions:(NSMutableDictionary *)objectDescs
-    aboutData:(NSMutableDictionary **)aboutData
+- (void)didReceiveAnnounceOnBus:(NSString *)busName
+                    withVersion:(uint16_t)version
+                withSessionPort:(AJNSessionPort)port
+          withObjectDescription:(AJNMessageArgument *)objectDescriptionArg
+               withAboutDataArg:(AJNMessageArgument *)aboutDataArg
 {
-    NSString *announcementUniqueName; // Announcement unique name in a format of <busName DeviceName>
     AJSCClientInformation *clientInformation = [[AJSCClientInformation alloc] init];
-
+    
     // Save the announcement in a AJSCAboutAnnouncement
-    clientInformation.announcement = [[AJSCAboutAnnouncement alloc] initWithVersion:version port:port busName:busName objectDescriptions:objectDescs aboutData:aboutData];
+    clientInformation.announcement = [[AJSCAboutAnnouncement alloc] initWithBusName:busName
+                                                                            version:version
+                                                                        sessionPort:port
+                                                               objectDescriptionArg:objectDescriptionArg
+                                                                       aboutDataArg:aboutDataArg];
 
+    NSMutableDictionary *aboutDataDict = [AJSCAboutDataConverter aboutDataArgToDict:aboutDataArg];
+    
     // Generate an announcement unique name in a format of <busName DeviceName>
-    announcementUniqueName = [NSString stringWithFormat:@"%@ %@", [clientInformation.announcement busName], [AJSCAboutDataConverter messageArgumentToString:[clientInformation.announcement aboutData][@"DeviceName"]]];
-
+    NSString *announcementUniqueName = [NSString stringWithFormat:@"%@ %@", [clientInformation.announcement busName], aboutDataDict[@"DeviceName"]];
     NSLog(@"[%@] [%@] Announcement unique name [%@]", @"DEBUG", [[self class] description], announcementUniqueName);
 
-    AJNMessageArgument *annObjMsgArg = [clientInformation.announcement aboutData][@"AppId"];
-    uint8_t *appIdBuffer;
-    size_t appIdNumElements;
-    QStatus status;
-    status = [annObjMsgArg value:@"ay", &appIdNumElements, &appIdBuffer];
-
-    // Add the received announcement
-    if (status != ER_OK) {
+    NSString *appId = aboutDataDict[@"AppId"];
+    if (appId == nil) {
         NSLog(@"[%@] [%@] Failed to read appId for key [%@]", @"DEBUG", [[self class] description], announcementUniqueName);
         return;
     }
@@ -155,31 +154,20 @@ static NSString *const DEFAULT_AUTH_PASSWORD = @"121212";
     // Dealing with announcement entries should be syncronized, so we add it to a queue
     dispatch_sync(self.annBtnCreationQueue, ^{
         bool isAppIdExists = false;
-        uint8_t *tmpAppIdBuffer;
-        size_t tmpAppIdNumElements;
-        QStatus tStatus;
-        int res;
-
+        
         // Iterate over the announcements dictionary
         for (NSString *key in self.clientInformationDict.allKeys) {
             AJSCClientInformation *clientInfo = [self.clientInformationDict valueForKey:key];
             AJSCAboutAnnouncement *announcement = [clientInfo announcement];
-            AJNMessageArgument *tmpMsgrg = [announcement aboutData][@"AppId"];
+            NSMutableDictionary *aboutDataDict = [AJSCAboutDataConverter aboutDataArgToDict:[announcement aboutDataArg]];
+            NSString *savedAppId = aboutDataDict[@"AppId"];
 
-            tStatus = [tmpMsgrg value:@"ay", &tmpAppIdNumElements, &tmpAppIdBuffer];
-            if (tStatus != ER_OK) {
+            if (savedAppId == nil) {
                 NSLog(@"[%@] [%@] Failed to read appId for key [%@]", @"DEBUG", [[self class] description], key);
-
                 return;
             }
 
-            res = 1;
-            if (appIdNumElements == tmpAppIdNumElements) {
-                res = memcmp(appIdBuffer, tmpAppIdBuffer, appIdNumElements);
-            }
-
-            // Found a matched appId - res=0
-            if (!res) {
+            if ([savedAppId compare:appId] == NSOrderedSame) {
                 isAppIdExists = true;
                 // Same AppId and the same announcementUniqueName
                 if ([key isEqualToString:announcementUniqueName]) {
@@ -194,9 +182,9 @@ static NSString *const DEFAULT_AUTH_PASSWORD = @"121212";
                     // Cancel advertise name if the bus name has changed
                     NSString *prevBusName = [announcement busName];
                     if (!([busName isEqualToString:prevBusName])) {
-                        tStatus = [self.clientBusAttachment cancelFindAdvertisedName:prevBusName];
+                        QStatus status = [self.clientBusAttachment cancelFindAdvertisedName:prevBusName];
                         if (status != ER_OK) {
-                            NSLog(@"[%@] [%@] failed to cancelAdvertisedName for %@. status:%@", @"DEBUG", [[self class] description], prevBusName, [AJNStatus descriptionForStatusCode:tStatus]);
+                            NSLog(@"[%@] [%@] failed to cancelAdvertisedName for %@. status:%@", @"DEBUG", [[self class] description], prevBusName, [AJNStatus descriptionForStatusCode:status]);
                         }
                     }
                     // Remove existed record from the announcements dictionary
@@ -222,7 +210,7 @@ static NSString *const DEFAULT_AUTH_PASSWORD = @"121212";
 
     // Register interest in a well-known name prefix for the purpose of discovery (didLoseAdertise)
     [self.clientBusAttachment enableConcurrentCallbacks];
-    status = [self.clientBusAttachment findAdvertisedName:busName];
+    QStatus status = [self.clientBusAttachment findAdvertisedName:busName];
     if (status != ER_OK) {
         NSLog(@"[%@] [%@] failed to findAdvertisedName for %@. status:%@", @"ERROR", [[self class] description], busName, [AJNStatus descriptionForStatusCode:status]);
     }
@@ -303,14 +291,12 @@ static NSString *const DEFAULT_AUTH_PASSWORD = @"121212";
 
     [self.announcementOptionsAlert addActionWithName:@"Control Panel"
      handler:^(UIAlertAction *) {
-         // Should pass in objectDescriptionArg instead of
-         // objectDescriptions when dependency on
-         // AJNAnnouncementListener's announce() has been removed.
          AJSCAboutAnnouncement *announcement = [(AJSCClientInformation *)(weakSelf.clientInformationDict)[weakSelf.announcementButtonCurrentTitle] announcement];
+         NSMutableDictionary *announcementObjDecs = [AJSCAboutDataConverter objectDescriptionArgToDict:[announcement objectDescriptionArg]];
          AJCPSGetControlPanelViewController *getCpanelView =
              [[AJCPSGetControlPanelViewController alloc] initWithBusName:announcement.busName
-              objectDescriptions:announcement.objectDescriptions
-              bus:weakSelf.clientBusAttachment];
+                                                      objectDescription:[[AJNAboutObjectDescription alloc] initWithMsgArg:announcement.objectDescriptionArg]
+                                                                     bus:weakSelf.clientBusAttachment];
          [weakSelf.navigationController pushViewController:getCpanelView animated:YES];
      }];
 }
@@ -363,7 +349,10 @@ static NSString *const DEFAULT_AUTH_PASSWORD = @"121212";
 
     // Init AJNBusAttachment
     self.clientBusAttachment = [[AJNBusAttachment alloc] initWithApplicationName:APPNAME allowRemoteMessages:ALLOWREMOTEMESSAGES];
-
+    
+    NSLog(@"[%@] [%@] Register BusListener", @"DEBUG", [[self class] description]);
+    [self.clientBusAttachment registerBusListener:self];
+    
     // Start AJNBusAttachment
     status = [self.clientBusAttachment start];
     if (status != ER_OK) {
@@ -371,7 +360,7 @@ static NSString *const DEFAULT_AUTH_PASSWORD = @"121212";
         [self stopAboutClient];
         return;
     }
-
+    
     // Connect AJNBusAttachment
     status = [self.clientBusAttachment connectWithArguments:@""];
     if (status != ER_OK) {
@@ -379,13 +368,8 @@ static NSString *const DEFAULT_AUTH_PASSWORD = @"121212";
         [self stopAboutClient];
         return;
     }
-
-    NSLog(@"[%@] [%@] Create aboutClientListener", @"DEBUG", [[self class] description]);
-    NSLog(@"[%@] [%@] Register aboutClientListener", @"DEBUG", [[self class] description]);
-
-    [self.clientBusAttachment registerBusListener:self];
-
-    [self registerAnnouncementReceiver];
+    
+    [self registerAboutListener];
 
     NSUUID *UUID = [NSUUID UUID];
     NSString *stringUUID = [UUID UUIDString];
@@ -467,7 +451,7 @@ static NSString *const DEFAULT_AUTH_PASSWORD = @"121212";
 {
     bool hascPanel = false;
     AJSCAboutAnnouncement *announcement = [(AJSCClientInformation *)[self.clientInformationDict valueForKey:announcementKey] announcement];
-    NSMutableDictionary *announcementObjDecs = [announcement objectDescriptions]; //Dictionary of ObjectDescriptions NSStrings
+    NSMutableDictionary *announcementObjDecs = [AJSCAboutDataConverter objectDescriptionArgToDict:[announcement objectDescriptionArg]]; //Dictionary of ObjectDescriptions NSStrings
 
     // iterate over the object descriptions dictionary
     for (NSString *key in announcementObjDecs.allKeys) {
@@ -483,20 +467,19 @@ static NSString *const DEFAULT_AUTH_PASSWORD = @"121212";
     return hascPanel;
 }
 
-- (void)registerAnnouncementReceiver
+- (void)registerAboutListener
 {
-    QStatus status;
-    self.announcementReceiver = [[AJNAnnouncementReceiver alloc] initWithAnnouncementListener:self andBus:self.clientBusAttachment];
-    const char *interfaces[] = { [CONTROLPANEL_INTERFACE_NAME UTF8String], [HTTPCONTROL_INTERFACE_NAME UTF8String] };
-    status = [self.announcementReceiver registerAnnouncementReceiverForInterfaces:&interfaces[0] withNumberOfInterfaces:1];
+    NSLog(@"[%@] [%@] Register AboutListener", @"DEBUG", [[self class] description]);
+    [self.clientBusAttachment registerAboutListener:self];
+    
+    QStatus status = [self.clientBusAttachment whoImplementsInterface:CONTROLPANEL_INTERFACE_NAME];
     if (status != ER_OK) {
         [self alertAndLog:@"Failed to registerAnnouncementReceiver" status:status];
         [self stopAboutClient];
         return;
     }
-
-    status = [self.announcementReceiver registerAnnouncementReceiverForInterfaces:&interfaces[1] withNumberOfInterfaces:1];
-
+    
+    status = [self.clientBusAttachment whoImplementsInterface:HTTPCONTROL_INTERFACE_NAME];
     if (status != ER_OK) {
         [self alertAndLog:@"Failed to registerAnnouncementReceiver" status:status];
         [self stopAboutClient];
@@ -504,21 +487,19 @@ static NSString *const DEFAULT_AUTH_PASSWORD = @"121212";
     }
 }
 
-- (void)unregisterAnnouncementReceiver
+- (void)unregisterAboutListener
 {
-    QStatus status;
-    const char *interfaces[] = { [CONTROLPANEL_INTERFACE_NAME UTF8String], [HTTPCONTROL_INTERFACE_NAME UTF8String] };
-    status = [self.announcementReceiver unRegisterAnnouncementReceiverForInterfaces:&interfaces[0] withNumberOfInterfaces:1];
-    if (status == ER_OK) {
-        NSLog(@"[%@] [%@] Successfully unregistered AnnouncementReceiver", @"DEBUG", [[self class] description]);
+    [self.clientBusAttachment unregisterAboutListener:self];
+    
+    QStatus status = [self.clientBusAttachment cancelWhoImplementsInterface:CONTROLPANEL_INTERFACE_NAME];
+    if (status != ER_OK) {
+        NSLog(@"Failed to unregister %@", CONTROLPANEL_INTERFACE_NAME);
     }
-
-    status = [self.announcementReceiver unRegisterAnnouncementReceiverForInterfaces:&interfaces[1] withNumberOfInterfaces:1];
-    if (status == ER_OK) {
-        NSLog(@"[%@] [%@] Successfully unregistered AnnouncementReceiver", @"DEBUG", [[self class] description]);
+    
+    status = [self.clientBusAttachment cancelWhoImplementsInterface:HTTPCONTROL_INTERFACE_NAME];
+    if (status != ER_OK) {
+        NSLog(@"Failed to unregister %@", HTTPCONTROL_INTERFACE_NAME);
     }
-
-    self.announcementReceiver = nil;
 }
 
 #pragma mark stop AboutClient
@@ -551,7 +532,7 @@ static NSString *const DEFAULT_AUTH_PASSWORD = @"121212";
     }
     self.clientInformationDict = nil;
 
-    [self unregisterAnnouncementReceiver];
+    [self unregisterAboutListener];
 
     // Stop bus attachment
     status = [self.clientBusAttachment stop];
