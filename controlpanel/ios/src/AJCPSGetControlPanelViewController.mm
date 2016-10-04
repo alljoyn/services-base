@@ -51,11 +51,12 @@ static NSString *const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
 
 @property (strong, nonatomic) UITableView *tableView;
 
-@property (weak, nonatomic) AJNBusAttachment *clientBusAttachment;
+@property (strong, nonatomic) AJNBusAttachment *clientBusAttachment;
 
 @property (weak, nonatomic) AJNAnnouncement *announcement;
-@property (weak, nonatomic) NSString *busName;                        // Temporary replacement for AJNAnnouncement.
-@property (weak, nonatomic) NSMutableDictionary *objectDescriptions;  // Temporary replacement for AJNAnnouncement.
+@property (strong, nonatomic) NSString *busName;                        // Temporary replacement for AJNAnnouncement.
+@property (strong, nonatomic) NSMutableDictionary *objectDescriptions;  // Temporary replacement for AJNAnnouncement.
+@property (strong, nonatomic) AJNAboutObjectDescription *objectDescription;
 @property (nonatomic) bool isAnnouncementMode;
 @property (strong, nonatomic) NSString *notificationSenderBusName;
 @property (strong, nonatomic) NSString *notificationCPSObjectPath;
@@ -96,6 +97,18 @@ static NSString *const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
         self.announcement = nil;
         self.busName = busName;
         self.objectDescriptions = objectDescriptions;
+        self.clientBusAttachment = bus;
+        self.isAnnouncementMode = true;
+    }
+    return self;
+}
+
+- (id)initWithBusName:(NSString *)busName objectDescription:(AJNAboutObjectDescription *)objDesc bus:(AJNBusAttachment *)bus
+{
+    if (self = [super init]) {
+        self.announcement = nil;
+        self.busName = busName;
+        self.objectDescription = objDesc;
         self.clientBusAttachment = bus;
         self.isAnnouncementMode = true;
     }
@@ -198,8 +211,11 @@ static NSString *const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
         } else if (self.busName && self.objectDescriptions) {
             self.controlPanelDevice = [self.controlPanelController createControllableDevice:self.busName
                                        ObjectDescs:self.objectDescriptions];
+        } else if (self.busName && self.objectDescription) {
+            self.controlPanelDevice = [self.controlPanelController createControllableDevice:self.busName
+                                                                                withObjectDesc:self.objectDescription];
         }
-
+        
         if (!self.controlPanelDevice) {
             NSLog(@"Could not initialize control panel device.");
             return ER_FAIL;

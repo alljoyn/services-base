@@ -16,9 +16,9 @@
 
 #import <UIKit/UIKit.h>
 #import "AJNBusListener.h"
-#import "alljoyn/about/AJNAnnouncementListener.h"
+#import "AJNAboutListener.h"
 
-@interface MainViewController : UIViewController <AJNBusListener, AJNAnnouncementListener, UITableViewDataSource, UITableViewDelegate>
+@interface MainViewController : UIViewController <AJNBusListener, AJNAboutListener, UITableViewDataSource, UITableViewDelegate>
 
 @property (weak, nonatomic) IBOutlet UIButton *connectButton;
 
