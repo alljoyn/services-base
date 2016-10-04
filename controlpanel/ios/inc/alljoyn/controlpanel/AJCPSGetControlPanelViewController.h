@@ -18,16 +18,13 @@
 #import "alljoyn/about/AJNAnnouncement.h"
 #import "AJNBusAttachment.h"
 #import "AJCPSControllerModel.h"
+#import "AJNAboutObjectDescription.h"
 
 @interface AJCPSGetControlPanelViewController : UIViewController <UITableViewDataSource, UITableViewDelegate>
 
 - (id)initWithNotificationSenderBusName:(NSString *)senderBusName cpsObjectPath:(NSString *)cpsObjectPath bus:(AJNBusAttachment *)bus;
-- (id)initWithAnnouncement:(AJNAnnouncement *)announcement bus:(AJNBusAttachment *)bus;
-
-// ASABASE-774 - Added temporarily to aid in deprecation cleanup without relying directly on
-// sample common's AJSCAboutAnnouncement from ControlPanel service.
-// This should eventually be replaced with the following:
-// - (id)initWithBusName:(NSString*) busName aboutDataArg:(AJNMessageArgument*) aboutDataArg;
-- (id)initWithBusName:(NSString *)busName objectDescriptions:(NSMutableDictionary *)objectDescriptions bus:(AJNBusAttachment *)bus;
+- (id)initWithAnnouncement:(AJNAnnouncement *)announcement bus:(AJNBusAttachment *)bus __deprecated;
+- (id)initWithBusName:(NSString *)busName objectDescriptions:(NSMutableDictionary *)objectDescriptions bus:(AJNBusAttachment *)bus __deprecated;
+- (id)initWithBusName:(NSString *)busName objectDescription:(AJNAboutObjectDescription *)objDesc bus:(AJNBusAttachment *)bus;
 
 @end

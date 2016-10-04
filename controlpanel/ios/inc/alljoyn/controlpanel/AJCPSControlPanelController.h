@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 #import "alljoyn/controlpanel/ControlPanelController.h"
 #import "AJCPSControlPanelDevice.h"
+#import "AJNAboutObjectDescription.h"
 
 /**
  * AJCPSControlPanelController facilitated controlling of remote ControlPanels
@@ -29,11 +30,20 @@
 
 /**
  * create a controllable device by parsing announce descriptions.
+ * @deprecated Deprecated in October 2016 for 16.10
  * @param deviceBusName - BusName of device received in announce
  * @param objectDescs - ObjectDescriptions received in announce
  * @return a ControlPanelDevice
  */
-- (AJCPSControlPanelDevice *)createControllableDevice:(NSString *)deviceBusName ObjectDescs:(NSDictionary *)objectDescs;
+- (AJCPSControlPanelDevice *)createControllableDevice:(NSString *)deviceBusName ObjectDescs:(NSDictionary *)objectDescs __deprecated;
+
+/**
+ * create a controllable device by parsing announce descriptions.
+ * @param deviceBusName - BusName of device received in announce
+ * @param objectDescs - AboutObjectDescriptions received as an AJNMessageArgument in announce
+ * @return a ControlPanelDevice
+ */
+- (AJCPSControlPanelDevice *)createControllableDevice:(NSString *)deviceBusName withObjectDesc:(AJNAboutObjectDescription *)objectDesc;
 
 /**
  * GetControllableDevice - get a device using the busName - creates it if it doesn't exist
