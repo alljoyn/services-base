@@ -154,7 +154,7 @@
         <!--Announce Text View Controller-->
         <scene sceneID="fA2-pF-Edg">
             <objects>
-                <viewController id="duL-C5-Aj6" customClass="AnnounceTextViewController" sceneMemberID="viewController">
+                <viewController id="duL-C5-Aj6" customClass="AJSCAnnounceTextViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="yKI-EZ-X3H"/>
                         <viewControllerLayoutGuide type="bottom" id="7B6-Zk-1Te"/>
