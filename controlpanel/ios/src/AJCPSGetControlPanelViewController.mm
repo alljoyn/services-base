@@ -42,6 +42,7 @@ static NSString *const CPS_PICKER_CELL = @"CPSPickerCell";
 static NSString *const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
 
 @interface AJCPSGetControlPanelViewController () <ControllerUpdateEvents>
+
 @property (strong, nonatomic) AJCPSControllerModel *controllerModel;
 @property (strong, nonatomic) AJCPSControlPanelService *controlPanelService;
 @property (strong, nonatomic) AJCPSControlPanelController *controlPanelController;
@@ -53,9 +54,7 @@ static NSString *const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
 
 @property (strong, nonatomic) AJNBusAttachment *clientBusAttachment;
 
-@property (weak, nonatomic) AJNAnnouncement *announcement;
-@property (strong, nonatomic) NSString *busName;                        // Temporary replacement for AJNAnnouncement.
-@property (strong, nonatomic) NSMutableDictionary *objectDescriptions;  // Temporary replacement for AJNAnnouncement.
+@property (strong, nonatomic) NSString *busName;
 @property (strong, nonatomic) AJNAboutObjectDescription *objectDescription;
 @property (nonatomic) bool isAnnouncementMode;
 @property (strong, nonatomic) NSString *notificationSenderBusName;
@@ -81,32 +80,9 @@ static NSString *const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
     return self;
 }
 
-- (id)initWithAnnouncement:(AJNAnnouncement *)announcement bus:(AJNBusAttachment *)bus
-{
-    if (self = [super init]) {
-        self.announcement = announcement;
-        self.clientBusAttachment = bus;
-        self.isAnnouncementMode = true;
-    }
-    return self;
-}
-
-- (id)initWithBusName:(NSString *)busName objectDescriptions:(NSMutableDictionary *)objectDescriptions bus:(AJNBusAttachment *)bus
-{
-    if (self = [super init]) {
-        self.announcement = nil;
-        self.busName = busName;
-        self.objectDescriptions = objectDescriptions;
-        self.clientBusAttachment = bus;
-        self.isAnnouncementMode = true;
-    }
-    return self;
-}
-
 - (id)initWithBusName:(NSString *)busName objectDescription:(AJNAboutObjectDescription *)objDesc bus:(AJNBusAttachment *)bus
 {
     if (self = [super init]) {
-        self.announcement = nil;
         self.busName = busName;
         self.objectDescription = objDesc;
         self.clientBusAttachment = bus;
@@ -205,16 +181,7 @@ static NSString *const CPS_ACTION_DIALOG_CELL = @"CPSActionDialogCell";
 
     if (self.isAnnouncementMode) {
         // Create a controllable device using the announcement bus name - this will trigger a listener method
-        if (self.announcement) {
-            self.controlPanelDevice = [self.controlPanelController createControllableDevice:self.announcement.busName
-                                       ObjectDescs:self.announcement.objectDescriptions];
-        } else if (self.busName && self.objectDescriptions) {
-            self.controlPanelDevice = [self.controlPanelController createControllableDevice:self.busName
-                                       ObjectDescs:self.objectDescriptions];
-        } else if (self.busName && self.objectDescription) {
-            self.controlPanelDevice = [self.controlPanelController createControllableDevice:self.busName
-                                                                                withObjectDesc:self.objectDescription];
-        }
+        self.controlPanelDevice = [self.controlPanelController createControllableDevice:self.busName withObjectDesc:self.objectDescription];
         
         if (!self.controlPanelDevice) {
             NSLog(@"Could not initialize control panel device.");
