@@ -17,7 +17,6 @@
 #import "MainViewController.h"
 #import "SystemConfiguration/CaptiveNetwork.h"
 #import "AJNStatus.h"
-#import "alljoyn/about/AJNAnnouncementReceiver.h"
 #import "OnboardingViewController.h"
 #import "samples_common/AJSCAboutAnnouncement.h"
 #import "samples_common/AJSCAboutDataConverter.h"
@@ -27,6 +26,7 @@
 #import "samples_common/AJSCAlertController.h"
 #import "samples_common/AJSCAlertControllerManager.h"
 #import "samples_common/AJSCAnnounceTextViewController.h"
+#import "AJNAboutObjectDescription.h"
 
 static bool ALLOWREMOTEMESSAGES = true; // About Client -  allow Remote Messages flag
 static NSString *const APPNAME = @"AboutClientMain"; // About Client - default application name
@@ -43,7 +43,6 @@ static NSString *const DEFAULT_AUTH_PASSCODE = @"000000";
 
 // About Client properties
 @property (strong, nonatomic) AJNBusAttachment *clientBusAttachment;
-@property (strong, nonatomic) AJNAnnouncementReceiver *announcementReceiver;
 @property (strong, nonatomic) NSString *realmBusName;
 @property (nonatomic) bool isAboutClientConnected;
 @property (strong, nonatomic) NSMutableDictionary *clientInformationDict; // Store the client related information
@@ -184,71 +183,61 @@ static NSString *const DEFAULT_AUTH_PASSCODE = @"000000";
     }
 }
 
-#pragma mark - AJNAnnouncementListener protocol method
+#pragma mark - AJNAboutListener protocol method
 // Here we receive an announcement from AJN and add it to the client's list of services avaialble
-- (void)announceWithVersion:(uint16_t)version
-    port:(uint16_t)port
-    busName:(NSString *)busName
-    objectDescriptions:(NSMutableDictionary *)objectDescs
-    aboutData:(NSMutableDictionary **)aboutData
+- (void)didReceiveAnnounceOnBus:(NSString *)busName
+                    withVersion:(uint16_t)version
+                withSessionPort:(AJNSessionPort)port
+          withObjectDescription:(AJNMessageArgument *)objectDescriptionArg
+               withAboutDataArg:(AJNMessageArgument *)aboutDataArg
 {
+    QStatus status;
+    
     NSString *announcementUniqueName; // Announcement unique name in a format of <busName DeviceName>
     AJSCClientInformation *clientInformation = [[AJSCClientInformation alloc] init];
 
     // Save the announcement in a AJSCAboutAnnouncement
-    clientInformation.announcement = [[AJSCAboutAnnouncement alloc] initWithVersion:version port:port busName:busName objectDescriptions:objectDescs aboutData:aboutData];
-
+    clientInformation.announcement = [[AJSCAboutAnnouncement alloc] initWithBusName:busName version:version sessionPort:port objectDescriptionArg:objectDescriptionArg aboutDataArg:aboutDataArg];
+    
+    NSDictionary *aboutDataDict = [AJSCAboutDataConverter aboutDataArgToDict:[clientInformation.announcement aboutDataArg]];
+    
     // Generate an announcement unique name in a format of <busName DeviceName>
-    announcementUniqueName = [NSString stringWithFormat:@"%@ %@", [clientInformation.announcement busName], [AJSCAboutDataConverter messageArgumentToString:[clientInformation.announcement aboutData][@"DeviceName"]]];
-
+    announcementUniqueName = [NSString stringWithFormat:@"%@ %@", busName, aboutDataDict[@"DeviceName"]];
     NSLog(@"[%@] [%@] Announcement unique name [%@]", @"DEBUG", [[self class] description], announcementUniqueName);
 
-    AJNMessageArgument *annObjMsgArg = [clientInformation.announcement aboutData][@"AppId"];
-    uint8_t *appIdBuffer;
-    size_t appIdNumElements;
-    QStatus status;
-    status = [annObjMsgArg value:@"ay", &appIdNumElements, &appIdBuffer];
-
-    // Add the received announcement
-    if (status != ER_OK) {
+    NSString *appId = aboutDataDict[@"AppId"];
+    if (!appId) {
         NSLog(@"[%@] [%@] Failed to read appId for key [%@]", @"DEBUG", [[self class] description], announcementUniqueName);
-
         return;
     }
 
     // Dealing with announcement entries should be syncronized, so we add it to a queue
     dispatch_sync(self.annBtnCreationQueue, ^{
         bool isAppIdExists = false;
-        uint8_t *tmpAppIdBuffer;
-        size_t tmpAppIdNumElements;
         QStatus tStatus;
-        int res;
+
+        NSString *onboardeeAppId;
 
         // ASABASE-711 - Check whether onboarding succeeded here instead of in OnboardingViewController.
         // Devices disconnect from AllJoyn when onboarding disconnects from Wi-Fi hotspot, which in turn
         // unregisters any callbacks set in OnboardingViewController. Note that simulators can't check the
         // current network, so it's possible for a non-onboarded device to trigger this code.
         if (self.isWaitingForOnboardee && ([self.currentSSID isEqualToString:self.targetSSID] || [self isSimulatorDevice])) {
-
+            
             // Get the app ID of the onboardee.
             AJSCAboutAnnouncement *clientAnnouncement = [self.clientInformation announcement];
-            AJNMessageArgument *clientAnnouncementMsgArg = [clientAnnouncement aboutData][@"AppId"];
-
-            tStatus = [clientAnnouncementMsgArg value:@"ay", &tmpAppIdNumElements, &tmpAppIdBuffer];
-            if (tStatus != ER_OK) {
+            NSDictionary *onboardeeAboutDataDict = [AJSCAboutDataConverter aboutDataArgToDict:clientAnnouncement.aboutDataArg];
+            
+            onboardeeAppId = onboardeeAboutDataDict[@"AppId"];
+            if (!onboardeeAppId) {
                 return;
             }
 
             // Check if the announcement came from the onboardee.
-            res = 1;
-            if (appIdNumElements == tmpAppIdNumElements) {
-                res = memcmp(appIdBuffer, tmpAppIdBuffer, appIdNumElements);
-            }
-
-            if (res == 0) {
+            if([onboardeeAppId compare:appId] == NSOrderedSame) {
                 [AJSCAlertControllerManager queueAlertWithTitle:@"Onboarding succeeded"
-                 message:@""
-                 viewController:self];
+                                                        message:@""
+                                                 viewController:self];
                 self.isWaitingForOnboardee = false;
             }
         }
@@ -257,22 +246,14 @@ static NSString *const DEFAULT_AUTH_PASSCODE = @"000000";
         for (NSString *key in self.clientInformationDict.allKeys) {
             AJSCClientInformation *clientInfo = [self.clientInformationDict valueForKey:key];
             AJSCAboutAnnouncement *announcement = [clientInfo announcement];
-            AJNMessageArgument *tmpMsgrg = [announcement aboutData][@"AppId"];
-
-            tStatus = [tmpMsgrg value:@"ay", &tmpAppIdNumElements, &tmpAppIdBuffer];
-            if (tStatus != ER_OK) {
+            
+            onboardeeAppId = [AJSCAboutDataConverter aboutDataArgToDict:announcement.aboutDataArg][@"AppId"];
+            if (!onboardeeAppId) {
                 NSLog(@"[%@] [%@] Failed to read appId for key [%@]", @"DEBUG", [[self class] description], key);
-
                 return;
             }
-
-            res = 1;
-            if (appIdNumElements == tmpAppIdNumElements) {
-                res = memcmp(appIdBuffer, tmpAppIdBuffer, appIdNumElements);
-            }
-
-            // Found a matched appId - res=0
-            if (!res) {
+            
+            if([onboardeeAppId compare:appId] == NSOrderedSame) {
                 isAppIdExists = true;
 
                 // Same AppId and the same announcementUniqueName
@@ -290,7 +271,7 @@ static NSString *const DEFAULT_AUTH_PASSCODE = @"000000";
                     NSString *prevBusName = [announcement busName];
                     if (!([busName isEqualToString:prevBusName])) {
                         tStatus = [self.clientBusAttachment cancelFindAdvertisedName:prevBusName];
-                        if (status != ER_OK) {
+                        if (tStatus != ER_OK) {
                             NSLog(@"[%@] [%@] failed to cancelAdvertisedName for %@. status:%@", @"DEBUG", [[self class] description], prevBusName, [AJNStatus descriptionForStatusCode:tStatus]);
                         }
                     }
@@ -470,14 +451,12 @@ static NSString *const DEFAULT_AUTH_PASSCODE = @"000000";
     NSLog(@"[%@] [%@] Register aboutClientListener", @"DEBUG", [[self class] description]);
 
     [self.clientBusAttachment registerBusListener:self];
-
-    self.announcementReceiver = [[AJNAnnouncementReceiver alloc] initWithAnnouncementListener:self andBus:self.clientBusAttachment];
-    const char *interfaces[] = { [ONBOARDING_INTERFACE_NAME UTF8String] };
-    status = [self.announcementReceiver registerAnnouncementReceiverForInterfaces:interfaces withNumberOfInterfaces:1];
+    [self.clientBusAttachment registerAboutListener:self];
+    
+    status = [self.clientBusAttachment whoImplementsInterface:ONBOARDING_INTERFACE_NAME];
     if (status != ER_OK) {
         [self AlertAndLog:@"FATAL" message:@"Failed to registerAnnouncementReceiver" status:status];
         [self stopAboutClient];
-
         return;
     }
 
@@ -577,33 +556,18 @@ static NSString *const DEFAULT_AUTH_PASSCODE = @"000000";
 
     NSLog(@"[%@] [%@] Requested:  [%@]", @"DEBUG", [[self class] description], self.announcementButtonCurrentTitle);
 
-    // Check if announcement has icon object path
-    if (![self announcementSupportsInterface:self.announcementButtonCurrentTitle]) {
-        [self.announcementOptionsAlert show]; // Event is forward to alertView: clickedButtonAtIndex:
+    if ([self announcementSupportsOnboardingInterface:self.announcementButtonCurrentTitle]) {
+        [self.onboardingOptionsAlert show];
     } else {
-        [self.onboardingOptionsAlert show]; // Event is forward to alertView: clickedButtonAtIndex:
+        [self.announcementOptionsAlert show];
     }
 }
 
-// Return true if an announcement supports icon interface
-- (bool)announcementSupportsInterface:(NSString *)announcementKey
+- (bool)announcementSupportsOnboardingInterface:(NSString *)announcementKey
 {
-    bool supportInterface = false;
     AJSCAboutAnnouncement *announcement = [(AJSCClientInformation *)[self.clientInformationDict valueForKey:announcementKey] announcement];
-    NSMutableDictionary *announcementObjDecs = [announcement objectDescriptions]; //Dictionary of ObjectDescriptions NSStrings
-
-    // iterate over the object descriptions dictionary
-    for (NSString *key in announcementObjDecs.allKeys) {
-        if ([key hasPrefix:ONBOARDING_OBJECT_PATH]) {
-            // Iterate over the NSMutableArray
-            for (NSString *intf in[announcementObjDecs valueForKey:key]) {
-                if ([intf isEqualToString:(NSString *)ONBOARDING_INTERFACE_NAME]) {
-                    supportInterface = true;
-                }
-            }
-        }
-    }
-    return supportInterface;
+    AJNAboutObjectDescription *aboutObjectDescription = [[AJNAboutObjectDescription alloc] initWithMsgArg: announcement.objectDescriptionArg];
+    return [aboutObjectDescription hasInterface:ONBOARDING_INTERFACE_NAME withPath:ONBOARDING_OBJECT_PATH];
 }
 
 #pragma mark stop AboutClient
@@ -647,15 +611,7 @@ static NSString *const DEFAULT_AUTH_PASSCODE = @"000000";
     }
     self.clientInformationDict = nil;
 
-    const char *interfaces[] = { [ONBOARDING_INTERFACE_NAME UTF8String] };
-    status = [self.announcementReceiver unRegisterAnnouncementReceiverForInterfaces:interfaces withNumberOfInterfaces:1];
-    if (status == ER_OK) {
-        NSLog(@"[%@] [%@] Successfully unregistered AnnouncementReceiver", @"DEBUG", [[self class] description]);
-    } else {
-        NSLog(@"[%@] [%@]  Failed unregistered AnnouncementReceiver, error:%@", @"DEBUG", [[self class] description], [AJNStatus descriptionForStatusCode:status]);
-    }
-
-    self.announcementReceiver = nil;
+    [self.clientBusAttachment unregisterAboutListener:self];
 
     // Stop bus attachment
     status = [self.clientBusAttachment stop];

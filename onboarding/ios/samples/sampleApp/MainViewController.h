@@ -17,9 +17,9 @@
 #import <UIKit/UIKit.h>
 #import "AJNBusListener.h"
 #import "OnboardingStartedListener.h"
-#import "alljoyn/about/AJNAnnouncementListener.h"
+#import "AJNAboutListener.h"
 
-@interface MainViewController : UIViewController <AJNBusListener, AJNAnnouncementListener, UITableViewDataSource, UITableViewDelegate, OnboardingStartedListener>
+@interface MainViewController : UIViewController <AJNBusListener, AJNAboutListener, UITableViewDataSource, UITableViewDelegate, OnboardingStartedListener>
 
 @property (weak, nonatomic) IBOutlet UIButton *connectButton;
 @property (weak, nonatomic) IBOutlet UITableView *servicesTable;
