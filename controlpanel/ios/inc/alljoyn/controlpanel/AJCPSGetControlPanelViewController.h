@@ -23,8 +23,6 @@
 @interface AJCPSGetControlPanelViewController : UIViewController <UITableViewDataSource, UITableViewDelegate>
 
 - (id)initWithNotificationSenderBusName:(NSString *)senderBusName cpsObjectPath:(NSString *)cpsObjectPath bus:(AJNBusAttachment *)bus;
-- (id)initWithAnnouncement:(AJNAnnouncement *)announcement bus:(AJNBusAttachment *)bus __deprecated;
-- (id)initWithBusName:(NSString *)busName objectDescriptions:(NSMutableDictionary *)objectDescriptions bus:(AJNBusAttachment *)bus __deprecated;
 - (id)initWithBusName:(NSString *)busName objectDescription:(AJNAboutObjectDescription *)objDesc bus:(AJNBusAttachment *)bus;
 
 @end
