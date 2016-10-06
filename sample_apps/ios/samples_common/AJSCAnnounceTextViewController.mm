@@ -68,22 +68,14 @@
     //  set AboutMap info
     txt = [txt stringByAppendingFormat:@"About map:\n"];
 
-    if (self.announcement.usesDeprecatedAnnounce) {
-        txt = [txt stringByAppendingString:[AJSCAboutDataConverter aboutDataDictionaryToString:([self.announcement aboutData])]];
-    } else {
-        txt = [txt stringByAppendingString:[AJSCAboutDataConverter aboutDataArgString:([self.announcement aboutDataArg])]];
-    }
+    txt = [txt stringByAppendingString:[AJSCAboutDataConverter aboutDataArgString:([self.announcement aboutDataArg])]];
 
     txt = [txt stringByAppendingString:@"\n\n"];
 
     //  set ObjectDesc info
     txt = [txt stringByAppendingFormat:@"Bus Object Description:\n"];
 
-    if (self.announcement.usesDeprecatedAnnounce) {
-        txt = [txt stringByAppendingString:[self objectDescriptionsToString:[self.announcement objectDescriptions]]];
-    } else {
-        txt = [txt stringByAppendingString:[AJSCAboutDataConverter objectDescriptionArgString:([self.announcement objectDescriptionArg])]];
-    }
+    txt = [txt stringByAppendingString:[AJSCAboutDataConverter objectDescriptionArgString:([self.announcement objectDescriptionArg])]];
 
     self.announceInformation.text = txt;
 }

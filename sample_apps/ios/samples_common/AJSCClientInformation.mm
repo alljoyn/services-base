@@ -22,12 +22,7 @@
 - (void)setAnnouncement:(AJSCAboutAnnouncement *)announcement
 {
     _announcement = announcement;
-
-    if (_announcement.usesDeprecatedAnnounce) {
-        _currLang = [AJSCAboutDataConverter messageArgumentToString:[_announcement aboutData][@"DefaultLanguage"]];
-    } else {
-        _currLang = [AJSCAboutDataConverter aboutDataArgToDict:[_announcement aboutDataArg]][@"DefaultLanguage"];
-    }
+    _currLang = [AJSCAboutDataConverter aboutDataArgToDict:[_announcement aboutDataArg]][@"DefaultLanguage"];
 }
 
 @end

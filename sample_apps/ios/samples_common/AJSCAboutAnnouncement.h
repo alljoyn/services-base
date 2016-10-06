@@ -21,13 +21,6 @@
 /**
  * AJSCAboutAnnouncement is a storage class that holds about announcement information received
  * from the server.
- * To be backwards compatible with Core's deprecated About service class AJNAnnouncement, and to
- * aid in the deprecation cleanup of one iOS sample at a time, the old deprecated 'objectDescriptions'
- * and 'aboutData' properties have been included as part of this class. A temporary property
- * 'usesDeprecatedAnnounce' is set internally depending on which init method is called, and can be
- * used for separating deprecated from non-deprecated code used in files shared by multiple samples.
- * After all dependencies on the initWithVersion method have been removed within the iOS samples,
- * all properties / methods marked as __deprecated in this class can be removed.
  */
 @interface AJSCAboutAnnouncement : NSObject
 
@@ -37,22 +30,10 @@
 @property (strong, nonatomic) AJNMessageArgument *objectDescriptionArg;
 @property (strong, nonatomic) AJNMessageArgument *aboutDataArg;
 
-@property (strong, nonatomic) NSMutableDictionary *objectDescriptions __deprecated;
-@property (strong, nonatomic) NSMutableDictionary *aboutData __deprecated;
-
-@property (readonly) BOOL usesDeprecatedAnnounce __deprecated;
-
 /**
  * Create AJSCAboutAnnouncement object using the parameters passed in from AJNAboutListener's
  * didReceiveAnnounce method.
  */
 - (id)initWithBusName:(NSString *)busName version:(uint16_t)version sessionPort:(AJNSessionPort)sessionPort objectDescriptionArg:(AJNMessageArgument *)objectDescriptionArg aboutDataArg:(AJNMessageArgument *)aboutDataArg;
-
-/**
- * @deprecated
- * Create AJSCAboutAnnouncement object using the parameters passed in from the deprecated
- * AJNAnnouncementListener's announce method.
- */
-- (id)initWithVersion:(uint16_t)version port:(uint16_t)port busName:(NSString *)busName objectDescriptions:(NSMutableDictionary *)objectDescs aboutData:(NSMutableDictionary **)aboutData __deprecated;
 
 @end
