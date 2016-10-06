@@ -16,17 +16,7 @@
 
 #import "AJSCAboutAnnouncement.h"
 
-@interface AJSCAboutAnnouncement ()
-
-@property (readwrite) BOOL usesDeprecatedAnnounce __deprecated;
-
-@end
-
-
 @implementation AJSCAboutAnnouncement
-
-@synthesize usesDeprecatedAnnounce;
-
 
 - (id)initWithBusName:(NSString *)busName
     version:(uint16_t)version
@@ -41,33 +31,6 @@
         self.port = port;
         self.objectDescriptionArg = objectDescriptionArg;
         self.aboutDataArg = aboutDataArg;
-
-        // Deprecated.
-        self.objectDescriptions = nil;
-        self.aboutData = nil;
-        self.usesDeprecatedAnnounce = false;
-    }
-    return self;
-}
-
-- (id)initWithVersion:(uint16_t)version
-    port:(uint16_t)port
-    busName:(NSString *)busName
-    objectDescriptions:(NSMutableDictionary *)objectDescs
-    aboutData:(NSMutableDictionary **)aboutData
-{
-    self = [super init];
-    if (self) {
-        self.busName = busName;
-        self.version = version;
-        self.port = port;  // AJNSessionPort is type-defined as uint16_t.
-        self.objectDescriptionArg = nil;
-        self.aboutDataArg = nil;
-
-        // Deprecated.
-        self.objectDescriptions = objectDescs;
-        self.aboutData = *aboutData;
-        self.usesDeprecatedAnnounce = true;
     }
     return self;
 }
