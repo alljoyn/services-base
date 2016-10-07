@@ -109,4 +109,142 @@ static NSString *ERRORSTRING = @"";
     return qnsObjectDescContent;
 }
 
++ (NSMutableDictionary *)aboutDataArgToDict:(AJNMessageArgument *)aboutDataArg
+{
+    size_t aboutDataSize;
+    ajn::MsgArg *msgArg;
+    QStatus status = [aboutDataArg value:@"a{sv}", &aboutDataSize, &msgArg];
+
+    if(status != ER_OK) {
+        return nil;
+    }
+    
+    char *key;
+    ajn::MsgArg *value;
+    
+    NSMutableDictionary *aboutDataDict = [[NSMutableDictionary alloc]init];
+    
+    for(int i = 0; i < aboutDataSize; ++i) {
+        msgArg[i].Get("{sv}", &key, &value);
+        NSString *keyNS = [NSString stringWithCString:key encoding:NSUTF8StringEncoding];
+        
+        if(value->Signature() == "s") {
+            char *unwrappedVal;
+            status = value->Get("s", &unwrappedVal);
+            
+            if(status == ER_OK){
+                [aboutDataDict setObject:[NSString stringWithCString:unwrappedVal encoding:NSUTF8StringEncoding] forKey:keyNS];
+            }
+            
+        } else if (value->Signature() == "ay") {
+            uint8_t *appID;
+            size_t appIDSize;
+            
+            status = value->Get("ay", &appIDSize, &appID);
+            
+            if(status == ER_OK) {
+                NSMutableData *argData = [NSMutableData dataWithBytes:appID length:(NSInteger)appIDSize];
+                NSString *trimmedArray = [[argData description] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]];
+                [aboutDataDict setObject:trimmedArray forKey:keyNS];
+            }
+            
+        } else if (value->Signature() == "as") {
+            ajn::MsgArg *strings;
+            size_t numOfString;
+            
+            status = value->Get("as", &numOfString, &strings);
+            
+            if(status == ER_OK) {
+                NSMutableArray *stringArrayNS = [[NSMutableArray alloc] init];
+                for (int i = 0; i < numOfString; ++i) {
+                    char *tmpString;
+                    strings[i].Get("s", &tmpString);
+                    [stringArrayNS addObject:[NSString stringWithCString:tmpString encoding:NSUTF8StringEncoding]];
+                }
+                [aboutDataDict setObject:stringArrayNS forKey:keyNS];
+            }
+        }
+    }
+
+    return aboutDataDict;
+}
+
++ (NSString *)aboutDataArgString:(AJNMessageArgument *)aboutDataArg
+{
+    NSMutableDictionary *aboutDataDict = [AJSCAboutDataConverter aboutDataArgToDict:aboutDataArg];
+
+    NSMutableString *qnsAboutDataContent = [[NSMutableString alloc] init];
+
+    // Iterate over dictionary in the format of NSString/AJNMessageArgument
+    for (NSString *key in aboutDataDict) {
+        // Add the dictionary key
+        [qnsAboutDataContent appendString:([NSString stringWithFormat:@"%@: ", key])];
+
+        if([key compare:@"AppId"] == NSOrderedSame) {
+            NSString *value = aboutDataDict[key];
+            [qnsAboutDataContent appendString:([NSString stringWithFormat:@"%@ ", value])];
+        } else if ([key compare:@"SupportedLanguages"] == NSOrderedSame) {
+            NSMutableArray *value = aboutDataDict[key];
+            NSMutableString *supportedLanguagesStr = @"";
+            for(NSString *lang in value) {
+                [supportedLanguagesStr appendString:lang];
+            }
+            [qnsAboutDataContent appendString:([NSString stringWithFormat:@"%@ ", supportedLanguagesStr])];
+        } else {
+            NSString *value = aboutDataDict[key];
+            [qnsAboutDataContent appendString:([NSString stringWithFormat:@"%@ ", value])];
+        }
+        
+        [qnsAboutDataContent appendString:([NSString stringWithFormat:@"\n"])];
+    }
+    return qnsAboutDataContent;
+}
+
++ (NSString *)objectDescriptionArgString:(AJNMessageArgument *)objectDescriptionsArg
+{
+    size_t numObjectPaths;
+    ajn::MsgArg *msgArg;
+    QStatus status = [objectDescriptionsArg value:@"a(oas)", &numObjectPaths, &msgArg];
+
+    if(status != ER_OK) {
+        return nil;
+    }
+
+    NSMutableDictionary *objectDescriptions = [[NSMutableDictionary alloc] init];
+
+    for(int i = 0; i < numObjectPaths; ++i) {
+        char *objPath;
+        size_t numInterfaces;
+        ajn::MsgArg *interfaces;
+        
+        status = msgArg[i].Get("(oas)", &objPath, &numInterfaces, &interfaces);
+        
+        if (status == ER_OK) {
+            NSMutableArray *interfaceArray = [[NSMutableArray alloc] init];
+
+            for(int i = 0; i < numInterfaces; ++i) {
+                char *tmpString;
+                interfaces[i].Get("s", &tmpString);
+                [interfaceArray addObject: [NSString stringWithCString:tmpString encoding:NSUTF8StringEncoding] ];
+            }
+
+            [objectDescriptions setObject:interfaceArray forKey:[NSString stringWithCString:objPath encoding:NSUTF8StringEncoding]];
+        }
+    }
+    
+    NSMutableString *qnsObjectDescContent = [[NSMutableString alloc] init];
+
+    for (NSString *key in objectDescriptions.allKeys) {
+        //  Iterate over the NSMutableDictionary
+        [qnsObjectDescContent appendString:([NSString stringWithFormat:@"path: %@ \n", key])];
+        [qnsObjectDescContent appendString:([NSString stringWithFormat:@"interfaces: "])];
+        for (NSString *intrf in objectDescriptions[(key)]) {
+            //  Add NSString followed by ' '
+            [qnsObjectDescContent appendString:([NSString stringWithFormat:@"%@ ", intrf])];
+        }
+        [qnsObjectDescContent appendString:([NSString stringWithFormat:@"\n\n"])];
+    }
+    return qnsObjectDescContent;
+}
+
 @end

@@ -26,7 +26,7 @@
     if (_announcement.usesDeprecatedAnnounce) {
         _currLang = [AJSCAboutDataConverter messageArgumentToString:[_announcement aboutData][@"DefaultLanguage"]];
     } else {
-        // TODO: Use AJSCAboutAnnouncement.aboutDataArg to set language.
+        _currLang = [AJSCAboutDataConverter aboutDataArgToDict:[_announcement aboutDataArg]][@"DefaultLanguage"];
     }
 }
 
