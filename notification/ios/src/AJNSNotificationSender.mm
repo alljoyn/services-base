@@ -18,11 +18,21 @@
 
 @interface AJNSNotificationSender ()
 @property (nonatomic) ajn::services::AboutPropertyStoreImpl *propertyStore;
+@property (nonatomic) ajn::AboutData *aboutData;
+@end
 
+@interface AJNAboutData (Private)
+@property (nonatomic, readonly) ajn::AboutData *aboutData;
 @end
 
 @implementation AJNSNotificationSender
 
+/**
+ * @deprecated initWithPropertyStore was deprecated in September 2016 for 16.10
+ * Initialize notification sender
+ * @param property store
+ * @return ajns notification sender
+ */
 - (AJNSNotificationSender *)initWithPropertyStore:(AJNAboutPropertyStoreImpl *)propertyStore
 {
     self = [super init];
@@ -30,6 +40,24 @@
         self.propertyStore = [propertyStore getHandle];
         if (self.propertyStore) {
             self.senderHandle = new ajn::services::NotificationSender(self.propertyStore);
+            return self;
+        }
+    }
+    return nil;
+}
+
+/**
+ * Initialize notification sender
+ * @param about data
+ * @return ajns notification sender
+ */
+- (AJNSNotificationSender *)initWithAboutData:(AJNAboutData *)aboutData
+{
+    self = [super init];
+    if (self) {
+        self.aboutData = aboutData.aboutData;
+        if (self.aboutData) {
+            self.senderHandle = new ajn::services::NotificationSender(self.aboutData);
             return self;
         }
     }
@@ -60,6 +88,11 @@
 - (ajn::services::AboutPropertyStoreImpl *)getPropertyStore
 {
     return self.propertyStore;
+}
+
+- (ajn::AboutData *)getAboutData
+{
+    return self.aboutData;
 }
 
 @end

@@ -17,13 +17,15 @@
 #import "ProducerViewController.h"
 #import <alljoyn/Status.h>
 #import "AJNVersion.h"
-#import "alljoyn/about/AJNAboutServiceApi.h"
 #import "samples_common/AJSCCommonBusListener.h"
 #import "alljoyn/notification/AJNSNotificationSender.h"
 #import "alljoyn/notification/AJNSNotificationService.h"
 #import "alljoyn/services_common/AJSVCGenericLoggerUtil.h"
 #import "NotificationUtils.h"
 #import "samples_common/AJSCAlertController.h"
+#import "AJNMessageArgument.h"
+#import "AJNAboutObject.h"
+#import "AJNAboutData.h"
 
 static NSString *const DEVICE_ID_PRODUCER = @"ProducerBasic";
 static NSString *const DEVICE_NAME_PRODUCER = @"ProducerBasic";
@@ -38,13 +40,11 @@ static NSString *const DEFAULT_TTL = @"30";
 static NSString *const DEFAULT_MSG_TYPE = @"INFO";
 
 
-@interface ProducerViewController ()
+@interface ProducerViewController () <AJNSessionPortListener, AJNSessionListener>
 
-@property (weak, nonatomic) AJNSNotificationSender *Sender;
+@property (weak, nonatomic) AJNSNotificationSender *sender;
 @property (strong, nonatomic) AJNSNotificationService *producerService;
 @property (strong, nonatomic) AJSCCommonBusListener *commonBusListener;
-@property (weak, nonatomic) AJNAboutServiceApi *aboutService;
-@property (strong, nonatomic) AJNAboutPropertyStoreImpl *aboutPropertyStoreImpl;
 @property (strong, nonatomic) AJSCAlertController *selectLanguage;
 @property (strong, nonatomic) AJSCAlertController *selectMessageType;
 @property (strong, nonatomic) AJNSNotification *notification;
@@ -58,6 +58,8 @@ static NSString *const DEFAULT_MSG_TYPE = @"INFO";
 @property (nonatomic) AJNSNotificationMessageType messageType;
 @property (strong, nonatomic) NSString *otherLang;
 
+@property (strong, nonatomic) AJNAboutData *aboutData;
+@property (strong, nonatomic) AJNAboutObject *aboutObj;
 
 @end
 
@@ -71,6 +73,8 @@ static NSString *const DEFAULT_MSG_TYPE = @"INFO";
 
 - (QStatus)startProducer
 {
+    QStatus status;
+    
     // Set TextField.delegate to enable dissmiss keyboard
     self.notificationEnTextField.delegate = self;
     self.notificationLangTextField.delegate = self;
@@ -106,47 +110,38 @@ static NSString *const DEFAULT_MSG_TYPE = @"INFO";
         return ER_FAIL;
     }
 
-    // Prepare propertyStore
-    [self.logger debugTag:[[self class] description] text:@"preparePropertyStore."];
-    self.aboutPropertyStoreImpl = [[AJNAboutPropertyStoreImpl alloc] init];
-
-    QStatus status = [self fillAboutPropertyStoreImplData:[[NSUUID UUID] UUIDString]
-                      appName:self.appName
-                      deviceId:DEVICE_ID_PRODUCER
-                      deviceName:DEVICE_NAME_PRODUCER
-                      defaultLanguage:DEFAULT_LANG_PRODUCER];
-    if (status != ER_OK) {
-        [self.logger errorTag:[[self class] description] text:@"Could not fill PropertyStore."];
-        return ER_FAIL;
-    }
-
     // Prepare AJNSBusListener
     self.commonBusListener = [[AJSCCommonBusListener alloc] init];
 
-    // Prepare AboutService
-    [self.logger debugTag:[[self class] description] text:@"prepareAboutService"];
-    status = [self prepareAboutService:self.commonBusListener servicePort:SERVICE_PORT];
-    if (status != ER_OK) {
-        [self.logger fatalTag:[[self class] description] text:@"Could not prepareAboutService."];
-        return ER_FAIL;
-    }
-
+    // Setup AboutData
+    self.aboutData = [[AJNAboutData alloc] initWithLanguage:@"en"];
+    [self provisionAboutData:self.aboutData];
+    
     // Call initSend
-    self.Sender = [self.producerService startSendWithBus:self.busAttachment andPropertyStore:self.aboutPropertyStoreImpl];
-    if (!self.Sender) {
+    self.sender = [self.producerService startSendWithBus:self.busAttachment andAboutData:self.aboutData];
+    if (!self.sender) {
         [self.logger fatalTag:[[self class] description] text:@"Could not initialize Sender"];
         return ER_FAIL;
     }
-
-    // Call announce
-    status = [self.aboutService announce];
-    if (status != ER_OK) {
-        [self.logger fatalTag:[[self class] description] text:@"Could not announce"];
-        return ER_FAIL;
-    } else {
-        [self.logger debugTag:[[self class] description] text:@"Announce..."];
+    
+    // Bind a session to the announce service port
+    AJNSessionOptions *sessionOptions = [[AJNSessionOptions alloc] initWithTrafficType:kAJNTrafficMessages supportsMultipoint:YES proximity:kAJNProximityAny transportMask:kAJNTransportMaskAny];
+    
+    status = [self.busAttachment bindSessionOnPort:SERVICE_PORT withOptions:sessionOptions withDelegate:self];
+    if (ER_OK != status) {
+        NSLog(@"ERROR: Could not bind session on port (%d)", SERVICE_PORT);
     }
-
+    
+    // Call announce
+    self.aboutObj = [[AJNAboutObject alloc] initWithBusAttachment:self.busAttachment withAnnounceFlag:ANNOUNCED];
+    status = [self.aboutObj announceForSessionPort:SERVICE_PORT withAboutDataListener:self.aboutData];
+    
+    if(status == ER_OK) {
+        NSLog(@"AboutObject announcement succeeded.");
+    } else {
+        NSLog(@"AboutObject announcement failed.");
+    }
+    
     return ER_OK;
 }
 
@@ -156,25 +151,12 @@ static NSString *const DEFAULT_MSG_TYPE = @"INFO";
 
     [self.logger debugTag:[[self class] description] text:@"Stop Producer service"];
 
-    if (self.Sender) {
-        self.Sender = nil;
+    if (self.sender) {
+        self.sender = nil;
     }
-
-    // AboutService destroy
-    if (self.aboutService) {
-        // AboutService destroyInstance
-        [self.aboutService destroyInstance]; //isServiceStarted = false, call [self.aboutService unregister]
-        status = [self.busAttachment unbindSessionFromPort:SERVICE_PORT];
-        if (status != ER_OK) {
-            [self.logger errorTag:[[self class] description] text:@"Failed to unbindSessionFromPort"];
-        }
-        self.aboutService = nil;
-    }
-
-    if (self.aboutPropertyStoreImpl) {
-        self.aboutPropertyStoreImpl = nil;
-    }
-
+    
+    [self.aboutObj unannounce];
+    
     // Shutdown producer
     if (self.producerService && isConsumerOn) {
         [self.logger debugTag:[[self class] description] text:@"calling shutdownSender"];
@@ -363,13 +345,12 @@ static NSString *const DEFAULT_MSG_TYPE = @"INFO";
         [self.notification setRichAudioObjectPath:RICH_AUDIO_OBJECT_PATH];
         [self.notification setControlPanelServiceObjectPath:curr_controlPanelServiceObjectPath];
 
-
         [self logNotification:self.notification ttl:nttl];
 
         [self.richAudioUrlArray removeAllObjects];
 
         // Call send
-        QStatus sendStatus = [self.Sender send:self.notification ttl:nttl];
+        QStatus sendStatus = [self.sender send:self.notification ttl:nttl];
         if (sendStatus != ER_OK) {
             [self.logger infoTag:[[self class] description] text:[NSString stringWithFormat:@"Send has failed"]];
         } else {
@@ -400,170 +381,116 @@ static NSString *const DEFAULT_MSG_TYPE = @"INFO";
         return;
     }
 
-    QStatus deleteStatus = [self.Sender deleteLastMsg:self.messageType];
+    QStatus deleteStatus = [self.sender deleteLastMsg:self.messageType];
 
     if (deleteStatus != ER_OK) {
         [self.logger errorTag:[[self class] description] text:@"Failed to delete a message"];
     }
 }
 
-#pragma mark - About Service methods
-
-- (QStatus)prepareAboutService:(AJSCCommonBusListener *)busListener servicePort:(AJNSessionPort)port
-{
-    if (!self.busAttachment) {
-        return ER_BAD_ARG_1;
-    }
-
-    if (!busListener) {
-        return ER_BAD_ARG_2;
-    }
-
-    if (!self.aboutPropertyStoreImpl) {
-        [self.logger errorTag:[[self class] description] text:@"PropertyStore is empty"];
-        return ER_FAIL;
-    }
-
-    // Prepare About Service
-    self.aboutService = [AJNAboutServiceApi sharedInstance];
-
-    if (!self.aboutService) {
-        return ER_BUS_NOT_ALLOWED;
-    }
-
-    [self.aboutService startWithBus:self.busAttachment andPropertyStore:self.aboutPropertyStoreImpl]; //isServiceStarted = true
-
-
-
-    [self.logger debugTag:[[self class] description] text:@"registerBusListener"];
-    [busListener setSessionPort:port];
-    [self.busAttachment registerBusListener:busListener];
-
-    AJNSessionOptions *opt = [[AJNSessionOptions alloc] initWithTrafficType:(kAJNTrafficMessages) supportsMultipoint:(false) proximity:(kAJNProximityAny) transportMask:(kAJNTransportMaskAny)];
-    QStatus aboutStatus = [self.busAttachment bindSessionOnPort:SERVICE_PORT withOptions:opt withDelegate:busListener];
-
-    if (aboutStatus == ER_ALLJOYN_BINDSESSIONPORT_REPLY_ALREADY_EXISTS) {
-        [self.logger infoTag:[[self class] description] text:([NSString stringWithFormat:@"bind status: ER_ALLJOYN_BINDSESSIONPORT_REPLY_ALREADY_EXISTS"])];
-    }
-    if (aboutStatus != ER_OK) {
-        return aboutStatus;
-    }
-    return [self.aboutService registerPort:(SERVICE_PORT)];
-}
-
-
-- (QStatus)fillAboutPropertyStoreImplData:(NSString *)appId appName:(NSString *)appName deviceId:(NSString *)deviceId deviceName:(NSString *)deviceName defaultLanguage:(NSString *)defaultLang
+- (QStatus)provisionAboutData:(AJNAboutData *)aboutData
 {
     QStatus status;
 
-    // AppId to Hex string
-    const char *utf8AppId = [appId UTF8String];
-    NSMutableString *hex = [[NSMutableString alloc] init];
-    while (*utf8AppId) {
-        [hex appendFormat:@"%02X", *utf8AppId++ & 0x00FF];
-    }
-
     // AppId
-    status = [self.aboutPropertyStoreImpl setAppId:[NSString stringWithString:hex]];
+    uuid_t uuid;
+    [[NSUUID UUID] getUUIDBytes:uuid];
+    status = [aboutData setAppId:uuid];
     if (status != ER_OK) {
         return status;
     }
 
     // AppName
-    status = [self.aboutPropertyStoreImpl setAppName:appName];
+    status = [aboutData setAppName:self.appName andLanguage:DEFAULT_LANG_PRODUCER];
     if (status != ER_OK) {
         return status;
     }
 
     // DeviceId
-    status = [self.aboutPropertyStoreImpl setDeviceId:deviceId];
+    status = [aboutData setDeviceId:DEVICE_ID_PRODUCER];
     if (status != ER_OK) {
         return status;
     }
 
     // DeviceName
-    status = [self.aboutPropertyStoreImpl setDeviceName:deviceName];
+    status = [aboutData setDeviceName:DEVICE_NAME_PRODUCER andLanguage:DEFAULT_LANG_PRODUCER];
     if (status != ER_OK) {
         return status;
     }
 
     // SupportedLangs
     NSArray *languages = @[@"en", @"sp", @"fr"];
-    status = [self.aboutPropertyStoreImpl setSupportedLangs:languages];
-    if (status != ER_OK) {
-        return status;
+    for (NSString *lang in languages) {
+        status = [aboutData setSupportedLanguage:lang];
+        if (status != ER_OK) {
+            return status;
+        }
     }
 
     // DefaultLang
-    status = [self.aboutPropertyStoreImpl setDefaultLang:defaultLang];
+    status = [aboutData setDefaultLanguage:DEFAULT_LANG_PRODUCER];
     if (status != ER_OK) {
         return status;
     }
 
     // ModelNumber
-    status = [self.aboutPropertyStoreImpl setModelNumber:@"Wxfy388i"];
+    status = [aboutData setModelNumber:@"Wxfy388i"];
     if (status != ER_OK) {
         return status;
     }
 
     // DateOfManufacture
-    status = [self.aboutPropertyStoreImpl setDateOfManufacture:@"10/1/2199"];
+    status = [aboutData setDateOfManufacture:@"10/1/2199"];
     if (status != ER_OK) {
         return status;
     }
 
     // SoftwareVersion
-    status = [self.aboutPropertyStoreImpl setSoftwareVersion:@"12.20.44 build 44454"];
-    if (status != ER_OK) {
-        return status;
-    }
-
-    // AjSoftwareVersion
-    status = [self.aboutPropertyStoreImpl setAjSoftwareVersion:[AJNVersion versionInformation]];
+    status = [aboutData setSoftwareVersion:@"12.20.44 build 44454"];
     if (status != ER_OK) {
         return status;
     }
 
     // HardwareVersion
-    status = [self.aboutPropertyStoreImpl setHardwareVersion:@"355.499. b"];
+    status = [aboutData setHardwareVersion:@"355.499. b"];
     if (status != ER_OK) {
         return status;
     }
 
     // Description
-    status = [self.aboutPropertyStoreImpl setDescription:@"This is an Alljoyn Application" language:@"en"];
+    status = [aboutData setDescription:@"This is an Alljoyn Application" andLanguage:@"en"];
     if (status != ER_OK) {
         return status;
     }
 
-    status = [self.aboutPropertyStoreImpl setDescription:@"Esta es una Alljoyn aplicación" language:@"sp"];
+    status = [aboutData setDescription:@"Esta es una Alljoyn aplicación" andLanguage:@"sp"];
     if (status != ER_OK) {
         return status;
     }
 
-    status = [self.aboutPropertyStoreImpl setDescription:@"C'est une Alljoyn application"  language:@"fr"];
+    status = [aboutData setDescription:@"C'est une Alljoyn application"  andLanguage:@"fr"];
     if (status != ER_OK) {
         return status;
     }
 
     // Manufacturer
-    status = [self.aboutPropertyStoreImpl setManufacturer:@"Company" language:@"en"];
+    status = [aboutData setManufacturer:@"Company" andLanguage:@"en"];
     if (status != ER_OK) {
         return status;
     }
 
-    status = [self.aboutPropertyStoreImpl setManufacturer:@"Empresa" language:@"sp"];
+    status = [aboutData setManufacturer:@"Empresa" andLanguage:@"sp"];
     if (status != ER_OK) {
         return status;
     }
 
-    status = [self.aboutPropertyStoreImpl setManufacturer:@"Entreprise" language:@"fr"];
+    status = [aboutData setManufacturer:@"Entreprise" andLanguage:@"fr"];
     if (status != ER_OK) {
         return status;
     }
 
     // SupportedUrl
-    status = [self.aboutPropertyStoreImpl setSupportUrl:@"http://www.alljoyn.org"];
+    status = [aboutData setSupportUrl:@"http://www.alljoyn.org"];
     if (status != ER_OK) {
         return status;
     }
@@ -650,6 +577,43 @@ static NSString *const DEFAULT_MSG_TYPE = @"INFO";
             [(UITextField *) aSubview resignFirstResponder];
         }
     }
+}
+
+#pragma mark - AJNSessionListener methods
+
+- (void)sessionWasLost:(AJNSessionId)sessionId
+{
+    NSLog(@"AJNBusListener::sessionWasLost %u", sessionId);
+}
+
+- (void)sessionWasLost:(AJNSessionId)sessionId forReason:(AJNSessionLostReason)reason
+{
+    NSLog(@"AJNBusListener::sessionWasLost %u forReason:%u", sessionId, reason);
+}
+
+- (void)didAddMemberNamed:(NSString*)memberName toSession:(AJNSessionId)sessionId
+{
+    NSLog(@"AJNBusListener::didAddMemberNamed:%@ toSession:%u", memberName, sessionId);
+}
+
+- (void)didRemoveMemberNamed:(NSString*)memberName fromSession:(AJNSessionId)sessionId
+{
+    NSLog(@"AJNBusListener::didRemoveMemberNamed:%@ fromSession:%u", memberName, sessionId);
+}
+
+#pragma mark - AJNSessionPortListener implementation
+
+- (BOOL)shouldAcceptSessionJoinerNamed:(NSString*)joiner onSessionPort:(AJNSessionPort)sessionPort withSessionOptions:(AJNSessionOptions*)options
+{
+    NSLog(@"AJNSessionPortListener::shouldAcceptSessionJoinerNamed:%@ onSessionPort:%u withSessionOptions:", joiner, sessionPort);
+    return SERVICE_PORT == sessionPort;
+}
+
+- (void)didJoin:(NSString*)joiner inSessionWithId:(AJNSessionId)sessionId onSessionPort:(AJNSessionPort)sessionPort
+{
+    NSLog(@"AJNSessionPortListener::didJoin:%@ inSessionWithId:%u onSessionPort:%u withSessionOptions:", joiner, sessionId, sessionPort);
+    [self.busAttachment enableConcurrentCallbacks];
+    [self.busAttachment setSessionListener:self toSession:sessionId];
 }
 
 @end

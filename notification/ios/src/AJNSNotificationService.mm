@@ -53,8 +53,9 @@
 }
 
 /**
- *  Initialize Producer side via Transport. Create and
- *  return NotificationSender.
+ * @deprecated startSendWithBus:andPropertyStore: was deprecated in September 2016 for 16.10
+ * Initialize Producer side via Transport. Create and
+ * return NotificationSender.
  * @param bus
  * @param store
  * @return NotificationSender instance
@@ -66,6 +67,24 @@
     //NotificationSender* NotificationService::initSend(BusAttachment* bus, PropertyStore* store)
     if (self.ajnsSender) {
         self.ajnsSender.senderHandle = ajn::services::NotificationService::getInstance()->initSend((ajn::BusAttachment *)bus.handle, [self.ajnsSender getPropertyStore]);
+    }
+
+    return self.ajnsSender.senderHandle ? self.ajnsSender : nil;
+}
+
+/**
+ * Initialize Producer side via Transport. Create and
+ * return NotificationSender.
+ * @param bus
+ * @param aboutData
+ * @return NotificationSender instance
+ */
+- (AJNSNotificationSender *)startSendWithBus:(AJNBusAttachment *)bus andAboutData:(AJNAboutData *)aboutData
+{
+    self.ajnsSender = [[AJNSNotificationSender alloc] initWithAboutData:aboutData];
+    
+    if (self.ajnsSender) {
+        self.ajnsSender.senderHandle = ajn::services::NotificationService::getInstance()->initSend((ajn::BusAttachment *)bus.handle, [self.ajnsSender getAboutData]);
     }
 
     return self.ajnsSender.senderHandle ? self.ajnsSender : nil;
