@@ -70,21 +70,11 @@
  */
 - (void)shutdown;
 
-/** @deprecated SuperAgent was deprecated in May 2015 for 15.04
- * release
- * Disabling superagent mode. Needs to be called before
- * starting receiver
- * @return status
- */
-- (QStatus)disableSuperAgent DEPRECATED_ATTRIBUTE;
-
 /**
  * Get the currently-configured logger implementation
  * @return logger Implementation of GenericLogger
  */
 - (id <AJSVCGenericLogger> )logger;
-
-
 
 /**
  * Set log level filter for subsequent logging messages
