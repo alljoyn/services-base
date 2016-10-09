@@ -20,7 +20,7 @@
 #include <assert.h>
 #include <alljoyn/AllJoynStd.h>
 #include <alljoyn/PermissionPolicy.h>
-#include "SecurityApplicationProxy_FIXED_CORE_HEADER.h"
+#include <alljoyn/SecurityApplicationProxy.h>
 
 using namespace qcc;
 using namespace ajn;
