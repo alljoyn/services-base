@@ -29,12 +29,10 @@
  */
 @interface AJOBSOnboarding : NSObject
 
-
-
 /**
  *  Structure to hold the WIFI details
  */
-    typedef struct {
+typedef struct {
     /**
      *  SSID is the WIFI's SSID
      */

@@ -32,6 +32,16 @@
 - (id)initWithBus:(AJNBusAttachment *)bus listener:(id <AJOBOnboardingClientListener> )listener;
 
 /**
+ * Get the AJOBScanInfo array for the specified bus name.
+ * @param[in] busName Unique or well-known name of AllJoyn node to retrieve Onboarding data from.
+ * @param[out] age of last network scan.
+ * @param[out] scanInfos NSMutableArray of AJOBScanInfo objects.
+ * @param[in] sessionId the session received after joining an alljoyn session.
+ * @return ER_OK if successful.
+ */
+- (QStatus)getScanInfo:(NSString *)busName age:(unsigned short &)age scanInfo:(NSMutableArray *)scanInfos sessionId:(AJNSessionId)sessionId;
+
+/**
  * Configure WiFi a specified bus name.
  * @param busName busName Unique or well-known name of AllJoyn node to retrieve Onboarding data from.
  * @param ajOBInfo reference to  OBInfo.
