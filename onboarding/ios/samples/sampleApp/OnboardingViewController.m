@@ -19,14 +19,32 @@
 #import "SystemConfiguration/CaptiveNetwork.h"
 #import "samples_common/AJSCAlertController.h"
 #import "samples_common/AJSCAlertControllerManager.h"
+#import "alljoyn/onboarding/AJOBScanInfo.h"
 
 #define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
 
+static NSString * const AUTH_OPEN_STR = @"OPEN";
+static NSString * const AUTH_WEP_STR = @"WEP";
+static NSString * const AUTH_WPA_AUTO_STR = @"WPA_AUTO";
+static NSString * const AUTH_WPA_CCMP_STR = @"WPA_CCMP";
+static NSString * const AUTH_WPA_TKIP_STR = @"WPA_TKIP";
+static NSString * const AUTH_WPA2_AUTO_STR = @"WPA2_AUTO";
+static NSString * const AUTH_WPA2_CCMP_STR = @"WPA2_CCMP";
+static NSString * const AUTH_WPA2_TKIP_STR = @"WPA2_TKIP";
+static NSString * const AUTH_WPS_STR = @"WPS";
+
 @interface OnboardingViewController () <AJOBOnboardingClientListener>
+
+typedef NS_ENUM(NSInteger, ONBOARDING_PICKER) {
+    AUTH_PICKER,
+    NETWORK_PICKER
+};
+
 @property (strong, nonatomic) AJOBSOnboardingClient *onboardingClient;
 @property (nonatomic) AJNSessionId sessionId;
 @property (strong, nonatomic) NSString *onboardeeBus;
-@property (strong, nonatomic) NSArray *pickerData;
+@property (strong, nonatomic) NSArray *authPickerData;
+@property (strong, nonatomic) NSMutableArray *onboardeeNetworks;
 @end
 
 @implementation OnboardingViewController
@@ -51,19 +69,32 @@
         [alertController show];
     }
 
-    self.authType = [[UIPickerView alloc] init];
-    self.authType.delegate = self;
-    self.authType.dataSource = self;
-    self.authType.showsSelectionIndicator = YES;
-    self.authType.hidden = NO;
-
-    self.pickerData = @[@"OPEN", @"WEP", @"WPA_AUTO", @"WPA_CCMP", @"WPA_TKIP", @"WPA2_AUTO", @"WPA2_CCMP", @"WPA2_TKIP", @"WPS"];
+    self.networkPicker = [[UIPickerView alloc] init];
+    [self initPicker:self.networkPicker];
+    self.networkPicker.tag = NETWORK_PICKER;
+    
+    self.authTypePicker = [[UIPickerView alloc] init];
+    [self initPicker:self.authTypePicker];
+    self.authTypePicker.tag = AUTH_PICKER;
+    
+    self.authPickerData = @[AUTH_OPEN_STR, AUTH_WEP_STR, AUTH_WPA_AUTO_STR, AUTH_WPA_CCMP_STR, AUTH_WPA_TKIP_STR, AUTH_WPA2_AUTO_STR, AUTH_WPA2_CCMP_STR, AUTH_WPA2_TKIP_STR, AUTH_WPS_STR];
 
     if ([self.authTextField.text length] <= 0) {
-        self.authTextField.text = self.pickerData[0];
+        self.authTextField.text = self.authPickerData[0];
     }
 
-    self.authTextField.inputView = self.authType;
+    self.authTextField.inputView = self.authTypePicker;
+    self.networkTextField.inputView = self.networkPicker;
+    
+    self.networkTextField.text = @"Select a network...";
+}
+
+- (void)initPicker:(UIPickerView *)pickerView
+{
+    pickerView.delegate = self;
+    pickerView.dataSource = self;
+    pickerView.showsSelectionIndicator = YES;
+    pickerView.hidden = NO;
 }
 
 - (void)displayPreOnbordingElements:(CGFloat)alpha
@@ -303,6 +334,33 @@
     [self.instructLbl setText:@"  "];
 }
 
+- (IBAction)getScanInfo:(id)sender
+{
+    self.onboardeeNetworks = [[NSMutableArray alloc] init];
+    unsigned short age;
+    
+    QStatus status = [self.onboardingClient getScanInfo:self.onboardeeBus
+                                                    age:age
+                                               scanInfo:self.onboardeeNetworks
+                                              sessionId:self.sessionId];
+    
+    AJSCAlertController *alertController;
+    
+    if(status == ER_OK) {
+        alertController = [AJSCAlertController alertControllerWithTitle:@"Success"
+                                                                message:@"Onboardee networks populated below"
+                                                        viewController:self];
+        [alertController addActionWithName:@"OK" handler:^(UIAlertAction *action) { }];
+    } else {
+        alertController = [AJSCAlertController alertControllerWithTitle:@"Error"
+                                                                message:@"Failed to retrieve onboardee networks"
+                                                         viewController:self];
+        [alertController addActionWithName:@"OK" handler:^(UIAlertAction *action) { }];
+    }
+    
+    [alertController show];
+}
+
 - (void)viewWillDisappear:(BOOL)animated
 {
     [self stopOnboardingClient];
@@ -327,41 +385,119 @@
 
 - (int)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component
 {
-    return [self.pickerData count];
+    switch (pickerView.tag) {
+        case AUTH_PICKER:
+        {
+            return [self.authPickerData count];
+            break;
+        }
+        case NETWORK_PICKER:
+        {
+            return [self.onboardeeNetworks count];
+            break;
+        }
+        default:
+            break;
+    }
 }
 
 - (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component
 {
-    return self.pickerData[row];
+    switch (pickerView.tag) {
+        case AUTH_PICKER:
+        {
+            return self.authPickerData[row];
+            break;
+        }
+        case NETWORK_PICKER:
+        {
+            AJOBScanInfo *scanInfo = self.onboardeeNetworks[row];
+            return scanInfo.ssid;
+            break;
+        }
+        default:
+            break;
+    }
 }
 
 - (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component
 {
-    self.authTextField.text = self.pickerData[row];
-    [self.authTextField resignFirstResponder];
-    NSLog(@"%d row selected: %@", row, self.authTextField.text);
+    switch (pickerView.tag) {
+        case AUTH_PICKER:
+        {
+            self.authTextField.text = self.authPickerData[row];
+            [self.authTextField resignFirstResponder];
+            break;
+        }
+        case NETWORK_PICKER:
+        {
+            AJOBScanInfo *scanInfo = self.onboardeeNetworks[row];
+            self.ssidTextField.text = scanInfo.ssid;
+            self.authTextField.text = [self authIntToString:scanInfo.authType];
+            [self.networkTextField resignFirstResponder];
+            break;
+        }
+        default:
+            break;
+    }
 }
 
 - (NSInteger)pickerAuthStringToInt
 {
-    if ([self.authTextField.text isEqualToString:@"OPEN"]) {
+    if ([self.authTextField.text isEqualToString:AUTH_OPEN_STR]) {
         return OPEN;
-    } else if ([self.authTextField.text isEqualToString:@"WEP"]) {
+    } else if ([self.authTextField.text isEqualToString:AUTH_WEP_STR]) {
         return WEP;
-    } else if ([self.authTextField.text isEqualToString:@"WPA_AUTO"]) {
+    } else if ([self.authTextField.text isEqualToString:AUTH_WPA_AUTO_STR]) {
         return WPA_AUTO;
-    } else if ([self.authTextField.text isEqualToString:@"WPA_CCMP"]) {
+    } else if ([self.authTextField.text isEqualToString:AUTH_WPA_CCMP_STR]) {
         return WPA_CCMP;
-    } else if ([self.authTextField.text isEqualToString:@"WPA_TKIP"]) {
+    } else if ([self.authTextField.text isEqualToString:AUTH_WPA_TKIP_STR]) {
         return WPA_TKIP;
-    } else if ([self.authTextField.text isEqualToString:@"WPA2_AUTO"]) {
+    } else if ([self.authTextField.text isEqualToString:AUTH_WPA2_AUTO_STR]) {
         return WPA2_AUTO;
-    } else if ([self.authTextField.text isEqualToString:@"WPA2_CCMP"]) {
+    } else if ([self.authTextField.text isEqualToString:AUTH_WPA2_CCMP_STR]) {
         return WPA2_CCMP;
-    } else if ([self.authTextField.text isEqualToString:@"WPA2_TKIP"]) {
+    } else if ([self.authTextField.text isEqualToString:AUTH_WPA2_TKIP_STR]) {
         return WPA2_TKIP;
-    } else if ([self.authTextField.text isEqualToString:@"WPS"]) {
+    } else if ([self.authTextField.text isEqualToString:AUTH_WPS_STR]) {
         return WPS;
+    }
+}
+
+-(NSString *)authIntToString:(AJOBAuthType)authType
+{
+    switch(authType) {
+        case OPEN:
+            return AUTH_OPEN_STR;
+            break;
+        case WEP:
+            return AUTH_WEP_STR;
+            break;
+        case WPA_AUTO:
+            return AUTH_WPA_AUTO_STR;
+            break;
+        case WPA_CCMP:
+            return AUTH_WPA_CCMP_STR;
+            break;
+        case WPA_TKIP:
+            return AUTH_WPA_TKIP_STR;
+            break;
+        case WPA2_AUTO:
+            return AUTH_WPA2_AUTO_STR;
+            break;
+        case WPA2_CCMP:
+            return AUTH_WPA2_CCMP_STR;
+            break;
+        case WPA2_TKIP:
+            return AUTH_WPA2_TKIP_STR;
+            break;
+        case WPS:
+            return AUTH_WPS_STR;
+            break;
+        default:
+            return @"Unknown";
+            break;
     }
 }
 

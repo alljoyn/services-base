@@ -19,7 +19,7 @@
 #import "alljoyn/onboarding/Onboarding.h"
 #import "alljoyn/services_common/AJSVCConvertUtil.h"
 #import "AJOBOnboardingClientListenerAdapter.h"
-
+#import "AJOBScanInfo.h"
 
 @interface AJOBSOnboardingClient ()
 @property ajn::services::OnboardingClient *handle;
@@ -42,6 +42,31 @@
         self.handle = new ajn::services::OnboardingClient((ajn::BusAttachment &)(*bus.handle), *self.onboardingListenerAdapter);
     }
     return self;
+}
+
+- (QStatus)getScanInfo:(NSString *)busName age:(unsigned short &)age scanInfo:(NSMutableArray *)scanInfos sessionId:(AJNSessionId)sessionId
+{
+    if(busName == nil) {
+        return ER_BAD_ARG_1;
+    }
+    
+    if(scanInfos == nil) {
+        return ER_BAD_ARG_3;
+    }
+    
+    ajn::services::OnboardingClient::ScanInfos internalScanInfos;
+    QStatus status = self.handle->GetScanInfo([AJSVCConvertUtil convertNSStringToConstChar:busName], age, internalScanInfos, sessionId);
+
+    if(status == ER_OK) {
+        ajn::services::OnboardingClient::ScanInfos::iterator it;
+        for(it = internalScanInfos.begin(); it != internalScanInfos.end(); ++it) {
+            NSString *ssid = [AJSVCConvertUtil convertConstCharToNSString:it->SSID.c_str()];
+            AJOBScanInfo *scanInfo = [[AJOBScanInfo alloc] initWithSSID:ssid AuthType:it->authType];
+            [scanInfos addObject:scanInfo];
+        }
+    }
+
+    return status;
 }
 
 - (QStatus)configureWiFi:(NSString *)busName obInfo:(AJOBInfo &)ajOBInfo resultStatus:(short &)resultStatus sessionId:(AJNSessionId)sessionId

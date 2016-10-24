@@ -33,6 +33,7 @@ static NSString *const AJ_AP_SUFFIX = @"_AJ";
 @property (weak, nonatomic) IBOutlet UIButton *configureBtn;
 @property (weak, nonatomic) IBOutlet UIButton *connectBtn;
 @property (weak, nonatomic) IBOutlet UIButton *offBoardingBtn;
+@property (weak, nonatomic) IBOutlet UIButton *scanInfoBtn;
 @property (weak, nonatomic) IBOutlet UILabel *onboardTitleLbl;
 @property (weak, nonatomic) IBOutlet UILabel *ssidLbl;
 @property (weak, nonatomic) IBOutlet UILabel *ssidPassLbl;
@@ -40,12 +41,16 @@ static NSString *const AJ_AP_SUFFIX = @"_AJ";
 @property (weak, nonatomic) IBOutlet UILabel *instructLbl;
 @property (weak, nonatomic) IBOutlet UILabel *authLabel;
 @property (weak, nonatomic) IBOutlet UITextField *authTextField;
-@property (strong, nonatomic) UIPickerView *authType;
+@property (weak, nonatomic) IBOutlet UITextField *networkTextField;
+@property (strong, nonatomic) UIPickerView *authTypePicker;
+@property (strong, nonatomic) UIPickerView *networkPicker;
 
 - (IBAction)configureBtnDidTouchUpInside:(id)sender;
 
 - (IBAction)connectBtnDidTouchUpInside:(id)sender;
 
 - (IBAction)offBoardingBtnDidTouchUpInside:(id)sender;
+
+- (IBAction)getScanInfo:(id)sender;
 
 @end
