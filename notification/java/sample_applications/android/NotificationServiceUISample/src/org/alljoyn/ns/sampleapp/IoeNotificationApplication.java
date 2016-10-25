@@ -246,25 +246,28 @@ public class IoeNotificationApplication extends Application implements Notificat
             }
 
             // ////start about
-            aboutData = new AboutDataImpl(this);
-            Map<String, Object> aboutMap = TransformUtil.fromVariantMap(aboutData.getAboutData("en"));
-            String deviceName = (String)aboutMap.get(AboutKeys.ABOUT_DEVICE_NAME);
+            if (aboutObj == null) {
+                aboutData = new AboutDataImpl(this);
+                Map<String, Object> aboutMap = TransformUtil.fromVariantMap(aboutData.getAboutData("en"));
+                String deviceName = (String)aboutMap.get(AboutKeys.ABOUT_DEVICE_NAME);
 
-            if (deviceName == null || deviceName.length() == 0) {
-                aboutData.setValue(AboutKeys.ABOUT_DEVICE_NAME, DEVICE_NAME, Property.NO_LANGUAGE);
+                if (deviceName == null || deviceName.length() == 0) {
+                    aboutData.setValue(AboutKeys.ABOUT_DEVICE_NAME, DEVICE_NAME, Property.NO_LANGUAGE);
+                }
+
+                aboutData.setValue(AboutKeys.ABOUT_APP_NAME, appName, Property.NO_LANGUAGE);
+
+                aboutObj = new AboutObj(bus);
             }
-
-            aboutData.setValue(AboutKeys.ABOUT_APP_NAME, appName, Property.NO_LANGUAGE);
-
-            aboutObj = new AboutObj(bus);
             // //////end about
 
             notificationSender = notificationService.initSend(bus, aboutData);
+            isSenderStarted = true;
+
             status = aboutObj.announce(ANNOUNCED_PORT, aboutData);
             if (status != Status.OK) {
                 throw new NotificationServiceException("Failed to send announcement, Status: '" + status + "'");
             }
-            isSenderStarted = true;
         } catch (NotificationServiceException nse) {
             Log.e(TAG, "Failed on startSender - can't create a notificationSender error: " + nse.getMessage());
             showToast("Failed to start sender");
@@ -440,7 +443,6 @@ public class IoeNotificationApplication extends Application implements Notificat
         try {
             notificationService.shutdownSender();
             aboutObj.unannounce();
-            aboutObj = null;
             bus.unbindSessionPort(ANNOUNCED_PORT);
             isSenderStarted = false;
         } catch (NotificationServiceException nse) {
@@ -486,6 +488,7 @@ public class IoeNotificationApplication extends Application implements Notificat
         bus.disconnect();
         bus.release();
         bus = null;
+        aboutObj = null;
         Log.d(TAG, "Shutdown was done");
 
         isReceiverStarted = false;
@@ -580,8 +583,6 @@ public class IoeNotificationApplication extends Application implements Notificat
 
     /**
      * Advertise the daemon so that the thin client can find it
-     *
-     * @param logger
      */
     private void advertiseDaemon() throws NotificationServiceException {
         int flag = BusAttachment.ALLJOYN_REQUESTNAME_FLAG_DO_NOT_QUEUE;
