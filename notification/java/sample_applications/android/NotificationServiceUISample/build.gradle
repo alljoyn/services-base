@@ -3,6 +3,7 @@ apply plugin: 'com.android.application'
 dependencies {
     compile project(':notification:java:NotificationService')
     compile project(':controlpanel:java:ControlPanelAdapter')
+    compile project(':notification:java:native_platform:NotificationServiceNativePlatformAndroid')
 }
 
 // FIXME - CORE_ARCH: allow configurable core library architecture selection
