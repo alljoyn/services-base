@@ -18,8 +18,9 @@
 #import "AJNBusListener.h"
 #import "OnboardingStartedListener.h"
 #import "AJNAboutListener.h"
+#import "AJNSessionListener.h"
 
-@interface MainViewController : UIViewController <AJNBusListener, AJNAboutListener, UITableViewDataSource, UITableViewDelegate, OnboardingStartedListener>
+@interface MainViewController : UIViewController <AJNBusListener, AJNAboutListener, UITableViewDataSource, UITableViewDelegate, OnboardingStartedListener, AJNSessionListener>
 
 @property (weak, nonatomic) IBOutlet UIButton *connectButton;
 @property (weak, nonatomic) IBOutlet UITableView *servicesTable;

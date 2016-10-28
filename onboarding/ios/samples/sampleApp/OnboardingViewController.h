@@ -27,6 +27,7 @@ static NSString *const AJ_AP_SUFFIX = @"_AJ";
 @property (strong, nonatomic) AJNBusAttachment *clientBusName;
 @property (strong, nonatomic) IBOutlet id <OnboardingStartedListener> onboardingStartedListener;
 @property (weak, nonatomic) AJSCClientInformation *clientInformation;
+@property (nonatomic) AJNSessionId sessionId;
 
 @property (weak, nonatomic) IBOutlet UITextField *ssidTextField;
 @property (weak, nonatomic) IBOutlet UITextField *ssidPassTextField;

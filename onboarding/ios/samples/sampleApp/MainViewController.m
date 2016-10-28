@@ -46,6 +46,7 @@ static NSString *const DEFAULT_AUTH_PASSCODE = @"000000";
 @property (strong, nonatomic) NSString *realmBusName;
 @property (nonatomic) bool isAboutClientConnected;
 @property (strong, nonatomic) NSMutableDictionary *clientInformationDict; // Store the client related information
+@property (strong, nonatomic) NSMutableDictionary *deviceSessionDict; // Store the session id established with each device
 
 // Announcement
 @property (strong, nonatomic) NSString *announcementButtonCurrentTitle;                  // The pressed button's announcementUniqueName
@@ -85,6 +86,12 @@ static NSString *const DEFAULT_AUTH_PASSCODE = @"000000";
      selector:@selector(updateSSIDinTitle)
      userInfo:nil
      repeats:YES];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    [self.servicesTable performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
 }
 
 - (void)updateSSIDinTitle
@@ -163,6 +170,7 @@ static NSString *const DEFAULT_AUTH_PASSCODE = @"000000";
         onboardingViewController.clientBusName = self.clientBusAttachment;
         onboardingViewController.clientInformation = (self.clientInformationDict)[self.announcementButtonCurrentTitle];
         onboardingViewController.onboardingStartedListener = self;
+        onboardingViewController.sessionId = [(self.deviceSessionDict)[self.announcementButtonCurrentTitle] unsignedIntValue];
 
         // For devices: Persistent cache of onboardee information so this information is not lost when onboarding
         // network change occurs.
@@ -301,6 +309,10 @@ static NSString *const DEFAULT_AUTH_PASSCODE = @"000000";
     if (status != ER_OK) {
         NSLog(@"[%@] [%@] failed to findAdvertisedName for %@. status:%@", @"ERROR", [[self class] description], busName, [AJNStatus descriptionForStatusCode:status]);
     }
+    
+    AJNSessionOptions *options = [[AJNSessionOptions alloc] initWithTrafficType:kAJNTrafficMessages supportsMultipoint:YES proximity:kAJNProximityAny transportMask:kAJNTransportMaskAny];
+    AJNSessionId sessionId = [self.clientBusAttachment joinSessionWithName:busName onPort:port withDelegate:self options:options];
+    [self.deviceSessionDict setValue:[NSNumber numberWithUnsignedInteger:sessionId] forKey:announcementUniqueName];
 }
 
 #pragma mark AJNBusListener protocol methods
@@ -424,7 +436,8 @@ static NSString *const DEFAULT_AUTH_PASSCODE = @"000000";
 
     // Create a dictionary to contain announcements using a key in the format of: "announcementUniqueName + announcementObj"
     self.clientInformationDict = [[NSMutableDictionary alloc] init];
-
+    self.deviceSessionDict = [[NSMutableDictionary alloc] init];
+    
     NSLog(@"[%@] [%@] Start About Client", @"DEBUG", [[self class] description]);
 
     // Init AJNBusAttachment
@@ -609,7 +622,19 @@ static NSString *const DEFAULT_AUTH_PASSCODE = @"000000";
             NSLog(@"[%@] [%@] failed to cancelAdvertisedName for %@. status:%@", @"ERROR", [[self class] description], key, [AJNStatus descriptionForStatusCode:status]);
         }
     }
+    
     self.clientInformationDict = nil;
+    
+    // Leave all sessions
+    for(NSString *key in self.deviceSessionDict) {
+        AJNSessionId sessionId = [self.deviceSessionDict[key] unsignedIntValue];
+        status = [self.clientBusAttachment leaveSession:sessionId];
+        if (ER_OK != status) {
+            NSLog(@"Failed to leave session %u, %@", sessionId, [AJNStatus descriptionForStatusCode:status]);
+        }
+    }
+    
+    self.deviceSessionDict = nil;
 
     [self.clientBusAttachment unregisterAboutListener:self];
 
@@ -685,6 +710,33 @@ static NSString *const DEFAULT_AUTH_PASSCODE = @"000000";
         [AJSCAlertControllerManager queueAlertWithTitle:@"Onboarding failed" message:message viewController:self];
         self.isWaitingForOnboardee = false;
     }
+}
+
+#pragma mark - AJNSessionListener
+
+- (void)sessionWasLost:(AJNSessionId)sessionId
+{
+    NSMutableArray *removeKeys = [[NSMutableArray alloc]init];
+    
+    for (NSString *key in self.deviceSessionDict) {
+        NSNumber *tmpSessionId = self.deviceSessionDict[key];
+        if([tmpSessionId unsignedIntValue] == sessionId) {
+            [removeKeys addObject:key];
+        }
+    }
+    
+    for (NSString *key in removeKeys) {
+        [self.clientInformationDict removeObjectForKey:key];
+        [self.deviceSessionDict removeObjectForKey:key];
+        NSLog(@"Session was lost with device: %@", key);
+    }
+    
+    [self.servicesTable performSelectorOnMainThread:@selector(reloadData) withObject:nil waitUntilDone:NO];
+}
+
+- (void)sessionWasLost:(AJNSessionId)sessionId forReason:(AJNSessionLostReason)reason
+{
+    [self sessionWasLost:sessionId];
 }
 
 #pragma mark - Util methods

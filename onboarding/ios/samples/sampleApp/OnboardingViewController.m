@@ -41,7 +41,6 @@ typedef NS_ENUM(NSInteger, ONBOARDING_PICKER) {
 };
 
 @property (strong, nonatomic) AJOBSOnboardingClient *onboardingClient;
-@property (nonatomic) AJNSessionId sessionId;
 @property (strong, nonatomic) NSString *onboardeeBus;
 @property (strong, nonatomic) NSArray *authPickerData;
 @property (strong, nonatomic) NSMutableArray *onboardeeNetworks;
@@ -135,20 +134,13 @@ typedef NS_ENUM(NSInteger, ONBOARDING_PICKER) {
 - (QStatus)startOnboardingClient
 {
     self.onboardeeBus = [self.clientInformation.announcement busName];
-    QStatus status = ER_FAIL;
+    
     if (!self.onboardeeBus) {
         [self updateStatusLabel:@"Bus attachment hasn't been initialized"];
-        return status;
+        return ER_FAIL;
     }
 
     self.onboardingClient = [[AJOBSOnboardingClient alloc] initWithBus:self.clientBusName listener:self];
-
-    if (!self.sessionId) {
-        status = [self createNewSession];
-        if (ER_OK != status) {
-            return ER_FAIL;
-        }
-    }
 
     if ([self isSimulatorDevice]) {
         NSString *simulatorMessage = @"NOTE: Using the simulator does not support network detection - all possible actions are displayed";
@@ -170,25 +162,6 @@ typedef NS_ENUM(NSInteger, ONBOARDING_PICKER) {
         }
     }
 
-    return status;
-}
-
-- (QStatus)createNewSession
-{
-    //create sessionOptions
-    [self updateStatusLabel:[NSString stringWithFormat:@"Create a new session with %@", [self.clientInformation.announcement busName]]];
-    AJNSessionOptions *opt = [[AJNSessionOptions alloc] initWithTrafficType:kAJNTrafficMessages supportsMultipoint:false proximity:kAJNProximityAny transportMask:kAJNTransportMaskAny];
-
-    //call joinSession
-    self.sessionId = [self.clientBusName
-                      joinSessionWithName:[self.clientInformation.announcement busName]
-                      onPort:[self.clientInformation.announcement port]
-                      withDelegate:(nil) options:opt];
-
-    if (self.sessionId == 0 || self.sessionId == -1) {
-        [self updateStatusLabel:[NSString stringWithFormat:@"Failed to join session. sid=%u", self.sessionId]];
-        return ER_FAIL;
-    }
     return ER_OK;
 }
 
@@ -215,14 +188,6 @@ typedef NS_ENUM(NSInteger, ONBOARDING_PICKER) {
 
 - (void)stopOnboardingClient
 {
-    QStatus status;
-
-    NSLog(@"Calling leaveSession");
-    status = [self.clientBusName leaveSession:self.sessionId];
-    if (ER_OK != status) {
-        NSLog(@"Failed to leave session %u, %@", self.sessionId, [AJNStatus descriptionForStatusCode:status]);
-    }
-
     self.onboardingClient = nil;
 }
 
