@@ -22,13 +22,14 @@
 #import <SystemConfiguration/CaptiveNetwork.h>
 #import <CoreFoundation/CFDictionary.h>
 
-#import "alljoyn/about/AJNAboutServiceApi.h"
 #import "AJNVersion.h"
 #import "AJNProxyBusObject.h"
 
 #import "AJSCAboutAnnouncement.h"
 #import "AJSCAboutDataConverter.h"
 #import "AJSCClientInformation.h"
+
+#import "AJNBusAttachment.h"
 
 @interface AJSCGetAboutCallViewController : UIViewController
 
