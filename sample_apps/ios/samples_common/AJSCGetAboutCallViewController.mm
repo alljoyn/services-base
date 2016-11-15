@@ -17,6 +17,7 @@
 
 #import "AJSCGetAboutCallViewController.h"
 #import "AJSCAlertController.h"
+#import "alljoyn/MsgArg.h"
 
 static NSString *const CLIENTDEFAULTLANG = @"";
 
@@ -151,8 +152,7 @@ static NSString *const CLIENTDEFAULTLANG = @"";
                                   proximity:kAJNProximityAny
                                   transportMask:kAJNTransportMaskAny];
         //call joinSession
-        self.sessionId = [self.clientBusAttachment joinSessionWithName:busName onPort:port withDelegate:(nil)
-                          options:opt];
+        self.sessionId = [self.clientBusAttachment joinSessionWithName:busName onPort:port withDelegate:(nil) options:opt];
     }
 
     if (self.sessionId == 0 || self.sessionId == -1) {
