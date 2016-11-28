@@ -144,7 +144,7 @@ public class IoeNotificationApplication extends Application implements Notificat
     /**
      * Set to TRUE when the NotificationSender is started
      */
-    private boolean isSenderStarted;
+    private boolean isSenderStarted = false;
 
     /**
      * Set to TRUE when the NotificationReceiver is started
@@ -221,7 +221,8 @@ public class IoeNotificationApplication extends Application implements Notificat
      *
      * @throws NotificationServiceException
      */
-    public void startSender() {
+    public boolean startSender() {
+
         try {
 
             if (bus == null) {
@@ -281,12 +282,14 @@ public class IoeNotificationApplication extends Application implements Notificat
             Log.d(TAG, "Set the UI as shutdown");
             myActiv.onShutdownClicked(false);
         }
+
+        return isSenderStarted;
     }// startSender
 
     /**
      * called when checking the Consumer checkbox
      */
-    public void startReceiver() {
+    public boolean startReceiver() {
         try {
 
             if (bus == null) {
@@ -301,11 +304,15 @@ public class IoeNotificationApplication extends Application implements Notificat
             Log.e(TAG, "Failed on startReceiver - can't present notifications error: " + nse.getMessage());
             showToast("Failed to start receiver");
             vibrate();
+            myActiv.onShutdownClicked(false);
         } catch (Exception e) {
             Log.e(TAG, "Unexpected error occurred, failed to start the NotificationReceiver, Error: '" + e.getMessage() + "'");
             showToast("Failed to start the NotificationReceiver");
             vibrate();
+            myActiv.onShutdownClicked(false);
         }
+
+        return isReceiverStarted;
     }// startReceiver
 
     /**

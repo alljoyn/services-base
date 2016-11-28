@@ -288,9 +288,11 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
         Boolean dismissBtn = (Boolean)actCache.get("DISMISS_BTN");
         String appNameStr = (String)actCache.get("APP_NAME");
 
+        boolean appNameEnabled = ((consChkBoxState != null && prodChkBoxState != null) && (!consChkBoxState && !prodChkBoxState));
         //application name
         if (appNameStr != null) {
             appName.setText(appNameStr);
+            appName.setEnabled(appNameEnabled);
         }
         //shutdown button
         if (shutdownBtn != null) {
@@ -439,12 +441,14 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
         }
         myApp.setAppName(appNameStr);
 
+        boolean appFieldEnabled = true;
+
         switch (buttonView.getId()) {
         case R.id.chb_producer:
             Log.d(TAG, "Producer checkbox changed, isChecked: " + chkBoxBtn.isChecked());
             if (chkBoxBtn.isChecked()) {         // Start producer service
                 setProducerLayout(true);
-                myApp.startSender();
+                appFieldEnabled = !myApp.startSender();
             } else {                   // Stop producer service
                 setProducerLayout(false);
                 iconRichCheck.setChecked(false);
@@ -460,10 +464,9 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
             Log.d(TAG, "Consumer checkbox changed, isChecked: " + chkBoxBtn.isChecked());
             if (chkBoxBtn.isChecked()) {         // Start Consumer service
                 setConsumerLayout(true);
-                myApp.startReceiver();
+                appFieldEnabled = !myApp.startReceiver();
             } else {
                 setConsumerLayout(false);
-
                 //Remove notifications from the listview
                 notificationAdapter.clear();
                 myApp.stopReceiver();
@@ -471,6 +474,10 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
             break;
             //consumer
         }//switch
+
+        // Enable or disable the app name text field depending on whether or not the producer or
+        // consumer checkboxes are ticked.
+        appName.setEnabled(appFieldEnabled);
 
         //Enable Shutdown button - if at least one of the check boxes checked and shutdown is disabled
         if (!shutdownButton.isEnabled() && chkBoxBtn.isChecked()) {
@@ -566,8 +573,11 @@ public class NotificationServiceControlsActivity extends Activity implements OnC
      */
     private void setConsProdChbChecked(boolean isChecked) {
         Log.d(TAG, "setConsProdChbChecked " + "isChecked " + isChecked);
+
         consumerChbId.setChecked(isChecked);
         producerChbId.setChecked(isChecked);
+
+        appName.setEnabled(!isChecked);
     }//setConsProdChbChecked
 
     /**
