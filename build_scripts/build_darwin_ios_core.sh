@@ -20,7 +20,7 @@ VARIANT=$1
 if [ -z $ALLJOYN_DEV ]; then
     cd core/alljoyn/alljoyn_objc
     xcodebuild -project alljoyn_darwin.xcodeproj -scheme alljoyn_core_ios        -sdk iphoneos        -configuration $VARIANT
-    xcodebuild -project alljoyn_darwin.xcodeproj -scheme alljoyn_core_ios        -sdk iphonesimulator -configuration $VARIANT
+    xcodebuild -project alljoyn_darwin.xcodeproj -scheme alljoyn_core_ios        -sdk iphonesimulator -configuration $VARIANT PLATFORM_NAME=iphonesimulator VALID_ARCHS="i386 x86_64"
     xcodebuild -project alljoyn_darwin.xcodeproj -scheme alljoyn_core_ios_armv7  -sdk iphoneos        -configuration $VARIANT
     xcodebuild -project alljoyn_darwin.xcodeproj -scheme alljoyn_core_ios_armv7s -sdk iphoneos        -configuration $VARIANT
     xcodebuild -project alljoyn_darwin.xcodeproj -scheme alljoyn_core_arm64      -sdk iphoneos        -configuration $VARIANT
@@ -33,7 +33,7 @@ fi
 xcodebuild -project alljoyn_about_cpp.xcodeproj -scheme alljoyn_about_cpp -configuration $VARIANT -sdk iphoneos
 
 #$VARIANT version of alljoyn about cpp for iphonesimulator
-xcodebuild -project alljoyn_about_cpp.xcodeproj -scheme alljoyn_about_cpp -configuration $VARIANT -sdk iphonesimulator
+xcodebuild -project alljoyn_about_cpp.xcodeproj -scheme alljoyn_about_cpp -configuration $VARIANT -sdk iphonesimulator PLATFORM_NAME=iphonesimulator VALID_ARCHS="i386 x86_64"
 
 cd ../alljoyn_services_objc
 
@@ -41,7 +41,7 @@ cd ../alljoyn_services_objc
 xcodebuild -project alljoyn_about_objc.xcodeproj -scheme alljoyn_about_objc -configuration $VARIANT -sdk iphoneos
 
 #$VARIANT version of alljoyn about objc for iphonesimulator
-xcodebuild -project alljoyn_about_objc.xcodeproj -scheme alljoyn_about_objc -configuration $VARIANT -sdk iphonesimulator
+xcodebuild -project alljoyn_about_objc.xcodeproj -scheme alljoyn_about_objc -configuration $VARIANT -sdk iphonesimulator PLATFORM_NAME=iphonesimulator VALID_ARCHS="i386 x86_64"
 
 #Library 3 = AllJoynFramework_iOS 
 cd ../../../../../alljoyn_objc/AllJoynFramework_iOS
@@ -50,4 +50,4 @@ cd ../../../../../alljoyn_objc/AllJoynFramework_iOS
 xcodebuild -project AllJoynFramework_iOS.xcodeproj -scheme AllJoynFramework_iOS -configuration $VARIANT -sdk iphoneos
 
 #$VARIANT version of AllJoynFramework_iOS for iphonesimulator
-xcodebuild      -project AllJoynFramework_iOS.xcodeproj -scheme AllJoynFramework_iOS -configuration $VARIANT -sdk iphonesimulator
+xcodebuild      -project AllJoynFramework_iOS.xcodeproj -scheme AllJoynFramework_iOS -configuration $VARIANT -sdk iphonesimulator PLATFORM_NAME=iphonesimulator VALID_ARCHS="i386 x86_64"
