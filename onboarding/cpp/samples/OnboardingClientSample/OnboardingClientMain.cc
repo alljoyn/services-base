@@ -51,18 +51,19 @@
 #include <qcc/GUID.h>
 #include <qcc/KeyInfoECC.h>
 #include <qcc/StringUtil.h>
-#include "OnboardingAuthListener.h"
+#include <alljoyn/services_common/BsSecurity.h>
+#include <qcc/Debug.h>
 #include "OnboardingSignalListenerImpl.h"
 
+#define QCC_MODULE "ONBOARD"
 
 using namespace ajn;
 using namespace services;
 
 static volatile sig_atomic_t quit = false;
-static BusAttachment* busAttachment = NULL;
+static ajn::BusAttachment* busAttachment = NULL;
 static std::set<qcc::String> handledAnnouncements;
 
-static const char* AUTH_MECHANISM = "ALLJOYN_ECDHE_NULL ALLJOYN_ECDHE_PSK ALLJOYN_ECDHE_SPEKE ALLJOYN_ECDHE_ECDSA";
 const qcc::String caName("Sample CA");
 
 static qcc::Crypto_ECC* caKeyPair = NULL;
@@ -70,9 +71,10 @@ const qcc::String CA_CERT_FILENAME("caCert.pem");
 const qcc::String CA_KEY_FILENAME("caKey.pem");
 const qcc::String ADMIN_GUID_FILENAME("adminGuid");
 
-static qcc::String pskPassword;
-static qcc::String authPassword("000000");
-static qcc::String authMechanism(AUTH_MECHANISM);
+static const char *const WIFI_PASSWORD_PROMPT = "Wifi password: ";
+static const char *const CHANGE_NETWORK_PROMPT = "Change to the onboardee's wifi network and hit Enter\n";
+static qcc::String authPassword("");
+static qcc::String authMechanism{"ALLJOYN_ECDHE_ECDSA"};
 static qcc::String wifiNetwork;
 static std::string dummy;
 
@@ -80,7 +82,7 @@ static OBInfo oBInfo;
 
 static void usage()
 {
-    std::cout << "OnboardingClient [-keyx 000000] [-speke 000000] [-psk deadbeefcafebabeff] [-auth NULL|PSK...] [-wifi NETWORK] [-wifi_tkip|-wifi_ccmp]";
+    std::cout << "OnboardingClient [-speke 000000] [-psk deadbeefcafebabeff] [-auth NULL|PSK...] [-wifi NETWORK] [-wifi_tkip|-wifi_ccmp]";
 }
 
 
@@ -92,8 +94,8 @@ static void cmdLine(int argc, char** argv)
     for (int i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "-psk") == 0) {
             if (i + 1 < argc) {
-                pskPassword = argv[++i];
-                authMechanism = "ALLJOYN_ECDHE_PSK";
+                authPassword = argv[++i];
+                authMechanism = "ALLJOYN_ECDHE_ECDSA ALLJOYN_ECDHE_PSK";
             } else {
                 usage();
             }
@@ -101,15 +103,7 @@ static void cmdLine(int argc, char** argv)
         if (strcmp(argv[i], "-speke") == 0) {
             if (i + 1 < argc) {
                 authPassword = argv[++i];
-                authMechanism = "ALLJOYN_ECDHE_SPEKE";
-            } else {
-                usage();
-            }
-        } else
-        if (strcmp(argv[i], "-keyx") == 0) {
-            if (i + 1 < argc) {
-                authPassword = argv[++i];
-                authMechanism = "ALLJOYN_SRP_KEYX";
+                authMechanism = "ALLJOYN_ECDHE_ECDSA ALLJOYN_ECDHE_SPEKE";
             } else {
                 usage();
             }
@@ -119,15 +113,18 @@ static void cmdLine(int argc, char** argv)
                 authMechanism = argv[++i];
 
                 if (authMechanism == "NULL") {
-                    authMechanism = "ALLJOYN_ECDHE_NULL";
+                    authMechanism = "ALLJOYN_ECDHE_ECDSA ALLJOYN_ECDHE_NULL";
                 } else
                 if (authMechanism == "PSK") {
-                    authMechanism = "ALLJOYN_ECDHE_PSK";
+                    authMechanism = "ALLJOYN_ECDHE_ECDSA ALLJOYN_ECDHE_PSK";
                 } else
                 if (authMechanism == "SPEKE") {
-                    authMechanism = "ALLJOYN_ECDHE_SPEKE";
+                    authMechanism = "ALLJOYN_ECDHE_ECDSA ALLJOYN_ECDHE_SPEKE";
+                } else
+                if (authMechanism == "ECDSA") {
+                    authMechanism = "ALLJOYN_ECDHE_ECDSA";
                 } else {
-                    std::cerr << "Unrecognised auth mechanism " << authMechanism.c_str() << "\n";
+                    std::cerr << "Unknown auth mechanism: " << authMechanism.c_str() << "; aborting." << std::endl;
                     exit(1);
                 }
             } else {
@@ -150,15 +147,13 @@ static void cmdLine(int argc, char** argv)
     }
 
     if (wifiNetwork.empty()) {
-        std::cout << "The wifi network name is required\n";
+        std::cerr << "No WiFi network name was provided; aborting." << std::endl;
         usage();
         exit(1);
     }
 
-    std::cout << "Will authenticate with " << authMechanism.c_str() << "\n";
-
     // Get the wifi password more securely
-    std::cout << "Wifi password: ";
+    std::cout << WIFI_PASSWORD_PROMPT;
     std::getline(std::cin, dummy);
     wifiPassword = qcc::Trim(dummy.c_str());
 
@@ -282,11 +277,13 @@ bool claim(const qcc::String& busName, const ajn::SessionId sessionId, const qcc
            const qcc::GUID128& adminGuid,
            const qcc::GUID128& identityGuid)
 {
+    QCC_DbgTrace(("%s", __FUNCTION__));
+
     QStatus status;
 
-    std::cout << "claim: " << busName << " : " << name << std::endl;
-    std::cout << "admin guid: " << adminGuid.ToString() << std::endl;
-    std::cout << "identity guid: " << identityGuid.ToString() << std::endl;
+    QCC_DbgHLPrintf(("Claiming %s : %s", busName.c_str(), name.c_str()));
+    QCC_DbgHLPrintf(("Admin GUID : %s", adminGuid.ToString().c_str()));
+    QCC_DbgHLPrintf(("Ident GUID : %s", identityGuid.ToString().c_str()));
 
     Manifest manifest;
     SecurityUtil::GenerateManifest(manifest);
@@ -304,10 +301,11 @@ bool claim(const qcc::String& busName, const ajn::SessionId sessionId, const qcc
 
     if (ER_OK == status) {
         status = CertificateUtil::SignManifest(caKeyPair->GetDSAPrivateKey(), identityCertificate, manifest);
+
     }
 
     if (ER_OK != status) {
-        std::cout << "WARNING - Failed to generate a manifest: " << QCC_StatusText(status) << std::endl;
+        QCC_LogError(ER_NONE, ("WARNING: Manifest generation failed (%s)", QCC_StatusText(status)));
         return false;
     }
 
@@ -323,7 +321,7 @@ bool claim(const qcc::String& busName, const ajn::SessionId sessionId, const qcc
         qcc::String aki;
         status = qcc::CertificateX509::GenerateAuthorityKeyId(caKeyPair->GetDSAPublicKey(), aki);
         if (ER_OK != status) {
-            std::cout << "WARNING - Call to CertificateX509::GenerateAuthorityKeyId failed: " << QCC_StatusText(status) << std::endl;
+            QCC_LogError(ER_NONE, ("WARNING: AuthorityKeyId generation failed (%s)", QCC_StatusText(status)));
             return false;
         }
         caPublicKeyInfo.SetKeyId((uint8_t*)aki.data(), aki.size());
@@ -332,31 +330,34 @@ bool claim(const qcc::String& busName, const ajn::SessionId sessionId, const qcc
 
     status = SecurityUtil::Claim(*busAttachment, busName, sessionId, caPublicKeyInfo, adminGuid, caPublicKeyInfo, certChain, manifests);
     if (ER_OK != status) {
-        std::cout << "WARNING - Call to SecurityUtil::Claim failed: " << QCC_StatusText(status) << std::endl;
+        QCC_LogError(ER_NONE, ("WARNING: call to SecurityUtil::Claim() failed (%s)", QCC_StatusText(status)));
         return false;
     }
 
-    std::cout << "OnboardingClient has claimed " << busName << std::endl;
+    QCC_DbgHLPrintf(("OnboardingClient has claimed %s", busName.c_str()));
+
     return true;
 }
 
 bool claimSelf(const qcc::String& caCN, const qcc::CertificateX509& caCert,
                const qcc::GUID128& adminGuid, const qcc::GUID128& identityGuid)
 {
+    QCC_DbgTrace(("%s", __FUNCTION__));
+
     QStatus status;
     const qcc::String busName = busAttachment->GetUniqueName().c_str();
 
     qcc::KeyInfoNISTP256 publicKeyInfo;
     status = busAttachment->GetPermissionConfigurator().GetSigningPublicKey(publicKeyInfo);
     if (ER_OK != status) {
-        std::cout << "WARNING - Call to GetSigningPublicKey failed: " << QCC_StatusText(status) << std::endl;
+        QCC_LogError(ER_NONE, ("WARNING: Failed to get signing public key (%s)", QCC_StatusText(status)));
         return false;
     }
 
     SessionId sessionId = SESSION_PORT_ANY;
     bool result = claim(busName, sessionId, publicKeyInfo, qcc::String("self"), caCN, caCert, adminGuid, identityGuid);
     if (!result) {
-        std::cout << "WARNING - Call to claim failed" << std::endl;
+        QCC_LogError(ER_NONE, ("WARNING: Failed to get signing public key (%s)", QCC_StatusText(status)));
         return false;
     }
 
@@ -377,7 +378,7 @@ bool claimSelf(const qcc::String& caCN, const qcc::CertificateX509& caCert,
             return false;
         }
 
-        std::cout << "OnboardingClient is member of admin group" << std::endl;
+        QCC_DbgHLPrintf(("OnboardingClient is member of admin group"));
     }
 
     return result;
@@ -385,6 +386,8 @@ bool claimSelf(const qcc::String& caCN, const qcc::CertificateX509& caCert,
 
 void sessionJoinedCallback(qcc::String const& busName, SessionId sessionId)
 {
+    QCC_DbgTrace(("%s", __FUNCTION__));
+
     QStatus status = ER_OK;
     if (busAttachment == NULL) {
         return;
@@ -399,17 +402,17 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId sessionId)
 
         PermissionConfigurator::ApplicationState appState;
         peerProxy.GetApplicationState(appState);
-        std::cout << "application state: " << PermissionConfigurator::ToString(appState) << std::endl;
+        QCC_DbgHLPrintf(("Peer is %s", PermissionConfigurator::ToString(appState)));
 
         if (PermissionConfigurator::ApplicationState::CLAIMABLE == appState) {
 
             qcc::ECCPublicKey peerPubKey;
             status = peerProxy.GetEccPublicKey(peerPubKey);
             if (ER_OK != status) {
-                std::cout << "WARNING - GetEccPublicKey " << QCC_StatusText(status) << std::endl;
+                QCC_LogError(ER_NONE, ("WARNING - GetEccPublicKey failed; (%s)", QCC_StatusText(status)));
                 return;
             } else {
-                std::cout << "peer public key: " << peerPubKey.ToString() << std::endl;
+                QCC_DbgHLPrintf(("Peer public key: %s", peerPubKey.ToString().c_str()));
             }
 
             qcc::KeyInfoNISTP256 peerPubKeyInfo;
@@ -418,7 +421,7 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId sessionId)
             qcc::GUID128 identityGuid;
             bool result = claim(busName, sessionId, peerPubKeyInfo, qcc::String("other"), caName, caCert(), adminGuid(), identityGuid);
             if (!result) {
-                std::cout << "WARNING - OnboardingClient failed to claim " << busName << std::endl;
+                QCC_LogError(ER_NONE, ("WARNING - Failed to claim ", busName.c_str()));
             } else {
                 wasClaimed = true;
             }
@@ -426,9 +429,9 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId sessionId)
 
         status = busAttachment->SecureConnection(busName.c_str(), wasClaimed);
         if (ER_OK != status) {
-            std::cout << "WARNING - SecureConnection " << busName << ". error: " << QCC_StatusText(status) << std::endl;
+            QCC_LogError(ER_NONE, ("WARNING - SecureConnection failed; (%s)", QCC_StatusText(status)));
         } else {
-            std::cout << "SecureConnection " << busName << std::endl;
+            QCC_DbgHLPrintf(("Opened SecureConnection with ", busName.c_str()));
         }
     }
 
@@ -688,6 +691,8 @@ void sessionJoinedCallback(qcc::String const& busName, SessionId sessionId)
 
 void announceHandlerCallback(qcc::String const& busName, unsigned short port)
 {
+    QCC_DbgTrace(("%s", __FUNCTION__));
+
     std::cout << "announceHandlerCallback " << busName.c_str() << " " << port << std::endl;
     std::set<qcc::String>::iterator searchIterator = handledAnnouncements.find(qcc::String(busName));
     if (searchIterator == handledAnnouncements.end()) {
@@ -711,6 +716,8 @@ void announceHandlerCallback(qcc::String const& busName, unsigned short port)
 
 bool LoadAdminGroupId(const qcc::String& filename, qcc::GUID128& guid)
 {
+    QCC_DbgTrace(("%s", __FUNCTION__));
+
     std::ifstream fs;
     fs.open(filename, std::fstream::binary);
     if (fs.is_open()) {
@@ -725,6 +732,8 @@ bool LoadAdminGroupId(const qcc::String& filename, qcc::GUID128& guid)
 
 bool SaveAdminGroupId(const qcc::String& filename, qcc::GUID128& guid)
 {
+    QCC_DbgTrace(("%s", __FUNCTION__));
+
     std::ofstream fs;
     fs.open(filename, std::fstream::binary | std::fstream::out | std::fstream::trunc);
     if (fs.is_open()) {
@@ -738,13 +747,11 @@ bool SaveAdminGroupId(const qcc::String& filename, qcc::GUID128& guid)
 
 int main(int argc, char** argv, char** envArg)
 {
-    std::cout << "OnboardingClient - Start" << std::endl;
-
     QCC_UNUSED(envArg);
 
     cmdLine(argc, argv);
 
-    std::cout << "Change to the onboardee's wifi network and hit Enter\n";
+    std::cout << CHANGE_NETWORK_PROMPT;
     std::getline(std::cin, dummy);
 
     // Initialize AllJoyn
@@ -753,20 +760,17 @@ int main(int argc, char** argv, char** envArg)
         return 1;
     }
 
+    QCC_SetLogLevels("ONBOARD=15;");
+    QCC_SetDebugLevel("ONBOARD", 15);
+
+    QCC_LogMsg(("Using %s", ajn::GetBuildInfo()));
+
     QStatus status = ER_OK;
-    std::cout << "AllJoyn Library version: " << ajn::GetVersion() << std::endl;
-    std::cout << "AllJoyn Library build info: " << ajn::GetBuildInfo() << std::endl;
-    QCC_SetLogLevels("ALLJOYN_ABOUT_ANNOUNCE_HANDLER=7");
-    QCC_SetLogLevels("ALLJOYN_ABOUT_CLIENT=7");
-    QCC_SetLogLevels("ALLJOYN_ABOUT_ICON_CLIENT=7");
-    QCC_SetLogLevels("ALLJOYN_SECURITY=3");
-    QCC_SetDebugLevel(logModules::CONFIG_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
-    QCC_SetDebugLevel(logModules::ONBOARDING_MODULE_LOG_NAME, logModules::ALL_LOG_LEVELS);
 
     /* Install SIGINT handler so Ctrl + C deallocates memory properly */
     signal(SIGINT, SigIntHandler);
 
-    busAttachment = new BusAttachment("OnboardingClient", true);
+    busAttachment = new ajn::BusAttachment("OnboardingClient", true);
 
     status = busAttachment->Start();
     if (status == ER_OK) {
@@ -784,12 +788,18 @@ int main(int argc, char** argv, char** envArg)
         return 1;
     }
 
-    OnboardingAuthListener* authListener = new OnboardingAuthListener();
+    BsSecurity security{*busAttachment};
+    security.LoadFiles("security");
 
-    authListener->SetPSK(pskPassword); // ECDHE_PSK
-    authListener->SetPassword(authPassword);
+    if (!authPassword.empty()) {
+        security.SetPassword(authPassword);
+    }
+    if (!authMechanism.empty()) {
+        security.SetMechanism(authMechanism);
+    }
 
-    status = busAttachment->EnablePeerSecurity(authMechanism.c_str(), authListener, "/.alljoyn_keystore/central.ks", true);
+    status = security.Enable(".alljoyn_keystore/client.ks", true);
+
     if (ER_OK == status) {
         std::cout << "EnablePeerSecurity called." << std::endl;
     } else {
@@ -880,13 +890,11 @@ int main(int argc, char** argv, char** envArg)
 #endif
     }
 
-    busAttachment->EnablePeerSecurity("", NULL, NULL, false);
     busAttachment->CancelWhoImplements(interfaces, sizeof(interfaces) / sizeof(interfaces[0]));
     busAttachment->UnregisterAboutListener(*announceHandler);
 
     busAttachment->Stop();
     delete busAttachment;
-    delete authListener;
     delete announceHandler;
 
     if (caKeyPair != NULL) {

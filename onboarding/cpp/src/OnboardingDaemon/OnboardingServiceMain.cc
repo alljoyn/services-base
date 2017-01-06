@@ -14,28 +14,26 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
-#ifdef _WIN32
-/* Disable deprecation warnings */
-#pragma warning(disable: 4996)
-#endif
-
 #include <stdio.h>
 #include <signal.h>
 #include <fstream>
 #include <map>
 #include <stdint.h>
+#include <chrono>
+#include <thread>
 
-#include <alljoyn/AuthListener.h>
 #include <CommonBusListener.h>
 #include <CommonSampleUtil.h>
 #include <OptParser.h>
 #include "ConfigServiceListenerImpl.h"
 #include <AJInitializer.h>
-#include <SecurityUtil.h>
+#include <alljoyn/services_common/BsSecurity.h>
+#include "SecurityUtil.h"
 
 #include <alljoyn/version.h>
 #include <qcc/platform.h>
 #include <qcc/Log.h>
+#include <qcc/Debug.h>
 #include <qcc/String.h>
 
 #include <alljoyn/BusObject.h>
@@ -52,6 +50,14 @@
 #include <AboutDataStore.h>
 #include <alljoyn/AboutObj.h>
 
+
+#define QCC_MODULE "ONBOARD"
+
+#ifdef _WIN32
+/* Disable deprecation warnings */
+#pragma warning(disable: 4996)
+#endif
+
 using namespace ajn;
 using namespace services;
 
@@ -59,30 +65,33 @@ using namespace services;
 #define SERVICE_OPTION_ERROR 1
 #define SERVICE_CONFIG_ERROR 2
 
+static const std::chrono::seconds SIGINT_DELAY{100};
+
+static const int BUS_ATTACHMENT_RETRY_MAX{180};
+static const std::chrono::seconds BUS_ATTACHMENT_RETRY_DELAY{1};
+
+static const char *const KEYSTORE_PATH{".alljoyn_keystore/service.ks"};
+
+static const char *const SECURITY_FILE_PREFIX = "security";
 /** static variables need for sample */
-static BusAttachment* msgBus = NULL;
+static BusAttachment* msgBus = nullptr;
 
-static DefaultECDHEAuthListener* authListener = NULL;
+static ConfigService* configService = nullptr;
+static ConfigServiceListenerImpl* configServiceListener = nullptr;
 
-static ConfigService* configService = NULL;
+static AboutIcon* icon = nullptr;
+static AboutIconObj* aboutIconObj = nullptr;
+static AboutDataStore* aboutDataStore = nullptr;
+static AboutObj* aboutObj = nullptr;
 
-static AboutIcon* icon = NULL;
-static AboutIconObj* aboutIconObj = NULL;
-static AboutDataStore* aboutDataStore = NULL;
-static AboutObj* aboutObj = NULL;
+OnboardingService* onboardingService = nullptr;
+static OnboardingControllerImpl* obController = nullptr;
 
-static ConfigServiceListenerImpl* configServiceListener = NULL;
-
-static OnboardingControllerImpl* obController = NULL;
-
-OnboardingService* onboardingService = NULL;
-
-static CommonBusListener* busListener = NULL;
+static CommonBusListener* busListener = nullptr;
 
 static SessionPort servicePort = 900;
 
 static volatile sig_atomic_t s_interrupt = false;
-
 static volatile sig_atomic_t s_restart = false;
 
 static void CDECL_CALL SigIntHandler(int sig)
@@ -98,54 +107,48 @@ static void daemonDisconnectCB()
 
 static void cleanup()
 {
-
     if (AboutObjApi::getInstance()) {
         AboutObjApi::DestroyInstance();
     }
 
     if (configService) {
         delete configService;
-        configService = NULL;
+        configService = nullptr;
     }
 
     if (configServiceListener) {
         delete configServiceListener;
-        configServiceListener = NULL;
-    }
-
-    if (authListener) {
-        delete authListener;
-        authListener = NULL;
+        configServiceListener = nullptr;
     }
 
     if (aboutIconObj) {
         delete aboutIconObj;
-        aboutIconObj = NULL;
+        aboutIconObj = nullptr;
     }
 
     if (icon) {
         delete icon;
-        icon = NULL;
+        icon = nullptr;
     }
 
     if (aboutDataStore) {
         delete aboutDataStore;
-        aboutDataStore = NULL;
+        aboutDataStore = nullptr;
     }
 
     if (aboutObj) {
         delete aboutObj;
-        aboutObj = NULL;
+        aboutObj = nullptr;
     }
 
     if (onboardingService) {
         delete onboardingService;
-        onboardingService = NULL;
+        onboardingService = nullptr;
     }
 
     if (obController) {
         delete obController;
-        obController = NULL;
+        obController = nullptr;
     }
 
     if (busListener) {
@@ -153,13 +156,13 @@ static void cleanup()
             msgBus->UnregisterBusListener(*busListener);
         }
         delete busListener;
-        busListener = NULL;
+        busListener = nullptr;
     }
 
     /* Clean up msg bus */
     if (msgBus) {
         delete msgBus;
-        msgBus = NULL;
+        msgBus = nullptr;
     }
 }
 
@@ -169,7 +172,7 @@ QStatus AdvertiseName(TransportMask mask)
     QStatus status = ER_BUS_ESTABLISH_FAILED;
     if (msgBus->IsConnected() && msgBus->GetUniqueName().size() > 0) {
         status = msgBus->AdvertiseName(msgBus->GetUniqueName().c_str(), mask);
-        std::cout << "AdvertiseName for " << msgBus->GetUniqueName().c_str() << " = " << QCC_StatusText(status) << std::endl;
+        QCC_DbgHLPrintf(("AdvertiseName for %s = %s", msgBus->GetUniqueName().c_str(), QCC_StatusText(status)));
     }
     return status;
 }
@@ -177,11 +180,7 @@ QStatus AdvertiseName(TransportMask mask)
 void WaitForSigInt(void)
 {
     while (s_interrupt == false && s_restart == false) {
-#ifdef _WIN32
-        Sleep(100);
-#else
-        usleep(100 * 1000);
-#endif
+        std::this_thread::sleep_for(SIGINT_DELAY);
     }
 }
 
@@ -190,16 +189,17 @@ int main(int argc, char** argv, char** envArg)
     QCC_UNUSED(envArg);
     // Initialize AllJoyn
     AJInitializer ajInit;
-    if (ajInit.Initialize() != ER_OK) {
+    QStatus status = ajInit.Initialize();
+    if (status != ER_OK) {
         return 1;
     }
 
-    QStatus status = ER_OK;
-    std::cout << "AllJoyn Library version: " << ajn::GetVersion() << std::endl;
-    std::cout << "AllJoyn Library build info: " << ajn::GetBuildInfo() << std::endl;
-    QCC_SetLogLevels("ALLJOYN_ABOUT_SERVICE=7;");
-    QCC_SetLogLevels("ALLJOYN_ABOUT_ICON_SERVICE=7;");
+    QCC_SetLogLevels("ONBOARD=15;");
+    QCC_SetDebugLevel("ONBOARD", 15);
 
+    QCC_LogMsg(("Using %s", ajn::GetBuildInfo()));
+
+    /* Parse options */
     OptParser opts(argc, argv);
     OptParser::ParseResultCode parseCode(opts.ParseResult());
     switch (parseCode) {
@@ -213,57 +213,60 @@ int main(int argc, char** argv, char** envArg)
         return SERVICE_OPTION_ERROR;
     }
 
-    std::cout << "using port " << servicePort << std::endl;
+    QCC_LogMsg(("Using Port %d", servicePort));
 
     if (!opts.GetConfigFile().empty()) {
-        std::cout << "using Config-file " << opts.GetConfigFile().c_str() << std::endl;
+        QCC_LogMsg(("Using Config at %s", opts.GetConfigFile().c_str()));
     }
 
     /* Install SIGINT handler so Ctrl + C deallocates memory properly */
     signal(SIGINT, SigIntHandler);
 
 start:
-    std::cout << "Initializing application." << std::endl;
-
-    /* Create message bus */
-    authListener = new DefaultECDHEAuthListener();
-
-    const qcc::String password("1234");
-    authListener->SetPassword((const uint8_t*)password.c_str(), password.length()); // ECDHE_SPEKE
+    QCC_DbgTrace(("Starting Daemon"));
 
     /* Connect to the daemon */
     uint16_t retry = 0;
-    do {
-        msgBus = CommonSampleUtil::prepareBusAttachment(authListener);
-        if (msgBus == NULL) {
-            std::cout << "Could not initialize BusAttachment. Retrying" << std::endl;
-#ifdef _WIN32
-            Sleep(1000);
-#else
-            sleep(1);
-#endif
-            retry++;
-        }
-    } while (msgBus == NULL && retry != 180 && !s_interrupt);
 
-    if (msgBus == NULL) {
-        std::cout << "Could not initialize BusAttachment." << std::endl;
+    do {
+        msgBus = CommonSampleUtil::prepareBusAttachment(nullptr);
+
+        if (msgBus == nullptr) {
+            retry++;
+            QCC_LogError(ER_NONE, ("BusAttachment init failed; retrying [%d,%d]", retry, BUS_ATTACHMENT_RETRY_MAX));
+            std::this_thread::sleep_for(BUS_ATTACHMENT_RETRY_DELAY);
+        }
+    } while (msgBus == nullptr && retry < BUS_ATTACHMENT_RETRY_MAX && !s_interrupt);
+
+    if (msgBus == nullptr) {
+        QCC_LogError(ER_NONE, ("BusAttachment init failed after %d attempts; aborting.", BUS_ATTACHMENT_RETRY_MAX));
         cleanup();
         return 1;
     }
 
+    BsSecurity security{*msgBus};
+    security.LoadFiles(SECURITY_FILE_PREFIX);
+    security.SetPassword(opts.GetAuthPassword());
+    if (!opts.GetAuthMechanism().empty()) {
+        security.SetMechanism(opts.GetAuthMechanism());
+    }
+    security.Enable(KEYSTORE_PATH, true);
+
     {
         status = msgBus->GetPermissionConfigurator().SetClaimCapabilities(
             ajn::PermissionConfigurator::CAPABLE_ECDHE_SPEKE
+            | ajn::PermissionConfigurator::CAPABLE_ECDHE_ECDSA
+            | ajn::PermissionConfigurator::CAPABLE_ECDHE_PSK
+            | ajn::PermissionConfigurator::CAPABLE_ECDHE_NULL
             );
         if (status != ER_OK) {
-            std::cout << "Failed to SetClaimCapabilities. error: " << QCC_StatusText(status) << std::endl;
+            QCC_LogError(ER_NONE, ("Failed to SetClaimCapabilities. (%s)", QCC_StatusText(status)));
         }
 
         PermissionConfigurator& pc = msgBus->GetPermissionConfigurator();
         PermissionConfigurator::ApplicationState appState;
         pc.GetApplicationState(appState);
-        std::cout << "application state: " << PermissionConfigurator::ToString(appState) << std::endl;
+        QCC_DbgHLPrintf(("Application is %s", PermissionConfigurator::ToString(appState)));
 
         if (PermissionConfigurator::ApplicationState::CLAIMABLE != appState &&
             PermissionConfigurator::ApplicationState::CLAIMED != appState) {
@@ -274,7 +277,7 @@ start:
             pc.SetPermissionManifestTemplate(&rules[0], rules.size());
 
             pc.GetApplicationState(appState);
-            std::cout << "application state: " << PermissionConfigurator::ToString(appState) << std::endl;
+            QCC_DbgHLPrintf(("Application is %s", PermissionConfigurator::ToString(appState)));
         }
     }
 
@@ -288,14 +291,14 @@ start:
     aboutObj = new ajn::AboutObj(*msgBus, BusObject::ANNOUNCED);
     status = CommonSampleUtil::prepareAboutService(msgBus, static_cast<AboutData*>(aboutDataStore), aboutObj, busListener, servicePort);
     if (status != ER_OK) {
-        std::cout << "Could not set up the AboutService." << std::endl;
+        QCC_LogError(ER_NONE, ("AboutService init failed; aborting."));
         cleanup();
         return 1;
     }
 
     AboutObjApi* aboutObjApi = AboutObjApi::getInstance();
     if (!aboutObjApi) {
-        std::cout << "Could not set up the AboutObjApi." << std::endl;
+        QCC_LogError(ER_NONE, ("AboutObjApi init failed; aborting."));
         cleanup();
         return 1;
     }
@@ -313,7 +316,7 @@ start:
     icon = new ajn::AboutIcon();
     status = icon->SetContent(mimeType.c_str(), aboutIconContent, sizeof(aboutIconContent) / sizeof(*aboutIconContent));
     if (ER_OK != status) {
-        printf("Failed to setup the AboutIcon.\n");
+        QCC_LogError(ER_NONE, ("AboutIcon init failed."));
     }
 
     aboutIconObj = new ajn::AboutIconObj(*msgBus, *icon);
@@ -351,14 +354,14 @@ start:
 
     status = onboardingService->Register();
     if (status != ER_OK) {
-        std::cout << "Could not register the OnboardingService." << std::endl;
+        QCC_LogError(ER_NONE, ("OnboardingService init failed; aborting."));
         cleanup();
         return 1;
     }
 
     status = msgBus->RegisterBusObject(*onboardingService);
     if (status != ER_OK) {
-        std::cout << "Could not register the OnboardingService BusObject." << std::endl;
+        QCC_LogError(ER_NONE, ("OnboardingService bus registration failed; aborting."));
         cleanup();
         return 1;
     }
@@ -371,14 +374,14 @@ start:
 
     status = configService->Register();
     if (status != ER_OK) {
-        std::cout << "Could not register the ConfigService." << std::endl;
+        QCC_LogError(ER_NONE, ("ConfigService init failed; aborting."));
         cleanup();
         return 1;
     }
 
     status = msgBus->RegisterBusObject(*configService);
     if (status != ER_OK) {
-        std::cout << "Could not register the ConfigService BusObject." << std::endl;
+        QCC_LogError(ER_NONE, ("ConfigService bus registration failed; aborting."));
         cleanup();
         return 1;
     }

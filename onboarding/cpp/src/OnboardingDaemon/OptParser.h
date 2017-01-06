@@ -25,8 +25,13 @@
  */
 class OptParser {
   public:
+    static char const AUTH_MECHANISM_NULL[];
+    static char const AUTH_MECHANISM_PSK[];
+    static char const AUTH_MECHANISM_ECDSA[];
+    static char const AUTH_MECHANISM_SPEKE[];
+
     enum ParseResultCode {
-        PR_OK, PR_EXIT_NO_ERROR, PR_INVALID_OPTION, PR_MISSING_OPTION, PR_INVALID_APPID
+        PR_OK, PR_EXIT_NO_ERROR, PR_INVALID_OPTION, PR_MISSING_OPTION, PR_INVALID_APPID, PR_UNKNOWN_AUTH
     };
 
     OptParser(int argc, char** argv);
@@ -41,6 +46,10 @@ class OptParser {
 
     qcc::String const& GetDeviceId() const;
 
+    qcc::String const& GetAuthPassword() const;
+
+    qcc::String const& GetAuthMechanism() const;
+
   private:
     int argc;
     char** argv;
@@ -51,8 +60,10 @@ class OptParser {
 
     qcc::String factoryConfigFile;
     qcc::String configFile;
-    qcc::String appGUID;
+    qcc::String appId;
     qcc::String deviceId;
+    qcc::String authPassword;
+    qcc::String authMech;
 };
 
 #endif /* OPTPARSER_H_ */
