@@ -21,6 +21,9 @@
 
 #include "ConfigServiceListenerImpl.h"
 #include <iostream>
+#include <qcc/Debug.h>
+
+#define QCC_MODULE "ONBOARD_CONFIG"
 
 using namespace ajn;
 using namespace services;
@@ -33,17 +36,17 @@ ConfigServiceListenerImpl::ConfigServiceListenerImpl(AboutDataStore& store, BusA
 
 QStatus ConfigServiceListenerImpl::Restart()
 {
-    std::cout << "Restart has been called !!!" << std::endl;
+    QCC_DbgTrace(("Restart()"));
     return ER_OK;
 }
 
 QStatus ConfigServiceListenerImpl::FactoryReset()
 {
-    std::cout << "FactoryReset has been called!!!" << std::endl;
+    QCC_DbgTrace(("FactoryReset()"));
     m_AboutDataStore->FactoryReset();
-    std::cout << "Clearing Key Store" << std::endl;
+    QCC_DbgTrace(("Clearing Keystore..."));
     m_Bus->ClearKeyStore();
-    std::cout << "Calling Offboard" << std::endl;
+    QCC_DbgTrace(("Offboarding..."));
     m_OnboardingController->Offboard();
     return ER_OK;
 }
@@ -51,12 +54,12 @@ QStatus ConfigServiceListenerImpl::FactoryReset()
 QStatus ConfigServiceListenerImpl::SetPassphrase(const char* daemonRealm, size_t passcodeSize, const char* passcode, ajn::SessionId sessionId)
 {
     qcc::String passCodeString(passcode, passcodeSize);
-    std::cout << "SetPassphrase has been called daemonRealm=" << daemonRealm << " passcode="
-              << passCodeString.c_str() << " passcodeLength=" << passcodeSize << std::endl;
+
+    QCC_DbgTrace(("SetPassphrase() %s", passCodeString.c_str()));
 
     PersistPassword(daemonRealm, passCodeString.c_str());
 
-    std::cout << "Clearing Key Store" << std::endl;
+    QCC_DbgTrace(("Clearing Keystore..."));
     m_Bus->ClearKeyStore();
     m_Bus->EnableConcurrentCallbacks();
 
@@ -65,8 +68,8 @@ QStatus ConfigServiceListenerImpl::SetPassphrase(const char* daemonRealm, size_t
         if (sessionIds[i] == sessionId) {
             continue;
         }
+        QCC_DbgTrace(("Leaving session %X", sessionIds[i]));
         m_Bus->LeaveSession(sessionIds[i]);
-        std::cout << "Leaving session with id: " << sessionIds[i];
     }
     m_AboutDataStore->write();
     return ER_OK;
