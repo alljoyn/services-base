@@ -32,6 +32,8 @@
 #define SIG SIGUSR1
 #define SCAN_WIFI_MAX_TIME_IN_SEC 30
 
+#define QCC_MODULE "ONBOARD"
+
 using namespace ajn;
 using namespace services;
 
@@ -89,10 +91,12 @@ OnboardingControllerImpl::OnboardingControllerImpl(qcc::String scanFile,
     m_scanCmd(scanCmd),
     m_concurrency(concurrency),
     m_scanWifiThreadIsRunning(false)
-#ifndef _WIN32
+#if !(defined(QCC_OS_WINDOWS) || defined(QCC_OS_DARWIN))
     , m_scanTimerId(0)
 #endif
 {
+    QCC_DbgTrace(("%s", __FUNCTION__));
+
     // Ignore SIGCHLD so we do not have to wait on the child processes
     //signal(SIGCHLD, SIG_IGN);
 
@@ -101,7 +105,6 @@ OnboardingControllerImpl::OnboardingControllerImpl(qcc::String scanFile,
     GetLastError();
 
     // initiate the creation of the wifi_scan_results file
-    QCC_DbgHLPrintf(("Initiating GetScanInfo when service starts running"));
     unsigned short age = 0;
     OBScanInfo* scanList = NULL;
     size_t scanListNumElements = 0;
@@ -116,8 +119,9 @@ OnboardingControllerImpl::OnboardingControllerImpl(qcc::String scanFile,
 
 OnboardingControllerImpl::~OnboardingControllerImpl()
 {
-    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
-#ifndef _WIN32
+    QCC_DbgTrace(("%s", __FUNCTION__));
+
+#if !(defined(QCC_OS_WINDOWS) || defined(QCC_OS_DARWIN))
     if (m_scanTimerId) {
         timer_delete(m_scanTimerId);
         m_scanTimerId = 0;
@@ -145,7 +149,8 @@ void OnboardingControllerImpl::ConfigureWiFi(qcc::String SSID, qcc::String passp
 {
     QCC_UNUSED(error);
     QCC_UNUSED(errorMessage);
-    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
+
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
     // Set the return value based on presence of fast switching feature
     status = m_concurrency;
@@ -202,6 +207,8 @@ void OnboardingControllerImpl::ConfigureWiFi(qcc::String SSID, qcc::String passp
 
 void* OnboardingControllerImpl::OBS_Connect(void* obsArg)
 {
+    QCC_DbgTrace(("%s", __FUNCTION__));
+
     OnboardingControllerImpl* obController = (OnboardingControllerImpl*)obsArg;
     qcc::String connectCmd = obController->m_connectCmd;
 
@@ -220,8 +227,7 @@ void* OnboardingControllerImpl::OBS_Connect(void* obsArg)
  *-----------------------------------------------------------------------------*/
 void OnboardingControllerImpl::Connect()
 {
-/* Fill in method handler implementation here. */
-    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     CancelAdvertise();
 #ifdef _WIN32
     HANDLE m_handle;
@@ -316,6 +322,8 @@ char* OnboardingControllerImpl::Trim(char* str)
 
 void OnboardingControllerImpl::ParseScanInfo()
 {
+    QCC_DbgTrace(("%s", __FUNCTION__));
+
     // Scan records are already sorted by signal strength
     std::ifstream scanFile;
 
@@ -417,7 +425,7 @@ void OnboardingControllerImpl::ParseScanInfo()
     scanFile.close();
 }
 
-#ifndef _WIN32
+#if !(defined(QCC_OS_WINDOWS) || defined(QCC_OS_DARWIN))
 void OnboardingControllerImpl::StartScanWifiTimer()
 {
     QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
@@ -461,10 +469,11 @@ void OnboardingControllerImpl::ScanWifiTimerDone()
 
 void OnboardingControllerImpl::StartScanWifi()
 {
-    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
+
     m_scanWifiThreadIsRunning = true;
     execute_system(m_scanCmd.c_str());
-#ifndef _WIN32
+#if !(defined(QCC_OS_WINDOWS) || defined(QCC_OS_DARWIN))
     if (m_scanTimerId) {
         timer_delete(m_scanTimerId);
         m_scanTimerId = 0;
@@ -492,7 +501,7 @@ void* OnboardingControllerImpl::ScanWifiThread(void* context)
  *-----------------------------------------------------------------------------*/
 void OnboardingControllerImpl::GetScanInfo(unsigned short& age, OBScanInfo*& scanList, size_t& scanListNumElements)
 {
-    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
     ParseScanInfo();
 
     scanListNumElements = m_ScanList.size();
@@ -508,10 +517,10 @@ void OnboardingControllerImpl::GetScanInfo(unsigned short& age, OBScanInfo*& sca
 
     // Spawn a thread to scan the wifi and update the wifi_scan_results
     if (!m_scanWifiThreadIsRunning) {
-#ifdef _WIN32
-        m_scanWifiThread = reinterpret_cast<HANDLE>(_beginthreadex(NULL, 256 * 1024, (unsigned int(__stdcall*)(void*))ScanWifiThread, this, 0, NULL));
+#if defined(QCC_OS_WINDOWS)
+        m_scanWifiThread = reinterpret_cast<HANDLE>(_beginthreadex(NULL, 256 * 1024, (unsigned int (__stdcall*)(void*))ScanWifiThread, this, 0, NULL));
         CloseHandle(m_scanWifiThread);
-#else
+#elif !defined(QCC_OS_DARWIN)
         StartScanWifiTimer();
         pthread_create(&m_scanWifiThread, NULL, ScanWifiThread, this);
         pthread_detach(m_scanWifiThread);
@@ -522,6 +531,7 @@ void OnboardingControllerImpl::GetScanInfo(unsigned short& age, OBScanInfo*& sca
 
 void* OnboardingControllerImpl::OBS_Offboard(void* obsArg)
 {
+    QCC_DbgTrace(("%s", __FUNCTION__));
     OnboardingControllerImpl* obController = (OnboardingControllerImpl*)obsArg;
     qcc::String offboardCmd = obController->m_offboardCmd;
 
@@ -541,7 +551,8 @@ void* OnboardingControllerImpl::OBS_Offboard(void* obsArg)
  *-----------------------------------------------------------------------------*/
 void OnboardingControllerImpl::Offboard()
 {
-    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
+
     CancelAdvertise();
 #ifdef _WIN32
     m_scanWifiThread = reinterpret_cast<HANDLE>(_beginthreadex(NULL, 256 * 1024, (unsigned int(__stdcall*)(void*))ScanWifiThread, this, 0, NULL));
@@ -555,7 +566,8 @@ void OnboardingControllerImpl::Offboard()
 
 short OnboardingControllerImpl::GetState()
 {
-    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
+
     std::ifstream stateFile(m_stateFile.c_str());
     if (stateFile.is_open()) {
         std::string line;
@@ -569,7 +581,8 @@ short OnboardingControllerImpl::GetState()
 
 const OBLastError& OnboardingControllerImpl::GetLastError()
 {
-    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
+
     std::ifstream errorFile(m_errorFile.c_str());
     if (errorFile.is_open()) {
         std::string line;
@@ -577,7 +590,7 @@ const OBLastError& OnboardingControllerImpl::GetLastError()
         std::istringstream iss(line);
         iss >> m_oBLastError.validationState;
         getline(errorFile, line);
-        QCC_DbgHLPrintf(("%s", line.c_str()));
+        QCC_DbgHLPrintf(("lastError message: %s", line.c_str()));
         m_oBLastError.message.assign(line.c_str());
         errorFile.close();
     }
@@ -587,7 +600,7 @@ const OBLastError& OnboardingControllerImpl::GetLastError()
 
 int OnboardingControllerImpl::execute_configure(const char* SSID, const int authType, const char* passphrase)
 {
-    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 #ifdef _OPEN_WRT_
     char cmd[CMD_SIZE] = { 0 };
     qcc::String authTypeString = qcc::String("'") + AuthText(authType) + qcc::String("'");
@@ -603,11 +616,11 @@ int OnboardingControllerImpl::execute_configure(const char* SSID, const int auth
 
 void OnboardingControllerImpl::CancelAdvertise()
 {
-    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
+
     m_BusAttachment->EnableConcurrentCallbacks();
     if (m_BusAttachment->IsConnected() && m_BusAttachment->GetUniqueName().size() > 0) {
         QStatus status = m_BusAttachment->CancelAdvertiseName(m_BusAttachment->GetUniqueName().c_str(), TRANSPORT_ANY);
-        (void)status;
         QCC_DbgHLPrintf(("CancelAdvertiseName for %s = %s", m_BusAttachment->GetUniqueName().c_str(), QCC_StatusText(status)));
         (void)status;  // Suppress unused warning from G++ when building is release mode.
     }
@@ -615,7 +628,7 @@ void OnboardingControllerImpl::CancelAdvertise()
 
 static int execute_system(const char* cmd)
 {
-    QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
 #ifdef _OPEN_WRT_
     if (!cmd) {

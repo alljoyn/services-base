@@ -219,7 +219,7 @@ class OnboardingControllerImpl : public ajn::services::OnboardingControllerAPI {
      */
     static void* ScanWifiThread(void* context);
 
-#ifndef _WIN32
+#if !(defined(QCC_OS_WINDOWS) || defined(QCC_OS_DARWIN))
     /**
      * Method that starts a timer to stop scan wifi if it takes too long
      */

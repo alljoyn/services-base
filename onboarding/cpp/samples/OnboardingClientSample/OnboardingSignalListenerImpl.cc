@@ -16,20 +16,27 @@
 
 #include "OnboardingSignalListenerImpl.h"
 #include <iostream>
+#include <qcc/Debug.h>
 
+#define QCC_MODULE "ONBOARD"
 
 
 OnboardingSignalListenerImpl::OnboardingSignalListenerImpl()
 {
+    QCC_DbgTrace(("%s", __FUNCTION__));
 }
 
 OnboardingSignalListenerImpl::~OnboardingSignalListenerImpl()
 {
+    QCC_DbgTrace(("%s", __FUNCTION__));
 }
 
 
 void OnboardingSignalListenerImpl::ConnectionResultSignalReceived(short connectionResultCode, const qcc::String& connectionResultMessage)
 {
-    std::cout << "connectionResultCode=" << connectionResultCode << std::endl;
-    std::cout << "connectionResultMessage=" << connectionResultMessage.c_str() << std::endl;
+    QCC_UNUSED(connectionResultCode);
+    QCC_UNUSED(connectionResultMessage);
+
+    QCC_DbgTrace(("%s", __FUNCTION__));
+    QCC_DbgHLPrintf(("code = %d, message = %s", connectionResultCode, connectionResultMessage.c_str()));
 }
