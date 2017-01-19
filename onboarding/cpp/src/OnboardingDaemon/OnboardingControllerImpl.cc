@@ -91,7 +91,7 @@ OnboardingControllerImpl::OnboardingControllerImpl(qcc::String scanFile,
     m_scanCmd(scanCmd),
     m_concurrency(concurrency),
     m_scanWifiThreadIsRunning(false)
-#if !(defined(QCC_OS_WINDOWS) || defined(QCC_OS_DARWIN))
+#if !(defined(QCC_OS_GROUP_WINDOWS) || defined(QCC_OS_DARWIN))
     , m_scanTimerId(0)
 #endif
 {
@@ -121,7 +121,7 @@ OnboardingControllerImpl::~OnboardingControllerImpl()
 {
     QCC_DbgTrace(("%s", __FUNCTION__));
 
-#if !(defined(QCC_OS_WINDOWS) || defined(QCC_OS_DARWIN))
+#if !(defined(QCC_OS_GROUP_WINDOWS) || defined(QCC_OS_DARWIN))
     if (m_scanTimerId) {
         timer_delete(m_scanTimerId);
         m_scanTimerId = 0;
@@ -425,7 +425,7 @@ void OnboardingControllerImpl::ParseScanInfo()
     scanFile.close();
 }
 
-#if !(defined(QCC_OS_WINDOWS) || defined(QCC_OS_DARWIN))
+#if !(defined(QCC_OS_GROUP_WINDOWS) || defined(QCC_OS_DARWIN))
 void OnboardingControllerImpl::StartScanWifiTimer()
 {
     QCC_DbgHLPrintf(("entered %s", __FUNCTION__));
@@ -473,7 +473,7 @@ void OnboardingControllerImpl::StartScanWifi()
 
     m_scanWifiThreadIsRunning = true;
     execute_system(m_scanCmd.c_str());
-#if !(defined(QCC_OS_WINDOWS) || defined(QCC_OS_DARWIN))
+#if !(defined(QCC_OS_GROUP_WINDOWS) || defined(QCC_OS_DARWIN))
     if (m_scanTimerId) {
         timer_delete(m_scanTimerId);
         m_scanTimerId = 0;
@@ -517,7 +517,7 @@ void OnboardingControllerImpl::GetScanInfo(unsigned short& age, OBScanInfo*& sca
 
     // Spawn a thread to scan the wifi and update the wifi_scan_results
     if (!m_scanWifiThreadIsRunning) {
-#if defined(QCC_OS_WINDOWS)
+#if defined(QCC_OS_GROUP_WINDOWS)
         m_scanWifiThread = reinterpret_cast<HANDLE>(_beginthreadex(NULL, 256 * 1024, (unsigned int (__stdcall*)(void*))ScanWifiThread, this, 0, NULL));
         CloseHandle(m_scanWifiThread);
 #elif !defined(QCC_OS_DARWIN)
