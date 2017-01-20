@@ -14,6 +14,11 @@
  *    OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  ******************************************************************************/
 
+#ifdef _WIN32
+/* Disable deprecation warnings */
+#pragma warning(disable: 4996)
+#endif
+
 #include <stdio.h>
 #include <signal.h>
 #include <fstream>
@@ -52,11 +57,6 @@
 
 
 #define QCC_MODULE "ONBOARD"
-
-#ifdef _WIN32
-/* Disable deprecation warnings */
-#pragma warning(disable: 4996)
-#endif
 
 using namespace ajn;
 using namespace services;
