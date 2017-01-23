@@ -100,6 +100,9 @@ else:
 #       warning it is best to prefix data member names with "m_".
 env.Append(CXXFLAGS=['/wd4244', '/wd4267','/wd4345', '/wd4355', '/wd4800', '/wd4351', '/wd4146', '/wd4456', '/wd4457', '/wd4458'])
 
+if env['MSVC_VERSION'] < '14.0':
+    env.Append(CXXFLAGS=['/wd4512'])
+
 env.Append(CFLAGS=['/nologo'])
 env.Append(CXXFLAGS=['/nologo'])
 
