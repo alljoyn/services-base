@@ -106,7 +106,7 @@ QStatus CertificateUtil::IssueCertificate(const Crypto_ECC& issuerKeyPair,
                                   const String& issuerCN,
                                   CertificateX509& cert)
 {
-    std::cout << "IssueCertificate. issuer CN: " << issuerCN << std::endl;
+    std::cout << "IssueCertificate. issuer CN: " << issuerCN.c_str() << std::endl;
 
     cert.SetIssuerCN((const uint8_t*)issuerCN.c_str(), issuerCN.length());
 
@@ -123,7 +123,7 @@ QStatus CertificateUtil::IssueCertificate(const Crypto_ECC& issuerKeyPair,
 
 QStatus CertificateUtil::GenerateCA(const Crypto_ECC& caKeyPair, const String& caCN, CertificateX509& cert)
 {
-    std::cout << "GenerateCA. CN: " << caCN << std::endl;
+    std::cout << "GenerateCA. CN: " << caCN.c_str() << std::endl;
     cert.SetCA(true);
 
     QStatus status = GenerateCertificate(caCN, caKeyPair.GetDSAPublicKey(), 365 * 10, cert);
@@ -147,7 +147,7 @@ QStatus CertificateUtil::GenerateCertificate(const String& subjectCN,
                                      CertificateX509& cert)
 {
     QStatus status = ER_OK;
-    std::cout << "GenerateCertificate. subject CN: " << subjectCN << std::endl;
+    std::cout << "GenerateCertificate. subject CN: " << subjectCN.c_str() << std::endl;
 
     if (!subjectPublicKey) {
         return ER_BAD_ARG_2;

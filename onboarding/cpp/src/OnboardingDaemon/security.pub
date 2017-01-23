@@ -1,0 +1,67 @@
+root
+    # AllJoyn ECDHE Sample Unused Certificate Authority
+    #
+    # This is included to demonstrate having more than one trusted root, but as the
+    # name implies, it doesn't issue any certificates in this sample.
+
+    -----BEGIN CERTIFICATE-----
+    MIIBijCCATCgAwIBAgIUVSjE1Fv/6jP30BfkRXmSoA8sEkIwCgYIKoZIzj0EAwIw
+    PDE6MDgGA1UEAwwxQWxsSm95biBFQ0RIRSBTYW1wbGUgVW51c2VkIENlcnRpZmlj
+    YXRlIEF1dGhvcml0eTAeFw0xNTA1MDcxNzE0MDdaFw0yNTA1MDQxNzE0MDdaMDwx
+    OjA4BgNVBAMMMUFsbEpveW4gRUNESEUgU2FtcGxlIFVudXNlZCBDZXJ0aWZpY2F0
+    ZSBBdXRob3JpdHkwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAS7SmQ19lKjLo2C
+    yyqubmHPRNAo8Eo/i300UWhNAkurVy/WJ3zFMxYNwJeenZ46qJsYb4faZp3iuXF7
+    mllsClzjoxAwDjAMBgNVHRMEBTADAQH/MAoGCCqGSM49BAMCA0gAMEUCIQD/zB3n
+    0+gxUHOdZZadDfLQjMuFxR3LMzUqdBbYZudOGwIgKPT2KYGTW7P/H1hIM6wAyHBB
+    lBOnPXqXjFLodiM+8zM=
+    -----END CERTIFICATE-----
+
+    # AllJoyn ECDHE Sample Certificate Authority
+    #
+    # This CA issued the certificates used for the Client and Service in this sample.
+
+    -----BEGIN CERTIFICATE-----
+    MIIBnzCCAUWgAwIBAgIUdcyHkQndQDgjP2XnhmP43Kak/GAwCgYIKoZIzj0EAwIw
+    NTEzMDEGA1UEAwwqQWxsSm95biBFQ0RIRSBTYW1wbGUgQ2VydGlmaWNhdGUgQXV0
+    aG9yaXR5MB4XDTE1MDkxMjAyMTYzOFoXDTI1MDkwOTAyMTYzOFowNTEzMDEGA1UE
+    AwwqQWxsSm95biBFQ0RIRSBTYW1wbGUgQ2VydGlmaWNhdGUgQXV0aG9yaXR5MFkw
+    EwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEhUADDEGG1bvJ4qDDodD2maFmENFSEmhQ
+    hvP4iJ82WT7XrhIx/L/XIZo9wKnwNsHJusLVXXMKjyUwcPuVpYU7JqMzMDEwDAYD
+    VR0TBAUwAwEB/zAhBgNVHSUEGjAYBgorBgEEAYLefAEBBgorBgEEAYLefAEFMAoG
+    CCqGSM49BAMCA0gAMEUCIAWutM+O60m/awMwJvQXHVGXq+z+6nac4KRLDT5OXqn1
+    AiEAq/NwQWXJ/FYHBxVOXrKxGZXTFoBiudw9+konMAu1MaE=
+    -----END CERTIFICATE-----
+
+identity
+
+    # This chain is the service's certificate first followed by the CA's certificate.  This is not
+    # an array of strings; it is one single string with the certificates concatenated together.
+    # 
+    # A common optimization is to omit the trusted root from the chain, and only send the end entity
+    # and any intermediate CAs, as presenting it to the remote peer is not necessary; if the remote
+    # peer trusts the root, it already has the root's certificate to check.  It is included here for
+    # demonstrative purposes.
+
+    -----BEGIN CERTIFICATE-----
+    MIIBgDCCASegAwIBAgIUaWYhK64WMTXX2P7Mx9+jPS8nM/IwCgYIKoZIzj0EAwIw
+    NTEzMDEGA1UEAwwqQWxsSm95biBFQ0RIRSBTYW1wbGUgQ2VydGlmaWNhdGUgQXV0
+    aG9yaXR5MB4XDTE1MDkxMjAyMjAzNVoXDTIwMDkxMDAyMjAzNVowJjEkMCIGA1UE
+    AwwbQWxsSm95biBFQ0RIRSBTYW1wbGUgU2VydmVyMFkwEwYHKoZIzj0CAQYIKoZI
+    zj0DAQcDQgAEDbQwLViVEHKnNwZ8DQJHIVoLohH4cInElLJ2DC73+eT8Y3Se2bMv
+    yMFE70OovRyLnC53conK2WqIOQAOp92saKMkMCIwCQYDVR0TBAIwADAVBgNVHSUE
+    DjAMBgorBgEEAYLefAEBMAoGCCqGSM49BAMCA0cAMEQCIHDb8SVrYon3EYaf6U57
+    d+xcBtr4kAN8GXSrQ3zuVgGSAiB2o+faXMa6O3Ae5+dB3kPOVMiOFg3WryPgYEzb
+    PN/PTg==
+    -----END CERTIFICATE-----
+
+    -----BEGIN CERTIFICATE-----
+    MIIBnzCCAUWgAwIBAgIUdcyHkQndQDgjP2XnhmP43Kak/GAwCgYIKoZIzj0EAwIw
+    NTEzMDEGA1UEAwwqQWxsSm95biBFQ0RIRSBTYW1wbGUgQ2VydGlmaWNhdGUgQXV0
+    aG9yaXR5MB4XDTE1MDkxMjAyMTYzOFoXDTI1MDkwOTAyMTYzOFowNTEzMDEGA1UE
+    AwwqQWxsSm95biBFQ0RIRSBTYW1wbGUgQ2VydGlmaWNhdGUgQXV0aG9yaXR5MFkw
+    EwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEhUADDEGG1bvJ4qDDodD2maFmENFSEmhQ
+    hvP4iJ82WT7XrhIx/L/XIZo9wKnwNsHJusLVXXMKjyUwcPuVpYU7JqMzMDEwDAYD
+    VR0TBAUwAwEB/zAhBgNVHSUEGjAYBgorBgEEAYLefAEBBgorBgEEAYLefAEFMAoG
+    CCqGSM49BAMCA0gAMEUCIAWutM+O60m/awMwJvQXHVGXq+z+6nac4KRLDT5OXqn1
+    AiEAq/NwQWXJ/FYHBxVOXrKxGZXTFoBiudw9+konMAu1MaE=
+    -----END CERTIFICATE-----

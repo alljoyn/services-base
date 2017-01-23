@@ -21,6 +21,9 @@
 
 #include "ConfigServiceListenerImpl.h"
 #include <iostream>
+#include <qcc/Debug.h>
+
+#define QCC_MODULE "ONBOARD"
 
 using namespace ajn;
 using namespace services;
@@ -33,30 +36,30 @@ ConfigServiceListenerImpl::ConfigServiceListenerImpl(AboutDataStore& store, BusA
 
 QStatus ConfigServiceListenerImpl::Restart()
 {
-    std::cout << "Restart has been called !!!" << std::endl;
+    QCC_DbgTrace(("Restart()"));
     return ER_OK;
 }
 
 QStatus ConfigServiceListenerImpl::FactoryReset()
 {
-    std::cout << "FactoryReset has been called!!!" << std::endl;
+    QCC_DbgTrace(("%s", __FUNCTION__));
+
     m_AboutDataStore->FactoryReset();
-    std::cout << "Clearing Key Store" << std::endl;
+    QCC_DbgHLPrintf(("Clearing Keystore..."));
     m_Bus->ClearKeyStore();
-    std::cout << "Calling Offboard" << std::endl;
+    QCC_DbgHLPrintf(("Offboarding..."));
     m_OnboardingController->Offboard();
     return ER_OK;
 }
 
 QStatus ConfigServiceListenerImpl::SetPassphrase(const char* daemonRealm, size_t passcodeSize, const char* passcode, ajn::SessionId sessionId)
 {
-    qcc::String passCodeString(passcode, passcodeSize);
-    std::cout << "SetPassphrase has been called daemonRealm=" << daemonRealm << " passcode="
-              << passCodeString.c_str() << " passcodeLength=" << passcodeSize << std::endl;
+    QCC_DbgTrace(("%s", __FUNCTION__));
 
+    qcc::String passCodeString(passcode, passcodeSize);
     PersistPassword(daemonRealm, passCodeString.c_str());
 
-    std::cout << "Clearing Key Store" << std::endl;
+    QCC_DbgHLPrintf(("Clearing Keystore..."));
     m_Bus->ClearKeyStore();
     m_Bus->EnableConcurrentCallbacks();
 
@@ -65,8 +68,8 @@ QStatus ConfigServiceListenerImpl::SetPassphrase(const char* daemonRealm, size_t
         if (sessionIds[i] == sessionId) {
             continue;
         }
+        QCC_DbgHLPrintf(("Leaving session %X", sessionIds[i]));
         m_Bus->LeaveSession(sessionIds[i]);
-        std::cout << "Leaving session with id: " << sessionIds[i];
     }
     m_AboutDataStore->write();
     return ER_OK;
@@ -78,6 +81,8 @@ ConfigServiceListenerImpl::~ConfigServiceListenerImpl()
 
 void ConfigServiceListenerImpl::PersistPassword(const char* daemonRealm, const char* passcode)
 {
+    QCC_DbgTrace(("%s", __FUNCTION__));
+
     ajn::MsgArg argPasscode;
     ajn::MsgArg argDaemonrealm;
     argPasscode.Set("s", passcode);
